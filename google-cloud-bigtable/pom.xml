@@ -11,8 +11,8 @@
   </description>
   <parent>
     <groupId>com.google.cloud</groupId>
-    <artifactId>google-cloud-clients</artifactId>
-    <version>0.111.1-alpha-SNAPSHOT</version><!-- {x-version-update:google-cloud-clients:current} -->
+    <artifactId>google-cloud-bigtable-parent</artifactId>
+    <version>1.0.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <site.installationModule>google-cloud-bigtable</site.installationModule>
@@ -89,11 +89,6 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-testing</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-conformance-tests</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
