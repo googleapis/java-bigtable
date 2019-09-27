@@ -30,6 +30,12 @@ def main():
 
   java.format_code('src')
 
+  common_templates = gcp.CommonTemplates()
+  templates = common_templates.java_library()
+  s.copy(templates, excludes=[
+    '.gitignore',
+    'README.md',
+  ])
 
 def generate_data_api(gapic):
   library = gapic.java_library(
