@@ -5,14 +5,14 @@
   <version>1.0.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable</name>
-  <url>https://github.com/googleapis/google-cloud-java/tree/master/google-cloud-clients/google-cloud-bigtable</url>
+  <url>https://github.com/googleapis/java-bigtable/tree/master/google-cloud-clients/google-cloud-bigtable</url>
   <description>
     Java idiomatic client for Google Cloud Bigtable.
   </description>
   <parent>
     <groupId>com.google.cloud</groupId>
-    <artifactId>google-cloud-clients</artifactId>
-    <version>0.111.1-alpha-SNAPSHOT</version><!-- {x-version-update:google-cloud-clients:current} -->
+    <artifactId>google-cloud-bigtable-parent</artifactId>
+    <version>1.0.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <site.installationModule>google-cloud-bigtable</site.installationModule>
@@ -41,11 +41,11 @@
     </dependency>
 
     <!-- // TODO(igorbernstein): Enable grpc views once we upgrade to grpc-java 1.24.0 -->
-<!--    <dependency>-->
-<!--      <groupId>io.opencensus</groupId>-->
-<!--      <artifactId>opencensus-contrib-grpc-metrics</artifactId>-->
-<!--      <version>${opencensus.version}</version>-->
-<!--    </dependency>-->
+    <!--    <dependency>-->
+    <!--      <groupId>io.opencensus</groupId>-->
+    <!--      <artifactId>opencensus-contrib-grpc-metrics</artifactId>-->
+    <!--      <version>${opencensus.version}</version>-->
+    <!--    </dependency>-->
 
     <!-- Test dependencies -->
     <dependency>
@@ -89,11 +89,6 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-testing</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.cloud</groupId>
-      <artifactId>google-cloud-conformance-tests</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
