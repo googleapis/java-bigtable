@@ -72,7 +72,7 @@
       <plugin>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-gcloud-maven-plugin</artifactId>
-        <version>0.111.0-alpha</version><!-- {x-version-update:google-cloud-gcloud-maven-plugin:current} -->
+        <version>0.1.0</version>
 
         <executions>
           <execution>
@@ -129,7 +129,7 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bom</artifactId>
-        <version>0.111.0-alpha</version><!-- {x-version-update:google-cloud-bom:current} -->
+        <version>0.111.0-alpha</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
