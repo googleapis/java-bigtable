@@ -40,12 +40,11 @@
       <artifactId>opencensus-api</artifactId>
     </dependency>
 
-    <!-- // TODO(igorbernstein): Enable grpc views once we upgrade to grpc-java 1.24.0 -->
-<!--    <dependency>-->
-<!--      <groupId>io.opencensus</groupId>-->
-<!--      <artifactId>opencensus-contrib-grpc-metrics</artifactId>-->
-<!--      <version>${opencensus.version}</version>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>io.opencensus</groupId>
+      <artifactId>opencensus-contrib-grpc-metrics</artifactId>
+      <version>${opencensus.version}</version>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
