@@ -42,6 +42,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.threeten.bp.Duration;
 
@@ -74,9 +75,17 @@ import org.threeten.bp.Duration;
  * }</pre>
  */
 public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableStubSettings> {
+  private static final Logger logger = Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
+
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
+
+  // TODO(igorbernstein2): Remove this once DirectPath goes to public beta
+  // Temporary endpoint for the DirectPath private alpha
+  private static final String DIRECT_PATH_ENV_VAR = "GOOGLE_CLOUD_ENABLE_DIRECT_PATH";
+  private static final String DIRECT_PATH_ENDPOINT = "directpath-bigtable.googleapis.com:443";
+  private static final String DIRECT_PATH_SYS_PROP = "io.grpc.internal.DnsNameResolverProvider.enable_grpclb";
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
@@ -132,6 +141,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
+
+    if (DIRECT_PATH_ENDPOINT.equals(builder.getEndpoint())) {
+      logger.warning("Using connecting to Bigtable using DirectPath."
+          + " This is currently an experimental feature and should not be used in production.");
+
+      if (!"true".equals(System.getProperty(DIRECT_PATH_SYS_PROP))) {
+        logger.severe(
+            "Can't enable DirectPath without grpclb, the system property " + DIRECT_PATH_SYS_PROP
+                + " must be set to true");
+      }
+    }
 
     // Since point reads & streaming reads share the same base callable that converts grpc errors
     // into ApiExceptions, they must have the same retry codes.
@@ -404,7 +424,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
-      setEndpoint(baseDefaults.getEndpoint());
+      // TODO(igorbernstein): remove this once DirectPath goes to public Beta and uses the default endpoint.
+      if (isDirectPathEnabled()) {
+        setEndpoint(DIRECT_PATH_ENDPOINT);
+      } else {
+        setEndpoint(baseDefaults.getEndpoint());
+      }
+
       setTransportChannelProvider(defaultTransportChannelProvider());
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
@@ -502,6 +528,22 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         UnaryCallSettings.Builder<?, ?> source, UnaryCallSettings.Builder<?, ?> dest) {
       dest.setRetryableCodes(source.getRetryableCodes());
       dest.setRetrySettings(source.getRetrySettings());
+    }
+
+    // TODO(igorbernstein): Remove this once DirectPath goes to public beta
+    // Extracted from InstantiatingGrpcChannelProvider#isDirectPathEnabled
+    private static boolean isDirectPathEnabled() {
+      String whiteList = System.getenv(DIRECT_PATH_ENV_VAR);
+      if (whiteList == null) {
+        return false;
+      }
+
+      for (String service : whiteList.split(",")) {
+        if (!service.isEmpty() && DIRECT_PATH_ENDPOINT.contains(service)) {
+          return true;
+        }
+      }
+      return false;
     }
     // </editor-fold>
 
