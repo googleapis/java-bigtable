@@ -15,7 +15,7 @@
 
 set -eo pipefail
 
-cd github//
+cd github/java-bigtable/
 
 # Print out Java
 java -version

@@ -17,7 +17,7 @@ set -eo pipefail
 # Display commands being run.
 set -x
 
-cd github//
+cd github/java-bigtable/
 
 # Print out Java version
 java -version
