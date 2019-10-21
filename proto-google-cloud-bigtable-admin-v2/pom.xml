@@ -14,14 +14,13 @@
   </parent>
   <dependencies>
     <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>api-common</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
     </dependency>
     <dependency>
       <groupId>com.google.api.grpc</groupId>
@@ -34,8 +33,9 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
