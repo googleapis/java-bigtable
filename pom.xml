@@ -305,6 +305,7 @@
                 <version>1.18</version>
             </dependency>
         </dependencies>
+
     </dependencyManagement>
 
     <build>
