@@ -314,6 +314,8 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <configuration>
+                        <ignoredUnusedDeclaredDependencies>io.grpc:grpc-grpclb</ignoredUnusedDeclaredDependencies>
+                        <ignoredUnusedDeclaredDependencies>io.grpc:grpc-auth</ignoredUnusedDeclaredDependencies>
                         <ignoredUnusedDeclaredDependencies>org.objenesis:objenesis</ignoredUnusedDeclaredDependencies>
                     </configuration>
                 </plugin>
