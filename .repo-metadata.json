@@ -8,6 +8,6 @@
   "language": "java",
   "repo": "googleapis/java-bigtable",
   "repo_short": "java-bigtable",
-  "distribution_name": "google-cloud-bigtable",
+  "distribution_name": "com.google.cloud:google-cloud-bigtable",
   "api_id": "bigtable.googleapis.com"
 }
