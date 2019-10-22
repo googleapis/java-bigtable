@@ -75,7 +75,8 @@ import org.threeten.bp.Duration;
  * }</pre>
  */
 public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableStubSettings> {
-  private static final Logger logger = Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
+  private static final Logger logger =
+      Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
 
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
@@ -85,7 +86,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // Temporary endpoint for the DirectPath private alpha
   private static final String DIRECT_PATH_ENV_VAR = "GOOGLE_CLOUD_ENABLE_DIRECT_PATH";
   private static final String DIRECT_PATH_ENDPOINT = "directpath-bigtable.googleapis.com:443";
-  private static final String DIRECT_PATH_SYS_PROP = "io.grpc.internal.DnsNameResolverProvider.enable_grpclb";
+  private static final String DIRECT_PATH_SYS_PROP =
+      "io.grpc.internal.DnsNameResolverProvider.enable_grpclb";
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
@@ -143,12 +145,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     super(builder);
 
     if (DIRECT_PATH_ENDPOINT.equals(builder.getEndpoint())) {
-      logger.warning("Using connecting to Bigtable using DirectPath."
-          + " This is currently an experimental feature and should not be used in production.");
+      logger.warning(
+          "Using connecting to Bigtable using DirectPath."
+              + " This is currently an experimental feature and should not be used in production.");
 
       if (!"true".equals(System.getProperty(DIRECT_PATH_SYS_PROP))) {
         logger.severe(
-            "Can't enable DirectPath without grpclb, the system property " + DIRECT_PATH_SYS_PROP
+            "Can't enable DirectPath without grpclb, the system property "
+                + DIRECT_PATH_SYS_PROP
                 + " must be set to true");
       }
     }
@@ -424,7 +428,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
-      // TODO(igorbernstein): remove this once DirectPath goes to public Beta and uses the default endpoint.
+      // TODO(igorbernstein): remove this once DirectPath goes to public Beta and uses the default
+      // endpoint.
       if (isDirectPathEnabled()) {
         setEndpoint(DIRECT_PATH_ENDPOINT);
       } else {
