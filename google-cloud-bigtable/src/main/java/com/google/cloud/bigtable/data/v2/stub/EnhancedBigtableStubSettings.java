@@ -86,8 +86,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // Temporary endpoint for the DirectPath private alpha
   private static final String DIRECT_PATH_ENV_VAR = "GOOGLE_CLOUD_ENABLE_DIRECT_PATH";
   private static final String DIRECT_PATH_ENDPOINT = "directpath-bigtable.googleapis.com:443";
-  private static final String DIRECT_PATH_SYS_PROP =
-      "io.grpc.internal.DnsNameResolverProvider.enable_grpclb";
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
@@ -148,13 +146,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       logger.warning(
           "Using connecting to Bigtable using DirectPath."
               + " This is currently an experimental feature and should not be used in production.");
-
-      if (!"true".equals(System.getProperty(DIRECT_PATH_SYS_PROP))) {
-        logger.severe(
-            "Can't enable DirectPath without grpclb, the system property "
-                + DIRECT_PATH_SYS_PROP
-                + " must be set to true");
-      }
     }
 
     // Since point reads & streaming reads share the same base callable that converts grpc errors
