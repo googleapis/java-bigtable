@@ -144,7 +144,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     if (DIRECT_PATH_ENDPOINT.equals(builder.getEndpoint())) {
       logger.warning(
-          "Using connecting to Bigtable using DirectPath."
+          "Connecting to Bigtable using DirectPath."
               + " This is currently an experimental feature and should not be used in production.");
     }
 
