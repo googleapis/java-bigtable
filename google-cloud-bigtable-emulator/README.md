@@ -43,19 +43,6 @@ If you are using Maven, add this to your pom.xml file
 </dependencies>
 ```
 
-If you are using Gradle, add this to your dependencies
-```Groovy
-compile 'com.google.cloud:google-cloud-bigtable:0.114.0-alpha'
-testCompile 'com.google.cloud:google-cloud-bigtable-emulator:0.114.0-alpha'
-testCompile 'junit:junit:4.12'
-```
-If you are using SBT, add this to your dependencies
-```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "0.116.0-alpha"
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable-emulator" % "0.116.0-alpha" % Test
-libraryDependencies += "junit" % "junit" % "4.12" % Test
-```
-[//]: # ({x-version-update-end})
 
 ## Getting Started
 
