@@ -303,20 +303,16 @@
               <version>0.0.1</version>
               <exclusions>
                 <!--
-                The protos for bigtable are already included in the classpath
-                as the declared dependency above. Exclude it here.
+                * The protos for bigtable are already included in the classpath
+                  as the declared dependency above. Exclude it here.
+                * Exclude the firestore protos to prevent creating a dependency
+                  diamond with any transitive dependencies.
+                * Exclude protobuf-java to prefer the version declared here
+                  in the project.
                 -->
                 <exclusion>
-                  <groupId>com.google.api.grpc</groupId>
-                  <artifactId>proto-google-cloud-bigtable-v2</artifactId>
-                </exclusion>
-                <!--
-                Exclude the firestore protos to prevent creating a dependency
-                diamond with protobuf.
-                -->
-                <exclusion>
-                  <groupId>com.google.api.grpc</groupId>
-                  <artifactId>proto-google-cloud-firestore-v1</artifactId>
+                  <groupId>*</groupId>
+                  <artifactId>*</artifactId>
                 </exclusion>
               </exclusions>
             </dependency>
