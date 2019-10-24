@@ -364,6 +364,9 @@
                         <!-- Explicitly set the source directory to avoid running checkstyle on generated sources. -->
                         <sourceDirectory>src/main/java</sourceDirectory>
                       </sourceDirectories>
+                      <testSourceDirectories>
+                        <testSourceDirectory>src/test/java</testSourceDirectory>
+                      </testSourceDirectories>
                     </configuration>
                   </plugin>
 
