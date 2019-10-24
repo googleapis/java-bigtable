@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-shared-config</artifactId>
-        <version>0.1.1</version>
+        <version>0.2.1</version>
     </parent>
 
     <developers>
@@ -354,6 +354,19 @@
                     </annotationProcessorPaths>
                   </configuration>
                 </plugin>
+
+                  <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <configuration>
+                      <sourceDirectories>
+                        <!-- TODO: pull this into google-cloud-shared-config -->
+                        <!-- Explicitly set the source directory to avoid running checkstyle on generated sources. -->
+                        <sourceDirectory>src/main/java</sourceDirectory>
+                      </sourceDirectories>
+                    </configuration>
+                  </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
