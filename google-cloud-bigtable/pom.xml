@@ -232,7 +232,7 @@
                 </goals>
                 <configuration>
                   <systemPropertyVariables>
-                    <bigtable.env>prod</bigtable.env>
+                    <bigtable.env>cloud</bigtable.env>
                   </systemPropertyVariables>
                   <test>com.google.cloud.bigtable.data.v2.it.**</test>
                   <test>com.google.cloud.bigtable.admin.v2.it.**</test>
@@ -260,7 +260,7 @@
                 </goals>
                 <configuration>
                   <systemPropertyVariables>
-                    <bigtable.env>prod</bigtable.env>
+                    <bigtable.env>cloud</bigtable.env>
                     <!-- TODO(igorbernstein): This property should be auto set by gax -->
                     <io.grpc.internal.DnsNameResolverProvider.enable_grpclb>true</io.grpc.internal.DnsNameResolverProvider.enable_grpclb>
 

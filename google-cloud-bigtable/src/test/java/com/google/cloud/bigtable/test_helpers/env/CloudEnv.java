@@ -35,7 +35,7 @@ import javax.annotation.Nullable;
  *   <li>{@code bigtable.table}
  * </ul>
  */
-class ProdEnv extends AbstractTestEnv {
+class CloudEnv extends AbstractTestEnv {
   private static final String DATA_ENDPOINT_PROPERTY_NAME = "bigtable.data-endpoint";
   private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.admin-endpoint";
 
@@ -55,16 +55,16 @@ class ProdEnv extends AbstractTestEnv {
   private BigtableTableAdminClient tableAdminClient;
   private BigtableInstanceAdminClient instanceAdminClient;
 
-  static ProdEnv fromSystemProperties() {
-    return new ProdEnv(
-        getOptionalProperty(DATA_ENDPOINT_PROPERTY_NAME, "bigtable.googleapis.com"),
-        getOptionalProperty(ADMIN_ENDPOINT_PROPERTY_NAME, "bigtableadmin.googleapis.com"),
+  static CloudEnv fromSystemProperties() {
+    return new CloudEnv(
+        getOptionalProperty(DATA_ENDPOINT_PROPERTY_NAME, "bigtable.googleapis.com:443"),
+        getOptionalProperty(ADMIN_ENDPOINT_PROPERTY_NAME, "bigtableadmin.googleapis.com:443"),
         getRequiredProperty(PROJECT_PROPERTY_NAME),
         getRequiredProperty(INSTANCE_PROPERTY_NAME),
         getRequiredProperty(TABLE_PROPERTY_NAME));
   }
 
-  private ProdEnv(
+  private CloudEnv(
       @Nullable String dataEndpoint,
       @Nullable String adminEndpoint,
       String projectId,
