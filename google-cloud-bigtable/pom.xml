@@ -266,8 +266,8 @@
 
                     <!-- TODO(igorbernstein): Remove overrides once the prod DirectPath endpoint is available. -->
                     <!-- Use test env until the prod endpoint is available -->
-                    <bigtable.data-endpoint>testdirectpath-bigtable.sandbox.googleapis.com</bigtable.data-endpoint>
-                    <bigtable.admin-endpoint>test-bigtableadmin.sandbox.googleapis.com</bigtable.admin-endpoint>
+                    <bigtable.data-endpoint>testdirectpath-bigtable.sandbox.googleapis.com:443</bigtable.data-endpoint>
+                    <bigtable.admin-endpoint>test-bigtableadmin.sandbox.googleapis.com:443</bigtable.admin-endpoint>
                   </systemPropertyVariables>
                   <!-- Enable directpath for bigtable -->
                   <environmentVariables>
