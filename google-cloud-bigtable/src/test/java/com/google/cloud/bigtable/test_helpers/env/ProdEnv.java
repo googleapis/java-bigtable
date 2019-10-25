@@ -39,7 +39,6 @@ class ProdEnv extends AbstractTestEnv {
   private static final String DATA_ENDPOINT_PROPERTY_NAME = "bigtable.data-endpoint";
   private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.admin-endpoint";
 
-
   private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
   private static final String INSTANCE_PROPERTY_NAME = "bigtable.instance";
   private static final String TABLE_PROPERTY_NAME = "bigtable.table";
@@ -65,7 +64,12 @@ class ProdEnv extends AbstractTestEnv {
         getRequiredProperty(TABLE_PROPERTY_NAME));
   }
 
-  private ProdEnv(@Nullable String dataEndpoint, @Nullable String adminEndpoint, String projectId, String instanceId, String tableId) {
+  private ProdEnv(
+      @Nullable String dataEndpoint,
+      @Nullable String adminEndpoint,
+      String projectId,
+      String instanceId,
+      String tableId) {
     this.projectId = projectId;
     this.instanceId = instanceId;
     this.tableId = tableId;
@@ -76,15 +80,13 @@ class ProdEnv extends AbstractTestEnv {
       dataSettings.stubSettings().setEndpoint(dataEndpoint);
     }
 
-    this.tableAdminSettings = BigtableTableAdminSettings.newBuilder()
-      .setProjectId(projectId)
-      .setInstanceId(instanceId);
+    this.tableAdminSettings =
+        BigtableTableAdminSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
     if (adminEndpoint != null) {
       this.tableAdminSettings.stubSettings().setEndpoint(adminEndpoint);
     }
 
-    this.instanceAdminSettings = BigtableInstanceAdminSettings.newBuilder()
-        .setProjectId(projectId);
+    this.instanceAdminSettings = BigtableInstanceAdminSettings.newBuilder().setProjectId(projectId);
     if (adminEndpoint != null) {
       this.instanceAdminSettings.stubSettings().setEndpoint(adminEndpoint);
     }
