@@ -16,10 +16,14 @@
 package com.google.cloud.bigtable.test_helpers.env;
 
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
+import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminSettings;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
+import com.google.common.base.MoreObjects;
 import java.io.IOException;
+import javax.annotation.Nullable;
 
 /**
  * Test environment that uses an existing bigtable table. The table must have a pre-existing family
@@ -32,6 +36,10 @@ import java.io.IOException;
  * </ul>
  */
 class ProdEnv extends AbstractTestEnv {
+  private static final String DATA_ENDPOINT_PROPERTY_NAME = "bigtable.data-endpoint";
+  private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.admin-endpoint";
+
+
   private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
   private static final String INSTANCE_PROPERTY_NAME = "bigtable.instance";
   private static final String TABLE_PROPERTY_NAME = "bigtable.table";
@@ -40,7 +48,9 @@ class ProdEnv extends AbstractTestEnv {
   private final String instanceId;
   private final String tableId;
 
-  private final BigtableDataSettings dataSettings;
+  private final BigtableDataSettings.Builder dataSettings;
+  private final BigtableTableAdminSettings.Builder tableAdminSettings;
+  private final BigtableInstanceAdminSettings.Builder instanceAdminSettings;
 
   private BigtableDataClient dataClient;
   private BigtableTableAdminClient tableAdminClient;
@@ -48,29 +58,47 @@ class ProdEnv extends AbstractTestEnv {
 
   static ProdEnv fromSystemProperties() {
     return new ProdEnv(
+        getOptionalProperty(DATA_ENDPOINT_PROPERTY_NAME, "bigtable.googleapis.com"),
+        getOptionalProperty(ADMIN_ENDPOINT_PROPERTY_NAME, "bigtableadmin.googleapis.com"),
         getRequiredProperty(PROJECT_PROPERTY_NAME),
         getRequiredProperty(INSTANCE_PROPERTY_NAME),
         getRequiredProperty(TABLE_PROPERTY_NAME));
   }
 
-  private ProdEnv(String projectId, String instanceId, String tableId) {
+  private ProdEnv(@Nullable String dataEndpoint, @Nullable String adminEndpoint, String projectId, String instanceId, String tableId) {
     this.projectId = projectId;
     this.instanceId = instanceId;
     this.tableId = tableId;
 
     this.dataSettings =
-        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
+        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
+    if (dataEndpoint != null) {
+      dataSettings.stubSettings().setEndpoint(dataEndpoint);
+    }
+
+    this.tableAdminSettings = BigtableTableAdminSettings.newBuilder()
+      .setProjectId(projectId)
+      .setInstanceId(instanceId);
+    if (adminEndpoint != null) {
+      this.tableAdminSettings.stubSettings().setEndpoint(adminEndpoint);
+    }
+
+    this.instanceAdminSettings = BigtableInstanceAdminSettings.newBuilder()
+        .setProjectId(projectId);
+    if (adminEndpoint != null) {
+      this.instanceAdminSettings.stubSettings().setEndpoint(adminEndpoint);
+    }
   }
 
   @Override
   void start() throws IOException {
-    dataClient = BigtableDataClient.create(dataSettings);
-    tableAdminClient = BigtableTableAdminClient.create(projectId, instanceId);
-    instanceAdminClient = BigtableInstanceAdminClient.create(projectId);
+    dataClient = BigtableDataClient.create(dataSettings.build());
+    tableAdminClient = BigtableTableAdminClient.create(tableAdminSettings.build());
+    instanceAdminClient = BigtableInstanceAdminClient.create(instanceAdminSettings.build());
   }
 
   @Override
-  void stop() throws Exception {
+  void stop() {
     dataClient.close();
     tableAdminClient.close();
     instanceAdminClient.close();
@@ -93,7 +121,7 @@ class ProdEnv extends AbstractTestEnv {
 
   @Override
   public BigtableDataSettings getDataClientSettings() {
-    return dataSettings;
+    return dataSettings.build();
   }
 
   @Override
@@ -109,6 +137,10 @@ class ProdEnv extends AbstractTestEnv {
   @Override
   public String getTableId() {
     return tableId;
+  }
+
+  private static String getOptionalProperty(String prop, String defaultValue) {
+    return MoreObjects.firstNonNull(System.getProperty(prop), defaultValue);
   }
 
   private static String getRequiredProperty(String prop) {
