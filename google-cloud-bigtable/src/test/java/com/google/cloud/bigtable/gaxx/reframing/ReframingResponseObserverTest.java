@@ -378,8 +378,7 @@ public class ReframingResponseObserverTest {
 
   /**
    * Test the scenario where the reframer throws an exception on incoming data and the upstream
-   * throws an
-   * exception during cleanup when cancel is called.
+   * throws an exception during cleanup when cancel is called.
    */
   @Test
   public void testFailedRecoveryHandling() {
