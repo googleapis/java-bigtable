@@ -12,8 +12,6 @@ Java idiomatic client for [Cloud Bigtable][cloud-bigtable].
 
 ## Quickstart
 
-WARNING: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
-
 [//]: # ({x-version-update-start:google-cloud-bigtable:released})
 If you are using Maven, add this to your pom.xml file
 ```xml
@@ -163,6 +161,8 @@ try {
   tableAdminClient.close();
 }
 ```
+
+TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
 
 ## OpenCensus Tracing
 
