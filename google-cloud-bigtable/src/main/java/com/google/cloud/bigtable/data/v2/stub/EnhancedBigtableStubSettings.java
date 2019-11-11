@@ -117,7 +117,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setJittered(true)
           .setInitialRpcTimeout(Duration.ofMinutes(5))
           .setRpcTimeoutMultiplier(2.0)
-          .setInitialRpcTimeout(Duration.ofMinutes(5))
+          .setMaxRpcTimeout(Duration.ofMinutes(5))
           .setTotalTimeout(Duration.ofHours(12))
           .build();
 
