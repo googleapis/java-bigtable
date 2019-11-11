@@ -340,42 +340,26 @@
       </plugin>
 
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M3</version>
         <configuration>
           <parallel>classes</parallel>
-          <perCoreThreadCount>true</perCoreThreadCount>
-          <threadCount>2</threadCount>
+          <forkCount>2C</forkCount>
+          <reuseForks>true</reuseForks>
+
           <trimStackTrace>false</trimStackTrace>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-junit47</artifactId>
-            <version>3.0.0-M3</version>
-          </dependency>
-        </dependencies>
       </plugin>
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M3</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-junit47</artifactId>
-            <version>3.0.0-M3</version>
-          </dependency>
-        </dependencies>
 
         <configuration>
+          <parallel>classes</parallel>
+          <forkCount>2C</forkCount>
+          <reuseForks>true</reuseForks>
+
           <!-- enable the ability to skip unit tests, while running integration tests -->
           <skipTests>${skipUnitTests}</skipTests>
-          <!--
-            TODO(igorbernstein): enable parallel tests once the generate client tests use unique
-            names for the mock server
-          -->
           <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
