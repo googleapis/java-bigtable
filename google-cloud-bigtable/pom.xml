@@ -362,10 +362,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
 
         <configuration>
-          <parallel>classes</parallel>
-          <forkCount>2C</forkCount>
-          <reuseForks>true</reuseForks>
-
           <!-- enable the ability to skip unit tests, while running integration tests -->
           <skipTests>${skipUnitTests}</skipTests>
           <trimStackTrace>false</trimStackTrace>
