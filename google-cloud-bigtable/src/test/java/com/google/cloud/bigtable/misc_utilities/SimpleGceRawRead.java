@@ -73,7 +73,7 @@ public class SimpleGceRawRead {
       Iterator<ReadRowsResponse> iter =
           stub.readRows(
               ReadRowsRequest.newBuilder().setTableName(tableName).setRowsLimit(1).build());
-      System.out.printf("%n%n>>>>>>>>> Success %d%n%n", Lists.newArrayList(iter).size());
+      System.out.printf("%n%n>>>>>>>>> Success Rows Read: %d%n%n", Lists.newArrayList(iter).size());
     } finally {
       channel.shutdown();
     }
