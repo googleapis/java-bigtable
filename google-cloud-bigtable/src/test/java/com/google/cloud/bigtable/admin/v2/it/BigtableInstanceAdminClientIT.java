@@ -42,7 +42,8 @@ import org.threeten.bp.Instant;
 
 public class BigtableInstanceAdminClientIT {
 
-  @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+  @ClassRule
+  public static TestEnvRule testEnvRule = new TestEnvRule();
 
   private String instanceId = testEnvRule.env().getInstanceId();
   private BigtableInstanceAdminClient client;
@@ -203,7 +204,8 @@ public class BigtableInstanceAdminClientIT {
       Cluster resizeCluster = client.resizeCluster(instanceId, clusterId, freshNumOfNodes);
       assertThat(resizeCluster.getServeNodes()).isEqualTo(freshNumOfNodes);
 
-      assertThat(client.resizeCluster(instanceId, clusterId, existingClusterNodeSize))
+      assertThat(
+          client.resizeCluster(instanceId, clusterId, existingClusterNodeSize).getServeNodes())
           .isEqualTo(existingClusterNodeSize);
     }
   }
