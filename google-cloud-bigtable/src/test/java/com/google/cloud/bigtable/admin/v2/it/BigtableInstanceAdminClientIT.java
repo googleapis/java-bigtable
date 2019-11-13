@@ -196,7 +196,7 @@ public class BigtableInstanceAdminClientIT {
         targetCluster = cluster;
       }
     }
-    assertWithMessage("Failed to find target cluster id in lsitClusters")
+    assertWithMessage("Failed to find target cluster id in listClusters")
         .that(targetCluster)
         .isNotNull();
 
