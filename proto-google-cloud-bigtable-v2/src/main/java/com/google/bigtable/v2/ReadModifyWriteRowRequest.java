@@ -142,13 +142,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * The unique name of the table to which the read/modify/write rules should be
+   * Required. The unique name of the table to which the read/modify/write rules should be
    * applied.
    * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * </pre>
    *
-   * <code>string table_name = 1;</code>
+   * <code>
+   * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * </code>
    */
   public java.lang.String getTableName() {
     java.lang.Object ref = tableName_;
@@ -165,13 +167,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * The unique name of the table to which the read/modify/write rules should be
+   * Required. The unique name of the table to which the read/modify/write rules should be
    * applied.
    * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * </pre>
    *
-   * <code>string table_name = 1;</code>
+   * <code>
+   * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * </code>
    */
   public com.google.protobuf.ByteString getTableNameBytes() {
     java.lang.Object ref = tableName_;
@@ -236,10 +240,12 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * The key of the row to which the read/modify/write rules should be applied.
+   * Required. The key of the row to which the read/modify/write rules should be applied.
+   * Classified as IDENTIFYING_ID to provide context around data accesses for
+   * auditing systems.
    * </pre>
    *
-   * <code>bytes row_key = 2;</code>
+   * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
    */
   public com.google.protobuf.ByteString getRowKey() {
     return rowKey_;
@@ -251,12 +257,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * Rules specifying how the specified row's contents are to be transformed
+   * Required. Rules specifying how the specified row's contents are to be transformed
    * into writes. Entries are applied in order, meaning that earlier rules will
    * affect the results of later ones.
    * </pre>
    *
-   * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+   * <code>
+   * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+   * </code>
    */
   public java.util.List<com.google.bigtable.v2.ReadModifyWriteRule> getRulesList() {
     return rules_;
@@ -265,12 +273,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * Rules specifying how the specified row's contents are to be transformed
+   * Required. Rules specifying how the specified row's contents are to be transformed
    * into writes. Entries are applied in order, meaning that earlier rules will
    * affect the results of later ones.
    * </pre>
    *
-   * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+   * <code>
+   * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+   * </code>
    */
   public java.util.List<? extends com.google.bigtable.v2.ReadModifyWriteRuleOrBuilder>
       getRulesOrBuilderList() {
@@ -280,12 +290,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * Rules specifying how the specified row's contents are to be transformed
+   * Required. Rules specifying how the specified row's contents are to be transformed
    * into writes. Entries are applied in order, meaning that earlier rules will
    * affect the results of later ones.
    * </pre>
    *
-   * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+   * <code>
+   * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+   * </code>
    */
   public int getRulesCount() {
     return rules_.size();
@@ -294,12 +306,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * Rules specifying how the specified row's contents are to be transformed
+   * Required. Rules specifying how the specified row's contents are to be transformed
    * into writes. Entries are applied in order, meaning that earlier rules will
    * affect the results of later ones.
    * </pre>
    *
-   * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+   * <code>
+   * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+   * </code>
    */
   public com.google.bigtable.v2.ReadModifyWriteRule getRules(int index) {
     return rules_.get(index);
@@ -308,12 +322,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
    *
    *
    * <pre>
-   * Rules specifying how the specified row's contents are to be transformed
+   * Required. Rules specifying how the specified row's contents are to be transformed
    * into writes. Entries are applied in order, meaning that earlier rules will
    * affect the results of later ones.
    * </pre>
    *
-   * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+   * <code>
+   * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+   * </code>
    */
   public com.google.bigtable.v2.ReadModifyWriteRuleOrBuilder getRulesOrBuilder(int index) {
     return rules_.get(index);
@@ -732,13 +748,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The unique name of the table to which the read/modify/write rules should be
+     * Required. The unique name of the table to which the read/modify/write rules should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public java.lang.String getTableName() {
       java.lang.Object ref = tableName_;
@@ -755,13 +773,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The unique name of the table to which the read/modify/write rules should be
+     * Required. The unique name of the table to which the read/modify/write rules should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public com.google.protobuf.ByteString getTableNameBytes() {
       java.lang.Object ref = tableName_;
@@ -778,13 +798,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The unique name of the table to which the read/modify/write rules should be
+     * Required. The unique name of the table to which the read/modify/write rules should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder setTableName(java.lang.String value) {
       if (value == null) {
@@ -799,13 +821,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The unique name of the table to which the read/modify/write rules should be
+     * Required. The unique name of the table to which the read/modify/write rules should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder clearTableName() {
 
@@ -817,13 +841,15 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The unique name of the table to which the read/modify/write rules should be
+     * Required. The unique name of the table to which the read/modify/write rules should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder setTableNameBytes(com.google.protobuf.ByteString value) {
       if (value == null) {
@@ -940,10 +966,12 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The key of the row to which the read/modify/write rules should be applied.
+     * Required. The key of the row to which the read/modify/write rules should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public com.google.protobuf.ByteString getRowKey() {
       return rowKey_;
@@ -952,10 +980,12 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The key of the row to which the read/modify/write rules should be applied.
+     * Required. The key of the row to which the read/modify/write rules should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public Builder setRowKey(com.google.protobuf.ByteString value) {
       if (value == null) {
@@ -970,10 +1000,12 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * The key of the row to which the read/modify/write rules should be applied.
+     * Required. The key of the row to which the read/modify/write rules should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public Builder clearRowKey() {
 
@@ -1002,12 +1034,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public java.util.List<com.google.bigtable.v2.ReadModifyWriteRule> getRulesList() {
       if (rulesBuilder_ == null) {
@@ -1020,12 +1054,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public int getRulesCount() {
       if (rulesBuilder_ == null) {
@@ -1038,12 +1074,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public com.google.bigtable.v2.ReadModifyWriteRule getRules(int index) {
       if (rulesBuilder_ == null) {
@@ -1056,12 +1094,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder setRules(int index, com.google.bigtable.v2.ReadModifyWriteRule value) {
       if (rulesBuilder_ == null) {
@@ -1080,12 +1120,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder setRules(
         int index, com.google.bigtable.v2.ReadModifyWriteRule.Builder builderForValue) {
@@ -1102,12 +1144,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder addRules(com.google.bigtable.v2.ReadModifyWriteRule value) {
       if (rulesBuilder_ == null) {
@@ -1126,12 +1170,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder addRules(int index, com.google.bigtable.v2.ReadModifyWriteRule value) {
       if (rulesBuilder_ == null) {
@@ -1150,12 +1196,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder addRules(com.google.bigtable.v2.ReadModifyWriteRule.Builder builderForValue) {
       if (rulesBuilder_ == null) {
@@ -1171,12 +1219,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder addRules(
         int index, com.google.bigtable.v2.ReadModifyWriteRule.Builder builderForValue) {
@@ -1193,12 +1243,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder addAllRules(
         java.lang.Iterable<? extends com.google.bigtable.v2.ReadModifyWriteRule> values) {
@@ -1215,12 +1267,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder clearRules() {
       if (rulesBuilder_ == null) {
@@ -1236,12 +1290,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public Builder removeRules(int index) {
       if (rulesBuilder_ == null) {
@@ -1257,12 +1313,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public com.google.bigtable.v2.ReadModifyWriteRule.Builder getRulesBuilder(int index) {
       return getRulesFieldBuilder().getBuilder(index);
@@ -1271,12 +1329,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public com.google.bigtable.v2.ReadModifyWriteRuleOrBuilder getRulesOrBuilder(int index) {
       if (rulesBuilder_ == null) {
@@ -1289,12 +1349,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public java.util.List<? extends com.google.bigtable.v2.ReadModifyWriteRuleOrBuilder>
         getRulesOrBuilderList() {
@@ -1308,12 +1370,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public com.google.bigtable.v2.ReadModifyWriteRule.Builder addRulesBuilder() {
       return getRulesFieldBuilder()
@@ -1323,12 +1387,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public com.google.bigtable.v2.ReadModifyWriteRule.Builder addRulesBuilder(int index) {
       return getRulesFieldBuilder()
@@ -1338,12 +1404,14 @@ public final class ReadModifyWriteRowRequest extends com.google.protobuf.Generat
      *
      *
      * <pre>
-     * Rules specifying how the specified row's contents are to be transformed
+     * Required. Rules specifying how the specified row's contents are to be transformed
      * into writes. Entries are applied in order, meaning that earlier rules will
      * affect the results of later ones.
      * </pre>
      *
-     * <code>repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3;</code>
+     * <code>
+     * repeated .google.bigtable.v2.ReadModifyWriteRule rules = 3 [(.google.api.field_behavior) = REQUIRED];
+     * </code>
      */
     public java.util.List<com.google.bigtable.v2.ReadModifyWriteRule.Builder>
         getRulesBuilderList() {

@@ -134,6 +134,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * this CellChunk is a continuation of the same row as the previous
      * CellChunk in the response stream, even if that CellChunk was in a
      * previous ReadRowsResponse message.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
      * <code>bytes row_key = 1;</code>
@@ -561,6 +563,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * this CellChunk is a continuation of the same row as the previous
      * CellChunk in the response stream, even if that CellChunk was in a
      * previous ReadRowsResponse message.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
      * <code>bytes row_key = 1;</code>
@@ -1378,6 +1382,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
@@ -1393,6 +1399,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
@@ -1414,6 +1422,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
@@ -2363,24 +2373,64 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   private int bitField0_;
   public static final int CHUNKS_FIELD_NUMBER = 1;
   private java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> chunks_;
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> getChunksList() {
     return chunks_;
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
       getChunksOrBuilderList() {
     return chunks_;
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public int getChunksCount() {
     return chunks_.size();
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public com.google.bigtable.v2.ReadRowsResponse.CellChunk getChunks(int index) {
     return chunks_.get(index);
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(int index) {
     return chunks_.get(index);
   }
@@ -2797,7 +2847,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
         chunksBuilder_;
 
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> getChunksList() {
       if (chunksBuilder_ == null) {
         return java.util.Collections.unmodifiableList(chunks_);
@@ -2805,7 +2863,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessageList();
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public int getChunksCount() {
       if (chunksBuilder_ == null) {
         return chunks_.size();
@@ -2813,7 +2879,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getCount();
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk getChunks(int index) {
       if (chunksBuilder_ == null) {
         return chunks_.get(index);
@@ -2821,7 +2895,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessage(index);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder setChunks(int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2835,7 +2917,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder setChunks(
         int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2847,7 +2937,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2861,7 +2959,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2875,7 +2981,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(
         com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2887,7 +3001,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(
         int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2899,7 +3021,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addAllChunks(
         java.lang.Iterable<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunk> values) {
       if (chunksBuilder_ == null) {
@@ -2911,7 +3041,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder clearChunks() {
       if (chunksBuilder_ == null) {
         chunks_ = java.util.Collections.emptyList();
@@ -2922,7 +3060,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder removeChunks(int index) {
       if (chunksBuilder_ == null) {
         ensureChunksIsMutable();
@@ -2933,11 +3079,27 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder getChunksBuilder(int index) {
       return getChunksFieldBuilder().getBuilder(index);
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(
         int index) {
       if (chunksBuilder_ == null) {
@@ -2946,7 +3108,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessageOrBuilder(index);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
         getChunksOrBuilderList() {
       if (chunksBuilder_ != null) {
@@ -2955,18 +3125,42 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return java.util.Collections.unmodifiableList(chunks_);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder addChunksBuilder() {
       return getChunksFieldBuilder()
           .addBuilder(com.google.bigtable.v2.ReadRowsResponse.CellChunk.getDefaultInstance());
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder addChunksBuilder(int index) {
       return getChunksFieldBuilder()
           .addBuilder(
               index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.getDefaultInstance());
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder>
         getChunksBuilderList() {
       return getChunksFieldBuilder().getBuilderList();
