@@ -34,6 +34,8 @@ public interface SampleRowKeysResponseOrBuilder
    * Note that row keys in this list may not have ever been written to or read
    * from, and users should therefore not make any assumptions about the row key
    * structure that are specific to their use case.
+   * Classified as IDENTIFYING_ID to provide context around data accesses for
+   * auditing systems.
    * </pre>
    *
    * <code>bytes row_key = 1;</code>

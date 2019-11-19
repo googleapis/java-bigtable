@@ -171,7 +171,15 @@ public final class MutateRowsResponse extends com.google.protobuf.GeneratedMessa
      */
     com.google.rpc.StatusOrBuilder getStatusOrBuilder();
   }
-  /** Protobuf type {@code google.bigtable.v2.MutateRowsResponse.Entry} */
+  /**
+   *
+   *
+   * <pre>
+   * The result of applying a passed mutation in the original request.
+   * </pre>
+   *
+   * Protobuf type {@code google.bigtable.v2.MutateRowsResponse.Entry}
+   */
   public static final class Entry extends com.google.protobuf.GeneratedMessageV3
       implements
       // @@protoc_insertion_point(message_implements:google.bigtable.v2.MutateRowsResponse.Entry)
@@ -499,7 +507,15 @@ public final class MutateRowsResponse extends com.google.protobuf.GeneratedMessa
       Builder builder = new Builder(parent);
       return builder;
     }
-    /** Protobuf type {@code google.bigtable.v2.MutateRowsResponse.Entry} */
+    /**
+     *
+     *
+     * <pre>
+     * The result of applying a passed mutation in the original request.
+     * </pre>
+     *
+     * Protobuf type {@code google.bigtable.v2.MutateRowsResponse.Entry}
+     */
     public static final class Builder
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements

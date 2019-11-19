@@ -170,13 +170,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
    *
    *
    * <pre>
-   * The unique name of the table to which the conditional mutation should be
+   * Required. The unique name of the table to which the conditional mutation should be
    * applied.
    * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * </pre>
    *
-   * <code>string table_name = 1;</code>
+   * <code>
+   * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * </code>
    */
   public java.lang.String getTableName() {
     java.lang.Object ref = tableName_;
@@ -193,13 +195,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
    *
    *
    * <pre>
-   * The unique name of the table to which the conditional mutation should be
+   * Required. The unique name of the table to which the conditional mutation should be
    * applied.
    * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * </pre>
    *
-   * <code>string table_name = 1;</code>
+   * <code>
+   * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * </code>
    */
   public com.google.protobuf.ByteString getTableNameBytes() {
     java.lang.Object ref = tableName_;
@@ -264,10 +268,12 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
    *
    *
    * <pre>
-   * The key of the row to which the conditional mutation should be applied.
+   * Required. The key of the row to which the conditional mutation should be applied.
+   * Classified as IDENTIFYING_ID to provide context around data accesses for
+   * auditing systems.
    * </pre>
    *
-   * <code>bytes row_key = 2;</code>
+   * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
    */
   public com.google.protobuf.ByteString getRowKey() {
     return rowKey_;
@@ -986,13 +992,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The unique name of the table to which the conditional mutation should be
+     * Required. The unique name of the table to which the conditional mutation should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public java.lang.String getTableName() {
       java.lang.Object ref = tableName_;
@@ -1009,13 +1017,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The unique name of the table to which the conditional mutation should be
+     * Required. The unique name of the table to which the conditional mutation should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public com.google.protobuf.ByteString getTableNameBytes() {
       java.lang.Object ref = tableName_;
@@ -1032,13 +1042,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The unique name of the table to which the conditional mutation should be
+     * Required. The unique name of the table to which the conditional mutation should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder setTableName(java.lang.String value) {
       if (value == null) {
@@ -1053,13 +1065,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The unique name of the table to which the conditional mutation should be
+     * Required. The unique name of the table to which the conditional mutation should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder clearTableName() {
 
@@ -1071,13 +1085,15 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The unique name of the table to which the conditional mutation should be
+     * Required. The unique name of the table to which the conditional mutation should be
      * applied.
      * Values are of the form
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
      * </pre>
      *
-     * <code>string table_name = 1;</code>
+     * <code>
+     * string table_name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * </code>
      */
     public Builder setTableNameBytes(com.google.protobuf.ByteString value) {
       if (value == null) {
@@ -1194,10 +1210,12 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The key of the row to which the conditional mutation should be applied.
+     * Required. The key of the row to which the conditional mutation should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public com.google.protobuf.ByteString getRowKey() {
       return rowKey_;
@@ -1206,10 +1224,12 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The key of the row to which the conditional mutation should be applied.
+     * Required. The key of the row to which the conditional mutation should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public Builder setRowKey(com.google.protobuf.ByteString value) {
       if (value == null) {
@@ -1224,10 +1244,12 @@ public final class CheckAndMutateRowRequest extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * The key of the row to which the conditional mutation should be applied.
+     * Required. The key of the row to which the conditional mutation should be applied.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
-     * <code>bytes row_key = 2;</code>
+     * <code>bytes row_key = 2 [(.google.api.field_behavior) = REQUIRED];</code>
      */
     public Builder clearRowKey() {
 
