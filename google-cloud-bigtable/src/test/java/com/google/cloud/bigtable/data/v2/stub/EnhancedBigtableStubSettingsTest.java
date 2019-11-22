@@ -452,6 +452,55 @@ public class EnhancedBigtableStubSettingsTest {
   }
 
   @Test
+  public void bulkReadRowsSettingsAreNotLostTest() {
+    String dummyProjectId = "my-project";
+    String dummyInstanceId = "my-instance";
+
+    EnhancedBigtableStubSettings.Builder builder =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId);
+
+    RetrySettings retrySettings =
+        RetrySettings.newBuilder()
+            .setMaxAttempts(10)
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
+            .setRpcTimeoutMultiplier(1)
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
+            .setJittered(true)
+            .build();
+
+    BatchingSettings batchingSettings = BatchingSettings.newBuilder().build();
+
+    builder
+        .bulkReadRowsSettings()
+        .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
+        .setRetrySettings(retrySettings)
+        .setBatchingSettings(batchingSettings)
+        .build();
+
+    assertThat(builder.bulkReadRowsSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.bulkReadRowsSettings().getRetrySettings()).isEqualTo(retrySettings);
+    assertThat(builder.bulkReadRowsSettings().getBatchingSettings())
+        .isSameInstanceAs(batchingSettings);
+
+    assertThat(builder.build().bulkReadRowsSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.build().bulkReadRowsSettings().getRetrySettings()).isEqualTo(retrySettings);
+    assertThat(builder.build().bulkReadRowsSettings().getBatchingSettings())
+        .isSameInstanceAs(batchingSettings);
+
+    assertThat(builder.build().toBuilder().bulkReadRowsSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.build().toBuilder().bulkReadRowsSettings().getRetrySettings())
+        .isEqualTo(retrySettings);
+    assertThat(builder.build().toBuilder().bulkReadRowsSettings().getBatchingSettings())
+        .isSameInstanceAs(batchingSettings);
+  }
+
+  @Test
   public void mutateRowsHasSaneDefaultsTest() {
     BigtableBatchingCallSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder().bulkMutateRowsSettings();

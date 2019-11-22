@@ -38,6 +38,7 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
+import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
@@ -52,12 +53,14 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacin
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.tracing.WrappedTracerFactory;
+import com.google.protobuf.ByteString;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.Tagger;
@@ -65,6 +68,7 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -381,9 +385,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * Creates a {@link com.google.api.gax.batching.BatcherImpl} to handle {@link
-   * MutateRowsRequest.Entry} mutations. This is meant to be used for automatic batching with flow
-   * control.
+   * Creates a {@link BatcherImpl} to handle {@link MutateRowsRequest.Entry} mutations. This is
+   * meant to be used for automatic batching with flow control.
    *
    * <ul>
    *   <li>Uses {@link MutateRowsBatchingDescriptor} to spool the {@link RowMutationEntry} mutations
@@ -406,6 +409,30 @@ public class EnhancedBigtableStub implements AutoCloseable {
         bulkMutateRowsCallable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
+        clientContext.getExecutor());
+  }
+
+  /**
+   * Creates a {@link BatcherImpl} to handle {@link Query#rowKey(String)}. This is meant for bulk
+   * read with flow control.
+   *
+   * <ul>
+   *   <li>Uses {@link ReadRowsBatchingDescriptor} to merge the row-keys and send them out as {@link
+   *       Query}.
+   *   <li>Uses {@link #readRowsCallable()} to perform RPC.
+   *   <li>Batching thresholds can be configured from {@link
+   *       EnhancedBigtableStubSettings#bulkReadRowsSettings()}.
+   *   <li>Schedule retries for retryable exceptions until there are no more entries or there are no
+   *       more retry attempts left.
+   *   <li>Split the responses using {@link ReadRowsBatchingDescriptor}.
+   * </ul>
+   */
+  public Batcher<ByteString, Row> newBulkReadRowsBatcher(@Nonnull Query query) {
+    return new BatcherImpl<>(
+        settings.bulkReadRowsSettings().getBatchingDescriptor(),
+        readRowsCallable().all(),
+        query,
+        settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor());
   }
 

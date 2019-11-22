@@ -26,6 +26,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -934,6 +935,83 @@ public class BigtableDataClient implements AutoCloseable {
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(@Nonnull String tableId) {
     return stub.newMutateRowsBatcher(tableId);
+  }
+
+  /**
+   * Reads rows for given tableId in a batch. If the row does not exist, the value will be null.
+   * This operation should be called with in a single thread.
+   *
+   * <p>Sample Code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   List<ApiFuture<Row>> rows = new ArrayList<>();
+   *
+   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher("[TABLE]")) {
+   *     for (String someValue : someCollection) {
+   *       ApiFuture<Row> rowFuture =
+   *           batcher.add(ByteString.copyFromUtf8("[ROW KEY]"));
+   *       rows.add(rowFuture);
+   *     }
+   *
+   *     // Sends collected elements for batching asynchronously.
+   *     batcher.sendOutstanding();
+   *
+   *     // Blocks until all pending row keys are fetched from Bigtable.
+   *     batcher.flush();
+   *   }
+   *   // Before `batcher` is closed, all remaining(If any) rows are fetched.
+   *
+   *   List<Row> actualRows = ApiFutures.allAsList(rows).get();
+   * }
+   * }</pre>
+   */
+  public Batcher<ByteString, Row> newBulkReadRowsBatcher(String tableId) {
+    return newBulkReadRowsBatcher(tableId, null);
+  }
+
+  /**
+   * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
+   * value will be null. This operation should be called with in a single thread.
+   *
+   * <p>Sample Code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *
+   *  // Build the filter expression
+   *  Filter filter = FILTERS.chain()
+   *         .filter(FILTERS.key().regex("prefix.*"))
+   *         .filter(FILTERS.limit().cellsPerRow(10));
+   *
+   *   List<ApiFuture<Row>> rows = new ArrayList<>();
+   *
+   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher("[TABLE]", filter)) {
+   *     for (String someValue : someCollection) {
+   *       ApiFuture<Row> rowFuture =
+   *           batcher.add(ByteString.copyFromUtf8("[ROW KEY]"));
+   *       rows.add(rowFuture);
+   *     }
+   *
+   *     // Sends collected elements for batching asynchronously.
+   *     batcher.sendOutstanding();
+   *
+   *     // Blocks until all pending row keys are fetched from Bigtable.
+   *     batcher.flush();
+   *   }
+   *   // Before `batcher` is closed, all remaining(If any) rows are fetched.
+   *
+   *   List<Row> actualRows = ApiFutures.allAsList(rows).get();
+   * }
+   * }</pre>
+   */
+  public Batcher<ByteString, Row> newBulkReadRowsBatcher(
+      String tableId, @Nullable Filters.Filter filter) {
+    Query query = Query.create(tableId);
+    if (filter != null) {
+      query = query.filter(filter);
+    }
+    return stub.newBulkReadRowsBatcher(query);
   }
 
   /**
