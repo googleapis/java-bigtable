@@ -72,9 +72,7 @@ public class BigtableDataClientFactoryTest {
     try (ServerSocket ss = new ServerSocket(0)) {
       port = ss.getLocalPort();
     }
-    fakeServer = ServerBuilder.forPort(port)
-        .addService(service)
-        .build();
+    fakeServer = ServerBuilder.forPort(port).addService(service).build();
     fakeServer.start();
 
     BigtableDataSettings.Builder builder =
@@ -87,7 +85,8 @@ public class BigtableDataClientFactoryTest {
         Mockito.mock(
             TransportChannelProvider.class,
             new BuilderAnswer<>(
-                TransportChannelProvider.class, builder.stubSettings().getTransportChannelProvider()));
+                TransportChannelProvider.class,
+                builder.stubSettings().getTransportChannelProvider()));
 
     credentialsProvider =
         Mockito.mock(
@@ -156,8 +155,8 @@ public class BigtableDataClientFactoryTest {
 
     client.mutateRow(RowMutation.create("some-table", "some-key").deleteRow());
 
-    assertThat(service.lastRequest.getTableName()).isEqualTo(
-        NameUtil.formatTableName(DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, "some-table"));
+    assertThat(service.lastRequest.getTableName())
+        .isEqualTo(NameUtil.formatTableName(DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, "some-table"));
     assertThat(service.lastRequest.getAppProfileId()).isEqualTo(DEFAULT_APP_PROFILE_ID);
   }
 
@@ -168,8 +167,8 @@ public class BigtableDataClientFactoryTest {
 
     client.mutateRow(RowMutation.create("some-table", "some-key").deleteRow());
 
-    assertThat(service.lastRequest.getTableName()).isEqualTo(
-        NameUtil.formatTableName(DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, "some-table"));
+    assertThat(service.lastRequest.getTableName())
+        .isEqualTo(NameUtil.formatTableName(DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, "some-table"));
     assertThat(service.lastRequest.getAppProfileId()).isEqualTo("other-app-profile");
   }
 
@@ -180,8 +179,8 @@ public class BigtableDataClientFactoryTest {
 
     client.mutateRow(RowMutation.create("some-table", "some-key").deleteRow());
 
-    assertThat(service.lastRequest.getTableName()).isEqualTo(
-        NameUtil.formatTableName("other-project", "other-instance", "some-table"));
+    assertThat(service.lastRequest.getTableName())
+        .isEqualTo(NameUtil.formatTableName("other-project", "other-instance", "some-table"));
     // app profile should be reset to default
     assertThat(service.lastRequest.getAppProfileId()).isEmpty();
   }
@@ -189,24 +188,23 @@ public class BigtableDataClientFactoryTest {
   @Test
   public void testCreateForInstanceWithAppProfileHasCorrectSettings() throws Exception {
     BigtableDataClientFactory factory = BigtableDataClientFactory.create(defaultSettings);
-    BigtableDataClient client = factory.createForInstance("other-project", "other-instance", "other-app-profile");
+    BigtableDataClient client =
+        factory.createForInstance("other-project", "other-instance", "other-app-profile");
 
     client.mutateRow(RowMutation.create("some-table", "some-key").deleteRow());
 
-    assertThat(service.lastRequest.getTableName()).isEqualTo(
-        NameUtil.formatTableName("other-project", "other-instance", "some-table"));
+    assertThat(service.lastRequest.getTableName())
+        .isEqualTo(NameUtil.formatTableName("other-project", "other-instance", "some-table"));
     // app profile should be reset to default
     assertThat(service.lastRequest.getAppProfileId()).isEqualTo("other-app-profile");
   }
-
-
 
   private static class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
     volatile MutateRowRequest lastRequest;
 
     @Override
-    public void mutateRow(MutateRowRequest request,
-        StreamObserver<MutateRowResponse> responseObserver) {
+    public void mutateRow(
+        MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
       lastRequest = request;
       responseObserver.onNext(MutateRowResponse.getDefaultInstance());
       responseObserver.onCompleted();
@@ -235,6 +233,4 @@ public class BigtableDataClientFactoryTest {
       return r;
     }
   }
-
-
 }
