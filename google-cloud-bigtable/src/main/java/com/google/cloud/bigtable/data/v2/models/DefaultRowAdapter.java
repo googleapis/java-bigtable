@@ -19,17 +19,11 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.Cell;
 import com.google.bigtable.v2.Column;
 import com.google.bigtable.v2.Family;
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterators;
 import com.google.protobuf.ByteString;
-import java.util.AbstractCollection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 /**
  * Default implementation of a {@link RowAdapter} that uses {@link Row}s to represent logical rows.
@@ -154,7 +148,12 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
         // Optimization: If there is a single family, avoid copies and return that one list.
         sortedCells = currentFamilyCells.build();
       } else {
-        sortedCells = ImmutableList.copyOf(new SortedCellView(cellsByFamily, totalCellCount));
+        ImmutableList.Builder<RowCell> builder = ImmutableList.builder();
+
+        for (ImmutableList.Builder<RowCell> cells : cellsByFamily.values()) {
+          builder.addAll(cells.build());
+        }
+        sortedCells = builder.build();
       }
 
       return Row.create(currentKey, sortedCells);
@@ -175,39 +174,6 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
       labels = null;
       timestamp = 0;
       value = null;
-    }
-  }
-
-  private static class SortedCellView extends AbstractCollection<RowCell> {
-    private final SortedMap<String, ImmutableList.Builder<RowCell>> cellsByFamily;
-    private final int size;
-
-    public SortedCellView(
-        SortedMap<String, ImmutableList.Builder<RowCell>> cellsByFamily, int size) {
-      this.cellsByFamily = cellsByFamily;
-      this.size = size;
-    }
-
-    @Override
-    public Iterator<RowCell> iterator() {
-      Iterator<Iterator<RowCell>> iter =
-          Iterators.transform(
-              cellsByFamily.values().iterator(),
-              new Function<ImmutableList.Builder<RowCell>, Iterator<RowCell>>() {
-                @Override
-                @NullableDecl
-                public Iterator<RowCell> apply(
-                    @NullableDecl ImmutableList.Builder<RowCell> familyCellsBuilder) {
-                  return familyCellsBuilder.build().iterator();
-                }
-              });
-
-      return Iterators.concat(iter);
-    }
-
-    @Override
-    public int size() {
-      return size;
     }
   }
 }
