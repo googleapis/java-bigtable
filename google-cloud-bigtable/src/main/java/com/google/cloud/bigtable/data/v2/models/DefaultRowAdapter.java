@@ -148,12 +148,14 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
         // Optimization: If there is a single family, avoid copies and return that one list.
         sortedCells = currentFamilyCells.build();
       } else {
-        ImmutableList.Builder<RowCell> builder = ImmutableList.builder();
+        // Normal path: concatenate the cells order by family.
+        // TODO: use builderWithExpectedSize(totalCellCount) when it stabilizes
+        ImmutableList.Builder<RowCell> sortedCellsBuilder = ImmutableList.builder();
 
-        for (ImmutableList.Builder<RowCell> cells : cellsByFamily.values()) {
-          builder.addAll(cells.build());
+        for (ImmutableList.Builder<RowCell> familyCells : cellsByFamily.values()) {
+          sortedCellsBuilder.addAll(familyCells.build());
         }
-        sortedCells = builder.build();
+        sortedCells = sortedCellsBuilder.build();
       }
 
       return Row.create(currentKey, sortedCells);
