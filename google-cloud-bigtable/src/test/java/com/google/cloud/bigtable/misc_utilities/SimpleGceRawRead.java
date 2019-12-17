@@ -66,17 +66,13 @@ public class SimpleGceRawRead {
         ComputeEngineChannelBuilder.forAddress(endpoint, 443)
             .disableServiceConfigLookUp()
             .defaultServiceConfig(newServiceConfig())
-            .maxInboundMessageSize(256 * 1024 * 1024)
             .build();
     try {
       BigtableGrpc.BigtableBlockingStub stub = BigtableGrpc.newBlockingStub(channel);
 
       Iterator<ReadRowsResponse> iter =
           stub.readRows(
-              ReadRowsRequest.newBuilder()
-                  .setTableName(tableName)
-                  .setRowsLimit(1).build()
-          );
+              ReadRowsRequest.newBuilder().setTableName(tableName).setRowsLimit(1).build());
       System.out.printf("%n%n>>>>>>>>> Success Rows Read: %d%n%n", Lists.newArrayList(iter).size());
     } finally {
       channel.shutdown();
