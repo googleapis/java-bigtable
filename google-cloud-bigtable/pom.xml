@@ -24,10 +24,10 @@
 
     <!-- Use client defined default endpoints -->
     <!-- Can be overriden on the commandline via `-Dbigtable.cfe-data-endpoint=bigtableadmin.googleapis.com:443` -->
-    <bigtable.cfe-data-endpoint></bigtable.cfe-data-endpoint>
-    <bigtable.cfe-admin-endpoint></bigtable.cfe-admin-endpoint>
-    <bigtable.directpath-data-endpoint></bigtable.directpath-data-endpoint>
-    <bigtable.directpath-admin-endpoint></bigtable.directpath-admin-endpoint>
+    <bigtable.cfe-data-endpoint/>
+    <bigtable.cfe-admin-endpoint/>
+    <bigtable.directpath-data-endpoint/>
+    <bigtable.directpath-admin-endpoint/>
   </properties>
   <dependencies>
     <!-- NOTE: Dependencies are organized into two groups, production and test.
