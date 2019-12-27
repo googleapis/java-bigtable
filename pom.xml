@@ -156,6 +156,8 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Production Deps have been moved to google-cloud-bigtable-deps-bom -->
+
             <!-- Test Deps in alphabetical order -->
             <dependency>
               <groupId>com.google.cloud</groupId>
