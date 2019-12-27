@@ -32,8 +32,8 @@ Example usage:
 </dependencyManagement>
 
 <dependencies>
-  <!-- Declare dependency on google-cloud-client, combined with the above this will ensure a
-    consistent set of dependencies --> 
+  <!-- Declare dependency on google-cloud-client, combined with the above this will
+    ensure a consistent set of dependencies --> 
   <dependency>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable</artifactId>
