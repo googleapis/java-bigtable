@@ -61,6 +61,8 @@ import javax.annotation.Nonnull;
  * otherInstanceClient.close();
  *
  * clientFactory.close();
+ *
+ * <p>Please note that this is an experimental feature and might be changed or removed in future.
  * }</pre>
  */
 @BetaApi("This feature is currently experimental and can change in the future")
