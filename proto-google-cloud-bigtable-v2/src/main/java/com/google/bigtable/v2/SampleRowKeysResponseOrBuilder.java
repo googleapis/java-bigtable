@@ -34,9 +34,13 @@ public interface SampleRowKeysResponseOrBuilder
    * Note that row keys in this list may not have ever been written to or read
    * from, and users should therefore not make any assumptions about the row key
    * structure that are specific to their use case.
+   * Classified as IDENTIFYING_ID to provide context around data accesses for
+   * auditing systems.
    * </pre>
    *
    * <code>bytes row_key = 1;</code>
+   *
+   * @return The rowKey.
    */
   com.google.protobuf.ByteString getRowKey();
 
@@ -51,6 +55,8 @@ public interface SampleRowKeysResponseOrBuilder
    * </pre>
    *
    * <code>int64 offset_bytes = 2;</code>
+   *
+   * @return The offsetBytes.
    */
   long getOffsetBytes();
 }

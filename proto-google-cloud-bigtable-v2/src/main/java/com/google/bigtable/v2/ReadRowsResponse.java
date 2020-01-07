@@ -43,6 +43,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   }
 
   @java.lang.Override
+  @SuppressWarnings({"unused"})
+  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+    return new ReadRowsResponse();
+  }
+
+  @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
   }
@@ -134,9 +140,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * this CellChunk is a continuation of the same row as the previous
      * CellChunk in the response stream, even if that CellChunk was in a
      * previous ReadRowsResponse message.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
      * <code>bytes row_key = 1;</code>
+     *
+     * @return The rowKey.
      */
     com.google.protobuf.ByteString getRowKey();
 
@@ -153,6 +163,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.StringValue family_name = 2;</code>
+     *
+     * @return Whether the familyName field is set.
      */
     boolean hasFamilyName();
     /**
@@ -168,6 +180,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.StringValue family_name = 2;</code>
+     *
+     * @return The familyName.
      */
     com.google.protobuf.StringValue getFamilyName();
     /**
@@ -198,6 +212,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+     *
+     * @return Whether the qualifier field is set.
      */
     boolean hasQualifier();
     /**
@@ -212,6 +228,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+     *
+     * @return The qualifier.
      */
     com.google.protobuf.BytesValue getQualifier();
     /**
@@ -244,6 +262,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>int64 timestamp_micros = 4;</code>
+     *
+     * @return The timestampMicros.
      */
     long getTimestampMicros();
 
@@ -257,6 +277,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @return A list containing the labels.
      */
     java.util.List<java.lang.String> getLabelsList();
     /**
@@ -269,6 +291,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @return The count of labels.
      */
     int getLabelsCount();
     /**
@@ -281,6 +305,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @param index The index of the element to return.
+     * @return The labels at the given index.
      */
     java.lang.String getLabels(int index);
     /**
@@ -293,6 +320,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @param index The index of the value to return.
+     * @return The bytes of the labels at the given index.
      */
     com.google.protobuf.ByteString getLabelsBytes(int index);
 
@@ -308,6 +338,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bytes value = 6;</code>
+     *
+     * @return The value.
      */
     com.google.protobuf.ByteString getValue();
 
@@ -322,6 +354,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>int32 value_size = 7;</code>
+     *
+     * @return The valueSize.
      */
     int getValueSize();
 
@@ -334,6 +368,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bool reset_row = 8;</code>
+     *
+     * @return The resetRow.
      */
     boolean getResetRow();
 
@@ -346,6 +382,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bool commit_row = 9;</code>
+     *
+     * @return The commitRow.
      */
     boolean getCommitRow();
 
@@ -375,6 +413,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       rowKey_ = com.google.protobuf.ByteString.EMPTY;
       labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
       value_ = com.google.protobuf.ByteString.EMPTY;
+    }
+
+    @java.lang.Override
+    @SuppressWarnings({"unused"})
+    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+      return new CellChunk();
     }
 
     @java.lang.Override
@@ -444,9 +488,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             case 42:
               {
                 java.lang.String s = input.readStringRequireUtf8();
-                if (!((mutable_bitField0_ & 0x00000010) != 0)) {
+                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
                   labels_ = new com.google.protobuf.LazyStringArrayList();
-                  mutable_bitField0_ |= 0x00000010;
+                  mutable_bitField0_ |= 0x00000001;
                 }
                 labels_.add(s);
                 break;
@@ -487,7 +531,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       } catch (java.io.IOException e) {
         throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
       } finally {
-        if (((mutable_bitField0_ & 0x00000010) != 0)) {
+        if (((mutable_bitField0_ & 0x00000001) != 0)) {
           labels_ = labels_.getUnmodifiableView();
         }
         this.unknownFields = unknownFields.build();
@@ -510,11 +554,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder.class);
     }
 
-    private int bitField0_;
     private int rowStatusCase_ = 0;
     private java.lang.Object rowStatus_;
 
-    public enum RowStatusCase implements com.google.protobuf.Internal.EnumLite {
+    public enum RowStatusCase
+        implements
+            com.google.protobuf.Internal.EnumLite,
+            com.google.protobuf.AbstractMessage.InternalOneOfEnum {
       RESET_ROW(8),
       COMMIT_ROW(9),
       ROWSTATUS_NOT_SET(0);
@@ -523,7 +569,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       private RowStatusCase(int value) {
         this.value = value;
       }
-      /** @deprecated Use {@link #forNumber(int)} instead. */
+      /**
+       * @param value The number of the enum to look for.
+       * @return The enum associated with the given number.
+       * @deprecated Use {@link #forNumber(int)} instead.
+       */
       @java.lang.Deprecated
       public static RowStatusCase valueOf(int value) {
         return forNumber(value);
@@ -561,9 +611,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * this CellChunk is a continuation of the same row as the previous
      * CellChunk in the response stream, even if that CellChunk was in a
      * previous ReadRowsResponse message.
+     * Classified as IDENTIFYING_ID to provide context around data accesses for
+     * auditing systems.
      * </pre>
      *
      * <code>bytes row_key = 1;</code>
+     *
+     * @return The rowKey.
      */
     public com.google.protobuf.ByteString getRowKey() {
       return rowKey_;
@@ -584,6 +638,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.StringValue family_name = 2;</code>
+     *
+     * @return Whether the familyName field is set.
      */
     public boolean hasFamilyName() {
       return familyName_ != null;
@@ -601,6 +657,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.StringValue family_name = 2;</code>
+     *
+     * @return The familyName.
      */
     public com.google.protobuf.StringValue getFamilyName() {
       return familyName_ == null
@@ -639,6 +697,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+     *
+     * @return Whether the qualifier field is set.
      */
     public boolean hasQualifier() {
       return qualifier_ != null;
@@ -655,6 +715,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+     *
+     * @return The qualifier.
      */
     public com.google.protobuf.BytesValue getQualifier() {
       return qualifier_ == null ? com.google.protobuf.BytesValue.getDefaultInstance() : qualifier_;
@@ -693,6 +755,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>int64 timestamp_micros = 4;</code>
+     *
+     * @return The timestampMicros.
      */
     public long getTimestampMicros() {
       return timestampMicros_;
@@ -710,6 +774,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @return A list containing the labels.
      */
     public com.google.protobuf.ProtocolStringList getLabelsList() {
       return labels_;
@@ -724,6 +790,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @return The count of labels.
      */
     public int getLabelsCount() {
       return labels_.size();
@@ -738,6 +806,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @param index The index of the element to return.
+     * @return The labels at the given index.
      */
     public java.lang.String getLabels(int index) {
       return labels_.get(index);
@@ -752,6 +823,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>repeated string labels = 5;</code>
+     *
+     * @param index The index of the value to return.
+     * @return The bytes of the labels at the given index.
      */
     public com.google.protobuf.ByteString getLabelsBytes(int index) {
       return labels_.getByteString(index);
@@ -771,6 +845,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bytes value = 6;</code>
+     *
+     * @return The value.
      */
     public com.google.protobuf.ByteString getValue() {
       return value_;
@@ -789,6 +865,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>int32 value_size = 7;</code>
+     *
+     * @return The valueSize.
      */
     public int getValueSize() {
       return valueSize_;
@@ -804,6 +882,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bool reset_row = 8;</code>
+     *
+     * @return The resetRow.
      */
     public boolean getResetRow() {
       if (rowStatusCase_ == 8) {
@@ -822,6 +902,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bool commit_row = 9;</code>
+     *
+     * @return The commitRow.
      */
     public boolean getCommitRow() {
       if (rowStatusCase_ == 9) {
@@ -1164,7 +1246,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         timestampMicros_ = 0L;
 
         labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000001);
         value_ = com.google.protobuf.ByteString.EMPTY;
 
         valueSize_ = 0;
@@ -1199,7 +1281,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         com.google.bigtable.v2.ReadRowsResponse.CellChunk result =
             new com.google.bigtable.v2.ReadRowsResponse.CellChunk(this);
         int from_bitField0_ = bitField0_;
-        int to_bitField0_ = 0;
         result.rowKey_ = rowKey_;
         if (familyNameBuilder_ == null) {
           result.familyName_ = familyName_;
@@ -1212,9 +1293,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
           result.qualifier_ = qualifierBuilder_.build();
         }
         result.timestampMicros_ = timestampMicros_;
-        if (((bitField0_ & 0x00000010) != 0)) {
+        if (((bitField0_ & 0x00000001) != 0)) {
           labels_ = labels_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000010);
+          bitField0_ = (bitField0_ & ~0x00000001);
         }
         result.labels_ = labels_;
         result.value_ = value_;
@@ -1225,7 +1306,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (rowStatusCase_ == 9) {
           result.rowStatus_ = rowStatus_;
         }
-        result.bitField0_ = to_bitField0_;
         result.rowStatusCase_ = rowStatusCase_;
         onBuilt();
         return result;
@@ -1294,7 +1374,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (!other.labels_.isEmpty()) {
           if (labels_.isEmpty()) {
             labels_ = other.labels_;
-            bitField0_ = (bitField0_ & ~0x00000010);
+            bitField0_ = (bitField0_ & ~0x00000001);
           } else {
             ensureLabelsIsMutable();
             labels_.addAll(other.labels_);
@@ -1378,9 +1458,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
+       *
+       * @return The rowKey.
        */
       public com.google.protobuf.ByteString getRowKey() {
         return rowKey_;
@@ -1393,9 +1477,14 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
+       *
+       * @param value The rowKey to set.
+       * @return This builder for chaining.
        */
       public Builder setRowKey(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -1414,9 +1503,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * this CellChunk is a continuation of the same row as the previous
        * CellChunk in the response stream, even if that CellChunk was in a
        * previous ReadRowsResponse message.
+       * Classified as IDENTIFYING_ID to provide context around data accesses for
+       * auditing systems.
        * </pre>
        *
        * <code>bytes row_key = 1;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearRowKey() {
 
@@ -1444,6 +1537,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>.google.protobuf.StringValue family_name = 2;</code>
+       *
+       * @return Whether the familyName field is set.
        */
       public boolean hasFamilyName() {
         return familyNameBuilder_ != null || familyName_ != null;
@@ -1461,6 +1556,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>.google.protobuf.StringValue family_name = 2;</code>
+       *
+       * @return The familyName.
        */
       public com.google.protobuf.StringValue getFamilyName() {
         if (familyNameBuilder_ == null) {
@@ -1669,6 +1766,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+       *
+       * @return Whether the qualifier field is set.
        */
       public boolean hasQualifier() {
         return qualifierBuilder_ != null || qualifier_ != null;
@@ -1685,6 +1784,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
+       *
+       * @return The qualifier.
        */
       public com.google.protobuf.BytesValue getQualifier() {
         if (qualifierBuilder_ == null) {
@@ -1884,6 +1985,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int64 timestamp_micros = 4;</code>
+       *
+       * @return The timestampMicros.
        */
       public long getTimestampMicros() {
         return timestampMicros_;
@@ -1903,6 +2006,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int64 timestamp_micros = 4;</code>
+       *
+       * @param value The timestampMicros to set.
+       * @return This builder for chaining.
        */
       public Builder setTimestampMicros(long value) {
 
@@ -1925,6 +2031,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int64 timestamp_micros = 4;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearTimestampMicros() {
 
@@ -1937,9 +2045,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
           com.google.protobuf.LazyStringArrayList.EMPTY;
 
       private void ensureLabelsIsMutable() {
-        if (!((bitField0_ & 0x00000010) != 0)) {
+        if (!((bitField0_ & 0x00000001) != 0)) {
           labels_ = new com.google.protobuf.LazyStringArrayList(labels_);
-          bitField0_ |= 0x00000010;
+          bitField0_ |= 0x00000001;
         }
       }
       /**
@@ -1952,6 +2060,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @return A list containing the labels.
        */
       public com.google.protobuf.ProtocolStringList getLabelsList() {
         return labels_.getUnmodifiableView();
@@ -1966,6 +2076,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @return The count of labels.
        */
       public int getLabelsCount() {
         return labels_.size();
@@ -1980,6 +2092,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param index The index of the element to return.
+       * @return The labels at the given index.
        */
       public java.lang.String getLabels(int index) {
         return labels_.get(index);
@@ -1994,6 +2109,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param index The index of the value to return.
+       * @return The bytes of the labels at the given index.
        */
       public com.google.protobuf.ByteString getLabelsBytes(int index) {
         return labels_.getByteString(index);
@@ -2008,6 +2126,10 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param index The index to set the value at.
+       * @param value The labels to set.
+       * @return This builder for chaining.
        */
       public Builder setLabels(int index, java.lang.String value) {
         if (value == null) {
@@ -2028,6 +2150,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param value The labels to add.
+       * @return This builder for chaining.
        */
       public Builder addLabels(java.lang.String value) {
         if (value == null) {
@@ -2048,6 +2173,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param values The labels to add.
+       * @return This builder for chaining.
        */
       public Builder addAllLabels(java.lang.Iterable<java.lang.String> values) {
         ensureLabelsIsMutable();
@@ -2065,10 +2193,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearLabels() {
         labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000010);
+        bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
@@ -2082,6 +2212,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>repeated string labels = 5;</code>
+       *
+       * @param value The bytes of the labels to add.
+       * @return This builder for chaining.
        */
       public Builder addLabelsBytes(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -2107,6 +2240,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bytes value = 6;</code>
+       *
+       * @return The value.
        */
       public com.google.protobuf.ByteString getValue() {
         return value_;
@@ -2123,6 +2258,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bytes value = 6;</code>
+       *
+       * @param value The value to set.
+       * @return This builder for chaining.
        */
       public Builder setValue(com.google.protobuf.ByteString value) {
         if (value == null) {
@@ -2145,6 +2283,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bytes value = 6;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearValue() {
 
@@ -2165,6 +2305,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int32 value_size = 7;</code>
+       *
+       * @return The valueSize.
        */
       public int getValueSize() {
         return valueSize_;
@@ -2180,6 +2322,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int32 value_size = 7;</code>
+       *
+       * @param value The valueSize to set.
+       * @return This builder for chaining.
        */
       public Builder setValueSize(int value) {
 
@@ -2198,6 +2343,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>int32 value_size = 7;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearValueSize() {
 
@@ -2215,6 +2362,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool reset_row = 8;</code>
+       *
+       * @return The resetRow.
        */
       public boolean getResetRow() {
         if (rowStatusCase_ == 8) {
@@ -2231,6 +2380,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool reset_row = 8;</code>
+       *
+       * @param value The resetRow to set.
+       * @return This builder for chaining.
        */
       public Builder setResetRow(boolean value) {
         rowStatusCase_ = 8;
@@ -2247,6 +2399,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool reset_row = 8;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearResetRow() {
         if (rowStatusCase_ == 8) {
@@ -2266,6 +2420,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool commit_row = 9;</code>
+       *
+       * @return The commitRow.
        */
       public boolean getCommitRow() {
         if (rowStatusCase_ == 9) {
@@ -2282,6 +2438,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool commit_row = 9;</code>
+       *
+       * @param value The commitRow to set.
+       * @return This builder for chaining.
        */
       public Builder setCommitRow(boolean value) {
         rowStatusCase_ = 9;
@@ -2298,6 +2457,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * </pre>
        *
        * <code>bool commit_row = 9;</code>
+       *
+       * @return This builder for chaining.
        */
       public Builder clearCommitRow() {
         if (rowStatusCase_ == 9) {
@@ -2360,27 +2521,66 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
   }
 
-  private int bitField0_;
   public static final int CHUNKS_FIELD_NUMBER = 1;
   private java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> chunks_;
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> getChunksList() {
     return chunks_;
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
       getChunksOrBuilderList() {
     return chunks_;
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public int getChunksCount() {
     return chunks_.size();
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public com.google.bigtable.v2.ReadRowsResponse.CellChunk getChunks(int index) {
     return chunks_.get(index);
   }
-  /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+  /**
+   *
+   *
+   * <pre>
+   * A collection of a row's contents as part of the read request.
+   * </pre>
+   *
+   * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+   */
   public com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(int index) {
     return chunks_.get(index);
   }
@@ -2401,6 +2601,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    * </pre>
    *
    * <code>bytes last_scanned_row_key = 2;</code>
+   *
+   * @return The lastScannedRowKey.
    */
   public com.google.protobuf.ByteString getLastScannedRowKey() {
     return lastScannedRowKey_;
@@ -2658,7 +2860,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       com.google.bigtable.v2.ReadRowsResponse result =
           new com.google.bigtable.v2.ReadRowsResponse(this);
       int from_bitField0_ = bitField0_;
-      int to_bitField0_ = 0;
       if (chunksBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           chunks_ = java.util.Collections.unmodifiableList(chunks_);
@@ -2669,7 +2870,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         result.chunks_ = chunksBuilder_.build();
       }
       result.lastScannedRowKey_ = lastScannedRowKey_;
-      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -2797,7 +2997,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
         chunksBuilder_;
 
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> getChunksList() {
       if (chunksBuilder_ == null) {
         return java.util.Collections.unmodifiableList(chunks_);
@@ -2805,7 +3013,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessageList();
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public int getChunksCount() {
       if (chunksBuilder_ == null) {
         return chunks_.size();
@@ -2813,7 +3029,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getCount();
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk getChunks(int index) {
       if (chunksBuilder_ == null) {
         return chunks_.get(index);
@@ -2821,7 +3045,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessage(index);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder setChunks(int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2835,7 +3067,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder setChunks(
         int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2847,7 +3087,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2861,7 +3109,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk value) {
       if (chunksBuilder_ == null) {
         if (value == null) {
@@ -2875,7 +3131,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(
         com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2887,7 +3151,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addChunks(
         int index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder builderForValue) {
       if (chunksBuilder_ == null) {
@@ -2899,7 +3171,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder addAllChunks(
         java.lang.Iterable<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunk> values) {
       if (chunksBuilder_ == null) {
@@ -2911,7 +3191,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder clearChunks() {
       if (chunksBuilder_ == null) {
         chunks_ = java.util.Collections.emptyList();
@@ -2922,7 +3210,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public Builder removeChunks(int index) {
       if (chunksBuilder_ == null) {
         ensureChunksIsMutable();
@@ -2933,11 +3229,27 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       return this;
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder getChunksBuilder(int index) {
       return getChunksFieldBuilder().getBuilder(index);
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(
         int index) {
       if (chunksBuilder_ == null) {
@@ -2946,7 +3258,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return chunksBuilder_.getMessageOrBuilder(index);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
         getChunksOrBuilderList() {
       if (chunksBuilder_ != null) {
@@ -2955,18 +3275,42 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         return java.util.Collections.unmodifiableList(chunks_);
       }
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder addChunksBuilder() {
       return getChunksFieldBuilder()
           .addBuilder(com.google.bigtable.v2.ReadRowsResponse.CellChunk.getDefaultInstance());
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder addChunksBuilder(int index) {
       return getChunksFieldBuilder()
           .addBuilder(
               index, com.google.bigtable.v2.ReadRowsResponse.CellChunk.getDefaultInstance());
     }
-    /** <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code> */
+    /**
+     *
+     *
+     * <pre>
+     * A collection of a row's contents as part of the read request.
+     * </pre>
+     *
+     * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
+     */
     public java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk.Builder>
         getChunksBuilderList() {
       return getChunksFieldBuilder().getBuilderList();
@@ -3005,6 +3349,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bytes last_scanned_row_key = 2;</code>
+     *
+     * @return The lastScannedRowKey.
      */
     public com.google.protobuf.ByteString getLastScannedRowKey() {
       return lastScannedRowKey_;
@@ -3023,6 +3369,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bytes last_scanned_row_key = 2;</code>
+     *
+     * @param value The lastScannedRowKey to set.
+     * @return This builder for chaining.
      */
     public Builder setLastScannedRowKey(com.google.protobuf.ByteString value) {
       if (value == null) {
@@ -3047,6 +3396,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * </pre>
      *
      * <code>bytes last_scanned_row_key = 2;</code>
+     *
+     * @return This builder for chaining.
      */
     public Builder clearLastScannedRowKey() {
 
