@@ -78,11 +78,11 @@ public class MutateRowsBatchingDescriptorTest {
 
   @Test
   public void splitResponseTest() {
-    BatchEntry<RowMutationEntry, Void> resultFuture1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> resultFuture2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
 
     List<BatchEntry<RowMutationEntry, Void>> batchResponse =
-        ImmutableList.of(resultFuture1, resultFuture2);
+        ImmutableList.of(batchEntry1, batchEntry2);
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isFalse();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isFalse();
 
@@ -94,13 +94,13 @@ public class MutateRowsBatchingDescriptorTest {
 
   @Test
   public void splitExceptionTest() {
-    BatchEntry<RowMutationEntry, Void> resultFuture1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> resultFuture2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
 
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
     final RuntimeException expectedEx = new RuntimeException("Caused while batching");
     List<BatchEntry<RowMutationEntry, Void>> batchResponses =
-        ImmutableList.of(resultFuture1, resultFuture2);
+        ImmutableList.of(batchEntry1, batchEntry2);
 
     underTest.splitException(expectedEx, batchResponses);
 
@@ -117,9 +117,9 @@ public class MutateRowsBatchingDescriptorTest {
   public void splitExceptionWithFailedMutationsTest() {
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
     Throwable actualThrowable = null;
-    BatchEntry<RowMutationEntry, Void> resultFuture1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> resultFuture2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> resultFuture3 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry3 = BatchEntry.create(null, SettableApiFuture.<Void>create());
 
     // Threw an exception at 1st and 3rd entry
     MutateRowsException serverError =
@@ -136,10 +136,10 @@ public class MutateRowsBatchingDescriptorTest {
                         null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true))),
             true);
     underTest.splitException(
-        serverError, ImmutableList.of(resultFuture1, resultFuture2, resultFuture3));
+        serverError, ImmutableList.of(batchEntry1, batchEntry2, batchEntry3));
 
     try {
-      resultFuture1.getResultFuture().get();
+      batchEntry1.getResultFuture().get();
     } catch (ExecutionException | InterruptedException e) {
       actualThrowable = e;
     }
@@ -150,7 +150,7 @@ public class MutateRowsBatchingDescriptorTest {
     // As there is no exception for 2nd entry so it should not throw any exception
     actualThrowable = null;
     try {
-      resultFuture2.getResultFuture().get();
+      batchEntry2.getResultFuture().get();
     } catch (ExecutionException | InterruptedException e) {
       actualThrowable = e;
     }
@@ -158,7 +158,7 @@ public class MutateRowsBatchingDescriptorTest {
 
     actualThrowable = null;
     try {
-      resultFuture3.getResultFuture().get();
+      batchEntry3.getResultFuture().get();
     } catch (ExecutionException | InterruptedException e) {
       actualThrowable = e;
     }
