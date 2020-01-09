@@ -78,8 +78,12 @@ public class MutateRowsBatchingDescriptorTest {
 
   @Test
   public void splitResponseTest() {
-    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 =
+        BatchEntry.create(
+            RowMutationEntry.create("key1").deleteRow(), SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 =
+        BatchEntry.create(
+            RowMutationEntry.create("key2").deleteRow(), SettableApiFuture.<Void>create());
 
     List<BatchEntry<RowMutationEntry, Void>> batchResponse =
         ImmutableList.of(batchEntry1, batchEntry2);
@@ -94,8 +98,12 @@ public class MutateRowsBatchingDescriptorTest {
 
   @Test
   public void splitExceptionTest() {
-    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 =
+        BatchEntry.create(
+            RowMutationEntry.create("key1").deleteRow(), SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 =
+        BatchEntry.create(
+            RowMutationEntry.create("key2").deleteRow(), SettableApiFuture.<Void>create());
 
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
     final RuntimeException expectedEx = new RuntimeException("Caused while batching");
@@ -117,9 +125,15 @@ public class MutateRowsBatchingDescriptorTest {
   public void splitExceptionWithFailedMutationsTest() {
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
     Throwable actualThrowable = null;
-    BatchEntry<RowMutationEntry, Void> batchEntry1 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> batchEntry2 = BatchEntry.create(null, SettableApiFuture.<Void>create());
-    BatchEntry<RowMutationEntry, Void> batchEntry3 = BatchEntry.create(null, SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry1 =
+        BatchEntry.create(
+            RowMutationEntry.create("key1").deleteRow(), SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 =
+        BatchEntry.create(
+            RowMutationEntry.create("key2").deleteRow(), SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry3 =
+        BatchEntry.create(
+            RowMutationEntry.create("key3").deleteRow(), SettableApiFuture.<Void>create());
 
     // Threw an exception at 1st and 3rd entry
     MutateRowsException serverError =
@@ -135,8 +149,7 @@ public class MutateRowsBatchingDescriptorTest {
                     new DeadlineExceededException(
                         null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true))),
             true);
-    underTest.splitException(
-        serverError, ImmutableList.of(batchEntry1, batchEntry2, batchEntry3));
+    underTest.splitException(serverError, ImmutableList.of(batchEntry1, batchEntry2, batchEntry3));
 
     try {
       batchEntry1.getResultFuture().get();

@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.BatchEntry;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingRequestBuilder;
@@ -46,8 +45,8 @@ public class MutateRowsBatchingDescriptor
   }
 
   @Override
-  public void splitResponse(Void response, List<BatchEntry<RowMutationEntry, Void>> batch) {
-    for (BatchEntry<RowMutationEntry, Void> batchResponse : batch) {
+  public void splitResponse(Void response, List<BatchEntry<RowMutationEntry, Void>> entries) {
+    for (BatchEntry<RowMutationEntry, Void> batchResponse : entries) {
       batchResponse.getResultFuture().set(null);
     }
   }
@@ -59,9 +58,10 @@ public class MutateRowsBatchingDescriptor
    * entries whose index is mentioned {@link MutateRowsException#getFailedMutations()}.
    */
   @Override
-  public void splitException(Throwable throwable, List<BatchEntry<RowMutationEntry, Void>> batch) {
+  public void splitException(
+      Throwable throwable, List<BatchEntry<RowMutationEntry, Void>> entries) {
     if (!(throwable instanceof MutateRowsException)) {
-      for (BatchEntry<RowMutationEntry, Void> future : batch) {
+      for (BatchEntry<RowMutationEntry, Void> future : entries) {
         future.getResultFuture().setException(throwable);
       }
       return;
@@ -75,7 +75,7 @@ public class MutateRowsBatchingDescriptor
     }
 
     int i = 0;
-    for (BatchEntry<RowMutationEntry, Void> entryResultFuture : batch) {
+    for (BatchEntry<RowMutationEntry, Void> entryResultFuture : entries) {
       Throwable entryError = entryErrors.get(i++);
       if (entryError == null) {
         entryResultFuture.getResultFuture().set(null);
