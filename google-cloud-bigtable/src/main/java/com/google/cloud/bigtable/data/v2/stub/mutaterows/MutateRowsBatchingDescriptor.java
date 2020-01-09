@@ -46,7 +46,7 @@ public class MutateRowsBatchingDescriptor
   }
 
   @Override
-  public void splitResponse(Void aVoid, List<BatchEntry<RowMutationEntry, Void>> batch) {
+  public void splitResponse(Void response, List<BatchEntry<RowMutationEntry, Void>> batch) {
     for (BatchEntry<RowMutationEntry, Void> batchResponse : batch) {
       batchResponse.getResultFuture().set(null);
     }
