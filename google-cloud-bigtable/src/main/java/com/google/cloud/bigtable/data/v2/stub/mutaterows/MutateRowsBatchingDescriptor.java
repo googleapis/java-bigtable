@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import com.google.api.core.InternalApi;
 import com.google.api.core.SettableApiFuture;
+import com.google.api.gax.batching.BatchEntry;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingRequestBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -45,9 +46,9 @@ public class MutateRowsBatchingDescriptor
   }
 
   @Override
-  public void splitResponse(Void response, List<SettableApiFuture<Void>> batch) {
-    for (SettableApiFuture<Void> batchResponse : batch) {
-      batchResponse.set(null);
+  public void splitResponse(Void aVoid, List<BatchEntry<RowMutationEntry, Void>> batch) {
+    for (BatchEntry<RowMutationEntry, Void> batchResponse : batch) {
+      batchResponse.getResultFuture().set(null);
     }
   }
 
@@ -58,10 +59,10 @@ public class MutateRowsBatchingDescriptor
    * entries whose index is mentioned {@link MutateRowsException#getFailedMutations()}.
    */
   @Override
-  public void splitException(Throwable throwable, List<SettableApiFuture<Void>> batch) {
+  public void splitException(Throwable throwable, List<BatchEntry<RowMutationEntry, Void>> batch) {
     if (!(throwable instanceof MutateRowsException)) {
-      for (SettableApiFuture<Void> future : batch) {
-        future.setException(throwable);
+      for (BatchEntry<RowMutationEntry, Void> future : batch) {
+        future.getResultFuture().setException(throwable);
       }
       return;
     }
@@ -74,12 +75,12 @@ public class MutateRowsBatchingDescriptor
     }
 
     int i = 0;
-    for (SettableApiFuture<Void> entryResultFuture : batch) {
+    for (BatchEntry<RowMutationEntry, Void> entryResultFuture : batch) {
       Throwable entryError = entryErrors.get(i++);
       if (entryError == null) {
-        entryResultFuture.set(null);
+        entryResultFuture.getResultFuture().set(null);
       } else {
-        entryResultFuture.setException(entryError);
+        entryResultFuture.getResultFuture().setException(entryError);
       }
     }
   }
