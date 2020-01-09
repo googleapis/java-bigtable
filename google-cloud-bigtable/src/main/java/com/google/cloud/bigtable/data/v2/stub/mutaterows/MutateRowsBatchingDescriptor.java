@@ -61,8 +61,8 @@ public class MutateRowsBatchingDescriptor
   public void splitException(
       Throwable throwable, List<BatchEntry<RowMutationEntry, Void>> entries) {
     if (!(throwable instanceof MutateRowsException)) {
-      for (BatchEntry<RowMutationEntry, Void> future : entries) {
-        future.getResultFuture().setException(throwable);
+      for (BatchEntry<RowMutationEntry, Void> entry : entries) {
+        entry.getResultFuture().setException(throwable);
       }
       return;
     }
@@ -75,12 +75,12 @@ public class MutateRowsBatchingDescriptor
     }
 
     int i = 0;
-    for (BatchEntry<RowMutationEntry, Void> entryResultFuture : entries) {
+    for (BatchEntry<RowMutationEntry, Void> entry : entries) {
       Throwable entryError = entryErrors.get(i++);
       if (entryError == null) {
-        entryResultFuture.getResultFuture().set(null);
+        entry.getResultFuture().set(null);
       } else {
-        entryResultFuture.getResultFuture().setException(entryError);
+        entry.getResultFuture().setException(entryError);
       }
     }
   }
