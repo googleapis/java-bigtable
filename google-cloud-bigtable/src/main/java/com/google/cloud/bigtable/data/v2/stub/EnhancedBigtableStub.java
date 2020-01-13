@@ -38,7 +38,6 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
-import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
@@ -68,7 +67,6 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**

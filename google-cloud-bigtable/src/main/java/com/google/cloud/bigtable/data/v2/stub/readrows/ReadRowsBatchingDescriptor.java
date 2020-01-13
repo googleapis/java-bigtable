@@ -19,7 +19,6 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.BatchEntry;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingRequestBuilder;
-import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.protobuf.ByteString;
