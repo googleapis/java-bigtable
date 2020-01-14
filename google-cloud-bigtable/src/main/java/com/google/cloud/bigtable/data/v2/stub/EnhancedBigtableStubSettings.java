@@ -233,12 +233,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
-        // TODO: tune channels
         .setPoolSize(getDefaultChannelPoolSize())
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE);
   }
 
   static int getDefaultChannelPoolSize() {
+    // TODO: tune channels
     return 2 * Runtime.getRuntime().availableProcessors();
   }
 
