@@ -302,13 +302,5 @@ public class QueryTest {
             .build();
 
     assertThat(query.toProto(requestContext)).isEqualTo(request);
-
-    assertThat(Query.create(TABLE_ID).limit(5).toProto(requestContext))
-        .isNotEqualTo(
-            ReadRowsRequest.newBuilder()
-                .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
-                .setAppProfileId(APP_PROFILE_ID)
-                .setRowsLimit(10)
-                .build());
   }
 }

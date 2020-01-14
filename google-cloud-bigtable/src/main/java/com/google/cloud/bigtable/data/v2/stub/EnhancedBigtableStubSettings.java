@@ -173,14 +173,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               + " This is currently an experimental feature and should not be used in production.");
     }
 
-    // Since point reads & streaming reads share the same base callable that converts grpc errors
-    // into ApiExceptions, they must have the same retry codes.
+    // Since point reads, streaming reads, bulk reads share the same base callable that converts
+    // grpc errors into ApiExceptions, they must have the same retry codes.
     Preconditions.checkState(
         builder
             .readRowSettings
             .getRetryableCodes()
             .equals(builder.readRowsSettings.getRetryableCodes()),
         "Single ReadRow retry codes must match ReadRows retry codes");
+    Preconditions.checkState(
+        builder
+            .bulkReadRowsSettings
+            .getRetryableCodes()
+            .equals(builder.readRowsSettings.getRetryableCodes()),
+        "Bulk ReadRow retry codes must match ReadRows retry codes");
 
     projectId = builder.projectId;
     instanceId = builder.instanceId;
@@ -228,8 +234,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         // TODO: tune channels
-        .setChannelsPerCpu(2)
+        .setPoolSize(getDefaultChannelPoolSize())
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE);
+  }
+
+  static int getDefaultChannelPoolSize() {
+    return 2 * Runtime.getRuntime().availableProcessors();
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -412,17 +422,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    *   <li>When the {@link BatchingSettings.Builder#setElementCountThreshold request count} reaches
    *       100.
    *   <li>When accumulated {@link BatchingSettings.Builder#setRequestByteThreshold request size}
-   *       reaches to 20MB.
+   *       reaches to 400KB.
    *   <li>When an {@link BatchingSettings.Builder#setDelayThreshold interval of} 1 second passes
    *       after batching initialization or last processed batch.
    * </ul>
    *
    * <p>When the pending {@link FlowControlSettings.Builder#setMaxOutstandingElementCount request
-   * count} reaches a default of 1000 or their {@link
-   * FlowControlSettings.Builder#setMaxOutstandingRequestBytes accumulated size} reaches default
-   * value of 100MB, then this operation will by default be {@link
-   * FlowControlSettings.Builder#setLimitExceededBehavior blocked} until some of the pending batch
-   * are resolved.
+   * count} reaches a default of 1000 outstanding row keys per channel then this operation will by
+   * default be {@link FlowControlSettings.Builder#setLimitExceededBehavior blocked} until some of
+   * the pending batch are resolved.
    *
    * @see RetrySettings for more explanation.
    * @see BatchingSettings for batch related configuration explanation.
@@ -563,27 +571,22 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
                               .build())
                       .build());
 
-      long numOfChannels = 2 * Runtime.getRuntime().availableProcessors();
+      long maxElementPerBatch = 100L;
       bulkReadRowsSettings =
           BigtableBulkReadRowsCallSettings.newBuilder(new ReadRowsBatchingDescriptor())
-              .setRetryableCodes(readRowSettings.getRetryableCodes())
-              .setRetrySettings(
-                  readRowSettings
-                      .getRetrySettings()
-                      .toBuilder()
-                      .setMaxRpcTimeout(Duration.ofSeconds(300))
-                      .setTotalTimeout(Duration.ofMinutes(20))
-                      .build())
+              .setRetryableCodes(readRowsSettings.getRetryableCodes())
+              .setRetrySettings(IDEMPOTENT_RETRY_SETTINGS)
               .setBatchingSettings(
                   BatchingSettings.newBuilder()
                       .setIsEnabled(true)
-                      .setElementCountThreshold(100L)
+                      .setElementCountThreshold(maxElementPerBatch)
                       .setRequestByteThreshold(400L * 1024L)
                       .setDelayThreshold(Duration.ofSeconds(1))
                       .setFlowControlSettings(
                           FlowControlSettings.newBuilder()
                               .setLimitExceededBehavior(LimitExceededBehavior.Block)
-                              .setMaxOutstandingElementCount(10L * 100L * numOfChannels)
+                              .setMaxOutstandingElementCount(
+                                  10L * maxElementPerBatch * getDefaultChannelPoolSize())
                               .build())
                       .build());
 

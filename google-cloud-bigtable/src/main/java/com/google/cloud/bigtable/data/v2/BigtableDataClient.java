@@ -960,7 +960,7 @@ public class BigtableDataClient implements AutoCloseable {
    *     // [Optional] Invokes sendOutstanding() and awaits until all pending entries are resolved.
    *     batcher.flush();
    *   }
-   *   // batcher.close() invokes `flush()` which intern invoke `sendOutstanding()` with await for
+   *   // batcher.close() invokes `flush()` which will in turn invoke `sendOutstanding()` with await for
    *   pending batches until its resolved.
    *
    *   List<Row> actualRows = ApiFutures.allAsList(rows).get();
@@ -1000,7 +1000,7 @@ public class BigtableDataClient implements AutoCloseable {
    *     // [Optional] Invokes sendOutstanding() and awaits until all pending entries are resolved.
    *     batcher.flush();
    *   }
-   *   // batcher.close() invokes `flush()` which intern invoke `sendOutstanding()` with await for
+   *   // batcher.close() invokes `flush()` which will in turn invoke `sendOutstanding()` with await for
    *   pending batches until its resolved.
    *
    *   List<Row> actualRows = ApiFutures.allAsList(rows).get();

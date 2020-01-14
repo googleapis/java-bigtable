@@ -193,8 +193,9 @@ public class EnhancedBigtableStubSettingsTest {
         .setRetrySettings(retrySettings)
         .build();
 
-    // Point readRow settings must match streaming settings
+    // Point readRow & bulk read settings must match streaming settings
     builder.readRowSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    builder.bulkReadRowsSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
 
     assertThat(builder.readRowsSettings().getIdleTimeout()).isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.readRowsSettings().getRetryableCodes())
@@ -249,8 +250,9 @@ public class EnhancedBigtableStubSettingsTest {
         .setRetrySettings(retrySettings)
         .build();
 
-    // Streaming readRows settings must match point lookup settings.
+    // Streaming readRows & bulk read settings must match point lookup settings.
     builder.readRowsSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    builder.bulkReadRowsSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
 
     assertThat(builder.readRowSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -297,6 +299,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(actualError).isNotNull();
 
     builder.readRowSettings().setRetryableCodes(Code.DEADLINE_EXCEEDED);
+    builder.bulkReadRowsSettings().setRetryableCodes(Code.DEADLINE_EXCEEDED);
 
     actualError = null;
     try {
@@ -479,6 +482,10 @@ public class EnhancedBigtableStubSettingsTest {
         .setRetrySettings(retrySettings)
         .setBatchingSettings(batchingSettings)
         .build();
+
+    // Point read & streaming readRows settings must match point lookup settings.
+    builder.readRowSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    builder.readRowsSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
 
     assertThat(builder.bulkReadRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);

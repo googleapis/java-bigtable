@@ -51,6 +51,7 @@ public class BulkReadIT {
 
     BulkMutation bulkMutation = BulkMutation.create(testEnvRule.env().getTableId());
     List<Row> expectedRows = new ArrayList<>();
+
     for (int i = 0; i < numRows; i++) {
       bulkMutation.add(
           RowMutationEntry.create(rowPrefix + "-" + i)
@@ -68,17 +69,23 @@ public class BulkReadIT {
     }
     client.bulkMutateRows(bulkMutation);
 
-    List<ApiFuture<Row>> rowFutures = new ArrayList<>();
     try (Batcher<ByteString, Row> batcher =
         client.newBulkReadRowsBatcher(testEnvRule.env().getTableId())) {
 
+      List<ApiFuture<Row>> rowFutures = new ArrayList<>(numRows);
+
       for (int rowCount = 0; rowCount < numRows; rowCount++) {
-        rowFutures.add(batcher.add(ByteString.copyFromUtf8(rowPrefix + "-" + rowCount)));
+        ApiFuture<Row> entryResponse =
+            batcher.add(ByteString.copyFromUtf8(rowPrefix + "-" + rowCount));
+
+        rowFutures.add(entryResponse);
       }
+
       batcher.flush();
       List<Row> actualRows = ApiFutures.allAsList(rowFutures).get();
       assertThat(actualRows).isEqualTo(expectedRows);
 
+      // To verify non-existent and duplicate row keys
       rowFutures = new ArrayList<>();
 
       // non-existent row key
@@ -91,8 +98,8 @@ public class BulkReadIT {
       batcher.flush();
       actualRows = ApiFutures.allAsList(rowFutures).get();
       assertThat(actualRows.get(0)).isEqualTo(null);
-      assertThat(actualRows.get(2)).isEqualTo(expectedRows.get(0));
       assertThat(actualRows.get(1)).isEqualTo(expectedRows.get(0));
+      assertThat(actualRows.get(2)).isEqualTo(expectedRows.get(0));
     }
   }
 }
