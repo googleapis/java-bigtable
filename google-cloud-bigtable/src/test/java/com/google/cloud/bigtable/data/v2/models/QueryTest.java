@@ -301,6 +301,8 @@ public class QueryTest {
                     .build())
             .build();
 
-    assertThat(query.toProto(requestContext)).isEqualTo(request);
+    Query clonedReq = query.clone();
+    assertThat(clonedReq).isEqualTo(query);
+    assertThat(clonedReq.toProto(requestContext)).isEqualTo(request);
   }
 }
