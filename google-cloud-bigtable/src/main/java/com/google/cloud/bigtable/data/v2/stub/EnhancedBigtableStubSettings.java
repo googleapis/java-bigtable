@@ -563,6 +563,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
                               .build())
                       .build());
 
+      long numOfChannels = 2 * Runtime.getRuntime().availableProcessors();
       bulkReadRowsSettings =
           BigtableBulkReadRowsCallSettings.newBuilder(new ReadRowsBatchingDescriptor())
               .setRetryableCodes(readRowSettings.getRetryableCodes())
@@ -577,12 +578,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
                   BatchingSettings.newBuilder()
                       .setIsEnabled(true)
                       .setElementCountThreshold(100L)
-                      .setRequestByteThreshold(2L * 1024L * 1024)
+                      .setRequestByteThreshold(400L * 1024L)
                       .setDelayThreshold(Duration.ofSeconds(1))
                       .setFlowControlSettings(
                           FlowControlSettings.newBuilder()
                               .setLimitExceededBehavior(LimitExceededBehavior.Block)
-                              .setMaxOutstandingElementCount(1_000L)
+                              .setMaxOutstandingElementCount(10L * 100L * numOfChannels)
                               .build())
                       .build());
 

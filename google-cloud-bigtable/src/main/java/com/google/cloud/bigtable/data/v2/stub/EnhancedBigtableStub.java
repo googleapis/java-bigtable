@@ -59,6 +59,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.tracing.WrappedTracerFactory;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -426,6 +427,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * </ul>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(@Nonnull Query query) {
+    Preconditions.checkNotNull(query, "query cannot be null");
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
         readRowsCallable().all(),

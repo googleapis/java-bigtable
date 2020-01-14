@@ -42,37 +42,50 @@ public class ReadRowsBatchingDescriptorTest {
           10000,
           ImmutableList.of("label-1", "label-2"),
           ByteString.copyFromUtf8("qualifier"));
-  private static final List<Row> RESPONSE =
-      ImmutableList.of(
-          Row.create(ByteString.copyFromUtf8("row-key-1"), ImmutableList.of(ROW_CELL)),
-          Row.create(ByteString.copyFromUtf8("row-key-2"), ImmutableList.of(ROW_CELL)));
+  private static final Row ROW_KEY_1_RESPONSE =
+      Row.create(ByteString.copyFromUtf8("row-key-1"), ImmutableList.of(ROW_CELL));
+  private static final Row ROW_KEY_2_RESPONSE =
+      Row.create(ByteString.copyFromUtf8("row-key-2"), ImmutableList.of(ROW_CELL));
 
   private ReadRowsBatchingDescriptor underTest = new ReadRowsBatchingDescriptor();
 
   @Test
   public void splitResponseTest() throws Exception {
     List<BatchEntry<ByteString, Row>> batchEntries = createBatchEntries("row-key-1", "row-key-2");
-    underTest.splitResponse(RESPONSE, batchEntries);
+    underTest.splitResponse(ImmutableList.of(ROW_KEY_1_RESPONSE, ROW_KEY_2_RESPONSE), batchEntries);
 
-    assertThat(batchEntries.get(0).getResultFuture().get()).isEqualTo(RESPONSE.get(0));
-    assertThat(batchEntries.get(1).getResultFuture().get()).isEqualTo(RESPONSE.get(1));
+    assertThat(batchEntries.get(0).getResultFuture().get()).isEqualTo(ROW_KEY_1_RESPONSE);
+    assertThat(batchEntries.get(1).getResultFuture().get()).isEqualTo(ROW_KEY_2_RESPONSE);
   }
 
   @Test
-  public void splitResponseWithDuplicateAndNonExistingKeyTest() throws Exception {
+  public void splitResponseWithDuplicateKeysTest() throws Exception {
     List<BatchEntry<ByteString, Row>> batchEntries =
-        createBatchEntries("non-existing-key", "row-key-1", "row-key-2", "row-key-1");
+        createBatchEntries("row-key-1", "row-key-2", "row-key-1", "row-key-1");
 
-    underTest.splitResponse(RESPONSE, batchEntries);
+    underTest.splitResponse(ImmutableList.of(ROW_KEY_1_RESPONSE, ROW_KEY_2_RESPONSE), batchEntries);
 
-    assertThat(batchEntries.get(0).getResultFuture().get()).isNull();
-    assertThat(batchEntries.get(1).getResultFuture().get()).isEqualTo(RESPONSE.get(0));
-    assertThat(batchEntries.get(2).getResultFuture().get()).isEqualTo(RESPONSE.get(1));
-    assertThat(batchEntries.get(3).getResultFuture().get()).isEqualTo(RESPONSE.get(0));
+    assertThat(batchEntries.get(0).getResultFuture().get()).isEqualTo(ROW_KEY_1_RESPONSE);
+    assertThat(batchEntries.get(1).getResultFuture().get()).isEqualTo(ROW_KEY_2_RESPONSE);
+    assertThat(batchEntries.get(2).getResultFuture().get()).isEqualTo(ROW_KEY_1_RESPONSE);
+    assertThat(batchEntries.get(3).getResultFuture().get()).isEqualTo(ROW_KEY_1_RESPONSE);
   }
 
   @Test
-  public void splitException() {
+  public void splitResponseWithNonExistent() throws Exception {
+    List<BatchEntry<ByteString, Row>> batchEntries =
+        createBatchEntries("non-existent-1", "non-existent-2", "row-key-1");
+
+    underTest.splitResponse(ImmutableList.of(ROW_KEY_1_RESPONSE), batchEntries);
+
+    assertThat(batchEntries.size()).isEqualTo(3);
+    assertThat(batchEntries.get(0).getResultFuture().get()).isNull();
+    assertThat(batchEntries.get(1).getResultFuture().get()).isNull();
+    assertThat(batchEntries.get(2).getResultFuture().get()).isEqualTo(ROW_KEY_1_RESPONSE);
+  }
+
+  @Test
+  public void splitExceptionTest() {
     RuntimeException expectedException = new RuntimeException("cannot scan the table");
     List<BatchEntry<ByteString, Row>> batchEntries = createBatchEntries("row-key-1", "row-key-2");
     underTest.splitException(expectedException, batchEntries);

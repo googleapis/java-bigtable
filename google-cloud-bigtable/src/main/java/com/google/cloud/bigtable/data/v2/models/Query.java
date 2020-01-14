@@ -274,7 +274,6 @@ public final class Query implements Serializable {
     return query;
   }
 
-  @InternalApi
   public Query clone() {
     Query query = Query.create(tableId);
     query.builder = this.builder.clone();

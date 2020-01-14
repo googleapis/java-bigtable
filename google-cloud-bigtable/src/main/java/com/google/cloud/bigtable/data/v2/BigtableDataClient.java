@@ -954,13 +954,14 @@ public class BigtableDataClient implements AutoCloseable {
    *       rows.add(rowFuture);
    *     }
    *
-   *     // Sends collected elements for batching asynchronously.
+   *     // [Optional] Sends collected elements for batching asynchronously.
    *     batcher.sendOutstanding();
    *
-   *     // Blocks until all pending row keys are fetched from Bigtable.
+   *     // [Optional] Invokes sendOutstanding() and awaits until all pending entries are resolved.
    *     batcher.flush();
    *   }
-   *   // Before `batcher` is closed, all remaining(If any) rows are fetched.
+   *   // batcher.close() invokes `flush()` which intern invoke `sendOutstanding()` with await for
+   *   pending batches until its resolved.
    *
    *   List<Row> actualRows = ApiFutures.allAsList(rows).get();
    * }
@@ -993,13 +994,14 @@ public class BigtableDataClient implements AutoCloseable {
    *       rows.add(rowFuture);
    *     }
    *
-   *     // Sends collected elements for batching asynchronously.
+   *     // [Optional] Sends collected elements for batching asynchronously.
    *     batcher.sendOutstanding();
    *
-   *     // Blocks until all pending row keys are fetched from Bigtable.
+   *     // [Optional] Invokes sendOutstanding() and awaits until all pending entries are resolved.
    *     batcher.flush();
    *   }
-   *   // Before `batcher` is closed, all remaining(If any) rows are fetched.
+   *   // batcher.close() invokes `flush()` which intern invoke `sendOutstanding()` with await for
+   *   pending batches until its resolved.
    *
    *   List<Row> actualRows = ApiFutures.allAsList(rows).get();
    * }
