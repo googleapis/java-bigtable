@@ -97,7 +97,7 @@ public class BulkReadIT {
 
       batcher.flush();
       actualRows = ApiFutures.allAsList(rowFutures).get();
-      assertThat(actualRows.get(0)).isEqualTo(null);
+      assertThat(actualRows.get(0)).isNull();
       assertThat(actualRows.get(1)).isEqualTo(expectedRows.get(0));
       assertThat(actualRows.get(2)).isEqualTo(expectedRows.get(0));
     }

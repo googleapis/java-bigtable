@@ -571,22 +571,25 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
                               .build())
                       .build());
 
-      long maxElementPerBatch = 100L;
+      long maxBulkReadElementPerBatch = 100L;
+      long maxBulkReadRequestSizePerBatch = 400L * 1024L;
+      // Enables bulkRead to support 10 outstanding batches per channel
+      long maxBulkReadOutstandingElementCount =
+          10L * maxBulkReadElementPerBatch * getDefaultChannelPoolSize();
+
       bulkReadRowsSettings =
           BigtableBulkReadRowsCallSettings.newBuilder(new ReadRowsBatchingDescriptor())
               .setRetryableCodes(readRowsSettings.getRetryableCodes())
               .setRetrySettings(IDEMPOTENT_RETRY_SETTINGS)
               .setBatchingSettings(
                   BatchingSettings.newBuilder()
-                      .setIsEnabled(true)
-                      .setElementCountThreshold(maxElementPerBatch)
-                      .setRequestByteThreshold(400L * 1024L)
+                      .setElementCountThreshold(maxBulkReadElementPerBatch)
+                      .setRequestByteThreshold(maxBulkReadRequestSizePerBatch)
                       .setDelayThreshold(Duration.ofSeconds(1))
                       .setFlowControlSettings(
                           FlowControlSettings.newBuilder()
                               .setLimitExceededBehavior(LimitExceededBehavior.Block)
-                              .setMaxOutstandingElementCount(
-                                  10L * maxElementPerBatch * getDefaultChannelPoolSize())
+                              .setMaxOutstandingElementCount(maxBulkReadOutstandingElementCount)
                               .build())
                       .build());
 
