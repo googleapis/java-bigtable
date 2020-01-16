@@ -57,6 +57,7 @@ integration)
       -DtrimStackTrace=false \
       -Dclirr.skip=true \
       -Denforcer.skip=true \
+      -DskipUnitTests=true \
       -fae \
       verify
     bash .kokoro/coerce_logs.sh
