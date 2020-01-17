@@ -387,7 +387,7 @@ This library follows [Semantic Versioning](http://semver.org/).
 
 Contributions to this library are always welcome and highly encouraged.
 
-See [CONTRIBUTING][CONTRIBUTING.md] for more information on how to get started and [DEVELOPING][DEVELOPING.md] for a layout of the
+See [CONTRIBUTING](CONTRIBUTING.md) for more information on how to get started and [DEVELOPING](DEVELOPING.md) for a layout of the
 codebase.
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in
