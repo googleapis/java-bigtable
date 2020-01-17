@@ -364,6 +364,7 @@ Add the following to your project's pom.xml.
 ```
 
 
+
 ## Troubleshooting
 
 To get help, follow the instructions in the [shared Troubleshooting document][troubleshooting].
@@ -386,7 +387,8 @@ This library follows [Semantic Versioning](http://semver.org/).
 
 Contributions to this library are always welcome and highly encouraged.
 
-See [CONTRIBUTING.md][contributing] documentation for more information on how to get started.
+See [CONTRIBUTING][CONTRIBUTING.md] for more information on how to get started and [DEVELOPING][DEVELOPING.md] for a layout of the
+codebase.
 
 Please note that this project is released with a Contributor Code of Conduct. By participating in
 this project you agree to abide by its terms. See [Code of Conduct][code-of-conduct] for more

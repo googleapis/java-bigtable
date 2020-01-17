@@ -294,3 +294,12 @@ custom_content: |
     </dependencies>
   </dependencyManagement>
   ```
+contributing: |
+  Contributions to this library are always welcome and highly encouraged.
+
+  See [CONTRIBUTING][CONTRIBUTING.md] for more information on how to get started and [DEVELOPING][DEVELOPING.md] for a layout of the
+  codebase.
+
+  Please note that this project is released with a Contributor Code of Conduct. By participating in
+  this project you agree to abide by its terms. See [Code of Conduct][code-of-conduct] for more
+  information.
