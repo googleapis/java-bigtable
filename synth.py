@@ -49,11 +49,7 @@ def main():
 
   java.format_code(f'./google-cloud-bigtable/src')
 
-  common_templates = gcp.CommonTemplates()
-  templates = common_templates.java_library()
-  s.copy(templates, excludes=[
-    '.gitignore',
-    'README.md',
+  java.common_templates(excludes=[
     '.kokoro/presubmit/integration.cfg',
     # todo remove once template is updated
     '.github/ISSUE_TEMPLATE/bug_report.md',
