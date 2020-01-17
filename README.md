@@ -10,7 +10,7 @@ Java idiomatic client for [Cloud Bigtable][product-docs].
 
 ## Quickstart
 
-If you are using Maven, add this to your pom.xml file
+If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
 ```xml
 <dependencyManagement>
   <dependencies>
@@ -33,6 +33,16 @@ If you are using Maven, add this to your pom.xml file
 ```
 
 [//]: # ({x-version-update-start:google-cloud-bigtable:released})
+
+If you are using Maven without BOM, add this to your dependencies:
+
+```xml
+<dependency>
+  <groupId>com.google.cloud</groupId>
+  <artifactId>google-cloud-bigtable</artifactId>
+  <version>1.9.1</version>
+</dependency>
+```
 
 If you are using Gradle, add this to your dependencies
 ```Groovy
@@ -434,3 +444,4 @@ Java 11 | [![Kokoro CI][kokoro-badge-image-5]][kokoro-badge-link-5]
 [license]: https://github.com/googleapis/java-bigtable/blob/master/LICENSE
 [enable-billing]: https://cloud.google.com/apis/docs/getting-started#enabling_billing
 [enable-api]: https://console.cloud.google.com/flows/enableapi?apiid=bigtable.googleapis.com
+[libraries-bom]: https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
