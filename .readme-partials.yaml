@@ -1,3 +1,12 @@
+about: |
+  [Cloud Bigtable][product-docs] is Google's NoSQL Big Data database service. It's
+  the same database that powers many core Google services, including Search, Analytics, Maps, and
+  Gmail.
+
+  Be sure to activate the Cloud Bigtable API and the Cloud Bigtable Admin API under APIs & Services in the GCP Console to use Cloud Bigtable from your project.
+
+  See the Bigtable client library documentation ([Admin API](https://googleapis.dev/java/google-cloud-bigtable/latest/com/google/cloud/bigtable/admin/v2/package-summary.html) and [Data API](https://googleapis.dev/java/google-cloud-bigtable/latest/com/google/cloud/bigtable/data/v2/package-summary.html)) to learn how to
+  interact with Cloud Bigtable using this Client Library.
 custom_content: |
   ## Concepts
 

@@ -52,8 +52,8 @@ See the [Authentication][authentication] section in the base directory's README.
 
 ### Prerequisites
 
-You will need a [Google Developers Console][developer-console] project with the Cloud Bigtable [API enabled][enable-api].
-You will need to [enable billing][enable-billing] to use Cloud Bigtable
+You will need a [Google Cloud Platform Console][developer-console] project with the Cloud Bigtable [API enabled][enable-api].
+You will need to [enable billing][enable-billing] to use Google Cloud Bigtable
 [Follow these instructions][create-project] to get your project set up. You will also need to set up the local development environment by
 [installing the Google Cloud SDK][cloud-sdk] and running the following commands in command line:
 `gcloud auth login` and `gcloud config set project [YOUR PROJECT ID]`.
@@ -65,10 +65,16 @@ to add `google-cloud-bigtable` as a dependency in your code.
 
 ## About Cloud Bigtable
 
-Cloud Bigtable is Google's NoSQL Big Data database service. It's the same database that powers many core Google services, including Search, Analytics, Maps, and Gmail.
+[Cloud Bigtable][product-docs] is Google's NoSQL Big Data database service. It's
+the same database that powers many core Google services, including Search, Analytics, Maps, and
+Gmail.
 
-See the [Cloud Bigtable client library docs][javadocs] to learn how to
-use this Cloud Bigtable Client Library.
+Be sure to activate the Cloud Bigtable API and the Cloud Bigtable Admin API under APIs & Services in the GCP Console to use Cloud Bigtable from your project.
+
+See the Bigtable client library documentation ([Admin API](https://googleapis.dev/java/google-cloud-bigtable/latest/com/google/cloud/bigtable/admin/v2/package-summary.html) and [Data API](https://googleapis.dev/java/google-cloud-bigtable/latest/com/google/cloud/bigtable/data/v2/package-summary.html)) to learn how to
+interact with Cloud Bigtable using this Client Library.
+
+
 
 ## Concepts
 
@@ -374,8 +380,7 @@ Java 7 or above is required for using this client.
 
 This library follows [Semantic Versioning](http://semver.org/).
 
-It is currently in major version zero (``0.y.z``), which means that anything may change at any time
-and the public API should not be considered stable.
+
 
 ## Contributing
 
