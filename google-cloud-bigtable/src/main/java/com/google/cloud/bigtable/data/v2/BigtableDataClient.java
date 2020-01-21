@@ -913,6 +913,8 @@ public class BigtableDataClient implements AutoCloseable {
    * Mutates multiple rows in a batch. Each individual row is mutated atomically as in MutateRow,
    * but the entire batch is not executed atomically.
    *
+   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
+   *
    * <p>Sample Code:
    *
    * <pre>{@code
@@ -940,6 +942,8 @@ public class BigtableDataClient implements AutoCloseable {
   /**
    * Reads rows for given tableId in a batch. If the row does not exist, the value will be null.
    * This operation should be called with in a single thread.
+   *
+   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
    *
    * <p>Sample Code:
    *
@@ -974,6 +978,8 @@ public class BigtableDataClient implements AutoCloseable {
   /**
    * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
    * value will be null. This operation should be called with in a single thread.
+   *
+   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
    *
    * <p>Sample Code:
    *
