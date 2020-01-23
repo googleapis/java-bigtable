@@ -113,6 +113,17 @@ public class QueryTest {
   }
 
   @Test
+  public void filterTestWithNull() {
+    Exception actualException = null;
+    try {
+      Query.create(TABLE_ID).filter(null);
+    } catch (Exception ex) {
+      actualException = ex;
+    }
+    assertThat(actualException).isInstanceOf(NullPointerException.class);
+  }
+
+  @Test
   public void filterTest() {
     Query query = Query.create(TABLE_ID).filter(FILTERS.key().regex(".*"));
 

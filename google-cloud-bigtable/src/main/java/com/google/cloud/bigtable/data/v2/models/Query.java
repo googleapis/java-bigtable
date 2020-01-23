@@ -167,9 +167,11 @@ public final class Query implements Serializable {
    */
   public Query filter(Filters.Filter filter) {
     Preconditions.checkNotNull(filter, "filter can't be null");
+
     RowFilter rowFilter = filter.toProto();
     Preconditions.checkArgument(
         rowFilter.getSerializedSize() < MAX_FILTER_SIZE, "filter size can't be more than 20MB");
+
     builder.setFilter(rowFilter);
     return this;
   }
