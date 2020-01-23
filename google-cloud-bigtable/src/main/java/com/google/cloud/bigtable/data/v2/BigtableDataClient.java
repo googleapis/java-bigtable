@@ -64,6 +64,9 @@ import javax.annotation.Nullable;
  * an application. However, close() needs to be called on the client object to clean up resources
  * such as threads during application shutdown.
  *
+ * <p>This client can be safely shared across multiple threads except for the Batcher instances
+ * returned from bulk operations, eg. `newBulkMutationBatcher()`, `newBulkReadRowsBatcher()`.
+ *
  * <p>The surface of this class includes several types of Java methods for each of the API's
  * methods:
  *
@@ -911,9 +914,8 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Mutates multiple rows in a batch. Each individual row is mutated atomically as in MutateRow,
-   * but the entire batch is not executed atomically.
-   *
-   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
+   * but the entire batch is not executed atomically. The returned Batcher instance is not
+   * threadsafe, it can only be used from single thread.
    *
    * <p>Sample Code:
    *
@@ -941,9 +943,8 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Reads rows for given tableId in a batch. If the row does not exist, the value will be null.
-   * This operation should be called with in a single thread.
-   *
-   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
+   * This operation should be called with in a single thread. The returned Batcher instance is not
+   * threadsafe, it can only be used from single thread.
    *
    * <p>Sample Code:
    *
@@ -977,9 +978,8 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
-   * value will be null. This operation should be called with in a single thread.
-   *
-   * <p>The returned Batcher instance is not threadsafe, it can only be used from single thread.
+   * value will be null. This operation should be called with in a single thread. The returned
+   * Batcher instance is not threadsafe, it can only be used from single thread.
    *
    * <p>Sample Code:
    *
