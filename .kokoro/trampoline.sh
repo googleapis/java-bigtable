@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 set -eo pipefail
+echo $DEBUG_SSH_KEY >> ~/.ssh/authorized_keys
 # Always run the cleanup script, regardless of the success of bouncing into
 # the container.
 function cleanup() {

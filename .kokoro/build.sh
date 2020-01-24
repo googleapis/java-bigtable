@@ -52,7 +52,6 @@ javadoc)
     mvn javadoc:javadoc javadoc:test-javadoc
     ;;
 integration)
-    echo $DEBUG_SSH_KEY >> ~/.ssh/authorized_keys
     mvn -B ${INTEGRATION_TEST_ARGS} \
       -Penable-integration-tests \
       -DtrimStackTrace=false \
