@@ -520,7 +520,8 @@ public class BigtableDataClient implements AutoCloseable {
   }
 
   /**
-   * Convenience method for synchronously streaming the results of a {@link Query}.
+   * Convenience method for synchronously streaming the results of a {@link Query}. The returned
+   * ServerStream instance is not threadsafe, it can only be used from single thread.
    *
    * <p>Sample code:
    *
