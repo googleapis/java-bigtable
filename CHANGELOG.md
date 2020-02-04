@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.10.1](https://www.github.com/googleapis/java-bigtable/compare/v1.10.0...v1.10.1) (2020-02-04)
+
+
+### Dependencies
+
+* update core dependencies ([#183](https://www.github.com/googleapis/java-bigtable/issues/183)) ([674bb73](https://www.github.com/googleapis/java-bigtable/commit/674bb73fa8a37233ba8f8d336e6e4be72a91f3a0))
+* update dependency com.google.cloud:google-cloud-conformance-tests to v0.0.5 ([#180](https://www.github.com/googleapis/java-bigtable/issues/180)) ([687335b](https://www.github.com/googleapis/java-bigtable/commit/687335b97c1db121a5aa2681bbddd9c0b733d9c4))
+* update dependency com.google.cloud:google-cloud-core-bom to v1.92.3 ([#179](https://www.github.com/googleapis/java-bigtable/issues/179)) ([7b896dd](https://www.github.com/googleapis/java-bigtable/commit/7b896dd60eb44e14d862789e9f8a15c113a235c8))
+* update dependency com.google.http-client:google-http-client-bom to v1.34.1 ([#175](https://www.github.com/googleapis/java-bigtable/issues/175)) ([c25e8aa](https://www.github.com/googleapis/java-bigtable/commit/c25e8aa509796c33af4c53ffb68d7e40e6dbc237))
+* update dependency io.grpc:grpc-bom to v1.27.0 ([#177](https://www.github.com/googleapis/java-bigtable/issues/177)) ([c8ab8a6](https://www.github.com/googleapis/java-bigtable/commit/c8ab8a6f94d7017f0ab0c7e2d23b99ba4388afd4))
+* update protobuf.version to v3.11.3 ([#187](https://www.github.com/googleapis/java-bigtable/issues/187)) ([f38e3e3](https://www.github.com/googleapis/java-bigtable/commit/f38e3e37a51121b55faf91737bbb3cee36baa23a))
+
 ## [1.10.0](https://www.github.com/googleapis/java-bigtable/compare/v1.9.1...v1.10.0) (2020-01-27)
 
 
