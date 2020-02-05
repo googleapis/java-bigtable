@@ -162,11 +162,12 @@ public class BigtableDataClient implements AutoCloseable {
     this.stub = stub;
   }
 
-  /** Convenience method for synchronously confirm if a row exists or not.
+  /**
+   * Confirms synchronously if given row key exists or not.
    *
    * <p>Sample code:
    *
-   * <pre>{code
+   * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String tableId = "[TABLE]";
    *   String key = "key";
@@ -180,6 +181,7 @@ public class BigtableDataClient implements AutoCloseable {
    * } catch(ApiException e) {
    *   e.printStackTrace();
    * }
+   * }</pre>
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
@@ -187,11 +189,12 @@ public class BigtableDataClient implements AutoCloseable {
     return ApiExceptions.callAndTranslateApiException(existsAsync(tableId, rowKey));
   }
 
-  /** Convenience method for synchronously confirm if a row exists or not.
+  /**
+   * Confirms synchronously if given row key exists or not.
    *
    * <p>Sample code:
    *
-   * <pre>{code
+   * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String tableId = "[TABLE]";
    *   ByteString key = ByteString.copyFromUtf8("key");
@@ -205,6 +208,7 @@ public class BigtableDataClient implements AutoCloseable {
    * } catch(ApiException e) {
    *   e.printStackTrace();
    * }
+   * }</pre>
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
@@ -212,11 +216,12 @@ public class BigtableDataClient implements AutoCloseable {
     return ApiExceptions.callAndTranslateApiException(existsAsync(tableId, rowKey));
   }
 
-  /** Convenience method for asynchronously confirm if a row exists or not.
+  /**
+   * Confirms asynchronously if given row key exists or not.
    *
    * <p>Sample code:
    *
-   * <pre>{code
+   * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String tableId = "[TABLE]";
    *   final String key = "key";
@@ -228,22 +233,24 @@ public class BigtableDataClient implements AutoCloseable {
    *       t.printStackTrace();
    *     }
    *     public void onSuccess(Boolean isRowPresent) {
-   *      if(isRowPresent) {
-   *        System.out.println(key + " is present");
-   *      }
+   *       if(isRowPresent) {
+   *         System.out.println(key + " is present");
+   *       }
    *     }
    *   }, MoreExecutors.directExecutor());
    * }
+   * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(String tableId, String rowKey) {
     return existsAsync(tableId, ByteString.copyFromUtf8(rowKey));
   }
 
-  /** Convenience method for asynchronously confirm if a row exists or not.
+  /**
+   * Confirms asynchronously if given row key exists or not.
    *
    * <p>Sample code:
    *
-   * <pre>{code
+   * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String tableId = "[TABLE]";
    *   final ByteString key = ByteString.copyFromUtf8("key");
@@ -255,12 +262,13 @@ public class BigtableDataClient implements AutoCloseable {
    *       t.printStackTrace();
    *     }
    *     public void onSuccess(Boolean isRowPresent) {
-   *      if(isRowPresent) {
-   *        System.out.println(key.toStringUtf8() + " is present");
-   *      }
+   *       if(isRowPresent) {
+   *         System.out.println(key.toStringUtf8() + " is present");
+   *       }
    *     }
    *   }, MoreExecutors.directExecutor());
    * }
+   * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(String tableId, ByteString rowKey) {
     Query query =
