@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2;
 
+import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
+
 import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
@@ -272,10 +274,16 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public ApiFuture<Boolean> existsAsync(String tableId, ByteString rowKey) {
     Query query =
-        Query.create(tableId).rowKey(rowKey).filter(Filters.FILTERS.limit().cellsPerRow(1));
-    ApiFuture<Row> row = stub.readRowCallable().futureCall(query);
+        Query.create(tableId)
+            .rowKey(rowKey)
+            .filter(
+                FILTERS
+                    .chain()
+                    .filter(FILTERS.limit().cellsPerRow(1))
+                    .filter(FILTERS.value().strip()));
+    ApiFuture<Row> resultFuture = stub.readRowCallable().futureCall(query);
     return ApiFutures.transform(
-        row,
+        resultFuture,
         new ApiFunction<Row, Boolean>() {
           @Override
           public Boolean apply(Row row) {

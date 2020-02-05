@@ -95,7 +95,13 @@ public class BigtableDataClientTest {
   @Test
   public void existsTest() {
     Query expectedQuery =
-        Query.create("fake-table").rowKey("fake-row-key").filter(FILTERS.limit().cellsPerRow(1));
+        Query.create("fake-table")
+            .rowKey("fake-row-key")
+            .filter(
+                FILTERS
+                    .chain()
+                    .filter(FILTERS.limit().cellsPerRow(1))
+                    .filter(FILTERS.value().strip()));
     Row row = Row.create(ByteString.copyFromUtf8("fake-row-key"), ImmutableList.<RowCell>of());
     Mockito.when(mockReadRowCallable.futureCall(expectedQuery))
         .thenReturn(ApiFutures.immediateFuture(row))
@@ -114,7 +120,13 @@ public class BigtableDataClientTest {
   @Test
   public void existsAsyncTest() throws Exception {
     Query expectedQuery =
-        Query.create("fake-table").rowKey("fake-row-key").filter(FILTERS.limit().cellsPerRow(1));
+        Query.create("fake-table")
+            .rowKey("fake-row-key")
+            .filter(
+                FILTERS
+                    .chain()
+                    .filter(FILTERS.limit().cellsPerRow(1))
+                    .filter(FILTERS.value().strip()));
     Row row = Row.create(ByteString.copyFromUtf8("fake-row-key"), ImmutableList.<RowCell>of());
 
     Mockito.when(mockReadRowCallable.futureCall(expectedQuery))
