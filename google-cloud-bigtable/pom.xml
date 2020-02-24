@@ -366,7 +366,7 @@
           </execution>
           <!-- Ensure that greatest version of each transitive dependency got selected -->
           <execution>
-            <id>enforce-dependencu-upper-bound</id>
+            <id>enforce-dependency-upper-bound</id>
             <configuration>
               <rules>
                 <requireUpperBoundDeps/>
