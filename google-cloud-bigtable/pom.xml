@@ -352,7 +352,7 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.0.0-M3</version>
         <executions>
-          <!-- Prevent users from mistypig a profile name -->
+          <!-- Prevent users from mistyping a profile name -->
           <execution>
             <id>enforce-valid-profile</id>
             <configuration>
