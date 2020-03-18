@@ -28,6 +28,8 @@ def main():
   generate_data_api(gapic)
   generate_admin_api(gapic)
 
+  java.format_code(f'./google-cloud-bigtable/src')
+
   java.common_templates(excludes=[
     '.gitignore',
     'README.md',
