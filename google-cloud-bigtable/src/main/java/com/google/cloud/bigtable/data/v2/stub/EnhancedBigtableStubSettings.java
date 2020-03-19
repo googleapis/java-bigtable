@@ -118,6 +118,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setInitialRetryDelay(Duration.ofMillis(10))
           .setRetryDelayMultiplier(2.0)
           .setMaxRetryDelay(Duration.ofMinutes(1))
+          .setMaxAttempts(10)
           .setJittered(true)
           .setInitialRpcTimeout(Duration.ofMinutes(5))
           .setRpcTimeoutMultiplier(2.0)
@@ -553,6 +554,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       mutateRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       copyRetrySettings(baseDefaults.mutateRowSettings(), mutateRowSettings);
 
+      long maxBulkMutateElementPerBatch = 100L;
+      long maxBulkMutateOutstandingElementCount =
+          Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * getDefaultChannelPoolSize());
+
       bulkMutateRowsSettings =
           BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
               .setRetryableCodes(IDEMPOTENT_RETRY_CODES)
@@ -560,14 +565,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .setBatchingSettings(
                   BatchingSettings.newBuilder()
                       .setIsEnabled(true)
-                      .setElementCountThreshold(100L)
+                      .setElementCountThreshold(maxBulkMutateElementPerBatch)
                       .setRequestByteThreshold(20L * 1024 * 1024)
                       .setDelayThreshold(Duration.ofSeconds(1))
                       .setFlowControlSettings(
                           FlowControlSettings.newBuilder()
                               .setLimitExceededBehavior(LimitExceededBehavior.Block)
                               .setMaxOutstandingRequestBytes(100L * 1024 * 1024)
-                              .setMaxOutstandingElementCount(1_000L)
+                              .setMaxOutstandingElementCount(maxBulkMutateOutstandingElementCount)
                               .build())
                       .build());
 
