@@ -271,7 +271,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    *       exponentially} by a factor of 2 until a {@link RetrySettings.Builder#setMaxRetryDelay
    *       maximum of} 1 minute.
    *   <li>The default read timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each row} in a
-   *       response stream is 5 minutes and the timeout to read the {@link
+   *       response stream is 5 minutes with {@link RetrySettings.Builder#setMaxAttempts maximum
+   *       attempt} count of 10 times and the timeout to read the {@link
    *       RetrySettings.Builder#setTotalTimeout entire stream} is 12 hours.
    * </ul>
    */
@@ -386,7 +387,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    * </ul>
    *
    * <p>When the pending {@link FlowControlSettings.Builder#setMaxOutstandingElementCount request
-   * count} reaches a default of 1000 or their {@link
+   * count} reaches a default of 1000 entries per channel or their {@link
    * FlowControlSettings.Builder#setMaxOutstandingRequestBytes accumulated size} reaches default
    * value of 100MB, then this operation will by default be {@link
    * FlowControlSettings.Builder#setLimitExceededBehavior blocked} until some of the pending batch
@@ -555,6 +556,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       copyRetrySettings(baseDefaults.mutateRowSettings(), mutateRowSettings);
 
       long maxBulkMutateElementPerBatch = 100L;
+      // Enables bulkMutate to support 10 outstanding batches upto per channel or up to 20K entries.
       long maxBulkMutateOutstandingElementCount =
           Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * getDefaultChannelPoolSize());
 
