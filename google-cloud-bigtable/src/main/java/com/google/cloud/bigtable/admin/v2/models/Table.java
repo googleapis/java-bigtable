@@ -56,10 +56,11 @@ public final class Table {
     READY(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY),
 
     /**
-     * The table is fully created and ready for use after a restore, and is being optimized
-     * for performance. When optimizations are complete, the table will transition to `READY` state.
+     * The table is fully created and ready for use after a restore, and is being optimized for
+     * performance. When optimizations are complete, the table will transition to `READY` state.
      */
-    READY_OPTIMIZING(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY_OPTIMIZING),
+    READY_OPTIMIZING(
+        com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY_OPTIMIZING),
 
     /** The replication state of table is not known by this client. Please upgrade your client. */
     UNRECOGNIZED(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.UNRECOGNIZED);
