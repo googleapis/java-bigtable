@@ -19,6 +19,7 @@ import static com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings.BIGT
 
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableInstanceAdminStubSettings;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Verify;
 import java.io.IOException;
@@ -77,6 +78,14 @@ public final class BigtableInstanceAdminSettings {
   /** Returns a builder containing all the values of this settings class. */
   public Builder toBuilder() {
     return new Builder(this);
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("projectId", projectId)
+        .add("stubSettings", stubSettings)
+        .toString();
   }
 
   /** Returns a new builder for this class. */

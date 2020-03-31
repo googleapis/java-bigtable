@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import java.util.logging.Logger;
@@ -203,6 +204,16 @@ public final class BigtableDataSettings {
   /** Returns a builder containing all the values of this settings class. */
   public Builder toBuilder() {
     return new Builder(this);
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("projectId", getProjectId())
+        .add("instanceId", getInstanceId())
+        .add("appProfileId", getAppProfileId())
+        .add("stubSettings", stubSettings)
+        .toString();
   }
 
   /** Builder for BigtableDataSettings. */
