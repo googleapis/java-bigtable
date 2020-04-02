@@ -135,31 +135,31 @@ class MetricsTracer implements ApiTracer {
 
   @Override
   public void attemptSucceeded() {
-    recordAttemptCompletion(null, null);
+    recordAttemptCompletion(null);
   }
 
   @Override
   public void attemptCancelled() {
-    recordAttemptCompletion(new CancellationException(), null);
+    recordAttemptCompletion(new CancellationException());
   }
 
   @Override
   public void attemptFailed(Throwable throwable, Duration duration) {
-    recordAttemptCompletion(throwable, duration);
+    recordAttemptCompletion(throwable);
   }
 
   @Override
   public void attemptFailedRetriesExhausted(Throwable throwable) {
-    recordAttemptCompletion(throwable, null);
+    recordAttemptCompletion(throwable);
   }
 
   @Override
   public void attemptPermanentFailure(Throwable throwable) {
-    recordAttemptCompletion(throwable, null);
+    recordAttemptCompletion(throwable);
   }
 
   private void recordAttemptCompletion(
-      @Nullable Throwable throwable, @Nullable Duration nextAttemptDelay) {
+      @Nullable Throwable throwable) {
     MeasureMap measures =
         stats
             .newMeasureMap()
