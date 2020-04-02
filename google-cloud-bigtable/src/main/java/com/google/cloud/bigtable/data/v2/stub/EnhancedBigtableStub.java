@@ -138,7 +138,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .setTracerFactory(
                 new CompositeTracerFactory(
                     ImmutableList.of(
-                        // Ad OpenCensus Tracing
+                        // Add OpenCensus Tracing
                         new OpencensusTracerFactory(
                             ImmutableMap.<String, String>builder()
                                 // Annotate traces with the same tags as metrics
