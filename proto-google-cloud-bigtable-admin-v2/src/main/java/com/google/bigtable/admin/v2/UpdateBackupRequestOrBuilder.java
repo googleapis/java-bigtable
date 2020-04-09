@@ -49,7 +49,8 @@ public interface UpdateBackupRequestOrBuilder
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
+   * <code>
+   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
    * </code>
    *
    * @return Whether the backup field is set.
@@ -65,7 +66,8 @@ public interface UpdateBackupRequestOrBuilder
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
+   * <code>
+   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
    * </code>
    *
    * @return The backup.
@@ -81,7 +83,8 @@ public interface UpdateBackupRequestOrBuilder
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
+   * <code>
+   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
    * </code>
    */
   com.google.bigtable.admin.v2.BackupOrBuilder getBackupOrBuilder();
