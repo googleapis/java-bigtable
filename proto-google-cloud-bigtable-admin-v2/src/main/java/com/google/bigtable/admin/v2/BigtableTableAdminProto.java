@@ -111,6 +111,46 @@ public final class BigtableTableAdminProto {
       internal_static_google_bigtable_admin_v2_CreateTableFromSnapshotMetadata_descriptor;
   static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internal_static_google_bigtable_admin_v2_CreateTableFromSnapshotMetadata_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_CreateBackupRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_CreateBackupRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_CreateBackupMetadata_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_CreateBackupMetadata_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_GetBackupRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_GetBackupRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_UpdateBackupRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_UpdateBackupRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_DeleteBackupRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_DeleteBackupRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_ListBackupsRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_ListBackupsRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_ListBackupsResponse_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_ListBackupsResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_RestoreTableRequest_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_RestoreTableRequest_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_RestoreTableMetadata_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_RestoreTableMetadata_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
+      internal_static_google_bigtable_admin_v2_OptimizeRestoredTableMetadata_descriptor;
+  static final com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internal_static_google_bigtable_admin_v2_OptimizeRestoredTableMetadata_fieldAccessorTable;
 
   public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor() {
     return descriptor;
@@ -124,176 +164,238 @@ public final class BigtableTableAdminProto {
           + "e_admin.proto\022\030google.bigtable.admin.v2\032"
           + "\034google/api/annotations.proto\032\027google/ap"
           + "i/client.proto\032\037google/api/field_behavio"
-          + "r.proto\032\031google/api/resource.proto\032$goog"
-          + "le/bigtable/admin/v2/table.proto\032\036google"
-          + "/iam/v1/iam_policy.proto\032\032google/iam/v1/"
-          + "policy.proto\032#google/longrunning/operati"
-          + "ons.proto\032\036google/protobuf/duration.prot"
-          + "o\032\033google/protobuf/empty.proto\032\037google/p"
-          + "rotobuf/timestamp.proto\"\374\001\n\022CreateTableR"
-          + "equest\0228\n\006parent\030\001 \001(\tB(\340A\002\372A\"\n bigtable"
-          + ".googleapis.com/Instance\022\025\n\010table_id\030\002 \001"
-          + "(\tB\003\340A\002\0223\n\005table\030\003 \001(\0132\037.google.bigtable"
-          + ".admin.v2.TableB\003\340A\002\022J\n\016initial_splits\030\004"
-          + " \003(\01322.google.bigtable.admin.v2.CreateTa"
-          + "bleRequest.Split\032\024\n\005Split\022\013\n\003key\030\001 \001(\014\"\264"
-          + "\001\n\036CreateTableFromSnapshotRequest\0228\n\006par"
-          + "ent\030\001 \001(\tB(\340A\002\372A\"\n bigtable.googleapis.c"
-          + "om/Instance\022\025\n\010table_id\030\002 \001(\tB\003\340A\002\022A\n\017so"
-          + "urce_snapshot\030\003 \001(\tB(\340A\002\372A\"\n bigtable.go"
-          + "ogleapis.com/Snapshot\"\224\001\n\023DropRowRangeRe"
-          + "quest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.go"
-          + "ogleapis.com/Table\022\030\n\016row_key_prefix\030\002 \001"
-          + "(\014H\000\022$\n\032delete_all_data_from_table\030\003 \001(\010"
-          + "H\000B\010\n\006target\"\250\001\n\021ListTablesRequest\0228\n\006pa"
-          + "rent\030\001 \001(\tB(\340A\002\372A\"\n bigtable.googleapis."
-          + "com/Instance\0222\n\004view\030\002 \001(\0162$.google.bigt"
-          + "able.admin.v2.Table.View\022\021\n\tpage_size\030\004 "
-          + "\001(\005\022\022\n\npage_token\030\003 \001(\t\"^\n\022ListTablesRes"
-          + "ponse\022/\n\006tables\030\001 \003(\0132\037.google.bigtable."
-          + "admin.v2.Table\022\027\n\017next_page_token\030\002 \001(\t\""
-          + "z\n\017GetTableRequest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037"
-          + "\n\035bigtable.googleapis.com/Table\0222\n\004view\030"
-          + "\002 \001(\0162$.google.bigtable.admin.v2.Table.V"
-          + "iew\"I\n\022DeleteTableRequest\0223\n\004name\030\001 \001(\tB"
-          + "%\340A\002\372A\037\n\035bigtable.googleapis.com/Table\"\332"
-          + "\002\n\033ModifyColumnFamiliesRequest\0223\n\004name\030\001"
-          + " \001(\tB%\340A\002\372A\037\n\035bigtable.googleapis.com/Ta"
-          + "ble\022^\n\rmodifications\030\002 \003(\0132B.google.bigt"
-          + "able.admin.v2.ModifyColumnFamiliesReques"
-          + "t.ModificationB\003\340A\002\032\245\001\n\014Modification\022\n\n\002"
-          + "id\030\001 \001(\t\0228\n\006create\030\002 \001(\0132&.google.bigtab"
-          + "le.admin.v2.ColumnFamilyH\000\0228\n\006update\030\003 \001"
-          + "(\0132&.google.bigtable.admin.v2.ColumnFami"
-          + "lyH\000\022\016\n\004drop\030\004 \001(\010H\000B\005\n\003mod\"V\n\037GenerateC"
-          + "onsistencyTokenRequest\0223\n\004name\030\001 \001(\tB%\340A"
-          + "\002\372A\037\n\035bigtable.googleapis.com/Table\"=\n G"
-          + "enerateConsistencyTokenResponse\022\031\n\021consi"
-          + "stency_token\030\001 \001(\t\"n\n\027CheckConsistencyRe"
-          + "quest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.go"
-          + "ogleapis.com/Table\022\036\n\021consistency_token\030"
-          + "\002 \001(\tB\003\340A\002\".\n\030CheckConsistencyResponse\022\022"
-          + "\n\nconsistent\030\001 \001(\010\"\334\001\n\024SnapshotTableRequ"
-          + "est\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.goog"
-          + "leapis.com/Table\0228\n\007cluster\030\002 \001(\tB\'\340A\002\372A"
-          + "!\n\037bigtable.googleapis.com/Cluster\022\030\n\013sn"
-          + "apshot_id\030\003 \001(\tB\003\340A\002\022&\n\003ttl\030\004 \001(\0132\031.goog"
-          + "le.protobuf.Duration\022\023\n\013description\030\005 \001("
-          + "\t\"L\n\022GetSnapshotRequest\0226\n\004name\030\001 \001(\tB(\340"
-          + "A\002\372A\"\n bigtable.googleapis.com/Snapshot\""
-          + "v\n\024ListSnapshotsRequest\0227\n\006parent\030\001 \001(\tB"
-          + "\'\340A\002\372A!\n\037bigtable.googleapis.com/Cluster"
-          + "\022\021\n\tpage_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001(\t\""
-          + "g\n\025ListSnapshotsResponse\0225\n\tsnapshots\030\001 "
-          + "\003(\0132\".google.bigtable.admin.v2.Snapshot\022"
-          + "\027\n\017next_page_token\030\002 \001(\t\"O\n\025DeleteSnapsh"
-          + "otRequest\0226\n\004name\030\001 \001(\tB(\340A\002\372A\"\n bigtabl"
-          + "e.googleapis.com/Snapshot\"\304\001\n\025SnapshotTa"
-          + "bleMetadata\022H\n\020original_request\030\001 \001(\0132.."
-          + "google.bigtable.admin.v2.SnapshotTableRe"
-          + "quest\0220\n\014request_time\030\002 \001(\0132\032.google.pro"
-          + "tobuf.Timestamp\022/\n\013finish_time\030\003 \001(\0132\032.g"
-          + "oogle.protobuf.Timestamp\"\330\001\n\037CreateTable"
-          + "FromSnapshotMetadata\022R\n\020original_request"
-          + "\030\001 \001(\01328.google.bigtable.admin.v2.Create"
-          + "TableFromSnapshotRequest\0220\n\014request_time"
-          + "\030\002 \001(\0132\032.google.protobuf.Timestamp\022/\n\013fi"
-          + "nish_time\030\003 \001(\0132\032.google.protobuf.Timest"
-          + "amp2\351\033\n\022BigtableTableAdmin\022\253\001\n\013CreateTab"
-          + "le\022,.google.bigtable.admin.v2.CreateTabl"
-          + "eRequest\032\037.google.bigtable.admin.v2.Tabl"
-          + "e\"M\202\323\344\223\002/\"*/v2/{parent=projects/*/instan"
-          + "ces/*}/tables:\001*\332A\025parent,table_id,table"
-          + "\022\212\002\n\027CreateTableFromSnapshot\0228.google.bi"
-          + "gtable.admin.v2.CreateTableFromSnapshotR"
-          + "equest\032\035.google.longrunning.Operation\"\225\001"
-          + "\202\323\344\223\002B\"=/v2/{parent=projects/*/instances"
-          + "/*}/tables:createFromSnapshot:\001*\332A\037paren"
-          + "t,table_id,source_snapshot\312A(\n\005Table\022\037Cr"
-          + "eateTableFromSnapshotMetadata\022\244\001\n\nListTa"
-          + "bles\022+.google.bigtable.admin.v2.ListTabl"
-          + "esRequest\032,.google.bigtable.admin.v2.Lis"
-          + "tTablesResponse\";\202\323\344\223\002,\022*/v2/{parent=pro"
-          + "jects/*/instances/*}/tables\332A\006parent\022\221\001\n"
-          + "\010GetTable\022).google.bigtable.admin.v2.Get"
-          + "TableRequest\032\037.google.bigtable.admin.v2."
-          + "Table\"9\202\323\344\223\002,\022*/v2/{name=projects/*/inst"
-          + "ances/*/tables/*}\332A\004name\022\216\001\n\013DeleteTable"
-          + "\022,.google.bigtable.admin.v2.DeleteTableR"
-          + "equest\032\026.google.protobuf.Empty\"9\202\323\344\223\002,**"
-          + "/v2/{name=projects/*/instances/*/tables/"
-          + "*}\332A\004name\022\317\001\n\024ModifyColumnFamilies\0225.goo"
-          + "gle.bigtable.admin.v2.ModifyColumnFamili"
-          + "esRequest\032\037.google.bigtable.admin.v2.Tab"
-          + "le\"_\202\323\344\223\002D\"?/v2/{name=projects/*/instanc"
-          + "es/*/tables/*}:modifyColumnFamilies:\001*\332A"
-          + "\022name,modifications\022\231\001\n\014DropRowRange\022-.g"
-          + "oogle.bigtable.admin.v2.DropRowRangeRequ"
-          + "est\032\026.google.protobuf.Empty\"B\202\323\344\223\002<\"7/v2"
-          + "/{name=projects/*/instances/*/tables/*}:"
-          + "dropRowRange:\001*\022\350\001\n\030GenerateConsistencyT"
-          + "oken\0229.google.bigtable.admin.v2.Generate"
-          + "ConsistencyTokenRequest\032:.google.bigtabl"
-          + "e.admin.v2.GenerateConsistencyTokenRespo"
-          + "nse\"U\202\323\344\223\002H\"C/v2/{name=projects/*/instan"
-          + "ces/*/tables/*}:generateConsistencyToken"
-          + ":\001*\332A\004name\022\332\001\n\020CheckConsistency\0221.google"
-          + ".bigtable.admin.v2.CheckConsistencyReque"
-          + "st\0322.google.bigtable.admin.v2.CheckConsi"
-          + "stencyResponse\"_\202\323\344\223\002@\";/v2/{name=projec"
-          + "ts/*/instances/*/tables/*}:checkConsiste"
-          + "ncy:\001*\332A\026name,consistency_token\022\352\001\n\rSnap"
-          + "shotTable\022..google.bigtable.admin.v2.Sna"
-          + "pshotTableRequest\032\035.google.longrunning.O"
-          + "peration\"\211\001\202\323\344\223\0028\"3/v2/{name=projects/*/"
-          + "instances/*/tables/*}:snapshot:\001*\332A$name"
-          + ",cluster,snapshot_id,description\312A!\n\010Sna"
-          + "pshot\022\025SnapshotTableMetadata\022\250\001\n\013GetSnap"
-          + "shot\022,.google.bigtable.admin.v2.GetSnaps"
-          + "hotRequest\032\".google.bigtable.admin.v2.Sn"
-          + "apshot\"G\202\323\344\223\002:\0228/v2/{name=projects/*/ins"
-          + "tances/*/clusters/*/snapshots/*}\332A\004name\022"
-          + "\273\001\n\rListSnapshots\022..google.bigtable.admi"
-          + "n.v2.ListSnapshotsRequest\032/.google.bigta"
-          + "ble.admin.v2.ListSnapshotsResponse\"I\202\323\344\223"
-          + "\002:\0228/v2/{parent=projects/*/instances/*/c"
-          + "lusters/*}/snapshots\332A\006parent\022\242\001\n\016Delete"
-          + "Snapshot\022/.google.bigtable.admin.v2.Dele"
-          + "teSnapshotRequest\032\026.google.protobuf.Empt"
-          + "y\"G\202\323\344\223\002:*8/v2/{name=projects/*/instance"
-          + "s/*/clusters/*/snapshots/*}\332A\004name\022\234\001\n\014G"
-          + "etIamPolicy\022\".google.iam.v1.GetIamPolicy"
-          + "Request\032\025.google.iam.v1.Policy\"Q\202\323\344\223\002@\";"
-          + "/v2/{resource=projects/*/instances/*/tab"
-          + "les/*}:getIamPolicy:\001*\332A\010resource\022\363\001\n\014Se"
-          + "tIamPolicy\022\".google.iam.v1.SetIamPolicyR"
-          + "equest\032\025.google.iam.v1.Policy\"\247\001\202\323\344\223\002\216\001\""
-          + ";/v2/{resource=projects/*/instances/*/ta"
-          + "bles/*}:setIamPolicy:\001*ZL\"G/v2/{resource"
-          + "=projects/*/instances/*/clusters/*/backu"
-          + "ps/*}:setIamPolicy:\001*\332A\017resource,policy\022"
-          + "\244\002\n\022TestIamPermissions\022(.google.iam.v1.T"
-          + "estIamPermissionsRequest\032).google.iam.v1"
-          + ".TestIamPermissionsResponse\"\270\001\202\323\344\223\002\232\001\"A/"
-          + "v2/{resource=projects/*/instances/*/tabl"
-          + "es/*}:testIamPermissions:\001*ZR\"M/v2/{reso"
-          + "urce=projects/*/instances/*/clusters/*/b"
-          + "ackups/*}:testIamPermissions:\001*\332A\024resour"
-          + "ce,permissions\032\336\002\312A\034bigtableadmin.google"
-          + "apis.com\322A\273\002https://www.googleapis.com/a"
-          + "uth/bigtable.admin,https://www.googleapi"
-          + "s.com/auth/bigtable.admin.table,https://"
-          + "www.googleapis.com/auth/cloud-bigtable.a"
-          + "dmin,https://www.googleapis.com/auth/clo"
-          + "ud-bigtable.admin.table,https://www.goog"
-          + "leapis.com/auth/cloud-platform,https://w"
-          + "ww.googleapis.com/auth/cloud-platform.re"
-          + "ad-onlyB\272\001\n\034com.google.bigtable.admin.v2"
-          + "B\027BigtableTableAdminProtoP\001Z=google.gola"
-          + "ng.org/genproto/googleapis/bigtable/admi"
-          + "n/v2;admin\252\002\036Google.Cloud.Bigtable.Admin"
-          + ".V2\312\002\036Google\\Cloud\\Bigtable\\Admin\\V2b\006pr"
-          + "oto3"
+          + "r.proto\032\031google/api/resource.proto\032%goog"
+          + "le/bigtable/admin/v2/common.proto\032$googl"
+          + "e/bigtable/admin/v2/table.proto\032\036google/"
+          + "iam/v1/iam_policy.proto\032\032google/iam/v1/p"
+          + "olicy.proto\032#google/longrunning/operatio"
+          + "ns.proto\032\036google/protobuf/duration.proto"
+          + "\032\033google/protobuf/empty.proto\032 google/pr"
+          + "otobuf/field_mask.proto\032\037google/protobuf"
+          + "/timestamp.proto\"\374\001\n\022CreateTableRequest\022"
+          + "8\n\006parent\030\001 \001(\tB(\340A\002\372A\"\n bigtable.google"
+          + "apis.com/Instance\022\025\n\010table_id\030\002 \001(\tB\003\340A\002"
+          + "\0223\n\005table\030\003 \001(\0132\037.google.bigtable.admin."
+          + "v2.TableB\003\340A\002\022J\n\016initial_splits\030\004 \003(\01322."
+          + "google.bigtable.admin.v2.CreateTableRequ"
+          + "est.Split\032\024\n\005Split\022\013\n\003key\030\001 \001(\014\"\264\001\n\036Crea"
+          + "teTableFromSnapshotRequest\0228\n\006parent\030\001 \001"
+          + "(\tB(\340A\002\372A\"\n bigtable.googleapis.com/Inst"
+          + "ance\022\025\n\010table_id\030\002 \001(\tB\003\340A\002\022A\n\017source_sn"
+          + "apshot\030\003 \001(\tB(\340A\002\372A\"\n bigtable.googleapi"
+          + "s.com/Snapshot\"\224\001\n\023DropRowRangeRequest\0223"
+          + "\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.googleapi"
+          + "s.com/Table\022\030\n\016row_key_prefix\030\002 \001(\014H\000\022$\n"
+          + "\032delete_all_data_from_table\030\003 \001(\010H\000B\010\n\006t"
+          + "arget\"\250\001\n\021ListTablesRequest\0228\n\006parent\030\001 "
+          + "\001(\tB(\340A\002\372A\"\n bigtable.googleapis.com/Ins"
+          + "tance\0222\n\004view\030\002 \001(\0162$.google.bigtable.ad"
+          + "min.v2.Table.View\022\021\n\tpage_size\030\004 \001(\005\022\022\n\n"
+          + "page_token\030\003 \001(\t\"^\n\022ListTablesResponse\022/"
+          + "\n\006tables\030\001 \003(\0132\037.google.bigtable.admin.v"
+          + "2.Table\022\027\n\017next_page_token\030\002 \001(\t\"z\n\017GetT"
+          + "ableRequest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigta"
+          + "ble.googleapis.com/Table\0222\n\004view\030\002 \001(\0162$"
+          + ".google.bigtable.admin.v2.Table.View\"I\n\022"
+          + "DeleteTableRequest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037"
+          + "\n\035bigtable.googleapis.com/Table\"\332\002\n\033Modi"
+          + "fyColumnFamiliesRequest\0223\n\004name\030\001 \001(\tB%\340"
+          + "A\002\372A\037\n\035bigtable.googleapis.com/Table\022^\n\r"
+          + "modifications\030\002 \003(\0132B.google.bigtable.ad"
+          + "min.v2.ModifyColumnFamiliesRequest.Modif"
+          + "icationB\003\340A\002\032\245\001\n\014Modification\022\n\n\002id\030\001 \001("
+          + "\t\0228\n\006create\030\002 \001(\0132&.google.bigtable.admi"
+          + "n.v2.ColumnFamilyH\000\0228\n\006update\030\003 \001(\0132&.go"
+          + "ogle.bigtable.admin.v2.ColumnFamilyH\000\022\016\n"
+          + "\004drop\030\004 \001(\010H\000B\005\n\003mod\"V\n\037GenerateConsiste"
+          + "ncyTokenRequest\0223\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035b"
+          + "igtable.googleapis.com/Table\"=\n Generate"
+          + "ConsistencyTokenResponse\022\031\n\021consistency_"
+          + "token\030\001 \001(\t\"n\n\027CheckConsistencyRequest\0223"
+          + "\n\004name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.googleapi"
+          + "s.com/Table\022\036\n\021consistency_token\030\002 \001(\tB\003"
+          + "\340A\002\".\n\030CheckConsistencyResponse\022\022\n\nconsi"
+          + "stent\030\001 \001(\010\"\334\001\n\024SnapshotTableRequest\0223\n\004"
+          + "name\030\001 \001(\tB%\340A\002\372A\037\n\035bigtable.googleapis."
+          + "com/Table\0228\n\007cluster\030\002 \001(\tB\'\340A\002\372A!\n\037bigt"
+          + "able.googleapis.com/Cluster\022\030\n\013snapshot_"
+          + "id\030\003 \001(\tB\003\340A\002\022&\n\003ttl\030\004 \001(\0132\031.google.prot"
+          + "obuf.Duration\022\023\n\013description\030\005 \001(\t\"L\n\022Ge"
+          + "tSnapshotRequest\0226\n\004name\030\001 \001(\tB(\340A\002\372A\"\n "
+          + "bigtable.googleapis.com/Snapshot\"v\n\024List"
+          + "SnapshotsRequest\0227\n\006parent\030\001 \001(\tB\'\340A\002\372A!"
+          + "\n\037bigtable.googleapis.com/Cluster\022\021\n\tpag"
+          + "e_size\030\002 \001(\005\022\022\n\npage_token\030\003 \001(\t\"g\n\025List"
+          + "SnapshotsResponse\0225\n\tsnapshots\030\001 \003(\0132\".g"
+          + "oogle.bigtable.admin.v2.Snapshot\022\027\n\017next"
+          + "_page_token\030\002 \001(\t\"O\n\025DeleteSnapshotReque"
+          + "st\0226\n\004name\030\001 \001(\tB(\340A\002\372A\"\n bigtable.googl"
+          + "eapis.com/Snapshot\"\304\001\n\025SnapshotTableMeta"
+          + "data\022H\n\020original_request\030\001 \001(\0132..google."
+          + "bigtable.admin.v2.SnapshotTableRequest\0220"
+          + "\n\014request_time\030\002 \001(\0132\032.google.protobuf.T"
+          + "imestamp\022/\n\013finish_time\030\003 \001(\0132\032.google.p"
+          + "rotobuf.Timestamp\"\330\001\n\037CreateTableFromSna"
+          + "pshotMetadata\022R\n\020original_request\030\001 \001(\0132"
+          + "8.google.bigtable.admin.v2.CreateTableFr"
+          + "omSnapshotRequest\0220\n\014request_time\030\002 \001(\0132"
+          + "\032.google.protobuf.Timestamp\022/\n\013finish_ti"
+          + "me\030\003 \001(\0132\032.google.protobuf.Timestamp\"\235\001\n"
+          + "\023CreateBackupRequest\0227\n\006parent\030\001 \001(\tB\'\340A"
+          + "\002\372A!\n\037bigtable.googleapis.com/Cluster\022\026\n"
+          + "\tbackup_id\030\002 \001(\tB\003\340A\002\0225\n\006backup\030\003 \001(\0132 ."
+          + "google.bigtable.admin.v2.BackupB\003\340A\002\"\230\001\n"
+          + "\024CreateBackupMetadata\022\014\n\004name\030\001 \001(\t\022\024\n\014s"
+          + "ource_table\030\002 \001(\t\022.\n\nstart_time\030\003 \001(\0132\032."
+          + "google.protobuf.Timestamp\022,\n\010end_time\030\004 "
+          + "\001(\0132\032.google.protobuf.Timestamp\"H\n\020GetBa"
+          + "ckupRequest\0224\n\004name\030\001 \001(\tB&\340A\002\372A \n\036bigta"
+          + "ble.googleapis.com/Backup\"\245\001\n\023UpdateBack"
+          + "upRequest\022X\n\006backup\030\001 \001(\0132 .google.bigta"
+          + "ble.admin.v2.BackupB&\340A\002\372A \n\036bigtable.go"
+          + "ogleapis.com/Backup\0224\n\013update_mask\030\002 \001(\013"
+          + "2\032.google.protobuf.FieldMaskB\003\340A\002\"K\n\023Del"
+          + "eteBackupRequest\0224\n\004name\030\001 \001(\tB&\340A\002\372A \n\036"
+          + "bigtable.googleapis.com/Backup\"\226\001\n\022ListB"
+          + "ackupsRequest\0227\n\006parent\030\001 \001(\tB\'\340A\002\372A!\n\037b"
+          + "igtable.googleapis.com/Cluster\022\016\n\006filter"
+          + "\030\002 \001(\t\022\020\n\010order_by\030\003 \001(\t\022\021\n\tpage_size\030\004 "
+          + "\001(\005\022\022\n\npage_token\030\005 \001(\t\"a\n\023ListBackupsRe"
+          + "sponse\0221\n\007backups\030\001 \003(\0132 .google.bigtabl"
+          + "e.admin.v2.Backup\022\027\n\017next_page_token\030\002 \001"
+          + "(\t\"S\n\023RestoreTableRequest\022\016\n\006parent\030\001 \001("
+          + "\t\022\020\n\010table_id\030\002 \001(\t\022\020\n\006backup\030\003 \001(\tH\000B\010\n"
+          + "\006source\"\230\002\n\024RestoreTableMetadata\022\014\n\004name"
+          + "\030\001 \001(\t\022@\n\013source_type\030\002 \001(\0162+.google.big"
+          + "table.admin.v2.RestoreSourceType\022;\n\013back"
+          + "up_info\030\003 \001(\0132$.google.bigtable.admin.v2"
+          + ".BackupInfoH\000\022%\n\035optimize_table_operatio"
+          + "n_name\030\004 \001(\t\022=\n\010progress\030\005 \001(\0132+.google."
+          + "bigtable.admin.v2.OperationProgressB\r\n\013s"
+          + "ource_info\"l\n\035OptimizeRestoredTableMetad"
+          + "ata\022\014\n\004name\030\001 \001(\t\022=\n\010progress\030\002 \001(\0132+.go"
+          + "ogle.bigtable.admin.v2.OperationProgress"
+          + "2\201$\n\022BigtableTableAdmin\022\253\001\n\013CreateTable\022"
+          + ",.google.bigtable.admin.v2.CreateTableRe"
+          + "quest\032\037.google.bigtable.admin.v2.Table\"M"
+          + "\202\323\344\223\002/\"*/v2/{parent=projects/*/instances"
+          + "/*}/tables:\001*\332A\025parent,table_id,table\022\212\002"
+          + "\n\027CreateTableFromSnapshot\0228.google.bigta"
+          + "ble.admin.v2.CreateTableFromSnapshotRequ"
+          + "est\032\035.google.longrunning.Operation\"\225\001\202\323\344"
+          + "\223\002B\"=/v2/{parent=projects/*/instances/*}"
+          + "/tables:createFromSnapshot:\001*\332A\037parent,t"
+          + "able_id,source_snapshot\312A(\n\005Table\022\037Creat"
+          + "eTableFromSnapshotMetadata\022\244\001\n\nListTable"
+          + "s\022+.google.bigtable.admin.v2.ListTablesR"
+          + "equest\032,.google.bigtable.admin.v2.ListTa"
+          + "blesResponse\";\202\323\344\223\002,\022*/v2/{parent=projec"
+          + "ts/*/instances/*}/tables\332A\006parent\022\221\001\n\010Ge"
+          + "tTable\022).google.bigtable.admin.v2.GetTab"
+          + "leRequest\032\037.google.bigtable.admin.v2.Tab"
+          + "le\"9\202\323\344\223\002,\022*/v2/{name=projects/*/instanc"
+          + "es/*/tables/*}\332A\004name\022\216\001\n\013DeleteTable\022,."
+          + "google.bigtable.admin.v2.DeleteTableRequ"
+          + "est\032\026.google.protobuf.Empty\"9\202\323\344\223\002,**/v2"
+          + "/{name=projects/*/instances/*/tables/*}\332"
+          + "A\004name\022\317\001\n\024ModifyColumnFamilies\0225.google"
+          + ".bigtable.admin.v2.ModifyColumnFamiliesR"
+          + "equest\032\037.google.bigtable.admin.v2.Table\""
+          + "_\202\323\344\223\002D\"?/v2/{name=projects/*/instances/"
+          + "*/tables/*}:modifyColumnFamilies:\001*\332A\022na"
+          + "me,modifications\022\231\001\n\014DropRowRange\022-.goog"
+          + "le.bigtable.admin.v2.DropRowRangeRequest"
+          + "\032\026.google.protobuf.Empty\"B\202\323\344\223\002<\"7/v2/{n"
+          + "ame=projects/*/instances/*/tables/*}:dro"
+          + "pRowRange:\001*\022\350\001\n\030GenerateConsistencyToke"
+          + "n\0229.google.bigtable.admin.v2.GenerateCon"
+          + "sistencyTokenRequest\032:.google.bigtable.a"
+          + "dmin.v2.GenerateConsistencyTokenResponse"
+          + "\"U\202\323\344\223\002H\"C/v2/{name=projects/*/instances"
+          + "/*/tables/*}:generateConsistencyToken:\001*"
+          + "\332A\004name\022\332\001\n\020CheckConsistency\0221.google.bi"
+          + "gtable.admin.v2.CheckConsistencyRequest\032"
+          + "2.google.bigtable.admin.v2.CheckConsiste"
+          + "ncyResponse\"_\202\323\344\223\002@\";/v2/{name=projects/"
+          + "*/instances/*/tables/*}:checkConsistency"
+          + ":\001*\332A\026name,consistency_token\022\352\001\n\rSnapsho"
+          + "tTable\022..google.bigtable.admin.v2.Snapsh"
+          + "otTableRequest\032\035.google.longrunning.Oper"
+          + "ation\"\211\001\202\323\344\223\0028\"3/v2/{name=projects/*/ins"
+          + "tances/*/tables/*}:snapshot:\001*\332A$name,cl"
+          + "uster,snapshot_id,description\312A!\n\010Snapsh"
+          + "ot\022\025SnapshotTableMetadata\022\250\001\n\013GetSnapsho"
+          + "t\022,.google.bigtable.admin.v2.GetSnapshot"
+          + "Request\032\".google.bigtable.admin.v2.Snaps"
+          + "hot\"G\202\323\344\223\002:\0228/v2/{name=projects/*/instan"
+          + "ces/*/clusters/*/snapshots/*}\332A\004name\022\273\001\n"
+          + "\rListSnapshots\022..google.bigtable.admin.v"
+          + "2.ListSnapshotsRequest\032/.google.bigtable"
+          + ".admin.v2.ListSnapshotsResponse\"I\202\323\344\223\002:\022"
+          + "8/v2/{parent=projects/*/instances/*/clus"
+          + "ters/*}/snapshots\332A\006parent\022\242\001\n\016DeleteSna"
+          + "pshot\022/.google.bigtable.admin.v2.DeleteS"
+          + "napshotRequest\032\026.google.protobuf.Empty\"G"
+          + "\202\323\344\223\002:*8/v2/{name=projects/*/instances/*"
+          + "/clusters/*/snapshots/*}\332A\004name\022\305\001\n\014Crea"
+          + "teBackup\022-.google.bigtable.admin.v2.Crea"
+          + "teBackupRequest\032\035.google.longrunning.Ope"
+          + "ration\"g\202\323\344\223\002@\"6/v2/{parent=projects/*/i"
+          + "nstances/*/clusters/*}/backups:\006backup\312A"
+          + "\036\n\006Backup\022\024CreateBackupMetadata\022\231\001\n\tGetB"
+          + "ackup\022*.google.bigtable.admin.v2.GetBack"
+          + "upRequest\032 .google.bigtable.admin.v2.Bac"
+          + "kup\">\202\323\344\223\0028\0226/v2/{name=projects/*/instan"
+          + "ces/*/clusters/*/backups/*}\022\256\001\n\014UpdateBa"
+          + "ckup\022-.google.bigtable.admin.v2.UpdateBa"
+          + "ckupRequest\032 .google.bigtable.admin.v2.B"
+          + "ackup\"M\202\323\344\223\002G2=/v2/{backup.name=projects"
+          + "/*/instances/*/clusters/*/backups/*}:\006ba"
+          + "ckup\022\225\001\n\014DeleteBackup\022-.google.bigtable."
+          + "admin.v2.DeleteBackupRequest\032\026.google.pr"
+          + "otobuf.Empty\">\202\323\344\223\0028*6/v2/{name=projects"
+          + "/*/instances/*/clusters/*/backups/*}\022\252\001\n"
+          + "\013ListBackups\022,.google.bigtable.admin.v2."
+          + "ListBackupsRequest\032-.google.bigtable.adm"
+          + "in.v2.ListBackupsResponse\">\202\323\344\223\0028\0226/v2/{"
+          + "parent=projects/*/instances/*/clusters/*"
+          + "}/backups\022\273\001\n\014RestoreTable\022-.google.bigt"
+          + "able.admin.v2.RestoreTableRequest\032\035.goog"
+          + "le.longrunning.Operation\"]\202\323\344\223\0027\"2/v2/{p"
+          + "arent=projects/*/instances/*}/tables:res"
+          + "tore:\001*\312A\035\n\005Table\022\024RestoreTableMetadata\022"
+          + "\234\001\n\014GetIamPolicy\022\".google.iam.v1.GetIamP"
+          + "olicyRequest\032\025.google.iam.v1.Policy\"Q\202\323\344"
+          + "\223\002@\";/v2/{resource=projects/*/instances/"
+          + "*/tables/*}:getIamPolicy:\001*\332A\010resource\022\363"
+          + "\001\n\014SetIamPolicy\022\".google.iam.v1.SetIamPo"
+          + "licyRequest\032\025.google.iam.v1.Policy\"\247\001\202\323\344"
+          + "\223\002\216\001\";/v2/{resource=projects/*/instances"
+          + "/*/tables/*}:setIamPolicy:\001*ZL\"G/v2/{res"
+          + "ource=projects/*/instances/*/clusters/*/"
+          + "backups/*}:setIamPolicy:\001*\332A\017resource,po"
+          + "licy\022\244\002\n\022TestIamPermissions\022(.google.iam"
+          + ".v1.TestIamPermissionsRequest\032).google.i"
+          + "am.v1.TestIamPermissionsResponse\"\270\001\202\323\344\223\002"
+          + "\232\001\"A/v2/{resource=projects/*/instances/*"
+          + "/tables/*}:testIamPermissions:\001*ZR\"M/v2/"
+          + "{resource=projects/*/instances/*/cluster"
+          + "s/*/backups/*}:testIamPermissions:\001*\332A\024r"
+          + "esource,permissions\032\336\002\312A\034bigtableadmin.g"
+          + "oogleapis.com\322A\273\002https://www.googleapis."
+          + "com/auth/bigtable.admin,https://www.goog"
+          + "leapis.com/auth/bigtable.admin.table,htt"
+          + "ps://www.googleapis.com/auth/cloud-bigta"
+          + "ble.admin,https://www.googleapis.com/aut"
+          + "h/cloud-bigtable.admin.table,https://www"
+          + ".googleapis.com/auth/cloud-platform,http"
+          + "s://www.googleapis.com/auth/cloud-platfo"
+          + "rm.read-onlyB\272\001\n\034com.google.bigtable.adm"
+          + "in.v2B\027BigtableTableAdminProtoP\001Z=google"
+          + ".golang.org/genproto/googleapis/bigtable"
+          + "/admin/v2;admin\252\002\036Google.Cloud.Bigtable."
+          + "Admin.V2\312\002\036Google\\Cloud\\Bigtable\\Admin\\V"
+          + "2b\006proto3"
     };
     descriptor =
         com.google.protobuf.Descriptors.FileDescriptor.internalBuildGeneratedFileFrom(
@@ -303,12 +405,14 @@ public final class BigtableTableAdminProto {
               com.google.api.ClientProto.getDescriptor(),
               com.google.api.FieldBehaviorProto.getDescriptor(),
               com.google.api.ResourceProto.getDescriptor(),
+              com.google.bigtable.admin.v2.CommonProto.getDescriptor(),
               com.google.bigtable.admin.v2.TableProto.getDescriptor(),
               com.google.iam.v1.IamPolicyProto.getDescriptor(),
               com.google.iam.v1.PolicyProto.getDescriptor(),
               com.google.longrunning.OperationsProto.getDescriptor(),
               com.google.protobuf.DurationProto.getDescriptor(),
               com.google.protobuf.EmptyProto.getDescriptor(),
+              com.google.protobuf.FieldMaskProto.getDescriptor(),
               com.google.protobuf.TimestampProto.getDescriptor(),
             });
     internal_static_google_bigtable_admin_v2_CreateTableRequest_descriptor =
@@ -483,6 +587,91 @@ public final class BigtableTableAdminProto {
             new java.lang.String[] {
               "OriginalRequest", "RequestTime", "FinishTime",
             });
+    internal_static_google_bigtable_admin_v2_CreateBackupRequest_descriptor =
+        getDescriptor().getMessageTypes().get(19);
+    internal_static_google_bigtable_admin_v2_CreateBackupRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_CreateBackupRequest_descriptor,
+            new java.lang.String[] {
+              "Parent", "BackupId", "Backup",
+            });
+    internal_static_google_bigtable_admin_v2_CreateBackupMetadata_descriptor =
+        getDescriptor().getMessageTypes().get(20);
+    internal_static_google_bigtable_admin_v2_CreateBackupMetadata_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_CreateBackupMetadata_descriptor,
+            new java.lang.String[] {
+              "Name", "SourceTable", "StartTime", "EndTime",
+            });
+    internal_static_google_bigtable_admin_v2_GetBackupRequest_descriptor =
+        getDescriptor().getMessageTypes().get(21);
+    internal_static_google_bigtable_admin_v2_GetBackupRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_GetBackupRequest_descriptor,
+            new java.lang.String[] {
+              "Name",
+            });
+    internal_static_google_bigtable_admin_v2_UpdateBackupRequest_descriptor =
+        getDescriptor().getMessageTypes().get(22);
+    internal_static_google_bigtable_admin_v2_UpdateBackupRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_UpdateBackupRequest_descriptor,
+            new java.lang.String[] {
+              "Backup", "UpdateMask",
+            });
+    internal_static_google_bigtable_admin_v2_DeleteBackupRequest_descriptor =
+        getDescriptor().getMessageTypes().get(23);
+    internal_static_google_bigtable_admin_v2_DeleteBackupRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_DeleteBackupRequest_descriptor,
+            new java.lang.String[] {
+              "Name",
+            });
+    internal_static_google_bigtable_admin_v2_ListBackupsRequest_descriptor =
+        getDescriptor().getMessageTypes().get(24);
+    internal_static_google_bigtable_admin_v2_ListBackupsRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_ListBackupsRequest_descriptor,
+            new java.lang.String[] {
+              "Parent", "Filter", "OrderBy", "PageSize", "PageToken",
+            });
+    internal_static_google_bigtable_admin_v2_ListBackupsResponse_descriptor =
+        getDescriptor().getMessageTypes().get(25);
+    internal_static_google_bigtable_admin_v2_ListBackupsResponse_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_ListBackupsResponse_descriptor,
+            new java.lang.String[] {
+              "Backups", "NextPageToken",
+            });
+    internal_static_google_bigtable_admin_v2_RestoreTableRequest_descriptor =
+        getDescriptor().getMessageTypes().get(26);
+    internal_static_google_bigtable_admin_v2_RestoreTableRequest_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_RestoreTableRequest_descriptor,
+            new java.lang.String[] {
+              "Parent", "TableId", "Backup", "Source",
+            });
+    internal_static_google_bigtable_admin_v2_RestoreTableMetadata_descriptor =
+        getDescriptor().getMessageTypes().get(27);
+    internal_static_google_bigtable_admin_v2_RestoreTableMetadata_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_RestoreTableMetadata_descriptor,
+            new java.lang.String[] {
+              "Name",
+              "SourceType",
+              "BackupInfo",
+              "OptimizeTableOperationName",
+              "Progress",
+              "SourceInfo",
+            });
+    internal_static_google_bigtable_admin_v2_OptimizeRestoredTableMetadata_descriptor =
+        getDescriptor().getMessageTypes().get(28);
+    internal_static_google_bigtable_admin_v2_OptimizeRestoredTableMetadata_fieldAccessorTable =
+        new com.google.protobuf.GeneratedMessageV3.FieldAccessorTable(
+            internal_static_google_bigtable_admin_v2_OptimizeRestoredTableMetadata_descriptor,
+            new java.lang.String[] {
+              "Name", "Progress",
+            });
     com.google.protobuf.ExtensionRegistry registry =
         com.google.protobuf.ExtensionRegistry.newInstance();
     registry.add(com.google.api.ClientProto.defaultHost);
@@ -498,12 +687,14 @@ public final class BigtableTableAdminProto {
     com.google.api.ClientProto.getDescriptor();
     com.google.api.FieldBehaviorProto.getDescriptor();
     com.google.api.ResourceProto.getDescriptor();
+    com.google.bigtable.admin.v2.CommonProto.getDescriptor();
     com.google.bigtable.admin.v2.TableProto.getDescriptor();
     com.google.iam.v1.IamPolicyProto.getDescriptor();
     com.google.iam.v1.PolicyProto.getDescriptor();
     com.google.longrunning.OperationsProto.getDescriptor();
     com.google.protobuf.DurationProto.getDescriptor();
     com.google.protobuf.EmptyProto.getDescriptor();
+    com.google.protobuf.FieldMaskProto.getDescriptor();
     com.google.protobuf.TimestampProto.getDescriptor();
   }
 
