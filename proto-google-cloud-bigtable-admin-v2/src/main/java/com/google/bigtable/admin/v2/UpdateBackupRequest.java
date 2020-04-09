@@ -146,8 +146,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>
-   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
    * </code>
    *
    * @return Whether the backup field is set.
@@ -165,8 +164,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>
-   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
    * </code>
    *
    * @return The backup.
@@ -184,8 +182,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
    *  * `backup.expire_time`.
    * </pre>
    *
-   * <code>
-   * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+   * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
    * </code>
    */
   public com.google.bigtable.admin.v2.BackupOrBuilder getBackupOrBuilder() {
@@ -624,8 +621,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      *
      * @return Whether the backup field is set.
@@ -643,8 +639,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      *
      * @return The backup.
@@ -666,8 +661,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public Builder setBackup(com.google.bigtable.admin.v2.Backup value) {
@@ -693,8 +687,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public Builder setBackup(com.google.bigtable.admin.v2.Backup.Builder builderForValue) {
@@ -717,8 +710,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public Builder mergeBackup(com.google.bigtable.admin.v2.Backup value) {
@@ -748,8 +740,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public Builder clearBackup() {
@@ -773,8 +764,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public com.google.bigtable.admin.v2.Backup.Builder getBackupBuilder() {
@@ -792,8 +782,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     public com.google.bigtable.admin.v2.BackupOrBuilder getBackupOrBuilder() {
@@ -813,8 +802,7 @@ public final class UpdateBackupRequest extends com.google.protobuf.GeneratedMess
      *  * `backup.expire_time`.
      * </pre>
      *
-     * <code>
-     * .google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
+     * <code>.google.bigtable.admin.v2.Backup backup = 1 [(.google.api.field_behavior) = REQUIRED];
      * </code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
