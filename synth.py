@@ -25,7 +25,7 @@ AUTOSYNTH_MULTIPLE_COMMITS = True
 # https://github.com/googleapis/gapic-generator/issues/2742
 
 def main():
-  gapic = gcp.GAPICBazel()
+  gapic = gcp.GAPICGenerator()
 
   generate_data_api(gapic)
   generate_admin_api(gapic)
@@ -45,11 +45,8 @@ def generate_data_api(gapic):
   library = gapic.java_library(
     service='bigtable',
     version='v2',
-    proto_path=f'google/bigtable/v2',
-    bazel_target=f'//google/bigtable/v2:google-cloud-bigtable-v2-java',
-  )
-
-  library = library / 'google-cloud-bigtable-v2-java'
+    config_path='/google/bigtable/artman_bigtable.yaml',
+    artman_output_name='')
 
   # Excludes are relative to source `gapic-google-cloud-bigtable-v2/src`
   excludes = [
@@ -73,12 +70,12 @@ def generate_data_api(gapic):
   ]
 
   package_name = f'com.google.bigtable.v2'
-  java.fix_proto_headers(library / f'proto-google-cloud-bigtable-v2-java')
-  java.fix_grpc_headers(library / f'grpc-google-cloud-bigtable-v2-java', package_name)
+  java.fix_proto_headers(library / f'proto-google-cloud-bigtable-v2')
+  java.fix_grpc_headers(library / f'grpc-google-cloud-bigtable-v2', package_name)
 
-  s.copy(library / f'gapic-google-cloud-bigtable-v2-java', 'google-cloud-bigtable/', excludes=excludes)
-  s.copy(library / f'grpc-google-cloud-bigtable-v2-java/src', f'grpc-google-cloud-bigtable-v2/src')
-  s.copy(library / f'proto-google-cloud-bigtable-v2-java/src', f'proto-google-cloud-bigtable-v2/src')
+  s.copy(library / f'gapic-google-cloud-bigtable-v2', 'google-cloud-bigtable/', excludes=excludes)
+  s.copy(library / f'grpc-google-cloud-bigtable-v2/src', f'grpc-google-cloud-bigtable-v2/src')
+  s.copy(library / f'proto-google-cloud-bigtable-v2/src', f'proto-google-cloud-bigtable-v2/src')
 
   make_internal_only(internal_only)
 
@@ -89,11 +86,8 @@ def generate_admin_api(gapic):
   library = gapic.java_library(
       service='bigtable-admin',
       version='v2',
-      bazel_target=f'//google/bigtable/admin/v2:google-cloud-bigtable-admin-v2-java',
-      proto_path=f'google/bigtable/admin/v2',
-  )
-
-  library = library / 'google-cloud-bigtable-admin-v2-java'
+      config_path='/google/bigtable/admin/artman_bigtableadmin.yaml',
+      artman_output_name='')
 
   # Excludes are relative to source `gapic-google-cloud-bigtable-v2/src`
   excludes = [
@@ -115,12 +109,12 @@ def generate_admin_api(gapic):
   ]
 
   package_name = f'com.google.cloud.bigtable.admin.v2'
-  java.fix_proto_headers(library / f'proto-google-cloud-bigtable-admin-v2-java')
-  java.fix_grpc_headers(library / f'grpc-google-cloud-bigtable-admin-v2-java', package_name)
+  java.fix_proto_headers(library / f'proto-google-cloud-bigtable-admin-v2')
+  java.fix_grpc_headers(library / f'grpc-google-cloud-bigtable-admin-v2', package_name)
 
-  s.copy(library / f'gapic-google-cloud-bigtable-admin-v2-java/src', 'google-cloud-bigtable/src', excludes=excludes)
-  s.copy(library / f'grpc-google-cloud-bigtable-admin-v2-java/src', f'grpc-google-cloud-bigtable-admin-v2/src')
-  s.copy(library / f'proto-google-cloud-bigtable-admin-v2-java/src', f'proto-google-cloud-bigtable-admin-v2/src')
+  s.copy(library / f'gapic-google-cloud-bigtable-admin-v2/src', 'google-cloud-bigtable/src', excludes=excludes)
+  s.copy(library / f'grpc-google-cloud-bigtable-admin-v2/src', f'grpc-google-cloud-bigtable-admin-v2/src')
+  s.copy(library / f'proto-google-cloud-bigtable-admin-v2/src', f'proto-google-cloud-bigtable-admin-v2/src')
 
   make_internal_only(internal_only)
 
