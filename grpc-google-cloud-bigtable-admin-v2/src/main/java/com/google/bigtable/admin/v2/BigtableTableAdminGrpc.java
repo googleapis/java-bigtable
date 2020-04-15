@@ -32,7 +32,7 @@ import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
  * </pre>
  */
 @javax.annotation.Generated(
-    value = "by gRPC proto compiler",
+    value = "by gRPC proto compiler (version 1.10.0)",
     comments = "Source: google/bigtable/admin/v2/bigtable_table_admin.proto")
 public final class BigtableTableAdminGrpc {
 
@@ -41,18 +41,26 @@ public final class BigtableTableAdminGrpc {
   public static final String SERVICE_NAME = "google.bigtable.admin.v2.BigtableTableAdmin";
 
   // Static method descriptors that strictly reflect the proto.
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getCreateTableMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateTableRequest, com.google.bigtable.admin.v2.Table>
+      METHOD_CREATE_TABLE = getCreateTableMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateTableRequest, com.google.bigtable.admin.v2.Table>
       getCreateTableMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "CreateTable",
-      requestType = com.google.bigtable.admin.v2.CreateTableRequest.class,
-      responseType = com.google.bigtable.admin.v2.Table.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateTableRequest, com.google.bigtable.admin.v2.Table>
       getCreateTableMethod() {
+    return getCreateTableMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateTableRequest, com.google.bigtable.admin.v2.Table>
+      getCreateTableMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.CreateTableRequest, com.google.bigtable.admin.v2.Table>
         getCreateTableMethod;
@@ -66,7 +74,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.Table>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CreateTable"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "CreateTable"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -83,20 +93,30 @@ public final class BigtableTableAdminGrpc {
     return getCreateTableMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getCreateTableFromSnapshotMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
+          com.google.longrunning.Operation>
+      METHOD_CREATE_TABLE_FROM_SNAPSHOT = getCreateTableFromSnapshotMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
           com.google.longrunning.Operation>
       getCreateTableFromSnapshotMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "CreateTableFromSnapshot",
-      requestType = com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest.class,
-      responseType = com.google.longrunning.Operation.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
           com.google.longrunning.Operation>
       getCreateTableFromSnapshotMethod() {
+    return getCreateTableFromSnapshotMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
+          com.google.longrunning.Operation>
+      getCreateTableFromSnapshotMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
             com.google.longrunning.Operation>
@@ -115,7 +135,9 @@ public final class BigtableTableAdminGrpc {
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
                       .setFullMethodName(
-                          generateFullMethodName(SERVICE_NAME, "CreateTableFromSnapshot"))
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin",
+                              "CreateTableFromSnapshot"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -133,20 +155,30 @@ public final class BigtableTableAdminGrpc {
     return getCreateTableFromSnapshotMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getListTablesMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListTablesRequest,
+          com.google.bigtable.admin.v2.ListTablesResponse>
+      METHOD_LIST_TABLES = getListTablesMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListTablesRequest,
           com.google.bigtable.admin.v2.ListTablesResponse>
       getListTablesMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ListTables",
-      requestType = com.google.bigtable.admin.v2.ListTablesRequest.class,
-      responseType = com.google.bigtable.admin.v2.ListTablesResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListTablesRequest,
           com.google.bigtable.admin.v2.ListTablesResponse>
       getListTablesMethod() {
+    return getListTablesMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListTablesRequest,
+          com.google.bigtable.admin.v2.ListTablesResponse>
+      getListTablesMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.ListTablesRequest,
             com.google.bigtable.admin.v2.ListTablesResponse>
@@ -161,7 +193,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.ListTablesResponse>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListTables"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "ListTables"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -178,18 +212,26 @@ public final class BigtableTableAdminGrpc {
     return getListTablesMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getGetTableMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetTableRequest, com.google.bigtable.admin.v2.Table>
+      METHOD_GET_TABLE = getGetTableMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetTableRequest, com.google.bigtable.admin.v2.Table>
       getGetTableMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetTable",
-      requestType = com.google.bigtable.admin.v2.GetTableRequest.class,
-      responseType = com.google.bigtable.admin.v2.Table.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetTableRequest, com.google.bigtable.admin.v2.Table>
       getGetTableMethod() {
+    return getGetTableMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetTableRequest, com.google.bigtable.admin.v2.Table>
+      getGetTableMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.GetTableRequest, com.google.bigtable.admin.v2.Table>
         getGetTableMethod;
@@ -203,7 +245,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.Table>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetTable"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "GetTable"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -220,18 +264,26 @@ public final class BigtableTableAdminGrpc {
     return getGetTableMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getDeleteTableMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
+      METHOD_DELETE_TABLE = getDeleteTableMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
       getDeleteTableMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "DeleteTable",
-      requestType = com.google.bigtable.admin.v2.DeleteTableRequest.class,
-      responseType = com.google.protobuf.Empty.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
       getDeleteTableMethod() {
+    return getDeleteTableMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
+      getDeleteTableMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
         getDeleteTableMethod;
@@ -244,7 +296,9 @@ public final class BigtableTableAdminGrpc {
                       .<com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteTable"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "DeleteTable"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -261,20 +315,30 @@ public final class BigtableTableAdminGrpc {
     return getDeleteTableMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getModifyColumnFamiliesMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
+          com.google.bigtable.admin.v2.Table>
+      METHOD_MODIFY_COLUMN_FAMILIES = getModifyColumnFamiliesMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
           com.google.bigtable.admin.v2.Table>
       getModifyColumnFamiliesMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ModifyColumnFamilies",
-      requestType = com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.class,
-      responseType = com.google.bigtable.admin.v2.Table.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
           com.google.bigtable.admin.v2.Table>
       getModifyColumnFamiliesMethod() {
+    return getModifyColumnFamiliesMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
+          com.google.bigtable.admin.v2.Table>
+      getModifyColumnFamiliesMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
             com.google.bigtable.admin.v2.Table>
@@ -292,7 +356,9 @@ public final class BigtableTableAdminGrpc {
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
                       .setFullMethodName(
-                          generateFullMethodName(SERVICE_NAME, "ModifyColumnFamilies"))
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin",
+                              "ModifyColumnFamilies"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -310,18 +376,26 @@ public final class BigtableTableAdminGrpc {
     return getModifyColumnFamiliesMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getDropRowRangeMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
+      METHOD_DROP_ROW_RANGE = getDropRowRangeMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
       getDropRowRangeMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "DropRowRange",
-      requestType = com.google.bigtable.admin.v2.DropRowRangeRequest.class,
-      responseType = com.google.protobuf.Empty.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
       getDropRowRangeMethod() {
+    return getDropRowRangeMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
+      getDropRowRangeMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
         getDropRowRangeMethod;
@@ -334,7 +408,9 @@ public final class BigtableTableAdminGrpc {
                       .<com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DropRowRange"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "DropRowRange"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -352,20 +428,30 @@ public final class BigtableTableAdminGrpc {
     return getDropRowRangeMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getGenerateConsistencyTokenMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
+          com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
+      METHOD_GENERATE_CONSISTENCY_TOKEN = getGenerateConsistencyTokenMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
           com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
       getGenerateConsistencyTokenMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GenerateConsistencyToken",
-      requestType = com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest.class,
-      responseType = com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
           com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
       getGenerateConsistencyTokenMethod() {
+    return getGenerateConsistencyTokenMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
+          com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
+      getGenerateConsistencyTokenMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
             com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
@@ -385,7 +471,9 @@ public final class BigtableTableAdminGrpc {
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
                       .setFullMethodName(
-                          generateFullMethodName(SERVICE_NAME, "GenerateConsistencyToken"))
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin",
+                              "GenerateConsistencyToken"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -405,20 +493,30 @@ public final class BigtableTableAdminGrpc {
     return getGenerateConsistencyTokenMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getCheckConsistencyMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CheckConsistencyRequest,
+          com.google.bigtable.admin.v2.CheckConsistencyResponse>
+      METHOD_CHECK_CONSISTENCY = getCheckConsistencyMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CheckConsistencyRequest,
           com.google.bigtable.admin.v2.CheckConsistencyResponse>
       getCheckConsistencyMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "CheckConsistency",
-      requestType = com.google.bigtable.admin.v2.CheckConsistencyRequest.class,
-      responseType = com.google.bigtable.admin.v2.CheckConsistencyResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CheckConsistencyRequest,
           com.google.bigtable.admin.v2.CheckConsistencyResponse>
       getCheckConsistencyMethod() {
+    return getCheckConsistencyMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CheckConsistencyRequest,
+          com.google.bigtable.admin.v2.CheckConsistencyResponse>
+      getCheckConsistencyMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.CheckConsistencyRequest,
             com.google.bigtable.admin.v2.CheckConsistencyResponse>
@@ -434,7 +532,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.CheckConsistencyResponse>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CheckConsistency"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "CheckConsistency"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -453,18 +553,26 @@ public final class BigtableTableAdminGrpc {
     return getCheckConsistencyMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getSnapshotTableMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.SnapshotTableRequest, com.google.longrunning.Operation>
+      METHOD_SNAPSHOT_TABLE = getSnapshotTableMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.SnapshotTableRequest, com.google.longrunning.Operation>
       getSnapshotTableMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "SnapshotTable",
-      requestType = com.google.bigtable.admin.v2.SnapshotTableRequest.class,
-      responseType = com.google.longrunning.Operation.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.SnapshotTableRequest, com.google.longrunning.Operation>
       getSnapshotTableMethod() {
+    return getSnapshotTableMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.SnapshotTableRequest, com.google.longrunning.Operation>
+      getSnapshotTableMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.SnapshotTableRequest, com.google.longrunning.Operation>
         getSnapshotTableMethod;
@@ -478,7 +586,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.longrunning.Operation>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "SnapshotTable"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "SnapshotTable"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -496,18 +606,26 @@ public final class BigtableTableAdminGrpc {
     return getSnapshotTableMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getGetSnapshotMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetSnapshotRequest, com.google.bigtable.admin.v2.Snapshot>
+      METHOD_GET_SNAPSHOT = getGetSnapshotMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetSnapshotRequest, com.google.bigtable.admin.v2.Snapshot>
       getGetSnapshotMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetSnapshot",
-      requestType = com.google.bigtable.admin.v2.GetSnapshotRequest.class,
-      responseType = com.google.bigtable.admin.v2.Snapshot.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetSnapshotRequest, com.google.bigtable.admin.v2.Snapshot>
       getGetSnapshotMethod() {
+    return getGetSnapshotMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetSnapshotRequest, com.google.bigtable.admin.v2.Snapshot>
+      getGetSnapshotMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.GetSnapshotRequest, com.google.bigtable.admin.v2.Snapshot>
         getGetSnapshotMethod;
@@ -521,7 +639,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.Snapshot>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetSnapshot"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "GetSnapshot"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -538,20 +658,30 @@ public final class BigtableTableAdminGrpc {
     return getGetSnapshotMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getListSnapshotsMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListSnapshotsRequest,
+          com.google.bigtable.admin.v2.ListSnapshotsResponse>
+      METHOD_LIST_SNAPSHOTS = getListSnapshotsMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListSnapshotsRequest,
           com.google.bigtable.admin.v2.ListSnapshotsResponse>
       getListSnapshotsMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ListSnapshots",
-      requestType = com.google.bigtable.admin.v2.ListSnapshotsRequest.class,
-      responseType = com.google.bigtable.admin.v2.ListSnapshotsResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListSnapshotsRequest,
           com.google.bigtable.admin.v2.ListSnapshotsResponse>
       getListSnapshotsMethod() {
+    return getListSnapshotsMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListSnapshotsRequest,
+          com.google.bigtable.admin.v2.ListSnapshotsResponse>
+      getListSnapshotsMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.ListSnapshotsRequest,
             com.google.bigtable.admin.v2.ListSnapshotsResponse>
@@ -566,7 +696,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.ListSnapshotsResponse>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListSnapshots"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "ListSnapshots"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -585,18 +717,26 @@ public final class BigtableTableAdminGrpc {
     return getListSnapshotsMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getDeleteSnapshotMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteSnapshotRequest, com.google.protobuf.Empty>
+      METHOD_DELETE_SNAPSHOT = getDeleteSnapshotMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteSnapshotRequest, com.google.protobuf.Empty>
       getDeleteSnapshotMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "DeleteSnapshot",
-      requestType = com.google.bigtable.admin.v2.DeleteSnapshotRequest.class,
-      responseType = com.google.protobuf.Empty.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteSnapshotRequest, com.google.protobuf.Empty>
       getDeleteSnapshotMethod() {
+    return getDeleteSnapshotMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteSnapshotRequest, com.google.protobuf.Empty>
+      getDeleteSnapshotMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.DeleteSnapshotRequest, com.google.protobuf.Empty>
         getDeleteSnapshotMethod;
@@ -610,7 +750,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.protobuf.Empty>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteSnapshot"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "DeleteSnapshot"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -628,18 +770,26 @@ public final class BigtableTableAdminGrpc {
     return getDeleteSnapshotMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getCreateBackupMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateBackupRequest, com.google.longrunning.Operation>
+      METHOD_CREATE_BACKUP = getCreateBackupMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateBackupRequest, com.google.longrunning.Operation>
       getCreateBackupMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "CreateBackup",
-      requestType = com.google.bigtable.admin.v2.CreateBackupRequest.class,
-      responseType = com.google.longrunning.Operation.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.CreateBackupRequest, com.google.longrunning.Operation>
       getCreateBackupMethod() {
+    return getCreateBackupMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.CreateBackupRequest, com.google.longrunning.Operation>
+      getCreateBackupMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.CreateBackupRequest, com.google.longrunning.Operation>
         getCreateBackupMethod;
@@ -653,7 +803,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.longrunning.Operation>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "CreateBackup"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "CreateBackup"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -671,18 +823,26 @@ public final class BigtableTableAdminGrpc {
     return getCreateBackupMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getGetBackupMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetBackupRequest, com.google.bigtable.admin.v2.Backup>
+      METHOD_GET_BACKUP = getGetBackupMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetBackupRequest, com.google.bigtable.admin.v2.Backup>
       getGetBackupMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetBackup",
-      requestType = com.google.bigtable.admin.v2.GetBackupRequest.class,
-      responseType = com.google.bigtable.admin.v2.Backup.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.GetBackupRequest, com.google.bigtable.admin.v2.Backup>
       getGetBackupMethod() {
+    return getGetBackupMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.GetBackupRequest, com.google.bigtable.admin.v2.Backup>
+      getGetBackupMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.GetBackupRequest, com.google.bigtable.admin.v2.Backup>
         getGetBackupMethod;
@@ -696,7 +856,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.Backup>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetBackup"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "GetBackup"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -713,18 +875,26 @@ public final class BigtableTableAdminGrpc {
     return getGetBackupMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getUpdateBackupMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.UpdateBackupRequest, com.google.bigtable.admin.v2.Backup>
+      METHOD_UPDATE_BACKUP = getUpdateBackupMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.UpdateBackupRequest, com.google.bigtable.admin.v2.Backup>
       getUpdateBackupMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "UpdateBackup",
-      requestType = com.google.bigtable.admin.v2.UpdateBackupRequest.class,
-      responseType = com.google.bigtable.admin.v2.Backup.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.UpdateBackupRequest, com.google.bigtable.admin.v2.Backup>
       getUpdateBackupMethod() {
+    return getUpdateBackupMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.UpdateBackupRequest, com.google.bigtable.admin.v2.Backup>
+      getUpdateBackupMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.UpdateBackupRequest, com.google.bigtable.admin.v2.Backup>
         getUpdateBackupMethod;
@@ -738,7 +908,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.Backup>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "UpdateBackup"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "UpdateBackup"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -756,18 +928,26 @@ public final class BigtableTableAdminGrpc {
     return getUpdateBackupMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getDeleteBackupMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
+      METHOD_DELETE_BACKUP = getDeleteBackupMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
       getDeleteBackupMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "DeleteBackup",
-      requestType = com.google.bigtable.admin.v2.DeleteBackupRequest.class,
-      responseType = com.google.protobuf.Empty.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
       getDeleteBackupMethod() {
+    return getDeleteBackupMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
+      getDeleteBackupMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
         getDeleteBackupMethod;
@@ -780,7 +960,9 @@ public final class BigtableTableAdminGrpc {
                       .<com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "DeleteBackup"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "DeleteBackup"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -798,20 +980,30 @@ public final class BigtableTableAdminGrpc {
     return getDeleteBackupMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getListBackupsMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListBackupsRequest,
+          com.google.bigtable.admin.v2.ListBackupsResponse>
+      METHOD_LIST_BACKUPS = getListBackupsMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListBackupsRequest,
           com.google.bigtable.admin.v2.ListBackupsResponse>
       getListBackupsMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "ListBackups",
-      requestType = com.google.bigtable.admin.v2.ListBackupsRequest.class,
-      responseType = com.google.bigtable.admin.v2.ListBackupsResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.ListBackupsRequest,
           com.google.bigtable.admin.v2.ListBackupsResponse>
       getListBackupsMethod() {
+    return getListBackupsMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.ListBackupsRequest,
+          com.google.bigtable.admin.v2.ListBackupsResponse>
+      getListBackupsMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.ListBackupsRequest,
             com.google.bigtable.admin.v2.ListBackupsResponse>
@@ -826,7 +1018,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.bigtable.admin.v2.ListBackupsResponse>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ListBackups"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "ListBackups"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -844,18 +1038,26 @@ public final class BigtableTableAdminGrpc {
     return getListBackupsMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getRestoreTableMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.RestoreTableRequest, com.google.longrunning.Operation>
+      METHOD_RESTORE_TABLE = getRestoreTableMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.RestoreTableRequest, com.google.longrunning.Operation>
       getRestoreTableMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "RestoreTable",
-      requestType = com.google.bigtable.admin.v2.RestoreTableRequest.class,
-      responseType = com.google.longrunning.Operation.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.bigtable.admin.v2.RestoreTableRequest, com.google.longrunning.Operation>
       getRestoreTableMethod() {
+    return getRestoreTableMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.bigtable.admin.v2.RestoreTableRequest, com.google.longrunning.Operation>
+      getRestoreTableMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.bigtable.admin.v2.RestoreTableRequest, com.google.longrunning.Operation>
         getRestoreTableMethod;
@@ -869,7 +1071,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.longrunning.Operation>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "RestoreTable"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "RestoreTable"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -887,18 +1091,26 @@ public final class BigtableTableAdminGrpc {
     return getRestoreTableMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getGetIamPolicyMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
+      METHOD_GET_IAM_POLICY = getGetIamPolicyMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
       getGetIamPolicyMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "GetIamPolicy",
-      requestType = com.google.iam.v1.GetIamPolicyRequest.class,
-      responseType = com.google.iam.v1.Policy.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
       getGetIamPolicyMethod() {
+    return getGetIamPolicyMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
+      getGetIamPolicyMethodHelper() {
     io.grpc.MethodDescriptor<com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
         getGetIamPolicyMethod;
     if ((getGetIamPolicyMethod = BigtableTableAdminGrpc.getGetIamPolicyMethod) == null) {
@@ -909,7 +1121,9 @@ public final class BigtableTableAdminGrpc {
                   io.grpc.MethodDescriptor
                       .<com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetIamPolicy"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "GetIamPolicy"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -926,18 +1140,26 @@ public final class BigtableTableAdminGrpc {
     return getGetIamPolicyMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getSetIamPolicyMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>
+      METHOD_SET_IAM_POLICY = getSetIamPolicyMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>
       getSetIamPolicyMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "SetIamPolicy",
-      requestType = com.google.iam.v1.SetIamPolicyRequest.class,
-      responseType = com.google.iam.v1.Policy.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>
       getSetIamPolicyMethod() {
+    return getSetIamPolicyMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>
+      getSetIamPolicyMethodHelper() {
     io.grpc.MethodDescriptor<com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>
         getSetIamPolicyMethod;
     if ((getSetIamPolicyMethod = BigtableTableAdminGrpc.getSetIamPolicyMethod) == null) {
@@ -948,7 +1170,9 @@ public final class BigtableTableAdminGrpc {
                   io.grpc.MethodDescriptor
                       .<com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "SetIamPolicy"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "SetIamPolicy"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -965,18 +1189,26 @@ public final class BigtableTableAdminGrpc {
     return getSetIamPolicyMethod;
   }
 
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
+  @java.lang.Deprecated // Use {@link #getTestIamPermissionsMethod()} instead.
+  public static final io.grpc.MethodDescriptor<
+          com.google.iam.v1.TestIamPermissionsRequest, com.google.iam.v1.TestIamPermissionsResponse>
+      METHOD_TEST_IAM_PERMISSIONS = getTestIamPermissionsMethodHelper();
+
   private static volatile io.grpc.MethodDescriptor<
           com.google.iam.v1.TestIamPermissionsRequest, com.google.iam.v1.TestIamPermissionsResponse>
       getTestIamPermissionsMethod;
 
-  @io.grpc.stub.annotations.RpcMethod(
-      fullMethodName = SERVICE_NAME + '/' + "TestIamPermissions",
-      requestType = com.google.iam.v1.TestIamPermissionsRequest.class,
-      responseType = com.google.iam.v1.TestIamPermissionsResponse.class,
-      methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
+  @io.grpc.ExperimentalApi("https://github.com/grpc/grpc-java/issues/1901")
   public static io.grpc.MethodDescriptor<
           com.google.iam.v1.TestIamPermissionsRequest, com.google.iam.v1.TestIamPermissionsResponse>
       getTestIamPermissionsMethod() {
+    return getTestIamPermissionsMethodHelper();
+  }
+
+  private static io.grpc.MethodDescriptor<
+          com.google.iam.v1.TestIamPermissionsRequest, com.google.iam.v1.TestIamPermissionsResponse>
+      getTestIamPermissionsMethodHelper() {
     io.grpc.MethodDescriptor<
             com.google.iam.v1.TestIamPermissionsRequest,
             com.google.iam.v1.TestIamPermissionsResponse>
@@ -993,7 +1225,9 @@ public final class BigtableTableAdminGrpc {
                           com.google.iam.v1.TestIamPermissionsResponse>
                           newBuilder()
                       .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
-                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "TestIamPermissions"))
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              "google.bigtable.admin.v2.BigtableTableAdmin", "TestIamPermissions"))
                       .setSampledToLocalTracing(true)
                       .setRequestMarshaller(
                           io.grpc.protobuf.ProtoUtils.marshaller(
@@ -1012,43 +1246,19 @@ public final class BigtableTableAdminGrpc {
 
   /** Creates a new async stub that supports all call types for the service */
   public static BigtableTableAdminStub newStub(io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminStub> factory =
-        new io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminStub>() {
-          @java.lang.Override
-          public BigtableTableAdminStub newStub(
-              io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-            return new BigtableTableAdminStub(channel, callOptions);
-          }
-        };
-    return BigtableTableAdminStub.newStub(factory, channel);
+    return new BigtableTableAdminStub(channel);
   }
 
   /**
    * Creates a new blocking-style stub that supports unary and streaming output calls on the service
    */
   public static BigtableTableAdminBlockingStub newBlockingStub(io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminBlockingStub> factory =
-        new io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminBlockingStub>() {
-          @java.lang.Override
-          public BigtableTableAdminBlockingStub newStub(
-              io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-            return new BigtableTableAdminBlockingStub(channel, callOptions);
-          }
-        };
-    return BigtableTableAdminBlockingStub.newStub(factory, channel);
+    return new BigtableTableAdminBlockingStub(channel);
   }
 
   /** Creates a new ListenableFuture-style stub that supports unary calls on the service */
   public static BigtableTableAdminFutureStub newFutureStub(io.grpc.Channel channel) {
-    io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminFutureStub> factory =
-        new io.grpc.stub.AbstractStub.StubFactory<BigtableTableAdminFutureStub>() {
-          @java.lang.Override
-          public BigtableTableAdminFutureStub newStub(
-              io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
-            return new BigtableTableAdminFutureStub(channel, callOptions);
-          }
-        };
-    return BigtableTableAdminFutureStub.newStub(factory, channel);
+    return new BigtableTableAdminFutureStub(channel);
   }
 
   /**
@@ -1074,7 +1284,7 @@ public final class BigtableTableAdminGrpc {
     public void createTable(
         com.google.bigtable.admin.v2.CreateTableRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
-      asyncUnimplementedUnaryCall(getCreateTableMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getCreateTableMethodHelper(), responseObserver);
     }
 
     /**
@@ -1093,7 +1303,7 @@ public final class BigtableTableAdminGrpc {
     public void createTableFromSnapshot(
         com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
-      asyncUnimplementedUnaryCall(getCreateTableFromSnapshotMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getCreateTableFromSnapshotMethodHelper(), responseObserver);
     }
 
     /**
@@ -1107,7 +1317,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.ListTablesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListTablesResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getListTablesMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getListTablesMethodHelper(), responseObserver);
     }
 
     /**
@@ -1120,7 +1330,7 @@ public final class BigtableTableAdminGrpc {
     public void getTable(
         com.google.bigtable.admin.v2.GetTableRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetTableMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetTableMethodHelper(), responseObserver);
     }
 
     /**
@@ -1133,7 +1343,7 @@ public final class BigtableTableAdminGrpc {
     public void deleteTable(
         com.google.bigtable.admin.v2.DeleteTableRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getDeleteTableMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getDeleteTableMethodHelper(), responseObserver);
     }
 
     /**
@@ -1149,7 +1359,7 @@ public final class BigtableTableAdminGrpc {
     public void modifyColumnFamilies(
         com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
-      asyncUnimplementedUnaryCall(getModifyColumnFamiliesMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getModifyColumnFamiliesMethodHelper(), responseObserver);
     }
 
     /**
@@ -1164,7 +1374,7 @@ public final class BigtableTableAdminGrpc {
     public void dropRowRange(
         com.google.bigtable.admin.v2.DropRowRangeRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getDropRowRangeMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getDropRowRangeMethodHelper(), responseObserver);
     }
 
     /**
@@ -1181,7 +1391,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getGenerateConsistencyTokenMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGenerateConsistencyTokenMethodHelper(), responseObserver);
     }
 
     /**
@@ -1197,7 +1407,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.CheckConsistencyRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.CheckConsistencyResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getCheckConsistencyMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getCheckConsistencyMethodHelper(), responseObserver);
     }
 
     /**
@@ -1216,7 +1426,7 @@ public final class BigtableTableAdminGrpc {
     public void snapshotTable(
         com.google.bigtable.admin.v2.SnapshotTableRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
-      asyncUnimplementedUnaryCall(getSnapshotTableMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getSnapshotTableMethodHelper(), responseObserver);
     }
 
     /**
@@ -1234,7 +1444,7 @@ public final class BigtableTableAdminGrpc {
     public void getSnapshot(
         com.google.bigtable.admin.v2.GetSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Snapshot> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetSnapshotMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetSnapshotMethodHelper(), responseObserver);
     }
 
     /**
@@ -1253,7 +1463,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.ListSnapshotsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListSnapshotsResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getListSnapshotsMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getListSnapshotsMethodHelper(), responseObserver);
     }
 
     /**
@@ -1271,7 +1481,7 @@ public final class BigtableTableAdminGrpc {
     public void deleteSnapshot(
         com.google.bigtable.admin.v2.DeleteSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getDeleteSnapshotMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getDeleteSnapshotMethodHelper(), responseObserver);
     }
 
     /**
@@ -1291,7 +1501,7 @@ public final class BigtableTableAdminGrpc {
     public void createBackup(
         com.google.bigtable.admin.v2.CreateBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
-      asyncUnimplementedUnaryCall(getCreateBackupMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getCreateBackupMethodHelper(), responseObserver);
     }
 
     /**
@@ -1304,7 +1514,7 @@ public final class BigtableTableAdminGrpc {
     public void getBackup(
         com.google.bigtable.admin.v2.GetBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Backup> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetBackupMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetBackupMethodHelper(), responseObserver);
     }
 
     /**
@@ -1317,7 +1527,7 @@ public final class BigtableTableAdminGrpc {
     public void updateBackup(
         com.google.bigtable.admin.v2.UpdateBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Backup> responseObserver) {
-      asyncUnimplementedUnaryCall(getUpdateBackupMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getUpdateBackupMethodHelper(), responseObserver);
     }
 
     /**
@@ -1330,7 +1540,7 @@ public final class BigtableTableAdminGrpc {
     public void deleteBackup(
         com.google.bigtable.admin.v2.DeleteBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
-      asyncUnimplementedUnaryCall(getDeleteBackupMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getDeleteBackupMethodHelper(), responseObserver);
     }
 
     /**
@@ -1345,7 +1555,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.ListBackupsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListBackupsResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getListBackupsMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getListBackupsMethodHelper(), responseObserver);
     }
 
     /**
@@ -1365,7 +1575,7 @@ public final class BigtableTableAdminGrpc {
     public void restoreTable(
         com.google.bigtable.admin.v2.RestoreTableRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
-      asyncUnimplementedUnaryCall(getRestoreTableMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getRestoreTableMethodHelper(), responseObserver);
     }
 
     /**
@@ -1380,7 +1590,7 @@ public final class BigtableTableAdminGrpc {
     public void getIamPolicy(
         com.google.iam.v1.GetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
-      asyncUnimplementedUnaryCall(getGetIamPolicyMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getGetIamPolicyMethodHelper(), responseObserver);
     }
 
     /**
@@ -1394,7 +1604,7 @@ public final class BigtableTableAdminGrpc {
     public void setIamPolicy(
         com.google.iam.v1.SetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
-      asyncUnimplementedUnaryCall(getSetIamPolicyMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getSetIamPolicyMethodHelper(), responseObserver);
     }
 
     /**
@@ -1408,144 +1618,144 @@ public final class BigtableTableAdminGrpc {
         com.google.iam.v1.TestIamPermissionsRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.TestIamPermissionsResponse>
             responseObserver) {
-      asyncUnimplementedUnaryCall(getTestIamPermissionsMethod(), responseObserver);
+      asyncUnimplementedUnaryCall(getTestIamPermissionsMethodHelper(), responseObserver);
     }
 
     @java.lang.Override
     public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
           .addMethod(
-              getCreateTableMethod(),
+              getCreateTableMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.CreateTableRequest,
                       com.google.bigtable.admin.v2.Table>(this, METHODID_CREATE_TABLE)))
           .addMethod(
-              getCreateTableFromSnapshotMethod(),
+              getCreateTableFromSnapshotMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest,
                       com.google.longrunning.Operation>(this, METHODID_CREATE_TABLE_FROM_SNAPSHOT)))
           .addMethod(
-              getListTablesMethod(),
+              getListTablesMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.ListTablesRequest,
                       com.google.bigtable.admin.v2.ListTablesResponse>(this, METHODID_LIST_TABLES)))
           .addMethod(
-              getGetTableMethod(),
+              getGetTableMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.GetTableRequest,
                       com.google.bigtable.admin.v2.Table>(this, METHODID_GET_TABLE)))
           .addMethod(
-              getDeleteTableMethod(),
+              getDeleteTableMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.DeleteTableRequest, com.google.protobuf.Empty>(
                       this, METHODID_DELETE_TABLE)))
           .addMethod(
-              getModifyColumnFamiliesMethod(),
+              getModifyColumnFamiliesMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
                       com.google.bigtable.admin.v2.Table>(this, METHODID_MODIFY_COLUMN_FAMILIES)))
           .addMethod(
-              getDropRowRangeMethod(),
+              getDropRowRangeMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.DropRowRangeRequest, com.google.protobuf.Empty>(
                       this, METHODID_DROP_ROW_RANGE)))
           .addMethod(
-              getGenerateConsistencyTokenMethod(),
+              getGenerateConsistencyTokenMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest,
                       com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>(
                       this, METHODID_GENERATE_CONSISTENCY_TOKEN)))
           .addMethod(
-              getCheckConsistencyMethod(),
+              getCheckConsistencyMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.CheckConsistencyRequest,
                       com.google.bigtable.admin.v2.CheckConsistencyResponse>(
                       this, METHODID_CHECK_CONSISTENCY)))
           .addMethod(
-              getSnapshotTableMethod(),
+              getSnapshotTableMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.SnapshotTableRequest,
                       com.google.longrunning.Operation>(this, METHODID_SNAPSHOT_TABLE)))
           .addMethod(
-              getGetSnapshotMethod(),
+              getGetSnapshotMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.GetSnapshotRequest,
                       com.google.bigtable.admin.v2.Snapshot>(this, METHODID_GET_SNAPSHOT)))
           .addMethod(
-              getListSnapshotsMethod(),
+              getListSnapshotsMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.ListSnapshotsRequest,
                       com.google.bigtable.admin.v2.ListSnapshotsResponse>(
                       this, METHODID_LIST_SNAPSHOTS)))
           .addMethod(
-              getDeleteSnapshotMethod(),
+              getDeleteSnapshotMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.DeleteSnapshotRequest,
                       com.google.protobuf.Empty>(this, METHODID_DELETE_SNAPSHOT)))
           .addMethod(
-              getCreateBackupMethod(),
+              getCreateBackupMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.CreateBackupRequest,
                       com.google.longrunning.Operation>(this, METHODID_CREATE_BACKUP)))
           .addMethod(
-              getGetBackupMethod(),
+              getGetBackupMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.GetBackupRequest,
                       com.google.bigtable.admin.v2.Backup>(this, METHODID_GET_BACKUP)))
           .addMethod(
-              getUpdateBackupMethod(),
+              getUpdateBackupMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.UpdateBackupRequest,
                       com.google.bigtable.admin.v2.Backup>(this, METHODID_UPDATE_BACKUP)))
           .addMethod(
-              getDeleteBackupMethod(),
+              getDeleteBackupMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.DeleteBackupRequest, com.google.protobuf.Empty>(
                       this, METHODID_DELETE_BACKUP)))
           .addMethod(
-              getListBackupsMethod(),
+              getListBackupsMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.ListBackupsRequest,
                       com.google.bigtable.admin.v2.ListBackupsResponse>(
                       this, METHODID_LIST_BACKUPS)))
           .addMethod(
-              getRestoreTableMethod(),
+              getRestoreTableMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.bigtable.admin.v2.RestoreTableRequest,
                       com.google.longrunning.Operation>(this, METHODID_RESTORE_TABLE)))
           .addMethod(
-              getGetIamPolicyMethod(),
+              getGetIamPolicyMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>(
                       this, METHODID_GET_IAM_POLICY)))
           .addMethod(
-              getSetIamPolicyMethod(),
+              getSetIamPolicyMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.iam.v1.SetIamPolicyRequest, com.google.iam.v1.Policy>(
                       this, METHODID_SET_IAM_POLICY)))
           .addMethod(
-              getTestIamPermissionsMethod(),
+              getTestIamPermissionsMethodHelper(),
               asyncUnaryCall(
                   new MethodHandlers<
                       com.google.iam.v1.TestIamPermissionsRequest,
@@ -1565,7 +1775,11 @@ public final class BigtableTableAdminGrpc {
    * </pre>
    */
   public static final class BigtableTableAdminStub
-      extends io.grpc.stub.AbstractAsyncStub<BigtableTableAdminStub> {
+      extends io.grpc.stub.AbstractStub<BigtableTableAdminStub> {
+    private BigtableTableAdminStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
     private BigtableTableAdminStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
@@ -1589,7 +1803,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.CreateTableRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getCreateTableMethod(), getCallOptions()),
+          getChannel().newCall(getCreateTableMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1611,7 +1825,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getCreateTableFromSnapshotMethod(), getCallOptions()),
+          getChannel().newCall(getCreateTableFromSnapshotMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1628,7 +1842,9 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListTablesResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getListTablesMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getListTablesMethodHelper(), getCallOptions()),
+          request,
+          responseObserver);
     }
 
     /**
@@ -1642,7 +1858,9 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.GetTableRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetTableMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetTableMethodHelper(), getCallOptions()),
+          request,
+          responseObserver);
     }
 
     /**
@@ -1656,7 +1874,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.DeleteTableRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getDeleteTableMethod(), getCallOptions()),
+          getChannel().newCall(getDeleteTableMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1675,7 +1893,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Table> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getModifyColumnFamiliesMethod(), getCallOptions()),
+          getChannel().newCall(getModifyColumnFamiliesMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1693,7 +1911,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.DropRowRangeRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getDropRowRangeMethod(), getCallOptions()),
+          getChannel().newCall(getDropRowRangeMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1713,7 +1931,7 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGenerateConsistencyTokenMethod(), getCallOptions()),
+          getChannel().newCall(getGenerateConsistencyTokenMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1732,7 +1950,7 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.CheckConsistencyResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getCheckConsistencyMethod(), getCallOptions()),
+          getChannel().newCall(getCheckConsistencyMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1754,7 +1972,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.SnapshotTableRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getSnapshotTableMethod(), getCallOptions()),
+          getChannel().newCall(getSnapshotTableMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1775,7 +1993,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.GetSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Snapshot> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetSnapshotMethod(), getCallOptions()),
+          getChannel().newCall(getGetSnapshotMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1797,7 +2015,7 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListSnapshotsResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getListSnapshotsMethod(), getCallOptions()),
+          getChannel().newCall(getListSnapshotsMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1818,7 +2036,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.DeleteSnapshotRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getDeleteSnapshotMethod(), getCallOptions()),
+          getChannel().newCall(getDeleteSnapshotMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1841,7 +2059,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.CreateBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getCreateBackupMethod(), getCallOptions()),
+          getChannel().newCall(getCreateBackupMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1857,7 +2075,9 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.GetBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Backup> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetBackupMethod(), getCallOptions()), request, responseObserver);
+          getChannel().newCall(getGetBackupMethodHelper(), getCallOptions()),
+          request,
+          responseObserver);
     }
 
     /**
@@ -1871,7 +2091,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.UpdateBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Backup> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getUpdateBackupMethod(), getCallOptions()),
+          getChannel().newCall(getUpdateBackupMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1887,7 +2107,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.DeleteBackupRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getDeleteBackupMethod(), getCallOptions()),
+          getChannel().newCall(getDeleteBackupMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1905,7 +2125,7 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListBackupsResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getListBackupsMethod(), getCallOptions()),
+          getChannel().newCall(getListBackupsMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1928,7 +2148,7 @@ public final class BigtableTableAdminGrpc {
         com.google.bigtable.admin.v2.RestoreTableRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getRestoreTableMethod(), getCallOptions()),
+          getChannel().newCall(getRestoreTableMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1946,7 +2166,7 @@ public final class BigtableTableAdminGrpc {
         com.google.iam.v1.GetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getGetIamPolicyMethod(), getCallOptions()),
+          getChannel().newCall(getGetIamPolicyMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1963,7 +2183,7 @@ public final class BigtableTableAdminGrpc {
         com.google.iam.v1.SetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getSetIamPolicyMethod(), getCallOptions()),
+          getChannel().newCall(getSetIamPolicyMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1980,7 +2200,7 @@ public final class BigtableTableAdminGrpc {
         io.grpc.stub.StreamObserver<com.google.iam.v1.TestIamPermissionsResponse>
             responseObserver) {
       asyncUnaryCall(
-          getChannel().newCall(getTestIamPermissionsMethod(), getCallOptions()),
+          getChannel().newCall(getTestIamPermissionsMethodHelper(), getCallOptions()),
           request,
           responseObserver);
     }
@@ -1996,7 +2216,11 @@ public final class BigtableTableAdminGrpc {
    * </pre>
    */
   public static final class BigtableTableAdminBlockingStub
-      extends io.grpc.stub.AbstractBlockingStub<BigtableTableAdminBlockingStub> {
+      extends io.grpc.stub.AbstractStub<BigtableTableAdminBlockingStub> {
+    private BigtableTableAdminBlockingStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
     private BigtableTableAdminBlockingStub(
         io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
@@ -2019,7 +2243,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.Table createTable(
         com.google.bigtable.admin.v2.CreateTableRequest request) {
-      return blockingUnaryCall(getChannel(), getCreateTableMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getCreateTableMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2038,7 +2263,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.longrunning.Operation createTableFromSnapshot(
         com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest request) {
       return blockingUnaryCall(
-          getChannel(), getCreateTableFromSnapshotMethod(), getCallOptions(), request);
+          getChannel(), getCreateTableFromSnapshotMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2050,7 +2275,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.ListTablesResponse listTables(
         com.google.bigtable.admin.v2.ListTablesRequest request) {
-      return blockingUnaryCall(getChannel(), getListTablesMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getListTablesMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2062,7 +2288,7 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.Table getTable(
         com.google.bigtable.admin.v2.GetTableRequest request) {
-      return blockingUnaryCall(getChannel(), getGetTableMethod(), getCallOptions(), request);
+      return blockingUnaryCall(getChannel(), getGetTableMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2074,7 +2300,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.protobuf.Empty deleteTable(
         com.google.bigtable.admin.v2.DeleteTableRequest request) {
-      return blockingUnaryCall(getChannel(), getDeleteTableMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getDeleteTableMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2090,7 +2317,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.bigtable.admin.v2.Table modifyColumnFamilies(
         com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest request) {
       return blockingUnaryCall(
-          getChannel(), getModifyColumnFamiliesMethod(), getCallOptions(), request);
+          getChannel(), getModifyColumnFamiliesMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2104,7 +2331,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.protobuf.Empty dropRowRange(
         com.google.bigtable.admin.v2.DropRowRangeRequest request) {
-      return blockingUnaryCall(getChannel(), getDropRowRangeMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getDropRowRangeMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2120,7 +2348,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse generateConsistencyToken(
         com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest request) {
       return blockingUnaryCall(
-          getChannel(), getGenerateConsistencyTokenMethod(), getCallOptions(), request);
+          getChannel(), getGenerateConsistencyTokenMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2135,7 +2363,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.bigtable.admin.v2.CheckConsistencyResponse checkConsistency(
         com.google.bigtable.admin.v2.CheckConsistencyRequest request) {
       return blockingUnaryCall(
-          getChannel(), getCheckConsistencyMethod(), getCallOptions(), request);
+          getChannel(), getCheckConsistencyMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2153,7 +2381,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.longrunning.Operation snapshotTable(
         com.google.bigtable.admin.v2.SnapshotTableRequest request) {
-      return blockingUnaryCall(getChannel(), getSnapshotTableMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getSnapshotTableMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2170,7 +2399,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.Snapshot getSnapshot(
         com.google.bigtable.admin.v2.GetSnapshotRequest request) {
-      return blockingUnaryCall(getChannel(), getGetSnapshotMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getGetSnapshotMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2187,7 +2417,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.ListSnapshotsResponse listSnapshots(
         com.google.bigtable.admin.v2.ListSnapshotsRequest request) {
-      return blockingUnaryCall(getChannel(), getListSnapshotsMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getListSnapshotsMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2204,7 +2435,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.protobuf.Empty deleteSnapshot(
         com.google.bigtable.admin.v2.DeleteSnapshotRequest request) {
-      return blockingUnaryCall(getChannel(), getDeleteSnapshotMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getDeleteSnapshotMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2223,7 +2455,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.longrunning.Operation createBackup(
         com.google.bigtable.admin.v2.CreateBackupRequest request) {
-      return blockingUnaryCall(getChannel(), getCreateBackupMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getCreateBackupMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2235,7 +2468,7 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.Backup getBackup(
         com.google.bigtable.admin.v2.GetBackupRequest request) {
-      return blockingUnaryCall(getChannel(), getGetBackupMethod(), getCallOptions(), request);
+      return blockingUnaryCall(getChannel(), getGetBackupMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2247,7 +2480,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.Backup updateBackup(
         com.google.bigtable.admin.v2.UpdateBackupRequest request) {
-      return blockingUnaryCall(getChannel(), getUpdateBackupMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getUpdateBackupMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2259,7 +2493,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.protobuf.Empty deleteBackup(
         com.google.bigtable.admin.v2.DeleteBackupRequest request) {
-      return blockingUnaryCall(getChannel(), getDeleteBackupMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getDeleteBackupMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2272,7 +2507,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.bigtable.admin.v2.ListBackupsResponse listBackups(
         com.google.bigtable.admin.v2.ListBackupsRequest request) {
-      return blockingUnaryCall(getChannel(), getListBackupsMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getListBackupsMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2291,7 +2527,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.longrunning.Operation restoreTable(
         com.google.bigtable.admin.v2.RestoreTableRequest request) {
-      return blockingUnaryCall(getChannel(), getRestoreTableMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getRestoreTableMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2304,7 +2541,8 @@ public final class BigtableTableAdminGrpc {
      * </pre>
      */
     public com.google.iam.v1.Policy getIamPolicy(com.google.iam.v1.GetIamPolicyRequest request) {
-      return blockingUnaryCall(getChannel(), getGetIamPolicyMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getGetIamPolicyMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2316,7 +2554,8 @@ public final class BigtableTableAdminGrpc {
      * </pre>
      */
     public com.google.iam.v1.Policy setIamPolicy(com.google.iam.v1.SetIamPolicyRequest request) {
-      return blockingUnaryCall(getChannel(), getSetIamPolicyMethod(), getCallOptions(), request);
+      return blockingUnaryCall(
+          getChannel(), getSetIamPolicyMethodHelper(), getCallOptions(), request);
     }
 
     /**
@@ -2329,7 +2568,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.iam.v1.TestIamPermissionsResponse testIamPermissions(
         com.google.iam.v1.TestIamPermissionsRequest request) {
       return blockingUnaryCall(
-          getChannel(), getTestIamPermissionsMethod(), getCallOptions(), request);
+          getChannel(), getTestIamPermissionsMethodHelper(), getCallOptions(), request);
     }
   }
 
@@ -2343,7 +2582,11 @@ public final class BigtableTableAdminGrpc {
    * </pre>
    */
   public static final class BigtableTableAdminFutureStub
-      extends io.grpc.stub.AbstractFutureStub<BigtableTableAdminFutureStub> {
+      extends io.grpc.stub.AbstractStub<BigtableTableAdminFutureStub> {
+    private BigtableTableAdminFutureStub(io.grpc.Channel channel) {
+      super(channel);
+    }
+
     private BigtableTableAdminFutureStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
     }
@@ -2366,7 +2609,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Table>
         createTable(com.google.bigtable.admin.v2.CreateTableRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getCreateTableMethod(), getCallOptions()), request);
+          getChannel().newCall(getCreateTableMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2386,7 +2629,8 @@ public final class BigtableTableAdminGrpc {
         createTableFromSnapshot(
             com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getCreateTableFromSnapshotMethod(), getCallOptions()), request);
+          getChannel().newCall(getCreateTableFromSnapshotMethodHelper(), getCallOptions()),
+          request);
     }
 
     /**
@@ -2400,7 +2644,7 @@ public final class BigtableTableAdminGrpc {
             com.google.bigtable.admin.v2.ListTablesResponse>
         listTables(com.google.bigtable.admin.v2.ListTablesRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getListTablesMethod(), getCallOptions()), request);
+          getChannel().newCall(getListTablesMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2412,7 +2656,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Table>
         getTable(com.google.bigtable.admin.v2.GetTableRequest request) {
-      return futureUnaryCall(getChannel().newCall(getGetTableMethod(), getCallOptions()), request);
+      return futureUnaryCall(
+          getChannel().newCall(getGetTableMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2425,7 +2670,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteTable(com.google.bigtable.admin.v2.DeleteTableRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getDeleteTableMethod(), getCallOptions()), request);
+          getChannel().newCall(getDeleteTableMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2441,7 +2686,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Table>
         modifyColumnFamilies(com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getModifyColumnFamiliesMethod(), getCallOptions()), request);
+          getChannel().newCall(getModifyColumnFamiliesMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2456,7 +2701,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         dropRowRange(com.google.bigtable.admin.v2.DropRowRangeRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getDropRowRangeMethod(), getCallOptions()), request);
+          getChannel().newCall(getDropRowRangeMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2474,7 +2719,8 @@ public final class BigtableTableAdminGrpc {
         generateConsistencyToken(
             com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getGenerateConsistencyTokenMethod(), getCallOptions()), request);
+          getChannel().newCall(getGenerateConsistencyTokenMethodHelper(), getCallOptions()),
+          request);
     }
 
     /**
@@ -2490,7 +2736,7 @@ public final class BigtableTableAdminGrpc {
             com.google.bigtable.admin.v2.CheckConsistencyResponse>
         checkConsistency(com.google.bigtable.admin.v2.CheckConsistencyRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getCheckConsistencyMethod(), getCallOptions()), request);
+          getChannel().newCall(getCheckConsistencyMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2509,7 +2755,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         snapshotTable(com.google.bigtable.admin.v2.SnapshotTableRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getSnapshotTableMethod(), getCallOptions()), request);
+          getChannel().newCall(getSnapshotTableMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2527,7 +2773,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Snapshot>
         getSnapshot(com.google.bigtable.admin.v2.GetSnapshotRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getGetSnapshotMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetSnapshotMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2546,7 +2792,7 @@ public final class BigtableTableAdminGrpc {
             com.google.bigtable.admin.v2.ListSnapshotsResponse>
         listSnapshots(com.google.bigtable.admin.v2.ListSnapshotsRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getListSnapshotsMethod(), getCallOptions()), request);
+          getChannel().newCall(getListSnapshotsMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2564,7 +2810,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteSnapshot(com.google.bigtable.admin.v2.DeleteSnapshotRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getDeleteSnapshotMethod(), getCallOptions()), request);
+          getChannel().newCall(getDeleteSnapshotMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2584,7 +2830,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         createBackup(com.google.bigtable.admin.v2.CreateBackupRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getCreateBackupMethod(), getCallOptions()), request);
+          getChannel().newCall(getCreateBackupMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2596,7 +2842,8 @@ public final class BigtableTableAdminGrpc {
      */
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Backup>
         getBackup(com.google.bigtable.admin.v2.GetBackupRequest request) {
-      return futureUnaryCall(getChannel().newCall(getGetBackupMethod(), getCallOptions()), request);
+      return futureUnaryCall(
+          getChannel().newCall(getGetBackupMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2609,7 +2856,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Backup>
         updateBackup(com.google.bigtable.admin.v2.UpdateBackupRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getUpdateBackupMethod(), getCallOptions()), request);
+          getChannel().newCall(getUpdateBackupMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2622,7 +2869,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteBackup(com.google.bigtable.admin.v2.DeleteBackupRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getDeleteBackupMethod(), getCallOptions()), request);
+          getChannel().newCall(getDeleteBackupMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2637,7 +2884,7 @@ public final class BigtableTableAdminGrpc {
             com.google.bigtable.admin.v2.ListBackupsResponse>
         listBackups(com.google.bigtable.admin.v2.ListBackupsRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getListBackupsMethod(), getCallOptions()), request);
+          getChannel().newCall(getListBackupsMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2657,7 +2904,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         restoreTable(com.google.bigtable.admin.v2.RestoreTableRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getRestoreTableMethod(), getCallOptions()), request);
+          getChannel().newCall(getRestoreTableMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2672,7 +2919,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.iam.v1.Policy>
         getIamPolicy(com.google.iam.v1.GetIamPolicyRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getGetIamPolicyMethod(), getCallOptions()), request);
+          getChannel().newCall(getGetIamPolicyMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2686,7 +2933,7 @@ public final class BigtableTableAdminGrpc {
     public com.google.common.util.concurrent.ListenableFuture<com.google.iam.v1.Policy>
         setIamPolicy(com.google.iam.v1.SetIamPolicyRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getSetIamPolicyMethod(), getCallOptions()), request);
+          getChannel().newCall(getSetIamPolicyMethodHelper(), getCallOptions()), request);
     }
 
     /**
@@ -2700,7 +2947,7 @@ public final class BigtableTableAdminGrpc {
             com.google.iam.v1.TestIamPermissionsResponse>
         testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest request) {
       return futureUnaryCall(
-          getChannel().newCall(getTestIamPermissionsMethod(), getCallOptions()), request);
+          getChannel().newCall(getTestIamPermissionsMethodHelper(), getCallOptions()), request);
     }
   }
 
@@ -2926,28 +3173,28 @@ public final class BigtableTableAdminGrpc {
               result =
                   io.grpc.ServiceDescriptor.newBuilder(SERVICE_NAME)
                       .setSchemaDescriptor(new BigtableTableAdminFileDescriptorSupplier())
-                      .addMethod(getCreateTableMethod())
-                      .addMethod(getCreateTableFromSnapshotMethod())
-                      .addMethod(getListTablesMethod())
-                      .addMethod(getGetTableMethod())
-                      .addMethod(getDeleteTableMethod())
-                      .addMethod(getModifyColumnFamiliesMethod())
-                      .addMethod(getDropRowRangeMethod())
-                      .addMethod(getGenerateConsistencyTokenMethod())
-                      .addMethod(getCheckConsistencyMethod())
-                      .addMethod(getSnapshotTableMethod())
-                      .addMethod(getGetSnapshotMethod())
-                      .addMethod(getListSnapshotsMethod())
-                      .addMethod(getDeleteSnapshotMethod())
-                      .addMethod(getCreateBackupMethod())
-                      .addMethod(getGetBackupMethod())
-                      .addMethod(getUpdateBackupMethod())
-                      .addMethod(getDeleteBackupMethod())
-                      .addMethod(getListBackupsMethod())
-                      .addMethod(getRestoreTableMethod())
-                      .addMethod(getGetIamPolicyMethod())
-                      .addMethod(getSetIamPolicyMethod())
-                      .addMethod(getTestIamPermissionsMethod())
+                      .addMethod(getCreateTableMethodHelper())
+                      .addMethod(getCreateTableFromSnapshotMethodHelper())
+                      .addMethod(getListTablesMethodHelper())
+                      .addMethod(getGetTableMethodHelper())
+                      .addMethod(getDeleteTableMethodHelper())
+                      .addMethod(getModifyColumnFamiliesMethodHelper())
+                      .addMethod(getDropRowRangeMethodHelper())
+                      .addMethod(getGenerateConsistencyTokenMethodHelper())
+                      .addMethod(getCheckConsistencyMethodHelper())
+                      .addMethod(getSnapshotTableMethodHelper())
+                      .addMethod(getGetSnapshotMethodHelper())
+                      .addMethod(getListSnapshotsMethodHelper())
+                      .addMethod(getDeleteSnapshotMethodHelper())
+                      .addMethod(getCreateBackupMethodHelper())
+                      .addMethod(getGetBackupMethodHelper())
+                      .addMethod(getUpdateBackupMethodHelper())
+                      .addMethod(getDeleteBackupMethodHelper())
+                      .addMethod(getListBackupsMethodHelper())
+                      .addMethod(getRestoreTableMethodHelper())
+                      .addMethod(getGetIamPolicyMethodHelper())
+                      .addMethod(getSetIamPolicyMethodHelper())
+                      .addMethod(getTestIamPermissionsMethodHelper())
                       .build();
         }
       }
