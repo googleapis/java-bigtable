@@ -220,7 +220,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       dispatch the RPC.
    *   <li>Upon receiving the response stream, it will merge the {@link
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
-   *       implementation can be configured in by the {@code rowAdapter} parameter.
+   *       implementation can be configured by the {@code rowAdapter} parameter.
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
    * </ul>
@@ -229,6 +229,66 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private <RowT> ServerStreamingCallable<Query, RowT> createReadRowsBaseCallable(
       ServerStreamingCallSettings<Query, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
+
+    return new ReadRowsUserCallable<>(
+        createReadRowsRawCallable(readRowsSettings, rowAdapter), requestContext);
+  }
+
+  /**
+   * Creates a callable chain to handle ReadRows RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Dispatch the RPC with {@link ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   * </ul>
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   */
+  public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
+      RowAdapter<RowT> adapter) {
+    return createReadRowsBaseCallable(adapter)
+        .withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
+   * Creates a callable chain to handle ReadRows RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Dispatch the RPC with {@link ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   * </ul>
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   */
+  public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
+      RowAdapter<RowT> adapter) {
+    return createReadRowsRawCallable(settings.readRowsSettings(), adapter);
+  }
+
+  /**
+   * Creates a callable chain to handle ReadRows RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Dispatch the RPC with {@link ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   * </ul>
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   */
+  private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
+      ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -268,10 +328,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
 
-    FilterMarkerRowsCallable<RowT> filtering =
-        new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
-
-    return new ReadRowsUserCallable<>(filtering, requestContext);
+    return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
 
   /**
