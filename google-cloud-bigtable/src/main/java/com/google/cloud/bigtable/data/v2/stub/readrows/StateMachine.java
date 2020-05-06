@@ -18,7 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.cloud.bigtable.data.v2.internal.ByteStringComparator;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter.RowBuilder;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.EvictingQueue;
 import com.google.protobuf.ByteString;
 import java.util.List;
 
@@ -83,6 +85,7 @@ final class StateMachine<RowT> {
   private int numChunksProcessed = 0;
   private int numCellsInRow = 0;
   private int numCellsInLastRow = 0;
+  private EvictingQueue<ByteString> lastSeenKeys = EvictingQueue.create(5);
 
   // Track current cell attributes: protocol omits them when they are repeated
   private ByteString rowKey;
@@ -428,6 +431,8 @@ final class StateMachine<RowT> {
     validate(remainingCellBytes == 0, "Can't commit with remaining bytes");
     completeRow = adapter.finishRow();
     lastCompleteRowKey = rowKey;
+
+    lastSeenKeys.add(rowKey);
     numRowsCommitted++;
     numCellsInLastRow = numCellsInRow;
     return AWAITING_ROW_CONSUME;
@@ -449,8 +454,8 @@ final class StateMachine<RowT> {
               + numCellsInLastRow
               + ", rowKey: "
               + rowKey
-              + ", lastCompleteRowKey: "
-              + lastCompleteRowKey);
+              + ", last5Keys: "
+              + Joiner.on(",").join(lastSeenKeys));
     }
   }
 

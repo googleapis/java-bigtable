@@ -53,20 +53,24 @@ public class StateMachineTest {
     try {
       stateMachine.handleChunk(chunk);
       stateMachine.consumeRow();
+
+      stateMachine.handleChunk(
+          chunk.toBuilder().setRowKey(ByteString.copyFromUtf8("my-key2")).build());
+      stateMachine.consumeRow();
+
       stateMachine.handleChunk(
           chunk
               .toBuilder()
-              .setRowKey(ByteString.copyFromUtf8("my-key2"))
+              .setRowKey(ByteString.copyFromUtf8("my-key3"))
               .setValueSize(123) // invalid value size
               .build());
     } catch (StateMachine.InvalidInputException e) {
       actualError = e;
     }
 
-    assertThat(actualError).hasMessageThat().contains("my-key1");
-    assertThat(actualError).hasMessageThat().contains("my-key2");
+    assertThat(actualError).hasMessageThat().containsMatch("last5Keys: .*my-key1.*my-key2");
     assertThat(actualError).hasMessageThat().contains("numScannedNotifications: 0");
-    assertThat(actualError).hasMessageThat().contains("numChunksProcessed: 2");
+    assertThat(actualError).hasMessageThat().contains("numChunksProcessed: 3");
     assertThat(actualError).hasMessageThat().contains("numCellsInRow: 0");
     assertThat(actualError).hasMessageThat().contains("numCellsInLastRow: 1");
   }
