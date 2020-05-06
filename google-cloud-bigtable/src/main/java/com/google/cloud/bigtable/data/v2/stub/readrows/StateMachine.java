@@ -435,14 +435,22 @@ final class StateMachine<RowT> {
 
   private void validate(boolean condition, String message) {
     if (!condition) {
-      throw new InvalidInputException(message
-              + ". numScannedNotifications: " + numScannedNotifications
-              + ", numRowsCommitted: " + numRowsCommitted
-              + ", numChunksProcessed: " + numChunksProcessed
-              + ", numCellsInRow: " + numCellsInRow
-              + ", numCellsInLastRow: " + numCellsInLastRow
-              + ", rowKey: " + rowKey
-              + ", lastCompleteRowKey: " + lastCompleteRowKey);
+      throw new InvalidInputException(
+          message
+              + ". numScannedNotifications: "
+              + numScannedNotifications
+              + ", numRowsCommitted: "
+              + numRowsCommitted
+              + ", numChunksProcessed: "
+              + numChunksProcessed
+              + ", numCellsInRow: "
+              + numCellsInRow
+              + ", numCellsInLastRow: "
+              + numCellsInLastRow
+              + ", rowKey: "
+              + rowKey
+              + ", lastCompleteRowKey: "
+              + lastCompleteRowKey);
     }
   }
 
