@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.rpc.NoHeaderProvider;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
@@ -104,6 +105,11 @@ public class HeadersTest {
                 .setElementCountThreshold(1L)
                 .build());
 
+    // getInternalHeaderProvider is a protected method so we can't call it, instead ensure that
+    // headers were not set here. the test will assert the full header later on
+    if (!(settings.stubSettings().getHeaderProvider() instanceof NoHeaderProvider)) {
+      throw new AssertionError("header provider should not be set");
+    }
     client = BigtableDataClient.create(settings.build());
   }
 
