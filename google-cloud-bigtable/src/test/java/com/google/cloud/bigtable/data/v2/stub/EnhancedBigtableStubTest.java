@@ -20,15 +20,15 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.testing.InProcessServer;
 import com.google.api.gax.grpc.testing.LocalChannelProvider;
-import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowSet;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
+import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.common.collect.Queues;
 import com.google.protobuf.ByteString;
@@ -49,14 +49,14 @@ public class EnhancedBigtableStubTest {
 
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
+  private static final String FAKE_HOST_NAME = "fake-stub-host:123";
   private static final String TABLE_NAME =
       NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, "fake-table");
-  private static final String FAKE_HOST_NAME = "fake-stub-host:123";
+  private static final String APP_PROFILE_ID = "app-profile-id";
 
   private InProcessServer<?> server;
   private FakeDataService fakeDataService;
   private EnhancedBigtableStub enhancedBigtableStub;
-  private EnhancedBigtableStubSettings enhancedBigtableStubSettings;
 
   @Before
   public void setUp() throws IOException, IllegalAccessException, InstantiationException {
@@ -64,10 +64,11 @@ public class EnhancedBigtableStubTest {
     server = new InProcessServer<>(fakeDataService, FAKE_HOST_NAME);
     server.start();
 
-    enhancedBigtableStubSettings =
+    EnhancedBigtableStubSettings enhancedBigtableStubSettings =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
+            .setAppProfileId(APP_PROFILE_ID)
             .setCredentialsProvider(NoCredentialsProvider.create())
             .setEndpoint(FAKE_HOST_NAME)
             .setTransportChannelProvider(LocalChannelProvider.create(FAKE_HOST_NAME))
@@ -82,29 +83,15 @@ public class EnhancedBigtableStubTest {
   }
 
   @Test
-  public void testCreateReadRowsBaseCallable() throws InterruptedException, IOException {
-    ServerStreamingCallable<ReadRowsRequest, Row> callable =
-        enhancedBigtableStub.createReadRowsBaseCallable(new DefaultRowAdapter());
+  public void testCreateReadRowsCallable() throws InterruptedException {
+    ServerStreamingCallable<Query, Row> streamingCallable =
+        enhancedBigtableStub.createReadRowsCallable(new DefaultRowAdapter());
 
-    ApiCallContext context =
-        ClientContext.create(enhancedBigtableStubSettings).getDefaultCallContext();
-
-    ReadRowsRequest expectedRequest =
-        ReadRowsRequest.newBuilder()
-            .setTableName(TABLE_NAME)
-            .setAppProfileId("app-profile-1")
-            .setRows(RowSet.newBuilder().addRowKeys(ByteString.copyFromUtf8("test-row-key")))
-            .build();
-    callable.call(expectedRequest, context).iterator().next();
-    assertThat(fakeDataService.popLastRequest()).isEqualTo(expectedRequest);
-
-    ReadRowsRequest expectedRequest2 =
-        ReadRowsRequest.newBuilder()
-            .setTableName(TABLE_NAME)
-            .setAppProfileId("app-profile-2")
-            .build();
-    callable.call(expectedRequest2, context).iterator().next();
-    assertThat(fakeDataService.popLastRequest()).isEqualTo(expectedRequest2);
+    Query request = Query.create("table-id").rowKey("row-key");
+    streamingCallable.call(request).iterator().next();
+    ReadRowsRequest expected =
+        request.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID));
+    assertThat(fakeDataService.popLastRequest()).isEqualTo(expected);
   }
 
   @Test
