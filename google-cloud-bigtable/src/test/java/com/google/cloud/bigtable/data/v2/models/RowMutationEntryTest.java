@@ -165,4 +165,17 @@ public class RowMutationEntryTest {
                 .setValue(ByteString.copyFrom(Longs.toByteArray(100_000L)))
                 .build());
   }
+
+  @Test
+  public void fromProtobufTest() {
+    RowMutationEntry expected =
+        RowMutationEntry.create("row-key")
+            .setCell("fake-family", "fake-qualifier", 10_000L, "fake-value")
+            .deleteFamily("fake-family");
+
+    MutateRowsRequest.Entry protoRequest = expected.toProto();
+    RowMutationEntry actualRequest = RowMutationEntry.fromProtobuf(protoRequest);
+
+    assertThat(actualRequest.toProto()).isEqualTo(protoRequest);
+  }
 }

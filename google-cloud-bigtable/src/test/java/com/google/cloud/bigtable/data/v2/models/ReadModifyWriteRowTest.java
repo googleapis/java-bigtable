@@ -113,4 +113,17 @@ public class ReadModifyWriteRowTest {
     ReadModifyWriteRow actual = (ReadModifyWriteRow) ois.readObject();
     assertThat(actual.toProto(REQUEST_CONTEXT)).isEqualTo(expected.toProto(REQUEST_CONTEXT));
   }
+
+  @Test
+  public void fromProtobufTest() {
+    ReadModifyWriteRow expected =
+        ReadModifyWriteRow.create(TABLE_ID, "row-key")
+            .increment("fake-family", ByteString.copyFromUtf8("fake-qualifier"), 1)
+            .append("fake-family", "fake-qualifier", "fake-value");
+
+    ReadModifyWriteRowRequest protoRequest = expected.toProto(REQUEST_CONTEXT);
+    ReadModifyWriteRow actualRequest = ReadModifyWriteRow.fromProtobuf(protoRequest);
+
+    assertThat(actualRequest.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
+  }
 }

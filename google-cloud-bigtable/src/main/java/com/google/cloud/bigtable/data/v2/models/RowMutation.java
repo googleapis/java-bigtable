@@ -214,4 +214,18 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
             Entry.newBuilder().setRowKey(key).addAllMutations(mutation.getMutations()).build())
         .build();
   }
+
+  /**
+   * Wraps the protobuf {@link MutateRowRequest}.
+   *
+   * <p>WARNING: Please note that the project id & instance id in the table name will be overwritten
+   * by the configuration in the BigtableDataClient.
+   */
+  public static RowMutation fromProtobuf(@Nonnull MutateRowRequest request) {
+    String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
+
+    // TODO: Should we give an option for Mutation.fromProto(List<com.google.bigtable.v2.Mutation>)?
+    return RowMutation.create(
+        tableId, request.getRowKey(), Mutation.fromProtoUnsafe(request.getMutationsList()));
+  }
 }

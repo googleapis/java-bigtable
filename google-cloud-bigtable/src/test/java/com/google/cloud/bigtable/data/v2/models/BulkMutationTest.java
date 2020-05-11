@@ -147,4 +147,18 @@ public class BulkMutationTest {
     bulkMutation.add(entry);
     assertThat(bulkMutation.toProto(REQUEST_CONTEXT).getEntriesList()).contains(entry.toProto());
   }
+
+  @Test
+  public void fromProtobufTest() {
+    BulkMutation expected =
+        BulkMutation.create(TABLE_ID)
+            .add(
+                "key",
+                Mutation.create().setCell("fake-family", "fake-qualifier", 10_000L, "fake-value"));
+
+    MutateRowsRequest protoRequest = expected.toProto(REQUEST_CONTEXT);
+    BulkMutation actualBulkMutation = BulkMutation.fromProtobuf(protoRequest);
+
+    assertThat(actualBulkMutation.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
+  }
 }

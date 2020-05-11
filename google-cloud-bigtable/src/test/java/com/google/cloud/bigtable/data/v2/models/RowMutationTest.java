@@ -139,4 +139,17 @@ public class RowMutationTest {
                 .setValue(ByteString.copyFrom(Longs.toByteArray(100_000L)))
                 .build());
   }
+
+  @Test
+  public void fromProtobufTest() {
+    RowMutation rowMutation =
+        RowMutation.create("fake-table", "fake-key")
+            .setCell("fake-family", "fake-qualifier-1", "fake-value")
+            .setCell("fake-family", "fake-qualifier-2", 30_000L, "fake-value-2");
+
+    MutateRowRequest protoRequest = rowMutation.toProto(REQUEST_CONTEXT);
+    RowMutation actualRequest = RowMutation.fromProtobuf(protoRequest);
+
+    assertThat(actualRequest.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
+  }
 }

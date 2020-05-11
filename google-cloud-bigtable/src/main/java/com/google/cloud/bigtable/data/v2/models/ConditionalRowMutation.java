@@ -136,4 +136,19 @@ public final class ConditionalRowMutation implements Serializable {
         .setAppProfileId(requestContext.getAppProfileId())
         .build();
   }
+
+  /**
+   * Wraps the protobuf {@link CheckAndMutateRowRequest}.
+   *
+   * <p>WARNING: Please note that the project id & instance id in the table name will be overwritten
+   * by the configuration in the BigtableDataClient.
+   */
+  public static ConditionalRowMutation fromProtobuf(@Nonnull CheckAndMutateRowRequest request) {
+    String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
+    ConditionalRowMutation rowMutation =
+        ConditionalRowMutation.create(tableId, request.getRowKey());
+    rowMutation.builder = request.toBuilder();
+
+    return rowMutation;
+  }
 }

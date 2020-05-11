@@ -114,6 +114,20 @@ public final class BulkMutation implements Serializable, Cloneable {
         .build();
   }
 
+  /**
+   * Wraps the protobuf {@link MutateRowsRequest}.
+   *
+   * <p>WARNING: Please note that the project id & instance id in the table name will be overwritten
+   * by the configuration in the BigtableDataClient.
+   */
+  public static BulkMutation fromProtobuf(@Nonnull MutateRowsRequest request) {
+    BulkMutation bulkMutation =
+        BulkMutation.create(NameUtil.extractTableIdFromTableName(request.getTableName()));
+    bulkMutation.builder = request.toBuilder();
+
+    return bulkMutation;
+  }
+
   /** Creates a copy of {@link BulkMutation}. */
   @Override
   public BulkMutation clone() {
