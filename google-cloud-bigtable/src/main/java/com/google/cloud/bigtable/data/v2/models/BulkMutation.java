@@ -118,11 +118,16 @@ public final class BulkMutation implements Serializable, Cloneable {
   /**
    * Wraps the protobuf {@link MutateRowsRequest}.
    *
-   * <p>WARNING: Please note that the table name will be overwritten by the configuration in the
-   * BigtableDataClient. The mutation must always be idempotent because it would be retried.
+   * <p>This is meant for advanced usage only. Please ensure that the MutateRowsRequest does not use
+   * server side timestamps. The BigtableDataClient assumes that mutation present in BulkMutation
+   * are idempotent and is configured to enable retries by default. If serverside timestamps are
+   * enabled then that can lead to duplicate mutations.
+   *
+   * <p>WARNING: when applied, the resulting mutation object will ignore the project id and instance
+   * id in the table_name and instead apply the configuration in the client.
    */
   @BetaApi
-  public static BulkMutation fromProtobuf(@Nonnull MutateRowsRequest request) {
+  public static BulkMutation fromProto(@Nonnull MutateRowsRequest request) {
     BulkMutation bulkMutation =
         BulkMutation.create(NameUtil.extractTableIdFromTableName(request.getTableName()));
     bulkMutation.builder = request.toBuilder();

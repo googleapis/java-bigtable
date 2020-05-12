@@ -142,11 +142,11 @@ public final class ReadModifyWriteRow implements Serializable {
   /**
    * Wraps the protobuf {@link ReadModifyWriteRowRequest}.
    *
-   * <p>WARNING: Please note that the table name will be overwritten by the configuration in the
+   * <p>WARNING: Please note that the table_name will be overwritten by the configuration in the
    * BigtableDataClient.
    */
   @BetaApi
-  public static ReadModifyWriteRow fromProtobuf(ReadModifyWriteRowRequest request) {
+  public static ReadModifyWriteRow fromProto(@Nonnull ReadModifyWriteRowRequest request) {
     String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
 
     ReadModifyWriteRow row = ReadModifyWriteRow.create(tableId, request.getRowKey());

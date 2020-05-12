@@ -141,11 +141,11 @@ public final class ConditionalRowMutation implements Serializable {
   /**
    * Wraps the protobuf {@link CheckAndMutateRowRequest}.
    *
-   * <p>WARNING: Please note that the table name will be overwritten by the configuration in the
-   * BigtableDataClient. The mutation must always be idempotent because it would be retried.
+   * <p>WARNING: Please note that the table_name will be overwritten by the configuration in the
+   * BigtableDataClient.
    */
   @BetaApi
-  public static ConditionalRowMutation fromProtobuf(@Nonnull CheckAndMutateRowRequest request) {
+  public static ConditionalRowMutation fromProto(@Nonnull CheckAndMutateRowRequest request) {
     String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
     ConditionalRowMutation rowMutation =
         ConditionalRowMutation.create(tableId, request.getRowKey());

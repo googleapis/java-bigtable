@@ -22,6 +22,7 @@ import com.google.bigtable.v2.Mutation.DeleteFromFamily;
 import com.google.bigtable.v2.Mutation.DeleteFromRow;
 import com.google.bigtable.v2.Mutation.SetCell;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
@@ -88,11 +89,17 @@ public final class Mutation implements MutationApi<Mutation>, Serializable {
   }
 
   /**
-   * Wraps the List of protobuf {@link com.google.bigtable.v2.Mutation}. This method creates a
-   * mutation instance that is idempotent in nature, which could safely be retried.
+   * Constructs a row mutation from an existing protobuf object.
+   *
+   * <p>Callers must ensure that the protobuf argument is not using serverside timestamps. The
+   * client assumes that all mutations are idempotent and will retry in case of transient errors.
+   * This can lead to row duplication.
+   *
+   * <p>When applied, the resulting Mutation object will ignore the project id and instance id in
+   * the table_name and instead apply the configuration in the client
    */
-  @BetaApi
-  public static Mutation fromProtobuf(List<com.google.bigtable.v2.Mutation> protos) {
+  @VisibleForTesting
+  static Mutation fromProto(List<com.google.bigtable.v2.Mutation> protos) {
     Mutation mutation = new Mutation(false);
     mutation.mutations.addAll(protos);
     return mutation;

@@ -141,14 +141,14 @@ public class RowMutationTest {
   }
 
   @Test
-  public void fromProtobufTest() {
+  public void fromProtoTest() {
     RowMutation rowMutation =
         RowMutation.create("fake-table", "fake-key")
             .setCell("fake-family", "fake-qualifier-1", "fake-value")
             .setCell("fake-family", "fake-qualifier-2", 30_000L, "fake-value-2");
 
     MutateRowRequest protoRequest = rowMutation.toProto(REQUEST_CONTEXT);
-    RowMutation actualRequest = RowMutation.fromProtobuf(protoRequest);
+    RowMutation actualRequest = RowMutation.fromProto(protoRequest);
 
     assertThat(actualRequest.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
   }

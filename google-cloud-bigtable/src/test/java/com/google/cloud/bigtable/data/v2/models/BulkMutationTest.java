@@ -149,7 +149,7 @@ public class BulkMutationTest {
   }
 
   @Test
-  public void fromProtobufTest() {
+  public void fromProtoTest() {
     BulkMutation expected =
         BulkMutation.create(TABLE_ID)
             .add(
@@ -157,7 +157,7 @@ public class BulkMutationTest {
                 Mutation.create().setCell("fake-family", "fake-qualifier", 10_000L, "fake-value"));
 
     MutateRowsRequest protoRequest = expected.toProto(REQUEST_CONTEXT);
-    BulkMutation actualBulkMutation = BulkMutation.fromProtobuf(protoRequest);
+    BulkMutation actualBulkMutation = BulkMutation.fromProto(protoRequest);
 
     assertThat(actualBulkMutation.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
   }

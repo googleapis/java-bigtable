@@ -256,7 +256,7 @@ public class MutationTest {
   }
 
   @Test
-  public void fromProtobufTest() {
+  public void fromProtoTest() {
     mutation
         .setCell(
             "fake-family",
@@ -268,6 +268,6 @@ public class MutationTest {
 
     List<com.google.bigtable.v2.Mutation> protoMutation = mutation.getMutations();
 
-    assertThat(Mutation.fromProtobuf(protoMutation).getMutations()).isEqualTo(protoMutation);
+    assertThat(Mutation.fromProto(protoMutation).getMutations()).isEqualTo(protoMutation);
   }
 }

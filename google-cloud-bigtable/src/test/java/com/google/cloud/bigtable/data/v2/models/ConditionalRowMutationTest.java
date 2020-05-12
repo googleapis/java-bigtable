@@ -164,7 +164,7 @@ public class ConditionalRowMutationTest {
   }
 
   @Test
-  public void fromProtobufTest() {
+  public void fromProtoTest() {
     ConditionalRowMutation mutation =
         ConditionalRowMutation.create(TABLE_ID, TEST_KEY)
             .condition(Filters.FILTERS.key().regex("test"))
@@ -172,7 +172,7 @@ public class ConditionalRowMutationTest {
             .otherwise(Mutation.create().deleteFamily("family"));
 
     CheckAndMutateRowRequest protoRequest = mutation.toProto(REQUEST_CONTEXT);
-    ConditionalRowMutation actualRequest = ConditionalRowMutation.fromProtobuf(protoRequest);
+    ConditionalRowMutation actualRequest = ConditionalRowMutation.fromProto(protoRequest);
 
     assertThat(actualRequest.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
   }

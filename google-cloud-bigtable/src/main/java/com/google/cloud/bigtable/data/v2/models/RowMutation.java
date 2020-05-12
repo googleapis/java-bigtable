@@ -219,14 +219,19 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
   /**
    * Wraps the protobuf {@link MutateRowRequest}.
    *
-   * <p>WARNING: Please note that the table name will be overwritten by the configuration in the
-   * BigtableDataClient. The mutation must always be idempotent because it would be retried.
+   * <p>This is meant for advanced usage only. Please ensure that the MutateRowRequest does not use
+   * server side timestamps. The BigtableDataClient assumes that RowMutations are idempotent and is
+   * configured to enable retries by default. If serverside timestamps are enabled, this can lead to
+   * duplicate mutations.
+   *
+   * <p>WARNING: when applied, the resulting mutation object will ignore the project id and instance
+   * id in the table_name and instead apply the configuration in the client.
    */
   @BetaApi
-  public static RowMutation fromProtobuf(@Nonnull MutateRowRequest request) {
+  public static RowMutation fromProto(@Nonnull MutateRowRequest request) {
     String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
 
     return RowMutation.create(
-        tableId, request.getRowKey(), Mutation.fromProtobuf(request.getMutationsList()));
+        tableId, request.getRowKey(), Mutation.fromProto(request.getMutationsList()));
   }
 }
