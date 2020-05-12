@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
@@ -177,12 +176,5 @@ public class RowMutationEntry implements MutationApi<RowMutationEntry>, Serializ
         .setRowKey(key)
         .addAllMutations(mutation.getMutations())
         .build();
-  }
-
-  /** Wraps the protobuf {@link MutateRowRequest}. */
-  public static RowMutationEntry fromProtobuf(MutateRowsRequest.Entry request) {
-    // TODO: Should we have an option for Mutation.fromProto(List<com.google.bigtable.v2.Mutation>)?
-    return new RowMutationEntry(
-        request.getRowKey(), Mutation.fromProtoUnsafe(request.getMutationsList()));
   }
 }

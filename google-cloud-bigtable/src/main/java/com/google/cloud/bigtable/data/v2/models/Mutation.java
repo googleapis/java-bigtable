@@ -87,6 +87,17 @@ public final class Mutation implements MutationApi<Mutation>, Serializable {
     return mutation;
   }
 
+  /**
+   * Wraps the List of protobuf {@link com.google.bigtable.v2.Mutation}. This method creates a
+   * mutation instance that is idempotent in nature, which could safely be retried.
+   */
+  @BetaApi
+  public static Mutation fromProtobuf(List<com.google.bigtable.v2.Mutation> protos) {
+    Mutation mutation = new Mutation(false);
+    mutation.mutations.addAll(protos);
+    return mutation;
+  }
+
   private Mutation(boolean allowServersideTimestamp) {
     this.allowServersideTimestamp = allowServersideTimestamp;
   }

@@ -254,4 +254,20 @@ public class MutationTest {
                 .setValue(ByteString.copyFrom(Longs.toByteArray(20_000L)))
                 .build());
   }
+
+  @Test
+  public void fromProtobufTest() {
+    mutation
+        .setCell(
+            "fake-family",
+            ByteString.copyFromUtf8("fake-qualifier"),
+            1_000,
+            ByteString.copyFromUtf8("fake-value"))
+        .deleteCells("fake-family", ByteString.copyFromUtf8("fake-qualifier"))
+        .deleteFamily("fake-family2");
+
+    List<com.google.bigtable.v2.Mutation> protoMutation = mutation.getMutations();
+
+    assertThat(Mutation.fromProtobuf(protoMutation).getMutations()).isEqualTo(protoMutation);
+  }
 }
