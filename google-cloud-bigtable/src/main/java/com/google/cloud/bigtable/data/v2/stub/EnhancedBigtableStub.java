@@ -20,6 +20,8 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.core.BackgroundResource;
+import com.google.api.gax.core.GaxProperties;
+import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
@@ -125,7 +127,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   @InternalApi("Visible for testing")
-  private EnhancedBigtableStub(
+  public EnhancedBigtableStub(
       EnhancedBigtableStubSettings settings,
       ClientContext clientContext,
       Tagger tagger,
