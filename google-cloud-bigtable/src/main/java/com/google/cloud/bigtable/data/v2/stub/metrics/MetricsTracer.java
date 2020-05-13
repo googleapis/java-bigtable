@@ -158,8 +158,7 @@ class MetricsTracer implements ApiTracer {
     recordAttemptCompletion(throwable);
   }
 
-  private void recordAttemptCompletion(
-      @Nullable Throwable throwable) {
+  private void recordAttemptCompletion(@Nullable Throwable throwable) {
     MeasureMap measures =
         stats
             .newMeasureMap()
