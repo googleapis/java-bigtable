@@ -175,5 +175,16 @@ public class ConditionalRowMutationTest {
     ConditionalRowMutation actualRequest = ConditionalRowMutation.fromProto(protoRequest);
 
     assertThat(actualRequest.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
+
+    String projectId = "fresh-project";
+    String instanceId = "fresh-instance";
+    String appProfile = "fresh-app-profile";
+    CheckAndMutateRowRequest overriddenRequest =
+        actualRequest.toProto(RequestContext.create(projectId, instanceId, appProfile));
+
+    assertThat(overriddenRequest).isNotEqualTo(protoRequest);
+    assertThat(overriddenRequest.getTableName())
+        .matches(NameUtil.formatTableName(projectId, instanceId, TABLE_ID));
+    assertThat(overriddenRequest.getAppProfileId()).matches(appProfile);
   }
 }

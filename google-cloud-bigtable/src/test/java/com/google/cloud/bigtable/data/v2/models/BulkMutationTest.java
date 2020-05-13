@@ -160,5 +160,16 @@ public class BulkMutationTest {
     BulkMutation actualBulkMutation = BulkMutation.fromProto(protoRequest);
 
     assertThat(actualBulkMutation.toProto(REQUEST_CONTEXT)).isEqualTo(protoRequest);
+
+    String projectId = "fresh-project";
+    String instanceId = "fresh-instance";
+    String appProfile = "fresh-app-profile";
+    MutateRowsRequest overriddenRequest =
+        actualBulkMutation.toProto(RequestContext.create(projectId, instanceId, appProfile));
+
+    assertThat(overriddenRequest).isNotEqualTo(protoRequest);
+    assertThat(overriddenRequest.getTableName())
+        .matches(NameUtil.formatTableName(projectId, instanceId, TABLE_ID));
+    assertThat(overriddenRequest.getAppProfileId()).matches(appProfile);
   }
 }
