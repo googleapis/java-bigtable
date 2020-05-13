@@ -15,12 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.core.BackgroundResource;
-import com.google.api.gax.core.GaxProperties;
-import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
@@ -119,13 +118,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
+    ClientContext clientContext = ClientContext.create(settings);
 
     return new EnhancedBigtableStub(
-        settings, ClientContext.create(settings), Tags.getTagger(), Stats.getStatsRecorder());
+        settings, clientContext, Tags.getTagger(), Stats.getStatsRecorder());
   }
 
   @InternalApi("Visible for testing")
-  public EnhancedBigtableStub(
+  private EnhancedBigtableStub(
       EnhancedBigtableStubSettings settings,
       ClientContext clientContext,
       Tagger tagger,
@@ -193,6 +193,27 @@ public class EnhancedBigtableStub implements AutoCloseable {
   // <editor-fold desc="Callable creators">
 
   /**
+   * Creates a callable chain to handle ReadRows RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Dispatch the RPC with {@link ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   * </ul>
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   */
+  @BetaApi("This surface is stable yet it might be removed in the future.")
+  public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
+      RowAdapter<RowT> rowAdapter) {
+    return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter)
+        .withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
    * Creates a callable chain to handle streaming ReadRows RPCs. The chain will:
    *
    * <ul>
@@ -208,12 +229,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public <RowT> ServerStreamingCallable<Query, RowT> createReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
-    final ServerStreamingCallable<Query, RowT> readRowsCallable =
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
         createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
 
-    final ServerStreamingCallable<Query, RowT> traced =
+    ServerStreamingCallable<Query, RowT> readRowsUserCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
+
+    ServerStreamingCallable<Query, RowT> traced =
         new TracedServerStreamingCallable<>(
-            readRowsCallable,
+            readRowsUserCallable,
             clientContext.getTracerFactory(),
             SpanName.of(CLIENT_NAME, "ReadRows"));
 
@@ -235,15 +259,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * </ul>
    */
   public <RowT> UnaryCallable<Query, RowT> createReadRowCallable(RowAdapter<RowT> rowAdapter) {
-    UnaryCallable<Query, RowT> readRowCallable =
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
         createReadRowsBaseCallable(
-                ServerStreamingCallSettings.<Query, Row>newBuilder()
-                    .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
-                    .setRetrySettings(settings.readRowSettings().getRetrySettings())
-                    .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
-                    .build(),
-                rowAdapter)
-            .first();
+            ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
+                .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
+                .setRetrySettings(settings.readRowSettings().getRetrySettings())
+                .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
+                .build(),
+            rowAdapter);
+
+    UnaryCallable<Query, RowT> readRowCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
 
     return createUserFacingUnaryCallable("ReadRow", readRowCallable);
   }
@@ -252,19 +278,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * Creates a callable chain to handle ReadRows RPCs. The chain will:
    *
    * <ul>
-   *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest} and
-   *       dispatch the RPC.
+   *   <li>Dispatch the RPC with {@link ReadRowsRequest}.
    *   <li>Upon receiving the response stream, it will merge the {@link
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
-   *       implementation can be configured in by the {@code rowAdapter} parameter.
+   *       implementation can be configured by the {@code rowAdapter} parameter.
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
    * </ul>
    *
    * <p>NOTE: the caller is responsible for adding tracing & metrics.
    */
-  private <RowT> ServerStreamingCallable<Query, RowT> createReadRowsBaseCallable(
-      ServerStreamingCallSettings<Query, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
+  private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
+      ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -274,7 +299,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadRowsRequest>() {
                       @Override
                       public Map<String, String> extract(ReadRowsRequest readRowsRequest) {
-                        return ImmutableMap.of("table_name", readRowsRequest.getTableName());
+                        return ImmutableMap.of(
+                            "table_name", readRowsRequest.getTableName(),
+                            "app_profile_id", readRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -283,8 +310,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(base, rowAdapter);
 
-    // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the outer
-    // Query -> RowT callable or the inner ReadRowsRequest -> ReadRowsResponse callable).
+    // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
+    // ReadRowsRequest -> ReadRowsResponse callable).
     ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
         ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
             .setResumptionStrategy(new ReadRowsResumptionStrategy<>(rowAdapter))
@@ -304,10 +331,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
 
-    FilterMarkerRowsCallable<RowT> filtering =
-        new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
-
-    return new ReadRowsUserCallable<>(filtering, requestContext);
+    return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
 
   /**
@@ -332,7 +356,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       @Override
                       public Map<String, String> extract(
                           SampleRowKeysRequest sampleRowKeysRequest) {
-                        return ImmutableMap.of("table_name", sampleRowKeysRequest.getTableName());
+                        return ImmutableMap.of(
+                            "table_name", sampleRowKeysRequest.getTableName(),
+                            "app_profile_id", sampleRowKeysRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -364,7 +390,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowRequest mutateRowRequest) {
-                        return ImmutableMap.of("table_name", mutateRowRequest.getTableName());
+                        return ImmutableMap.of(
+                            "table_name", mutateRowRequest.getTableName(),
+                            "app_profile_id", mutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -475,7 +503,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowsRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowsRequest mutateRowsRequest) {
-                        return ImmutableMap.of("table_name", mutateRowsRequest.getTableName());
+                        return ImmutableMap.of(
+                            "table_name", mutateRowsRequest.getTableName(),
+                            "app_profile_id", mutateRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -516,7 +546,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       public Map<String, String> extract(
                           CheckAndMutateRowRequest checkAndMutateRowRequest) {
                         return ImmutableMap.of(
-                            "table_name", checkAndMutateRowRequest.getTableName());
+                            "table_name", checkAndMutateRowRequest.getTableName(),
+                            "app_profile_id", checkAndMutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -548,7 +579,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadModifyWriteRowRequest>() {
                       @Override
                       public Map<String, String> extract(ReadModifyWriteRowRequest request) {
-                        return ImmutableMap.of("table_name", request.getTableName());
+                        return ImmutableMap.of(
+                            "table_name", request.getTableName(),
+                            "app_profile_id", request.getAppProfileId());
                       }
                     })
                 .build(),

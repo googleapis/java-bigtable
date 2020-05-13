@@ -515,6 +515,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setTransportChannelProvider(defaultTransportChannelProvider());
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
+      setInternalHeaderProvider(
+          BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build());
 
       // Per-method settings using baseSettings for defaults.
       readRowsSettings = ServerStreamingCallSettings.newBuilder();

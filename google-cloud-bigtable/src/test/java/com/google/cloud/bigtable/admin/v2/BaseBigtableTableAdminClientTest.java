@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.admin.v2;
 
+import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBackupsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListSnapshotsPagedResponse;
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 
@@ -26,29 +27,40 @@ import com.google.api.gax.grpc.testing.MockServiceHelper;
 import com.google.api.gax.rpc.ApiClientHeaderProvider;
 import com.google.api.gax.rpc.InvalidArgumentException;
 import com.google.api.gax.rpc.StatusCode;
+import com.google.api.resourcenames.ResourceName;
+import com.google.bigtable.admin.v2.AppProfileName;
+import com.google.bigtable.admin.v2.Backup;
+import com.google.bigtable.admin.v2.BackupName;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.ClusterName;
+import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest;
 import com.google.bigtable.admin.v2.CreateTableRequest;
+import com.google.bigtable.admin.v2.DeleteBackupRequest;
 import com.google.bigtable.admin.v2.DeleteSnapshotRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
 import com.google.bigtable.admin.v2.DropRowRangeRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
+import com.google.bigtable.admin.v2.GetBackupRequest;
 import com.google.bigtable.admin.v2.GetSnapshotRequest;
 import com.google.bigtable.admin.v2.GetTableRequest;
 import com.google.bigtable.admin.v2.InstanceName;
+import com.google.bigtable.admin.v2.ListBackupsRequest;
+import com.google.bigtable.admin.v2.ListBackupsResponse;
 import com.google.bigtable.admin.v2.ListSnapshotsRequest;
 import com.google.bigtable.admin.v2.ListSnapshotsResponse;
 import com.google.bigtable.admin.v2.ListTablesRequest;
 import com.google.bigtable.admin.v2.ListTablesResponse;
 import com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest;
+import com.google.bigtable.admin.v2.RestoreTableRequest;
 import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotName;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.UpdateBackupRequest;
 import com.google.common.collect.Lists;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
@@ -60,12 +72,14 @@ import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.google.protobuf.FieldMask;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
@@ -516,16 +530,16 @@ public class BaseBigtableTableAdminClientTest {
     Policy expectedResponse = Policy.newBuilder().setVersion(version).setEtag(etag).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
 
-    Policy actualResponse = client.getIamPolicy(formattedResource);
+    Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
 
     List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
     Assert.assertEquals(1, actualRequests.size());
     GetIamPolicyRequest actualRequest = (GetIamPolicyRequest) actualRequests.get(0);
 
-    Assert.assertEquals(formattedResource, actualRequest.getResource());
+    Assert.assertEquals(Objects.toString(resource), Objects.toString(actualRequest.getResource()));
     Assert.assertTrue(
         channelProvider.isHeaderSent(
             ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
@@ -539,9 +553,9 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
 
-      client.getIamPolicy(formattedResource);
+      client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception
@@ -556,17 +570,17 @@ public class BaseBigtableTableAdminClientTest {
     Policy expectedResponse = Policy.newBuilder().setVersion(version).setEtag(etag).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
     Policy policy = Policy.newBuilder().build();
 
-    Policy actualResponse = client.setIamPolicy(formattedResource, policy);
+    Policy actualResponse = client.setIamPolicy(resource, policy);
     Assert.assertEquals(expectedResponse, actualResponse);
 
     List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
     Assert.assertEquals(1, actualRequests.size());
     SetIamPolicyRequest actualRequest = (SetIamPolicyRequest) actualRequests.get(0);
 
-    Assert.assertEquals(formattedResource, actualRequest.getResource());
+    Assert.assertEquals(Objects.toString(resource), Objects.toString(actualRequest.getResource()));
     Assert.assertEquals(policy, actualRequest.getPolicy());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
@@ -581,10 +595,10 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
       Policy policy = Policy.newBuilder().build();
 
-      client.setIamPolicy(formattedResource, policy);
+      client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception
@@ -597,18 +611,17 @@ public class BaseBigtableTableAdminClientTest {
     TestIamPermissionsResponse expectedResponse = TestIamPermissionsResponse.newBuilder().build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
     List<String> permissions = new ArrayList<>();
 
-    TestIamPermissionsResponse actualResponse =
-        client.testIamPermissions(formattedResource, permissions);
+    TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
     Assert.assertEquals(expectedResponse, actualResponse);
 
     List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
     Assert.assertEquals(1, actualRequests.size());
     TestIamPermissionsRequest actualRequest = (TestIamPermissionsRequest) actualRequests.get(0);
 
-    Assert.assertEquals(formattedResource, actualRequest.getResource());
+    Assert.assertEquals(Objects.toString(resource), Objects.toString(actualRequest.getResource()));
     Assert.assertEquals(permissions, actualRequest.getPermissionsList());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
@@ -623,10 +636,10 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      String formattedResource = TableName.format("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
       List<String> permissions = new ArrayList<>();
 
-      client.testIamPermissions(formattedResource, permissions);
+      client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception
@@ -655,7 +668,7 @@ public class BaseBigtableTableAdminClientTest {
 
     TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
     ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    SnapshotName snapshotId = SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+    String snapshotId = "snapshotId-168585866";
     String description = "description-1724546052";
 
     Snapshot actualResponse =
@@ -668,7 +681,7 @@ public class BaseBigtableTableAdminClientTest {
 
     Assert.assertEquals(name, TableName.parse(actualRequest.getName()));
     Assert.assertEquals(cluster, ClusterName.parse(actualRequest.getCluster()));
-    Assert.assertEquals(snapshotId, SnapshotName.parse(actualRequest.getSnapshotId()));
+    Assert.assertEquals(snapshotId, actualRequest.getSnapshotId());
     Assert.assertEquals(description, actualRequest.getDescription());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
@@ -685,8 +698,7 @@ public class BaseBigtableTableAdminClientTest {
     try {
       TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
       ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      SnapshotName snapshotId =
-          SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+      String snapshotId = "snapshotId-168585866";
       String description = "description-1724546052";
 
       client.snapshotTableAsync(name, cluster, snapshotId, description).get();
@@ -826,6 +838,292 @@ public class BaseBigtableTableAdminClientTest {
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void createBackupTest() throws Exception {
+    BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    String sourceTable = "sourceTable1670858410";
+    long sizeBytes = 1796325715L;
+    Backup expectedResponse =
+        Backup.newBuilder()
+            .setName(name.toString())
+            .setSourceTable(sourceTable)
+            .setSizeBytes(sizeBytes)
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("createBackupTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+    String backupId = "backupId1355353272";
+    Backup backup = Backup.newBuilder().build();
+
+    Backup actualResponse = client.createBackupAsync(parent, backupId, backup).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    CreateBackupRequest actualRequest = (CreateBackupRequest) actualRequests.get(0);
+
+    Assert.assertEquals(parent, ClusterName.parse(actualRequest.getParent()));
+    Assert.assertEquals(backupId, actualRequest.getBackupId());
+    Assert.assertEquals(backup, actualRequest.getBackup());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void createBackupExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+      String backupId = "backupId1355353272";
+      Backup backup = Backup.newBuilder().build();
+
+      client.createBackupAsync(parent, backupId, backup).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = (InvalidArgumentException) e.getCause();
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void getBackupTest() {
+    BackupName name2 = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    String sourceTable = "sourceTable1670858410";
+    long sizeBytes = 1796325715L;
+    Backup expectedResponse =
+        Backup.newBuilder()
+            .setName(name2.toString())
+            .setSourceTable(sourceTable)
+            .setSizeBytes(sizeBytes)
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+
+    Backup actualResponse = client.getBackup(name);
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    GetBackupRequest actualRequest = (GetBackupRequest) actualRequests.get(0);
+
+    Assert.assertEquals(name, BackupName.parse(actualRequest.getName()));
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void getBackupExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+
+      client.getBackup(name);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void listBackupsTest() {
+    String nextPageToken = "";
+    Backup backupsElement = Backup.newBuilder().build();
+    List<Backup> backups = Arrays.asList(backupsElement);
+    ListBackupsResponse expectedResponse =
+        ListBackupsResponse.newBuilder()
+            .setNextPageToken(nextPageToken)
+            .addAllBackups(backups)
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+
+    ListBackupsPagedResponse pagedListResponse = client.listBackups(parent);
+
+    List<Backup> resources = Lists.newArrayList(pagedListResponse.iterateAll());
+    Assert.assertEquals(1, resources.size());
+    Assert.assertEquals(expectedResponse.getBackupsList().get(0), resources.get(0));
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    ListBackupsRequest actualRequest = (ListBackupsRequest) actualRequests.get(0);
+
+    Assert.assertEquals(parent, ClusterName.parse(actualRequest.getParent()));
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void listBackupsExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+
+      client.listBackups(parent);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void updateBackupTest() {
+    BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+    String sourceTable = "sourceTable1670858410";
+    long sizeBytes = 1796325715L;
+    Backup expectedResponse =
+        Backup.newBuilder()
+            .setName(name.toString())
+            .setSourceTable(sourceTable)
+            .setSizeBytes(sizeBytes)
+            .build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    Backup backup = Backup.newBuilder().build();
+    FieldMask updateMask = FieldMask.newBuilder().build();
+
+    Backup actualResponse = client.updateBackup(backup, updateMask);
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    UpdateBackupRequest actualRequest = (UpdateBackupRequest) actualRequests.get(0);
+
+    Assert.assertEquals(backup, actualRequest.getBackup());
+    Assert.assertEquals(updateMask, actualRequest.getUpdateMask());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void updateBackupExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      Backup backup = Backup.newBuilder().build();
+      FieldMask updateMask = FieldMask.newBuilder().build();
+
+      client.updateBackup(backup, updateMask);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void deleteBackupTest() {
+    Empty expectedResponse = Empty.newBuilder().build();
+    mockBigtableTableAdmin.addResponse(expectedResponse);
+
+    BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+
+    client.deleteBackup(name);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    DeleteBackupRequest actualRequest = (DeleteBackupRequest) actualRequests.get(0);
+
+    Assert.assertEquals(name, BackupName.parse(actualRequest.getName()));
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void deleteBackupExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+
+      client.deleteBackup(name);
+      Assert.fail("No exception raised");
+    } catch (InvalidArgumentException e) {
+      // Expected exception
+    }
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void restoreTableTest() throws Exception {
+    TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    Table expectedResponse = Table.newBuilder().setName(name.toString()).build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("restoreTableTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    RestoreTableRequest request = RestoreTableRequest.newBuilder().build();
+
+    Table actualResponse = client.restoreTableAsync(request).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    RestoreTableRequest actualRequest = (RestoreTableRequest) actualRequests.get(0);
+
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  @SuppressWarnings("all")
+  public void restoreTableExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      RestoreTableRequest request = RestoreTableRequest.newBuilder().build();
+
+      client.restoreTableAsync(request).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = (InvalidArgumentException) e.getCause();
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
     }
   }
 }
