@@ -22,7 +22,6 @@ import com.google.bigtable.v2.Mutation.DeleteFromFamily;
 import com.google.bigtable.v2.Mutation.DeleteFromRow;
 import com.google.bigtable.v2.Mutation.SetCell;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Longs;
@@ -98,7 +97,6 @@ public final class Mutation implements MutationApi<Mutation>, Serializable {
    * <p>When applied, the resulting Mutation object will ignore the project id and instance id in
    * the table_name and instead apply the configuration in the client
    */
-  @VisibleForTesting
   static Mutation fromProto(List<com.google.bigtable.v2.Mutation> protos) {
     Mutation mutation = new Mutation(false);
     mutation.mutations.addAll(protos);
