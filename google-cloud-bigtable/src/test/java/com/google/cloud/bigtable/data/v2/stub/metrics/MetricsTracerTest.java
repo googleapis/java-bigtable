@@ -237,8 +237,7 @@ public class MetricsTracerTest {
         getAggregationValueAsLong(
             RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
             ImmutableMap.<TagKey, TagValue>of());
-    long upper = elapsed - afterSleep;
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, upper));
+    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
   }
 
   @Test
