@@ -209,6 +209,7 @@ public class MetricsTracerTest {
     final long beforeSleep = 40;
     final long afterSleep = 40;
 
+
     doAnswer(
             new Answer() {
               @Override
