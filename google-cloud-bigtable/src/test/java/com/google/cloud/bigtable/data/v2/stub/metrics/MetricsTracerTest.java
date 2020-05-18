@@ -206,9 +206,8 @@ public class MetricsTracerTest {
 
   @Test
   public void testReadRowsFirstRow() throws InterruptedException {
-    final long beforeSleep = 40;
-    final long afterSleep = 40;
-
+    final long beforeSleep = 60;
+    final long afterSleep = 60;
 
     doAnswer(
             new Answer() {
@@ -238,7 +237,8 @@ public class MetricsTracerTest {
         getAggregationValueAsLong(
             RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
             ImmutableMap.<TagKey, TagValue>of());
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
+    long upper = elapsed - afterSleep;
+    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, upper));
   }
 
   @Test
