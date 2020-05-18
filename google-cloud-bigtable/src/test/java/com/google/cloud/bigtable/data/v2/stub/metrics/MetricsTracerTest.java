@@ -206,8 +206,8 @@ public class MetricsTracerTest {
 
   @Test
   public void testReadRowsFirstRow() throws InterruptedException {
-    final long beforeSleep = 50;
-    final long afterSleep = 50;
+    final long beforeSleep = 40;
+    final long afterSleep = 40;
 
     doAnswer(
             new Answer() {
