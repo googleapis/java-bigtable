@@ -229,9 +229,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
+    InstantiatingGrpcChannelProvider.Builder builder =
+        BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setPoolSize(getDefaultChannelPoolSize())
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE);
+    // TODO(weiranf): Remove this once DirectPath goes to public beta
+    if (isDirectPathEnabled()) {
+      builder.setAttemptDirectPath(true);
+    }
+    return builder;
+  }
+
+  // TODO(weiranf): Remove this once DirectPath goes to public beta
+  private static boolean isDirectPathEnabled() {
+    return Boolean.getBoolean("bigtable.attempt-directpath");
   }
 
   static int getDefaultChannelPoolSize() {
@@ -504,7 +515,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
-      // TODO(igorbernstein): remove this once DirectPath goes to public Beta and uses the default
+      // TODO(weiranf): remove this once DirectPath goes to public Beta and uses the default
       // endpoint.
       if (isDirectPathEnabled()) {
         setEndpoint(DIRECT_PATH_ENDPOINT);
@@ -625,22 +636,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         UnaryCallSettings.Builder<?, ?> source, UnaryCallSettings.Builder<?, ?> dest) {
       dest.setRetryableCodes(source.getRetryableCodes());
       dest.setRetrySettings(source.getRetrySettings());
-    }
-
-    // TODO(igorbernstein): Remove this once DirectPath goes to public beta
-    // Extracted from InstantiatingGrpcChannelProvider#isDirectPathEnabled
-    private static boolean isDirectPathEnabled() {
-      String whiteList = System.getenv(DIRECT_PATH_ENV_VAR);
-      if (whiteList == null) {
-        return false;
-      }
-
-      for (String service : whiteList.split(",")) {
-        if (!service.isEmpty() && DIRECT_PATH_ENDPOINT.contains(service)) {
-          return true;
-        }
-      }
-      return false;
     }
     // </editor-fold>
 
