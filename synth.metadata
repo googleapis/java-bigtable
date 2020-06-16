@@ -4,22 +4,22 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/googleapis/java-bigtable.git",
-        "sha": "c3baa6ad39f1aa8f0f4312fca37d461426eeb0dc"
+        "sha": "637350b4cc034f603cde3a18c0a73f7cc6cc0f82"
       }
     },
     {
       "git": {
         "name": "googleapis",
         "remote": "https://github.com/googleapis/googleapis.git",
-        "sha": "f72c3a53fe6705cd705b4fc4e464bed4dbd1f18f",
-        "internalRef": "314606371"
+        "sha": "94fe3637559a257634d7b47a15bb8d976daff788",
+        "internalRef": "316039767"
       }
     },
     {
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "987270824bd26f6a8c716d5e2022057b8ae7b26e"
+        "sha": "6d3eed67a45fd58f9c7bfa173c32e4fd4fed058f"
       }
     }
   ],
