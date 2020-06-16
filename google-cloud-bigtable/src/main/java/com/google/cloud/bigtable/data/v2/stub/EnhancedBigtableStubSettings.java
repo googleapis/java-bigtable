@@ -82,9 +82,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
 
-  // TODO(igorbernstein2): Remove this once DirectPath goes to public beta
-  // Temporary endpoint for the DirectPath private alpha
-  private static final String DIRECT_PATH_ENV_VAR = "GOOGLE_CLOUD_ENABLE_DIRECT_PATH";
+  // TODO(weiranf): Remove this temporary endpoint once DirectPath goes to public beta
   private static final String DIRECT_PATH_ENDPOINT = "directpath-bigtable.googleapis.com:443";
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
@@ -229,15 +227,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    InstantiatingGrpcChannelProvider.Builder builder =
-        BigtableStubSettings.defaultGrpcTransportProviderBuilder()
+    return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setPoolSize(getDefaultChannelPoolSize())
-        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE);
-    // TODO(weiranf): Remove this once DirectPath goes to public beta
-    if (isDirectPathEnabled()) {
-      builder.setAttemptDirectPath(true);
-    }
-    return builder;
+        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
+        // TODO(weiranf): Set this to true by default once DirectPath goes to public beta
+        .setAttemptDirectPath(isDirectPathEnabled());
   }
 
   // TODO(weiranf): Remove this once DirectPath goes to public beta

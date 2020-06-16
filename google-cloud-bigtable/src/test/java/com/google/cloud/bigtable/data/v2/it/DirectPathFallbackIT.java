@@ -39,8 +39,6 @@ import io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel;
 import io.grpc.netty.shaded.io.netty.util.ReferenceCountUtil;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -68,6 +66,8 @@ public class DirectPathFallbackIT {
   // This was determined experimentally to account for both gRPC-LB RPCs and Bigtable api RPCs.
   private static final int MIN_COMPLETE_READ_CALLS = 40;
   private static final int NUM_RPCS_TO_SEND = 20;
+
+  // IP address prefixes allocated for DirectPath backends.
   private static final String DP_IPV6_PREFIX = "2001:4860:8040";
   private static final String DP_IPV4_PREFIX = "34.126";
 
@@ -233,17 +233,13 @@ public class DirectPathFallbackIT {
       if (remoteAddress instanceof InetSocketAddress) {
         InetAddress inetAddress = ((InetSocketAddress) remoteAddress).getAddress();
         String addr = inetAddress.getHostAddress();
-        if ((inetAddress instanceof Inet6Address && addr.startsWith(DP_IPV6_PREFIX))
-          || (inetAddress instanceof Inet4Address && addr.startsWith(DP_IPV4_PREFIX))) {
-          isDpAddr = true;
-        }
+        isDpAddr = addr.startsWith(DP_IPV6_PREFIX) ||  addr.startsWith(DP_IPV4_PREFIX);
       }
 
       if (!(isDpAddr && blackholeDpAddr.get())) {
         super.connect(ctx, remoteAddress, localAddress, promise);
       } else {
         // Fail the connection fast
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>> Failing connection");
         promise.setFailure(new IOException("fake error"));
       }
     }
@@ -253,7 +249,6 @@ public class DirectPathFallbackIT {
       boolean dropCall = isDpAddr && blackholeDpAddr.get();
 
       if (dropCall) {
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>> Dropping call.");
         // Don't notify the next handler and increment counter
         numBlocked.incrementAndGet();
         ReferenceCountUtil.release(msg);
