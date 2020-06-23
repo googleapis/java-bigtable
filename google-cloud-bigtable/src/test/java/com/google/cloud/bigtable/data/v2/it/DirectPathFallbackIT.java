@@ -233,7 +233,7 @@ public class DirectPathFallbackIT {
       if (remoteAddress instanceof InetSocketAddress) {
         InetAddress inetAddress = ((InetSocketAddress) remoteAddress).getAddress();
         String addr = inetAddress.getHostAddress();
-        isDpAddr = addr.startsWith(DP_IPV6_PREFIX) ||  addr.startsWith(DP_IPV4_PREFIX);
+        isDpAddr = addr.startsWith(DP_IPV6_PREFIX) || addr.startsWith(DP_IPV4_PREFIX);
       }
 
       if (!(isDpAddr && blackholeDpAddr.get())) {
