@@ -201,13 +201,10 @@ class CloudEnv extends AbstractTestEnv {
    */
   private ClientInterceptor directPathAddressCheckInterceptor() {
     return new ClientInterceptor() {
-      private ClientCall<?, ?> capturedCall;
-
       @Override
       public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
           MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        ClientCall<ReqT, RespT> clientCall = next.newCall(method, callOptions);
-        capturedCall = clientCall;
+        final ClientCall<ReqT, RespT> clientCall = next.newCall(method, callOptions);
         return new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
           @Override
           public void start(Listener<RespT> responseListener, Metadata headers) {
@@ -217,11 +214,14 @@ class CloudEnv extends AbstractTestEnv {
                   public void onHeaders(Metadata headers) {
                     // Check peer IP after connection is established.
                     SocketAddress remoteAddr =
-                        capturedCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                        clientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
                     if (!verifyRemoteAddress(remoteAddr)) {
                       throw new RuntimeException(
                           String.format(
-                              "Unexpected remote address: %s on DirectPath %s",
+                              "Synthetically aborting the current request because it did not adhere"
+                                  + " to the test environment's requirement for DirectPath."
+                                  + " Expected test to access DirectPath via %s,"
+                                  + " but RPC was destined for %s",
                               remoteAddr.toString(), isDirectPathIpv4() ? "ipv4" : "ipv6"));
                     }
                     super.onHeaders(headers);
