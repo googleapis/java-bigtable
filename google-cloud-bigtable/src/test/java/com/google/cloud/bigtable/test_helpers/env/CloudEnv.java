@@ -102,8 +102,10 @@ class CloudEnv extends AbstractTestEnv {
     }
 
     if (isDirectPathEnabled()) {
-      TransportChannelProvider channelProvider = dataSettings.stubSettings().getTransportChannelProvider();
-      InstantiatingGrpcChannelProvider defaultTransportProvider = (InstantiatingGrpcChannelProvider) channelProvider;
+      TransportChannelProvider channelProvider =
+          dataSettings.stubSettings().getTransportChannelProvider();
+      InstantiatingGrpcChannelProvider defaultTransportProvider =
+          (InstantiatingGrpcChannelProvider) channelProvider;
       InstantiatingGrpcChannelProvider instrumentedTransportChannelProvider =
           defaultTransportProvider
               .toBuilder()
@@ -194,35 +196,38 @@ class CloudEnv extends AbstractTestEnv {
 
   /**
    * Captures the request attributes "Grpc.TRANSPORT_ATTR_REMOTE_ADDR" when connection is
-   * established and verifies if the remote address is a DirectPath address.
-   * This is only used for DirectPath testing.
-   * {@link ClientCall#getAttributes()}
+   * established and verifies if the remote address is a DirectPath address. This is only used for
+   * DirectPath testing. {@link ClientCall#getAttributes()}
    */
   private ClientInterceptor directPathAddressCheckInterceptor() {
     return new ClientInterceptor() {
       private ClientCall<?, ?> capturedCall;
+
       @Override
       public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
           MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        ClientCall<ReqT, RespT> clientCall = next.newCall(method,callOptions);
+        ClientCall<ReqT, RespT> clientCall = next.newCall(method, callOptions);
         capturedCall = clientCall;
         return new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
           @Override
           public void start(Listener<RespT> responseListener, Metadata headers) {
-            super.start(new SimpleForwardingClientCallListener<RespT>(responseListener) {
-              @Override
-              public void onHeaders(Metadata headers) {
-                // Check peer IP after connection is established.
-                SocketAddress remoteAddr = capturedCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-                if (!verifyRemoteAddress(remoteAddr)) {
-                  throw new RuntimeException(String.format(
-                      "Unexpected remote address: %s on DirectPath %s",
-                      remoteAddr.toString(),
-                      isDirectPathIpv4() ? "ipv4" : "ipv6"));
-                }
-                super.onHeaders(headers);
-              }
-            }, headers);
+            super.start(
+                new SimpleForwardingClientCallListener<RespT>(responseListener) {
+                  @Override
+                  public void onHeaders(Metadata headers) {
+                    // Check peer IP after connection is established.
+                    SocketAddress remoteAddr =
+                        capturedCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                    if (!verifyRemoteAddress(remoteAddr)) {
+                      throw new RuntimeException(
+                          String.format(
+                              "Unexpected remote address: %s on DirectPath %s",
+                              remoteAddr.toString(), isDirectPathIpv4() ? "ipv4" : "ipv6"));
+                    }
+                    super.onHeaders(headers);
+                  }
+                },
+                headers);
           }
         };
       }
