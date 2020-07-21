@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 
 /**
@@ -72,7 +71,6 @@ class CloudEnv extends AbstractTestEnv {
   private final BigtableDataSettings.Builder dataSettings;
   private final BigtableTableAdminSettings.Builder tableAdminSettings;
   private final BigtableInstanceAdminSettings.Builder instanceAdminSettings;
-  private final AtomicReference<ClientCall<?, ?>> clientCallCapture = new AtomicReference<>();
 
   private BigtableDataClient dataClient;
   private BigtableTableAdminClient tableAdminClient;
@@ -113,7 +111,7 @@ class CloudEnv extends AbstractTestEnv {
                   new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
                     @Override
                     public ManagedChannelBuilder apply(ManagedChannelBuilder builder) {
-                      builder.intercept(recordClientCallInterceptor(clientCallCapture));
+                      builder.intercept(directPathAddressCheckInterceptor());
                       return builder;
                     }
                   })
@@ -195,18 +193,19 @@ class CloudEnv extends AbstractTestEnv {
   }
 
   /**
-   * Captures the request attributes "Grpc.TRANSPORT_ATTR_REMOTE_ADDR" when connection is established.
-   * This is useful for DirectPath testing and debugging.
+   * Captures the request attributes "Grpc.TRANSPORT_ATTR_REMOTE_ADDR" when connection is
+   * established and verifies if the remote address is a DirectPath address.
+   * This is only used for DirectPath testing.
    * {@link ClientCall#getAttributes()}
    */
-  private ClientInterceptor recordClientCallInterceptor(
-      final AtomicReference<ClientCall<?, ?>> clientCallCapture) {
+  private ClientInterceptor directPathAddressCheckInterceptor() {
     return new ClientInterceptor() {
+      private ClientCall<?, ?> capturedCall;
       @Override
       public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
           MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
         ClientCall<ReqT, RespT> clientCall = next.newCall(method,callOptions);
-        clientCallCapture.set(clientCall);
+        capturedCall = clientCall;
         return new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
           @Override
           public void start(Listener<RespT> responseListener, Metadata headers) {
@@ -214,7 +213,7 @@ class CloudEnv extends AbstractTestEnv {
               @Override
               public void onHeaders(Metadata headers) {
                 // Check peer IP after connection is established.
-                SocketAddress remoteAddr = clientCallCapture.get().getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+                SocketAddress remoteAddr = capturedCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
                 if (!verifyRemoteAddress(remoteAddr)) {
                   throw new RuntimeException(String.format(
                       "Unexpected remote address: %s on DirectPath %s",
