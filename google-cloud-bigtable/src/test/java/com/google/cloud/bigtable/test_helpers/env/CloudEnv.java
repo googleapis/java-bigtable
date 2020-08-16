@@ -241,7 +241,8 @@ class CloudEnv extends AbstractTestEnv {
       if (isDirectPathIpv4()) {
         return addr.startsWith(DP_IPV4_PREFIX);
       } else {
-        return addr.startsWith(DP_IPV6_PREFIX);
+        // For an ipv6-enabled VM, client could connect to either ipv4 or ipv6 balancer addresses.
+        return addr.startsWith(DP_IPV6_PREFIX) || addr.startsWith(DP_IPV4_PREFIX);
       }
     }
     return true;
