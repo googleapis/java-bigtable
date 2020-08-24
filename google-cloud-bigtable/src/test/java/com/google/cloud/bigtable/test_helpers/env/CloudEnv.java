@@ -222,7 +222,8 @@ class CloudEnv extends AbstractTestEnv {
                                   + " to the test environment's requirement for DirectPath."
                                   + " Expected test to access DirectPath via %s,"
                                   + " but RPC was destined for %s",
-                              isDirectPathIpv4Only() ? "ipv4" : "ipv6", remoteAddr.toString()));
+                              isDirectPathIpv4Only() ? "ipv4 only" : "ipv4 or ipv6",
+                              remoteAddr.toString()));
                     }
                     super.onHeaders(headers);
                   }
