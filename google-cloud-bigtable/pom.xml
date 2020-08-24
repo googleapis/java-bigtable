@@ -361,7 +361,7 @@
                     <bigtable.admin-endpoint>${bigtable.directpath-admin-endpoint}</bigtable.admin-endpoint>
                     <bigtable.grpc-log-dir>${project.build.directory}/test-grpc-logs/directpath-ipv4only-it</bigtable.grpc-log-dir>
                     <bigtable.attempt-directpath>true</bigtable.attempt-directpath>
-                    <bigtable.directpath-ipv4>true</bigtable.directpath-ipv4>
+                    <bigtable.directpath-ipv4only>true</bigtable.directpath-ipv4only>
                   </systemPropertyVariables>
                   <includes>
                     <!-- TODO(igorbernstein): Once the control plane is accessible via directpath, add admin tests -->
