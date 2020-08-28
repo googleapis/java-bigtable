@@ -128,10 +128,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new EnhancedBigtableStub(settings, ClientContext.create(settings));
   }
 
-  @InternalApi("Visible for testing")
-  public static EnhancedBigtableStubSettings finalizeSettings(EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
+  public static EnhancedBigtableStubSettings finalizeSettings(
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
+
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
       Credentials credentials = null;
@@ -141,13 +142,20 @@ public class EnhancedBigtableStub implements AutoCloseable {
       builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
       // Inject the primer
-      InstantiatingGrpcChannelProvider transportProvider = (InstantiatingGrpcChannelProvider)settings.getTransportChannelProvider();
+      InstantiatingGrpcChannelProvider transportProvider =
+          (InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider();
 
       builder.setTransportChannelProvider(
-          transportProvider.toBuilder()
-            .setChannelPrimer(BigtableChannelPrimer.create(credentials, settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId(), settings.getPrimedTableIds()))
-            .build()
-      );
+          transportProvider
+              .toBuilder()
+              .setChannelPrimer(
+                  BigtableChannelPrimer.create(
+                      credentials,
+                      settings.getProjectId(),
+                      settings.getInstanceId(),
+                      settings.getAppProfileId(),
+                      settings.getPrimedTableIds()))
+              .build());
     }
 
     // Inject Opencensus instrumentation
@@ -172,8 +180,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .put("grpc", GaxGrpcProperties.getGrpcVersion())
                         .put(
                             "gapic",
-                            GaxProperties.getLibraryVersion(
-                                EnhancedBigtableStubSettings.class))
+                            GaxProperties.getLibraryVersion(EnhancedBigtableStubSettings.class))
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(
@@ -196,10 +203,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return builder.build();
   }
 
-  @InternalApi("Visible for testing")
-  public EnhancedBigtableStub(
-      EnhancedBigtableStubSettings settings,
-      ClientContext clientContext) {
+  public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
     this.settings = settings;
     this.clientContext = clientContext;
     this.requestContext =

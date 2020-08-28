@@ -227,8 +227,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return isRefreshingChannel;
   }
 
+  /** Gets the tables that will be primed during a channel refresh. */
   @BetaApi("Channel priming is not currently stable and might change in the future")
-  public List<String> getPrimedTableIds() { return primedTableIds; }
+  public List<String> getPrimedTableIds() {
+    return primedTableIds;
+  }
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
@@ -618,7 +621,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
 
-
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
       readRowSettings = settings.readRowSettings.toBuilder();
@@ -707,7 +709,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * Sets if channels will gracefully refresh connections to Cloud Bigtable service
+     * Sets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * <p>When enabled, this will wait for the connection to complete the SSL handshake. The effect
+     * can be enhanced by configuring table ids that can be used warm serverside caches using {@link
+     * #setPrimedTableIds(String...)}.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
      */
@@ -717,10 +723,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
-    /**
-     * Configures which table will be primed when a connection is created.
-     *
-     */
+    /** Configures which tables will be primed when a connection is created. */
     @BetaApi("Channel priming is not currently stable and might change in the future")
     public Builder setPrimedTableIds(String... tableIds) {
       this.primedTableIds = ImmutableList.copyOf(tableIds);
@@ -733,9 +736,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return isRefreshingChannel;
     }
 
-    /** Tables that will be primed during a channel refresh */
+    /** Gets the tables that will be primed during a channel refresh. */
     @BetaApi("Channel priming is not currently stable and might change in the future")
-    public List<String> getPrimedTableIds() { return primedTableIds; }
+    public List<String> getPrimedTableIds() {
+      return primedTableIds;
+    }
 
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
