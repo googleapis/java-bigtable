@@ -89,7 +89,6 @@ class BigtableChannelPrimer implements ChannelPrimer {
     } catch (IOException | RuntimeException e) {
       LOG.warning(
           String.format("Unexpected error while trying to prime a channel: %s", e.getMessage()));
-      e.printStackTrace();
     }
   }
 
