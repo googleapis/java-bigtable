@@ -18,10 +18,13 @@
 
 package com.google.bigtable.v2;
 
+import java.io.Serializable;
+
 public interface RowFilterOrBuilder
     extends
-    // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter)
-    com.google.protobuf.MessageOrBuilder {
+        // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter)
+        com.google.protobuf.MessageOrBuilder,
+        Serializable {
 
   /**
    *
@@ -545,5 +548,5 @@ public interface RowFilterOrBuilder
    */
   com.google.protobuf.ByteString getApplyLabelTransformerBytes();
 
-  public com.google.bigtable.v2.RowFilter.FilterCase getFilterCase();
+  com.google.bigtable.v2.RowFilter.FilterCase getFilterCase();
 }

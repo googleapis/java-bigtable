@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 import com.google.bigtable.v2.ColumnRange;
 import com.google.bigtable.v2.RowFilter;
@@ -26,6 +27,17 @@ import com.google.bigtable.v2.RowFilter.Interleave;
 import com.google.bigtable.v2.TimestampRange;
 import com.google.bigtable.v2.ValueRange;
 import com.google.protobuf.ByteString;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -527,5 +539,45 @@ public class FiltersTest {
     RowFilter expectedFilter = RowFilter.newBuilder().setApplyLabelTransformer("my-label").build();
 
     assertThat(actualFilter).isEqualTo(expectedFilter);
+  }
+
+  @Test
+  public void serializationTest() {
+    // checks that the all objects returned by the all methods of the Filters class
+    // can be serialized/deserialized.
+
+    // map methodName -> methodArguments (for those methods which require parameters)
+    Map<String, Object[]> parameterMap = new HashMap<>();
+    parameterMap.put("condition", new Object[] {FILTERS.pass()});
+    parameterMap.put("label", new Object[] {"label"});
+    parameterMap.put("fromProto", new Object[] {FILTERS.label("label").toProto()});
+
+    for (Method m : Filters.class.getDeclaredMethods()) {
+      String name = m.getName();
+      if (Modifier.isPublic(m.getModifiers())) {
+        Object[] params = parameterMap.get(name);
+        if (params == null) {
+          params = new Object[] {};
+        }
+        try {
+          trySerialization(m.invoke(FILTERS, params));
+        } catch (Exception e) {
+          fail(name + ": " + e);
+        }
+      }
+    }
+  }
+
+  private void trySerialization(Object obj) throws IOException, ClassNotFoundException {
+    Path serFile = Files.createTempFile("filter", ".ser");
+    try (ObjectOutputStream outStream =
+        new ObjectOutputStream(new FileOutputStream(serFile.toFile()))) {
+      outStream.writeObject(obj);
+    }
+
+    try (ObjectInputStream inStream =
+        new ObjectInputStream(new FileInputStream(serFile.toFile()))) {
+      inStream.readObject();
+    }
   }
 }
