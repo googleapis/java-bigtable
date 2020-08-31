@@ -102,7 +102,6 @@ public class BigtableChannelPrimerTest {
   public void testCredentials() {
     primer.primeChannel(channel);
 
-    assertThat(metadataInterceptor.metadataList).isEmpty();
     for (Metadata metadata : metadataInterceptor.metadataList) {
       assertThat(metadata.get(Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER)))
           .isEqualTo("Bearer " + TOKEN_VALUE);
