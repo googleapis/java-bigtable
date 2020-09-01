@@ -116,7 +116,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
   }
 
   private void waitForChannelReady(ManagedChannel managedChannel) {
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 30; i++) {
       ConnectivityState connectivityState = managedChannel.getState(true);
       if (connectivityState == ConnectivityState.READY) {
         break;
