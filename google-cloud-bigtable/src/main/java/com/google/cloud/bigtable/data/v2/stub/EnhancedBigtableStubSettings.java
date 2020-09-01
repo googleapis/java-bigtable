@@ -540,6 +540,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           ImmutableMap.<String, String>builder()
               .putAll(
                   BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
+              // GrpcHeaderInterceptor treats the `user-agent` as a magic string
               .put(
                   "user-agent",
                   "bigtable-java/"
