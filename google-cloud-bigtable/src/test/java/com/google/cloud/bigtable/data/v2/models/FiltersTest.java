@@ -27,17 +27,14 @@ import com.google.bigtable.v2.RowFilter.Interleave;
 import com.google.bigtable.v2.TimestampRange;
 import com.google.bigtable.v2.ValueRange;
 import com.google.protobuf.ByteString;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -542,41 +539,46 @@ public class FiltersTest {
   }
 
   @Test
-  public void serializationTest() {
+  public void serializationTest() throws InvocationTargetException, IllegalAccessException {
     // checks that the all objects returned by the all methods of the Filters class
     // can be serialized/deserialized.
-
-    // map methodName -> methodArguments (for those methods which require parameters)
-    Map<String, Object[]> parameterMap = new HashMap<>();
-    parameterMap.put("condition", new Object[] {FILTERS.pass()});
-    parameterMap.put("label", new Object[] {"label"});
-    parameterMap.put("fromProto", new Object[] {FILTERS.label("label").toProto()});
 
     for (Method m : Filters.class.getDeclaredMethods()) {
       String name = m.getName();
       if (Modifier.isPublic(m.getModifiers())) {
-        Object[] params = parameterMap.get(name);
-        if (params == null) {
-          params = new Object[] {};
-        }
-        try {
-          trySerialization(m.invoke(FILTERS, params));
-        } catch (Exception e) {
-          fail(name + ": " + e);
+        switch (name) {
+          case "condition":
+            assertSerializableFilter(name, FILTERS.condition(FILTERS.pass()));
+            break;
+          case "label":
+            assertSerializableFilter(name, FILTERS.label("label"));
+            break;
+          case "fromProto":
+            assertSerializableFilter(name, FILTERS.label("label").toProto());
+            break;
+          default:
+            assertSerializableFilter(name, m.invoke(FILTERS));
         }
       }
     }
   }
 
-  private void trySerialization(Object obj) throws IOException, ClassNotFoundException {
-    Path serFile = Files.createTempFile("filter", ".ser");
-    try (ObjectOutputStream outStream =
-        new ObjectOutputStream(new FileOutputStream(serFile.toFile()))) {
+  private void assertSerializableFilter(String name, Object obj) {
+    try {
+      assertSerializable(obj);
+    } catch (IOException | ClassNotFoundException e) {
+      fail(name + ": " + e);
+    }
+  }
+
+  private void assertSerializable(Object obj) throws IOException, ClassNotFoundException {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try (ObjectOutputStream outStream = new ObjectOutputStream(bos)) {
       outStream.writeObject(obj);
     }
 
-    try (ObjectInputStream inStream =
-        new ObjectInputStream(new FileInputStream(serFile.toFile()))) {
+    ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+    try (ObjectInputStream inStream = new ObjectInputStream(bis)) {
       inStream.readObject();
     }
   }

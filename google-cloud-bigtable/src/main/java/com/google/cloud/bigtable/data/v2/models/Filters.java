@@ -25,6 +25,8 @@ import com.google.cloud.bigtable.data.v2.models.Range.AbstractByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Range.AbstractTimestampRange;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
@@ -200,8 +202,13 @@ public final class Filters {
   // Implementations of target specific filters.
   /** DSL for adding filters to a chain. */
   public static final class ChainFilter implements Filter {
-    private static final long serialVersionUID = -89237431180618430L;
-    private RowFilter.Chain.Builder builder;
+    private static final long serialVersionUID = -6756759448656768478L;
+    private transient RowFilter.Chain.Builder builder;
+
+    private void writeObject(ObjectOutputStream s) throws IOException {
+      s.defaultWriteObject();
+      s.writeObject(builder.build());
+    }
 
     private ChainFilter() {
       this.builder = RowFilter.Chain.newBuilder();
@@ -242,8 +249,13 @@ public final class Filters {
 
   /** DSL for adding filters to the interleave list. */
   public static final class InterleaveFilter implements Filter {
-    private static final long serialVersionUID = -3866166430679348474L;
-    private RowFilter.Interleave.Builder builder;
+    private static final long serialVersionUID = -6356151037337889421L;
+    private transient RowFilter.Interleave.Builder builder;
+
+    private void writeObject(ObjectOutputStream s) throws IOException {
+      s.defaultWriteObject();
+      s.writeObject(builder.build());
+    }
 
     private InterleaveFilter() {
       builder = RowFilter.Interleave.newBuilder();
@@ -283,8 +295,13 @@ public final class Filters {
 
   /** DSL for configuring a conditional filter. */
   public static final class ConditionFilter implements Filter {
-    private static final long serialVersionUID = -7576541105323990049L;
-    private RowFilter.Condition.Builder builder;
+    private static final long serialVersionUID = -2720899822014446776L;
+    private transient RowFilter.Condition.Builder builder;
+
+    private void writeObject(ObjectOutputStream s) throws IOException {
+      s.defaultWriteObject();
+      s.writeObject(builder.build());
+    }
 
     private ConditionFilter(@Nonnull Filter predicate) {
       Preconditions.checkNotNull(predicate);
