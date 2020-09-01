@@ -18,8 +18,6 @@
 
 package com.google.bigtable.v2;
 
-import java.io.Serializable;
-
 /**
  *
  *
@@ -58,11 +56,9 @@ import java.io.Serializable;
  */
 public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
     implements
-        // @@protoc_insertion_point(message_implements:google.bigtable.v2.RowFilter)
-        RowFilterOrBuilder,
-        Serializable {
-  private static final long serialVersionUID = 5041615103476790190L;
-
+    // @@protoc_insertion_point(message_implements:google.bigtable.v2.RowFilter)
+    RowFilterOrBuilder {
+  private static final long serialVersionUID = 0L;
   // Use RowFilter.newBuilder() to construct.
   private RowFilter(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
@@ -384,8 +380,7 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
       implements
       // @@protoc_insertion_point(message_implements:google.bigtable.v2.RowFilter.Chain)
       ChainOrBuilder {
-    private static final long serialVersionUID = 3029099319991323890L;
-
+    private static final long serialVersionUID = 0L;
     // Use Chain.newBuilder() to construct.
     private Chain(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
@@ -725,11 +720,8 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
     public static final class Builder
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements
-            // @@protoc_insertion_point(builder_implements:google.bigtable.v2.RowFilter.Chain)
-            com.google.bigtable.v2.RowFilter.ChainOrBuilder,
-            Serializable {
-      private static final long serialVersionUID = 3843969655199755334L;
-
+        // @@protoc_insertion_point(builder_implements:google.bigtable.v2.RowFilter.Chain)
+        com.google.bigtable.v2.RowFilter.ChainOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
         return com.google.bigtable.v2.DataProto
             .internal_static_google_bigtable_v2_RowFilter_Chain_descriptor;
@@ -1354,9 +1346,8 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
 
   public interface InterleaveOrBuilder
       extends
-          // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter.Interleave)
-          com.google.protobuf.MessageOrBuilder,
-          Serializable {
+      // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter.Interleave)
+      com.google.protobuf.MessageOrBuilder {
 
     /**
      *
@@ -1533,7 +1524,7 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
       implements
       // @@protoc_insertion_point(message_implements:google.bigtable.v2.RowFilter.Interleave)
       InterleaveOrBuilder {
-    private static final long serialVersionUID = -4010737514587512031L;
+    private static final long serialVersionUID = 0L;
     // Use Interleave.newBuilder() to construct.
     private Interleave(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
@@ -1977,8 +1968,6 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.RowFilter.Interleave)
         com.google.bigtable.v2.RowFilter.InterleaveOrBuilder {
-      private static final long serialVersionUID = -194632601621153938L;
-
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
         return com.google.bigtable.v2.DataProto
             .internal_static_google_bigtable_v2_RowFilter_Interleave_descriptor;
@@ -2963,9 +2952,8 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
 
   public interface ConditionOrBuilder
       extends
-          // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter.Condition)
-          com.google.protobuf.MessageOrBuilder,
-          Serializable {
+      // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RowFilter.Condition)
+      com.google.protobuf.MessageOrBuilder {
 
     /**
      *
@@ -3102,7 +3090,7 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
       implements
       // @@protoc_insertion_point(message_implements:google.bigtable.v2.RowFilter.Condition)
       ConditionOrBuilder {
-    private static final long serialVersionUID = -721556095392940616L;
+    private static final long serialVersionUID = 0L;
     // Use Condition.newBuilder() to construct.
     private Condition(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
       super(builder);
@@ -3586,8 +3574,6 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.RowFilter.Condition)
         com.google.bigtable.v2.RowFilter.ConditionOrBuilder {
-      private static final long serialVersionUID = 2192459056488847085L;
-
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
         return com.google.bigtable.v2.DataProto
             .internal_static_google_bigtable_v2_RowFilter_Condition_descriptor;
@@ -5750,8 +5736,6 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
       implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.RowFilter)
       com.google.bigtable.v2.RowFilterOrBuilder {
-    private static final long serialVersionUID = 3777165723978883886L;
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.DataProto
           .internal_static_google_bigtable_v2_RowFilter_descriptor;
