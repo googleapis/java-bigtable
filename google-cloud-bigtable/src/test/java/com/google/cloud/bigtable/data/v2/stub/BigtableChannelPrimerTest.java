@@ -50,6 +50,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
+import org.mockito.internal.stubbing.answers.ThrowsException;
 
 @RunWith(JUnit4.class)
 public class BigtableChannelPrimerTest {
@@ -155,6 +157,27 @@ public class BigtableChannelPrimerTest {
     assertThat(logHandler.logs).hasSize(2);
     for (LogRecord log : logHandler.logs) {
       assertThat(log.getMessage()).contains("FAILED_PRECONDITION");
+    }
+  }
+
+  @Test
+  public void testErrorsAreLoggedForBasic() {
+    BigtableChannelPrimer basicPrimer =
+        BigtableChannelPrimer.create(
+            OAuth2Credentials.create(new AccessToken(TOKEN_VALUE, null)),
+            "fake-project",
+            "fake-instance",
+            "fake-app-profile",
+            ImmutableList.<String>of());
+
+    ManagedChannel channel =
+        Mockito.mock(
+            ManagedChannel.class, new ThrowsException(new UnsupportedOperationException()));
+    primer.primeChannel(channel);
+
+    assertThat(logHandler.logs).hasSize(1);
+    for (LogRecord log : logHandler.logs) {
+      assertThat(log.getMessage()).contains("Unexpected");
     }
   }
 

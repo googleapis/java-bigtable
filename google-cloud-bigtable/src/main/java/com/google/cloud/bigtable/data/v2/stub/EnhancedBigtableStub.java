@@ -133,6 +133,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
+    // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
+    // consider splitting it up by feature.
+
+    // Inject channel priming
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
       Credentials credentials = null;
