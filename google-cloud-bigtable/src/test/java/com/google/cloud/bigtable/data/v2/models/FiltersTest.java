@@ -17,7 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertEquals;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.fail;
 
 import com.google.bigtable.v2.ColumnRange;
@@ -573,23 +573,23 @@ public class FiltersTest {
     }
   }
 
-  private void checkSerialization(String name, Object filter) {
+  private static void checkSerialization(String name, Object filter) {
     try {
       Object deserialized = serializeDeserialize(filter);
       if (filter instanceof Filters.Filter) {
         RowFilter protoBefore = ((Filters.Filter) filter).toProto();
         RowFilter protoAfter = ((Filters.Filter) deserialized).toProto();
-        assertEquals(
-            "'" + name + "' filter protoBuf mismatch after deserialization",
-            protoBefore,
-            protoAfter);
+        assertWithMessage("'" + name + "' filter protoBuf mismatches after deserialization")
+            .that(protoBefore)
+            .isEqualTo(protoAfter);
       }
     } catch (IOException | ClassNotFoundException e) {
       fail(name + ": " + e);
     }
   }
 
-  private Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {
+  private static Object serializeDeserialize(Object obj)
+      throws IOException, ClassNotFoundException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ObjectOutputStream outStream = new ObjectOutputStream(bos)) {
       outStream.writeObject(obj);
