@@ -33,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -576,15 +577,49 @@ public class FiltersTest {
   private static void checkSerialization(String name, Object filter) {
     try {
       Object deserialized = serializeDeserialize(filter);
+      checkClassDeclaresSerialVersionUid(filter.getClass());
       if (filter instanceof Filters.Filter) {
         RowFilter protoBefore = ((Filters.Filter) filter).toProto();
         RowFilter protoAfter = ((Filters.Filter) deserialized).toProto();
         assertWithMessage("'" + name + "' filter protoBuf mismatches after deserialization")
             .that(protoBefore)
             .isEqualTo(protoAfter);
+      } else if (filter instanceof RowFilter) {
+        assertWithMessage("'" + name + "' deserialized filter differs")
+            .that(filter)
+            .isEqualTo(deserialized);
+      } else {
+        Class cls = filter.getClass();
+        checkClassDoesNotContainNonStaticFields(cls, cls.getFields());
+        checkClassDoesNotContainNonStaticFields(cls, cls.getDeclaredFields());
       }
     } catch (IOException | ClassNotFoundException e) {
       fail(name + ": " + e);
+    }
+  }
+
+  private static void checkClassDeclaresSerialVersionUid(Class cls) {
+    String uid = "serialVersionUID";
+    for (Field field : cls.getDeclaredFields()) {
+      if (field.getName() == uid) {
+        int modifiers = field.getModifiers();
+        assertWithMessage(field + " is not static").that(Modifier.isStatic(modifiers)).isTrue();
+        assertWithMessage(field + " is not final").that(Modifier.isFinal(modifiers)).isTrue();
+        assertWithMessage(field + " is not private").that(Modifier.isPrivate(modifiers)).isTrue();
+        assertWithMessage(field + " must be long")
+            .that(field.getType().getSimpleName())
+            .isEqualTo("long");
+        return;
+      }
+    }
+    fail(cls + " does not declare serialVersionUID");
+  }
+
+  private static void checkClassDoesNotContainNonStaticFields(Class cls, Field[] fields) {
+    for (Field field : fields) {
+      assertWithMessage(cls + " has a non-static field '" + field + "'")
+          .that(Modifier.isStatic(field.getModifiers()))
+          .isTrue();
     }
   }
 
