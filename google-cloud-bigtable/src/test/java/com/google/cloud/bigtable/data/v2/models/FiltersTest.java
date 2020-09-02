@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.bigtable.v2.ColumnRange;
@@ -548,30 +549,47 @@ public class FiltersTest {
       if (Modifier.isPublic(m.getModifiers())) {
         switch (name) {
           case "condition":
-            assertSerializableFilter(name, FILTERS.condition(FILTERS.pass()));
+            checkSerialization(
+                name,
+                FILTERS
+                    .condition(
+                        FILTERS
+                            .chain()
+                            .filter(FILTERS.qualifier().exactMatch("data_plan_10gb"))
+                            .filter(FILTERS.value().exactMatch("true")))
+                    .then(FILTERS.label("passed-filter"))
+                    .otherwise(FILTERS.label("filtered-out")));
             break;
           case "label":
-            assertSerializableFilter(name, FILTERS.label("label"));
+            checkSerialization(name, FILTERS.label("label"));
             break;
           case "fromProto":
-            assertSerializableFilter(name, FILTERS.label("label").toProto());
+            checkSerialization(name, FILTERS.label("label").toProto());
             break;
           default:
-            assertSerializableFilter(name, m.invoke(FILTERS));
+            checkSerialization(name, m.invoke(FILTERS));
         }
       }
     }
   }
 
-  private void assertSerializableFilter(String name, Object obj) {
+  private void checkSerialization(String name, Object filter) {
     try {
-      assertSerializable(obj);
+      Object deserialized = serializeDeserialize(filter);
+      if (filter instanceof Filters.Filter) {
+        RowFilter protoBefore = ((Filters.Filter) filter).toProto();
+        RowFilter protoAfter = ((Filters.Filter) deserialized).toProto();
+        assertEquals(
+            "'" + name + "' filter protoBuf mismatch after deserialization",
+            protoBefore,
+            protoAfter);
+      }
     } catch (IOException | ClassNotFoundException e) {
       fail(name + ": " + e);
     }
   }
 
-  private void assertSerializable(Object obj) throws IOException, ClassNotFoundException {
+  private Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     try (ObjectOutputStream outStream = new ObjectOutputStream(bos)) {
       outStream.writeObject(obj);
@@ -579,7 +597,7 @@ public class FiltersTest {
 
     ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
     try (ObjectInputStream inStream = new ObjectInputStream(bis)) {
-      inStream.readObject();
+      return inStream.readObject();
     }
   }
 }

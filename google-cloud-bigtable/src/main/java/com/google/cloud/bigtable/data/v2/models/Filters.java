@@ -26,6 +26,7 @@ import com.google.cloud.bigtable.data.v2.models.Range.AbstractTimestampRange;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -210,6 +211,12 @@ public final class Filters {
       s.writeObject(builder.build());
     }
 
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+      s.defaultReadObject();
+      RowFilter.Chain chain = (RowFilter.Chain) s.readObject();
+      this.builder = chain.toBuilder();
+    }
+
     private ChainFilter() {
       this.builder = RowFilter.Chain.newBuilder();
     }
@@ -257,6 +264,12 @@ public final class Filters {
       s.writeObject(builder.build());
     }
 
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+      s.defaultReadObject();
+      RowFilter.Interleave interleave = (RowFilter.Interleave) s.readObject();
+      this.builder = interleave.toBuilder();
+    }
+
     private InterleaveFilter() {
       builder = RowFilter.Interleave.newBuilder();
     }
@@ -301,6 +314,12 @@ public final class Filters {
     private void writeObject(ObjectOutputStream s) throws IOException {
       s.defaultWriteObject();
       s.writeObject(builder.build());
+    }
+
+    private void readObject(ObjectInputStream s) throws IOException, ClassNotFoundException {
+      s.defaultReadObject();
+      RowFilter.Condition condition = (RowFilter.Condition) s.readObject();
+      this.builder = condition.toBuilder();
     }
 
     private ConditionFilter(@Nonnull Filter predicate) {
