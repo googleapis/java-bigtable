@@ -64,6 +64,11 @@ public abstract class RowCell implements Serializable {
       @Nonnull List<String> labels,
       @Nonnull ByteString value) {
     // Ensure that the list is serializable and optimize for the common case
+    if (labels.isEmpty()) {
+      labels = ImmutableList.of();
+    } else {
+      labels = ImmutableList.copyOf(labels);
+    }
     return new AutoValue_RowCell(family, qualifier, timestamp, value, ImmutableList.copyOf(labels));
   }
 
