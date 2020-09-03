@@ -26,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -113,7 +112,6 @@ public class RowCellTest {
     LazyStringArrayList lazyList = new LazyStringArrayList();
     lazyList.add("lazy");
     lazyList.add("very lazy");
-    UnmodifiableLazyStringList lst;
     List[] labelLists = {
       Arrays.asList("str1", "str2", "str3"),
       ImmutableList.of("string1", "string2"),
