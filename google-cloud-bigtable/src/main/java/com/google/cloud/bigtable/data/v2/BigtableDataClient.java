@@ -57,7 +57,7 @@ import javax.annotation.Nullable;
  * // One instance per application.
  * BigtableDataClient client = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")
  *
- * for(Row row : client.readRows(Query.create("[TABLE]")) {
+ * for(Row row : client.readRows(Query.create("[TABLE]"))) {
  *   // Do something with row
  * }
  *
@@ -1077,9 +1077,9 @@ public class BigtableDataClient implements AutoCloseable {
   }
 
   /**
-   * Reads rows for given tableId in a batch. If the row does not exist, the value will be null.
-   * This operation should be called with in a single thread. The returned Batcher instance is not
-   * threadsafe, it can only be used from single thread.
+   * Reads rows for given tableId in a batch. If the row does not exist, the value will be null. The
+   * keys are processed sequentially one by one in the order they are passed to the Batcher. The
+   * returned Batcher instance is not threadsafe, it can only be used from a single thread.
    *
    * <p>Sample Code:
    *
@@ -1113,8 +1113,9 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
-   * value will be null. This operation should be called with in a single thread. The returned
-   * Batcher instance is not threadsafe, it can only be used from single thread.
+   * value will be null. The keys are processed sequentially one by one in the order they are passed
+   * to the Batcher. The returned Batcher instance is not threadsafe, it can only be used from a
+   * single thread.
    *
    * <p>Sample Code:
    *
