@@ -1078,8 +1078,12 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Reads rows for given tableId in a batch. If the row does not exist, the value will be null. The
-   * keys are processed sequentially one by one in the order they are passed to the Batcher. The
    * returned Batcher instance is not threadsafe, it can only be used from a single thread.
+   *
+   * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
+   * order, which means that the keys are processed sequentially on the server-side, so batching
+   * allows improving throughput but not latency. Low latency might be achieved if send smaller
+   * requests concurrently.
    *
    * <p>Sample Code:
    *
@@ -1113,9 +1117,13 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
-   * value will be null. The keys are processed sequentially one by one in the order they are passed
-   * to the Batcher. The returned Batcher instance is not threadsafe, it can only be used from a
+   * value will be null. The returned Batcher instance is not threadsafe, it can only be used from a
    * single thread.
+   *
+   * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
+   * order, which means that the keys are processed sequentially on the server-side, so batching
+   * allows improving throughput but not latency. Low latency might be achieved if send smaller
+   * requests concurrently.
    *
    * <p>Sample Code:
    *
