@@ -26,6 +26,8 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
+import org.threeten.bp.Duration;
+
 import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -122,6 +124,9 @@ public final class BigtableDataSettings {
                         return input.usePlaintext();
                       }
                     })
+                .setKeepAliveTime(Duration.ofSeconds(10)) // sends ping in this interval
+                .setKeepAliveTimeout(Duration.ofSeconds(10)) // wait this long before considering the connection dead
+                .setKeepAliveWithoutCalls(true)  // sends ping without active streams
                 .build());
 
     LOGGER.info("Connecting to the Bigtable emulator at " + hostname + ":" + port);
