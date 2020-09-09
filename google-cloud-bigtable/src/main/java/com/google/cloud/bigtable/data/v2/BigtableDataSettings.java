@@ -28,9 +28,9 @@ import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import org.threeten.bp.Duration;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
 
 /**
  * Settings class to configure an instance of {@link BigtableDataClient}.
