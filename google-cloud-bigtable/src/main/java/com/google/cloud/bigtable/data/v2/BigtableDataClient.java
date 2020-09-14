@@ -1082,7 +1082,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
    * order, which means that the keys are processed sequentially on the server-side, so batching
-   * allows improving throughput but not latency. Low latency might be achieved if send smaller
+   * allows improving throughput but not latency. Lower latencies can be achieved by sending smaller
    * requests concurrently.
    *
    * <p>Sample Code:
@@ -1122,7 +1122,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
    * order, which means that the keys are processed sequentially on the server-side, so batching
-   * allows improving throughput but not latency. Low latency might be achieved if send smaller
+   * allows improving throughput but not latency. Lower latencies can be achieved by sending smaller
    * requests concurrently.
    *
    * <p>Sample Code:
