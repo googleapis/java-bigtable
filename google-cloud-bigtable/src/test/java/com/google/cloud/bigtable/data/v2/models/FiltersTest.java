@@ -579,11 +579,7 @@ public class FiltersTest {
       Object deserialized = serializeDeserialize(filter);
       checkClassDeclaresSerialVersionUid(filter.getClass());
       if (filter instanceof Filters.Filter) {
-        RowFilter protoBefore = ((Filters.Filter) filter).toProto();
-        RowFilter protoAfter = ((Filters.Filter) deserialized).toProto();
-        assertWithMessage("'" + name + "' filter protoBuf mismatches after deserialization")
-            .that(protoBefore)
-            .isEqualTo(protoAfter);
+        checkFilters(name, (Filters.Filter) filter, (Filters.Filter) deserialized);
       } else if (filter instanceof RowFilter) {
         assertWithMessage("'" + name + "' deserialized filter differs")
             .that(filter)
@@ -592,9 +588,126 @@ public class FiltersTest {
         Class cls = filter.getClass();
         checkClassDoesNotContainNonStaticFields(cls, cls.getFields());
         checkClassDoesNotContainNonStaticFields(cls, cls.getDeclaredFields());
+        checkSpawnedFilters(name, cls, filter, deserialized);
       }
     } catch (IOException | ClassNotFoundException e) {
       fail(name + ": " + e);
+    }
+  }
+
+  private static void checkFilters(
+      String name, Filters.Filter original, Filters.Filter deserialized) {
+    RowFilter protoBefore = ((Filters.Filter) original).toProto();
+    RowFilter protoAfter = ((Filters.Filter) deserialized).toProto();
+    assertWithMessage("'" + name + "' filter protoBuf mismatches after deserialization")
+        .that(protoBefore)
+        .isEqualTo(protoAfter);
+  }
+
+  private static void checkSpawnedFilters(
+      String name, Class cls, Object original, Object deserialized) {
+
+    int numberOfMethods = 0;
+    for (Method m : cls.getDeclaredMethods()) {
+      if (Modifier.isPublic(m.getModifiers())) {
+        numberOfMethods++;
+      }
+    }
+    ByteString re = ByteString.copyFromUtf8("some\\[0\\-9\\]regex");
+
+    switch (name) {
+      case "family":
+        {
+          Filters.FamilyFilter f1 = (Filters.FamilyFilter) original;
+          Filters.FamilyFilter f2 = (Filters.FamilyFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(2);
+          checkFilters(name + "/exactMatch", f1.exactMatch("abc"), f2.exactMatch("abc"));
+          checkFilters(name + "/regex", f1.regex("*"), f2.regex("*"));
+
+          break;
+        }
+      case "qualifier":
+        {
+          Filters.QualifierFilter f1 = (Filters.QualifierFilter) original;
+          Filters.QualifierFilter f2 = (Filters.QualifierFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(5);
+          checkFilters(name + "/exactMatch", f1.exactMatch("abc"), f2.exactMatch("abc"));
+          checkFilters(name + "/exactMatch(ByteString)", f1.exactMatch(re), f2.exactMatch(re));
+          checkFilters(name + "/regex", f1.regex("*"), f2.regex("*"));
+          checkFilters(name + "/regex(ByteString)", f1.regex(re), f2.regex(re));
+          checkFilters(
+              name + "/rangeWithinFamily",
+              f1.rangeWithinFamily("family"),
+              f2.rangeWithinFamily("family"));
+
+          break;
+        }
+      case "limit":
+        {
+          Filters.LimitFilter f1 = (Filters.LimitFilter) original;
+          Filters.LimitFilter f2 = (Filters.LimitFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(2);
+          checkFilters(
+              name + "/cellsPerColumn", f1.cellsPerColumn(100500), f2.cellsPerColumn(100500));
+          checkFilters(name + "/cellsPerRow", f1.cellsPerRow(-10), f2.cellsPerRow(-10));
+
+          break;
+        }
+      case "value":
+        {
+          Filters.ValueFilter f1 = (Filters.ValueFilter) original;
+          Filters.ValueFilter f2 = (Filters.ValueFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(6);
+          checkFilters(name + "/exactMatch", f1.exactMatch("x"), f2.exactMatch("x"));
+          checkFilters(name + "/exactMatch(ByteString)", f1.exactMatch(re), f2.exactMatch(re));
+          checkFilters(name + "/range", f1.range(), f2.range());
+          checkFilters(name + "/regex", f1.regex("*"), f2.regex("*"));
+          checkFilters(name + "/regex(ByteString)", f1.regex(re), f2.regex(re));
+          checkFilters(name + "/strip", f1.strip(), f2.strip());
+
+          break;
+        }
+      case "offset":
+        {
+          Filters.OffsetFilter f1 = (Filters.OffsetFilter) original;
+          Filters.OffsetFilter f2 = (Filters.OffsetFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(1);
+          checkFilters(name + "/cellsPerRow", f1.cellsPerRow(100500), f2.cellsPerRow(100500));
+
+          break;
+        }
+      case "key":
+        {
+          Filters.KeyFilter f1 = (Filters.KeyFilter) original;
+          Filters.KeyFilter f2 = (Filters.KeyFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(5);
+          checkFilters(name + "/exactMatch", f1.exactMatch("a"), f2.exactMatch("a"));
+          checkFilters(name + "/exactMatch(ByteString)", f1.exactMatch(re), f2.exactMatch(re));
+          checkFilters(name + "/regex", f1.regex("a"), f2.regex("a"));
+          checkFilters(name + "/regex(ByteString)", f1.regex(re), f2.regex(re));
+          checkFilters(name + "/sample", f1.sample(0.1), f2.sample(0.1));
+
+          break;
+        }
+      case "timestamp":
+        {
+          Filters.TimestampFilter f1 = (Filters.TimestampFilter) original;
+          Filters.TimestampFilter f2 = (Filters.TimestampFilter) deserialized;
+
+          assertThat(numberOfMethods).isEqualTo(2);
+          checkFilters(name + "/exact", f1.exact(100500L), f2.exact(100500L));
+          checkFilters(name + "/range", f1.range(), f2.range());
+
+          break;
+        }
+      default:
+        fail("Untested filter: " + name);
     }
   }
 
