@@ -71,6 +71,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -85,6 +86,7 @@ import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableTableAdminClientTest {
+  @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private static final String PROJECT_ID = "my-project";
