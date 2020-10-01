@@ -86,8 +86,7 @@ import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableTableAdminClientTest {
-  @Rule
-  public final MockitoRule mockitoRule = MockitoJUnit.rule();
+  @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private static final String PROJECT_ID = "my-project";
   private static final String INSTANCE_ID = "my-instance";
