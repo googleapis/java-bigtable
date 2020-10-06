@@ -164,13 +164,10 @@ public class ReadIT {
 
     long timestampMicros = System.currentTimeMillis() * 1_000;
 
-    testEnvRule
-        .env()
-        .getDataClient()
-        .bulkMutateRows(
-            BulkMutation.create(tableId)
-                .add(RowMutationEntry.create(keyA).setCell(familyId, "", timestampMicros, "A"))
-                .add(RowMutationEntry.create(keyZ).setCell(familyId, "", timestampMicros, "Z")));
+    client.bulkMutateRows(
+        BulkMutation.create(tableId)
+            .add(RowMutationEntry.create(keyA).setCell(familyId, "", timestampMicros, "A"))
+            .add(RowMutationEntry.create(keyZ).setCell(familyId, "", timestampMicros, "Z")));
 
     Row expectedRowA =
         Row.create(
