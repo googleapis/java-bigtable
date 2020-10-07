@@ -1502,7 +1502,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets the IAM access control policy for the specified table.
+   * Asynchronously gets the IAM access control policy for the specified backup.
    *
    * <p>Sample code:
    *
