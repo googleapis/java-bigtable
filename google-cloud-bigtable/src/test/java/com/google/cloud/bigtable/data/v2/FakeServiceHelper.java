@@ -22,6 +22,7 @@ import io.grpc.ServerInterceptor;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+/** Utility class to setup a fake grpc server on a random port. */
 public class FakeServiceHelper {
   private final int port;
   private final Server server;
