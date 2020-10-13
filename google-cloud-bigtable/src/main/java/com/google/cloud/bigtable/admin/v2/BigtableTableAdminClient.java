@@ -1319,21 +1319,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> getIamPolicyAsync(String tableId) {
-    String name = NameUtil.formatTableName(projectId, instanceId, tableId);
-
-    GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder().setResource(name).build();
-
-    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
-
-    return ApiFutures.transform(
-        stub.getIamPolicyCallable().futureCall(request),
-        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
-          @Override
-          public Policy apply(com.google.iam.v1.Policy proto) {
-            return marshaller.fromPb(proto);
-          }
-        },
-        MoreExecutors.directExecutor());
+    String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
+    return getIamPolicyResult(tableName);
   }
 
   /**
@@ -1391,24 +1378,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> setIamPolicyAsync(String tableId, Policy policy) {
-    String name = NameUtil.formatTableName(projectId, instanceId, tableId);
-    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
-
-    SetIamPolicyRequest request =
-        SetIamPolicyRequest.newBuilder()
-            .setResource(name)
-            .setPolicy(marshaller.toPb(policy))
-            .build();
-
-    return ApiFutures.transform(
-        stub.setIamPolicyCallable().futureCall(request),
-        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
-          @Override
-          public Policy apply(com.google.iam.v1.Policy proto) {
-            return marshaller.fromPb(proto);
-          }
-        },
-        MoreExecutors.directExecutor());
+    String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
+    return setIamPolicy(policy, tableName);
   }
 
   /**
@@ -1463,21 +1434,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   @SuppressWarnings({"WeakerAccess"})
   public ApiFuture<List<String>> testIamPermissionAsync(String tableId, String... permissions) {
-    TestIamPermissionsRequest request =
-        TestIamPermissionsRequest.newBuilder()
-            .setResource(NameUtil.formatTableName(projectId, instanceId, tableId))
-            .addAllPermissions(Arrays.asList(permissions))
-            .build();
-
-    return ApiFutures.transform(
-        stub.testIamPermissionsCallable().futureCall(request),
-        new ApiFunction<TestIamPermissionsResponse, List<String>>() {
-          @Override
-          public List<String> apply(TestIamPermissionsResponse input) {
-            return input.getPermissionsList();
-          }
-        },
-        MoreExecutors.directExecutor());
+    String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
+    return testIamPermissions(tableName, permissions);
   }
 
   /**
@@ -1530,21 +1488,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> getBackupIamPolicyAsync(String clusterId, String backupId) {
-    String name = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
-
-    GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder().setResource(name).build();
-
-    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
-
-    return ApiFutures.transform(
-        stub.getIamPolicyCallable().futureCall(request),
-        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
-          @Override
-          public Policy apply(com.google.iam.v1.Policy proto) {
-            return marshaller.fromPb(proto);
-          }
-        },
-        MoreExecutors.directExecutor());
+    String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
+    return getIamPolicyResult(backupName);
   }
 
   /**
@@ -1604,24 +1549,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> setBackupIamPolicyAsync(
       String clusterId, String backupId, Policy policy) {
-    String name = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
-    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
-
-    SetIamPolicyRequest request =
-        SetIamPolicyRequest.newBuilder()
-            .setResource(name)
-            .setPolicy(marshaller.toPb(policy))
-            .build();
-
-    return ApiFutures.transform(
-        stub.setIamPolicyCallable().futureCall(request),
-        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
-          @Override
-          public Policy apply(com.google.iam.v1.Policy proto) {
-            return marshaller.fromPb(proto);
-          }
-        },
-        MoreExecutors.directExecutor());
+    String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
+    return setIamPolicy(policy, backupName);
   }
 
   /**
@@ -1681,9 +1610,50 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings({"WeakerAccess"})
   public ApiFuture<List<String>> testBackupIamPermissionAsync(
       String clusterId, String backupId, String... permissions) {
+    String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
+    return testIamPermissions(backupName, permissions);
+  }
+
+  private ApiFuture<Policy> getIamPolicyResult(String name) {
+    GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder().setResource(name).build();
+
+    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
+
+    return ApiFutures.transform(
+        stub.getIamPolicyCallable().futureCall(request),
+        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
+          @Override
+          public Policy apply(com.google.iam.v1.Policy proto) {
+            return marshaller.fromPb(proto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  private ApiFuture<Policy> setIamPolicy(Policy policy, String name) {
+    final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
+
+    SetIamPolicyRequest request =
+        SetIamPolicyRequest.newBuilder()
+            .setResource(name)
+            .setPolicy(marshaller.toPb(policy))
+            .build();
+
+    return ApiFutures.transform(
+        stub.setIamPolicyCallable().futureCall(request),
+        new ApiFunction<com.google.iam.v1.Policy, Policy>() {
+          @Override
+          public Policy apply(com.google.iam.v1.Policy proto) {
+            return marshaller.fromPb(proto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  private ApiFuture<List<String>> testIamPermissions(String resourceName, String[] permissions) {
     TestIamPermissionsRequest request =
         TestIamPermissionsRequest.newBuilder()
-            .setResource(NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId))
+            .setResource(resourceName)
             .addAllPermissions(Arrays.asList(permissions))
             .build();
 
