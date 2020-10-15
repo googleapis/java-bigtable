@@ -236,6 +236,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setKeepAliveTimeout(
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
         .setKeepAliveWithoutCalls(true) // sends ping without active streams
+        // Attempts direct access to CBT service over gRPC to improve throughput,
+        // whether the attempt is allowed is totally controlled by service owner.
         .setAttemptDirectPath(true);
   }
 
