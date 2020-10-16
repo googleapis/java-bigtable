@@ -29,7 +29,7 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
-import com.google.cloud.bigtable.GoogleUtils;
+import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -544,7 +544,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .putAll(
                   BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
               // GrpcHeaderInterceptor treats the `user-agent` as a magic string
-              .put("user-agent", "bigtable-java/" + GoogleUtils.BIGTABLE_CLIENT_VERSION)
+              .put("user-agent", "bigtable-java/" + Version.VERSION)
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 

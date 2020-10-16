@@ -17,10 +17,8 @@ package com.google.cloud.bigtable;
 
 import com.google.api.core.InternalApi;
 
-/** Utility to get the current version of the Bigtable client. */
 @InternalApi("For internal use only")
-// Note: this file MUST be named GoogleUtils.java so that it can be picked up by releasetool
-public class GoogleUtils {
-  public static final String BIGTABLE_CLIENT_VERSION =
-      "1.16.1-SNAPSHOT"; // {x-version-update:google-cloud-bigtable:current}
+public final class Version {
+  // The released version, populated by maven.
+  public static String VERSION="${java-bigtable.version}";
 }
