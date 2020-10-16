@@ -807,14 +807,18 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         Preconditions.checkArgument(
             getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,
             "refreshingChannel only works with InstantiatingGrpcChannelProviders");
-        Preconditions.checkArgument(appProfileId != null,
-            "refreshingChannel only works when appProfileId is set");
+        Preconditions.checkArgument(
+            appProfileId != null, "refreshingChannel only works when appProfileId is set");
         InstantiatingGrpcChannelProvider.Builder channelProviderBuilder =
             ((InstantiatingGrpcChannelProvider) getTransportChannelProvider()).toBuilder();
         try {
           channelProviderBuilder.setChannelPrimer(
-              BigtableChannelPrimer.create(getCredentialsProvider().getCredentials(),
-                  projectId, instanceId, appProfileId, primedTableIds));
+              BigtableChannelPrimer.create(
+                  getCredentialsProvider().getCredentials(),
+                  projectId,
+                  instanceId,
+                  appProfileId,
+                  primedTableIds));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }

@@ -90,20 +90,24 @@ public class BigtableDataClientFactoryTest {
       port = ss.getLocalPort();
     }
 
-    fakeServer = ServerBuilder.forPort(port).addService(service)
-        .addTransportFilter(new ServerTransportFilter() {
-          @Override
-          public Attributes transportReady(Attributes transportAttrs) {
-            attributes.add(transportAttrs);
-            return super.transportReady(transportAttrs);
-          }
+    fakeServer =
+        ServerBuilder.forPort(port)
+            .addService(service)
+            .addTransportFilter(
+                new ServerTransportFilter() {
+                  @Override
+                  public Attributes transportReady(Attributes transportAttrs) {
+                    attributes.add(transportAttrs);
+                    return super.transportReady(transportAttrs);
+                  }
 
-          @Override
-          public void transportTerminated(Attributes transportAttrs) {
-            terminationCount.incrementAndGet();
-            super.transportTerminated(transportAttrs);
-          }
-        }).build();
+                  @Override
+                  public void transportTerminated(Attributes transportAttrs) {
+                    terminationCount.incrementAndGet();
+                    super.transportTerminated(transportAttrs);
+                  }
+                })
+            .build();
 
     fakeServer.start();
 
@@ -234,12 +238,13 @@ public class BigtableDataClientFactoryTest {
   public void testCreateWithRefreshingChannel() throws Exception {
     String[] tableIds = {"fake-table1", "fake-table2"};
     int poolSize = 3;
-    BigtableDataSettings.Builder builder = BigtableDataSettings.newBuilderForEmulator(port)
-        .setProjectId(DEFAULT_PROJECT_ID)
-        .setInstanceId(DEFAULT_INSTANCE_ID)
-        .setAppProfileId(DEFAULT_APP_PROFILE_ID)
-        .setPrimingTableIds(tableIds)
-        .setRefreshingChannel(true);
+    BigtableDataSettings.Builder builder =
+        BigtableDataSettings.newBuilderForEmulator(port)
+            .setProjectId(DEFAULT_PROJECT_ID)
+            .setInstanceId(DEFAULT_INSTANCE_ID)
+            .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+            .setPrimingTableIds(tableIds)
+            .setRefreshingChannel(true);
     InstantiatingGrpcChannelProvider channelProvider =
         (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();
@@ -260,14 +265,17 @@ public class BigtableDataClientFactoryTest {
       for (int i = 0; i < poolSize; i++) {
         expectedRequests.add(
             ReadRowsRequest.newBuilder()
-            .setTableName(String.format("projects/%s/instances/%s/tables/%s",
-                DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, tableId))
-            .setAppProfileId(DEFAULT_APP_PROFILE_ID)
-            .setRows(RowSet.newBuilder().addRowKeys(ByteString.copyFromUtf8("nonexistent-priming-row")))
-            .setFilter(RowFilter.newBuilder().setBlockAllFilter(true).build())
-            .setRowsLimit(1)
-            .build()
-        );
+                .setTableName(
+                    String.format(
+                        "projects/%s/instances/%s/tables/%s",
+                        DEFAULT_PROJECT_ID, DEFAULT_INSTANCE_ID, tableId))
+                .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+                .setRows(
+                    RowSet.newBuilder()
+                        .addRowKeys(ByteString.copyFromUtf8("nonexistent-priming-row")))
+                .setFilter(RowFilter.newBuilder().setBlockAllFilter(true).build())
+                .setRowsLimit(1)
+                .build());
       }
     }
     assertThat(service.readRowsRequests).containsExactly(expectedRequests.toArray());

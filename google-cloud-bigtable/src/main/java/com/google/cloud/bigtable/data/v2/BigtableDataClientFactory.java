@@ -23,7 +23,6 @@ import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.FixedHeaderProvider;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.FixedWatchdogProvider;
-import com.google.api.gax.rpc.StubSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import java.io.IOException;
 import javax.annotation.Nonnull;
