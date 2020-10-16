@@ -42,6 +42,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -806,6 +807,18 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         Preconditions.checkArgument(
             getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,
             "refreshingChannel only works with InstantiatingGrpcChannelProviders");
+        Preconditions.checkArgument(appProfileId != null,
+            "refreshingChannel only works when appProfileId is set");
+        InstantiatingGrpcChannelProvider.Builder channelProviderBuilder =
+            ((InstantiatingGrpcChannelProvider) getTransportChannelProvider()).toBuilder();
+        try {
+          channelProviderBuilder.setChannelPrimer(
+              BigtableChannelPrimer.create(getCredentialsProvider().getCredentials(),
+                  projectId, instanceId, appProfileId, primedTableIds));
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+        this.setTransportChannelProvider(channelProviderBuilder.build());
       }
       return new EnhancedBigtableStubSettings(this);
     }
