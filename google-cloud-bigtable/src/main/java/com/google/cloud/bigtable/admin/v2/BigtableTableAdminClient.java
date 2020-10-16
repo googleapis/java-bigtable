@@ -1320,7 +1320,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> getIamPolicyAsync(String tableId) {
     String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
-    return getIamPolicyResult(tableName);
+    return getResourceIamPolicy(tableName);
   }
 
   /**
@@ -1379,7 +1379,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> setIamPolicyAsync(String tableId, Policy policy) {
     String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
-    return setIamPolicy(policy, tableName);
+    return setResourceIamPolicy(policy, tableName);
   }
 
   /**
@@ -1435,7 +1435,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings({"WeakerAccess"})
   public ApiFuture<List<String>> testIamPermissionAsync(String tableId, String... permissions) {
     String tableName = NameUtil.formatTableName(projectId, instanceId, tableId);
-    return testIamPermissions(tableName, permissions);
+    return testResourceIamPermissions(tableName, permissions);
   }
 
   /**
@@ -1489,7 +1489,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   @SuppressWarnings("WeakerAccess")
   public ApiFuture<Policy> getBackupIamPolicyAsync(String clusterId, String backupId) {
     String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
-    return getIamPolicyResult(backupName);
+    return getResourceIamPolicy(backupName);
   }
 
   /**
@@ -1550,7 +1550,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   public ApiFuture<Policy> setBackupIamPolicyAsync(
       String clusterId, String backupId, Policy policy) {
     String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
-    return setIamPolicy(policy, backupName);
+    return setResourceIamPolicy(policy, backupName);
   }
 
   /**
@@ -1611,10 +1611,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   public ApiFuture<List<String>> testBackupIamPermissionAsync(
       String clusterId, String backupId, String... permissions) {
     String backupName = NameUtil.formatBackupName(projectId, instanceId, clusterId, backupId);
-    return testIamPermissions(backupName, permissions);
+    return testResourceIamPermissions(backupName, permissions);
   }
 
-  private ApiFuture<Policy> getIamPolicyResult(String name) {
+  private ApiFuture<Policy> getResourceIamPolicy(String name) {
     GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder().setResource(name).build();
 
     final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
@@ -1630,7 +1630,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
         MoreExecutors.directExecutor());
   }
 
-  private ApiFuture<Policy> setIamPolicy(Policy policy, String name) {
+  private ApiFuture<Policy> setResourceIamPolicy(Policy policy, String name) {
     final IamPolicyMarshaller marshaller = new IamPolicyMarshaller();
 
     SetIamPolicyRequest request =
@@ -1650,7 +1650,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
         MoreExecutors.directExecutor());
   }
 
-  private ApiFuture<List<String>> testIamPermissions(String resourceName, String[] permissions) {
+  private ApiFuture<List<String>> testResourceIamPermissions(String resourceName, String[] permissions) {
     TestIamPermissionsRequest request =
         TestIamPermissionsRequest.newBuilder()
             .setResource(resourceName)
