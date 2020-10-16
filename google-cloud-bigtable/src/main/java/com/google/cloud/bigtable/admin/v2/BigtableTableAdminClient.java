@@ -1650,7 +1650,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
         MoreExecutors.directExecutor());
   }
 
-  private ApiFuture<List<String>> testResourceIamPermissions(String resourceName, String[] permissions) {
+  private ApiFuture<List<String>> testResourceIamPermissions(
+      String resourceName, String[] permissions) {
     TestIamPermissionsRequest request =
         TestIamPermissionsRequest.newBuilder()
             .setResource(resourceName)
