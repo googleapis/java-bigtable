@@ -47,7 +47,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -80,7 +79,6 @@ public class BigtableDataClientFactoryTest {
   private int port;
 
   private final BlockingQueue<Attributes> attributes = new LinkedBlockingDeque<>();
-  private final AtomicInteger terminationCount = new AtomicInteger();
 
   @Before
   public void setUp() throws IOException {
@@ -99,12 +97,6 @@ public class BigtableDataClientFactoryTest {
                   public Attributes transportReady(Attributes transportAttrs) {
                     attributes.add(transportAttrs);
                     return super.transportReady(transportAttrs);
-                  }
-
-                  @Override
-                  public void transportTerminated(Attributes transportAttrs) {
-                    terminationCount.incrementAndGet();
-                    super.transportTerminated(transportAttrs);
                   }
                 })
             .build();
@@ -279,8 +271,6 @@ public class BigtableDataClientFactoryTest {
       }
     }
     assertThat(service.readRowsRequests).containsExactly(expectedRequests.toArray());
-    factory.close();
-    assertThat(terminationCount.get()).isEqualTo(poolSize);
   }
 
   private static class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
