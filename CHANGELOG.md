@@ -1,5 +1,17 @@
 # Changelog
 
+### [1.16.3](https://www.github.com/googleapis/java-bigtable/compare/v1.16.2...v1.16.3) (2020-10-19)
+
+
+### Documentation
+
+* fix formatting ([#476](https://www.github.com/googleapis/java-bigtable/issues/476)) ([eb24569](https://www.github.com/googleapis/java-bigtable/commit/eb24569e53f9d2b7fde50748c840c2c11f3f3c80))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.12.1 ([#475](https://www.github.com/googleapis/java-bigtable/issues/475)) ([9e56edf](https://www.github.com/googleapis/java-bigtable/commit/9e56edfa7b0a78f14518a99130a7b319c5873be4))
+
 ### [1.16.2](https://www.github.com/googleapis/java-bigtable/compare/v1.16.1...v1.16.2) (2020-10-14)
 
 
