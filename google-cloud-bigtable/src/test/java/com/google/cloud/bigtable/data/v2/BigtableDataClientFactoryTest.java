@@ -36,13 +36,10 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import io.grpc.Attributes;
-import io.grpc.Server;
-import io.grpc.ServerBuilder;
 import io.grpc.ServerTransportFilter;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.ServerSocket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -67,7 +64,7 @@ public class BigtableDataClientFactoryTest {
   private static final String DEFAULT_INSTANCE_ID = "fake-instance";
   private static final String DEFAULT_APP_PROFILE_ID = "fake-app-profile";
 
-  private Server fakeServer;
+  private FakeServiceHelper serviceHelper;
   private FakeBigtableService service;
 
   private TransportChannelProvider transportChannelProvider;
@@ -83,25 +80,17 @@ public class BigtableDataClientFactoryTest {
   @Before
   public void setUp() throws IOException {
     service = new FakeBigtableService();
-
-    try (ServerSocket ss = new ServerSocket(0)) {
-      port = ss.getLocalPort();
-    }
-
-    fakeServer =
-        ServerBuilder.forPort(port)
-            .addService(service)
-            .addTransportFilter(
-                new ServerTransportFilter() {
-                  @Override
-                  public Attributes transportReady(Attributes transportAttrs) {
-                    attributes.add(transportAttrs);
-                    return super.transportReady(transportAttrs);
-                  }
-                })
-            .build();
-
-    fakeServer.start();
+    ServerTransportFilter transportFilter =
+        new ServerTransportFilter() {
+          @Override
+          public Attributes transportReady(Attributes transportAttrs) {
+            attributes.add(transportAttrs);
+            return super.transportReady(transportAttrs);
+          }
+        };
+    serviceHelper = new FakeServiceHelper(null, transportFilter, service);
+    port = serviceHelper.getPort();
+    serviceHelper.start();
 
     BigtableDataSettings.Builder builder =
         BigtableDataSettings.newBuilderForEmulator(port)
@@ -149,7 +138,7 @@ public class BigtableDataClientFactoryTest {
 
   @After
   public void tearDown() {
-    fakeServer.shutdown();
+    serviceHelper.shutdown();
   }
 
   @Test
