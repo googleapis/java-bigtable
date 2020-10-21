@@ -87,6 +87,11 @@ public class BigtableDataClientFactoryTest {
             attributes.add(transportAttrs);
             return super.transportReady(transportAttrs);
           }
+
+          @Override
+          public void transportTerminated(Attributes transportAttrs) {
+            attributes.add(transportAttrs);
+          }
         };
     serviceHelper = new FakeServiceHelper(null, transportFilter, service);
     port = serviceHelper.getPort();
@@ -226,6 +231,11 @@ public class BigtableDataClientFactoryTest {
             .setAppProfileId(DEFAULT_APP_PROFILE_ID)
             .setPrimingTableIds(tableIds)
             .setRefreshingChannel(true);
+    builder
+        .stubSettings()
+        .setCredentialsProvider(credentialsProvider)
+        .setStreamWatchdogProvider(watchdogProvider)
+        .setExecutorProvider(executorProvider);
     InstantiatingGrpcChannelProvider channelProvider =
         (InstantiatingGrpcChannelProvider) builder.stubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider.Builder channelProviderBuilder = channelProvider.toBuilder();
@@ -237,8 +247,14 @@ public class BigtableDataClientFactoryTest {
     factory.createForAppProfile("other-appprofile");
     factory.createForInstance("other-project", "other-instance");
 
+    // Make sure that only 1 instance is created by each provider
+    Mockito.verify(credentialsProvider, Mockito.times(1)).getCredentials();
+    Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
+    Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
+
     // Make sure that the clients are sharing the same ChannelPool
     assertThat(attributes).hasSize(poolSize);
+
     // Make sure that prime requests were sent only once per table per connection
     assertThat(service.readRowsRequests).hasSize(poolSize * tableIds.length);
     List<ReadRowsRequest> expectedRequests = new LinkedList<>();
@@ -260,9 +276,18 @@ public class BigtableDataClientFactoryTest {
       }
     }
     assertThat(service.readRowsRequests).containsExactly(expectedRequests.toArray());
+    attributes.clear();
+
+    // Wait for all the connections to close asynchronously
+    factory.close();
+    long sleepTimeMs = 1000;
+    Thread.sleep(sleepTimeMs);
+    // Verify that all the channels are closed
+    assertThat(attributes).hasSize(poolSize);
   }
 
   private static class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
+
     volatile MutateRowRequest lastRequest;
     BlockingQueue<ReadRowsRequest> readRowsRequests = new LinkedBlockingDeque<>();
     private ApiFunction<ReadRowsRequest, ReadRowsResponse> readRowsCallback =

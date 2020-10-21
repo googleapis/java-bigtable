@@ -191,6 +191,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   // Update stub settings to use shared resources in this factory
   private void patchStubSettings(EnhancedBigtableStubSettings.Builder stubSettings) {
     stubSettings
+        // Channel refreshing will be configured in the shared ClientContext. Derivative clients
+        // won't be able to reconfigure the refreshing logic
         .setRefreshingChannel(false)
         .setTransportChannelProvider(
             FixedTransportChannelProvider.create(sharedClientContext.getTransportChannel()))
