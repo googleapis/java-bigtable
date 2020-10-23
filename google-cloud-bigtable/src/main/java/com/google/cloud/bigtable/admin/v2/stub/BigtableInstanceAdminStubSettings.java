@@ -524,7 +524,7 @@ public class BigtableInstanceAdminStubSettings
               .setInitialRpcTimeout(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
               .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(600000L))
+              .setTotalTimeout(Duration.ofMillis(60000L))
               .build();
       definitions.put("idempotent_params", settings);
       settings =

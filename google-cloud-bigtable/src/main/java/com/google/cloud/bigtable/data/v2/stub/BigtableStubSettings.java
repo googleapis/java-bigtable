@@ -230,17 +230,14 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
               .setInitialRetryDelay(Duration.ofMillis(10L))
               .setRetryDelayMultiplier(2.0)
               .setMaxRetryDelay(Duration.ofMillis(60000L))
-              .setInitialRpcTimeout(Duration.ofMillis(20000L))
+              .setInitialRpcTimeout(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(20000L))
-              .setTotalTimeout(Duration.ofMillis(600000L))
+              .setMaxRpcTimeout(Duration.ofMillis(60000L))
+              .setTotalTimeout(Duration.ofMillis(60000L))
               .build();
       definitions.put("idempotent_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRetryDelay(Duration.ofMillis(10L))
-              .setRetryDelayMultiplier(2.0)
-              .setMaxRetryDelay(Duration.ofMillis(60000L))
               .setInitialRpcTimeout(Duration.ofMillis(20000L))
               .setRpcTimeoutMultiplier(1.0)
               .setMaxRpcTimeout(Duration.ofMillis(20000L))
@@ -249,23 +246,25 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       definitions.put("non_idempotent_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRetryDelay(Duration.ofMillis(10L))
-              .setRetryDelayMultiplier(2.0)
-              .setMaxRetryDelay(Duration.ofMillis(60000L))
-              .setInitialRpcTimeout(Duration.ofMillis(300000L))
+              .setInitialRpcTimeout(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(300000L))
+              .setMaxRpcTimeout(Duration.ofMillis(60000L))
+              .setTotalTimeout(Duration.ofMillis(60000L))
+              .build();
+      definitions.put("sample_row_keys_params", settings);
+      settings =
+          RetrySettings.newBuilder()
+              .setInitialRpcTimeout(Duration.ofMillis(43200000L))
+              .setRpcTimeoutMultiplier(1.0)
+              .setMaxRpcTimeout(Duration.ofMillis(43200000L))
               .setTotalTimeout(Duration.ofMillis(43200000L))
               .build();
       definitions.put("read_rows_params", settings);
       settings =
           RetrySettings.newBuilder()
-              .setInitialRetryDelay(Duration.ofMillis(10L))
-              .setRetryDelayMultiplier(2.0)
-              .setMaxRetryDelay(Duration.ofMillis(60000L))
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setInitialRpcTimeout(Duration.ofMillis(600000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
+              .setMaxRpcTimeout(Duration.ofMillis(600000L))
               .setTotalTimeout(Duration.ofMillis(600000L))
               .build();
       definitions.put("mutate_rows_params", settings);
@@ -317,7 +316,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       builder
           .sampleRowKeysSettings()
           .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("non_idempotent"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("non_idempotent_params"));
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("sample_row_keys_params"));
 
       builder
           .mutateRowSettings()
