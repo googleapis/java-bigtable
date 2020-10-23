@@ -4,7 +4,7 @@
 
     <artifactId>google-cloud-bigtable-parent</artifactId>
     <packaging>pom</packaging>
-    <version>1.16.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>1.16.3-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     <name>Google Cloud Bigtable Parent</name>
     <url>https://github.com/googleapis/java-bigtable</url>
     <description>
@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-shared-config</artifactId>
-        <version>0.9.2</version>
+        <version>0.9.3</version>
     </parent>
 
     <developers>
@@ -162,7 +162,7 @@
             <dependency>
               <groupId>com.google.cloud</groupId>
               <artifactId>google-cloud-conformance-tests</artifactId>
-              <version>0.0.12</version>
+              <version>0.0.13</version>
               <exclusions>
                 <!--
                 * The protos for bigtable are already included in the classpath
@@ -181,7 +181,7 @@
             <dependency>
                 <groupId>com.google.truth</groupId>
                 <artifactId>truth</artifactId>
-                <version>1.0.1</version>
+                <version>1.1</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>

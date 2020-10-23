@@ -28,7 +28,7 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigtable</artifactId>
-      <version>1.16.2-SNAPSHOT</version>
+      <version>1.16.3-SNAPSHOT</version>
     </dependency>
   <!-- {x-version-update-end} -->
 
@@ -41,7 +41,7 @@
     <dependency>
       <groupId>com.google.truth</groupId>
       <artifactId>truth</artifactId>
-      <version>1.0.1</version>
+      <version>1.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
