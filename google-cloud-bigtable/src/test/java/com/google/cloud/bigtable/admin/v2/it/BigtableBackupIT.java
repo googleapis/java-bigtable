@@ -95,8 +95,8 @@ public class BigtableBackupIT {
       missingProperties.add(INSTANCE_PROPERTY_NAME);
     }
 
-    BigtableInstanceAdminClient instanceAdminClient = BigtableInstanceAdminClient
-        .create(targetProject);
+    BigtableInstanceAdminClient instanceAdminClient =
+        BigtableInstanceAdminClient.create(targetProject);
     targetCluster = System.getProperty(CLUSTER_PROPERTY_NAME);
     if (targetCluster == null) {
       List<Cluster> clusters = instanceAdminClient.listClusters(targetInstance);
@@ -323,7 +323,7 @@ public class BigtableBackupIT {
 
       // The assertion might be missing if the test is running against a HDD cluster or an
       // optimization is not necessary.
-      //todo(kolea2): test on different cluster
+      // todo(kolea2): test on different cluster
     } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
       tableAdmin.deleteTable(tableId);
