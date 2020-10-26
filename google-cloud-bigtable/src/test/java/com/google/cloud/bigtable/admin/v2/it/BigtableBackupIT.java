@@ -24,9 +24,11 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.Policy;
+import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
+import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
@@ -69,8 +71,6 @@ public class BigtableBackupIT {
   private static final String TEST_TABLE_SUFFIX = "test-table-for-backup-it";
   private static final String TEST_BACKUP_SUFFIX = "test-backup-for-backup-it";
 
-  private static final int DAYS_IN_SECONDS = 24 * 60 * 60;
-
   private static BigtableTableAdminClient tableAdmin;
   private static BigtableDataClient dataClient;
 
@@ -95,9 +95,15 @@ public class BigtableBackupIT {
       missingProperties.add(INSTANCE_PROPERTY_NAME);
     }
 
+    BigtableInstanceAdminClient instanceAdminClient = BigtableInstanceAdminClient
+        .create(targetProject);
     targetCluster = System.getProperty(CLUSTER_PROPERTY_NAME);
     if (targetCluster == null) {
-      missingProperties.add(CLUSTER_PROPERTY_NAME);
+      List<Cluster> clusters = instanceAdminClient.listClusters(targetInstance);
+      if (clusters.size() > 1) {
+        missingProperties.add(CLUSTER_PROPERTY_NAME);
+      }
+      targetCluster = clusters.get(0).getId();
     }
 
     String adminApiEndpoint = System.getProperty(ADMIN_ENDPOINT_PROPERTY_NAME);
@@ -107,8 +113,7 @@ public class BigtableBackupIT {
 
     int tableSize = MoreObjects.firstNonNull(Integer.getInteger(TABLE_SIZE_PROPERTY_NAME), 1);
     if (!missingProperties.isEmpty()) {
-      LOGGER.warning("Missing properties: " + Joiner.on(",").join(missingProperties));
-      return;
+      Assert.fail("Missing properties: " + Joiner.on(",").join(missingProperties));
     }
 
     // Setup a prefix to avoid collisions between concurrent test runs
@@ -247,8 +252,8 @@ public class BigtableBackupIT {
     String backupId2 = generateId("list-2-" + TEST_BACKUP_SUFFIX);
 
     try {
-      createBackupAndWait(backupId1);
-      createBackupAndWait(backupId2);
+      tableAdmin.createBackup(createBackupRequest(backupId1));
+      tableAdmin.createBackup(createBackupRequest(backupId2));
 
       List<String> response = tableAdmin.listBackups(targetCluster);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
@@ -265,7 +270,7 @@ public class BigtableBackupIT {
   @Test
   public void updateBackupTest() throws InterruptedException {
     String backupId = generateId("update-" + TEST_BACKUP_SUFFIX);
-    createBackupAndWait(backupId);
+    tableAdmin.createBackup(createBackupRequest(backupId));
 
     Instant expireTime = Instant.now().plus(Duration.ofDays(20));
     UpdateBackupRequest req =
@@ -282,7 +287,7 @@ public class BigtableBackupIT {
   public void deleteBackupTest() throws InterruptedException {
     String backupId = generateId("delete-" + TEST_BACKUP_SUFFIX);
 
-    createBackupAndWait(backupId);
+    tableAdmin.createBackup(createBackupRequest(backupId));
     tableAdmin.deleteBackup(targetCluster, backupId);
 
     try {
@@ -307,11 +312,7 @@ public class BigtableBackupIT {
   public void restoreTableTest() throws InterruptedException, ExecutionException {
     String backupId = generateId("restore-" + TEST_BACKUP_SUFFIX);
     String tableId = generateId("restored-table");
-    createBackupAndWait(backupId);
-
-    // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
-    // table operation.
-    Thread.sleep(120 * 1000);
+    tableAdmin.createBackup(createBackupRequest(backupId));
 
     try {
       RestoreTableRequest req = RestoreTableRequest.of(targetCluster, backupId).setTableId(tableId);
@@ -322,11 +323,7 @@ public class BigtableBackupIT {
 
       // The assertion might be missing if the test is running against a HDD cluster or an
       // optimization is not necessary.
-      assertWithMessage("Empty OptimizeRestoredTable token")
-          .that(result.getOptimizeRestoredTableOperationToken())
-          .isNotNull();
-      tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
-      tableAdmin.getTable(tableId);
+      //todo(kolea2): test on different cluster
     } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
       tableAdmin.deleteTable(tableId);
@@ -336,7 +333,7 @@ public class BigtableBackupIT {
   @Test
   public void backupIamTest() throws InterruptedException {
     String backupId = generateId("iam-" + TEST_BACKUP_SUFFIX);
-    createBackupAndWait(backupId);
+    tableAdmin.createBackup(createBackupRequest(backupId));
 
     Policy policy = tableAdmin.getBackupIamPolicy(targetCluster, backupId);
     assertThat(policy).isNotNull();
@@ -368,23 +365,5 @@ public class BigtableBackupIT {
 
   private static String generateId(String name) {
     return prefix + "-" + name;
-  }
-
-  private void createBackupAndWait(String backupId) throws InterruptedException {
-    tableAdmin.createBackup(createBackupRequest(backupId));
-    for (int i = 0; i < BACKOFF_DURATION.length; i++) {
-      try {
-        Backup backup = tableAdmin.getBackup(targetCluster, backupId);
-        if (backup.getState() == Backup.State.READY) {
-          return;
-        }
-      } catch (ApiException ex) {
-        LOGGER.info("Wait for " + BACKOFF_DURATION[i] + " seconds for creating backup " + backupId);
-      }
-
-      Thread.sleep(BACKOFF_DURATION[i] * 1000);
-    }
-
-    fail("Creating Backup Timeout");
   }
 }
