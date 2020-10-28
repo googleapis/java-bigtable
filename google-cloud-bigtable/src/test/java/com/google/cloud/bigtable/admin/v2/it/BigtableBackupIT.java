@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.admin.v2.it;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.TruthJUnit.assume;
 import static io.grpc.Status.Code.NOT_FOUND;
 import static org.junit.Assert.fail;
 
@@ -41,6 +42,8 @@ import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.AbstractTestEnv;
+import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
+import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
@@ -61,6 +64,8 @@ import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableBackupIT {
+  @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+
   private static final Logger LOGGER = Logger.getLogger(BigtableBackupIT.class.getName());
 
   private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
@@ -85,6 +90,11 @@ public class BigtableBackupIT {
   @BeforeClass
   public static void createClient()
       throws IOException, InterruptedException, ExecutionException, TimeoutException {
+    assume()
+        .withMessage("BigtableInstanceAdminClient doesn't support on Emulator")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
     List<String> missingProperties = Lists.newArrayList();
 
     targetProject = System.getProperty(PROJECT_PROPERTY_NAME);
@@ -100,7 +110,7 @@ public class BigtableBackupIT {
 
     instanceAdmin.createInstance(
         CreateInstanceRequest.of(targetInstance)
-            .addCluster(targetCluster, "us-central1-b", 3, StorageType.SSD)
+            .addCluster(targetCluster, testEnvRule.env().getPrimaryZone(), 3, StorageType.SSD)
             .setDisplayName("backups-test-instance")
             .addLabel("state", "readytodelete")
             .setType(Type.PRODUCTION));
