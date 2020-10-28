@@ -28,16 +28,19 @@ import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
-import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
 import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
+import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.test_helpers.env.AbstractTestEnv;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
@@ -61,8 +64,6 @@ public class BigtableBackupIT {
   private static final Logger LOGGER = Logger.getLogger(BigtableBackupIT.class.getName());
 
   private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
-  private static final String INSTANCE_PROPERTY_NAME = "bigtable.instance";
-  private static final String CLUSTER_PROPERTY_NAME = "bigtable.cluster";
   private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.adminendpoint";
   private static final String DATA_ENDPOINT_PROPERTY_NAME = "bigtable.dataendpoint";
   private static final String TABLE_SIZE_PROPERTY_NAME = "bigtable.tablesizekb";
@@ -72,6 +73,7 @@ public class BigtableBackupIT {
   private static final String TEST_BACKUP_SUFFIX = "test-backup-for-backup-it";
 
   private static BigtableTableAdminClient tableAdmin;
+  private static BigtableInstanceAdminClient instanceAdmin;
   private static BigtableDataClient dataClient;
 
   private static String targetProject;
@@ -90,21 +92,19 @@ public class BigtableBackupIT {
       missingProperties.add(PROJECT_PROPERTY_NAME);
     }
 
-    targetInstance = System.getProperty(INSTANCE_PROPERTY_NAME);
-    if (targetInstance == null) {
-      missingProperties.add(INSTANCE_PROPERTY_NAME);
-    }
-
-    BigtableInstanceAdminClient instanceAdminClient =
+    //create new instance to test restore operations on SSD cluster
+    instanceAdmin =
         BigtableInstanceAdminClient.create(targetProject);
-    targetCluster = System.getProperty(CLUSTER_PROPERTY_NAME);
-    if (targetCluster == null) {
-      List<Cluster> clusters = instanceAdminClient.listClusters(targetInstance);
-      if (clusters.size() > 1) {
-        missingProperties.add(CLUSTER_PROPERTY_NAME);
-      }
-      targetCluster = clusters.get(0).getId();
-    }
+
+    targetCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
+    targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
+
+    instanceAdmin.createInstance(
+        CreateInstanceRequest.of(targetInstance)
+            .addCluster(targetCluster, "us-central1-b", 3, StorageType.SSD)
+            .setDisplayName("backups-test-instance")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
 
     String adminApiEndpoint = System.getProperty(ADMIN_ENDPOINT_PROPERTY_NAME);
     if (adminApiEndpoint == null) {
@@ -184,8 +184,16 @@ public class BigtableBackupIT {
       }
     }
 
+    if(targetInstance != null) {
+      instanceAdmin.deleteInstance(targetInstance);
+    }
+
     if (tableAdmin != null) {
       tableAdmin.close();
+    }
+
+    if (instanceAdmin != null) {
+      instanceAdmin.close();
     }
 
     if (dataClient != null) {
@@ -314,6 +322,10 @@ public class BigtableBackupIT {
     String tableId = generateId("restored-table");
     tableAdmin.createBackup(createBackupRequest(backupId));
 
+    // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
+    // table operation.
+    Thread.sleep(120 * 1000);
+
     try {
       RestoreTableRequest req = RestoreTableRequest.of(targetCluster, backupId).setTableId(tableId);
       RestoredTableResult result = tableAdmin.restoreTable(req);
@@ -323,7 +335,11 @@ public class BigtableBackupIT {
 
       // The assertion might be missing if the test is running against a HDD cluster or an
       // optimization is not necessary.
-      // todo(kolea2): test on different cluster
+      assertWithMessage("Empty OptimizeRestoredTable token")
+          .that(result.getOptimizeRestoredTableOperationToken())
+          .isNotNull();
+      tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
+      tableAdmin.getTable(tableId);
     } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
       tableAdmin.deleteTable(tableId);
@@ -333,28 +349,34 @@ public class BigtableBackupIT {
   @Test
   public void backupIamTest() throws InterruptedException {
     String backupId = generateId("iam-" + TEST_BACKUP_SUFFIX);
-    tableAdmin.createBackup(createBackupRequest(backupId));
 
-    Policy policy = tableAdmin.getBackupIamPolicy(targetCluster, backupId);
-    assertThat(policy).isNotNull();
-
-    Exception actualEx = null;
     try {
-      assertThat(tableAdmin.setBackupIamPolicy(targetCluster, backupId, policy)).isNotNull();
-    } catch (Exception iamException) {
-      actualEx = iamException;
-    }
-    assertThat(actualEx).isNull();
+      tableAdmin.createBackup(createBackupRequest(backupId));
 
-    List<String> permissions =
-        tableAdmin.testBackupIamPermission(
-            targetCluster,
-            backupId,
-            "bigtable.backups.get",
-            "bigtable.backups.delete",
-            "bigtable.backups.update",
-            "bigtable.backups.restore");
-    assertThat(permissions).hasSize(4);
+      Policy policy = tableAdmin.getBackupIamPolicy(targetCluster, backupId);
+      assertThat(policy).isNotNull();
+
+      Exception actualEx = null;
+      try {
+        assertThat(tableAdmin.setBackupIamPolicy(targetCluster, backupId, policy)).isNotNull();
+      } catch (Exception iamException) {
+        actualEx = iamException;
+      }
+      assertThat(actualEx).isNull();
+
+      List<String> permissions =
+          tableAdmin.testBackupIamPermission(
+              targetCluster,
+              backupId,
+              "bigtable.backups.get",
+              "bigtable.backups.delete",
+              "bigtable.backups.update",
+              "bigtable.backups.restore");
+      assertThat(permissions).hasSize(4);
+    }
+    finally {
+      tableAdmin.deleteBackup(targetCluster, backupId);
+    }
   }
 
   private CreateBackupRequest createBackupRequest(String backupName) {
