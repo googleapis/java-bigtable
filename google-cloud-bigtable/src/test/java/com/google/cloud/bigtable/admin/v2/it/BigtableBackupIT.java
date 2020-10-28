@@ -91,7 +91,7 @@ public class BigtableBackupIT {
   public static void createClient()
       throws IOException, InterruptedException, ExecutionException, TimeoutException {
     assume()
-        .withMessage("BigtableInstanceAdminClient doesn't support on Emulator")
+        .withMessage("BigtableInstanceAdminClient is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
 
