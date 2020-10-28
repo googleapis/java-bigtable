@@ -92,9 +92,8 @@ public class BigtableBackupIT {
       missingProperties.add(PROJECT_PROPERTY_NAME);
     }
 
-    //create new instance to test restore operations on SSD cluster
-    instanceAdmin =
-        BigtableInstanceAdminClient.create(targetProject);
+    // create new instance to test restore operations on SSD cluster
+    instanceAdmin = BigtableInstanceAdminClient.create(targetProject);
 
     targetCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
     targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
@@ -184,7 +183,7 @@ public class BigtableBackupIT {
       }
     }
 
-    if(targetInstance != null) {
+    if (targetInstance != null) {
       instanceAdmin.deleteInstance(targetInstance);
     }
 
@@ -373,8 +372,7 @@ public class BigtableBackupIT {
               "bigtable.backups.update",
               "bigtable.backups.restore");
       assertThat(permissions).hasSize(4);
-    }
-    finally {
+    } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
     }
   }
