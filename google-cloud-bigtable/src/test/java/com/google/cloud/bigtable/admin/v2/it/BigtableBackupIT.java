@@ -89,7 +89,8 @@ public class BigtableBackupIT {
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
 
     targetCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
-    targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + "backup-" + Instant.now().getEpochSecond();
+    targetInstance =
+        AbstractTestEnv.TEST_INSTANCE_PREFIX + "backup-" + Instant.now().getEpochSecond();
 
     instanceAdmin.createInstance(
         CreateInstanceRequest.of(targetInstance)
@@ -279,7 +280,7 @@ public class BigtableBackupIT {
           .that(result.getTable().getId())
           .isEqualTo(tableId);
 
-      if(result.getOptimizeRestoredTableOperationToken() != null) {
+      if (result.getOptimizeRestoredTableOperationToken() != null) {
         // The assertion might be missing if the test is running against a HDD cluster or an
         // optimization is not necessary.
         tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
