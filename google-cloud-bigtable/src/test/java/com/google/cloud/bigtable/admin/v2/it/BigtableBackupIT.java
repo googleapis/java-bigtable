@@ -89,7 +89,7 @@ public class BigtableBackupIT {
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
 
     targetCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
-    targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
+    targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + "backup-" + Instant.now().getEpochSecond();
 
     instanceAdmin.createInstance(
         CreateInstanceRequest.of(targetInstance)
