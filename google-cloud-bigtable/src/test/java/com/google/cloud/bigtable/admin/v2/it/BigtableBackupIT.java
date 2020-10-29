@@ -27,7 +27,6 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
-import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
@@ -39,13 +38,10 @@ import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.AbstractTestEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
-import com.google.common.base.Joiner;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import io.grpc.StatusRuntimeException;
@@ -68,10 +64,6 @@ public class BigtableBackupIT {
 
   private static final Logger LOGGER = Logger.getLogger(BigtableBackupIT.class.getName());
 
-  private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
-  private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.adminendpoint";
-  private static final String DATA_ENDPOINT_PROPERTY_NAME = "bigtable.dataendpoint";
-  private static final String TABLE_SIZE_PROPERTY_NAME = "bigtable.tablesizekb";
   private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
   private static final String TEST_TABLE_SUFFIX = "test-table-for-backup-it";
@@ -81,7 +73,6 @@ public class BigtableBackupIT {
   private static BigtableInstanceAdminClient instanceAdmin;
   private static BigtableDataClient dataClient;
 
-  private static String targetProject;
   private static String targetInstance;
   private static String targetCluster;
   private static Table testTable;
@@ -95,15 +86,7 @@ public class BigtableBackupIT {
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
 
-    List<String> missingProperties = Lists.newArrayList();
-
-    targetProject = System.getProperty(PROJECT_PROPERTY_NAME);
-    if (targetProject == null) {
-      missingProperties.add(PROJECT_PROPERTY_NAME);
-    }
-
-    // create new instance to test restore operations on SSD cluster
-    instanceAdmin = BigtableInstanceAdminClient.create(targetProject);
+    instanceAdmin = testEnvRule.env().getInstanceAdminClient();
 
     targetCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
     targetInstance = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
@@ -115,72 +98,30 @@ public class BigtableBackupIT {
             .addLabel("state", "readytodelete")
             .setType(Type.PRODUCTION));
 
-    String adminApiEndpoint = System.getProperty(ADMIN_ENDPOINT_PROPERTY_NAME);
-    if (adminApiEndpoint == null) {
-      adminApiEndpoint = "bigtableadmin.googleapis.com:443";
-    }
-
-    int tableSize = MoreObjects.firstNonNull(Integer.getInteger(TABLE_SIZE_PROPERTY_NAME), 1);
-    if (!missingProperties.isEmpty()) {
-      Assert.fail("Missing properties: " + Joiner.on(",").join(missingProperties));
-    }
-
     // Setup a prefix to avoid collisions between concurrent test runs
     prefix = String.format("020%d", System.currentTimeMillis());
 
-    BigtableTableAdminSettings.Builder settings =
-        BigtableTableAdminSettings.newBuilder()
-            .setInstanceId(targetInstance)
-            .setProjectId(targetProject);
-    settings.stubSettings().setEndpoint(adminApiEndpoint);
-    tableAdmin = BigtableTableAdminClient.create(settings.build());
+    tableAdmin = BigtableTableAdminClient.create(testEnvRule.env().getProjectId(), targetInstance);
 
     testTable =
         tableAdmin.createTable(
             CreateTableRequest.of(generateId(TEST_TABLE_SUFFIX)).addFamily("cf1"));
 
     // Populate test data.
-    if (tableSize > 0) {
-      String dataApiEndpoint = System.getProperty(DATA_ENDPOINT_PROPERTY_NAME);
-      if (dataApiEndpoint == null) {
-        dataApiEndpoint = "bigtable.googleapis.com:443";
-      }
-      BigtableDataSettings.Builder dataSettings =
-          BigtableDataSettings.newBuilder()
-              .setInstanceId(targetInstance)
-              .setProjectId(targetProject);
-      dataSettings.stubSettings().setEndpoint(dataApiEndpoint);
-      dataClient = BigtableDataClient.create(dataSettings.build());
-      byte[] rowBytes = new byte[1024];
-      Random random = new Random();
-      random.nextBytes(rowBytes);
+    dataClient = BigtableDataClient.create(testEnvRule.env().getProjectId(), targetInstance);
+    byte[] rowBytes = new byte[1024];
+    Random random = new Random();
+    random.nextBytes(rowBytes);
 
-      List<ApiFuture<?>> futures = Lists.newArrayList();
-      for (int i = 0; i < tableSize; i++) {
-        ApiFuture<Void> future =
-            dataClient.mutateRowAsync(
-                RowMutation.create(testTable.getId(), "test-row-" + i)
-                    .setCell("cf1", "", rowBytes.toString()));
-        futures.add(future);
-      }
-      ApiFutures.allAsList(futures).get(3, TimeUnit.MINUTES);
+    List<ApiFuture<?>> futures = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      ApiFuture<Void> future =
+          dataClient.mutateRowAsync(
+              RowMutation.create(testTable.getId(), "test-row-" + i)
+                  .setCell("cf1", "", rowBytes.toString()));
+      futures.add(future);
     }
-
-    // Cleanup old backups and tables, under normal circumstances this will do nothing
-    String stalePrefix =
-        String.format("020%d", System.currentTimeMillis() - TimeUnit.HOURS.toMillis(2));
-    for (String backupId : tableAdmin.listBackups(targetCluster)) {
-      if (backupId.endsWith(TEST_BACKUP_SUFFIX) && stalePrefix.compareTo(backupId) > 0) {
-        LOGGER.info("Deleting stale backup: " + backupId);
-        tableAdmin.deleteBackup(targetCluster, backupId);
-      }
-    }
-    for (String tableId : tableAdmin.listTables()) {
-      if (tableId.endsWith("TEST_TABLE_SUFFIX") && stalePrefix.compareTo(tableId) > 0) {
-        LOGGER.info("Deleting stale backup: " + tableId);
-        tableAdmin.deleteTable(tableId);
-      }
-    }
+    ApiFutures.allAsList(futures).get(3, TimeUnit.MINUTES);
   }
 
   @AfterClass
@@ -199,10 +140,6 @@ public class BigtableBackupIT {
 
     if (tableAdmin != null) {
       tableAdmin.close();
-    }
-
-    if (instanceAdmin != null) {
-      instanceAdmin.close();
     }
 
     if (dataClient != null) {
@@ -342,13 +279,15 @@ public class BigtableBackupIT {
           .that(result.getTable().getId())
           .isEqualTo(tableId);
 
-      // The assertion might be missing if the test is running against a HDD cluster or an
-      // optimization is not necessary.
-      assertWithMessage("Empty OptimizeRestoredTable token")
-          .that(result.getOptimizeRestoredTableOperationToken())
-          .isNotNull();
-      tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
-      tableAdmin.getTable(tableId);
+      if(result.getOptimizeRestoredTableOperationToken() != null) {
+        // The assertion might be missing if the test is running against a HDD cluster or an
+        // optimization is not necessary.
+        tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
+        Table restoredTable = tableAdmin.getTable(tableId);
+        assertWithMessage("Incorrect restored table id")
+            .that(restoredTable.getId())
+            .isEqualTo(tableId);
+      }
     } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
       tableAdmin.deleteTable(tableId);
