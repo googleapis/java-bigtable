@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
+import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
 
@@ -27,7 +28,7 @@ public class RpcMeasureConstants {
   public static final TagKey BIGTABLE_APP_PROFILE_ID = TagKey.create("bigtable_app_profile_id");
 
   /** Tag key that represents a Bigtable operation name. */
-  static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
+  public static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
 
   /** Tag key that represents the final status of the Bigtable operation. */
   static final TagKey BIGTABLE_STATUS = TagKey.create("bigtable_status");
@@ -74,4 +75,18 @@ public class RpcMeasureConstants {
           "cloud.google.com/java/bigtable/read_rows_first_row_latency",
           "Time between request being sent to the first row received",
           MILLISECOND);
+
+  /** GFE t4t7 latency extracted from server-timing trailer. */
+  public static final MeasureLong BIGTABLE_GFE_LATENCY =
+      MeasureLong.create(
+          "cloud.google.com/java/bigtable/gfe_latency",
+          "GFE t4t7 latency. Time between GFE receives the first byte of the request and GFE reads the first byte of the response",
+          MILLISECOND);
+
+  /** Number of responses without server-timing trailer. */
+  public static final MeasureLong BIGTABLE_GFE_MISSING_COUNT =
+      Measure.MeasureLong.create(
+          "cloud.google.com/java/bigtable/gfe_missing_count",
+          "Number of responses without the server-timing trailer",
+          COUNT);
 }

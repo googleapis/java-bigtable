@@ -628,6 +628,7 @@ public class EnhancedBigtableStubSettingsTest {
     "appProfileId",
     "isRefreshingChannel",
     "primedTableIds",
+    "headerTracer",
     "readRowsSettings",
     "readRowSettings",
     "sampleRowKeysSettings",

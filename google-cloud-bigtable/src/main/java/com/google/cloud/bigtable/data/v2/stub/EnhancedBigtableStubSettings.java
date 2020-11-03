@@ -24,12 +24,8 @@ import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
-import com.google.api.gax.rpc.FixedHeaderProvider;
-import com.google.api.gax.rpc.ServerStreamingCallSettings;
+import com.google.api.gax.rpc.*;
 import com.google.api.gax.rpc.StatusCode.Code;
-import com.google.api.gax.rpc.StubSettings;
-import com.google.api.gax.rpc.TransportChannelProvider;
-import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -38,6 +34,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.stub.metrics.*;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.base.MoreObjects;
@@ -157,6 +154,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final String appProfileId;
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
+  private HeaderTracer headerTracer;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -196,6 +194,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     appProfileId = builder.appProfileId;
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
+    headerTracer = builder.headerTracer;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -240,6 +239,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return primedTableIds;
   }
 
+  /** Gets the tracer for capturing metrics in the header. */
+  @BetaApi("This API is not currently stable and might change in the future")
+  public HeaderTracer getHeaderTracer() {
+    return headerTracer;
+  }
+
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
@@ -249,7 +254,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setKeepAliveTimeout(
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
         .setKeepAliveWithoutCalls(true) // sends ping without active streams
+        .setInterceptorProvider(BigtableInterceptorProvider.createDefault())
         // TODO(weiranf): Set this to true by default once DirectPath goes to public beta
+        // Attempts direct access to CBT service over gRPC to improve throughput,
+        // whether the attempt is allowed is totally controlled by service owner.
         .setAttemptDirectPath(isDirectPathEnabled());
   }
 
@@ -502,6 +510,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String appProfileId;
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
+    private HeaderTracer headerTracer;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -525,6 +534,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = false;
       primedTableIds = ImmutableList.of();
+      headerTracer = new HeaderTracer();
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
 
       // Defaults provider
@@ -638,6 +648,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       appProfileId = settings.appProfileId;
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
+      headerTracer = settings.headerTracer;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -760,6 +771,19 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return primedTableIds;
     }
 
+    // TODO: update comments
+    /** Configure the header tracer */
+    @BetaApi("")
+    public Builder setHeaderTracer(HeaderTracer tracer) {
+      this.headerTracer = headerTracer;
+      return this;
+    }
+
+    // TODO: update comments
+    public HeaderTracer getHeaderTracer() {
+      return headerTracer;
+    }
+
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
       return readRowsSettings;
@@ -839,6 +863,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
+        .add("headerTracer", headerTracer)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)

@@ -23,6 +23,7 @@ import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GaxProperties;
 import com.google.api.gax.grpc.GaxGrpcProperties;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -30,6 +31,7 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
+import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -65,9 +67,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.*;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -82,6 +82,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import io.grpc.CallOptions;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -91,6 +92,7 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
@@ -108,6 +110,8 @@ import javax.annotation.Nonnull;
 @InternalApi
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
+
+  private static final Logger LOGGER = Logger.getLogger(EnhancedBigtableStub.class.getName());
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
@@ -203,13 +207,26 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add user configured tracer
                 settings.getTracerFactory())));
-
+    HeaderTracer headerTracer = builder.getHeaderTracer();
+    headerTracer.setStats(stats);
+    headerTracer.setTagger(tagger);
+    headerTracer.setStatsAttributes(
+        ImmutableMap.<TagKey, TagValue>builder()
+            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(settings.getProjectId()))
+            .put(
+                RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(settings.getInstanceId()))
+            .put(
+                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
+                TagValue.create(settings.getAppProfileId()))
+            .build());
+    builder.setHeaderTracer(headerTracer);
     return builder.build();
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
     this.settings = settings;
     this.clientContext = clientContext;
+
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
@@ -274,7 +291,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             clientContext.getTracerFactory(),
             SpanName.of(CLIENT_NAME, "ReadRows"));
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(getContextWithTracer());
   }
 
   /**
@@ -463,7 +480,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             userFacing, clientContext.getTracerFactory(), SpanName.of(CLIENT_NAME, "MutateRows"));
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(getContextWithTracer());
   }
 
   /**
@@ -638,7 +655,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             inner, clientContext.getTracerFactory(), SpanName.of(CLIENT_NAME, methodName));
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(getContextWithTracer());
   }
   // </editor-fold>
 
@@ -685,6 +702,21 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return readModifyWriteRowCallable;
   }
   // </editor-fold>
+
+  private GrpcCallContext getContextWithTracer() {
+    ApiCallContext apiCallContext = clientContext.getDefaultCallContext();
+    if (!(apiCallContext instanceof GrpcCallContext)) {
+      LOGGER.warning(
+          "Failed to inject tracer in call context. Expected GrpcCallContext but had "
+              + apiCallContext.getClass());
+    }
+    GrpcCallContext grpcCallContext = (GrpcCallContext) apiCallContext;
+    CallOptions options = grpcCallContext.getCallOptions();
+    options =
+        options.withOption(HeaderTracer.HEADER_TRACER_CONTEXT_KEY, settings.getHeaderTracer());
+    grpcCallContext = grpcCallContext.withCallOptions(options);
+    return grpcCallContext;
+  }
 
   @Override
   public void close() {
