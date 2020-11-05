@@ -266,7 +266,7 @@ public class BigtableBackupIT {
   @Test
   public void restoreTableTest() throws InterruptedException, ExecutionException {
     String backupId = generateId("restore-" + TEST_BACKUP_SUFFIX);
-    String tableId = generateId("restored-table");
+    String restoredTableId = generateId("restored-table");
     tableAdmin.createBackup(createBackupRequest(backupId));
 
     // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
@@ -274,24 +274,74 @@ public class BigtableBackupIT {
     Thread.sleep(120 * 1000);
 
     try {
-      RestoreTableRequest req = RestoreTableRequest.of(targetCluster, backupId).setTableId(tableId);
+      RestoreTableRequest req =
+          RestoreTableRequest.of(targetCluster, backupId).setTableId(restoredTableId);
       RestoredTableResult result = tableAdmin.restoreTable(req);
       assertWithMessage("Incorrect restored table id")
           .that(result.getTable().getId())
-          .isEqualTo(tableId);
+          .isEqualTo(restoredTableId);
 
       if (result.getOptimizeRestoredTableOperationToken() != null) {
         // The assertion might be missing if the test is running against a HDD cluster or an
         // optimization is not necessary.
         tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
-        Table restoredTable = tableAdmin.getTable(tableId);
+        Table restoredTable = tableAdmin.getTable(restoredTableId);
         assertWithMessage("Incorrect restored table id")
             .that(restoredTable.getId())
-            .isEqualTo(tableId);
+            .isEqualTo(restoredTableId);
       }
     } finally {
       tableAdmin.deleteBackup(targetCluster, backupId);
-      tableAdmin.deleteTable(tableId);
+      tableAdmin.deleteTable(restoredTableId);
+    }
+  }
+
+  @Test
+  public void crossInstanceRestoreTest()
+      throws InterruptedException, IOException, ExecutionException {
+    String backupId = generateId("cross-" + TEST_BACKUP_SUFFIX);
+    String restoredTableId = generateId("restored-table");
+    tableAdmin.createBackup(createBackupRequest(backupId));
+
+    // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
+    // table operation.
+    Thread.sleep(120 * 1000);
+
+    // Set up a new instance to test cross-instance restore.
+    String destInstance =
+        AbstractTestEnv.TEST_INSTANCE_PREFIX + "backup-" + Instant.now().getEpochSecond();
+    String destCluster = AbstractTestEnv.TEST_CLUSTER_PREFIX + Instant.now().getEpochSecond();
+    instanceAdmin.createInstance(
+        CreateInstanceRequest.of(destInstance)
+            .addCluster(destCluster, testEnvRule.env().getSecondaryZone(), 3, StorageType.SSD)
+            .setDisplayName("backups-dest-test-instance")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
+    BigtableTableAdminClient destTableAdmin =
+        testEnvRule.env().getTableAdminClientForInstance(destInstance);
+
+    try {
+      RestoreTableRequest req =
+          RestoreTableRequest.of(targetInstance, targetCluster, backupId)
+              .setTableId(restoredTableId);
+      RestoredTableResult result = destTableAdmin.restoreTable(req);
+      assertWithMessage("Incorrect restored table id")
+          .that(result.getTable().getId())
+          .isEqualTo(restoredTableId);
+      assertWithMessage("Incorrect instance id")
+          .that(result.getTable().getInstanceId())
+          .isEqualTo(destInstance);
+
+      // The assertion might be missing if the test is running against a HDD cluster or an
+      // optimization is not necessary.
+      assertWithMessage("Empty OptimizeRestoredTable token")
+          .that(result.getOptimizeRestoredTableOperationToken())
+          .isNotNull();
+      tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
+      destTableAdmin.getTable(restoredTableId);
+    } finally {
+      tableAdmin.deleteBackup(targetCluster, backupId);
+      instanceAdmin.deleteInstance(destInstance);
     }
   }
 
