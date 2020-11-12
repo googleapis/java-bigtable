@@ -15,7 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.gax.tracing.SpanName;
+import com.google.api.core.BetaApi;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.CallOptions;
@@ -30,56 +31,133 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@BetaApi
 public class HeaderTracer {
   public static final CallOptions.Key<HeaderTracer> HEADER_TRACER_CONTEXT_KEY =
       CallOptions.Key.create("BigtableHeaderTracer");
+  public static final CallOptions.Key<String> SPAN_NAME_CONTEXT_KEY =
+      CallOptions.Key.create("BigtableSpanName");
 
   private Tagger tagger;
   private StatsRecorder stats;
   private Map<TagKey, TagValue> statsAttributes;
 
-  public HeaderTracer() {
-    this.tagger = Tags.getTagger();
-    this.stats = Stats.getStatsRecorder();
-    this.statsAttributes = ImmutableMap.of();
+  private HeaderTracer(Builder builder) {
+    tagger = builder.getTagger();
+    stats = builder.getStats();
+    statsAttributes = builder.getStatsAttributes();
   }
 
-  public void setTagger(Tagger tagger) {
-    this.tagger = tagger;
+  public static class Builder {
+    private Tagger tagger;
+    private StatsRecorder stats;
+    private Map<TagKey, TagValue> statsAttributes;
+
+    private Builder() {
+      tagger = Tags.getTagger();
+      stats = Stats.getStatsRecorder();
+      statsAttributes = ImmutableMap.of();
+    }
+
+    private Builder(HeaderTracer headerTracer) {
+      tagger = headerTracer.tagger;
+      stats = headerTracer.stats;
+      statsAttributes = headerTracer.statsAttributes;
+    }
+
+    // <editor-fold desc="Public API">
+    public Builder setTagger(@Nonnull Tagger tagger) {
+      Preconditions.checkNotNull(tagger);
+      this.tagger = tagger;
+      return this;
+    }
+
+    public Builder setStats(@Nonnull StatsRecorder stats) {
+      Preconditions.checkNotNull(stats);
+      this.stats = stats;
+      return this;
+    }
+
+    public Builder setStatsAttributes(@Nonnull Map<TagKey, TagValue> statsAttributes) {
+      Preconditions.checkNotNull(statsAttributes);
+      this.statsAttributes = statsAttributes;
+      return this;
+    }
+
+    public Tagger getTagger() {
+      return tagger;
+    }
+
+    public StatsRecorder getStats() {
+      return stats;
+    }
+
+    public Map<TagKey, TagValue> getStatsAttributes() {
+      return statsAttributes;
+    }
+
+    public HeaderTracer build() {
+      Preconditions.checkNotNull(stats, "StatsRecorder must be set");
+      Preconditions.checkNotNull(tagger, "Tagger must be set");
+      Preconditions.checkNotNull(statsAttributes, "Stats attributes must be set");
+      return new HeaderTracer(this);
+    }
+    // </editor-fold>
   }
 
-  public void setStats(StatsRecorder stats) {
-    this.stats = stats;
+  public Tagger getTagger() {
+    return tagger;
   }
 
-  public void setStatsAttributes(Map<TagKey, TagValue> statsAttributes) {
-    this.statsAttributes = statsAttributes;
+  public StatsRecorder getStats() {
+    return stats;
   }
 
-  public void recordHeader(MeasureLong measure, long value, @Nullable SpanName spanName) {
+  public Map<TagKey, TagValue> getStatsAttributes() {
+    return statsAttributes;
+  }
+
+  public void record(MeasureLong measure, long value, @Nullable String span) {
     Preconditions.checkNotNull(measure, "Measure cannot be null.");
     MeasureMap measures = stats.newMeasureMap().put(measure, value);
-    measures.record(newTagCtxBuilder(spanName).build());
+    measures.record(newTagCtxBuilder(span).build());
   }
 
-  public void recordHeader(MeasureDouble measure, double value, @Nullable SpanName spanName) {
+  public void record(MeasureDouble measure, double value, @Nullable String span) {
     Preconditions.checkNotNull(measure, "Measure cannot be null.");
     MeasureMap measures = stats.newMeasureMap().put(measure, value);
-    measures.record(newTagCtxBuilder(spanName).build());
+    measures.record(newTagCtxBuilder(span).build());
   }
 
-  private TagContextBuilder newTagCtxBuilder(@Nullable SpanName spanName) {
+  private TagContextBuilder newTagCtxBuilder(@Nullable String span) {
     TagContextBuilder tagContextBuilder = tagger.currentBuilder();
-    if (spanName != null) {
-      tagContextBuilder.putLocal(
-          RpcMeasureConstants.BIGTABLE_OP, TagValue.create(spanName.toString()));
+    if (span != null) {
+      tagContextBuilder.putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(span));
     }
     // Copy client level tags in
     for (Map.Entry<TagKey, TagValue> entry : statsAttributes.entrySet()) {
       tagContextBuilder.putLocal(entry.getKey(), entry.getValue());
     }
     return tagContextBuilder;
+  }
+
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  public Builder toBuilder() {
+    return new Builder(this);
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("stats", stats)
+        .add("tagger", tagger)
+        .add("statsAttributes", stats)
+        .toString();
   }
 }

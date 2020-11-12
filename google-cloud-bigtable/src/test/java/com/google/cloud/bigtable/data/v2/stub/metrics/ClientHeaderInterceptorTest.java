@@ -54,7 +54,7 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
-public class GFEMetricsTest {
+public class ClientHeaderInterceptorTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private FakeServiceHelper serviceHelper;

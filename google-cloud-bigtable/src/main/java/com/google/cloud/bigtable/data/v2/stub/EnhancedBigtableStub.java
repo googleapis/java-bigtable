@@ -67,7 +67,10 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.cloud.bigtable.data.v2.stub.metrics.*;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracer;
+import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -207,26 +210,31 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add user configured tracer
                 settings.getTracerFactory())));
-    HeaderTracer headerTracer = builder.getHeaderTracer();
-    headerTracer.setStats(stats);
-    headerTracer.setTagger(tagger);
-    headerTracer.setStatsAttributes(
-        ImmutableMap.<TagKey, TagValue>builder()
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(settings.getProjectId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(settings.getInstanceId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
-                TagValue.create(settings.getAppProfileId()))
+    builder.setHeaderTracer(
+        builder
+            .getHeaderTracer()
+            .toBuilder()
+            .setStats(stats)
+            .setTagger(tagger)
+            .setStatsAttributes(
+                ImmutableMap.<TagKey, TagValue>builder()
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_PROJECT_ID,
+                        TagValue.create(settings.getProjectId()))
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_INSTANCE_ID,
+                        TagValue.create(settings.getInstanceId()))
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
+                        TagValue.create(settings.getAppProfileId()))
+                    .build())
             .build());
-    builder.setHeaderTracer(headerTracer);
     return builder.build();
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
     this.settings = settings;
     this.clientContext = clientContext;
-
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
@@ -285,13 +293,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
+    SpanName spanName = SpanName.of(CLIENT_NAME, "ReadRows");
     ServerStreamingCallable<Query, RowT> traced =
         new TracedServerStreamingCallable<>(
-            readRowsUserCallable,
-            clientContext.getTracerFactory(),
-            SpanName.of(CLIENT_NAME, "ReadRows"));
+            readRowsUserCallable, clientContext.getTracerFactory(), spanName);
 
-    return traced.withDefaultCallContext(getContextWithTracer());
+    return traced.withDefaultCallContext(getContextWithTracer(spanName));
   }
 
   /**
@@ -476,11 +483,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<BulkMutation, Void> userFacing =
         new BulkMutateRowsUserFacingCallable(baseCallable, requestContext);
 
+    SpanName spanName = SpanName.of(CLIENT_NAME, "MutateRows");
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(
-            userFacing, clientContext.getTracerFactory(), SpanName.of(CLIENT_NAME, "MutateRows"));
+        new TracedUnaryCallable<>(userFacing, clientContext.getTracerFactory(), spanName);
 
-    return traced.withDefaultCallContext(getContextWithTracer());
+    return traced.withDefaultCallContext(getContextWithTracer(spanName));
   }
 
   /**
@@ -651,11 +658,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> createUserFacingUnaryCallable(
       String methodName, UnaryCallable<RequestT, ResponseT> inner) {
 
+    SpanName spanName = SpanName.of(CLIENT_NAME, methodName);
     UnaryCallable<RequestT, ResponseT> traced =
-        new TracedUnaryCallable<>(
-            inner, clientContext.getTracerFactory(), SpanName.of(CLIENT_NAME, methodName));
+        new TracedUnaryCallable<>(inner, clientContext.getTracerFactory(), spanName);
 
-    return traced.withDefaultCallContext(getContextWithTracer());
+    return traced.withDefaultCallContext(getContextWithTracer(spanName));
   }
   // </editor-fold>
 
@@ -703,7 +710,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
   // </editor-fold>
 
-  private GrpcCallContext getContextWithTracer() {
+  private GrpcCallContext getContextWithTracer(SpanName spanName) {
     ApiCallContext apiCallContext = clientContext.getDefaultCallContext();
     if (!(apiCallContext instanceof GrpcCallContext)) {
       LOGGER.warning(
@@ -713,7 +720,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     GrpcCallContext grpcCallContext = (GrpcCallContext) apiCallContext;
     CallOptions options = grpcCallContext.getCallOptions();
     options =
-        options.withOption(HeaderTracer.HEADER_TRACER_CONTEXT_KEY, settings.getHeaderTracer());
+        options
+            .withOption(HeaderTracer.HEADER_TRACER_CONTEXT_KEY, settings.getHeaderTracer())
+            .withOption(HeaderTracer.SPAN_NAME_CONTEXT_KEY, spanName.toString());
     grpcCallContext = grpcCallContext.withCallOptions(options);
     return grpcCallContext;
   }

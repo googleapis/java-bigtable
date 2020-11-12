@@ -42,6 +42,7 @@ class CheckAndMutateRowCallable extends UnaryCallable<ConditionalRowMutation, Bo
   public ApiFuture<Boolean> futureCall(ConditionalRowMutation request, ApiCallContext context) {
     ApiFuture<CheckAndMutateRowResponse> rawResponse =
         inner.futureCall(request.toProto(requestContext), context);
+
     return ApiFutures.transform(
         rawResponse,
         new ApiFunction<CheckAndMutateRowResponse, Boolean>() {

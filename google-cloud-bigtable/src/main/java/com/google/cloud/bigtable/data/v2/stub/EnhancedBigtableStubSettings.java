@@ -240,7 +240,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /** Gets the tracer for capturing metrics in the header. */
-  @BetaApi("This API is not currently stable and might change in the future")
+  @BetaApi
   public HeaderTracer getHeaderTracer() {
     return headerTracer;
   }
@@ -534,7 +534,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = false;
       primedTableIds = ImmutableList.of();
-      headerTracer = new HeaderTracer();
+      headerTracer = HeaderTracer.newBuilder().build();
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
 
       // Defaults provider
@@ -771,15 +771,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return primedTableIds;
     }
 
-    // TODO: update comments
-    /** Configure the header tracer */
-    @BetaApi("")
-    public Builder setHeaderTracer(HeaderTracer tracer) {
+    /** Configure the header tracer for surfacing metrics in the header. */
+    @BetaApi
+    public Builder setHeaderTracer(HeaderTracer headerTracer) {
       this.headerTracer = headerTracer;
       return this;
     }
 
-    // TODO: update comments
+    /** Gets the header tracer that'll be used to surface metrics in the header. */
+    @BetaApi
     public HeaderTracer getHeaderTracer() {
       return headerTracer;
     }

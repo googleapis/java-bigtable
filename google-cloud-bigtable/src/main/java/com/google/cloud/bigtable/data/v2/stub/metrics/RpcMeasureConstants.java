@@ -28,7 +28,7 @@ public class RpcMeasureConstants {
   public static final TagKey BIGTABLE_APP_PROFILE_ID = TagKey.create("bigtable_app_profile_id");
 
   /** Tag key that represents a Bigtable operation name. */
-  public static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
+  static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
 
   /** Tag key that represents the final status of the Bigtable operation. */
   static final TagKey BIGTABLE_STATUS = TagKey.create("bigtable_status");
@@ -80,10 +80,10 @@ public class RpcMeasureConstants {
   public static final MeasureLong BIGTABLE_GFE_LATENCY =
       MeasureLong.create(
           "cloud.google.com/java/bigtable/gfe_latency",
-          "GFE t4t7 latency. Time between GFE receives the first byte of the request and GFE reads the first byte of the response",
+          "GFE t4t7 latency. Time between GFE receives the first byte of a request and reads the first byte of the response",
           MILLISECOND);
 
-  /** Number of responses without server-timing trailer. */
+  /** Number of responses without the server-timing trailer. */
   public static final MeasureLong BIGTABLE_GFE_MISSING_COUNT =
       Measure.MeasureLong.create(
           "cloud.google.com/java/bigtable/gfe_missing_count",

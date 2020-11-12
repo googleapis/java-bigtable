@@ -15,11 +15,14 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.BetaApi;
 import com.google.api.gax.grpc.GrpcInterceptorProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ClientHeaderInterceptor;
 import com.google.common.collect.ImmutableList;
 import io.grpc.ClientInterceptor;
 import java.util.List;
 
+@BetaApi
 public class BigtableInterceptorProvider implements GrpcInterceptorProvider {
 
   private static final ClientHeaderInterceptor headerInterceptor = new ClientHeaderInterceptor();
