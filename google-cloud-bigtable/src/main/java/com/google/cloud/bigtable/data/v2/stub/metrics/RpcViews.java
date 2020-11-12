@@ -33,7 +33,7 @@ public class RpcViews {
           RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
           RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
           RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_GFE_MISSING_COUNT_VIEW);
+          RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
 
   /** Registers all Bigtable specific views. */
   public static void registerBigtableClientViews() {

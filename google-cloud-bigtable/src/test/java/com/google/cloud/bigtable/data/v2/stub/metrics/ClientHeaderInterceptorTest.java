@@ -32,10 +32,14 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
-import io.grpc.*;
+import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
+import io.grpc.Metadata;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
-import io.opencensus.stats.*;
+import io.opencensus.stats.StatsComponent;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -78,7 +82,11 @@ public class ClientHeaderInterceptorTest {
 
   @Before
   public void setUp() throws Exception {
-    fakeServerTiming = new Random().nextInt(10000) + 1;
+    RpcViews.registerBigtableClientViews(localStats.getViewManager());
+
+    // Create a server that'll inject a server-timing header with a random number and a stub that
+    // connects to this server.
+    fakeServerTiming = new Random().nextInt(1000) + 1;
     serviceHelper =
         new FakeServiceHelper(
             new ServerInterceptor() {
@@ -88,10 +96,9 @@ public class ClientHeaderInterceptorTest {
                   Metadata metadata,
                   ServerCallHandler<ReqT, RespT> serverCallHandler) {
                 return serverCallHandler.startCall(
-                    new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                    new SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
                       @Override
                       public void sendHeaders(Metadata headers) {
-                        // inject fake server-timing header for testing
                         headers.put(
                             Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER),
                             String.format("gfet4t7; dur=%d", fakeServerTiming));
@@ -102,11 +109,7 @@ public class ClientHeaderInterceptorTest {
               }
             },
             fakeService);
-    serviceHelperNoHeader = new FakeServiceHelper(fakeService);
     serviceHelper.start();
-    serviceHelperNoHeader.start();
-
-    RpcViews.registerBigtableClientViews(localStats.getViewManager());
 
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilderForEmulator(serviceHelper.getPort())
@@ -114,20 +117,22 @@ public class ClientHeaderInterceptorTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-
     EnhancedBigtableStubSettings stubSettings =
         EnhancedBigtableStub.finalizeSettings(
             settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
 
-    // Create another stub to connect to the service with no injected header.
+    // Create another server without injecting the server-timing header and another stub that
+    // connects to it.
+    serviceHelperNoHeader = new FakeServiceHelper(fakeService);
+    serviceHelperNoHeader.start();
+
     BigtableDataSettings noHeaderSettings =
         BigtableDataSettings.newBuilderForEmulator(serviceHelperNoHeader.getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-
     EnhancedBigtableStubSettings noHeaderStubSettings =
         EnhancedBigtableStub.finalizeSettings(
             noHeaderSettings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
@@ -197,7 +202,8 @@ public class ClientHeaderInterceptorTest {
         .when(fakeService)
         .mutateRow(any(MutateRowRequest.class), anyObserver(MutateRowResponse.class));
 
-    // Make a few calls to the server that'll add server-timing header and the counter should be 0.
+    // Make a few calls to the server which will inject the server-timing header and the counter
+    // should be 0.
     stub.readRowsCallable().call(Query.create(TABLE_ID));
     stub.mutateRowCallable().call(RowMutation.create(TABLE_ID, "key"));
 
@@ -205,7 +211,7 @@ public class ClientHeaderInterceptorTest {
     long mutateRowMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_MISSING_COUNT_VIEW,
+            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
             ImmutableMap.of(RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRow")),
             PROJECT_ID,
             INSTANCE_ID,
@@ -213,7 +219,7 @@ public class ClientHeaderInterceptorTest {
     long readRowsMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_MISSING_COUNT_VIEW,
+            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
             ImmutableMap.<TagKey, TagValue>of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
             PROJECT_ID,
@@ -225,8 +231,8 @@ public class ClientHeaderInterceptorTest {
     assertThat(mutateRowMissingCount).isEqualTo(0);
     assertThat(readRowsMissingCount).isEqualTo(0);
 
-    // Make a few more calls to the service which won't add the header and the counter should match
-    // number of requests we sent.
+    // Make a few more calls to the server which won't add the header and the counter should match
+    // the number of requests sent.
     int readRowsCalls = new Random().nextInt(10) + 1;
     int mutateRowCalls = new Random().nextInt(10) + 1;
     for (int i = 0; i < mutateRowCalls; i++) {
@@ -241,7 +247,7 @@ public class ClientHeaderInterceptorTest {
     mutateRowMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_MISSING_COUNT_VIEW,
+            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
             ImmutableMap.of(RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRow")),
             PROJECT_ID,
             INSTANCE_ID,
@@ -249,7 +255,7 @@ public class ClientHeaderInterceptorTest {
     readRowsMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_MISSING_COUNT_VIEW,
+            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
             ImmutableMap.<TagKey, TagValue>of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
             PROJECT_ID,

@@ -29,6 +29,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class HeaderTracerTest {
@@ -49,7 +50,7 @@ public class HeaderTracerTest {
     HeaderTracer.Builder builder = HeaderTracer.newBuilder();
     Map<TagKey, TagValue> attrs =
         ImmutableMap.<TagKey, TagValue>of(TagKey.create("fake-key"), TagValue.create("fake-value"));
-    Tagger tagger = Tags.getTagger();
+    Tagger tagger = Mockito.mock(Tagger.class);
     StatsRecorder stats = localStats.getStatsRecorder();
     builder.setStats(stats).setStatsAttributes(attrs).setTagger(tagger);
     HeaderTracer headerTracer = builder.build();
@@ -63,7 +64,7 @@ public class HeaderTracerTest {
     HeaderTracer.Builder builder = HeaderTracer.newBuilder();
     Map<TagKey, TagValue> attrs =
         ImmutableMap.<TagKey, TagValue>of(TagKey.create("fake-key"), TagValue.create("fake-value"));
-    Tagger tagger = Tags.getTagger();
+    Tagger tagger = Mockito.mock(Tagger.class);
     StatsRecorder stats = localStats.getStatsRecorder();
     builder.setStats(stats).setStatsAttributes(attrs).setTagger(tagger);
     HeaderTracer headerTracer = builder.build();

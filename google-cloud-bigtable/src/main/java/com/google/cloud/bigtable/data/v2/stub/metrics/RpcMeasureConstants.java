@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
-import io.opencensus.stats.Measure;
 import io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
 
@@ -76,17 +75,17 @@ public class RpcMeasureConstants {
           "Time between request being sent to the first row received",
           MILLISECOND);
 
-  /** GFE t4t7 latency extracted from server-timing trailer. */
+  /** GFE t4t7 latency extracted from server-timing header. */
   public static final MeasureLong BIGTABLE_GFE_LATENCY =
       MeasureLong.create(
           "cloud.google.com/java/bigtable/gfe_latency",
           "GFE t4t7 latency. Time between GFE receives the first byte of a request and reads the first byte of the response",
           MILLISECOND);
 
-  /** Number of responses without the server-timing trailer. */
-  public static final MeasureLong BIGTABLE_GFE_MISSING_COUNT =
-      Measure.MeasureLong.create(
-          "cloud.google.com/java/bigtable/gfe_missing_count",
-          "Number of responses without the server-timing trailer",
+  /** Number of responses without the server-timing header. */
+  public static final MeasureLong BIGTABLE_GFE_HEADER_MISSING_COUNT =
+      MeasureLong.create(
+          "cloud.google.com/java/bigtable/gfe_header_missing_count",
+          "Number of responses without the server-timing header",
           COUNT);
 }

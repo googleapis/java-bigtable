@@ -73,7 +73,7 @@ public class ClientHeaderInterceptor implements ClientInterceptor {
     if (headers.get(SERVER_TIMING_HEADER_KEY) != null) {
       String serverTiming = headers.get(SERVER_TIMING_HEADER_KEY);
       Matcher matcher = GFE_HEADER_PATTERN.matcher(serverTiming);
-      tracer.record(RpcMeasureConstants.BIGTABLE_GFE_MISSING_COUNT, 0L, span);
+      tracer.record(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L, span);
       if (matcher.find()) {
         long latency = Long.valueOf(matcher.group("dur"));
         tracer.record(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency, span);
@@ -84,7 +84,7 @@ public class ClientHeaderInterceptor implements ClientInterceptor {
                 SERVER_TIMING_HEADER_KEY.name(), serverTiming));
       }
     } else {
-      tracer.record(RpcMeasureConstants.BIGTABLE_GFE_MISSING_COUNT, 1L, span);
+      tracer.record(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L, span);
     }
   }
 }

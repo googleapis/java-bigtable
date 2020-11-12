@@ -710,12 +710,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
   // </editor-fold>
 
-  private GrpcCallContext getContextWithTracer(SpanName spanName) {
+  /**
+   * Adds HeaderTracer and SpanName to CallOptions so we could surface metrics in the header
+   * with {@link com.google.cloud.bigtable.data.v2.stub.metrics.ClientHeaderInterceptor}.
+   * */
+  private ApiCallContext getContextWithTracer(SpanName spanName) {
     ApiCallContext apiCallContext = clientContext.getDefaultCallContext();
     if (!(apiCallContext instanceof GrpcCallContext)) {
       LOGGER.warning(
-          "Failed to inject tracer in call context. Expected GrpcCallContext but had "
+          "Failed to add tracer in call context. Expected GrpcCallContext but had "
               + apiCallContext.getClass());
+      return apiCallContext;
     }
     GrpcCallContext grpcCallContext = (GrpcCallContext) apiCallContext;
     CallOptions options = grpcCallContext.getCallOptions();

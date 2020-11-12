@@ -18,7 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_ATTEMPT_LATENCY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_GFE_LATENCY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_GFE_MISSING_COUNT;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_INSTANCE_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_OP;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_OP_ATTEMPT_COUNT;
@@ -34,7 +34,6 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
-import io.opencensus.tags.TagKey;
 import java.util.Arrays;
 
 class RpcViewConstants {
@@ -136,15 +135,15 @@ class RpcViewConstants {
           "GFE t4t7 latency in msecs",
           BIGTABLE_GFE_LATENCY,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.<TagKey>of(
+          ImmutableList.of(
               BIGTABLE_INSTANCE_ID, BIGTABLE_PROJECT_ID, BIGTABLE_APP_PROFILE_ID, BIGTABLE_OP));
 
-  static final View BIGTABLE_GFE_MISSING_COUNT_VIEW =
+  static final View BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW =
       View.create(
-          View.Name.create("cloud.google.com/java/bigtable/gfe_missing_count"),
-          "Number of responses without the server-timing trailer",
-          BIGTABLE_GFE_MISSING_COUNT,
+          View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
+          "Number of responses without the server-timing header",
+          BIGTABLE_GFE_HEADER_MISSING_COUNT,
           SUM,
-          ImmutableList.<TagKey>of(
+          ImmutableList.of(
               BIGTABLE_INSTANCE_ID, BIGTABLE_PROJECT_ID, BIGTABLE_APP_PROFILE_ID, BIGTABLE_OP));
 }
