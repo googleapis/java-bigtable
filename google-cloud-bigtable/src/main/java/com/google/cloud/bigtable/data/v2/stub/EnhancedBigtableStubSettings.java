@@ -260,8 +260,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setKeepAliveWithoutCalls(true) // sends ping without active streams
         .setInterceptorProvider(BigtableInterceptorProvider.createDefault())
         // TODO(weiranf): Set this to true by default once DirectPath goes to public beta
-        // Attempts direct access to CBT service over gRPC to improve throughput,
-        // whether the attempt is allowed is totally controlled by service owner.
         .setAttemptDirectPath(isDirectPathEnabled());
   }
 

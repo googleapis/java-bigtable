@@ -31,9 +31,9 @@ import java.util.regex.Pattern;
 /**
  * Surface GFE server-timing metric.
  *
- * <p>This class exports the latency metric that tracks the time between GFE receives the first byte
- * of a request and reads the first byte of the response. It also tracks the number of occurrences
- * when this metric is missing from the header.
+ * <p>This class exports the metric from server-timing header that tracks the latency between GFE
+ * receives the first byte of a request and reads the first byte of the response. It also tracks the
+ * number of occurrences of missing server-timing header.
  */
 @BetaApi
 public class ClientHeaderInterceptor implements ClientInterceptor {
@@ -41,7 +41,7 @@ public class ClientHeaderInterceptor implements ClientInterceptor {
 
   public static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
       Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
-  private static final Pattern GFE_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
+  private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -72,7 +72,7 @@ public class ClientHeaderInterceptor implements ClientInterceptor {
     }
     if (headers.get(SERVER_TIMING_HEADER_KEY) != null) {
       String serverTiming = headers.get(SERVER_TIMING_HEADER_KEY);
-      Matcher matcher = GFE_HEADER_PATTERN.matcher(serverTiming);
+      Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
       tracer.record(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L, span);
       if (matcher.find()) {
         long latency = Long.valueOf(matcher.group("dur"));
