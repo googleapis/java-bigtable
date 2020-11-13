@@ -711,9 +711,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   // </editor-fold>
 
   /**
-   * Adds HeaderTracer and SpanName to CallOptions so we could surface metrics in the header
-   * with {@link com.google.cloud.bigtable.data.v2.stub.metrics.ClientHeaderInterceptor}.
-   * */
+   * Adds HeaderTracer and SpanName to CallOptions so we could surface metrics in the header with
+   * {@link com.google.cloud.bigtable.data.v2.stub.metrics.ClientHeaderInterceptor}.
+   */
   private ApiCallContext getContextWithTracer(SpanName spanName) {
     ApiCallContext apiCallContext = clientContext.getDefaultCallContext();
     if (!(apiCallContext instanceof GrpcCallContext)) {

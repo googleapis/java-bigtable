@@ -24,7 +24,6 @@ import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
-import io.opencensus.tags.Tags;
 import java.util.Map;
 import org.junit.Test;
 import org.junit.runner.RunWith;
