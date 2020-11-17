@@ -125,10 +125,9 @@ public final class BigtableDataSettings {
                         return input.usePlaintext();
                       }
                     })
-                .setKeepAliveTime(Duration.ofSeconds(10)) // sends ping in this interval
+                .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
                 .setKeepAliveTimeout(
                     Duration.ofSeconds(10)) // wait this long before considering the connection dead
-                .setKeepAliveWithoutCalls(true) // sends ping without active streams
                 .setInterceptorProvider(BigtableInterceptorProvider.createDefault())
                 .build());
 
