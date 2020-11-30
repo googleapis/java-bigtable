@@ -19,20 +19,29 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.core.CredentialsProvider;
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.WatchdogProvider;
+import com.google.auth.Credentials;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +70,7 @@ public class EnhancedBigtableStubSettingsTest {
     String projectId = "my-project";
     String instanceId = "my-instance";
     String appProfileId = "my-app-profile-id";
-    boolean isRefreshingChannel = true;
+    boolean isRefreshingChannel = false;
     String endpoint = "some.other.host:123";
     CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
     WatchdogProvider watchdogProvider = Mockito.mock(WatchdogProvider.class);
@@ -611,5 +620,128 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.isRefreshingChannel()).isFalse();
     assertThat(builder.build().isRefreshingChannel()).isFalse();
     assertThat(builder.build().toBuilder().isRefreshingChannel()).isFalse();
+  }
+
+  static final String[] SETTINGS_LIST = {
+    "projectId",
+    "instanceId",
+    "appProfileId",
+    "isRefreshingChannel",
+    "primedTableIds",
+    "readRowsSettings",
+    "readRowSettings",
+    "sampleRowKeysSettings",
+    "mutateRowSettings",
+    "bulkMutateRowsSettings",
+    "bulkReadRowsSettings",
+    "checkAndMutateRowSettings",
+    "readModifyWriteRowSettings",
+  };
+
+  @Test
+  public void testToString() {
+    EnhancedBigtableStubSettings defaultSettings =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId("our-project-85")
+            .setInstanceId("our-instance-06")
+            .setAppProfileId("our-appProfile-06")
+            .build();
+
+    checkToString(defaultSettings);
+    assertThat(defaultSettings.toString()).contains("primedTableIds=[]");
+
+    EnhancedBigtableStubSettings settings =
+        defaultSettings
+            .toBuilder()
+            .setPrimedTableIds("2", "12", "85", "06")
+            .setEndpoint("example.com:1234")
+            .build();
+
+    checkToString(settings);
+    assertThat(settings.toString()).contains("endpoint=example.com:1234");
+    assertThat(settings.toString()).contains("primedTableIds=[2, 12, 85, 06]");
+
+    int nonStaticFields = 0;
+    for (Field field : EnhancedBigtableStubSettings.class.getDeclaredFields()) {
+      if (!Modifier.isStatic(field.getModifiers())) {
+        nonStaticFields++;
+      }
+    }
+    // failure will signal about adding a new settings property
+    assertThat(SETTINGS_LIST.length).isEqualTo(nonStaticFields);
+  }
+
+  void checkToString(EnhancedBigtableStubSettings settings) {
+    String projectId = settings.getProjectId();
+    String instanceId = settings.getInstanceId();
+    String appProfileId = settings.getAppProfileId();
+    String isRefreshingChannel = "" + settings.isRefreshingChannel();
+    String toString = settings.toString();
+    assertThat(toString).isEqualTo(settings.toString()); // no variety
+    assertThat(toString)
+        .startsWith(
+            "EnhancedBigtableStubSettings{projectId="
+                + projectId
+                + ", instanceId="
+                + instanceId
+                + ", appProfileId="
+                + appProfileId
+                + ", isRefreshingChannel="
+                + isRefreshingChannel);
+    for (String subSettings : SETTINGS_LIST) {
+      assertThat(toString).contains(subSettings + "=");
+    }
+  }
+
+  @Test
+  public void refreshingChannelSetFixedCredentialProvider() throws Exception {
+    String dummyProjectId = "my-project";
+    String dummyInstanceId = "my-instance";
+    CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
+    FakeCredentials expectedCredentials = new FakeCredentials();
+    Mockito.when(credentialsProvider.getCredentials())
+        .thenReturn(expectedCredentials, new FakeCredentials(), new FakeCredentials());
+    EnhancedBigtableStubSettings.Builder builder =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(true)
+            .setCredentialsProvider(credentialsProvider);
+    assertThat(builder.isRefreshingChannel()).isTrue();
+    // Verify that isRefreshing setting is not lost and stubSettings will always return the same
+    // credential
+    EnhancedBigtableStubSettings stubSettings = builder.build();
+    assertThat(stubSettings.isRefreshingChannel()).isTrue();
+    assertThat(stubSettings.getCredentialsProvider()).isInstanceOf(FixedCredentialsProvider.class);
+    assertThat(stubSettings.getCredentialsProvider().getCredentials())
+        .isEqualTo(expectedCredentials);
+    assertThat(stubSettings.toBuilder().isRefreshingChannel()).isTrue();
+    assertThat(stubSettings.toBuilder().getCredentialsProvider().getCredentials())
+        .isEqualTo(expectedCredentials);
+  }
+
+  private static class FakeCredentials extends Credentials {
+    @Override
+    public String getAuthenticationType() {
+      return "fake";
+    }
+
+    @Override
+    public Map<String, List<String>> getRequestMetadata(URI uri) throws IOException {
+      return ImmutableMap.of("my-header", Arrays.asList("fake-credential"));
+    }
+
+    @Override
+    public boolean hasRequestMetadata() {
+      return true;
+    }
+
+    @Override
+    public boolean hasRequestMetadataOnly() {
+      return true;
+    }
+
+    @Override
+    public void refresh() throws IOException {}
   }
 }

@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import java.util.List;
@@ -123,10 +124,9 @@ public final class BigtableDataSettings {
                         return input.usePlaintext();
                       }
                     })
-                .setKeepAliveTime(Duration.ofSeconds(10)) // sends ping in this interval
+                .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
                 .setKeepAliveTimeout(
                     Duration.ofSeconds(10)) // wait this long before considering the connection dead
-                .setKeepAliveWithoutCalls(true) // sends ping without active streams
                 .build());
 
     LOGGER.info("Connecting to the Bigtable emulator at " + hostname + ":" + port);
@@ -213,6 +213,11 @@ public final class BigtableDataSettings {
   /** Returns the object with the settings used for point reads via ReadRow. */
   public UnaryCallSettings<Query, Row> readRowSettings() {
     return stubSettings.readRowSettings();
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this).add("stubSettings", stubSettings).toString();
   }
 
   /** Returns a builder containing all the values of this settings class. */

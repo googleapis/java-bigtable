@@ -526,7 +526,7 @@ public class BaseBigtableTableAdminClientTest {
   @SuppressWarnings("all")
   public void getIamPolicyTest() {
     int version = 351608024;
-    ByteString etag = ByteString.copyFromUtf8("etag3123477");
+    ByteString etag = ByteString.copyFromUtf8("21");
     Policy expectedResponse = Policy.newBuilder().setVersion(version).setEtag(etag).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -566,7 +566,7 @@ public class BaseBigtableTableAdminClientTest {
   @SuppressWarnings("all")
   public void setIamPolicyTest() {
     int version = 351608024;
-    ByteString etag = ByteString.copyFromUtf8("etag3123477");
+    ByteString etag = ByteString.copyFromUtf8("21");
     Policy expectedResponse = Policy.newBuilder().setVersion(version).setEtag(etag).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -1094,7 +1094,10 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(resultOperation);
 
-    RestoreTableRequest request = RestoreTableRequest.newBuilder().build();
+    InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+    String tableId = "tableId-895419604";
+    RestoreTableRequest request =
+        RestoreTableRequest.newBuilder().setParent(parent.toString()).setTableId(tableId).build();
 
     Table actualResponse = client.restoreTableAsync(request).get();
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -1103,6 +1106,8 @@ public class BaseBigtableTableAdminClientTest {
     Assert.assertEquals(1, actualRequests.size());
     RestoreTableRequest actualRequest = (RestoreTableRequest) actualRequests.get(0);
 
+    Assert.assertEquals(parent, InstanceName.parse(actualRequest.getParent()));
+    Assert.assertEquals(tableId, actualRequest.getTableId());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
             ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
@@ -1116,7 +1121,10 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      RestoreTableRequest request = RestoreTableRequest.newBuilder().build();
+      InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+      String tableId = "tableId-895419604";
+      RestoreTableRequest request =
+          RestoreTableRequest.newBuilder().setParent(parent.toString()).setTableId(tableId).build();
 
       client.restoreTableAsync(request).get();
       Assert.fail("No exception raised");

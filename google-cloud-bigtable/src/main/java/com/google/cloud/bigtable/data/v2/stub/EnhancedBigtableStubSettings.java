@@ -20,7 +20,7 @@ import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
-import com.google.api.gax.core.GaxProperties;
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
@@ -30,6 +30,8 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
+import com.google.auth.Credentials;
+import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -38,10 +40,12 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -232,10 +236,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setPoolSize(getDefaultChannelPoolSize())
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(10)) // sends ping in this interval
+        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
         .setKeepAliveTimeout(
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        .setKeepAliveWithoutCalls(true) // sends ping without active streams
         // Attempts direct access to CBT service over gRPC to improve throughput,
         // whether the attempt is allowed is totally controlled by service owner.
         .setAttemptDirectPath(true);
@@ -524,10 +527,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .putAll(
                   BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
               // GrpcHeaderInterceptor treats the `user-agent` as a magic string
-              .put(
-                  "user-agent",
-                  "bigtable-java/"
-                      + GaxProperties.getLibraryVersion(EnhancedBigtableStubSettings.class))
+              .put("user-agent", "bigtable-java/" + Version.VERSION)
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 
@@ -544,8 +544,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       readRowSettings
           .setRetryableCodes(readRowsSettings.getRetryableCodes())
           .setRetrySettings(
-              baseDefaults
-                  .readRowsSettings()
+              readRowsSettings()
                   .getRetrySettings()
                   .toBuilder()
                   .setTotalTimeout(IDEMPOTENT_RETRY_SETTINGS.getTotalTimeout())
@@ -789,9 +788,45 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         Preconditions.checkArgument(
             getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,
             "refreshingChannel only works with InstantiatingGrpcChannelProviders");
+        InstantiatingGrpcChannelProvider.Builder channelProviderBuilder =
+            ((InstantiatingGrpcChannelProvider) getTransportChannelProvider()).toBuilder();
+        Credentials credentials = null;
+        if (getCredentialsProvider() != null) {
+          try {
+            credentials = getCredentialsProvider().getCredentials();
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+        }
+        // Use shared credentials
+        this.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+        channelProviderBuilder.setChannelPrimer(
+            BigtableChannelPrimer.create(
+                credentials, projectId, instanceId, appProfileId, primedTableIds));
+        this.setTransportChannelProvider(channelProviderBuilder.build());
       }
       return new EnhancedBigtableStubSettings(this);
     }
     // </editor-fold>
+  }
+
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+        .add("projectId", projectId)
+        .add("instanceId", instanceId)
+        .add("appProfileId", appProfileId)
+        .add("isRefreshingChannel", isRefreshingChannel)
+        .add("primedTableIds", primedTableIds)
+        .add("readRowsSettings", readRowsSettings)
+        .add("readRowSettings", readRowSettings)
+        .add("sampleRowKeysSettings", sampleRowKeysSettings)
+        .add("mutateRowSettings", mutateRowSettings)
+        .add("bulkMutateRowsSettings", bulkMutateRowsSettings)
+        .add("bulkReadRowsSettings", bulkReadRowsSettings)
+        .add("checkAndMutateRowSettings", checkAndMutateRowSettings)
+        .add("readModifyWriteRowSettings", readModifyWriteRowSettings)
+        .add("parent", super.toString())
+        .toString();
   }
 }
