@@ -93,7 +93,6 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 /**
@@ -111,8 +110,6 @@ import javax.annotation.Nonnull;
 @InternalApi
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
-
-  private static final Logger LOGGER = Logger.getLogger(EnhancedBigtableStub.class.getName());
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
@@ -428,12 +425,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> spoolable = base.all();
 
-    HeaderTracerUnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> headerMetrics =
+    HeaderTracerUnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(
             spoolable, settings.getHeaderTracer(), getSpanName(methodName).toString());
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> retryable =
-        Callables.retrying(headerMetrics, settings.sampleRowKeysSettings(), clientContext);
+        Callables.retrying(withHeaderTracer, settings.sampleRowKeysSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new SampleRowKeysCallable(retryable, requestContext));
@@ -465,12 +462,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             settings.mutateRowSettings().getRetryableCodes());
 
-    HeaderTracerUnaryCallable<MutateRowRequest, MutateRowResponse> headerMetrics =
+    HeaderTracerUnaryCallable<MutateRowRequest, MutateRowResponse> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(
             base, settings.getHeaderTracer(), getSpanName(methodName).toString());
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
-        Callables.retrying(headerMetrics, settings.mutateRowSettings(), clientContext);
+        Callables.retrying(withHeaderTracer, settings.mutateRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new MutateRowCallable(retrying, requestContext));
@@ -500,10 +497,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     SpanName spanName = getSpanName("MutateRows");
     UnaryCallable<BulkMutation, Void> traced =
         new TracedUnaryCallable<>(userFacing, clientContext.getTracerFactory(), spanName);
-    HeaderTracerUnaryCallable<BulkMutation, Void> headerMetric =
+    HeaderTracerUnaryCallable<BulkMutation, Void> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(traced, settings.getHeaderTracer(), spanName.toString());
 
-    return headerMetric.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return withHeaderTracer.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -627,12 +624,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             settings.checkAndMutateRowSettings().getRetryableCodes());
 
-    HeaderTracerUnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> headerMetric =
-        new HeaderTracerUnaryCallable<>(
-            base, settings.getHeaderTracer(), getSpanName(methodName).toString());
+    HeaderTracerUnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse>
+        withHeaderTracer =
+            new HeaderTracerUnaryCallable<>(
+                base, settings.getHeaderTracer(), getSpanName(methodName).toString());
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> retrying =
-        Callables.retrying(headerMetric, settings.checkAndMutateRowSettings(), clientContext);
+        Callables.retrying(withHeaderTracer, settings.checkAndMutateRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new CheckAndMutateRowCallable(retrying, requestContext));
@@ -665,11 +663,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             settings.readModifyWriteRowSettings().getRetryableCodes());
     String methodName = "ReadModifyWriteRow";
-    HeaderTracerUnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> headerMetrics =
-        new HeaderTracerUnaryCallable<>(
-            base, settings.getHeaderTracer(), getSpanName(methodName).toString());
+    HeaderTracerUnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse>
+        withHeaderTracer =
+            new HeaderTracerUnaryCallable<>(
+                base, settings.getHeaderTracer(), getSpanName(methodName).toString());
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> retrying =
-        Callables.retrying(headerMetrics, settings.readModifyWriteRowSettings(), clientContext);
+        Callables.retrying(withHeaderTracer, settings.readModifyWriteRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new ReadModifyWriteRowCallable(retrying, requestContext));

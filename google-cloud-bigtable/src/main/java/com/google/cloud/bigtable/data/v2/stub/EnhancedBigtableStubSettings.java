@@ -771,15 +771,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /** Configure the header tracer for surfacing metrics in the header. */
-    @BetaApi
-    public Builder setHeaderTracer(HeaderTracer headerTracer) {
+    Builder setHeaderTracer(HeaderTracer headerTracer) {
       this.headerTracer = headerTracer;
       return this;
     }
 
     /** Gets the header tracer that'll be used to surface metrics in the header. */
-    @BetaApi
-    public HeaderTracer getHeaderTracer() {
+    HeaderTracer getHeaderTracer() {
       return headerTracer;
     }
 
