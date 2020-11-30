@@ -58,7 +58,7 @@ import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
-public class ClientHeaderInterceptorTest {
+public class HeaderTracerCallableTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private FakeServiceHelper serviceHelper;
@@ -82,7 +82,7 @@ public class ClientHeaderInterceptorTest {
 
   @Before
   public void setUp() throws Exception {
-    RpcViews.registerBigtableClientViews(localStats.getViewManager());
+    RpcViews.registerBigtableClientGfeViews(localStats.getViewManager());
 
     // Create a server that'll inject a server-timing header with a random number and a stub that
     // connects to this server.

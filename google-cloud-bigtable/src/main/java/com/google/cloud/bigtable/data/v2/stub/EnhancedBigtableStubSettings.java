@@ -244,8 +244,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /** Gets the tracer for capturing metrics in the header. */
-  @BetaApi
-  public HeaderTracer getHeaderTracer() {
+  HeaderTracer getHeaderTracer() {
     return headerTracer;
   }
 
@@ -257,7 +256,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
         .setKeepAliveTimeout(
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        .setInterceptorProvider(BigtableInterceptorProvider.createDefault())
         // TODO(weiranf): Set this to true by default once DirectPath goes to public beta
         .setAttemptDirectPath(isDirectPathEnabled());
   }

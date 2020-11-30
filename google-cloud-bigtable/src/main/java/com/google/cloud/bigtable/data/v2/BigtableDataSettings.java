@@ -23,7 +23,6 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
-import com.google.cloud.bigtable.data.v2.stub.BigtableInterceptorProvider;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
@@ -128,7 +127,6 @@ public final class BigtableDataSettings {
                 .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
                 .setKeepAliveTimeout(
                     Duration.ofSeconds(10)) // wait this long before considering the connection dead
-                .setInterceptorProvider(BigtableInterceptorProvider.createDefault())
                 .build());
 
     LOGGER.info("Connecting to the Bigtable emulator at " + hostname + ":" + port);
@@ -175,6 +173,12 @@ public final class BigtableDataSettings {
     // TODO(igorbernstein): Enable grpc views once we upgrade to grpc-java 1.24.0
     // Required change: https://github.com/grpc/grpc-java/pull/5996
     // io.opencensus.contrib.grpc.metrics.RpcViews.registerClientGrpcBasicViews();
+  }
+
+  /** Enables OpenCensus GFE metric aggregations. */
+  @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
+  public static void enableGfeOpenCensusStats() {
+    com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
   /** Returns the target project id. */

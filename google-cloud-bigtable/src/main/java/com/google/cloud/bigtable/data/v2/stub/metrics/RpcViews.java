@@ -31,7 +31,10 @@ public class RpcViews {
           RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW,
           RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
           RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
+          RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW);
+
+  private static final ImmutableSet<View> GFE_VIEW_SET =
+      ImmutableSet.of(
           RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
           RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
 
@@ -40,9 +43,21 @@ public class RpcViews {
     registerBigtableClientViews(Stats.getViewManager());
   }
 
+  /** Register views for GFE metrics. */
+  public static void registerBigtableClientGfeViews() {
+    registerBigtableClientGfeViews(Stats.getViewManager());
+  }
+
   @VisibleForTesting
   static void registerBigtableClientViews(ViewManager viewManager) {
     for (View view : BIGTABLE_CLIENT_VIEWS_SET) {
+      viewManager.registerView(view);
+    }
+  }
+
+  @VisibleForTesting
+  static void registerBigtableClientGfeViews(ViewManager viewManager) {
+    for (View view : GFE_VIEW_SET) {
       viewManager.registerView(view);
     }
   }

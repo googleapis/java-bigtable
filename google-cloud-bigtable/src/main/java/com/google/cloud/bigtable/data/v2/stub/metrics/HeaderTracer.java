@@ -15,13 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
+import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
-import io.grpc.CallOptions;
-import io.opencensus.stats.Measure.MeasureDouble;
-import io.opencensus.stats.Measure.MeasureLong;
+import io.grpc.Metadata;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -30,134 +28,97 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import java.util.Collections;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-@BetaApi
-public class HeaderTracer {
-  public static final CallOptions.Key<HeaderTracer> HEADER_TRACER_CONTEXT_KEY =
-      CallOptions.Key.create("BigtableHeaderTracer");
-  public static final CallOptions.Key<String> SPAN_NAME_CONTEXT_KEY =
-      CallOptions.Key.create("BigtableSpanName");
+@InternalApi
+@AutoValue
+public abstract class HeaderTracer {
 
-  private Tagger tagger;
-  private StatsRecorder stats;
-  private Map<TagKey, TagValue> statsAttributes;
+  public static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
+      Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
+  public static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
 
-  private HeaderTracer(Builder builder) {
-    tagger = builder.getTagger();
-    stats = builder.getStats();
-    statsAttributes = builder.getStatsAttributes();
-  }
-
-  public static class Builder {
-    private Tagger tagger;
-    private StatsRecorder stats;
-    private Map<TagKey, TagValue> statsAttributes;
-
-    private Builder() {
-      tagger = Tags.getTagger();
-      stats = Stats.getStatsRecorder();
-      statsAttributes = ImmutableMap.of();
-    }
-
-    private Builder(HeaderTracer headerTracer) {
-      tagger = headerTracer.tagger;
-      stats = headerTracer.stats;
-      statsAttributes = headerTracer.statsAttributes;
-    }
-
+  @AutoValue.Builder
+  public abstract static class Builder {
     // <editor-fold desc="Public API">
-    public Builder setTagger(@Nonnull Tagger tagger) {
-      Preconditions.checkNotNull(tagger);
-      this.tagger = tagger;
-      return this;
-    }
+    public abstract Builder setTagger(@Nonnull Tagger tagger);
 
-    public Builder setStats(@Nonnull StatsRecorder stats) {
-      Preconditions.checkNotNull(stats);
-      this.stats = stats;
-      return this;
-    }
+    public abstract Builder setStats(@Nonnull StatsRecorder stats);
 
-    public Builder setStatsAttributes(@Nonnull Map<TagKey, TagValue> statsAttributes) {
-      Preconditions.checkNotNull(statsAttributes);
-      this.statsAttributes = statsAttributes;
-      return this;
-    }
+    public abstract Builder setStatsAttributes(@Nonnull Map<TagKey, TagValue> statsAttributes);
 
-    public Tagger getTagger() {
-      return tagger;
-    }
+    public abstract Tagger getTagger();
 
-    public StatsRecorder getStats() {
-      return stats;
-    }
+    public abstract StatsRecorder getStats();
 
-    public Map<TagKey, TagValue> getStatsAttributes() {
-      return statsAttributes;
-    }
+    public abstract Map<TagKey, TagValue> getStatsAttributes();
+
+    abstract HeaderTracer autoBuild();
 
     public HeaderTracer build() {
-      Preconditions.checkNotNull(stats, "StatsRecorder must be set");
-      Preconditions.checkNotNull(tagger, "Tagger must be set");
-      Preconditions.checkNotNull(statsAttributes, "Stats attributes must be set");
-      return new HeaderTracer(this);
+      HeaderTracer headerTracer = autoBuild();
+      Preconditions.checkNotNull(headerTracer.getStats(), "StatsRecorder must be set");
+      Preconditions.checkNotNull(headerTracer.getTagger(), "Tagger must be set");
+      Preconditions.checkNotNull(headerTracer.getStatsAttributes(), "Stats attributes must be set");
+      return headerTracer;
     }
     // </editor-fold>
   }
 
-  public Tagger getTagger() {
-    return tagger;
-  }
+  public abstract Tagger getTagger();
 
-  public StatsRecorder getStats() {
-    return stats;
-  }
+  public abstract StatsRecorder getStats();
 
-  public Map<TagKey, TagValue> getStatsAttributes() {
-    return statsAttributes;
-  }
+  public abstract Map<TagKey, TagValue> getStatsAttributes();
 
-  public void record(MeasureLong measure, long value, @Nullable String span) {
-    Preconditions.checkNotNull(measure, "Measure cannot be null.");
-    MeasureMap measures = stats.newMeasureMap().put(measure, value);
-    measures.record(newTagCtxBuilder(span).build());
-  }
-
-  public void record(MeasureDouble measure, double value, @Nullable String span) {
-    Preconditions.checkNotNull(measure, "Measure cannot be null.");
-    MeasureMap measures = stats.newMeasureMap().put(measure, value);
-    measures.record(newTagCtxBuilder(span).build());
+  public void recordGfeMetrics(@Nonnull Metadata metadata, String spanName) {
+    MeasureMap measures = getStats().newMeasureMap();
+    if (metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
+      String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
+      Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
+      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
+      if (matcher.find()) {
+        long latency = Long.valueOf(matcher.group("dur"));
+        measures.put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency);
+      }
+    } else {
+      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
+    }
+    measures.record(newTagCtxBuilder(spanName).build());
   }
 
   private TagContextBuilder newTagCtxBuilder(@Nullable String span) {
-    TagContextBuilder tagContextBuilder = tagger.currentBuilder();
+    TagContextBuilder tagContextBuilder = getTagger().currentBuilder();
     if (span != null) {
       tagContextBuilder.putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(span));
     }
     // Copy client level tags in
-    for (Map.Entry<TagKey, TagValue> entry : statsAttributes.entrySet()) {
+    for (Map.Entry<TagKey, TagValue> entry : getStatsAttributes().entrySet()) {
       tagContextBuilder.putLocal(entry.getKey(), entry.getValue());
     }
     return tagContextBuilder;
   }
 
   public static Builder newBuilder() {
-    return new Builder();
+    return new AutoValue_HeaderTracer.Builder()
+        .setTagger(Tags.getTagger())
+        .setStats(Stats.getStatsRecorder())
+        .setStatsAttributes(Collections.<TagKey, TagValue>emptyMap());
   }
 
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
+  public abstract Builder toBuilder();
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("stats", stats)
-        .add("tagger", tagger)
-        .add("statsAttributes", stats)
+        .add("stats", getStats())
+        .add("tagger", getTagger())
+        .add("statsAttributes", getStatsAttributes())
         .toString();
   }
 }
