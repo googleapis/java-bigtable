@@ -21,17 +21,33 @@ import static org.mockito.Mockito.doAnswer;
 
 import com.google.api.gax.rpc.ClientContext;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.CheckAndMutateRowRequest;
+import com.google.bigtable.v2.CheckAndMutateRowResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
+import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.ReadModifyWriteRowRequest;
+import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
+import com.google.bigtable.v2.SampleRowKeysRequest;
+import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
+import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
+import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.ByteString;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
@@ -172,7 +188,7 @@ public class HeaderTracerCallableTest {
   }
 
   @Test
-  public void testGFELatencyMetricMutateRows() throws InterruptedException {
+  public void testGFELatencyMetricMutateRow() throws InterruptedException {
     doAnswer(new MutateRowAnswer())
         .when(fakeService)
         .mutateRow(any(MutateRowRequest.class), anyObserver(MutateRowResponse.class));
@@ -190,6 +206,102 @@ public class HeaderTracerCallableTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
 
+    assertThat(latency).isEqualTo(fakeServerTiming);
+  }
+
+  @Test
+  public void testGFELatencyMetricMutateRows() throws InterruptedException {
+    doAnswer(new MutateRowsAnswer())
+        .when(fakeService)
+        .mutateRows(any(MutateRowsRequest.class), anyObserver(MutateRowsResponse.class));
+
+    BulkMutation mutations =
+        BulkMutation.create(TABLE_ID)
+            .add("key", Mutation.create().setCell("fake-family", "fake-qualifier", "fake-value"));
+    stub.bulkMutateRowsCallable().call(mutations);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+
+    assertThat(latency).isEqualTo(fakeServerTiming);
+  }
+
+  @Test
+  public void testGFELatencySampleRowKeys() throws InterruptedException {
+    doAnswer(new SampleRowKeysAnswer())
+        .when(fakeService)
+        .sampleRowKeys(any(SampleRowKeysRequest.class), anyObserver(SampleRowKeysResponse.class));
+    stub.sampleRowKeysCallable().call(TABLE_ID);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.SampleRowKeys")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(latency).isEqualTo(fakeServerTiming);
+  }
+
+  @Test
+  public void testGFELatencyCheckAndMutateRow() throws InterruptedException {
+    doAnswer(new CheckAndMutateRowAnswer())
+        .when(fakeService)
+        .checkAndMutateRow(
+            any(CheckAndMutateRowRequest.class), anyObserver(CheckAndMutateRowResponse.class));
+
+    ConditionalRowMutation mutation =
+        ConditionalRowMutation.create(TABLE_ID, "fake-key")
+            .then(Mutation.create().setCell("fake-family", "fake-qualifier", "fake-value"));
+    stub.checkAndMutateRowCallable().call(mutation);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.CheckAndMutateRow")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(latency).isEqualTo(fakeServerTiming);
+  }
+
+  @Test
+  public void testGFELatencyReadModifyWriteRow() throws InterruptedException {
+    doAnswer(new ReadModifyWriteRowAnswer())
+        .when(fakeService)
+        .readModifyWriteRow(
+            any(ReadModifyWriteRowRequest.class), anyObserver(ReadModifyWriteRowResponse.class));
+
+    ReadModifyWriteRow request =
+        ReadModifyWriteRow.create(TABLE_ID, "fake-key")
+            .append("fake-family", "fake-qualifier", "suffix");
+    stub.readModifyWriteRowCallable().call(request);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadModifyWriteRow")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
     assertThat(latency).isEqualTo(fakeServerTiming);
   }
 
@@ -266,6 +378,17 @@ public class HeaderTracerCallableTest {
     assertThat(readRowsMissingCount).isEqualTo(readRowsCalls);
   }
 
+  private class ReadRowAnswer implements Answer {
+    @Override
+    public Object answer(InvocationOnMock invocation) throws Throwable {
+      StreamObserver<Row> observer = (StreamObserver<Row>) invocation.getArguments()[1];
+      observer.onNext(
+          Row.create(ByteString.copyFromUtf8("fake-row-key"), ImmutableList.<RowCell>of()));
+      observer.onCompleted();
+      return null;
+    }
+  }
+
   private class ReadRowsAnswer implements Answer {
     @Override
     public Object answer(InvocationOnMock invocation) throws Throwable {
@@ -283,6 +406,50 @@ public class HeaderTracerCallableTest {
       StreamObserver<MutateRowResponse> observer =
           (StreamObserver<MutateRowResponse>) invocation.getArguments()[1];
       observer.onNext(MutateRowResponse.getDefaultInstance());
+      observer.onCompleted();
+      return null;
+    }
+  }
+
+  private class MutateRowsAnswer implements Answer {
+    @Override
+    public Object answer(InvocationOnMock invocation) throws Throwable {
+      StreamObserver<MutateRowsResponse> observer =
+          (StreamObserver<MutateRowsResponse>) invocation.getArguments()[1];
+      observer.onNext(MutateRowsResponse.getDefaultInstance());
+      observer.onCompleted();
+      return null;
+    }
+  }
+
+  private class SampleRowKeysAnswer implements Answer {
+    @Override
+    public Object answer(InvocationOnMock invocation) throws Throwable {
+      StreamObserver<SampleRowKeysResponse> observer =
+          (StreamObserver<SampleRowKeysResponse>) invocation.getArguments()[1];
+      observer.onNext(SampleRowKeysResponse.getDefaultInstance());
+      observer.onCompleted();
+      return null;
+    }
+  }
+
+  private class CheckAndMutateRowAnswer implements Answer {
+    @Override
+    public Object answer(InvocationOnMock invocation) throws Throwable {
+      StreamObserver<CheckAndMutateRowResponse> observer =
+          (StreamObserver<CheckAndMutateRowResponse>) invocation.getArguments()[1];
+      observer.onNext(CheckAndMutateRowResponse.getDefaultInstance());
+      observer.onCompleted();
+      return null;
+    }
+  }
+
+  private class ReadModifyWriteRowAnswer implements Answer {
+    @Override
+    public Object answer(InvocationOnMock invocation) throws Throwable {
+      StreamObserver<ReadModifyWriteRowResponse> observer =
+          (StreamObserver<ReadModifyWriteRowResponse>) invocation.getArguments()[1];
+      observer.onNext(ReadModifyWriteRowResponse.getDefaultInstance());
       observer.onCompleted();
       return null;
     }
