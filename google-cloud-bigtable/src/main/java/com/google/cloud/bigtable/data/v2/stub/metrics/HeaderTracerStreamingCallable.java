@@ -77,23 +77,7 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      outerObserver.onStart(
-          new StreamController() {
-            @Override
-            public void cancel() {
-              controller.cancel();
-            }
-
-            @Override
-            public void disableAutoInboundFlowControl() {
-              controller.disableAutoInboundFlowControl();
-            }
-
-            @Override
-            public void request(int count) {
-              controller.request(count);
-            }
-          });
+      outerObserver.onStart(controller);
     }
 
     @Override
