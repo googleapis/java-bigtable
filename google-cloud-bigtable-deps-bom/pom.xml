@@ -12,7 +12,7 @@
 
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-  <version>1.18.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+  <version>1.19.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
 
   <packaging>pom</packaging>
   <description>
@@ -79,7 +79,7 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-shared-dependencies</artifactId>
-        <version>0.15.0</version>
+        <version>0.16.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
