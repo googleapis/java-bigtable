@@ -141,7 +141,7 @@ class RpcViewConstants {
   static final View BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW =
       View.create(
           View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
-          "Number of RPC responses without the server-timing header, most likely means that the RPC never reached Google's network",
+          "Number of RPC responses received without the server-timing header, most likely means that the RPC never reached Google's network",
           BIGTABLE_GFE_HEADER_MISSING_COUNT,
           SUM,
           ImmutableList.of(

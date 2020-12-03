@@ -33,7 +33,7 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public class HeaderTracerTest {
 
-  private StatsComponent localStats = new StatsComponentImpl();
+  private final StatsComponent localStats = new StatsComponentImpl();
 
   @Test
   public void testDefaultBuilder() {

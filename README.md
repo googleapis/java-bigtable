@@ -268,7 +268,7 @@ metrics will be tagged with:
   each operation required, tagged by operation name and final operation status.
   Under normal circumstances, this will be 1.
 
-#### GFE metric views:
+### GFE metric views:
 
 * `cloud.google.com/java/bigtable/gfe_latency`: A distribution of the latency
   between Google's network receives an RPC and reads back the first byte of
