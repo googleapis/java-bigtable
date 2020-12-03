@@ -36,12 +36,13 @@ public class HeaderTracerTest {
   private StatsComponent localStats = new StatsComponentImpl();
 
   @Test
-  public void testEmptyBuilder() {
+  public void testDefaultBuilder() {
     HeaderTracer.Builder builder = HeaderTracer.newBuilder();
-    assertThat(builder.getStats()).isNotNull();
-    assertThat(builder.getTagger()).isNotNull();
-    assertThat(builder.getStatsAttributes()).isNotNull();
-    assertThat(builder.getStatsAttributes()).isEmpty();
+    HeaderTracer tracer = builder.build();
+    assertThat(tracer.getStats()).isNotNull();
+    assertThat(tracer.getTagger()).isNotNull();
+    assertThat(tracer.getStatsAttributes()).isNotNull();
+    assertThat(tracer.getStatsAttributes()).isEmpty();
   }
 
   @Test
@@ -69,8 +70,8 @@ public class HeaderTracerTest {
     HeaderTracer headerTracer = builder.build();
 
     HeaderTracer.Builder newBuilder = headerTracer.toBuilder();
-    assertThat(newBuilder.getStats()).isEqualTo(stats);
-    assertThat(newBuilder.getTagger()).isEqualTo(tagger);
-    assertThat(newBuilder.getStatsAttributes()).isEqualTo(attrs);
+    assertThat(newBuilder.build().getStats()).isEqualTo(stats);
+    assertThat(newBuilder.build().getTagger()).isEqualTo(tagger);
+    assertThat(newBuilder.build().getStatsAttributes()).isEqualTo(attrs);
   }
 }

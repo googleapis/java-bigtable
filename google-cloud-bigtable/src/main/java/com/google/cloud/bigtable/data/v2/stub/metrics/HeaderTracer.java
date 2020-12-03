@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
 import io.grpc.Metadata;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.Stats;
@@ -33,15 +32,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 @InternalApi
 @AutoValue
 public abstract class HeaderTracer {
 
-  public static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
+  private static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
       Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
-  public static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
+  private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
 
   @AutoValue.Builder
   public abstract static class Builder {
@@ -52,19 +50,10 @@ public abstract class HeaderTracer {
 
     public abstract Builder setStatsAttributes(@Nonnull Map<TagKey, TagValue> statsAttributes);
 
-    public abstract Tagger getTagger();
-
-    public abstract StatsRecorder getStats();
-
-    public abstract Map<TagKey, TagValue> getStatsAttributes();
-
     abstract HeaderTracer autoBuild();
 
     public HeaderTracer build() {
       HeaderTracer headerTracer = autoBuild();
-      Preconditions.checkNotNull(headerTracer.getStats(), "StatsRecorder must be set");
-      Preconditions.checkNotNull(headerTracer.getTagger(), "Tagger must be set");
-      Preconditions.checkNotNull(headerTracer.getStatsAttributes(), "Stats attributes must be set");
       return headerTracer;
     }
     // </editor-fold>
@@ -76,7 +65,11 @@ public abstract class HeaderTracer {
 
   public abstract Map<TagKey, TagValue> getStatsAttributes();
 
-  public void recordGfeMetrics(@Nonnull Metadata metadata, String spanName) {
+  /**
+   * If the header has a server-timing field, extract the metric and publish it to OpenCensus.
+   * Otherwise increment the gfe header missing counter by 1.
+   */
+  public void recordGfeMetadata(@Nonnull Metadata metadata, @Nonnull String spanName) {
     MeasureMap measures = getStats().newMeasureMap();
     if (metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
       String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
@@ -92,7 +85,13 @@ public abstract class HeaderTracer {
     measures.record(newTagCtxBuilder(spanName).build());
   }
 
-  private TagContextBuilder newTagCtxBuilder(@Nullable String span) {
+  public void recordGfeMissingHeader(@Nonnull String spanName) {
+    MeasureMap measures =
+        getStats().newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
+    measures.record(newTagCtxBuilder(spanName).build());
+  }
+
+  private TagContextBuilder newTagCtxBuilder(String span) {
     TagContextBuilder tagContextBuilder = getTagger().currentBuilder();
     if (span != null) {
       tagContextBuilder.putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(span));

@@ -21,11 +21,20 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
+import com.google.common.base.Preconditions;
 import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
 /**
- * Record GFE metrics.
+ * This callable will inject a {@link GrpcResponseMetadata} to access the headers and trailers
+ * returned by gRPC methods upon completion. The {@link HeaderTracer} will process metrics that were
+ * injected in the header/trailer and publish them to OpenCensus. If {@link
+ * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
+ * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
+ *
+ * <p>If GFE metrics are not registered in {@link RpcViews}, skip injecting GrpcResponseMetadata.
+ * This is for the case where direct path is enabled, all the requests won't go through GFE and
+ * therefore won't have the server-timing header.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -34,7 +43,7 @@ import javax.annotation.Nonnull;
 public class HeaderTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
-  private ServerStreamingCallable<RequestT, ResponseT> innerCallable;
+  private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
   private HeaderTracer headerTracer;
   private String spanName;
 
@@ -42,6 +51,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable,
       @Nonnull HeaderTracer headerTracer,
       @Nonnull String spanName) {
+    Preconditions.checkNotNull(callable, "Inner callable must be set");
+    Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
+    Preconditions.checkNotNull(spanName, "Span name must be set");
     this.innerCallable = callable;
     this.headerTracer = headerTracer;
     this.spanName = spanName;
@@ -51,10 +63,14 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
     final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-    HeaderTracerResponseObserver<ResponseT> innerObserver =
-        new HeaderTracerResponseObserver<>(
-            responseObserver, headerTracer, responseMetadata, spanName);
-    innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
+    if (RpcViews.isGfeMetricsRegistered()) {
+      HeaderTracerResponseObserver<ResponseT> innerObserver =
+          new HeaderTracerResponseObserver<>(
+              responseObserver, headerTracer, responseMetadata, spanName);
+      innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
+    } else {
+      innerCallable.call(request, responseObserver, context);
+    }
   }
 
   private class HeaderTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
@@ -87,9 +103,13 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onError(Throwable t) {
+      // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
+      // so it's not checking trailing metadata here.
       Metadata metadata = responseMetadata.getMetadata();
       if (metadata != null) {
-        headerTracer.recordGfeMetrics(metadata, spanName);
+        headerTracer.recordGfeMetadata(metadata, spanName);
+      } else {
+        headerTracer.recordGfeMissingHeader(spanName);
       }
       outerObserver.onError(t);
     }
@@ -98,7 +118,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
     public void onComplete() {
       Metadata metadata = responseMetadata.getMetadata();
       if (metadata != null) {
-        headerTracer.recordGfeMetrics(metadata, spanName);
+        headerTracer.recordGfeMetadata(metadata, spanName);
+      } else {
+        headerTracer.recordGfeMissingHeader(spanName);
       }
       outerObserver.onComplete();
     }

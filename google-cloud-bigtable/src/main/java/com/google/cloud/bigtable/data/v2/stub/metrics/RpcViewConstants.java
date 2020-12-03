@@ -132,7 +132,7 @@ class RpcViewConstants {
   static final View BIGTABLE_GFE_LATENCY_VIEW =
       View.create(
           View.Name.create("cloud.google.com/java/bigtable/gfe_latency"),
-          "GFE t4t7 latency in msecs",
+          "Latency between Google's network receives an RPC and reads back the first byte of the response",
           BIGTABLE_GFE_LATENCY,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           ImmutableList.of(
@@ -141,7 +141,7 @@ class RpcViewConstants {
   static final View BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW =
       View.create(
           View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
-          "Number of responses without the server-timing header",
+          "Number of RPC responses without the server-timing header, most likely means that the RPC never reached Google's network",
           BIGTABLE_GFE_HEADER_MISSING_COUNT,
           SUM,
           ImmutableList.of(

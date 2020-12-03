@@ -79,13 +79,13 @@ public class RpcMeasureConstants {
   public static final MeasureLong BIGTABLE_GFE_LATENCY =
       MeasureLong.create(
           "cloud.google.com/java/bigtable/gfe_latency",
-          "GFE t4t7 latency. Time between GFE receives the first byte of a request and reads the first byte of the response",
+          "Latency between Google's network receives an RPC and reads back the first byte of the response",
           MILLISECOND);
 
   /** Number of responses without the server-timing header. */
   public static final MeasureLong BIGTABLE_GFE_HEADER_MISSING_COUNT =
       MeasureLong.create(
           "cloud.google.com/java/bigtable/gfe_header_missing_count",
-          "Number of responses without the server-timing header",
+          "Number of RPC responses without the server-timing header, most likely means that the RPC never reached Google's network",
           COUNT);
 }

@@ -20,11 +20,21 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.Metadata;
+import javax.annotation.Nonnull;
 
 /**
- * Record GFE metrics.
+ * This callable will inject a {@link GrpcResponseMetadata} to access the headers and trailers
+ * returned by gRPC methods upon completion. The {@link HeaderTracer} will process metrics that were
+ * injected in the header/trailer and publish them to OpenCensus. If {@link
+ * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
+ * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
+ *
+ * <p>If GFE metrics are not registered in {@link RpcViews}, skip injecting GrpcResponseMetadata.
+ * This is for the case where direct path is enabled, all the requests won't go through GFE and
+ * therefore won't have the server-timing header.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -33,33 +43,44 @@ import io.grpc.Metadata;
 public class HeaderTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
-  private UnaryCallable<RequestT, ResponseT> innerCallable;
-  private HeaderTracer tracer;
+  private final UnaryCallable<RequestT, ResponseT> innerCallable;
+  private HeaderTracer headerTracer;
   private String spanName;
 
   public HeaderTracerUnaryCallable(
-      UnaryCallable<RequestT, ResponseT> callable, HeaderTracer tracer, String spanName) {
-    this.innerCallable = callable;
-    this.tracer = tracer;
+      @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable,
+      @Nonnull HeaderTracer headerTracer,
+      @Nonnull String spanName) {
+    Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
+    Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
+    Preconditions.checkNotNull(spanName, "Span name must be set");
+    this.innerCallable = innerCallable;
+    this.headerTracer = headerTracer;
     this.spanName = spanName;
   }
 
   @Override
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
-    final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-    ApiFuture<ResponseT> future =
-        innerCallable.futureCall(request, responseMetadata.addHandlers(context));
-    future.addListener(
-        new Runnable() {
-          @Override
-          public void run() {
-            Metadata metadata = responseMetadata.getMetadata();
-            if (metadata != null) {
-              tracer.recordGfeMetrics(metadata, spanName);
+    if (RpcViews.isGfeMetricsRegistered()) {
+      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+      ApiFuture<ResponseT> future =
+          innerCallable.futureCall(request, responseMetadata.addHandlers(context));
+      future.addListener(
+          new Runnable() {
+            @Override
+            public void run() {
+              Metadata metadata = responseMetadata.getMetadata();
+              if (metadata != null) {
+                headerTracer.recordGfeMetadata(metadata, spanName);
+              } else {
+                headerTracer.recordGfeMissingHeader(spanName);
+              }
             }
-          }
-        },
-        MoreExecutors.directExecutor());
-    return future;
+          },
+          MoreExecutors.directExecutor());
+      return future;
+    } else {
+      return innerCallable.futureCall(request, context);
+    }
   }
 }
