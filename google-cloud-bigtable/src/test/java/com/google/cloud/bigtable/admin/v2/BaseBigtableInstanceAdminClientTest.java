@@ -127,7 +127,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     Operation resultOperation =
@@ -139,7 +139,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(resultOperation);
 
     ProjectName parent = ProjectName.of("[PROJECT]");
-    String instanceId = "instance_id-2101995259";
+    String instanceId = "instanceId902024336";
     Instance instance = Instance.newBuilder().build();
     Map<String, Cluster> clusters = new HashMap<>();
 
@@ -168,7 +168,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       ProjectName parent = ProjectName.of("[PROJECT]");
-      String instanceId = "instance_id-2101995259";
+      String instanceId = "instanceId902024336";
       Instance instance = Instance.newBuilder().build();
       Map<String, Cluster> clusters = new HashMap<>();
       client.createInstanceAsync(parent, instanceId, instance, clusters).get();
@@ -185,7 +185,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     Operation resultOperation =
@@ -197,7 +197,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(resultOperation);
 
     String parent = "parent-995424086";
-    String instanceId = "instance_id-2101995259";
+    String instanceId = "instanceId902024336";
     Instance instance = Instance.newBuilder().build();
     Map<String, Cluster> clusters = new HashMap<>();
 
@@ -226,7 +226,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String instanceId = "instance_id-2101995259";
+      String instanceId = "instanceId902024336";
       Instance instance = Instance.newBuilder().build();
       Map<String, Cluster> clusters = new HashMap<>();
       client.createInstanceAsync(parent, instanceId, instance, clusters).get();
@@ -243,7 +243,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
@@ -283,7 +283,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
@@ -324,7 +324,7 @@ public class BaseBigtableInstanceAdminClientTest {
         ListInstancesResponse.newBuilder()
             .addAllInstances(new ArrayList<Instance>())
             .addAllFailedLocations(new ArrayList<String>())
-            .setNextPageToken("next_page_token-1530815211")
+            .setNextPageToken("nextPageToken-1386094857")
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -364,7 +364,7 @@ public class BaseBigtableInstanceAdminClientTest {
         ListInstancesResponse.newBuilder()
             .addAllInstances(new ArrayList<Instance>())
             .addAllFailedLocations(new ArrayList<String>())
-            .setNextPageToken("next_page_token-1530815211")
+            .setNextPageToken("nextPageToken-1386094857")
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -403,7 +403,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
@@ -411,7 +411,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance request =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
 
@@ -442,7 +442,7 @@ public class BaseBigtableInstanceAdminClientTest {
       Instance request =
           Instance.newBuilder()
               .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-              .setDisplayName("display_name1615086568")
+              .setDisplayName("displayName1714148973")
               .putAllLabels(new HashMap<String, String>())
               .build();
       client.updateInstance(request);
@@ -457,7 +457,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Instance expectedResponse =
         Instance.newBuilder()
             .setName(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setDisplayName("display_name1615086568")
+            .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .build();
     Operation resultOperation =
@@ -589,7 +589,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(resultOperation);
 
     InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-    String clusterId = "cluster_id240280960";
+    String clusterId = "clusterId561939637";
     Cluster cluster = Cluster.newBuilder().build();
 
     Cluster actualResponse = client.createClusterAsync(parent, clusterId, cluster).get();
@@ -615,7 +615,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-      String clusterId = "cluster_id240280960";
+      String clusterId = "clusterId561939637";
       Cluster cluster = Cluster.newBuilder().build();
       client.createClusterAsync(parent, clusterId, cluster).get();
       Assert.fail("No exception raised");
@@ -643,7 +643,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(resultOperation);
 
     String parent = "parent-995424086";
-    String clusterId = "cluster_id240280960";
+    String clusterId = "clusterId561939637";
     Cluster cluster = Cluster.newBuilder().build();
 
     Cluster actualResponse = client.createClusterAsync(parent, clusterId, cluster).get();
@@ -669,7 +669,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String clusterId = "cluster_id240280960";
+      String clusterId = "clusterId561939637";
       Cluster cluster = Cluster.newBuilder().build();
       client.createClusterAsync(parent, clusterId, cluster).get();
       Assert.fail("No exception raised");
@@ -766,7 +766,7 @@ public class BaseBigtableInstanceAdminClientTest {
         ListClustersResponse.newBuilder()
             .addAllClusters(new ArrayList<Cluster>())
             .addAllFailedLocations(new ArrayList<String>())
-            .setNextPageToken("next_page_token-1530815211")
+            .setNextPageToken("nextPageToken-1386094857")
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -806,7 +806,7 @@ public class BaseBigtableInstanceAdminClientTest {
         ListClustersResponse.newBuilder()
             .addAllClusters(new ArrayList<Cluster>())
             .addAllFailedLocations(new ArrayList<String>())
-            .setNextPageToken("next_page_token-1530815211")
+            .setNextPageToken("nextPageToken-1386094857")
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -981,7 +981,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
     InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-    String appProfileId = "app_profile_id1262094415";
+    String appProfileId = "appProfileId704923523";
     AppProfile appProfile = AppProfile.newBuilder().build();
 
     AppProfile actualResponse = client.createAppProfile(parent, appProfileId, appProfile);
@@ -1007,7 +1007,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-      String appProfileId = "app_profile_id1262094415";
+      String appProfileId = "appProfileId704923523";
       AppProfile appProfile = AppProfile.newBuilder().build();
       client.createAppProfile(parent, appProfileId, appProfile);
       Assert.fail("No exception raised");
@@ -1027,7 +1027,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
     String parent = "parent-995424086";
-    String appProfileId = "app_profile_id1262094415";
+    String appProfileId = "appProfileId704923523";
     AppProfile appProfile = AppProfile.newBuilder().build();
 
     AppProfile actualResponse = client.createAppProfile(parent, appProfileId, appProfile);
@@ -1053,7 +1053,7 @@ public class BaseBigtableInstanceAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String appProfileId = "app_profile_id1262094415";
+      String appProfileId = "appProfileId704923523";
       AppProfile appProfile = AppProfile.newBuilder().build();
       client.createAppProfile(parent, appProfileId, appProfile);
       Assert.fail("No exception raised");
