@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.cloud.bigtable.admin.v2;
 
 import com.google.api.core.ApiFunction;
@@ -76,7 +77,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Generated;
 
-// AUTO-GENERATED DOCUMENTATION AND SERVICE
+// AUTO-GENERATED DOCUMENTATION AND CLASS.
 /** For internal use only. */
 @Generated("by gapic-generator")
 @InternalApi
@@ -102,7 +103,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
 
   /**
    * Constructs an instance of BaseBigtableInstanceAdminClient, using the given stub for making
-   * calls. This is for advanced usage - prefer to use BaseBigtableInstanceAdminSettings}.
+   * calls. This is for advanced usage - prefer using create(BaseBigtableInstanceAdminSettings).
    */
   @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
   public static final BaseBigtableInstanceAdminClient create(BigtableInstanceAdminStub stub) {
@@ -141,31 +142,17 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * Returns the OperationsClient that can be used to query the status of a long-running operation
    * returned by another API method call.
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationsClient getOperationsClient() {
     return operationsClient;
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Create an instance within a project.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   String instanceId = "";
-   *   Instance instance = Instance.newBuilder().build();
-   *   Map&lt;String, Cluster&gt; clusters = new HashMap&lt;&gt;();
-   *   Instance response = baseBigtableInstanceAdminClient.createInstanceAsync(parent, instanceId, instance, clusters).get();
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the project in which to create the new instance.
    *     Values are of the form `projects/{project}`.
-   * @param instanceId Required. The ID to be used when referring to the new instance within its
+   * @param instance_id Required. The ID to be used when referring to the new instance within its
    *     project, e.g., just `myinstance` rather than `projects/myproject/instances/myinstance`.
    * @param instance Required. The instance to create. Fields marked `OutputOnly` must be left
    *     blank.
@@ -175,8 +162,6 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     must be left blank. Currently, at most four clusters can be specified.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Instance, CreateInstanceMetadata> createInstanceAsync(
       ProjectName parent, String instanceId, Instance instance, Map<String, Cluster> clusters) {
     CreateInstanceRequest request =
@@ -189,25 +174,13 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createInstanceAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Create an instance within a project.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   String instanceId = "";
-   *   Instance instance = Instance.newBuilder().build();
-   *   Map&lt;String, Cluster&gt; clusters = new HashMap&lt;&gt;();
-   *   Instance response = baseBigtableInstanceAdminClient.createInstanceAsync(parent.toString(), instanceId, instance, clusters).get();
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the project in which to create the new instance.
    *     Values are of the form `projects/{project}`.
-   * @param instanceId Required. The ID to be used when referring to the new instance within its
+   * @param instance_id Required. The ID to be used when referring to the new instance within its
    *     project, e.g., just `myinstance` rather than `projects/myproject/instances/myinstance`.
    * @param instance Required. The instance to create. Fields marked `OutputOnly` must be left
    *     blank.
@@ -217,8 +190,6 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     must be left blank. Currently, at most four clusters can be specified.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Instance, CreateInstanceMetadata> createInstanceAsync(
       String parent, String instanceId, Instance instance, Map<String, Cluster> clusters) {
     CreateInstanceRequest request =
@@ -231,108 +202,42 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createInstanceAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Create an instance within a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   String instanceId = "";
-   *   Instance instance = Instance.newBuilder().build();
-   *   Map&lt;String, Cluster&gt; clusters = new HashMap&lt;&gt;();
-   *   CreateInstanceRequest request = CreateInstanceRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setInstanceId(instanceId)
-   *     .setInstance(instance)
-   *     .putAllClusters(clusters)
-   *     .build();
-   *   Instance response = baseBigtableInstanceAdminClient.createInstanceAsync(request).get();
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Instance, CreateInstanceMetadata> createInstanceAsync(
       CreateInstanceRequest request) {
     return createInstanceOperationCallable().futureCall(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Create an instance within a project.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   String instanceId = "";
-   *   Instance instance = Instance.newBuilder().build();
-   *   Map&lt;String, Cluster&gt; clusters = new HashMap&lt;&gt;();
-   *   CreateInstanceRequest request = CreateInstanceRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setInstanceId(instanceId)
-   *     .setInstance(instance)
-   *     .putAllClusters(clusters)
-   *     .build();
-   *   OperationFuture&lt;Instance, CreateInstanceMetadata&gt; future = baseBigtableInstanceAdminClient.createInstanceOperationCallable().futureCall(request);
-   *   // Do something
-   *   Instance response = future.get();
-   * }
-   * </code></pre>
    */
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public final OperationCallable<CreateInstanceRequest, Instance, CreateInstanceMetadata>
       createInstanceOperationCallable() {
     return stub.createInstanceOperationCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Create an instance within a project.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   String instanceId = "";
-   *   Instance instance = Instance.newBuilder().build();
-   *   Map&lt;String, Cluster&gt; clusters = new HashMap&lt;&gt;();
-   *   CreateInstanceRequest request = CreateInstanceRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setInstanceId(instanceId)
-   *     .setInstance(instance)
-   *     .putAllClusters(clusters)
-   *     .build();
-   *   ApiFuture&lt;Operation&gt; future = baseBigtableInstanceAdminClient.createInstanceCallable().futureCall(request);
-   *   // Do something
-   *   Operation response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<CreateInstanceRequest, Operation> createInstanceCallable() {
     return stub.createInstanceCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   Instance response = baseBigtableInstanceAdminClient.getInstance(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested instance. Values are of the form
    *     `projects/{project}/instances/{instance}`.
@@ -344,18 +249,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getInstance(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   Instance response = baseBigtableInstanceAdminClient.getInstance(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested instance. Values are of the form
    *     `projects/{project}/instances/{instance}`.
@@ -366,21 +262,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getInstance(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   GetInstanceRequest request = GetInstanceRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   Instance response = baseBigtableInstanceAdminClient.getInstance(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -389,40 +273,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getInstanceCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   GetInstanceRequest request = GetInstanceRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   ApiFuture&lt;Instance&gt; future = baseBigtableInstanceAdminClient.getInstanceCallable().futureCall(request);
-   *   // Do something
-   *   Instance response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<GetInstanceRequest, Instance> getInstanceCallable() {
     return stub.getInstanceCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about instances in a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   ListInstancesResponse response = baseBigtableInstanceAdminClient.listInstances(parent);
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the project for which a list of instances is
    *     requested. Values are of the form `projects/{project}`.
@@ -436,18 +299,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listInstances(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about instances in a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   ListInstancesResponse response = baseBigtableInstanceAdminClient.listInstances(parent.toString());
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the project for which a list of instances is
    *     requested. Values are of the form `projects/{project}`.
@@ -458,21 +312,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listInstances(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about instances in a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   ListInstancesRequest request = ListInstancesRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   ListInstancesResponse response = baseBigtableInstanceAdminClient.listInstances(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -481,50 +323,49 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listInstancesCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about instances in a project.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ProjectName parent = ProjectName.of("[PROJECT]");
-   *   ListInstancesRequest request = ListInstancesRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   ApiFuture&lt;ListInstancesResponse&gt; future = baseBigtableInstanceAdminClient.listInstancesCallable().futureCall(request);
-   *   // Do something
-   *   ListInstancesResponse response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<ListInstancesRequest, ListInstancesResponse> listInstancesCallable() {
     return stub.listInstancesCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates an instance within a project. This method updates only the display name and type for an
+   * Instance. To update other Instance properties, such as labels, use PartialUpdateInstance.
+   *
+   * @param request The request object containing all of the parameters for the API call.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final Instance updateInstance(Instance request) {
+    return updateInstanceCallable().call(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates an instance within a project. This method updates only the display name and type for an
+   * Instance. To update other Instance properties, such as labels, use PartialUpdateInstance.
+   *
+   * <p>Sample code:
+   */
+  public final UnaryCallable<Instance, Instance> updateInstanceCallable() {
+    return stub.updateInstanceCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Partially updates an instance within a project. This method can modify all fields of an
    * Instance and is the preferred way to update an Instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   Instance instance = Instance.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   Instance response = baseBigtableInstanceAdminClient.partialUpdateInstanceAsync(instance, updateMask).get();
-   * }
-   * </code></pre>
-   *
    * @param instance Required. The Instance which will (partially) replace the current value.
-   * @param updateMask Required. The subset of Instance fields which should be replaced. Must be
+   * @param update_mask Required. The subset of Instance fields which should be replaced. Must be
    *     explicitly set.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Instance, UpdateInstanceMetadata> partialUpdateInstanceAsync(
       Instance instance, FieldMask updateMask) {
     PartialUpdateInstanceRequest request =
@@ -535,100 +376,46 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return partialUpdateInstanceAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Partially updates an instance within a project. This method can modify all fields of an
    * Instance and is the preferred way to update an Instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   Instance instance = Instance.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   PartialUpdateInstanceRequest request = PartialUpdateInstanceRequest.newBuilder()
-   *     .setInstance(instance)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   Instance response = baseBigtableInstanceAdminClient.partialUpdateInstanceAsync(request).get();
-   * }
-   * </code></pre>
-   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Instance, UpdateInstanceMetadata> partialUpdateInstanceAsync(
       PartialUpdateInstanceRequest request) {
     return partialUpdateInstanceOperationCallable().futureCall(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Partially updates an instance within a project. This method can modify all fields of an
    * Instance and is the preferred way to update an Instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   Instance instance = Instance.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   PartialUpdateInstanceRequest request = PartialUpdateInstanceRequest.newBuilder()
-   *     .setInstance(instance)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   OperationFuture&lt;Instance, UpdateInstanceMetadata&gt; future = baseBigtableInstanceAdminClient.partialUpdateInstanceOperationCallable().futureCall(request);
-   *   // Do something
-   *   Instance response = future.get();
-   * }
-   * </code></pre>
    */
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public final OperationCallable<PartialUpdateInstanceRequest, Instance, UpdateInstanceMetadata>
       partialUpdateInstanceOperationCallable() {
     return stub.partialUpdateInstanceOperationCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Partially updates an instance within a project. This method can modify all fields of an
    * Instance and is the preferred way to update an Instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   Instance instance = Instance.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   PartialUpdateInstanceRequest request = PartialUpdateInstanceRequest.newBuilder()
-   *     .setInstance(instance)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   ApiFuture&lt;Operation&gt; future = baseBigtableInstanceAdminClient.partialUpdateInstanceCallable().futureCall(request);
-   *   // Do something
-   *   Operation response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<PartialUpdateInstanceRequest, Operation>
       partialUpdateInstanceCallable() {
     return stub.partialUpdateInstanceCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Delete an instance from a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   baseBigtableInstanceAdminClient.deleteInstance(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the instance to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}`.
@@ -640,18 +427,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteInstance(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Delete an instance from a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   baseBigtableInstanceAdminClient.deleteInstance(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the instance to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}`.
@@ -662,21 +440,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteInstance(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Delete an instance from a project.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   DeleteInstanceRequest request = DeleteInstanceRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   baseBigtableInstanceAdminClient.deleteInstance(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -685,54 +451,29 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteInstanceCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Delete an instance from a project.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   DeleteInstanceRequest request = DeleteInstanceRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   ApiFuture&lt;Void&gt; future = baseBigtableInstanceAdminClient.deleteInstanceCallable().futureCall(request);
-   *   // Do something
-   *   future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<DeleteInstanceRequest, Empty> deleteInstanceCallable() {
     return stub.deleteInstanceCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates a cluster within an instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String clusterId = "";
-   *   Cluster cluster = Cluster.newBuilder().build();
-   *   Cluster response = baseBigtableInstanceAdminClient.createClusterAsync(parent, clusterId, cluster).get();
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the instance in which to create the new cluster.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param clusterId Required. The ID to be used when referring to the new cluster within its
+   * @param cluster_id Required. The ID to be used when referring to the new cluster within its
    *     instance, e.g., just `mycluster` rather than
    *     `projects/myproject/instances/myinstance/clusters/mycluster`.
    * @param cluster Required. The cluster to be created. Fields marked `OutputOnly` must be left
    *     blank.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Cluster, CreateClusterMetadata> createClusterAsync(
       InstanceName parent, String clusterId, Cluster cluster) {
     CreateClusterRequest request =
@@ -744,32 +485,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createClusterAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates a cluster within an instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String clusterId = "";
-   *   Cluster cluster = Cluster.newBuilder().build();
-   *   Cluster response = baseBigtableInstanceAdminClient.createClusterAsync(parent.toString(), clusterId, cluster).get();
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the instance in which to create the new cluster.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param clusterId Required. The ID to be used when referring to the new cluster within its
+   * @param cluster_id Required. The ID to be used when referring to the new cluster within its
    *     instance, e.g., just `mycluster` rather than
    *     `projects/myproject/instances/myinstance/clusters/mycluster`.
    * @param cluster Required. The cluster to be created. Fields marked `OutputOnly` must be left
    *     blank.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Cluster, CreateClusterMetadata> createClusterAsync(
       String parent, String clusterId, Cluster cluster) {
     CreateClusterRequest request =
@@ -781,102 +509,42 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createClusterAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates a cluster within an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String clusterId = "";
-   *   Cluster cluster = Cluster.newBuilder().build();
-   *   CreateClusterRequest request = CreateClusterRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setClusterId(clusterId)
-   *     .setCluster(cluster)
-   *     .build();
-   *   Cluster response = baseBigtableInstanceAdminClient.createClusterAsync(request).get();
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Cluster, CreateClusterMetadata> createClusterAsync(
       CreateClusterRequest request) {
     return createClusterOperationCallable().futureCall(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates a cluster within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String clusterId = "";
-   *   Cluster cluster = Cluster.newBuilder().build();
-   *   CreateClusterRequest request = CreateClusterRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setClusterId(clusterId)
-   *     .setCluster(cluster)
-   *     .build();
-   *   OperationFuture&lt;Cluster, CreateClusterMetadata&gt; future = baseBigtableInstanceAdminClient.createClusterOperationCallable().futureCall(request);
-   *   // Do something
-   *   Cluster response = future.get();
-   * }
-   * </code></pre>
    */
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public final OperationCallable<CreateClusterRequest, Cluster, CreateClusterMetadata>
       createClusterOperationCallable() {
     return stub.createClusterOperationCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates a cluster within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String clusterId = "";
-   *   Cluster cluster = Cluster.newBuilder().build();
-   *   CreateClusterRequest request = CreateClusterRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setClusterId(clusterId)
-   *     .setCluster(cluster)
-   *     .build();
-   *   ApiFuture&lt;Operation&gt; future = baseBigtableInstanceAdminClient.createClusterCallable().futureCall(request);
-   *   // Do something
-   *   Operation response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<CreateClusterRequest, Operation> createClusterCallable() {
     return stub.createClusterCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about a cluster.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   Cluster response = baseBigtableInstanceAdminClient.getCluster(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested cluster. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -888,18 +556,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getCluster(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about a cluster.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   Cluster response = baseBigtableInstanceAdminClient.getCluster(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested cluster. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -910,21 +569,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getCluster(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about a cluster.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   GetClusterRequest request = GetClusterRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   Cluster response = baseBigtableInstanceAdminClient.getCluster(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -933,40 +580,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getClusterCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about a cluster.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   GetClusterRequest request = GetClusterRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   ApiFuture&lt;Cluster&gt; future = baseBigtableInstanceAdminClient.getClusterCallable().futureCall(request);
-   *   // Do something
-   *   Cluster response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<GetClusterRequest, Cluster> getClusterCallable() {
     return stub.getClusterCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about clusters in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListClustersResponse response = baseBigtableInstanceAdminClient.listClusters(parent);
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the instance for which a list of clusters is
    *     requested. Values are of the form `projects/{project}/instances/{instance}`. Use
@@ -982,18 +608,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listClusters(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about clusters in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListClustersResponse response = baseBigtableInstanceAdminClient.listClusters(parent.toString());
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the instance for which a list of clusters is
    *     requested. Values are of the form `projects/{project}/instances/{instance}`. Use
@@ -1006,21 +623,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listClusters(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about clusters in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListClustersRequest request = ListClustersRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   ListClustersResponse response = baseBigtableInstanceAdminClient.listClusters(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1029,111 +634,51 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listClustersCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about clusters in an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListClustersRequest request = ListClustersRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   ApiFuture&lt;ListClustersResponse&gt; future = baseBigtableInstanceAdminClient.listClustersCallable().futureCall(request);
-   *   // Do something
-   *   ListClustersResponse response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<ListClustersRequest, ListClustersResponse> listClustersCallable() {
     return stub.listClustersCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates a cluster within an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   int serveNodes = 0;
-   *   Cluster request = Cluster.newBuilder()
-   *     .setServeNodes(serveNodes)
-   *     .build();
-   *   Cluster response = baseBigtableInstanceAdminClient.updateClusterAsync(request).get();
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<Cluster, UpdateClusterMetadata> updateClusterAsync(Cluster request) {
     return updateClusterOperationCallable().futureCall(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates a cluster within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   int serveNodes = 0;
-   *   Cluster request = Cluster.newBuilder()
-   *     .setServeNodes(serveNodes)
-   *     .build();
-   *   OperationFuture&lt;Cluster, UpdateClusterMetadata&gt; future = baseBigtableInstanceAdminClient.updateClusterOperationCallable().futureCall(request);
-   *   // Do something
-   *   Cluster response = future.get();
-   * }
-   * </code></pre>
    */
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public final OperationCallable<Cluster, Cluster, UpdateClusterMetadata>
       updateClusterOperationCallable() {
     return stub.updateClusterOperationCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates a cluster within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   int serveNodes = 0;
-   *   Cluster request = Cluster.newBuilder()
-   *     .setServeNodes(serveNodes)
-   *     .build();
-   *   ApiFuture&lt;Operation&gt; future = baseBigtableInstanceAdminClient.updateClusterCallable().futureCall(request);
-   *   // Do something
-   *   Operation response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<Cluster, Operation> updateClusterCallable() {
     return stub.updateClusterCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes a cluster from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   baseBigtableInstanceAdminClient.deleteCluster(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the cluster to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1145,18 +690,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteCluster(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes a cluster from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   baseBigtableInstanceAdminClient.deleteCluster(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the cluster to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1167,21 +703,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteCluster(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes a cluster from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   DeleteClusterRequest request = DeleteClusterRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   baseBigtableInstanceAdminClient.deleteCluster(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1190,49 +714,26 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteClusterCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes a cluster from an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-   *   DeleteClusterRequest request = DeleteClusterRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   ApiFuture&lt;Void&gt; future = baseBigtableInstanceAdminClient.deleteClusterCallable().futureCall(request);
-   *   // Do something
-   *   future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<DeleteClusterRequest, Empty> deleteClusterCallable() {
     return stub.deleteClusterCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates an app profile within an instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String appProfileId = "";
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.createAppProfile(parent, appProfileId, appProfile);
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the instance in which to create the new app profile.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param appProfileId Required. The ID to be used when referring to the new app profile within
+   * @param app_profile_id Required. The ID to be used when referring to the new app profile within
    *     its instance, e.g., just `myprofile` rather than
    *     `projects/myproject/instances/myinstance/appProfiles/myprofile`.
-   * @param appProfile Required. The app profile to be created. Fields marked `OutputOnly` will be
+   * @param app_profile Required. The app profile to be created. Fields marked `OutputOnly` will be
    *     ignored.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1247,27 +748,16 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates an app profile within an instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String appProfileId = "";
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.createAppProfile(parent.toString(), appProfileId, appProfile);
-   * }
-   * </code></pre>
-   *
    * @param parent Required. The unique name of the instance in which to create the new app profile.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param appProfileId Required. The ID to be used when referring to the new app profile within
+   * @param app_profile_id Required. The ID to be used when referring to the new app profile within
    *     its instance, e.g., just `myprofile` rather than
    *     `projects/myproject/instances/myinstance/appProfiles/myprofile`.
-   * @param appProfile Required. The app profile to be created. Fields marked `OutputOnly` will be
+   * @param app_profile Required. The app profile to be created. Fields marked `OutputOnly` will be
    *     ignored.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1282,25 +772,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates an app profile within an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String appProfileId = "";
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   CreateAppProfileRequest request = CreateAppProfileRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setAppProfileId(appProfileId)
-   *     .setAppProfile(appProfile)
-   *     .build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.createAppProfile(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1309,44 +783,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return createAppProfileCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Creates an app profile within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   String appProfileId = "";
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   CreateAppProfileRequest request = CreateAppProfileRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .setAppProfileId(appProfileId)
-   *     .setAppProfile(appProfile)
-   *     .build();
-   *   ApiFuture&lt;AppProfile&gt; future = baseBigtableInstanceAdminClient.createAppProfileCallable().futureCall(request);
-   *   // Do something
-   *   AppProfile response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<CreateAppProfileRequest, AppProfile> createAppProfileCallable() {
     return stub.createAppProfileCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an app profile.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   AppProfile response = baseBigtableInstanceAdminClient.getAppProfile(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested app profile. Values are of the form
    *     `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
@@ -1358,18 +807,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an app profile.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   AppProfile response = baseBigtableInstanceAdminClient.getAppProfile(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the requested app profile. Values are of the form
    *     `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
@@ -1380,21 +820,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an app profile.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   GetAppProfileRequest request = GetAppProfileRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.getAppProfile(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1403,42 +831,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getAppProfileCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets information about an app profile.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   GetAppProfileRequest request = GetAppProfileRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .build();
-   *   ApiFuture&lt;AppProfile&gt; future = baseBigtableInstanceAdminClient.getAppProfileCallable().futureCall(request);
-   *   // Do something
-   *   AppProfile response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<GetAppProfileRequest, AppProfile> getAppProfileCallable() {
     return stub.getAppProfileCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about app profiles in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   for (AppProfile element : baseBigtableInstanceAdminClient.listAppProfiles(parent).iterateAll()) {
-   *     // doThingsWith(element);
-   *   }
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the instance for which a list of app profiles is
    *     requested. Values are of the form `projects/{project}/instances/{instance}`. Use
@@ -1454,20 +859,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listAppProfiles(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about app profiles in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   for (AppProfile element : baseBigtableInstanceAdminClient.listAppProfiles(parent.toString()).iterateAll()) {
-   *     // doThingsWith(element);
-   *   }
-   * }
-   * </code></pre>
    *
    * @param parent Required. The unique name of the instance for which a list of app profiles is
    *     requested. Values are of the form `projects/{project}/instances/{instance}`. Use
@@ -1480,23 +874,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listAppProfiles(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about app profiles in an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListAppProfilesRequest request = ListAppProfilesRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   for (AppProfile element : baseBigtableInstanceAdminClient.listAppProfiles(request).iterateAll()) {
-   *     // doThingsWith(element);
-   *   }
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1505,84 +885,37 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return listAppProfilesPagedCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about app profiles in an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListAppProfilesRequest request = ListAppProfilesRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   ApiFuture&lt;ListAppProfilesPagedResponse&gt; future = baseBigtableInstanceAdminClient.listAppProfilesPagedCallable().futureCall(request);
-   *   // Do something
-   *   for (AppProfile element : future.get().iterateAll()) {
-   *     // doThingsWith(element);
-   *   }
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<ListAppProfilesRequest, ListAppProfilesPagedResponse>
       listAppProfilesPagedCallable() {
     return stub.listAppProfilesPagedCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists information about app profiles in an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-   *   ListAppProfilesRequest request = ListAppProfilesRequest.newBuilder()
-   *     .setParent(parent.toString())
-   *     .build();
-   *   while (true) {
-   *     ListAppProfilesResponse response = baseBigtableInstanceAdminClient.listAppProfilesCallable().call(request);
-   *     for (AppProfile element : response.getAppProfilesList()) {
-   *       // doThingsWith(element);
-   *     }
-   *     String nextPageToken = response.getNextPageToken();
-   *     if (!Strings.isNullOrEmpty(nextPageToken)) {
-   *       request = request.toBuilder().setPageToken(nextPageToken).build();
-   *     } else {
-   *       break;
-   *     }
-   *   }
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<ListAppProfilesRequest, ListAppProfilesResponse>
       listAppProfilesCallable() {
     return stub.listAppProfilesCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates an app profile within an instance.
    *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.updateAppProfileAsync(appProfile, updateMask).get();
-   * }
-   * </code></pre>
-   *
-   * @param appProfile Required. The app profile which will (partially) replace the current value.
-   * @param updateMask Required. The subset of app profile fields which should be replaced. If
+   * @param app_profile Required. The app profile which will (partially) replace the current value.
+   * @param update_mask Required. The subset of app profile fields which should be replaced. If
    *     unset, all fields will be replaced.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<AppProfile, UpdateAppProfileMetadata> updateAppProfileAsync(
       AppProfile appProfile, FieldMask updateMask) {
     UpdateAppProfileRequest request =
@@ -1593,96 +926,42 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return updateAppProfileAsync(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates an app profile within an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   UpdateAppProfileRequest request = UpdateAppProfileRequest.newBuilder()
-   *     .setAppProfile(appProfile)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   AppProfile response = baseBigtableInstanceAdminClient.updateAppProfileAsync(request).get();
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
-  @BetaApi(
-      "The surface for long-running operations is not stable yet and may change in the future.")
   public final OperationFuture<AppProfile, UpdateAppProfileMetadata> updateAppProfileAsync(
       UpdateAppProfileRequest request) {
     return updateAppProfileOperationCallable().futureCall(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates an app profile within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   UpdateAppProfileRequest request = UpdateAppProfileRequest.newBuilder()
-   *     .setAppProfile(appProfile)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   OperationFuture&lt;AppProfile, UpdateAppProfileMetadata&gt; future = baseBigtableInstanceAdminClient.updateAppProfileOperationCallable().futureCall(request);
-   *   // Do something
-   *   AppProfile response = future.get();
-   * }
-   * </code></pre>
    */
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public final OperationCallable<UpdateAppProfileRequest, AppProfile, UpdateAppProfileMetadata>
       updateAppProfileOperationCallable() {
     return stub.updateAppProfileOperationCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates an app profile within an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfile appProfile = AppProfile.newBuilder().build();
-   *   FieldMask updateMask = FieldMask.newBuilder().build();
-   *   UpdateAppProfileRequest request = UpdateAppProfileRequest.newBuilder()
-   *     .setAppProfile(appProfile)
-   *     .setUpdateMask(updateMask)
-   *     .build();
-   *   ApiFuture&lt;Operation&gt; future = baseBigtableInstanceAdminClient.updateAppProfileCallable().futureCall(request);
-   *   // Do something
-   *   Operation response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<UpdateAppProfileRequest, Operation> updateAppProfileCallable() {
     return stub.updateAppProfileCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes an app profile from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   baseBigtableInstanceAdminClient.deleteAppProfile(name);
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the app profile to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
@@ -1694,18 +973,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes an app profile from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   baseBigtableInstanceAdminClient.deleteAppProfile(name.toString());
-   * }
-   * </code></pre>
    *
    * @param name Required. The unique name of the app profile to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
@@ -1716,23 +986,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteAppProfile(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes an app profile from an instance.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   boolean ignoreWarnings = false;
-   *   DeleteAppProfileRequest request = DeleteAppProfileRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .setIgnoreWarnings(ignoreWarnings)
-   *     .build();
-   *   baseBigtableInstanceAdminClient.deleteAppProfile(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1741,43 +997,20 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     deleteAppProfileCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes an app profile from an instance.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   boolean ignoreWarnings = false;
-   *   DeleteAppProfileRequest request = DeleteAppProfileRequest.newBuilder()
-   *     .setName(name.toString())
-   *     .setIgnoreWarnings(ignoreWarnings)
-   *     .build();
-   *   ApiFuture&lt;Void&gt; future = baseBigtableInstanceAdminClient.deleteAppProfileCallable().futureCall(request);
-   *   // Do something
-   *   future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<DeleteAppProfileRequest, Empty> deleteAppProfileCallable() {
     return stub.deleteAppProfileCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets the access control policy for an instance resource. Returns an empty policy if an instance
    * exists but does not have a policy set.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy response = baseBigtableInstanceAdminClient.getIamPolicy(resource);
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -1791,19 +1024,10 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getIamPolicy(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets the access control policy for an instance resource. Returns an empty policy if an instance
    * exists but does not have a policy set.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy response = baseBigtableInstanceAdminClient.getIamPolicy(resource.toString());
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -1814,22 +1038,10 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getIamPolicy(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets the access control policy for an instance resource. Returns an empty policy if an instance
    * exists but does not have a policy set.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .build();
-   *   Policy response = baseBigtableInstanceAdminClient.getIamPolicy(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1838,42 +1050,20 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return getIamPolicyCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets the access control policy for an instance resource. Returns an empty policy if an instance
    * exists but does not have a policy set.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .build();
-   *   ApiFuture&lt;Policy&gt; future = baseBigtableInstanceAdminClient.getIamPolicyCallable().futureCall(request);
-   *   // Do something
-   *   Policy response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<GetIamPolicyRequest, Policy> getIamPolicyCallable() {
     return stub.getIamPolicyCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Sets the access control policy on an instance resource. Replaces any existing policy.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy policy = Policy.newBuilder().build();
-   *   Policy response = baseBigtableInstanceAdminClient.setIamPolicy(resource, policy);
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being specified. See the
    *     operation documentation for the appropriate value for this field.
@@ -1891,19 +1081,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return setIamPolicy(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Sets the access control policy on an instance resource. Replaces any existing policy.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy policy = Policy.newBuilder().build();
-   *   Policy response = baseBigtableInstanceAdminClient.setIamPolicy(resource.toString(), policy);
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being specified. See the
    *     operation documentation for the appropriate value for this field.
@@ -1918,23 +1098,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return setIamPolicy(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Sets the access control policy on an instance resource. Replaces any existing policy.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy policy = Policy.newBuilder().build();
-   *   SetIamPolicyRequest request = SetIamPolicyRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .setPolicy(policy)
-   *     .build();
-   *   Policy response = baseBigtableInstanceAdminClient.setIamPolicy(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1943,43 +1109,19 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return setIamPolicyCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Sets the access control policy on an instance resource. Replaces any existing policy.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   Policy policy = Policy.newBuilder().build();
-   *   SetIamPolicyRequest request = SetIamPolicyRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .setPolicy(policy)
-   *     .build();
-   *   ApiFuture&lt;Policy&gt; future = baseBigtableInstanceAdminClient.setIamPolicyCallable().futureCall(request);
-   *   // Do something
-   *   Policy response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<SetIamPolicyRequest, Policy> setIamPolicyCallable() {
     return stub.setIamPolicyCallable();
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Returns permissions that the caller has on the specified instance resource.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   List&lt;String&gt; permissions = new ArrayList&lt;&gt;();
-   *   TestIamPermissionsResponse response = baseBigtableInstanceAdminClient.testIamPermissions(resource, permissions);
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy detail is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -1998,19 +1140,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return testIamPermissions(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Returns permissions that the caller has on the specified instance resource.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   List&lt;String&gt; permissions = new ArrayList&lt;&gt;();
-   *   TestIamPermissionsResponse response = baseBigtableInstanceAdminClient.testIamPermissions(resource.toString(), permissions);
-   * }
-   * </code></pre>
    *
    * @param resource REQUIRED: The resource for which the policy detail is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -2029,23 +1161,9 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return testIamPermissions(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Returns permissions that the caller has on the specified instance resource.
-   *
-   * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   List&lt;String&gt; permissions = new ArrayList&lt;&gt;();
-   *   TestIamPermissionsRequest request = TestIamPermissionsRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .addAllPermissions(permissions)
-   *     .build();
-   *   TestIamPermissionsResponse response = baseBigtableInstanceAdminClient.testIamPermissions(request);
-   * }
-   * </code></pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -2054,25 +1172,11 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return testIamPermissionsCallable().call(request);
   }
 
-  // AUTO-GENERATED DOCUMENTATION AND METHOD
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Returns permissions that the caller has on the specified instance resource.
    *
    * <p>Sample code:
-   *
-   * <pre><code>
-   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient = BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
-   *   List&lt;String&gt; permissions = new ArrayList&lt;&gt;();
-   *   TestIamPermissionsRequest request = TestIamPermissionsRequest.newBuilder()
-   *     .setResource(resource.toString())
-   *     .addAllPermissions(permissions)
-   *     .build();
-   *   ApiFuture&lt;TestIamPermissionsResponse&gt; future = baseBigtableInstanceAdminClient.testIamPermissionsCallable().futureCall(request);
-   *   // Do something
-   *   TestIamPermissionsResponse response = future.get();
-   * }
-   * </code></pre>
    */
   public final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable() {
