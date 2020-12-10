@@ -44,19 +44,16 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
-  private HeaderTracer headerTracer;
-  private String spanName;
+  private final HeaderTracer headerTracer;
+  private final String spanName;
 
   public HeaderTracerStreamingCallable(
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable,
       @Nonnull HeaderTracer headerTracer,
       @Nonnull String spanName) {
-    Preconditions.checkNotNull(callable, "Inner callable must be set");
-    Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
-    Preconditions.checkNotNull(spanName, "Span name must be set");
-    this.innerCallable = callable;
-    this.headerTracer = headerTracer;
-    this.spanName = spanName;
+    this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
+    this.headerTracer = Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
+    this.spanName = Preconditions.checkNotNull(spanName, "Span name must be set");
   }
 
   @Override

@@ -44,19 +44,16 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
-  private HeaderTracer headerTracer;
-  private String spanName;
+  private final HeaderTracer headerTracer;
+  private final String spanName;
 
   public HeaderTracerUnaryCallable(
       @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable,
       @Nonnull HeaderTracer headerTracer,
       @Nonnull String spanName) {
-    Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
-    Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
-    Preconditions.checkNotNull(spanName, "Span name must be set");
-    this.innerCallable = innerCallable;
-    this.headerTracer = headerTracer;
-    this.spanName = spanName;
+    this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
+    this.headerTracer = Preconditions.checkNotNull(headerTracer, "HeaderTracer must be set");
+    this.spanName = Preconditions.checkNotNull(spanName, "Span name must be set");
   }
 
   @Override
