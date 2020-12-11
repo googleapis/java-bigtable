@@ -25,13 +25,7 @@ import static io.grpc.stub.ServerCalls.asyncServerStreamingCall;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
-/**
- *
- *
- * <pre>
- * Service for reading from and writing to existing Bigtable tables.
- * </pre>
- */
+/** */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler",
     comments = "Source: google/bigtable/v2/bigtable.proto")
@@ -340,42 +334,17 @@ public final class BigtableGrpc {
     return BigtableFutureStub.newStub(factory, channel);
   }
 
-  /**
-   *
-   *
-   * <pre>
-   * Service for reading from and writing to existing Bigtable tables.
-   * </pre>
-   */
+  /** */
   public abstract static class BigtableImplBase implements io.grpc.BindableService {
 
-    /**
-     *
-     *
-     * <pre>
-     * Streams back the contents of all requested rows in key order, optionally
-     * applying the same Reader filter to each. Depending on their size,
-     * rows and cells may be broken up across multiple responses, but
-     * atomicity of each row will still be preserved. See the
-     * ReadRowsResponse documentation for details.
-     * </pre>
-     */
+    /** */
     public void readRows(
         com.google.bigtable.v2.ReadRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadRowsResponse> responseObserver) {
       asyncUnimplementedUnaryCall(getReadRowsMethod(), responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Returns a sample of row keys in the table. The returned row keys will
-     * delimit contiguous sections of the table of approximately equal size,
-     * which can be used to break up the data for distributed tasks like
-     * mapreduces.
-     * </pre>
-     */
+    /** */
     public void sampleRowKeys(
         com.google.bigtable.v2.SampleRowKeysRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.SampleRowKeysResponse>
@@ -383,42 +352,21 @@ public final class BigtableGrpc {
       asyncUnimplementedUnaryCall(getSampleRowKeysMethod(), responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically. Cells already present in the row are left
-     * unchanged unless explicitly changed by `mutation`.
-     * </pre>
-     */
+    /** */
     public void mutateRow(
         com.google.bigtable.v2.MutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowResponse> responseObserver) {
       asyncUnimplementedUnaryCall(getMutateRowMethod(), responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates multiple rows in a batch. Each individual row is mutated
-     * atomically as in MutateRow, but the entire batch is not executed
-     * atomically.
-     * </pre>
-     */
+    /** */
     public void mutateRows(
         com.google.bigtable.v2.MutateRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowsResponse> responseObserver) {
       asyncUnimplementedUnaryCall(getMutateRowsMethod(), responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically based on the output of a predicate Reader filter.
-     * </pre>
-     */
+    /** */
     public void checkAndMutateRow(
         com.google.bigtable.v2.CheckAndMutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.CheckAndMutateRowResponse>
@@ -426,17 +374,7 @@ public final class BigtableGrpc {
       asyncUnimplementedUnaryCall(getCheckAndMutateRowMethod(), responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Modifies a row atomically on the server. The method reads the latest
-     * existing timestamp and value from the specified columns and writes a new
-     * entry based on pre-defined read/modify/write rules. The new value for the
-     * timestamp is the greater of the existing timestamp or the current server
-     * time. The method returns the new contents of all modified cells.
-     * </pre>
-     */
+    /** */
     public void readModifyWriteRow(
         com.google.bigtable.v2.ReadModifyWriteRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadModifyWriteRowResponse>
@@ -490,13 +428,7 @@ public final class BigtableGrpc {
     }
   }
 
-  /**
-   *
-   *
-   * <pre>
-   * Service for reading from and writing to existing Bigtable tables.
-   * </pre>
-   */
+  /** */
   public static final class BigtableStub extends io.grpc.stub.AbstractAsyncStub<BigtableStub> {
     private BigtableStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
       super(channel, callOptions);
@@ -507,17 +439,7 @@ public final class BigtableGrpc {
       return new BigtableStub(channel, callOptions);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Streams back the contents of all requested rows in key order, optionally
-     * applying the same Reader filter to each. Depending on their size,
-     * rows and cells may be broken up across multiple responses, but
-     * atomicity of each row will still be preserved. See the
-     * ReadRowsResponse documentation for details.
-     * </pre>
-     */
+    /** */
     public void readRows(
         com.google.bigtable.v2.ReadRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadRowsResponse> responseObserver) {
@@ -525,16 +447,7 @@ public final class BigtableGrpc {
           getChannel().newCall(getReadRowsMethod(), getCallOptions()), request, responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Returns a sample of row keys in the table. The returned row keys will
-     * delimit contiguous sections of the table of approximately equal size,
-     * which can be used to break up the data for distributed tasks like
-     * mapreduces.
-     * </pre>
-     */
+    /** */
     public void sampleRowKeys(
         com.google.bigtable.v2.SampleRowKeysRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.SampleRowKeysResponse>
@@ -545,14 +458,7 @@ public final class BigtableGrpc {
           responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically. Cells already present in the row are left
-     * unchanged unless explicitly changed by `mutation`.
-     * </pre>
-     */
+    /** */
     public void mutateRow(
         com.google.bigtable.v2.MutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowResponse> responseObserver) {
@@ -560,15 +466,7 @@ public final class BigtableGrpc {
           getChannel().newCall(getMutateRowMethod(), getCallOptions()), request, responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates multiple rows in a batch. Each individual row is mutated
-     * atomically as in MutateRow, but the entire batch is not executed
-     * atomically.
-     * </pre>
-     */
+    /** */
     public void mutateRows(
         com.google.bigtable.v2.MutateRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowsResponse> responseObserver) {
@@ -576,13 +474,7 @@ public final class BigtableGrpc {
           getChannel().newCall(getMutateRowsMethod(), getCallOptions()), request, responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically based on the output of a predicate Reader filter.
-     * </pre>
-     */
+    /** */
     public void checkAndMutateRow(
         com.google.bigtable.v2.CheckAndMutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.CheckAndMutateRowResponse>
@@ -593,17 +485,7 @@ public final class BigtableGrpc {
           responseObserver);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Modifies a row atomically on the server. The method reads the latest
-     * existing timestamp and value from the specified columns and writes a new
-     * entry based on pre-defined read/modify/write rules. The new value for the
-     * timestamp is the greater of the existing timestamp or the current server
-     * time. The method returns the new contents of all modified cells.
-     * </pre>
-     */
+    /** */
     public void readModifyWriteRow(
         com.google.bigtable.v2.ReadModifyWriteRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadModifyWriteRowResponse>
@@ -615,13 +497,7 @@ public final class BigtableGrpc {
     }
   }
 
-  /**
-   *
-   *
-   * <pre>
-   * Service for reading from and writing to existing Bigtable tables.
-   * </pre>
-   */
+  /** */
   public static final class BigtableBlockingStub
       extends io.grpc.stub.AbstractBlockingStub<BigtableBlockingStub> {
     private BigtableBlockingStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
@@ -633,91 +509,41 @@ public final class BigtableGrpc {
       return new BigtableBlockingStub(channel, callOptions);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Streams back the contents of all requested rows in key order, optionally
-     * applying the same Reader filter to each. Depending on their size,
-     * rows and cells may be broken up across multiple responses, but
-     * atomicity of each row will still be preserved. See the
-     * ReadRowsResponse documentation for details.
-     * </pre>
-     */
+    /** */
     public java.util.Iterator<com.google.bigtable.v2.ReadRowsResponse> readRows(
         com.google.bigtable.v2.ReadRowsRequest request) {
       return blockingServerStreamingCall(
           getChannel(), getReadRowsMethod(), getCallOptions(), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Returns a sample of row keys in the table. The returned row keys will
-     * delimit contiguous sections of the table of approximately equal size,
-     * which can be used to break up the data for distributed tasks like
-     * mapreduces.
-     * </pre>
-     */
+    /** */
     public java.util.Iterator<com.google.bigtable.v2.SampleRowKeysResponse> sampleRowKeys(
         com.google.bigtable.v2.SampleRowKeysRequest request) {
       return blockingServerStreamingCall(
           getChannel(), getSampleRowKeysMethod(), getCallOptions(), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically. Cells already present in the row are left
-     * unchanged unless explicitly changed by `mutation`.
-     * </pre>
-     */
+    /** */
     public com.google.bigtable.v2.MutateRowResponse mutateRow(
         com.google.bigtable.v2.MutateRowRequest request) {
       return blockingUnaryCall(getChannel(), getMutateRowMethod(), getCallOptions(), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates multiple rows in a batch. Each individual row is mutated
-     * atomically as in MutateRow, but the entire batch is not executed
-     * atomically.
-     * </pre>
-     */
+    /** */
     public java.util.Iterator<com.google.bigtable.v2.MutateRowsResponse> mutateRows(
         com.google.bigtable.v2.MutateRowsRequest request) {
       return blockingServerStreamingCall(
           getChannel(), getMutateRowsMethod(), getCallOptions(), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically based on the output of a predicate Reader filter.
-     * </pre>
-     */
+    /** */
     public com.google.bigtable.v2.CheckAndMutateRowResponse checkAndMutateRow(
         com.google.bigtable.v2.CheckAndMutateRowRequest request) {
       return blockingUnaryCall(
           getChannel(), getCheckAndMutateRowMethod(), getCallOptions(), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Modifies a row atomically on the server. The method reads the latest
-     * existing timestamp and value from the specified columns and writes a new
-     * entry based on pre-defined read/modify/write rules. The new value for the
-     * timestamp is the greater of the existing timestamp or the current server
-     * time. The method returns the new contents of all modified cells.
-     * </pre>
-     */
+    /** */
     public com.google.bigtable.v2.ReadModifyWriteRowResponse readModifyWriteRow(
         com.google.bigtable.v2.ReadModifyWriteRowRequest request) {
       return blockingUnaryCall(
@@ -725,13 +551,7 @@ public final class BigtableGrpc {
     }
   }
 
-  /**
-   *
-   *
-   * <pre>
-   * Service for reading from and writing to existing Bigtable tables.
-   * </pre>
-   */
+  /** */
   public static final class BigtableFutureStub
       extends io.grpc.stub.AbstractFutureStub<BigtableFutureStub> {
     private BigtableFutureStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
@@ -743,27 +563,14 @@ public final class BigtableGrpc {
       return new BigtableFutureStub(channel, callOptions);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically. Cells already present in the row are left
-     * unchanged unless explicitly changed by `mutation`.
-     * </pre>
-     */
+    /** */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.v2.MutateRowResponse>
         mutateRow(com.google.bigtable.v2.MutateRowRequest request) {
       return futureUnaryCall(getChannel().newCall(getMutateRowMethod(), getCallOptions()), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Mutates a row atomically based on the output of a predicate Reader filter.
-     * </pre>
-     */
+    /** */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.v2.CheckAndMutateRowResponse>
         checkAndMutateRow(com.google.bigtable.v2.CheckAndMutateRowRequest request) {
@@ -771,17 +578,7 @@ public final class BigtableGrpc {
           getChannel().newCall(getCheckAndMutateRowMethod(), getCallOptions()), request);
     }
 
-    /**
-     *
-     *
-     * <pre>
-     * Modifies a row atomically on the server. The method reads the latest
-     * existing timestamp and value from the specified columns and writes a new
-     * entry based on pre-defined read/modify/write rules. The new value for the
-     * timestamp is the greater of the existing timestamp or the current server
-     * time. The method returns the new contents of all modified cells.
-     * </pre>
-     */
+    /** */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.v2.ReadModifyWriteRowResponse>
         readModifyWriteRow(com.google.bigtable.v2.ReadModifyWriteRowRequest request) {
