@@ -635,16 +635,18 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           ImmutableMap.builder();
       definitions.put(
           "no_retry_0_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+      definitions.put("no_retry_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+      definitions.put(
+          "retry_policy_2_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       definitions.put(
           "no_retry_1_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       definitions.put(
-          "retry_policy_2_codes",
+          "no_retry_4_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
+      definitions.put(
+          "retry_policy_3_codes",
           ImmutableSet.copyOf(
               Lists.<StatusCode.Code>newArrayList(
                   StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED)));
-      definitions.put(
-          "no_retry_3_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
-      definitions.put("no_retry_codes", ImmutableSet.copyOf(Lists.<StatusCode.Code>newArrayList()));
       RETRYABLE_CODE_DEFINITIONS = definitions.build();
     }
 
@@ -661,14 +663,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               .setTotalTimeout(Duration.ofMillis(300000L))
               .build();
       definitions.put("no_retry_0_params", settings);
-      settings =
-          RetrySettings.newBuilder()
-              .setInitialRpcTimeout(Duration.ofMillis(60000L))
-              .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeout(Duration.ofMillis(60000L))
-              .setTotalTimeout(Duration.ofMillis(60000L))
-              .build();
-      definitions.put("no_retry_1_params", settings);
+      settings = RetrySettings.newBuilder().setRpcTimeoutMultiplier(1.0).build();
+      definitions.put("no_retry_params", settings);
       settings =
           RetrySettings.newBuilder()
               .setInitialRetryDelay(Duration.ofMillis(1000L))
@@ -682,14 +678,31 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       definitions.put("retry_policy_2_params", settings);
       settings =
           RetrySettings.newBuilder()
+              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setRpcTimeoutMultiplier(1.0)
+              .setMaxRpcTimeout(Duration.ofMillis(60000L))
+              .setTotalTimeout(Duration.ofMillis(60000L))
+              .build();
+      definitions.put("no_retry_1_params", settings);
+      settings =
+          RetrySettings.newBuilder()
               .setInitialRpcTimeout(Duration.ofMillis(3600000L))
               .setRpcTimeoutMultiplier(1.0)
               .setMaxRpcTimeout(Duration.ofMillis(3600000L))
               .setTotalTimeout(Duration.ofMillis(3600000L))
               .build();
-      definitions.put("no_retry_3_params", settings);
-      settings = RetrySettings.newBuilder().setRpcTimeoutMultiplier(1.0).build();
-      definitions.put("no_retry_params", settings);
+      definitions.put("no_retry_4_params", settings);
+      settings =
+          RetrySettings.newBuilder()
+              .setInitialRetryDelay(Duration.ofMillis(1000L))
+              .setRetryDelayMultiplier(2.0)
+              .setMaxRetryDelay(Duration.ofMillis(60000L))
+              .setInitialRpcTimeout(Duration.ofMillis(60000L))
+              .setRpcTimeoutMultiplier(1.0)
+              .setMaxRpcTimeout(Duration.ofMillis(60000L))
+              .setTotalTimeout(Duration.ofMillis(60000L))
+              .build();
+      definitions.put("retry_policy_3_params", settings);
       RETRY_PARAM_DEFINITIONS = definitions.build();
     }
 
@@ -830,8 +843,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .createTableFromSnapshotSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       builder
           .listTablesSettings()
@@ -855,23 +868,23 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .dropRowRangeSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_3_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_3_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_4_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_4_params"));
 
       builder
           .generateConsistencyTokenSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .checkConsistencySettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .snapshotTableSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       builder
           .getSnapshotSettings()
@@ -880,8 +893,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .listSnapshotsSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .deleteSnapshotSettings()
@@ -895,23 +908,23 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .getBackupSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
 
       builder
           .updateBackupSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"));
 
       builder
           .deleteBackupSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"));
 
       builder
           .listBackupsSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
 
       builder
           .restoreTableSettings()
@@ -920,8 +933,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .getIamPolicySettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .setIamPolicySettings()
@@ -930,16 +943,16 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
       builder
           .testIamPermissionsSettings()
-          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
-          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_3_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_3_params"));
 
       builder
           .createTableFromSnapshotOperationSettings()
           .setInitialCallSettings(
               UnaryCallSettings
                   .<CreateTableFromSnapshotRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Table.class))
@@ -963,8 +976,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setInitialCallSettings(
               UnaryCallSettings
                   .<SnapshotTableRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
-                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
-                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"))
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
                   .build())
           .setResponseTransformer(
               ProtoOperationTransformers.ResponseTransformer.create(Snapshot.class))
