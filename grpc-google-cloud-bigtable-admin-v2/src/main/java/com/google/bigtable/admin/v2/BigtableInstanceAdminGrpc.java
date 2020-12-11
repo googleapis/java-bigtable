@@ -22,7 +22,15 @@ import static io.grpc.stub.ClientCalls.futureUnaryCall;
 import static io.grpc.stub.ServerCalls.asyncUnaryCall;
 import static io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall;
 
-/** */
+/**
+ *
+ *
+ * <pre>
+ * Service for creating, configuring, and deleting Cloud Bigtable Instances and
+ * Clusters. Provides access to the Instance and Cluster schemas only, not the
+ * tables' metadata or data stored in those tables.
+ * </pre>
+ */
 @javax.annotation.Generated(
     value = "by gRPC proto compiler",
     comments = "Source: google/bigtable/admin/v2/bigtable_instance_admin.proto")
@@ -909,24 +917,50 @@ public final class BigtableInstanceAdminGrpc {
     return BigtableInstanceAdminFutureStub.newStub(factory, channel);
   }
 
-  /** */
+  /**
+   *
+   *
+   * <pre>
+   * Service for creating, configuring, and deleting Cloud Bigtable Instances and
+   * Clusters. Provides access to the Instance and Cluster schemas only, not the
+   * tables' metadata or data stored in those tables.
+   * </pre>
+   */
   public abstract static class BigtableInstanceAdminImplBase implements io.grpc.BindableService {
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Create an instance within a project.
+     * </pre>
+     */
     public void createInstance(
         com.google.bigtable.admin.v2.CreateInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnimplementedUnaryCall(getCreateInstanceMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an instance.
+     * </pre>
+     */
     public void getInstance(
         com.google.bigtable.admin.v2.GetInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Instance> responseObserver) {
       asyncUnimplementedUnaryCall(getGetInstanceMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about instances in a project.
+     * </pre>
+     */
     public void listInstances(
         com.google.bigtable.admin.v2.ListInstancesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListInstancesResponse>
@@ -934,42 +968,81 @@ public final class BigtableInstanceAdminGrpc {
       asyncUnimplementedUnaryCall(getListInstancesMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an instance within a project. This method updates only the display
+     * name and type for an Instance. To update other Instance properties, such as
+     * labels, use PartialUpdateInstance.
+     * </pre>
+     */
     public void updateInstance(
         com.google.bigtable.admin.v2.Instance request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Instance> responseObserver) {
       asyncUnimplementedUnaryCall(getUpdateInstanceMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Partially updates an instance within a project. This method can modify all
+     * fields of an Instance and is the preferred way to update an Instance.
+     * </pre>
+     */
     public void partialUpdateInstance(
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnimplementedUnaryCall(getPartialUpdateInstanceMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Delete an instance from a project.
+     * </pre>
+     */
     public void deleteInstance(
         com.google.bigtable.admin.v2.DeleteInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getDeleteInstanceMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates a cluster within an instance.
+     * </pre>
+     */
     public void createCluster(
         com.google.bigtable.admin.v2.CreateClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnimplementedUnaryCall(getCreateClusterMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about a cluster.
+     * </pre>
+     */
     public void getCluster(
         com.google.bigtable.admin.v2.GetClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Cluster> responseObserver) {
       asyncUnimplementedUnaryCall(getGetClusterMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about clusters in an instance.
+     * </pre>
+     */
     public void listClusters(
         com.google.bigtable.admin.v2.ListClustersRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListClustersResponse>
@@ -977,35 +1050,65 @@ public final class BigtableInstanceAdminGrpc {
       asyncUnimplementedUnaryCall(getListClustersMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates a cluster within an instance.
+     * </pre>
+     */
     public void updateCluster(
         com.google.bigtable.admin.v2.Cluster request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnimplementedUnaryCall(getUpdateClusterMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes a cluster from an instance.
+     * </pre>
+     */
     public void deleteCluster(
         com.google.bigtable.admin.v2.DeleteClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getDeleteClusterMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates an app profile within an instance.
+     * </pre>
+     */
     public void createAppProfile(
         com.google.bigtable.admin.v2.CreateAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.AppProfile> responseObserver) {
       asyncUnimplementedUnaryCall(getCreateAppProfileMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an app profile.
+     * </pre>
+     */
     public void getAppProfile(
         com.google.bigtable.admin.v2.GetAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.AppProfile> responseObserver) {
       asyncUnimplementedUnaryCall(getGetAppProfileMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about app profiles in an instance.
+     * </pre>
+     */
     public void listAppProfiles(
         com.google.bigtable.admin.v2.ListAppProfilesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListAppProfilesResponse>
@@ -1013,35 +1116,67 @@ public final class BigtableInstanceAdminGrpc {
       asyncUnimplementedUnaryCall(getListAppProfilesMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an app profile within an instance.
+     * </pre>
+     */
     public void updateAppProfile(
         com.google.bigtable.admin.v2.UpdateAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
       asyncUnimplementedUnaryCall(getUpdateAppProfileMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes an app profile from an instance.
+     * </pre>
+     */
     public void deleteAppProfile(
         com.google.bigtable.admin.v2.DeleteAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
       asyncUnimplementedUnaryCall(getDeleteAppProfileMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets the access control policy for an instance resource. Returns an empty
+     * policy if an instance exists but does not have a policy set.
+     * </pre>
+     */
     public void getIamPolicy(
         com.google.iam.v1.GetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
       asyncUnimplementedUnaryCall(getGetIamPolicyMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Sets the access control policy on an instance resource. Replaces any
+     * existing policy.
+     * </pre>
+     */
     public void setIamPolicy(
         com.google.iam.v1.SetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
       asyncUnimplementedUnaryCall(getSetIamPolicyMethod(), responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Returns permissions that the caller has on the specified instance resource.
+     * </pre>
+     */
     public void testIamPermissions(
         com.google.iam.v1.TestIamPermissionsRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.TestIamPermissionsResponse>
@@ -1174,7 +1309,15 @@ public final class BigtableInstanceAdminGrpc {
     }
   }
 
-  /** */
+  /**
+   *
+   *
+   * <pre>
+   * Service for creating, configuring, and deleting Cloud Bigtable Instances and
+   * Clusters. Provides access to the Instance and Cluster schemas only, not the
+   * tables' metadata or data stored in those tables.
+   * </pre>
+   */
   public static final class BigtableInstanceAdminStub
       extends io.grpc.stub.AbstractAsyncStub<BigtableInstanceAdminStub> {
     private BigtableInstanceAdminStub(io.grpc.Channel channel, io.grpc.CallOptions callOptions) {
@@ -1187,7 +1330,13 @@ public final class BigtableInstanceAdminGrpc {
       return new BigtableInstanceAdminStub(channel, callOptions);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Create an instance within a project.
+     * </pre>
+     */
     public void createInstance(
         com.google.bigtable.admin.v2.CreateInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
@@ -1197,7 +1346,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an instance.
+     * </pre>
+     */
     public void getInstance(
         com.google.bigtable.admin.v2.GetInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Instance> responseObserver) {
@@ -1207,7 +1362,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about instances in a project.
+     * </pre>
+     */
     public void listInstances(
         com.google.bigtable.admin.v2.ListInstancesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListInstancesResponse>
@@ -1218,7 +1379,15 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an instance within a project. This method updates only the display
+     * name and type for an Instance. To update other Instance properties, such as
+     * labels, use PartialUpdateInstance.
+     * </pre>
+     */
     public void updateInstance(
         com.google.bigtable.admin.v2.Instance request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Instance> responseObserver) {
@@ -1228,7 +1397,14 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Partially updates an instance within a project. This method can modify all
+     * fields of an Instance and is the preferred way to update an Instance.
+     * </pre>
+     */
     public void partialUpdateInstance(
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
@@ -1238,7 +1414,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Delete an instance from a project.
+     * </pre>
+     */
     public void deleteInstance(
         com.google.bigtable.admin.v2.DeleteInstanceRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
@@ -1248,7 +1430,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates a cluster within an instance.
+     * </pre>
+     */
     public void createCluster(
         com.google.bigtable.admin.v2.CreateClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
@@ -1258,7 +1446,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about a cluster.
+     * </pre>
+     */
     public void getCluster(
         com.google.bigtable.admin.v2.GetClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.Cluster> responseObserver) {
@@ -1266,7 +1460,13 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getGetClusterMethod(), getCallOptions()), request, responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about clusters in an instance.
+     * </pre>
+     */
     public void listClusters(
         com.google.bigtable.admin.v2.ListClustersRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListClustersResponse>
@@ -1277,7 +1477,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates a cluster within an instance.
+     * </pre>
+     */
     public void updateCluster(
         com.google.bigtable.admin.v2.Cluster request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
@@ -1287,7 +1493,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes a cluster from an instance.
+     * </pre>
+     */
     public void deleteCluster(
         com.google.bigtable.admin.v2.DeleteClusterRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
@@ -1297,7 +1509,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates an app profile within an instance.
+     * </pre>
+     */
     public void createAppProfile(
         com.google.bigtable.admin.v2.CreateAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.AppProfile> responseObserver) {
@@ -1307,7 +1525,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an app profile.
+     * </pre>
+     */
     public void getAppProfile(
         com.google.bigtable.admin.v2.GetAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.AppProfile> responseObserver) {
@@ -1317,7 +1541,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about app profiles in an instance.
+     * </pre>
+     */
     public void listAppProfiles(
         com.google.bigtable.admin.v2.ListAppProfilesRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.admin.v2.ListAppProfilesResponse>
@@ -1328,7 +1558,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an app profile within an instance.
+     * </pre>
+     */
     public void updateAppProfile(
         com.google.bigtable.admin.v2.UpdateAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.longrunning.Operation> responseObserver) {
@@ -1338,7 +1574,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes an app profile from an instance.
+     * </pre>
+     */
     public void deleteAppProfile(
         com.google.bigtable.admin.v2.DeleteAppProfileRequest request,
         io.grpc.stub.StreamObserver<com.google.protobuf.Empty> responseObserver) {
@@ -1348,7 +1590,14 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets the access control policy for an instance resource. Returns an empty
+     * policy if an instance exists but does not have a policy set.
+     * </pre>
+     */
     public void getIamPolicy(
         com.google.iam.v1.GetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
@@ -1358,7 +1607,14 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Sets the access control policy on an instance resource. Replaces any
+     * existing policy.
+     * </pre>
+     */
     public void setIamPolicy(
         com.google.iam.v1.SetIamPolicyRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.Policy> responseObserver) {
@@ -1368,7 +1624,13 @@ public final class BigtableInstanceAdminGrpc {
           responseObserver);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Returns permissions that the caller has on the specified instance resource.
+     * </pre>
+     */
     public void testIamPermissions(
         com.google.iam.v1.TestIamPermissionsRequest request,
         io.grpc.stub.StreamObserver<com.google.iam.v1.TestIamPermissionsResponse>
@@ -1380,7 +1642,15 @@ public final class BigtableInstanceAdminGrpc {
     }
   }
 
-  /** */
+  /**
+   *
+   *
+   * <pre>
+   * Service for creating, configuring, and deleting Cloud Bigtable Instances and
+   * Clusters. Provides access to the Instance and Cluster schemas only, not the
+   * tables' metadata or data stored in those tables.
+   * </pre>
+   */
   public static final class BigtableInstanceAdminBlockingStub
       extends io.grpc.stub.AbstractBlockingStub<BigtableInstanceAdminBlockingStub> {
     private BigtableInstanceAdminBlockingStub(
@@ -1394,117 +1664,236 @@ public final class BigtableInstanceAdminGrpc {
       return new BigtableInstanceAdminBlockingStub(channel, callOptions);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Create an instance within a project.
+     * </pre>
+     */
     public com.google.longrunning.Operation createInstance(
         com.google.bigtable.admin.v2.CreateInstanceRequest request) {
       return blockingUnaryCall(getChannel(), getCreateInstanceMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an instance.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.Instance getInstance(
         com.google.bigtable.admin.v2.GetInstanceRequest request) {
       return blockingUnaryCall(getChannel(), getGetInstanceMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about instances in a project.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.ListInstancesResponse listInstances(
         com.google.bigtable.admin.v2.ListInstancesRequest request) {
       return blockingUnaryCall(getChannel(), getListInstancesMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an instance within a project. This method updates only the display
+     * name and type for an Instance. To update other Instance properties, such as
+     * labels, use PartialUpdateInstance.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.Instance updateInstance(
         com.google.bigtable.admin.v2.Instance request) {
       return blockingUnaryCall(getChannel(), getUpdateInstanceMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Partially updates an instance within a project. This method can modify all
+     * fields of an Instance and is the preferred way to update an Instance.
+     * </pre>
+     */
     public com.google.longrunning.Operation partialUpdateInstance(
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest request) {
       return blockingUnaryCall(
           getChannel(), getPartialUpdateInstanceMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Delete an instance from a project.
+     * </pre>
+     */
     public com.google.protobuf.Empty deleteInstance(
         com.google.bigtable.admin.v2.DeleteInstanceRequest request) {
       return blockingUnaryCall(getChannel(), getDeleteInstanceMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates a cluster within an instance.
+     * </pre>
+     */
     public com.google.longrunning.Operation createCluster(
         com.google.bigtable.admin.v2.CreateClusterRequest request) {
       return blockingUnaryCall(getChannel(), getCreateClusterMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about a cluster.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.Cluster getCluster(
         com.google.bigtable.admin.v2.GetClusterRequest request) {
       return blockingUnaryCall(getChannel(), getGetClusterMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about clusters in an instance.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.ListClustersResponse listClusters(
         com.google.bigtable.admin.v2.ListClustersRequest request) {
       return blockingUnaryCall(getChannel(), getListClustersMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates a cluster within an instance.
+     * </pre>
+     */
     public com.google.longrunning.Operation updateCluster(
         com.google.bigtable.admin.v2.Cluster request) {
       return blockingUnaryCall(getChannel(), getUpdateClusterMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes a cluster from an instance.
+     * </pre>
+     */
     public com.google.protobuf.Empty deleteCluster(
         com.google.bigtable.admin.v2.DeleteClusterRequest request) {
       return blockingUnaryCall(getChannel(), getDeleteClusterMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates an app profile within an instance.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.AppProfile createAppProfile(
         com.google.bigtable.admin.v2.CreateAppProfileRequest request) {
       return blockingUnaryCall(
           getChannel(), getCreateAppProfileMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an app profile.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.AppProfile getAppProfile(
         com.google.bigtable.admin.v2.GetAppProfileRequest request) {
       return blockingUnaryCall(getChannel(), getGetAppProfileMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about app profiles in an instance.
+     * </pre>
+     */
     public com.google.bigtable.admin.v2.ListAppProfilesResponse listAppProfiles(
         com.google.bigtable.admin.v2.ListAppProfilesRequest request) {
       return blockingUnaryCall(getChannel(), getListAppProfilesMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an app profile within an instance.
+     * </pre>
+     */
     public com.google.longrunning.Operation updateAppProfile(
         com.google.bigtable.admin.v2.UpdateAppProfileRequest request) {
       return blockingUnaryCall(
           getChannel(), getUpdateAppProfileMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes an app profile from an instance.
+     * </pre>
+     */
     public com.google.protobuf.Empty deleteAppProfile(
         com.google.bigtable.admin.v2.DeleteAppProfileRequest request) {
       return blockingUnaryCall(
           getChannel(), getDeleteAppProfileMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets the access control policy for an instance resource. Returns an empty
+     * policy if an instance exists but does not have a policy set.
+     * </pre>
+     */
     public com.google.iam.v1.Policy getIamPolicy(com.google.iam.v1.GetIamPolicyRequest request) {
       return blockingUnaryCall(getChannel(), getGetIamPolicyMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Sets the access control policy on an instance resource. Replaces any
+     * existing policy.
+     * </pre>
+     */
     public com.google.iam.v1.Policy setIamPolicy(com.google.iam.v1.SetIamPolicyRequest request) {
       return blockingUnaryCall(getChannel(), getSetIamPolicyMethod(), getCallOptions(), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Returns permissions that the caller has on the specified instance resource.
+     * </pre>
+     */
     public com.google.iam.v1.TestIamPermissionsResponse testIamPermissions(
         com.google.iam.v1.TestIamPermissionsRequest request) {
       return blockingUnaryCall(
@@ -1512,7 +1901,15 @@ public final class BigtableInstanceAdminGrpc {
     }
   }
 
-  /** */
+  /**
+   *
+   *
+   * <pre>
+   * Service for creating, configuring, and deleting Cloud Bigtable Instances and
+   * Clusters. Provides access to the Instance and Cluster schemas only, not the
+   * tables' metadata or data stored in those tables.
+   * </pre>
+   */
   public static final class BigtableInstanceAdminFutureStub
       extends io.grpc.stub.AbstractFutureStub<BigtableInstanceAdminFutureStub> {
     private BigtableInstanceAdminFutureStub(
@@ -1526,21 +1923,39 @@ public final class BigtableInstanceAdminGrpc {
       return new BigtableInstanceAdminFutureStub(channel, callOptions);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Create an instance within a project.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         createInstance(com.google.bigtable.admin.v2.CreateInstanceRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getCreateInstanceMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Instance>
         getInstance(com.google.bigtable.admin.v2.GetInstanceRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getGetInstanceMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about instances in a project.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.admin.v2.ListInstancesResponse>
         listInstances(com.google.bigtable.admin.v2.ListInstancesRequest request) {
@@ -1548,42 +1963,81 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getListInstancesMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an instance within a project. This method updates only the display
+     * name and type for an Instance. To update other Instance properties, such as
+     * labels, use PartialUpdateInstance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Instance>
         updateInstance(com.google.bigtable.admin.v2.Instance request) {
       return futureUnaryCall(
           getChannel().newCall(getUpdateInstanceMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Partially updates an instance within a project. This method can modify all
+     * fields of an Instance and is the preferred way to update an Instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         partialUpdateInstance(com.google.bigtable.admin.v2.PartialUpdateInstanceRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getPartialUpdateInstanceMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Delete an instance from a project.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteInstance(com.google.bigtable.admin.v2.DeleteInstanceRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getDeleteInstanceMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates a cluster within an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         createCluster(com.google.bigtable.admin.v2.CreateClusterRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getCreateClusterMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about a cluster.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.bigtable.admin.v2.Cluster>
         getCluster(com.google.bigtable.admin.v2.GetClusterRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getGetClusterMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about clusters in an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.admin.v2.ListClustersResponse>
         listClusters(com.google.bigtable.admin.v2.ListClustersRequest request) {
@@ -1591,21 +2045,39 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getListClustersMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates a cluster within an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         updateCluster(com.google.bigtable.admin.v2.Cluster request) {
       return futureUnaryCall(
           getChannel().newCall(getUpdateClusterMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes a cluster from an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteCluster(com.google.bigtable.admin.v2.DeleteClusterRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getDeleteClusterMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Creates an app profile within an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.admin.v2.AppProfile>
         createAppProfile(com.google.bigtable.admin.v2.CreateAppProfileRequest request) {
@@ -1613,7 +2085,13 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getCreateAppProfileMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets information about an app profile.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.admin.v2.AppProfile>
         getAppProfile(com.google.bigtable.admin.v2.GetAppProfileRequest request) {
@@ -1621,7 +2099,13 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getGetAppProfileMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Lists information about app profiles in an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.bigtable.admin.v2.ListAppProfilesResponse>
         listAppProfiles(com.google.bigtable.admin.v2.ListAppProfilesRequest request) {
@@ -1629,35 +2113,67 @@ public final class BigtableInstanceAdminGrpc {
           getChannel().newCall(getListAppProfilesMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Updates an app profile within an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.longrunning.Operation>
         updateAppProfile(com.google.bigtable.admin.v2.UpdateAppProfileRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getUpdateAppProfileMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Deletes an app profile from an instance.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.protobuf.Empty>
         deleteAppProfile(com.google.bigtable.admin.v2.DeleteAppProfileRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getDeleteAppProfileMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Gets the access control policy for an instance resource. Returns an empty
+     * policy if an instance exists but does not have a policy set.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.iam.v1.Policy>
         getIamPolicy(com.google.iam.v1.GetIamPolicyRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getGetIamPolicyMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Sets the access control policy on an instance resource. Replaces any
+     * existing policy.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<com.google.iam.v1.Policy>
         setIamPolicy(com.google.iam.v1.SetIamPolicyRequest request) {
       return futureUnaryCall(
           getChannel().newCall(getSetIamPolicyMethod(), getCallOptions()), request);
     }
 
-    /** */
+    /**
+     *
+     *
+     * <pre>
+     * Returns permissions that the caller has on the specified instance resource.
+     * </pre>
+     */
     public com.google.common.util.concurrent.ListenableFuture<
             com.google.iam.v1.TestIamPermissionsResponse>
         testIamPermissions(com.google.iam.v1.TestIamPermissionsRequest request) {
