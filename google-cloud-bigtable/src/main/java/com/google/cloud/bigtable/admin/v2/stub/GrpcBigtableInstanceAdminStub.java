@@ -310,11 +310,21 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
         BigtableInstanceAdminStubSettings.newBuilder().build(), clientContext, callableFactory);
   }
 
+  /**
+   * Constructs an instance of GrpcBigtableInstanceAdminStub, using the given settings. This is
+   * protected so that it is easy to make a subclass, but otherwise, the static factory methods
+   * should be preferred.
+   */
   protected GrpcBigtableInstanceAdminStub(
       BigtableInstanceAdminStubSettings settings, ClientContext clientContext) throws IOException {
     this(settings, clientContext, new GrpcBigtableInstanceAdminCallableFactory());
   }
 
+  /**
+   * Constructs an instance of GrpcBigtableInstanceAdminStub, using the given settings. This is
+   * protected so that it is easy to make a subclass, but otherwise, the static factory methods
+   * should be preferred.
+   */
   protected GrpcBigtableInstanceAdminStub(
       BigtableInstanceAdminStubSettings settings,
       ClientContext clientContext,
