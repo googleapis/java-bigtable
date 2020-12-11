@@ -158,7 +158,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`. Maximum 50
    *     characters.
    * @param table Required. The Table to create.
@@ -181,7 +181,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`. Maximum 50
    *     characters.
    * @param table Required. The Table to create.
@@ -232,9 +232,9 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
-   * @param source_snapshot Required. The unique name of the snapshot from which to restore the
+   * @param sourceSnapshot Required. The unique name of the snapshot from which to restore the
    *     table. The snapshot and the table must be in the same instance. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -262,9 +262,9 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
-   * @param source_snapshot Required. The unique name of the snapshot from which to restore the
+   * @param sourceSnapshot Required. The unique name of the snapshot from which to restore the
    *     table. The snapshot and the table must be in the same instance. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -292,9 +292,9 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
-   * @param source_snapshot Required. The unique name of the snapshot from which to restore the
+   * @param sourceSnapshot Required. The unique name of the snapshot from which to restore the
    *     table. The snapshot and the table must be in the same instance. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -322,9 +322,9 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
-   * @param table_id Required. The name by which the new table should be referred to within the
+   * @param tableId Required. The name by which the new table should be referred to within the
    *     parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
-   * @param source_snapshot Required. The unique name of the snapshot from which to restore the
+   * @param sourceSnapshot Required. The unique name of the snapshot from which to restore the
    *     table. The snapshot and the table must be in the same instance. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -709,7 +709,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param name Required. The unique name of the Table for which to check replication consistency.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
-   * @param consistency_token Required. The token created using GenerateConsistencyToken for the
+   * @param consistencyToken Required. The token created using GenerateConsistencyToken for the
    *     Table.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -729,7 +729,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param name Required. The unique name of the Table for which to check replication consistency.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
-   * @param consistency_token Required. The token created using GenerateConsistencyToken for the
+   * @param consistencyToken Required. The token created using GenerateConsistencyToken for the
    *     Table.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -780,7 +780,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
    *     are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param snapshot_id Required. The ID by which the new snapshot should be referred to within the
+   * @param snapshotId Required. The ID by which the new snapshot should be referred to within the
    *     parent cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;` rather
    *     than `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * @param description Description of the snapshot.
@@ -812,7 +812,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
    *     are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param snapshot_id Required. The ID by which the new snapshot should be referred to within the
+   * @param snapshotId Required. The ID by which the new snapshot should be referred to within the
    *     parent cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;` rather
    *     than `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * @param description Description of the snapshot.
@@ -844,7 +844,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
    *     are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param snapshot_id Required. The ID by which the new snapshot should be referred to within the
+   * @param snapshotId Required. The ID by which the new snapshot should be referred to within the
    *     parent cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;` rather
    *     than `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * @param description Description of the snapshot.
@@ -876,7 +876,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
    *     are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param snapshot_id Required. The ID by which the new snapshot should be referred to within the
+   * @param snapshotId Required. The ID by which the new snapshot should be referred to within the
    *     parent cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;` rather
    *     than `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * @param description Description of the snapshot.
@@ -1184,7 +1184,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * @param parent Required. This must be one of the clusters in the instance in which this table is
    *     located. The backup will be stored in this cluster. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param backup_id Required. The id of the backup to be created. The `backup_id` along with the
+   * @param backupId Required. The id of the backup to be created. The `backup_id` along with the
    *     parent `parent` are combined as {parent}/backups/{backup_id} to create the full backup
    *     name, of the form:
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
@@ -1217,7 +1217,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * @param parent Required. This must be one of the clusters in the instance in which this table is
    *     located. The backup will be stored in this cluster. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
-   * @param backup_id Required. The id of the backup to be created. The `backup_id` along with the
+   * @param backupId Required. The id of the backup to be created. The `backup_id` along with the
    *     parent `parent` are combined as {parent}/backups/{backup_id} to create the full backup
    *     name, of the form:
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
@@ -1343,7 +1343,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * @param backup Required. The backup to update. `backup.name`, and the fields to be updated as
    *     specified by `update_mask` are required. Other fields are ignored. Update is only supported
    *     for the following fields: &#42; `backup.expire_time`.
-   * @param update_mask Required. A mask specifying which fields (e.g. `expire_time`) in the Backup
+   * @param updateMask Required. A mask specifying which fields (e.g. `expire_time`) in the Backup
    *     resource should be updated. This mask is relative to the Backup resource, not to the
    *     request message. The field mask must always be specified; this prevents any future fields
    *     from being erased accidentally by clients that do not know about them.
