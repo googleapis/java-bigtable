@@ -75,6 +75,7 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescr
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsConvertExceptionCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -365,10 +366,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new HeaderTracerStreamingCallable<>(
             watched, settings.getHeaderTracer(), getSpanName("ReadRows").toString());
 
+    // Check for "received rst stream" exceptions and convert them to retryable ApiExceptions
+    ServerStreamingCallable<ReadRowsRequest, RowT> convertException =
+        new ReadRowsConvertExceptionCallable<>(withHeaderTracer);
+
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(withHeaderTracer);
+        new ReadRowsRetryCompletedCallable<>(convertException);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
