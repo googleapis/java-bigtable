@@ -93,6 +93,7 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
 /**
@@ -475,13 +476,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable() {
     UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallable();
-
     UnaryCallable<BulkMutation, Void> userFacing =
         new BulkMutateRowsUserFacingCallable(baseCallable, requestContext);
-
+    UnaryCallable<BulkMutation, Void> flowControlCallable = null;
+    if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
+      flowControlCallable =
+          new DynamicFlowControlCallable(
+              userFacing,
+              settings.bulkMutateRowsSettings().getFlowController(),
+              settings.bulkMutateRowsSettings().getFlowControlEvents(),
+              settings.bulkMutateRowsSettings().getDynamicFlowControlStats(),
+              settings.bulkMutateRowsSettings().getTargetRpcLatency(),
+              TimeUnit.SECONDS.toMillis(20));
+    }
     SpanName spanName = getSpanName("MutateRows");
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(userFacing, clientContext.getTracerFactory(), spanName);
+        new TracedUnaryCallable<>(
+            flowControlCallable != null ? flowControlCallable : userFacing,
+            clientContext.getTracerFactory(),
+            spanName);
     UnaryCallable<BulkMutation, Void> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(traced, settings.getHeaderTracer(), spanName.toString());
 
@@ -513,7 +526,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
         bulkMutateRowsCallable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
-        clientContext.getExecutor());
+        clientContext.getExecutor(),
+        settings.bulkMutateRowsSettings().getFlowController(),
+        settings.bulkMutateRowsSettings().getFlowControlEvents());
   }
 
   /**

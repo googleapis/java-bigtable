@@ -219,6 +219,15 @@ public final class BigtableDataSettings {
     return stubSettings.getPrimedTableIds();
   }
 
+  /**
+   * Gets if latency based throttling is enabled for bulk mutation {@link
+   * BigtableDataClient#newBulkMutationBatcher(String)}
+   */
+  @BetaApi("Latency based throttling is not currently stable and may change in the future")
+  public boolean isLatencyBasedThrottlingForBatchMutationsEnabled() {
+    return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
+  }
+
   /** Returns the underlying RPC settings. */
   public EnhancedBigtableStubSettings getStubSettings() {
     return stubSettings;
@@ -375,6 +384,35 @@ public final class BigtableDataSettings {
       return stubSettings.getPrimedTableIds();
     }
 
+    /**
+     * Enable latency based throttling for bulk mutation {@link
+     * BigtableDataClient#newBulkMutationBatcher(String)} with a target rpc latency. The number of
+     * allowed in-flight requests will be adjusted to reach the target bulk mutations rpc latency.
+     */
+    @BetaApi("Latency based throttling is not currently stable and may change in the future")
+    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatency) {
+      stubSettings.enableBatchMutationLatencyBasedThrottling(targetRpcLatency);
+      return this;
+    }
+
+    /**
+     * Disable latency based throttling for bulk mutation {@link
+     * BigtableDataClient#newBulkMutationBatcher(String)}.
+     */
+    @BetaApi("Latency based throttling is not currently stable and may change in the future")
+    public Builder disableBatchMutationLatencyBasedThrottling() {
+      stubSettings.disableBatchMutationLatencyBasedThrottling();
+      return this;
+    }
+
+    /**
+     * Gets if latency based throttling is enabled for bulk mutation {@link
+     * BigtableDataClient#newBulkMutationBatcher(String)}
+     */
+    @BetaApi("Latency based throttling is not currently stable and may change in the future")
+    public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
+      return stubSettings.isLatencyBasedThrottlingForBatchMutationEnabled();
+    }
     /**
      * Returns the underlying settings for making RPC calls. The settings should be changed with
      * care.

@@ -77,6 +77,8 @@ public class EnhancedBigtableStubSettingsTest {
     WatchdogProvider watchdogProvider = Mockito.mock(WatchdogProvider.class);
     Duration watchdogInterval = Duration.ofSeconds(12);
     HeaderTracer headerTracer = Mockito.mock(HeaderTracer.class);
+    boolean isBatchMutationLatencyBasedThrottlingEnabled = true;
+    long batchMutationTargetLatency = 10;
 
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
@@ -88,7 +90,8 @@ public class EnhancedBigtableStubSettingsTest {
             .setCredentialsProvider(credentialsProvider)
             .setStreamWatchdogProvider(watchdogProvider)
             .setStreamWatchdogCheckInterval(watchdogInterval)
-            .setHeaderTracer(headerTracer);
+            .setHeaderTracer(headerTracer)
+            .enableBatchMutationLatencyBasedThrottling(batchMutationTargetLatency);
 
     verifyBuilder(
         builder,
@@ -100,7 +103,9 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer);
+        headerTracer,
+        isBatchMutationLatencyBasedThrottlingEnabled,
+        batchMutationTargetLatency);
     verifySettings(
         builder.build(),
         projectId,
@@ -111,7 +116,9 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer);
+        headerTracer,
+        isBatchMutationLatencyBasedThrottlingEnabled,
+        batchMutationTargetLatency);
     verifyBuilder(
         builder.build().toBuilder(),
         projectId,
@@ -122,7 +129,9 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer);
+        headerTracer,
+        isBatchMutationLatencyBasedThrottlingEnabled,
+        batchMutationTargetLatency);
   }
 
   private void verifyBuilder(
@@ -135,7 +144,9 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      HeaderTracer headerTracer) {
+      HeaderTracer headerTracer,
+      boolean isBatchMutationLatencyBasedThrottlingEnabled,
+      long batchMutationTargetLatency) {
     assertThat(builder.getProjectId()).isEqualTo(projectId);
     assertThat(builder.getInstanceId()).isEqualTo(instanceId);
     assertThat(builder.getAppProfileId()).isEqualTo(appProfileId);
@@ -145,6 +156,12 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(builder.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(builder.getHeaderTracer()).isEqualTo(headerTracer);
+    assertThat(builder.isLatencyBasedThrottlingForBatchMutationEnabled())
+        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
+    assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
+        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
+    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatency())
+        .isEqualTo(batchMutationTargetLatency);
   }
 
   private void verifySettings(
@@ -157,7 +174,9 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      HeaderTracer headerTracer) {
+      HeaderTracer headerTracer,
+      boolean isBatchMutationLatencyBasedThrottlingEnabled,
+      long batchMutationTargetLatency) {
     assertThat(settings.getProjectId()).isEqualTo(projectId);
     assertThat(settings.getInstanceId()).isEqualTo(instanceId);
     assertThat(settings.getAppProfileId()).isEqualTo(appProfileId);
@@ -167,6 +186,10 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(settings.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(settings.getHeaderTracer()).isEqualTo(headerTracer);
+    assertThat(settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
+        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
+    assertThat(settings.bulkMutateRowsSettings().getTargetRpcLatency())
+        .isEqualTo(batchMutationTargetLatency);
   }
 
   @Test
@@ -433,6 +456,8 @@ public class EnhancedBigtableStubSettingsTest {
             .setProjectId(dummyProjectId)
             .setInstanceId(dummyInstanceId);
 
+    assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isFalse();
+
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
@@ -444,12 +469,13 @@ public class EnhancedBigtableStubSettingsTest {
             .build();
 
     BatchingSettings batchingSettings = BatchingSettings.newBuilder().build();
-
+    long targetLatency = 10L;
     builder
         .bulkMutateRowsSettings()
         .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
         .setRetrySettings(retrySettings)
         .setBatchingSettings(batchingSettings)
+        .setLatencyBasedThrottling(true, targetLatency)
         .build();
 
     assertThat(builder.bulkMutateRowsSettings().getRetryableCodes())
@@ -457,6 +483,8 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.bulkMutateRowsSettings().getRetrySettings()).isEqualTo(retrySettings);
     assertThat(builder.bulkMutateRowsSettings().getBatchingSettings())
         .isSameInstanceAs(batchingSettings);
+    assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
+    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatency()).isEqualTo(targetLatency);
 
     assertThat(builder.build().bulkMutateRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -464,6 +492,15 @@ public class EnhancedBigtableStubSettingsTest {
         .isEqualTo(retrySettings);
     assertThat(builder.build().bulkMutateRowsSettings().getBatchingSettings())
         .isSameInstanceAs(batchingSettings);
+    assertThat(builder.build().bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
+    assertThat(builder.build().bulkMutateRowsSettings().getTargetRpcLatency())
+        .isEqualTo(targetLatency);
+    assertThat(builder.build().bulkMutateRowsSettings().getFlowController())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());
+    assertThat(builder.build().bulkMutateRowsSettings().getFlowControlEvents())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowControlEvents());
+    assertThat(builder.build().bulkMutateRowsSettings().getDynamicFlowControlStats())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getDynamicFlowControlStats());
 
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -471,6 +508,17 @@ public class EnhancedBigtableStubSettingsTest {
         .isEqualTo(retrySettings);
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getBatchingSettings())
         .isSameInstanceAs(batchingSettings);
+    assertThat(
+            builder.build().toBuilder().bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
+        .isTrue();
+    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getTargetRpcLatency())
+        .isEqualTo(targetLatency);
+    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getFlowController())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());
+    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getFlowControlEvents())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowControlEvents());
+    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getDynamicFlowControlStats())
+        .isSameInstanceAs(builder.bulkMutateRowsSettings().getDynamicFlowControlStats());
   }
 
   @Test
