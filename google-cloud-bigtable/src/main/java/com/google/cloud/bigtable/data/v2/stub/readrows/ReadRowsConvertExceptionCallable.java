@@ -16,14 +16,12 @@
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import io.grpc.Status;
-import io.grpc.Status.Code;
 
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
@@ -67,19 +65,23 @@ public final class ReadRowsConvertExceptionCallable<ReadRowsRequest, RowT>
 
     @Override
     public void onError(Throwable t) {
-      Status status = Status.fromThrowable(t);
-      if (status.getCode() == Code.INTERNAL
-          && status.getDescription() != null
-          && status.getDescription().contains("Received Rst stream")) {
-        outerObserver.onError(new ApiException(t, GrpcStatusCode.of(status.getCode()), true));
-      } else {
-        outerObserver.onError(t);
-      }
+      outerObserver.onError(convertException(t));
     }
 
     @Override
     public void onComplete() {
       outerObserver.onComplete();
     }
+  }
+
+  private Throwable convertException(Throwable t) {
+    // Long lived connections sometimes are disconnected via an RST frame. This error is
+    // transient and should be retried.
+    if (t instanceof InternalException) {
+      if (t.getMessage() != null && t.getMessage().contains("Received Rst stream")) {
+        return new InternalException(t, ((InternalException) t).getStatusCode(), true);
+      }
+    }
+    return t;
   }
 }

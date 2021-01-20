@@ -346,8 +346,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             readRowsSettings.getRetryableCodes());
 
+    // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
+    // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
+    // which by default is not retryable. Convert the exception so it can be retried in the client.
+    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
+        new ReadRowsConvertExceptionCallable<>(base);
+
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
-        new RowMergingCallable<>(base, rowAdapter);
+        new RowMergingCallable<>(convertException, rowAdapter);
 
     // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
     // ReadRowsRequest -> ReadRowsResponse callable).
@@ -366,14 +372,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new HeaderTracerStreamingCallable<>(
             watched, settings.getHeaderTracer(), getSpanName("ReadRows").toString());
 
-    // Check for "received rst stream" exceptions and convert them to retryable ApiExceptions
-    ServerStreamingCallable<ReadRowsRequest, RowT> convertException =
-        new ReadRowsConvertExceptionCallable<>(withHeaderTracer);
-
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(convertException);
+        new ReadRowsRetryCompletedCallable<>(withHeaderTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
