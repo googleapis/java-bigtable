@@ -37,7 +37,7 @@ public class WriteIncrement {
       String rowkey = "phone#4c410523#20190501";
       ReadModifyWriteRow mutation =
           ReadModifyWriteRow.create(tableId, rowkey)
-              .increment(COLUMN_FAMILY_NAME, "connected_cell", -1);
+              .increment(COLUMN_FAMILY_NAME, "data_used_kb", 1234567);
       Row success = dataClient.readModifyWriteRow(mutation);
 
       System.out.printf(

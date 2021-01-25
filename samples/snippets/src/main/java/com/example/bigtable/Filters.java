@@ -268,7 +268,18 @@ public class Filters {
   public static void filterModifyStripValue(String projectId, String instanceId, String tableId) {
     // A filter that replaces the outputted cell value with the empty string
     Filter filter = FILTERS.value().strip();
-    readFilter(projectId, instanceId, tableId, filter);
+    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+      Query query = Query.create(tableId).filter(filter);
+      ServerStream<Row> rows = dataClient.readRows(query);
+      int count = 0;
+      for (Row row : rows) {
+        count++;
+      }
+      System.out.printf("Got %d rows", count);
+    } catch (IOException e) {
+      System.out.println(
+          "Unable to initialize service client, as a network error occurred: \n" + e.toString());
+    }
   }
   // [END bigtable_filters_modify_strip_value]
 
@@ -302,9 +313,20 @@ public class Filters {
     Filter filter =
         FILTERS
             .chain()
-            .filter(FILTERS.limit().cellsPerColumn(1))
-            .filter(FILTERS.family().exactMatch("cell_plan"));
-    readFilter(projectId, instanceId, tableId, filter);
+            .filter(FILTERS.limit().cellsPerRow(1))
+            .filter(FILTERS.value().strip());
+    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+      Query query = Query.create(tableId).filter(filter);
+      ServerStream<Row> rows = dataClient.readRows(query);
+      int count = 0;
+      for (Row row : rows) {
+        count++;
+      }
+      System.out.printf("Got %d rows", count);
+    } catch (IOException e) {
+      System.out.println(
+          "Unable to initialize service client, as a network error occurred: \n" + e.toString());
+    }
   }
   // [END bigtable_filters_composing_chain]
 
@@ -323,12 +345,12 @@ public class Filters {
     Filter filter =
         FILTERS
             .interleave()
-            .filter(FILTERS.value().exactMatch("true"))
-            .filter(FILTERS.qualifier().exactMatch("os_build"));
+            .filter(FILTERS.value().regex("PQ2A.190405*$"))
+            .filter(FILTERS.value().regex("PQ2A.190406*$"));
     readFilter(projectId, instanceId, tableId, filter);
   }
   // [END bigtable_filters_composing_interleave]
-
+  
   // [START bigtable_filters_composing_condition]
   public static void filterComposingCondition() {
     // TODO(developer): Replace these variables before running the sample.

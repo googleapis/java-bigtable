@@ -16,16 +16,16 @@
 
 package com.example.bigtable;
 
-// [START bigtable_writes_simple]
+// [START bigtable_writes_incrementable]
 
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.protobuf.ByteString;
 
-public class WriteSimple {
+public class WriteIncrementable {
   private static final String COLUMN_FAMILY_NAME = "stats_summary";
 
-  public static void writeSimple(String projectId, String instanceId, String tableId) {
+  public static void writeIncrementable(String projectId, String instanceId, String tableId) {
     // String projectId = "my-project-id";
     // String instanceId = "my-instance-id";
     // String tableId = "mobile-time-series";
@@ -39,25 +39,17 @@ public class WriteSimple {
           RowMutation.create(tableId, rowkey)
               .setCell(
                   COLUMN_FAMILY_NAME,
-                  ByteString.copyFrom("connected_cell".getBytes()),
+                  ByteString.copyFrom("data_used_kb".getBytes()),
                   timestamp,
-                  // Use 0/1 to indicate false/true
-                  1)
-              .setCell(
-                  COLUMN_FAMILY_NAME,
-                  ByteString.copyFrom("connected_wifi".getBytes()),
-                  timestamp,
-                  // Use 0/1 to indicate false/true
-                  1)
-              .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "PQ2A.190405.003");
+                  567890);
 
       dataClient.mutateRow(rowMutation);
-      System.out.printf("Successfully wrote to row %s", rowkey);
+      System.out.printf("Successfully wrote row %s", rowkey);
 
     } catch (Exception e) {
-      System.out.println("Error during WriteSimple: \n" + e.toString());
+      System.out.println("Error during WriteIncrementable: \n" + e.toString());
     }
   }
 }
 
-// [END bigtable_writes_simple]
+// [END bigtable_writes_incrementable]
