@@ -31,7 +31,6 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ConfigureConnectionPoolTest {
 
-  private static final String INSTANCE_ENV = "BIGTABLE_TESTING_INSTANCE";
   private static String projectId;
   private static String instanceId;
   private ByteArrayOutputStream bout;
@@ -47,7 +46,7 @@ public class ConfigureConnectionPoolTest {
   @BeforeClass
   public static void beforeClass() {
     projectId = requireEnv("GOOGLE_CLOUD_PROJECT");
-    instanceId = requireEnv(INSTANCE_ENV);
+    instanceId = requireEnv("BIGTABLE_TESTING_INSTANCE");
   }
 
   @Before
