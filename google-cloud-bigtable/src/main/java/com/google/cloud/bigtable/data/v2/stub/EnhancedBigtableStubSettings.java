@@ -757,8 +757,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * allowed in-flight requests will be adjusted to reach the target bulk mutations rpc latency.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatency) {
-      bulkMutateRowsSettings.setLatencyBasedThrottling(true, targetRpcLatency);
+    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
+      bulkMutateRowsSettings.setLatencyBasedThrottling(true, targetRpcLatencyMs);
       return this;
     }
 

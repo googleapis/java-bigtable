@@ -390,8 +390,8 @@ public final class BigtableDataSettings {
      * allowed in-flight requests will be adjusted to reach the target bulk mutations rpc latency.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatency) {
-      stubSettings.enableBatchMutationLatencyBasedThrottling(targetRpcLatency);
+    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
+      stubSettings.enableBatchMutationLatencyBasedThrottling(targetRpcLatencyMs);
       return this;
     }
 

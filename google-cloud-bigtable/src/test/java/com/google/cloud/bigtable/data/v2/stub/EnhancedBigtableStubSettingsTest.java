@@ -160,7 +160,7 @@ public class EnhancedBigtableStubSettingsTest {
         .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
     assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
         .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
-    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatency())
+    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(batchMutationTargetLatency);
   }
 
@@ -188,7 +188,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getHeaderTracer()).isEqualTo(headerTracer);
     assertThat(settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
         .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
-    assertThat(settings.bulkMutateRowsSettings().getTargetRpcLatency())
+    assertThat(settings.bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(batchMutationTargetLatency);
   }
 
@@ -484,7 +484,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.bulkMutateRowsSettings().getBatchingSettings())
         .isSameInstanceAs(batchingSettings);
     assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
-    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatency()).isEqualTo(targetLatency);
+    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatencyMs()).isEqualTo(targetLatency);
 
     assertThat(builder.build().bulkMutateRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -493,7 +493,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.build().bulkMutateRowsSettings().getBatchingSettings())
         .isSameInstanceAs(batchingSettings);
     assertThat(builder.build().bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
-    assertThat(builder.build().bulkMutateRowsSettings().getTargetRpcLatency())
+    assertThat(builder.build().bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(targetLatency);
     assertThat(builder.build().bulkMutateRowsSettings().getFlowController())
         .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());
@@ -511,7 +511,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(
             builder.build().toBuilder().bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
         .isTrue();
-    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getTargetRpcLatency())
+    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(targetLatency);
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getFlowController())
         .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());

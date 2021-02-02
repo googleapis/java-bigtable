@@ -15,30 +15,33 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.InternalApi;
+import com.google.api.gax.batching.FlowController;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-@InternalApi
-public class DynamicFlowControlStats {
+/**
+ * Records stats used in dynamic flow control, the decaying average of recorded latencies and the
+ * last timestamp when the thresholds in {@link FlowController} are updated.
+ */
+class DynamicFlowControlStats {
 
   private static final double DEFAULT_DECAY_CONSTANT = 0.015; // Biased to the past 5 minutes
 
   private AtomicLong lastAdjustedTimestampMs;
   private DecayingAverage meanLatency;
 
-  public DynamicFlowControlStats() {
+  DynamicFlowControlStats() {
     this(DEFAULT_DECAY_CONSTANT);
   }
 
-  public DynamicFlowControlStats(double decayConstant) {
+  DynamicFlowControlStats(double decayConstant) {
     this.lastAdjustedTimestampMs = new AtomicLong(0);
     this.meanLatency = new DecayingAverage(decayConstant);
   }
 
-  public void updateLatency(long latency) {
+  void updateLatency(long latency) {
     updateLatency(latency, System.currentTimeMillis());
   }
 
@@ -47,7 +50,7 @@ public class DynamicFlowControlStats {
     meanLatency.update(latency, timestampMs);
   }
 
-  public double getMeanLatency() {
+  double getMeanLatency() {
     return getMeanLatency(System.currentTimeMillis());
   }
 
@@ -56,11 +59,11 @@ public class DynamicFlowControlStats {
     return meanLatency.getMean(timestampMs);
   }
 
-  public long getLastAdjustedTimestampMs() {
+  long getLastAdjustedTimestampMs() {
     return lastAdjustedTimestampMs.get();
   }
 
-  public boolean setLastAdjustedTimestampMs(long last, long now) {
+  boolean setLastAdjustedTimestampMs(long last, long now) {
     return lastAdjustedTimestampMs.compareAndSet(last, now);
   }
 
@@ -102,7 +105,7 @@ public class DynamicFlowControlStats {
     double getMean(long timestampMs) {
       long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
       Preconditions.checkArgument(
-          now >= lastUpdateTimeInSecond.get(), "can't get the mean from timestamp in the past");
+          now >= lastUpdateTimeInSecond.get(), "can't get the mean from a timestamp in the past");
       long elapsed = now - lastUpdateTimeInSecond.get();
       return mean * getAlpha(elapsed);
     }

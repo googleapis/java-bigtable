@@ -476,25 +476,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable() {
     UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallable();
-    UnaryCallable<BulkMutation, Void> userFacing =
-        new BulkMutateRowsUserFacingCallable(baseCallable, requestContext);
-    UnaryCallable<BulkMutation, Void> flowControlCallable = null;
+
+    UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
       flowControlCallable =
           new DynamicFlowControlCallable(
-              userFacing,
+              baseCallable,
               settings.bulkMutateRowsSettings().getFlowController(),
               settings.bulkMutateRowsSettings().getFlowControlEvents(),
               settings.bulkMutateRowsSettings().getDynamicFlowControlStats(),
-              settings.bulkMutateRowsSettings().getTargetRpcLatency(),
+              settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
               TimeUnit.SECONDS.toMillis(20));
     }
+    UnaryCallable<BulkMutation, Void> userFacing =
+        new BulkMutateRowsUserFacingCallable(
+            flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
+
     SpanName spanName = getSpanName("MutateRows");
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(
-            flowControlCallable != null ? flowControlCallable : userFacing,
-            clientContext.getTracerFactory(),
-            spanName);
+        new TracedUnaryCallable<>(userFacing, clientContext.getTracerFactory(), spanName);
     UnaryCallable<BulkMutation, Void> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(traced, settings.getHeaderTracer(), spanName.toString());
 

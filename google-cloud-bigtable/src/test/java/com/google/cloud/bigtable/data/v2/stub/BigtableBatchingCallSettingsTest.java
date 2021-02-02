@@ -54,7 +54,7 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(builder.getRetryableCodes()).isEmpty();
     assertThat(builder.getRetrySettings()).isNotNull();
     assertThat(builder.isLatencyBasedThrottlingEnabled()).isFalse();
-    assertThat(builder.getTargetRpcLatency()).isNull();
+    assertThat(builder.getTargetRpcLatencyMs()).isNull();
     assertThat(builder.getFlowController()).isNull();
     assertThat(builder.getFlowControlEvents()).isNull();
     assertThat(builder.getDynamicFlowControlStats()).isNull();
@@ -77,7 +77,7 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(settings.getRetryableCodes()).isEqualTo(retryCodes);
     assertThat(settings.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
-    assertThat(settings.getTargetRpcLatency()).isNull();
+    assertThat(settings.getTargetRpcLatencyMs()).isNull();
     assertThat(settings.getFlowController()).isNotNull();
     assertThat(settings.getFlowControlEvents()).isNotNull();
     assertThat(settings.getDynamicFlowControlStats()).isNotNull();
@@ -86,14 +86,14 @@ public class BigtableBatchingCallSettingsTest {
     builder.setLatencyBasedThrottling(true, 10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isTrue();
-    assertThat(settings.getTargetRpcLatency()).isEqualTo(10);
+    assertThat(settings.getTargetRpcLatencyMs()).isEqualTo(10);
     assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
     flowController = settings.getFlowController();
 
     builder.setLatencyBasedThrottling(false, 10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
-    assertThat(settings.getTargetRpcLatency()).isNull();
+    assertThat(settings.getTargetRpcLatencyMs()).isNull();
     assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
   }
 
@@ -117,7 +117,7 @@ public class BigtableBatchingCallSettingsTest {
         .containsExactly(StatusCode.Code.UNAVAILABLE, StatusCode.Code.UNAUTHENTICATED);
     assertThat(newBuilder.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(newBuilder.isLatencyBasedThrottlingEnabled()).isTrue();
-    assertThat(newBuilder.getTargetRpcLatency()).isEqualTo(10L);
+    assertThat(newBuilder.getTargetRpcLatencyMs()).isEqualTo(10L);
     assertThat(newBuilder.getFlowController()).isSameInstanceAs(builder.getFlowController());
     assertThat(newBuilder.getFlowControlEvents()).isSameInstanceAs(builder.getFlowControlEvents());
     assertThat(newBuilder.getDynamicFlowControlStats())

@@ -25,12 +25,16 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
+/**
+ * A callable that records rpc latency and adjusts flow control thresholds for latency based
+ * throttling.
+ */
 final class DynamicFlowControlCallable extends UnaryCallable {
 
   private final FlowController flowController;
   private final FlowControlEventStats flowControlEvents;
   private final DynamicFlowControlStats dynamicFlowControlStats;
-  private final long targetLatency;
+  private final long targetLatencyMs;
   private final long adjustingIntervalMs;
   private final UnaryCallable innerCallable;
 
@@ -39,13 +43,13 @@ final class DynamicFlowControlCallable extends UnaryCallable {
       @Nonnull FlowController flowController,
       @Nonnull FlowControlEventStats flowControlEvents,
       @Nonnull DynamicFlowControlStats stats,
-      long targetLatency,
+      long targetLatencyMs,
       long adjustingIntervalMs) {
     this.innerCallable = innerCallable;
     this.flowController = flowController;
     this.flowControlEvents = flowControlEvents;
     this.dynamicFlowControlStats = stats;
-    this.targetLatency = targetLatency;
+    this.targetLatencyMs = targetLatencyMs;
     this.adjustingIntervalMs = adjustingIntervalMs;
   }
 
@@ -56,7 +60,7 @@ final class DynamicFlowControlCallable extends UnaryCallable {
             flowController,
             flowControlEvents,
             dynamicFlowControlStats,
-            targetLatency,
+            targetLatencyMs,
             adjustingIntervalMs);
     ApiFuture future = innerCallable.futureCall(request, context);
     future.addListener(flowControllerRunnable, MoreExecutors.directExecutor());

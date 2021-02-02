@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.BetaApi;
+import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingSettings;
@@ -48,6 +49,7 @@ import javax.annotation.Nullable;
  *             .setDelayThreshold(Duration.ofSeconds(10))
  *             .build())
  *     .setRetryableCodes(Code.DEADLINE_EXCEEDED)
+ *     .setLatencyBasedThrottling(true, 1000L)
  *     .build();
  * }</pre>
  *
@@ -61,7 +63,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
   // additional functionality.
   private BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void> batchingCallSettings;
   private boolean isLatencyBasedThrottlingEnabled;
-  private Long targetRpcLatency;
+  private Long targetRpcLatencyMs;
   private FlowController flowController;
   private FlowControlEventStats flowControlEvents;
   private DynamicFlowControlStats dynamicFlowControlStats;
@@ -75,7 +77,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
             .setRetryableCodes(builder.getRetryableCodes())
             .build();
     this.isLatencyBasedThrottlingEnabled = builder.isLatencyBasedThrottlingEnabled;
-    this.targetRpcLatency = builder.targetRpcLatency;
+    this.targetRpcLatencyMs = builder.targetRpcLatencyMs;
     this.flowController = builder.flowController;
     this.flowControlEvents = builder.flowControlEvents;
     this.dynamicFlowControlStats = builder.dynamicFlowControlStats;
@@ -91,23 +93,28 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return batchingCallSettings.getBatchingDescriptor();
   }
 
+  /** Gets if latency based throttling is enabled. */
   public boolean isLatencyBasedThrottlingEnabled() {
     return isLatencyBasedThrottlingEnabled;
   }
 
+  /** Returns target rpc latency for bulk mutations if latency based throttling is enabled. */
   @Nullable
-  Long getTargetRpcLatency() {
-    return targetRpcLatency;
+  Long getTargetRpcLatencyMs() {
+    return targetRpcLatencyMs;
   }
 
+  /** Returns a {@link FlowController} to use in bulk mutation {@link Batcher}. */
   FlowController getFlowController() {
     return flowController;
   }
 
+  /** Returns a {@link FlowControlEventStats} to use in bulk mutation {@link Batcher}. */
   FlowControlEventStats getFlowControlEvents() {
     return flowControlEvents;
   }
 
+  /** Returns a {@link DynamicFlowControlStats}. */
   DynamicFlowControlStats getDynamicFlowControlStats() {
     return dynamicFlowControlStats;
   }
@@ -131,7 +138,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return MoreObjects.toStringHelper(this)
         .add("batchingCallSettings", batchingCallSettings)
         .add("isLatencyBasedThrottlingEnabled", isLatencyBasedThrottlingEnabled)
-        .add("targetRpcLatency", targetRpcLatency)
+        .add("targetRpcLatency", targetRpcLatencyMs)
         .toString();
   }
 
@@ -144,7 +151,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     private BatchingDescriptor<RowMutationEntry, Void, BulkMutation, Void> batchingDescriptor;
     private BatchingSettings batchingSettings;
     private boolean isLatencyBasedThrottlingEnabled;
-    private Long targetRpcLatency;
+    private Long targetRpcLatencyMs;
     private FlowController flowController;
     private FlowControlEventStats flowControlEvents;
     private DynamicFlowControlStats dynamicFlowControlStats;
@@ -161,7 +168,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       this.batchingDescriptor = settings.getBatchingDescriptor();
       this.batchingSettings = settings.getBatchingSettings();
       this.isLatencyBasedThrottlingEnabled = settings.isLatencyBasedThrottlingEnabled();
-      this.targetRpcLatency = settings.getTargetRpcLatency();
+      this.targetRpcLatencyMs = settings.getTargetRpcLatencyMs();
       this.flowController = settings.getFlowController();
       this.flowControlEvents = settings.getFlowControlEvents();
       this.dynamicFlowControlStats = settings.getDynamicFlowControlStats();
@@ -201,8 +208,11 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     }
 
     /**
-     * Enable / disable latency based throttling. If enabling the setting, targetRpcLatency needs to
-     * be set.
+     * Enables / disables latency based throttling. If enabling the setting, targetRpcLatency needs
+     * to be set.
+     *
+     * <p>{@link BatchingSettings} must be set before calling this setting. Sets up a {@link
+     * FlowController} bases on isLatencyBasedThrottlingEnabled and BatchingSettings.
      */
     public Builder setLatencyBasedThrottling(
         boolean isLatencyBasedThrottlingEnabled, @Nullable Long targetRpcLatency) {
@@ -216,9 +226,9 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
           targetRpcLatency == null || targetRpcLatency > 0,
           "if target RPC latency is set, it must be greater than 0");
       this.isLatencyBasedThrottlingEnabled = isLatencyBasedThrottlingEnabled;
-      this.targetRpcLatency = isLatencyBasedThrottlingEnabled ? targetRpcLatency : null;
+      this.targetRpcLatencyMs = isLatencyBasedThrottlingEnabled ? targetRpcLatency : null;
       if (isLatencyBasedThrottlingEnabled) {
-        // Set up a flow controller with DynamicFlowControlSettings.
+        // Set up a flow controller with DynamicFlowControlSettings
         Long maxThrottlingElementCount =
             batchingSettings.getFlowControlSettings().getMaxOutstandingElementCount();
         Long maxThrottlingRequestByteCount =
@@ -256,32 +266,32 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       return this;
     }
 
-    /**
-     * Get target rpc latency used in latency based throttling. Return null if dynamic throttling is
-     * disabled.
-     */
+    /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
     @Nullable
-    public Long getTargetRpcLatency() {
+    public Long getTargetRpcLatencyMs() {
       if (isLatencyBasedThrottlingEnabled) {
-        return this.targetRpcLatency;
+        return this.targetRpcLatencyMs;
       } else {
         return null;
       }
     }
 
-    /** Return if latency based throttling is enabled */
+    /** Gets if latency based throttling is enabled. */
     public boolean isLatencyBasedThrottlingEnabled() {
       return this.isLatencyBasedThrottlingEnabled;
     }
 
+    /** Returns a {@link FlowController} to use in bulk mutation {@link Batcher}. */
     public FlowController getFlowController() {
       return flowController;
     }
 
+    /** Returns a {@link FlowControlEventStats} to use in bulk mutation {@link Batcher}. */
     public FlowControlEventStats getFlowControlEvents() {
       return flowControlEvents;
     }
 
+    /** Returns a {@link DynamicFlowControlStats}. */
     public DynamicFlowControlStats getDynamicFlowControlStats() {
       return dynamicFlowControlStats;
     }
