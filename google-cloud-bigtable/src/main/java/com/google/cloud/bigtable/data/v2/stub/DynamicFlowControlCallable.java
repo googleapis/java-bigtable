@@ -109,12 +109,12 @@ final class DynamicFlowControlCallable extends UnaryCallable {
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 3 / 10);
       } else if (meanLatency > targetLatency * 1.2) {
         decrease(lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() / 10);
-      } else if (throttled && meanLatency < targetLatency * 8 / 10) {
+      } else if (throttled && meanLatency < targetLatency * 0.8) {
         increase(
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 5 / 100);
       } else if (throttled
           && flowController.getCurrentOutstandingElementCount()
-              < flowController.getMaxOutstandingElementCount() * 5 / 100
+              < flowController.getMaxOutstandingElementCount() * 0.05
           && meanLatency < 2 * targetLatency) {
         increase(
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 2 / 100);

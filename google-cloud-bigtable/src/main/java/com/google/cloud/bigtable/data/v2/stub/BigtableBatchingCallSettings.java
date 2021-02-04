@@ -243,7 +243,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
           maxThrottlingRequestByteCount = 100L * 1024 * 1024;
         }
 
-        long initialElementCount = maxThrottlingElementCount / 5;
+        long initialElementCount = maxThrottlingElementCount / 4;
         long minElementCount = maxThrottlingElementCount / 100;
         if (batchingSettings.getElementCountThreshold() != null) {
           initialElementCount =
