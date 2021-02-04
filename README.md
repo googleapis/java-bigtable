@@ -258,6 +258,8 @@ StackdriverTraceExporter.createAndRegister(
       .setProjectId("YOUR_PROJECT_ID")
       .build());
 ```
+You can view the traces on the Google Cloud Platform Console 
+[Trace](https://console.cloud.google.com/traces) page.
 
 By default traces are [sampled](https://opencensus.io/tracing/sampling) at a rate of about 1/10,000.
 You can configure a higher rate by updating the active tracing params:
@@ -374,6 +376,28 @@ StackdriverStatsExporter.createAndRegister(
 BigtableDataSettings.enableOpenCensusStats();
 // Enable GFE metric views
 BigtableDataSettings.enableGfeOpenCensusStats();
+```
+
+You can view the metrics on the Google Cloud Platform Console
+[Metrics explorer](https://console.cloud.google.com/monitoring/metrics-explorer)
+page.
+
+You can configure how frequent metrics are pushed to StackDriver and the
+[Monitor Resource](https://cloud.google.com/monitoring/api/resources) by
+updating the stats configuration:
+
+``` java
+// set export interval to 10 seconds and monitor resource to global
+StackdriverStatsExporter.createAndRegister(
+    StackdriverStatsConfiguration.builder()
+        .setProjectId("YOUR_PROJECT_ID")
+        .setExportInterval(Duration.create(10, 0))
+        .setMonitoredResource(MonitoredResource.newBuilder()
+             .setType("global")
+             .putLabels("project_id", "YOUR_PROJECT_ID")
+           .build())
+        .build()
+);
 ```
 
 ## Version Conflicts
