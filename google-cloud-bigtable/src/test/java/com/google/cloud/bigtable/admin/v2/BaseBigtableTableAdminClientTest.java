@@ -143,7 +143,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
     InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-    String tableId = "table_id-895419604";
+    String tableId = "tableId-1552905847";
     Table table = Table.newBuilder().build();
 
     Table actualResponse = client.createTable(parent, tableId, table);
@@ -169,7 +169,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-      String tableId = "table_id-895419604";
+      String tableId = "tableId-1552905847";
       Table table = Table.newBuilder().build();
       client.createTable(parent, tableId, table);
       Assert.fail("No exception raised");
@@ -190,7 +190,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
     String parent = "parent-995424086";
-    String tableId = "table_id-895419604";
+    String tableId = "tableId-1552905847";
     Table table = Table.newBuilder().build();
 
     Table actualResponse = client.createTable(parent, tableId, table);
@@ -216,7 +216,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String tableId = "table_id-895419604";
+      String tableId = "tableId-1552905847";
       Table table = Table.newBuilder().build();
       client.createTable(parent, tableId, table);
       Assert.fail("No exception raised");
@@ -243,7 +243,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-    String tableId = "table_id-895419604";
+    String tableId = "tableId-1552905847";
     SnapshotName sourceSnapshot =
         SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
 
@@ -272,7 +272,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-      String tableId = "table_id-895419604";
+      String tableId = "tableId-1552905847";
       SnapshotName sourceSnapshot =
           SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
       client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
@@ -302,8 +302,8 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-    String tableId = "table_id-895419604";
-    String sourceSnapshot = "source_snapshot-947679896";
+    String tableId = "tableId-1552905847";
+    String sourceSnapshot = "sourceSnapshot-1078634753";
 
     Table actualResponse =
         client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
@@ -330,8 +330,8 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
-      String tableId = "table_id-895419604";
-      String sourceSnapshot = "source_snapshot-947679896";
+      String tableId = "tableId-1552905847";
+      String sourceSnapshot = "sourceSnapshot-1078634753";
       client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
       Assert.fail("No exception raised");
     } catch (ExecutionException e) {
@@ -359,7 +359,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     String parent = "parent-995424086";
-    String tableId = "table_id-895419604";
+    String tableId = "tableId-1552905847";
     SnapshotName sourceSnapshot =
         SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
 
@@ -388,7 +388,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String tableId = "table_id-895419604";
+      String tableId = "tableId-1552905847";
       SnapshotName sourceSnapshot =
           SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
       client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
@@ -418,8 +418,8 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     String parent = "parent-995424086";
-    String tableId = "table_id-895419604";
-    String sourceSnapshot = "source_snapshot-947679896";
+    String tableId = "tableId-1552905847";
+    String sourceSnapshot = "sourceSnapshot-1078634753";
 
     Table actualResponse =
         client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
@@ -446,8 +446,8 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String tableId = "table_id-895419604";
-      String sourceSnapshot = "source_snapshot-947679896";
+      String tableId = "tableId-1552905847";
+      String sourceSnapshot = "sourceSnapshot-1078634753";
       client.createTableFromSnapshotAsync(parent, tableId, sourceSnapshot).get();
       Assert.fail("No exception raised");
     } catch (ExecutionException e) {
@@ -832,7 +832,7 @@ public class BaseBigtableTableAdminClientTest {
   public void generateConsistencyTokenTest() throws Exception {
     GenerateConsistencyTokenResponse expectedResponse =
         GenerateConsistencyTokenResponse.newBuilder()
-            .setConsistencyToken("consistency_token-1090516718")
+            .setConsistencyToken("consistencyToken-1985152319")
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -871,7 +871,7 @@ public class BaseBigtableTableAdminClientTest {
   public void generateConsistencyTokenTest2() throws Exception {
     GenerateConsistencyTokenResponse expectedResponse =
         GenerateConsistencyTokenResponse.newBuilder()
-            .setConsistencyToken("consistency_token-1090516718")
+            .setConsistencyToken("consistencyToken-1985152319")
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
@@ -913,7 +913,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
     TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
-    String consistencyToken = "consistency_token-1090516718";
+    String consistencyToken = "consistencyToken-1985152319";
 
     CheckConsistencyResponse actualResponse = client.checkConsistency(name, consistencyToken);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -937,7 +937,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
-      String consistencyToken = "consistency_token-1090516718";
+      String consistencyToken = "consistencyToken-1985152319";
       client.checkConsistency(name, consistencyToken);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -952,7 +952,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
     String name = "name3373707";
-    String consistencyToken = "consistency_token-1090516718";
+    String consistencyToken = "consistencyToken-1985152319";
 
     CheckConsistencyResponse actualResponse = client.checkConsistency(name, consistencyToken);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -976,7 +976,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       String name = "name3373707";
-      String consistencyToken = "consistency_token-1090516718";
+      String consistencyToken = "consistencyToken-1985152319";
       client.checkConsistency(name, consistencyToken);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -1006,7 +1006,7 @@ public class BaseBigtableTableAdminClientTest {
 
     TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
     ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    String snapshotId = "snapshot_id-168585866";
+    String snapshotId = "snapshotId-1113817601";
     String description = "description-1724546052";
 
     Snapshot actualResponse =
@@ -1035,7 +1035,7 @@ public class BaseBigtableTableAdminClientTest {
     try {
       TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
       ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      String snapshotId = "snapshot_id-168585866";
+      String snapshotId = "snapshotId-1113817601";
       String description = "description-1724546052";
       client.snapshotTableAsync(name, cluster, snapshotId, description).get();
       Assert.fail("No exception raised");
@@ -1068,7 +1068,7 @@ public class BaseBigtableTableAdminClientTest {
 
     TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
     String cluster = "cluster872092154";
-    String snapshotId = "snapshot_id-168585866";
+    String snapshotId = "snapshotId-1113817601";
     String description = "description-1724546052";
 
     Snapshot actualResponse =
@@ -1097,7 +1097,7 @@ public class BaseBigtableTableAdminClientTest {
     try {
       TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
       String cluster = "cluster872092154";
-      String snapshotId = "snapshot_id-168585866";
+      String snapshotId = "snapshotId-1113817601";
       String description = "description-1724546052";
       client.snapshotTableAsync(name, cluster, snapshotId, description).get();
       Assert.fail("No exception raised");
@@ -1130,7 +1130,7 @@ public class BaseBigtableTableAdminClientTest {
 
     String name = "name3373707";
     ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    String snapshotId = "snapshot_id-168585866";
+    String snapshotId = "snapshotId-1113817601";
     String description = "description-1724546052";
 
     Snapshot actualResponse =
@@ -1159,7 +1159,7 @@ public class BaseBigtableTableAdminClientTest {
     try {
       String name = "name3373707";
       ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      String snapshotId = "snapshot_id-168585866";
+      String snapshotId = "snapshotId-1113817601";
       String description = "description-1724546052";
       client.snapshotTableAsync(name, cluster, snapshotId, description).get();
       Assert.fail("No exception raised");
@@ -1192,7 +1192,7 @@ public class BaseBigtableTableAdminClientTest {
 
     String name = "name3373707";
     String cluster = "cluster872092154";
-    String snapshotId = "snapshot_id-168585866";
+    String snapshotId = "snapshotId-1113817601";
     String description = "description-1724546052";
 
     Snapshot actualResponse =
@@ -1221,7 +1221,7 @@ public class BaseBigtableTableAdminClientTest {
     try {
       String name = "name3373707";
       String cluster = "cluster872092154";
-      String snapshotId = "snapshot_id-168585866";
+      String snapshotId = "snapshotId-1113817601";
       String description = "description-1724546052";
       client.snapshotTableAsync(name, cluster, snapshotId, description).get();
       Assert.fail("No exception raised");
@@ -1481,7 +1481,7 @@ public class BaseBigtableTableAdminClientTest {
     Backup expectedResponse =
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("source_table1670858410")
+            .setSourceTable("sourceTable-95372173")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1496,7 +1496,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    String backupId = "backup_id1355353272";
+    String backupId = "backupId2121930365";
     Backup backup = Backup.newBuilder().build();
 
     Backup actualResponse = client.createBackupAsync(parent, backupId, backup).get();
@@ -1522,7 +1522,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      String backupId = "backup_id1355353272";
+      String backupId = "backupId2121930365";
       Backup backup = Backup.newBuilder().build();
       client.createBackupAsync(parent, backupId, backup).get();
       Assert.fail("No exception raised");
@@ -1538,7 +1538,7 @@ public class BaseBigtableTableAdminClientTest {
     Backup expectedResponse =
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("source_table1670858410")
+            .setSourceTable("sourceTable-95372173")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1553,7 +1553,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addResponse(resultOperation);
 
     String parent = "parent-995424086";
-    String backupId = "backup_id1355353272";
+    String backupId = "backupId2121930365";
     Backup backup = Backup.newBuilder().build();
 
     Backup actualResponse = client.createBackupAsync(parent, backupId, backup).get();
@@ -1579,7 +1579,7 @@ public class BaseBigtableTableAdminClientTest {
 
     try {
       String parent = "parent-995424086";
-      String backupId = "backup_id1355353272";
+      String backupId = "backupId2121930365";
       Backup backup = Backup.newBuilder().build();
       client.createBackupAsync(parent, backupId, backup).get();
       Assert.fail("No exception raised");
@@ -1595,7 +1595,7 @@ public class BaseBigtableTableAdminClientTest {
     Backup expectedResponse =
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("source_table1670858410")
+            .setSourceTable("sourceTable-95372173")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1638,7 +1638,7 @@ public class BaseBigtableTableAdminClientTest {
     Backup expectedResponse =
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("source_table1670858410")
+            .setSourceTable("sourceTable-95372173")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1681,7 +1681,7 @@ public class BaseBigtableTableAdminClientTest {
     Backup expectedResponse =
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("source_table1670858410")
+            .setSourceTable("sourceTable-95372173")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1898,7 +1898,7 @@ public class BaseBigtableTableAdminClientTest {
     RestoreTableRequest request =
         RestoreTableRequest.newBuilder()
             .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-            .setTableId("table_id-895419604")
+            .setTableId("tableId-1552905847")
             .build();
 
     Table actualResponse = client.restoreTableAsync(request).get();
@@ -1926,7 +1926,7 @@ public class BaseBigtableTableAdminClientTest {
       RestoreTableRequest request =
           RestoreTableRequest.newBuilder()
               .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
-              .setTableId("table_id-895419604")
+              .setTableId("tableId-1552905847")
               .build();
       client.restoreTableAsync(request).get();
       Assert.fail("No exception raised");
