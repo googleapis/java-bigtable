@@ -44,7 +44,7 @@ public class WriteIncrementable {
                   567890);
 
       dataClient.mutateRow(rowMutation);
-      System.out.printf("Successfully wrote row %s", rowkey);
+      System.out.printf("Successfully wrote data_used_kb to row %s", rowkey);
 
     } catch (Exception e) {
       System.out.println("Error during WriteIncrementable: \n" + e.toString());

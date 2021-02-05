@@ -26,7 +26,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class WritesTest extends CommonTest {
 
   @BeforeClass
@@ -41,7 +40,7 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void test1_WriteSimple() {
+  public void testWriteSimple() {
     WriteSimple.writeSimple(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
@@ -49,7 +48,7 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void test2_WriteBatch() {
+  public void testWriteBatch() {
     WriteBatch.writeBatch(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
@@ -57,7 +56,7 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void test3_WriteConditionally() {
+  public void testWriteConditionally() {
     WriteConditionally.writeConditionally(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
@@ -65,10 +64,16 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void test4_WriteIncrement() {
-    WriteIncrement.writeIncrement(projectId, instanceId, TABLE_ID);
+  public void testWriteIncrements() {
+    WriteIncrementable.writeIncrementable(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
+    assertThat(
+        output, CoreMatchers.containsString("Successfully updated row phone#4c410523#20190501"));
+
+    WriteIncrement.writeIncrement(projectId, instanceId, TABLE_ID);
+
+    output = bout.toString();
     assertThat(
         output, CoreMatchers.containsString("Successfully updated row phone#4c410523#20190501"));
   }
