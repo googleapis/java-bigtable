@@ -139,11 +139,19 @@ public class GrpcBigtableStub extends BigtableStub {
         BigtableStubSettings.newBuilder().build(), clientContext, callableFactory);
   }
 
+  /**
+   * Constructs an instance of GrpcBigtableStub, using the given settings. This is protected so that
+   * it is easy to make a subclass, but otherwise, the static factory methods should be preferred.
+   */
   protected GrpcBigtableStub(BigtableStubSettings settings, ClientContext clientContext)
       throws IOException {
     this(settings, clientContext, new GrpcBigtableCallableFactory());
   }
 
+  /**
+   * Constructs an instance of GrpcBigtableStub, using the given settings. This is protected so that
+   * it is easy to make a subclass, but otherwise, the static factory methods should be preferred.
+   */
   protected GrpcBigtableStub(
       BigtableStubSettings settings,
       ClientContext clientContext,
