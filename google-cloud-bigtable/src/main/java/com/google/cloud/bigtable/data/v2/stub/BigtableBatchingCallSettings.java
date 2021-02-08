@@ -21,7 +21,6 @@ import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.DynamicFlowControlSettings;
-import com.google.api.gax.batching.FlowControlEventStats;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;

@@ -220,7 +220,7 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Gets if latency based throttling is enabled for bulk mutation {@link
+   * Gets if latency based throttling is enabled for {@link
    * BigtableDataClient#newBulkMutationBatcher(String)}
    */
   @BetaApi("Latency based throttling is not currently stable and may change in the future")
@@ -385,9 +385,9 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Enable latency based throttling for bulk mutation {@link
-     * BigtableDataClient#newBulkMutationBatcher(String)} with a target rpc latency. The number of
-     * allowed in-flight requests will be adjusted to reach the target bulk mutations rpc latency.
+     * Enable latency based throttling for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+     * with a target rpc latency. The number of allowed in-flight requests will be adjusted to reach
+     * the target bulk mutations rpc latency.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
@@ -396,7 +396,7 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Disable latency based throttling for bulk mutation {@link
+     * Disable latency based throttling for {@link
      * BigtableDataClient#newBulkMutationBatcher(String)}.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
@@ -406,7 +406,7 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Gets if latency based throttling is enabled for bulk mutation {@link
+     * Gets if latency based throttling is enabled for {@link
      * BigtableDataClient#newBulkMutationBatcher(String)}
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
