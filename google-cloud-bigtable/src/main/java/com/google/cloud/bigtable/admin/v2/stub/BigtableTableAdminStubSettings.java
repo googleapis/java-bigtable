@@ -126,7 +126,6 @@ import org.threeten.bp.Duration;
  *     bigtableTableAdminSettingsBuilder.build();
  * }</pre>
  */
-@BetaApi
 @Generated("by gapic-generator-java")
 public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAdminStubSettings> {
   /** The default scopes of the service. */

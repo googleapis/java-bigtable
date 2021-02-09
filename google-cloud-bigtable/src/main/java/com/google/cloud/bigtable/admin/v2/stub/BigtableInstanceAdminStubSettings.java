@@ -118,7 +118,6 @@ import org.threeten.bp.Duration;
  *     bigtableInstanceAdminSettingsBuilder.build();
  * }</pre>
  */
-@BetaApi
 @Generated("by gapic-generator-java")
 public class BigtableInstanceAdminStubSettings
     extends StubSettings<BigtableInstanceAdminStubSettings> {
