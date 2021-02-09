@@ -111,19 +111,19 @@ import org.threeten.bp.Duration;
  * <p>For example, to set the total timeout of createTable to 30 seconds:
  *
  * <pre>{@code
- * BigtableTableAdminStubSettings.Builder bigtableTableAdminSettingsBuilder =
+ * BigtableTableAdminStubSettings.Builder baseBigtableTableAdminSettingsBuilder =
  *     BigtableTableAdminStubSettings.newBuilder();
- * bigtableTableAdminSettingsBuilder
+ * baseBigtableTableAdminSettingsBuilder
  *     .createTableSettings()
  *     .setRetrySettings(
- *         bigtableTableAdminSettingsBuilder
+ *         baseBigtableTableAdminSettingsBuilder
  *             .createTableSettings()
  *             .getRetrySettings()
  *             .toBuilder()
  *             .setTotalTimeout(Duration.ofSeconds(30))
  *             .build());
- * BigtableTableAdminStubSettings bigtableTableAdminSettings =
- *     bigtableTableAdminSettingsBuilder.build();
+ * BigtableTableAdminStubSettings baseBigtableTableAdminSettings =
+ *     baseBigtableTableAdminSettingsBuilder.build();
  * }</pre>
  */
 @Generated("by gapic-generator-java")

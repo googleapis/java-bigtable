@@ -103,19 +103,19 @@ import org.threeten.bp.Duration;
  * <p>For example, to set the total timeout of getInstance to 30 seconds:
  *
  * <pre>{@code
- * BigtableInstanceAdminStubSettings.Builder bigtableInstanceAdminSettingsBuilder =
+ * BigtableInstanceAdminStubSettings.Builder baseBigtableInstanceAdminSettingsBuilder =
  *     BigtableInstanceAdminStubSettings.newBuilder();
- * bigtableInstanceAdminSettingsBuilder
+ * baseBigtableInstanceAdminSettingsBuilder
  *     .getInstanceSettings()
  *     .setRetrySettings(
- *         bigtableInstanceAdminSettingsBuilder
+ *         baseBigtableInstanceAdminSettingsBuilder
  *             .getInstanceSettings()
  *             .getRetrySettings()
  *             .toBuilder()
  *             .setTotalTimeout(Duration.ofSeconds(30))
  *             .build());
- * BigtableInstanceAdminStubSettings bigtableInstanceAdminSettings =
- *     bigtableInstanceAdminSettingsBuilder.build();
+ * BigtableInstanceAdminStubSettings baseBigtableInstanceAdminSettings =
+ *     baseBigtableInstanceAdminSettingsBuilder.build();
  * }</pre>
  */
 @Generated("by gapic-generator-java")

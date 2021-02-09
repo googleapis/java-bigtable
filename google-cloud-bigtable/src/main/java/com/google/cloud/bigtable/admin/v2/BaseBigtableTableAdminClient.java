@@ -156,6 +156,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Creates a new table in the specified instance. The table can be created with a full set of
    * initial column families, specified in the request.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+   *   String tableId = "tableId-1552905847";
+   *   Table table = Table.newBuilder().build();
+   *   Table response = baseBigtableTableAdminClient.createTable(parent, tableId, table);
+   * }
+   * }</pre>
+   *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
    * @param tableId Required. The name by which the new table should be referred to within the
@@ -178,6 +190,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Creates a new table in the specified instance. The table can be created with a full set of
    * initial column families, specified in the request.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
+   *   String tableId = "tableId-1552905847";
+   *   Table table = Table.newBuilder().build();
+   *   Table response = baseBigtableTableAdminClient.createTable(parent, tableId, table);
+   * }
+   * }</pre>
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
@@ -202,6 +226,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Creates a new table in the specified instance. The table can be created with a full set of
    * initial column families, specified in the request.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateTableRequest request =
+   *       CreateTableRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .setTable(Table.newBuilder().build())
+   *           .addAllInitialSplits(new ArrayList<CreateTableRequest.Split>())
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.createTable(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -215,6 +255,23 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * initial column families, specified in the request.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateTableRequest request =
+   *       CreateTableRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .setTable(Table.newBuilder().build())
+   *           .addAllInitialSplits(new ArrayList<CreateTableRequest.Split>())
+   *           .build();
+   *   ApiFuture<Table> future =
+   *       baseBigtableTableAdminClient.createTableCallable().futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<CreateTableRequest, Table> createTableCallable() {
     return stub.createTableCallable();
@@ -229,6 +286,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+   *   String tableId = "tableId-1552905847";
+   *   SnapshotName sourceSnapshot =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+   *   Table response =
+   *       baseBigtableTableAdminClient
+   *           .createTableFromSnapshotAsync(parent, tableId, sourceSnapshot)
+   *           .get();
+   * }
+   * }</pre>
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
@@ -260,6 +333,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+   *   String tableId = "tableId-1552905847";
+   *   String sourceSnapshot =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString();
+   *   Table response =
+   *       baseBigtableTableAdminClient
+   *           .createTableFromSnapshotAsync(parent, tableId, sourceSnapshot)
+   *           .get();
+   * }
+   * }</pre>
+   *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
    * @param tableId Required. The name by which the new table should be referred to within the
@@ -289,6 +378,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
+   *   String tableId = "tableId-1552905847";
+   *   SnapshotName sourceSnapshot =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+   *   Table response =
+   *       baseBigtableTableAdminClient
+   *           .createTableFromSnapshotAsync(parent, tableId, sourceSnapshot)
+   *           .get();
+   * }
+   * }</pre>
    *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
@@ -320,6 +425,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
+   *   String tableId = "tableId-1552905847";
+   *   String sourceSnapshot =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString();
+   *   Table response =
+   *       baseBigtableTableAdminClient
+   *           .createTableFromSnapshotAsync(parent, tableId, sourceSnapshot)
+   *           .get();
+   * }
+   * }</pre>
+   *
    * @param parent Required. The unique name of the instance in which to create the table. Values
    *     are of the form `projects/{project}/instances/{instance}`.
    * @param tableId Required. The name by which the new table should be referred to within the
@@ -350,6 +471,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateTableFromSnapshotRequest request =
+   *       CreateTableFromSnapshotRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .setSourceSnapshot(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.createTableFromSnapshotAsync(request).get();
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -369,6 +506,25 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateTableFromSnapshotRequest request =
+   *       CreateTableFromSnapshotRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .setSourceSnapshot(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   OperationFuture<Table, CreateTableFromSnapshotMetadata> future =
+   *       baseBigtableTableAdminClient
+   *           .createTableFromSnapshotOperationCallable()
+   *           .futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
    */
   public final OperationCallable<
           CreateTableFromSnapshotRequest, Table, CreateTableFromSnapshotMetadata>
@@ -387,6 +543,23 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateTableFromSnapshotRequest request =
+   *       CreateTableFromSnapshotRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .setSourceSnapshot(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.createTableFromSnapshotCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<CreateTableFromSnapshotRequest, Operation>
       createTableFromSnapshotCallable() {
@@ -396,6 +569,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists all tables served from a specified instance.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+   *   for (Table element : baseBigtableTableAdminClient.listTables(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    *
    * @param parent Required. The unique name of the instance for which tables should be listed.
    *     Values are of the form `projects/{project}/instances/{instance}`.
@@ -411,6 +596,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Lists all tables served from a specified instance.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
+   *   for (Table element : baseBigtableTableAdminClient.listTables(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param parent Required. The unique name of the instance for which tables should be listed.
    *     Values are of the form `projects/{project}/instances/{instance}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -424,6 +621,23 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Lists all tables served from a specified instance.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListTablesRequest request =
+   *       ListTablesRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   for (Table element : baseBigtableTableAdminClient.listTables(request).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -436,6 +650,24 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Lists all tables served from a specified instance.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListTablesRequest request =
+   *       ListTablesRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   ApiFuture<Table> future =
+   *       baseBigtableTableAdminClient.listTablesPagedCallable().futureCall(request);
+   *   // Do something.
+   *   for (Table element : future.get().iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListTablesRequest, ListTablesPagedResponse> listTablesPagedCallable() {
     return stub.listTablesPagedCallable();
@@ -446,6 +678,25 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Lists all tables served from a specified instance.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   while (true) {
+   *     ListTablesResponse response =
+   *         baseBigtableTableAdminClient.listTablesCallable().call(request);
+   *     for (Table element : response.getResponsesList()) {
+   *       // doThingsWith(element);
+   *     }
+   *     String nextPageToken = response.getNextPageToken();
+   *     if (!Strings.isNullOrEmpty(nextPageToken)) {
+   *       request = request.toBuilder().setPageToken(nextPageToken).build();
+   *     } else {
+   *       break;
+   *     }
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListTablesRequest, ListTablesResponse> listTablesCallable() {
     return stub.listTablesCallable();
@@ -454,6 +705,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets metadata information about the specified table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   Table response = baseBigtableTableAdminClient.getTable(name);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the requested table. Values are of the form
    *     `projects/{project}/instances/{instance}/tables/{table}`.
@@ -469,6 +730,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Gets metadata information about the specified table.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   Table response = baseBigtableTableAdminClient.getTable(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the requested table. Values are of the form
    *     `projects/{project}/instances/{instance}/tables/{table}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -482,6 +753,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Gets metadata information about the specified table.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetTableRequest request =
+   *       GetTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.getTable(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -494,6 +778,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Gets metadata information about the specified table.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetTableRequest request =
+   *       GetTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   ApiFuture<Table> future = baseBigtableTableAdminClient.getTableCallable().futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<GetTableRequest, Table> getTableCallable() {
     return stub.getTableCallable();
@@ -502,6 +799,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Permanently deletes a specified table and all of its data.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   baseBigtableTableAdminClient.deleteTable(name);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the table to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/tables/{table}`.
@@ -517,6 +824,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Permanently deletes a specified table and all of its data.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   baseBigtableTableAdminClient.deleteTable(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the table to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/tables/{table}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -530,6 +847,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Permanently deletes a specified table and all of its data.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteTableRequest request =
+   *       DeleteTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   baseBigtableTableAdminClient.deleteTable(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -542,6 +872,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Permanently deletes a specified table and all of its data.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteTableRequest request =
+   *       DeleteTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   ApiFuture<Empty> future =
+   *       baseBigtableTableAdminClient.deleteTableCallable().futureCall(request);
+   *   // Do something.
+   *   future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable() {
     return stub.deleteTableCallable();
@@ -552,6 +896,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Performs a series of column family modifications on the specified table. Either all or none of
    * the modifications will occur before this method returns, but data requests received prior to
    * that point may see a table where only some modifications have taken effect.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   List<ModifyColumnFamiliesRequest.Modification> modifications = new ArrayList<>();
+   *   Table response = baseBigtableTableAdminClient.modifyColumnFamilies(name, modifications);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the table whose families should be modified. Values
    *     are of the form `projects/{project}/instances/{instance}/tables/{table}`.
@@ -576,6 +931,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * the modifications will occur before this method returns, but data requests received prior to
    * that point may see a table where only some modifications have taken effect.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   List<ModifyColumnFamiliesRequest.Modification> modifications = new ArrayList<>();
+   *   Table response = baseBigtableTableAdminClient.modifyColumnFamilies(name, modifications);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the table whose families should be modified. Values
    *     are of the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param modifications Required. Modifications to be atomically applied to the specified table's
@@ -599,6 +965,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * the modifications will occur before this method returns, but data requests received prior to
    * that point may see a table where only some modifications have taken effect.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ModifyColumnFamiliesRequest request =
+   *       ModifyColumnFamiliesRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .addAllModifications(new ArrayList<ModifyColumnFamiliesRequest.Modification>())
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.modifyColumnFamilies(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -613,6 +993,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * that point may see a table where only some modifications have taken effect.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ModifyColumnFamiliesRequest request =
+   *       ModifyColumnFamiliesRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .addAllModifications(new ArrayList<ModifyColumnFamiliesRequest.Modification>())
+   *           .build();
+   *   ApiFuture<Table> future =
+   *       baseBigtableTableAdminClient.modifyColumnFamiliesCallable().futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesCallable() {
     return stub.modifyColumnFamiliesCallable();
@@ -622,6 +1017,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Permanently drop/delete a row range from a specified table. The request can specify whether to
    * delete all rows in a table, or only those that match a particular prefix.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DropRowRangeRequest request =
+   *       DropRowRangeRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   baseBigtableTableAdminClient.dropRowRange(request);
+   * }
+   * }</pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -636,6 +1044,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * delete all rows in a table, or only those that match a particular prefix.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DropRowRangeRequest request =
+   *       DropRowRangeRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   ApiFuture<Empty> future =
+   *       baseBigtableTableAdminClient.dropRowRangeCallable().futureCall(request);
+   *   // Do something.
+   *   future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<DropRowRangeRequest, Empty> dropRowRangeCallable() {
     return stub.dropRowRangeCallable();
@@ -646,6 +1068,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Generates a consistency token for a Table, which can be used in CheckConsistency to check
    * whether mutations to the table that finished before this call started have been replicated. The
    * tokens will be available for 90 days.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   GenerateConsistencyTokenResponse response =
+   *       baseBigtableTableAdminClient.generateConsistencyToken(name);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the Table for which to create a consistency token.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
@@ -665,6 +1098,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * whether mutations to the table that finished before this call started have been replicated. The
    * tokens will be available for 90 days.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   GenerateConsistencyTokenResponse response =
+   *       baseBigtableTableAdminClient.generateConsistencyToken(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the Table for which to create a consistency token.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -681,6 +1125,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * whether mutations to the table that finished before this call started have been replicated. The
    * tokens will be available for 90 days.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GenerateConsistencyTokenRequest request =
+   *       GenerateConsistencyTokenRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   GenerateConsistencyTokenResponse response =
+   *       baseBigtableTableAdminClient.generateConsistencyToken(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -696,6 +1154,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * tokens will be available for 90 days.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GenerateConsistencyTokenRequest request =
+   *       GenerateConsistencyTokenRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .build();
+   *   ApiFuture<GenerateConsistencyTokenResponse> future =
+   *       baseBigtableTableAdminClient.generateConsistencyTokenCallable().futureCall(request);
+   *   // Do something.
+   *   GenerateConsistencyTokenResponse response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
       generateConsistencyTokenCallable() {
@@ -706,6 +1178,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Checks replication consistency based on a consistency token, that is, if replication has caught
    * up based on the conditions specified in the token and the check request.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   String consistencyToken = "consistencyToken-1985152319";
+   *   CheckConsistencyResponse response =
+   *       baseBigtableTableAdminClient.checkConsistency(name, consistencyToken);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the Table for which to check replication consistency.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
@@ -727,6 +1211,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Checks replication consistency based on a consistency token, that is, if replication has caught
    * up based on the conditions specified in the token and the check request.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   String consistencyToken = "consistencyToken-1985152319";
+   *   CheckConsistencyResponse response =
+   *       baseBigtableTableAdminClient.checkConsistency(name, consistencyToken);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the Table for which to check replication consistency.
    *     Values are of the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param consistencyToken Required. The token created using GenerateConsistencyToken for the
@@ -747,6 +1243,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Checks replication consistency based on a consistency token, that is, if replication has caught
    * up based on the conditions specified in the token and the check request.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CheckConsistencyRequest request =
+   *       CheckConsistencyRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setConsistencyToken("consistencyToken-1985152319")
+   *           .build();
+   *   CheckConsistencyResponse response = baseBigtableTableAdminClient.checkConsistency(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -760,6 +1270,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * up based on the conditions specified in the token and the check request.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CheckConsistencyRequest request =
+   *       CheckConsistencyRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setConsistencyToken("consistencyToken-1985152319")
+   *           .build();
+   *   ApiFuture<CheckConsistencyResponse> future =
+   *       baseBigtableTableAdminClient.checkConsistencyCallable().futureCall(request);
+   *   // Do something.
+   *   CheckConsistencyResponse response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse>
       checkConsistencyCallable() {
@@ -775,6 +1300,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String snapshotId = "snapshotId-1113817601";
+   *   String description = "description-1724546052";
+   *   Snapshot response =
+   *       baseBigtableTableAdminClient
+   *           .snapshotTableAsync(name, cluster, snapshotId, description)
+   *           .get();
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the table to have the snapshot taken. Values are of
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
@@ -808,6 +1349,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   String cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String snapshotId = "snapshotId-1113817601";
+   *   String description = "description-1724546052";
+   *   Snapshot response =
+   *       baseBigtableTableAdminClient
+   *           .snapshotTableAsync(name, cluster, snapshotId, description)
+   *           .get();
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the table to have the snapshot taken. Values are of
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
@@ -839,6 +1396,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   ClusterName cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String snapshotId = "snapshotId-1113817601";
+   *   String description = "description-1724546052";
+   *   Snapshot response =
+   *       baseBigtableTableAdminClient
+   *           .snapshotTableAsync(name, cluster, snapshotId, description)
+   *           .get();
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the table to have the snapshot taken. Values are of
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
@@ -872,6 +1445,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   String cluster = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String snapshotId = "snapshotId-1113817601";
+   *   String description = "description-1724546052";
+   *   Snapshot response =
+   *       baseBigtableTableAdminClient
+   *           .snapshotTableAsync(name, cluster, snapshotId, description)
+   *           .get();
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the table to have the snapshot taken. Values are of
    *     the form `projects/{project}/instances/{instance}/tables/{table}`.
    * @param cluster Required. The name of the cluster where the snapshot will be created in. Values
@@ -904,6 +1493,23 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SnapshotTableRequest request =
+   *       SnapshotTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setCluster(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setSnapshotId("snapshotId-1113817601")
+   *           .setTtl(Duration.newBuilder().build())
+   *           .setDescription("description-1724546052")
+   *           .build();
+   *   Snapshot response = baseBigtableTableAdminClient.snapshotTableAsync(request).get();
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -923,6 +1529,24 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SnapshotTableRequest request =
+   *       SnapshotTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setCluster(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setSnapshotId("snapshotId-1113817601")
+   *           .setTtl(Duration.newBuilder().build())
+   *           .setDescription("description-1724546052")
+   *           .build();
+   *   OperationFuture<Snapshot, SnapshotTableMetadata> future =
+   *       baseBigtableTableAdminClient.snapshotTableOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Snapshot response = future.get();
+   * }
+   * }</pre>
    */
   public final OperationCallable<SnapshotTableRequest, Snapshot, SnapshotTableMetadata>
       snapshotTableOperationCallable() {
@@ -940,6 +1564,24 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SnapshotTableRequest request =
+   *       SnapshotTableRequest.newBuilder()
+   *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setCluster(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setSnapshotId("snapshotId-1113817601")
+   *           .setTtl(Duration.newBuilder().build())
+   *           .setDescription("description-1724546052")
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.snapshotTableCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<SnapshotTableRequest, Operation> snapshotTableCallable() {
     return stub.snapshotTableCallable();
@@ -953,6 +1595,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SnapshotName name = SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+   *   Snapshot response = baseBigtableTableAdminClient.getSnapshot(name);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the requested snapshot. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
@@ -973,6 +1625,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString();
+   *   Snapshot response = baseBigtableTableAdminClient.getSnapshot(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the requested snapshot. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -991,6 +1654,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetSnapshotRequest request =
+   *       GetSnapshotRequest.newBuilder()
+   *           .setName(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   Snapshot response = baseBigtableTableAdminClient.getSnapshot(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1008,6 +1685,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetSnapshotRequest request =
+   *       GetSnapshotRequest.newBuilder()
+   *           .setName(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   ApiFuture<Snapshot> future =
+   *       baseBigtableTableAdminClient.getSnapshotCallable().futureCall(request);
+   *   // Do something.
+   *   Snapshot response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<GetSnapshotRequest, Snapshot> getSnapshotCallable() {
     return stub.getSnapshotCallable();
@@ -1021,6 +1713,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   for (Snapshot element : baseBigtableTableAdminClient.listSnapshots(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    *
    * @param parent Required. The unique name of the cluster for which snapshots should be listed.
    *     Values are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`. Use
@@ -1045,6 +1749,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   for (Snapshot element : baseBigtableTableAdminClient.listSnapshots(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param parent Required. The unique name of the cluster for which snapshots should be listed.
    *     Values are of the form `projects/{project}/instances/{instance}/clusters/{cluster}`. Use
    *     `{cluster} = '-'` to list snapshots for all clusters in an instance, e.g.,
@@ -1065,6 +1781,23 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListSnapshotsRequest request =
+   *       ListSnapshotsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   for (Snapshot element : baseBigtableTableAdminClient.listSnapshots(request).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1082,6 +1815,24 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListSnapshotsRequest request =
+   *       ListSnapshotsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   ApiFuture<Snapshot> future =
+   *       baseBigtableTableAdminClient.listSnapshotsPagedCallable().futureCall(request);
+   *   // Do something.
+   *   for (Snapshot element : future.get().iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListSnapshotsRequest, ListSnapshotsPagedResponse>
       listSnapshotsPagedCallable() {
@@ -1098,6 +1849,25 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   while (true) {
+   *     ListSnapshotsResponse response =
+   *         baseBigtableTableAdminClient.listSnapshotsCallable().call(request);
+   *     for (Snapshot element : response.getResponsesList()) {
+   *       // doThingsWith(element);
+   *     }
+   *     String nextPageToken = response.getNextPageToken();
+   *     if (!Strings.isNullOrEmpty(nextPageToken)) {
+   *       request = request.toBuilder().setPageToken(nextPageToken).build();
+   *     } else {
+   *       break;
+   *     }
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListSnapshotsRequest, ListSnapshotsResponse> listSnapshotsCallable() {
     return stub.listSnapshotsCallable();
@@ -1111,6 +1881,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * currently available to most Cloud Bigtable customers. This feature might be changed in
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SnapshotName name = SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]");
+   *   baseBigtableTableAdminClient.deleteSnapshot(name);
+   * }
+   * }</pre>
    *
    * @param name Required. The unique name of the snapshot to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
@@ -1131,6 +1911,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name =
+   *       SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString();
+   *   baseBigtableTableAdminClient.deleteSnapshot(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. The unique name of the snapshot to be deleted. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1149,6 +1940,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * backward-incompatible ways and is not recommended for production use. It is not subject to any
    * SLA or deprecation policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteSnapshotRequest request =
+   *       DeleteSnapshotRequest.newBuilder()
+   *           .setName(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   baseBigtableTableAdminClient.deleteSnapshot(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1166,6 +1971,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * SLA or deprecation policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteSnapshotRequest request =
+   *       DeleteSnapshotRequest.newBuilder()
+   *           .setName(
+   *               SnapshotName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[SNAPSHOT]").toString())
+   *           .build();
+   *   ApiFuture<Empty> future =
+   *       baseBigtableTableAdminClient.deleteSnapshotCallable().futureCall(request);
+   *   // Do something.
+   *   future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<DeleteSnapshotRequest, Empty> deleteSnapshotCallable() {
     return stub.deleteSnapshotCallable();
@@ -1180,6 +2000,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [response][google.longrunning.Operation.response] field type is
    * [Backup][google.bigtable.admin.v2.Backup], if successful. Cancelling the returned operation
    * will stop the creation and delete the backup.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String backupId = "backupId2121930365";
+   *   Backup backup = Backup.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient.createBackupAsync(parent, backupId, backup).get();
+   * }
+   * }</pre>
    *
    * @param parent Required. This must be one of the clusters in the instance in which this table is
    *     located. The backup will be stored in this cluster. Values are of the form
@@ -1214,6 +2047,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [Backup][google.bigtable.admin.v2.Backup], if successful. Cancelling the returned operation
    * will stop the creation and delete the backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String backupId = "backupId2121930365";
+   *   Backup backup = Backup.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient.createBackupAsync(parent, backupId, backup).get();
+   * }
+   * }</pre>
+   *
    * @param parent Required. This must be one of the clusters in the instance in which this table is
    *     located. The backup will be stored in this cluster. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1247,6 +2093,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [Backup][google.bigtable.admin.v2.Backup], if successful. Cancelling the returned operation
    * will stop the creation and delete the backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateBackupRequest request =
+   *       CreateBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setBackup(Backup.newBuilder().build())
+   *           .build();
+   *   Backup response = baseBigtableTableAdminClient.createBackupAsync(request).get();
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1266,6 +2127,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * will stop the creation and delete the backup.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateBackupRequest request =
+   *       CreateBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setBackup(Backup.newBuilder().build())
+   *           .build();
+   *   OperationFuture<Backup, CreateBackupMetadata> future =
+   *       baseBigtableTableAdminClient.createBackupOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Backup response = future.get();
+   * }
+   * }</pre>
    */
   public final OperationCallable<CreateBackupRequest, Backup, CreateBackupMetadata>
       createBackupOperationCallable() {
@@ -1283,6 +2160,22 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * will stop the creation and delete the backup.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CreateBackupRequest request =
+   *       CreateBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setBackup(Backup.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.createBackupCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<CreateBackupRequest, Operation> createBackupCallable() {
     return stub.createBackupCallable();
@@ -1291,6 +2184,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Gets metadata on a pending or completed Cloud Bigtable Backup.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   Backup response = baseBigtableTableAdminClient.getBackup(name);
+   * }
+   * }</pre>
    *
    * @param name Required. Name of the backup. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup}`.
@@ -1306,6 +2209,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Gets metadata on a pending or completed Cloud Bigtable Backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   Backup response = baseBigtableTableAdminClient.getBackup(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. Name of the backup. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1319,6 +2232,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Gets metadata on a pending or completed Cloud Bigtable Backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetBackupRequest request =
+   *       GetBackupRequest.newBuilder()
+   *           .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .build();
+   *   Backup response = baseBigtableTableAdminClient.getBackup(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1331,6 +2257,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Gets metadata on a pending or completed Cloud Bigtable Backup.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetBackupRequest request =
+   *       GetBackupRequest.newBuilder()
+   *           .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .build();
+   *   ApiFuture<Backup> future =
+   *       baseBigtableTableAdminClient.getBackupCallable().futureCall(request);
+   *   // Do something.
+   *   Backup response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<GetBackupRequest, Backup> getBackupCallable() {
     return stub.getBackupCallable();
@@ -1339,6 +2279,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Updates a pending or completed Cloud Bigtable Backup.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   Backup backup = Backup.newBuilder().build();
+   *   FieldMask updateMask = FieldMask.newBuilder().build();
+   *   Backup response = baseBigtableTableAdminClient.updateBackup(backup, updateMask);
+   * }
+   * }</pre>
    *
    * @param backup Required. The backup to update. `backup.name`, and the fields to be updated as
    *     specified by `update_mask` are required. Other fields are ignored. Update is only supported
@@ -1359,6 +2310,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Updates a pending or completed Cloud Bigtable Backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   UpdateBackupRequest request =
+   *       UpdateBackupRequest.newBuilder()
+   *           .setBackup(Backup.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
+   *           .build();
+   *   Backup response = baseBigtableTableAdminClient.updateBackup(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1371,6 +2336,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Updates a pending or completed Cloud Bigtable Backup.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   UpdateBackupRequest request =
+   *       UpdateBackupRequest.newBuilder()
+   *           .setBackup(Backup.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Backup> future =
+   *       baseBigtableTableAdminClient.updateBackupCallable().futureCall(request);
+   *   // Do something.
+   *   Backup response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<UpdateBackupRequest, Backup> updateBackupCallable() {
     return stub.updateBackupCallable();
@@ -1379,6 +2359,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Deletes a pending or completed Cloud Bigtable backup.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   BackupName name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   baseBigtableTableAdminClient.deleteBackup(name);
+   * }
+   * }</pre>
    *
    * @param name Required. Name of the backup to delete. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup}`.
@@ -1394,6 +2384,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Deletes a pending or completed Cloud Bigtable backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String name = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   baseBigtableTableAdminClient.deleteBackup(name);
+   * }
+   * }</pre>
+   *
    * @param name Required. Name of the backup to delete. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup}`.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1407,6 +2407,19 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Deletes a pending or completed Cloud Bigtable backup.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteBackupRequest request =
+   *       DeleteBackupRequest.newBuilder()
+   *           .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .build();
+   *   baseBigtableTableAdminClient.deleteBackup(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1419,6 +2432,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Deletes a pending or completed Cloud Bigtable backup.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   DeleteBackupRequest request =
+   *       DeleteBackupRequest.newBuilder()
+   *           .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .build();
+   *   ApiFuture<Empty> future =
+   *       baseBigtableTableAdminClient.deleteBackupCallable().futureCall(request);
+   *   // Do something.
+   *   future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<DeleteBackupRequest, Empty> deleteBackupCallable() {
     return stub.deleteBackupCallable();
@@ -1427,6 +2454,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Lists Cloud Bigtable backups. Returns both completed and pending backups.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   for (Backup element : baseBigtableTableAdminClient.listBackups(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    *
    * @param parent Required. The cluster to list backups from. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`. Use `{cluster} = '-'` to list
@@ -1446,6 +2485,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Lists Cloud Bigtable backups. Returns both completed and pending backups.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   for (Backup element : baseBigtableTableAdminClient.listBackups(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param parent Required. The cluster to list backups from. Values are of the form
    *     `projects/{project}/instances/{instance}/clusters/{cluster}`. Use `{cluster} = '-'` to list
    *     backups for all clusters in an instance, e.g.,
@@ -1461,6 +2512,25 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Lists Cloud Bigtable backups. Returns both completed and pending backups.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListBackupsRequest request =
+   *       ListBackupsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setFilter("filter-1274492040")
+   *           .setOrderBy("orderBy-1207110587")
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   for (Backup element : baseBigtableTableAdminClient.listBackups(request).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1473,6 +2543,26 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Lists Cloud Bigtable backups. Returns both completed and pending backups.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ListBackupsRequest request =
+   *       ListBackupsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setFilter("filter-1274492040")
+   *           .setOrderBy("orderBy-1207110587")
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   ApiFuture<Backup> future =
+   *       baseBigtableTableAdminClient.listBackupsPagedCallable().futureCall(request);
+   *   // Do something.
+   *   for (Backup element : future.get().iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListBackupsRequest, ListBackupsPagedResponse>
       listBackupsPagedCallable() {
@@ -1484,6 +2574,25 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Lists Cloud Bigtable backups. Returns both completed and pending backups.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   while (true) {
+   *     ListBackupsResponse response =
+   *         baseBigtableTableAdminClient.listBackupsCallable().call(request);
+   *     for (Backup element : response.getResponsesList()) {
+   *       // doThingsWith(element);
+   *     }
+   *     String nextPageToken = response.getNextPageToken();
+   *     if (!Strings.isNullOrEmpty(nextPageToken)) {
+   *       request = request.toBuilder().setPageToken(nextPageToken).build();
+   *     } else {
+   *       break;
+   *     }
+   *   }
+   * }
+   * }</pre>
    */
   public final UnaryCallable<ListBackupsRequest, ListBackupsResponse> listBackupsCallable() {
     return stub.listBackupsCallable();
@@ -1498,6 +2607,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [RestoreTableMetadata][google.bigtable.admin.RestoreTableMetadata]. The
    * [response][google.longrunning.Operation.response] type is
    * [Table][google.bigtable.admin.v2.Table], if successful.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   RestoreTableRequest request =
+   *       RestoreTableRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.restoreTableAsync(request).get();
+   * }
+   * }</pre>
    *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1518,6 +2641,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [Table][google.bigtable.admin.v2.Table], if successful.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   RestoreTableRequest request =
+   *       RestoreTableRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .build();
+   *   OperationFuture<Table, RestoreTableMetadata> future =
+   *       baseBigtableTableAdminClient.restoreTableOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
    */
   public final OperationCallable<RestoreTableRequest, Table, RestoreTableMetadata>
       restoreTableOperationCallable() {
@@ -1535,6 +2673,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * [Table][google.bigtable.admin.v2.Table], if successful.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   RestoreTableRequest request =
+   *       RestoreTableRequest.newBuilder()
+   *           .setParent(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
+   *           .setTableId("tableId-1552905847")
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.restoreTableCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<RestoreTableRequest, Operation> restoreTableCallable() {
     return stub.restoreTableCallable();
@@ -1544,6 +2697,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
    * resource exists but does not have a policy set.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   Policy response = baseBigtableTableAdminClient.getIamPolicy(resource);
+   * }
+   * }</pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -1562,6 +2725,16 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
    * resource exists but does not have a policy set.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   Policy response = baseBigtableTableAdminClient.getIamPolicy(resource);
+   * }
+   * }</pre>
+   *
    * @param resource REQUIRED: The resource for which the policy is being requested. See the
    *     operation documentation for the appropriate value for this field.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
@@ -1576,6 +2749,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
    * resource exists but does not have a policy set.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetIamPolicyRequest request =
+   *       GetIamPolicyRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setOptions(GetPolicyOptions.newBuilder().build())
+   *           .build();
+   *   Policy response = baseBigtableTableAdminClient.getIamPolicy(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1589,6 +2776,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * resource exists but does not have a policy set.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   GetIamPolicyRequest request =
+   *       GetIamPolicyRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setOptions(GetPolicyOptions.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Policy> future =
+   *       baseBigtableTableAdminClient.getIamPolicyCallable().futureCall(request);
+   *   // Do something.
+   *   Policy response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<GetIamPolicyRequest, Policy> getIamPolicyCallable() {
     return stub.getIamPolicyCallable();
@@ -1597,6 +2799,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   Policy policy = Policy.newBuilder().build();
+   *   Policy response = baseBigtableTableAdminClient.setIamPolicy(resource, policy);
+   * }
+   * }</pre>
    *
    * @param resource REQUIRED: The resource for which the policy is being specified. See the
    *     operation documentation for the appropriate value for this field.
@@ -1618,6 +2831,17 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   Policy policy = Policy.newBuilder().build();
+   *   Policy response = baseBigtableTableAdminClient.setIamPolicy(resource, policy);
+   * }
+   * }</pre>
+   *
    * @param resource REQUIRED: The resource for which the policy is being specified. See the
    *     operation documentation for the appropriate value for this field.
    * @param policy REQUIRED: The complete policy to be applied to the `resource`. The size of the
@@ -1635,6 +2859,20 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SetIamPolicyRequest request =
+   *       SetIamPolicyRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setPolicy(Policy.newBuilder().build())
+   *           .build();
+   *   Policy response = baseBigtableTableAdminClient.setIamPolicy(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1647,6 +2885,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   SetIamPolicyRequest request =
+   *       SetIamPolicyRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .setPolicy(Policy.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Policy> future =
+   *       baseBigtableTableAdminClient.setIamPolicyCallable().futureCall(request);
+   *   // Do something.
+   *   Policy response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<SetIamPolicyRequest, Policy> setIamPolicyCallable() {
     return stub.setIamPolicyCallable();
@@ -1655,6 +2908,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
    * Returns permissions that the caller has on the specified Table or Backup resource.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+   *   List<String> permissions = new ArrayList<>();
+   *   TestIamPermissionsResponse response =
+   *       baseBigtableTableAdminClient.testIamPermissions(resource, permissions);
+   * }
+   * }</pre>
    *
    * @param resource REQUIRED: The resource for which the policy detail is being requested. See the
    *     operation documentation for the appropriate value for this field.
@@ -1677,6 +2942,18 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Returns permissions that the caller has on the specified Table or Backup resource.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString();
+   *   List<String> permissions = new ArrayList<>();
+   *   TestIamPermissionsResponse response =
+   *       baseBigtableTableAdminClient.testIamPermissions(resource, permissions);
+   * }
+   * }</pre>
+   *
    * @param resource REQUIRED: The resource for which the policy detail is being requested. See the
    *     operation documentation for the appropriate value for this field.
    * @param permissions The set of permissions to check for the `resource`. Permissions with
@@ -1698,6 +2975,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
   /**
    * Returns permissions that the caller has on the specified Table or Backup resource.
    *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TestIamPermissionsRequest request =
+   *       TestIamPermissionsRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .addAllPermissions(new ArrayList<String>())
+   *           .build();
+   *   TestIamPermissionsResponse response =
+   *       baseBigtableTableAdminClient.testIamPermissions(request);
+   * }
+   * }</pre>
+   *
    * @param request The request object containing all of the parameters for the API call.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -1710,6 +3002,21 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * Returns permissions that the caller has on the specified Table or Backup resource.
    *
    * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   TestIamPermissionsRequest request =
+   *       TestIamPermissionsRequest.newBuilder()
+   *           .setResource(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+   *           .addAllPermissions(new ArrayList<String>())
+   *           .build();
+   *   ApiFuture<TestIamPermissionsResponse> future =
+   *       baseBigtableTableAdminClient.testIamPermissionsCallable().futureCall(request);
+   *   // Do something.
+   *   TestIamPermissionsResponse response = future.get();
+   * }
+   * }</pre>
    */
   public final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable() {
