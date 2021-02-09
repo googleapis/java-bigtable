@@ -152,7 +152,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the project in which to create the new instance.
    *     Values are of the form `projects/{project}`.
-   * @param instance_id Required. The ID to be used when referring to the new instance within its
+   * @param instanceId Required. The ID to be used when referring to the new instance within its
    *     project, e.g., just `myinstance` rather than `projects/myproject/instances/myinstance`.
    * @param instance Required. The instance to create. Fields marked `OutputOnly` must be left
    *     blank.
@@ -180,7 +180,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the project in which to create the new instance.
    *     Values are of the form `projects/{project}`.
-   * @param instance_id Required. The ID to be used when referring to the new instance within its
+   * @param instanceId Required. The ID to be used when referring to the new instance within its
    *     project, e.g., just `myinstance` rather than `projects/myproject/instances/myinstance`.
    * @param instance Required. The instance to create. Fields marked `OutputOnly` must be left
    *     blank.
@@ -362,7 +362,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * Instance and is the preferred way to update an Instance.
    *
    * @param instance Required. The Instance which will (partially) replace the current value.
-   * @param update_mask Required. The subset of Instance fields which should be replaced. Must be
+   * @param updateMask Required. The subset of Instance fields which should be replaced. Must be
    *     explicitly set.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -467,7 +467,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the new cluster.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param cluster_id Required. The ID to be used when referring to the new cluster within its
+   * @param clusterId Required. The ID to be used when referring to the new cluster within its
    *     instance, e.g., just `mycluster` rather than
    *     `projects/myproject/instances/myinstance/clusters/mycluster`.
    * @param cluster Required. The cluster to be created. Fields marked `OutputOnly` must be left
@@ -491,7 +491,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the new cluster.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param cluster_id Required. The ID to be used when referring to the new cluster within its
+   * @param clusterId Required. The ID to be used when referring to the new cluster within its
    *     instance, e.g., just `mycluster` rather than
    *     `projects/myproject/instances/myinstance/clusters/mycluster`.
    * @param cluster Required. The cluster to be created. Fields marked `OutputOnly` must be left
@@ -730,10 +730,10 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the new app profile.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param app_profile_id Required. The ID to be used when referring to the new app profile within
+   * @param appProfileId Required. The ID to be used when referring to the new app profile within
    *     its instance, e.g., just `myprofile` rather than
    *     `projects/myproject/instances/myinstance/appProfiles/myprofile`.
-   * @param app_profile Required. The app profile to be created. Fields marked `OutputOnly` will be
+   * @param appProfile Required. The app profile to be created. Fields marked `OutputOnly` will be
    *     ignored.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -754,10 +754,10 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *
    * @param parent Required. The unique name of the instance in which to create the new app profile.
    *     Values are of the form `projects/{project}/instances/{instance}`.
-   * @param app_profile_id Required. The ID to be used when referring to the new app profile within
+   * @param appProfileId Required. The ID to be used when referring to the new app profile within
    *     its instance, e.g., just `myprofile` rather than
    *     `projects/myproject/instances/myinstance/appProfiles/myprofile`.
-   * @param app_profile Required. The app profile to be created. Fields marked `OutputOnly` will be
+   * @param appProfile Required. The app profile to be created. Fields marked `OutputOnly` will be
    *     ignored.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
@@ -911,8 +911,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
   /**
    * Updates an app profile within an instance.
    *
-   * @param app_profile Required. The app profile which will (partially) replace the current value.
-   * @param update_mask Required. The subset of app profile fields which should be replaced. If
+   * @param appProfile Required. The app profile which will (partially) replace the current value.
+   * @param updateMask Required. The subset of app profile fields which should be replaced. If
    *     unset, all fields will be replaced.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
