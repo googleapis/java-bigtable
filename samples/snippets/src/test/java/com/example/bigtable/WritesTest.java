@@ -40,11 +40,16 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void testWriteSimple() {
+  public void testWriteSimpleConditional() {
     WriteSimple.writeSimple(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
-    assertThat(output, CoreMatchers.containsString("Successfully wrote row"));
+    assertThat(output, CoreMatchers.containsString("Successfully wrote to row"));
+
+    WriteConditionally.writeConditionally(projectId, instanceId, TABLE_ID);
+
+    output = bout.toString();
+    assertThat(output, CoreMatchers.containsString("Successfully updated row's os_name: true"));
   }
 
   @Test
@@ -56,20 +61,13 @@ public class WritesTest extends CommonTest {
   }
 
   @Test
-  public void testWriteConditionally() {
-    WriteConditionally.writeConditionally(projectId, instanceId, TABLE_ID);
-
-    String output = bout.toString();
-    assertThat(output, CoreMatchers.containsString("Successfully updated row's os_name: true"));
-  }
-
-  @Test
   public void testWriteIncrements() {
     WriteIncrementable.writeIncrementable(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
     assertThat(
-        output, CoreMatchers.containsString("Successfully updated row phone#4c410523#20190501"));
+        output, CoreMatchers
+            .containsString("Successfully wrote data_used_kb to row phone#4c410523#20190501"));
 
     WriteIncrement.writeIncrement(projectId, instanceId, TABLE_ID);
 

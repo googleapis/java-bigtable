@@ -32,16 +32,14 @@ import java.io.PrintStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 
 public class CommonTest {
 
   public static final String TABLE_ID =
       "mobile-time-series-" + UUID.randomUUID().toString().substring(0, 20);
   public static final String COLUMN_FAMILY_NAME_STATS = "stats_summary";
-  public static final String COLUMN_FAMILY_NAME_DATA = "cell_plan";
+  public static final String COLUMN_FAMILY_NAME_PLAN = "cell_plan";
   public static final Instant CURRENT_TIME = Instant.now();
   public static final long TIMESTAMP = CURRENT_TIME.toEpochMilli() * 1000;
   public static final long TIMESTAMP_MINUS_HR =
@@ -71,7 +69,7 @@ public class CommonTest {
       CreateTableRequest createTableRequest =
           CreateTableRequest.of(TABLE_ID)
               .addFamily(COLUMN_FAMILY_NAME_STATS)
-              .addFamily(COLUMN_FAMILY_NAME_DATA);
+              .addFamily(COLUMN_FAMILY_NAME_PLAN);
       adminClient.createTable(createTableRequest);
     } catch (IOException e) {
       System.out.println("Error during createTable: \n" + e.toString());
@@ -79,7 +77,7 @@ public class CommonTest {
     }
   }
 
-  public static void writeTestData() throws IOException {
+  public static void writeStatsData() throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       BulkMutation bulkMutation =
           BulkMutation.create(TABLE_ID)
@@ -96,11 +94,7 @@ public class CommonTest {
                           ByteString.copyFrom("connected_wifi".getBytes()),
                           TIMESTAMP,
                           1)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190405.003")
-                      .setCell(
-                          COLUMN_FAMILY_NAME_DATA, "data_plan_01gb", TIMESTAMP_MINUS_HR, "true")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_01gb", TIMESTAMP, "false")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_05gb", TIMESTAMP, "true"))
+                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190405.003"))
               .add(
                   "phone#4c410523#20190502",
                   Mutation.create()
@@ -115,7 +109,7 @@ public class CommonTest {
                           TIMESTAMP,
                           1)
                       .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190405.004")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_05gb", TIMESTAMP, "true"))
+              )
               .add(
                   "phone#4c410523#20190505",
                   Mutation.create()
@@ -130,7 +124,7 @@ public class CommonTest {
                           TIMESTAMP,
                           1)
                       .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190406.000")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_05gb", TIMESTAMP, "true"))
+              )
               .add(
                   "phone#5c10102#20190501",
                   Mutation.create()
@@ -145,7 +139,7 @@ public class CommonTest {
                           TIMESTAMP,
                           1)
                       .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190401.002")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_10gb", TIMESTAMP, "true"))
+              )
               .add(
                   "phone#5c10102#20190502",
                   Mutation.create()
@@ -159,8 +153,42 @@ public class CommonTest {
                           ByteString.copyFrom("connected_wifi".getBytes()),
                           TIMESTAMP,
                           0)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190406.000")
-                      .setCell(COLUMN_FAMILY_NAME_DATA, "data_plan_10gb", TIMESTAMP, "true"));
+                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190406.000"));
+
+      dataClient.bulkMutateRows(bulkMutation);
+    } catch (IOException e) {
+      System.out.println("Error during writeTestData: \n" + e.toString());
+      throw (e);
+    }
+  }
+
+  public static void writePlanData() throws IOException {
+    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+      BulkMutation bulkMutation =
+          BulkMutation.create(TABLE_ID)
+              .add(
+                  "phone#4c410523#20190501",
+                  Mutation.create()
+                      .setCell(
+                          COLUMN_FAMILY_NAME_PLAN, "data_plan_01gb", TIMESTAMP_MINUS_HR, "true")
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_01gb", TIMESTAMP, "false")
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
+              .add(
+                  "phone#4c410523#20190502",
+                  Mutation.create()
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
+              .add(
+                  "phone#4c410523#20190505",
+                  Mutation.create()
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
+              .add(
+                  "phone#5c10102#20190501",
+                  Mutation.create()
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_10gb", TIMESTAMP, "true"))
+              .add(
+                  "phone#5c10102#20190502",
+                  Mutation.create()
+                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_10gb", TIMESTAMP, "true"));
 
       dataClient.bulkMutateRows(bulkMutation);
     } catch (IOException e) {

@@ -29,7 +29,8 @@ public class FiltersTest extends CommonTest {
   public static void beforeClass() throws IOException {
     initializeVariables();
     createTable();
-    writeTestData();
+    writeStatsData();
+    writePlanData();
   }
 
   @AfterClass
@@ -396,47 +397,7 @@ public class FiltersTest extends CommonTest {
     Filters.filterModifyStripValue(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
-    assertThat(output)
-        .contains(
-            String.format(
-                "Reading data for phone#4c410523#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_01gb:  @%1$s\n"
-                    + "\tdata_plan_01gb:  @%2$s\n"
-                    + "\tdata_plan_05gb:  @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tconnected_cell:  @%1$s\n"
-                    + "\tconnected_wifi:  @%1$s\n"
-                    + "\tos_build:  @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb:  @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tconnected_cell:  @%1$s\n"
-                    + "\tconnected_wifi:  @%1$s\n"
-                    + "\tos_build:  @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190505\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb:  @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tconnected_cell:  @%1$s\n"
-                    + "\tconnected_wifi:  @%1$s\n"
-                    + "\tos_build:  @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb:  @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tconnected_cell:  @%1$s\n"
-                    + "\tconnected_wifi:  @%1$s\n"
-                    + "\tos_build:  @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb:  @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tconnected_cell:  @%1$s\n"
-                    + "\tconnected_wifi:  @%1$s\n"
-                    + "\tos_build:  @%1$s",
-                TIMESTAMP, TIMESTAMP_MINUS_HR));
+    assertThat(output).contains("Got 5 rows");
   }
 
   @Test
@@ -502,26 +463,7 @@ public class FiltersTest extends CommonTest {
     Filters.filterComposingChain(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
-    assertThat(output)
-        .contains(
-            String.format(
-                "Reading data for phone#4c410523#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_01gb: false @%1$s\n"
-                    + "\tdata_plan_05gb: true @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb: true @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190505\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb: true @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb: true @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb: true @%1$s\n",
-                TIMESTAMP));
+    assertThat(output).contains("Got 5 rows");
   }
 
   @Test
@@ -529,36 +471,22 @@ public class FiltersTest extends CommonTest {
     Filters.filterComposingInterleave(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
+
     assertThat(output)
         .contains(
-            String.format(
-                "Reading data for phone#4c410523#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_01gb: true @%2$s\n"
-                    + "\tdata_plan_05gb: true @%1$s\n"
+            String.format("Reading data for phone#4c410523#20190501\n"
                     + "Column Family stats_summary\n"
                     + "\tos_build: PQ2A.190405.003 @%1$s\n\n"
                     + "Reading data for phone#4c410523#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb: true @%1$s\n"
                     + "Column Family stats_summary\n"
                     + "\tos_build: PQ2A.190405.004 @%1$s\n\n"
                     + "Reading data for phone#4c410523#20190505\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_05gb: true @%1$s\n"
                     + "Column Family stats_summary\n"
                     + "\tos_build: PQ2A.190406.000 @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190501\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb: true @%1$s\n"
-                    + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190401.002 @%1$s\n\n"
                     + "Reading data for phone#5c10102#20190502\n"
-                    + "Column Family cell_plan\n"
-                    + "\tdata_plan_10gb: true @%1$s\n"
                     + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190406.000 @%1$s",
-                TIMESTAMP, TIMESTAMP_MINUS_HR));
+                    + "\tos_build: PQ2A.190406.000 @%1$s"
+                , TIMESTAMP));
   }
 
   @Test

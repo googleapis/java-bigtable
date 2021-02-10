@@ -341,16 +341,16 @@ public class Filters {
 
   public static void filterComposingInterleave(
       String projectId, String instanceId, String tableId) {
-    // A filter that matches cells with the value true OR with the column qualifier os_build
+    // A filter that matches cells with a value starting with PQ2A.190405 OR PQ2A.190406
     Filter filter =
         FILTERS
             .interleave()
-            .filter(FILTERS.value().regex("PQ2A.190405*$"))
-            .filter(FILTERS.value().regex("PQ2A.190406*$"));
+            .filter(FILTERS.value().regex("PQ2A.190405.*"))
+            .filter(FILTERS.value().regex("PQ2A.190406.*"));
     readFilter(projectId, instanceId, tableId, filter);
   }
   // [END bigtable_filters_composing_interleave]
-  
+
   // [START bigtable_filters_composing_condition]
   public static void filterComposingCondition() {
     // TODO(developer): Replace these variables before running the sample.

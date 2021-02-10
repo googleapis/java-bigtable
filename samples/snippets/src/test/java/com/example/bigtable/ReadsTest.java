@@ -29,7 +29,7 @@ public class ReadsTest  extends CommonTest {
   public static void beforeClass() throws IOException {
     initializeVariables();
     createTable();
-    writeTestData();
+    writeStatsData();
   }
 
   @AfterClass
