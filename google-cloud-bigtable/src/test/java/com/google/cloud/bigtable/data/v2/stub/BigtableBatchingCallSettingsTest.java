@@ -111,23 +111,6 @@ public class BigtableBatchingCallSettingsTest {
   }
 
   @Test
-  public void testFlowControllerSetUp() {
-    BigtableBatchingCallSettings.Builder builder =
-        BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor());
-    BatchingSettings settings =
-        BatchingSettings.newBuilder()
-            .setElementCountThreshold(100L)
-            .setRequestByteThreshold(100L)
-            .setFlowControlSettings(
-                FlowControlSettings.newBuilder()
-                    .setMaxOutstandingElementCount(150L)
-                    .setMaxOutstandingRequestBytes(150L)
-                    .build())
-            .build();
-    builder.setBatchingSettings(settings).setLatencyBasedThrottling(true, 10L);
-  }
-
-  @Test
   public void testMandatorySettings() {
     Exception actualEx = null;
     try {

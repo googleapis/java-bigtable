@@ -17,6 +17,10 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.api.gax.batching.BatcherImpl;
+import com.google.api.gax.batching.BatchingSettings;
+import com.google.api.gax.batching.FlowControlSettings;
+import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.BigtableGrpc;
@@ -154,26 +158,57 @@ public class EnhancedBigtableStubTest {
 
   @Test
   public void testBulkMutationFlowControllerConfigured() throws Exception {
-    BigtableDataSettings settings =
+    BigtableDataSettings.Builder settings =
         BigtableDataSettings.newBuilder()
             .setProjectId("my-project")
             .setInstanceId("my-instance")
-            .enableBatchMutationLatencyBasedThrottling(10L)
-            .build();
-    EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(settings.getStubSettings());
-    EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(settings.getStubSettings());
-    assertThat(stub1.getBulkMutationFlowController())
-        .isNotSameInstanceAs(stub2.getBulkMutationFlowController());
+            .enableBatchMutationLatencyBasedThrottling(10L);
 
-    EnhancedBigtableStub stub3 =
-        EnhancedBigtableStub.create(
-            settings
-                .toBuilder()
-                .disableBatchMutationLatencyBasedThrottling()
-                .build()
-                .getStubSettings());
-    assertThat(stub2.getBulkMutationFlowController())
-        .isNotSameInstanceAs(stub3.getBulkMutationFlowController());
+    settings
+        .stubSettings()
+        .bulkMutateRowsSettings()
+        .setBatchingSettings(
+            BatchingSettings.newBuilder()
+                .setElementCountThreshold(50L)
+                .setRequestByteThreshold(500L)
+                .setFlowControlSettings(
+                    FlowControlSettings.newBuilder()
+                        .setMaxOutstandingElementCount(100L)
+                        .setMaxOutstandingRequestBytes(1000L)
+                        .setLimitExceededBehavior(LimitExceededBehavior.Block)
+                        .build())
+                .build())
+        .build();
+
+    EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(settings.build().getStubSettings());
+    EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(settings.build().getStubSettings());
+
+    try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
+        BatcherImpl batcher2 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table2")) {
+      assertThat(batcher1.getFlowController()).isNotNull();
+      assertThat(batcher1).isNotSameInstanceAs(batcher2);
+      assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
+      // Verify flow controller settings
+      assertThat(batcher1.getFlowController().getLimitExceededBehavior())
+          .isEqualTo(LimitExceededBehavior.Block);
+      assertThat(batcher1.getFlowController().getMaxOutstandingElementCount()).isEqualTo(100L);
+      assertThat(batcher1.getFlowController().getMaxOutstandingRequestBytes()).isEqualTo(1000L);
+      assertThat(batcher1.getFlowController().getCurrentOutstandingElementCount()).isLessThan(100L);
+      assertThat(batcher1.getFlowController().getCurrentOutstandingRequestBytes()).isEqualTo(1000L);
+      assertThat(batcher1.getFlowController().getMinOutstandingElementCount())
+          .isAtLeast(
+              settings
+                  .stubSettings()
+                  .bulkMutateRowsSettings()
+                  .getBatchingSettings()
+                  .getElementCountThreshold());
+      assertThat(batcher1.getFlowController().getMinOutstandingRequestBytes()).isEqualTo(1000L);
+    }
+
+    try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
+        BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
+      assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
+    }
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {

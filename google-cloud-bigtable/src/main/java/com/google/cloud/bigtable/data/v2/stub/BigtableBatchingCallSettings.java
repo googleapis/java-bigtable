@@ -196,11 +196,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
     @Nullable
     public Long getTargetRpcLatencyMs() {
-      if (isLatencyBasedThrottlingEnabled) {
-        return this.targetRpcLatencyMs;
-      } else {
-        return null;
-      }
+      return isLatencyBasedThrottlingEnabled ? targetRpcLatencyMs : null;
     }
 
     /** Gets if latency based throttling is enabled. */
@@ -211,7 +207,6 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     /** Builds the {@link BigtableBatchingCallSettings} object with provided configuration. */
     @Override
     public BigtableBatchingCallSettings build() {
-      Preconditions.checkState(batchingSettings != null, "batchingSettings must be set");
       return new BigtableBatchingCallSettings(this);
     }
   }

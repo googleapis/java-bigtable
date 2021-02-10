@@ -274,10 +274,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
       return new FlowController(batchingSettings.getFlowControlSettings());
     }
   }
-
-  FlowController getBulkMutationFlowController() {
-    return this.bulkMutationFlowController;
-  }
   // <editor-fold desc="Callable creators">
 
   /**
