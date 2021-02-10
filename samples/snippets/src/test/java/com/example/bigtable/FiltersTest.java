@@ -475,18 +475,17 @@ public class FiltersTest extends CommonTest {
     assertThat(output)
         .contains(
             String.format("Reading data for phone#4c410523#20190501\n"
-                    + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190405.003 @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190502\n"
-                    + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190405.004 @%1$s\n\n"
-                    + "Reading data for phone#4c410523#20190505\n"
-                    + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190406.000 @%1$s\n\n"
-                    + "Reading data for phone#5c10102#20190502\n"
-                    + "Column Family stats_summary\n"
-                    + "\tos_build: PQ2A.190406.000 @%1$s"
-                , TIMESTAMP));
+                + "Column Family stats_summary\n"
+                + "\tos_build: PQ2A.190405.003 @%1$s\n\n"
+                + "Reading data for phone#4c410523#20190502\n"
+                + "Column Family stats_summary\n"
+                + "\tos_build: PQ2A.190405.004 @%1$s\n\n"
+                + "Reading data for phone#4c410523#20190505\n"
+                + "Column Family stats_summary\n"
+                + "\tos_build: PQ2A.190406.000 @%1$s\n\n"
+                + "Reading data for phone#5c10102#20190502\n"
+                + "Column Family stats_summary\n"
+                + "\tos_build: PQ2A.190406.000 @%1$s", TIMESTAMP));
   }
 
   @Test
