@@ -391,7 +391,7 @@ public final class BigtableDataSettings {
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
-      stubSettings.enableBatchMutationLatencyBasedThrottling(targetRpcLatencyMs);
+      stubSettings.bulkMutateRowsSettings().setLatencyBasedThrottling(true, targetRpcLatencyMs);
       return this;
     }
 
@@ -401,7 +401,7 @@ public final class BigtableDataSettings {
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder disableBatchMutationLatencyBasedThrottling() {
-      stubSettings.disableBatchMutationLatencyBasedThrottling();
+      stubSettings.bulkMutateRowsSettings().setLatencyBasedThrottling(false, null);
       return this;
     }
 
@@ -411,7 +411,7 @@ public final class BigtableDataSettings {
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
-      return stubSettings.isLatencyBasedThrottlingForBatchMutationEnabled();
+      return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
     }
     /**
      * Returns the underlying settings for making RPC calls. The settings should be changed with

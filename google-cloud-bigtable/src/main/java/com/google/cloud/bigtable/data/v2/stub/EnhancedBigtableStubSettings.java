@@ -32,7 +32,6 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
 import com.google.cloud.bigtable.Version;
-import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -749,36 +748,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     @BetaApi("Channel priming is not currently stable and might change in the future")
     public List<String> getPrimedTableIds() {
       return primedTableIds;
-    }
-
-    /**
-     * Enable latency based throttling for {@link BigtableDataClient#newBulkMutationBatcher(String)}
-     * with a target rpc latency. The number of allowed in-flight requests will be adjusted to reach
-     * the target bulk mutations rpc latency.
-     */
-    @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
-      bulkMutateRowsSettings.setLatencyBasedThrottling(true, targetRpcLatencyMs);
-      return this;
-    }
-
-    /**
-     * Disable latency based throttling for {@link
-     * BigtableDataClient#newBulkMutationBatcher(String)}.
-     */
-    @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public Builder disableBatchMutationLatencyBasedThrottling() {
-      bulkMutateRowsSettings.setLatencyBasedThrottling(false, null);
-      return this;
-    }
-
-    /**
-     * Gets if latency based throttling is enabled for {@link
-     * BigtableDataClient#newBulkMutationBatcher(String)}
-     */
-    @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
-      return bulkMutateRowsSettings.isLatencyBasedThrottlingEnabled();
     }
 
     /** Configure the header tracer for surfacing metrics in the header. */

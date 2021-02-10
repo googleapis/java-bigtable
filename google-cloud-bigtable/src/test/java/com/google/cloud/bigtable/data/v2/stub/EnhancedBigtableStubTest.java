@@ -152,6 +152,30 @@ public class EnhancedBigtableStubTest {
         .containsMatch("bigtable-java/\\d+\\.\\d+\\.\\d+(?:-SNAPSHOT)?");
   }
 
+  @Test
+  public void testBulkMutationFlowControllerConfigured() throws Exception {
+    BigtableDataSettings settings =
+        BigtableDataSettings.newBuilder()
+            .setProjectId("my-project")
+            .setInstanceId("my-instance")
+            .enableBatchMutationLatencyBasedThrottling(10L)
+            .build();
+    EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(settings.getStubSettings());
+    EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(settings.getStubSettings());
+    assertThat(stub1.getBulkMutationFlowController())
+        .isNotSameInstanceAs(stub2.getBulkMutationFlowController());
+
+    EnhancedBigtableStub stub3 =
+        EnhancedBigtableStub.create(
+            settings
+                .toBuilder()
+                .disableBatchMutationLatencyBasedThrottling()
+                .build()
+                .getStubSettings());
+    assertThat(stub2.getBulkMutationFlowController())
+        .isNotSameInstanceAs(stub3.getBulkMutationFlowController());
+  }
+
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
 

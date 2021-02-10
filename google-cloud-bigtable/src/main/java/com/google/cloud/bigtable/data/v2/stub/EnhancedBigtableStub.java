@@ -19,6 +19,9 @@ import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
+import com.google.api.gax.batching.BatchingSettings;
+import com.google.api.gax.batching.DynamicFlowControlSettings;
+import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GaxProperties;
@@ -115,6 +118,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
   private final RequestContext requestContext;
+  private final FlowController bulkMutationFlowController;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
@@ -219,6 +223,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
+    this.bulkMutationFlowController =
+        setupBulkMutationFlowController(settings.bulkMutateRowsSettings());
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
@@ -229,6 +235,49 @@ public class EnhancedBigtableStub implements AutoCloseable {
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
   }
 
+  private FlowController setupBulkMutationFlowController(BigtableBatchingCallSettings settings) {
+    BatchingSettings batchingSettings = settings.getBatchingSettings();
+    if (settings.isLatencyBasedThrottlingEnabled()) {
+      // Set up a flow controller with DynamicFlowControlSettings
+      Long maxThrottlingElementCount =
+          batchingSettings.getFlowControlSettings().getMaxOutstandingElementCount();
+      Long maxThrottlingRequestByteCount =
+          batchingSettings.getFlowControlSettings().getMaxOutstandingRequestBytes();
+      if (maxThrottlingElementCount == null) {
+        long maxBulkMutateElementPerBatch = 100L;
+        long defaultChannelPoolSize = 2 * Runtime.getRuntime().availableProcessors();
+        maxThrottlingElementCount =
+            Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * defaultChannelPoolSize);
+      }
+      if (maxThrottlingRequestByteCount == null) {
+        maxThrottlingRequestByteCount = 100L * 1024 * 1024;
+      }
+
+      long initialElementCount = maxThrottlingElementCount / 4;
+      long minElementCount = maxThrottlingElementCount / 100;
+      if (batchingSettings.getElementCountThreshold() != null) {
+        initialElementCount =
+            Math.max(initialElementCount, batchingSettings.getElementCountThreshold());
+        minElementCount = Math.max(minElementCount, batchingSettings.getElementCountThreshold());
+      }
+      DynamicFlowControlSettings dynamicFlowControlSettings =
+          DynamicFlowControlSettings.newBuilder()
+              .setInitialOutstandingElementCount(initialElementCount)
+              .setMaxOutstandingElementCount(maxThrottlingElementCount)
+              .setMinOutstandingElementCount(minElementCount)
+              .setInitialOutstandingRequestBytes(maxThrottlingRequestByteCount)
+              .setMinOutstandingRequestBytes(maxThrottlingRequestByteCount)
+              .setMaxOutstandingRequestBytes(maxThrottlingRequestByteCount)
+              .build();
+      return new FlowController(dynamicFlowControlSettings);
+    } else {
+      return new FlowController(batchingSettings.getFlowControlSettings());
+    }
+  }
+
+  FlowController getBulkMutationFlowController() {
+    return this.bulkMutationFlowController;
+  }
   // <editor-fold desc="Callable creators">
 
   /**
@@ -520,7 +569,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         bulkMutateRowsCallable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
-        clientContext.getExecutor());
+        clientContext.getExecutor(),
+        bulkMutationFlowController);
   }
 
   /**

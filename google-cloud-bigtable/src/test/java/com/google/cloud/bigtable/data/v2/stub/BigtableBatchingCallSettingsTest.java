@@ -55,7 +55,6 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(builder.getRetrySettings()).isNotNull();
     assertThat(builder.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(builder.getTargetRpcLatencyMs()).isNull();
-    assertThat(builder.getFlowController()).isNull();
   }
 
   @Test
@@ -76,21 +75,16 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(settings.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(settings.getTargetRpcLatencyMs()).isNull();
-    assertThat(settings.getFlowController()).isNotNull();
-    FlowController flowController = settings.getFlowController();
 
     builder.setLatencyBasedThrottling(true, 10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(settings.getTargetRpcLatencyMs()).isEqualTo(10);
-    assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
-    flowController = settings.getFlowController();
 
     builder.setLatencyBasedThrottling(false, 10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(settings.getTargetRpcLatencyMs()).isNull();
-    assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
   }
 
   @Test
@@ -114,7 +108,6 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(newBuilder.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(newBuilder.isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(newBuilder.getTargetRpcLatencyMs()).isEqualTo(10L);
-    assertThat(newBuilder.getFlowController()).isSameInstanceAs(builder.getFlowController());
   }
 
   @Test
@@ -132,14 +125,6 @@ public class BigtableBatchingCallSettingsTest {
                     .build())
             .build();
     builder.setBatchingSettings(settings).setLatencyBasedThrottling(true, 10L);
-    FlowController flowController = builder.build().getFlowController();
-    assertThat(flowController).isNotNull();
-    assertThat(flowController.getCurrentOutstandingElementCount()).isEqualTo(100);
-    assertThat(flowController.getMinOutstandingElementCount()).isEqualTo(100);
-    assertThat(flowController.getMaxOutstandingElementCount()).isEqualTo(150);
-    assertThat(flowController.getCurrentOutstandingRequestBytes()).isEqualTo(150);
-    assertThat(flowController.getMinOutstandingRequestBytes()).isEqualTo(150);
-    assertThat(flowController.getMaxOutstandingRequestBytes()).isEqualTo(150);
   }
 
   @Test
