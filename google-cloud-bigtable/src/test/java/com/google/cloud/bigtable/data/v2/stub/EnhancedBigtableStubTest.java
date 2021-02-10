@@ -209,6 +209,15 @@ public class EnhancedBigtableStubTest {
         BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
       assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
     }
+
+    stub2 =
+        EnhancedBigtableStub.create(
+            settings.disableBatchMutationLatencyBasedThrottling().build().getStubSettings());
+    try (BatcherImpl batcher = (BatcherImpl) stub2.newMutateRowsBatcher("my-table")) {
+      assertThat(batcher.getFlowController().getMaxOutstandingElementCount()).isEqualTo(100L);
+      assertThat(batcher.getFlowController().getCurrentOutstandingElementCount()).isEqualTo(100L);
+      assertThat(batcher.getFlowController().getMinOutstandingElementCount()).isEqualTo(100L);
+    }
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {
