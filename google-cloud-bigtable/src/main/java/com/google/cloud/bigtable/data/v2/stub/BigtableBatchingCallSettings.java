@@ -19,6 +19,9 @@ import com.google.api.core.BetaApi;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingSettings;
+import com.google.api.gax.batching.DynamicFlowControlSettings;
+import com.google.api.gax.batching.FlowControlSettings;
+import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallSettings;
@@ -60,6 +63,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
   private BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void> batchingCallSettings;
   private boolean isLatencyBasedThrottlingEnabled;
   private Long targetRpcLatencyMs;
+  private DynamicFlowControlSettings dynamicFlowControlSettings;
 
   private BigtableBatchingCallSettings(Builder builder) {
     super(builder);
@@ -71,6 +75,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
             .build();
     this.isLatencyBasedThrottlingEnabled = builder.isLatencyBasedThrottlingEnabled;
     this.targetRpcLatencyMs = builder.targetRpcLatencyMs;
+    this.dynamicFlowControlSettings = builder.dynamicFlowControlSettings;
   }
 
   /** Returns batching settings which contains multiple batch threshold levels. */
@@ -94,6 +99,15 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return targetRpcLatencyMs;
   }
 
+  /**
+   * Gets {@link DynamicFlowControlSettings}.
+   *
+   * @see Builder#getDynamicFlowControlSettings()
+   */
+  DynamicFlowControlSettings getDynamicFlowControlSettings() {
+    return dynamicFlowControlSettings;
+  }
+
   static Builder newBuilder(
       BatchingDescriptor<RowMutationEntry, Void, BulkMutation, Void> batchingDescriptor) {
     return new Builder(batchingDescriptor);
@@ -114,6 +128,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
         .add("batchingCallSettings", batchingCallSettings)
         .add("isLatencyBasedThrottlingEnabled", isLatencyBasedThrottlingEnabled)
         .add("targetRpcLatency", targetRpcLatencyMs)
+        .add("dynamicFlowControlSettings", dynamicFlowControlSettings)
         .toString();
   }
 
@@ -127,6 +142,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     private BatchingSettings batchingSettings;
     private boolean isLatencyBasedThrottlingEnabled;
     private Long targetRpcLatencyMs;
+    private DynamicFlowControlSettings dynamicFlowControlSettings;
 
     private Builder(
         @Nonnull
@@ -141,6 +157,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       this.batchingSettings = settings.getBatchingSettings();
       this.isLatencyBasedThrottlingEnabled = settings.isLatencyBasedThrottlingEnabled();
       this.targetRpcLatencyMs = settings.getTargetRpcLatencyMs();
+      this.dynamicFlowControlSettings = settings.getDynamicFlowControlSettings();
     }
 
     /** Sets the batching settings with various thresholds. */
@@ -204,9 +221,78 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       return this.isLatencyBasedThrottlingEnabled;
     }
 
+    /**
+     * Gets {@link DynamicFlowControlSettings}.
+     *
+     * <p>By default, set up DynamicFlowControlSettings with values in {@link
+     * BatchingSettings#getFlowControlSettings()}. If maxOutstandingElementCount is not set in
+     * {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingElementCount =
+     * Math.min(20000, 200 * number of runtime processors). If maxOutstandingRequestBytes is not set
+     * in {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingRequestBytes = 100MB.
+     *
+     * <p>If latency based throttling is enabled, set initialOutstandingElementCount =
+     * Math.max(batch element count, maxOutstandingElementCount / 4); minOutstandingElementCount =
+     * Math.max(batch element count, maxOutstandingElementCount / 100). If latency based throttling
+     * is disabled, set initialOutstandingElementCount = maxOutstandingElementCount;
+     * minOutstandingElementCount = maxOutstandingElementCount.
+     *
+     * <p>Latency based throttling only adjusts outstanding element count.
+     * initialOutstandingRequestBytes, minOutstandingRequestBytes and maxOutstandingRequestBytes
+     * will always be the same.
+     *
+     * <p>{@link LimitExceededBehavior} will always be {@link LimitExceededBehavior#Block}.
+     */
+    public DynamicFlowControlSettings getDynamicFlowControlSettings() {
+      return this.dynamicFlowControlSettings;
+    }
+
     /** Builds the {@link BigtableBatchingCallSettings} object with provided configuration. */
     @Override
     public BigtableBatchingCallSettings build() {
+      Preconditions.checkState(batchingSettings != null, "batchingSettings must be set");
+      FlowControlSettings defaultSettings = batchingSettings.getFlowControlSettings();
+      if (isLatencyBasedThrottlingEnabled()) {
+        Long maxThrottlingElementCount = defaultSettings.getMaxOutstandingElementCount();
+        Long maxThrottlingRequestByteCount = defaultSettings.getMaxOutstandingRequestBytes();
+        if (maxThrottlingElementCount == null) {
+          long maxBulkMutateElementPerBatch = 100L;
+          long defaultChannelPoolSize = 2 * Runtime.getRuntime().availableProcessors();
+          maxThrottlingElementCount =
+              Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * defaultChannelPoolSize);
+        }
+        if (maxThrottlingRequestByteCount == null) {
+          maxThrottlingRequestByteCount = 100L * 1024 * 1024;
+        }
+
+        long initialElementCount = maxThrottlingElementCount / 4;
+        long minElementCount = maxThrottlingElementCount / 100;
+        if (batchingSettings.getElementCountThreshold() != null) {
+          initialElementCount =
+              Math.max(initialElementCount, batchingSettings.getElementCountThreshold());
+          minElementCount = Math.max(minElementCount, batchingSettings.getElementCountThreshold());
+        }
+        dynamicFlowControlSettings =
+            DynamicFlowControlSettings.newBuilder()
+                .setLimitExceededBehavior(LimitExceededBehavior.Block)
+                .setInitialOutstandingElementCount(initialElementCount)
+                .setMaxOutstandingElementCount(maxThrottlingElementCount)
+                .setMinOutstandingElementCount(minElementCount)
+                .setInitialOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .setMinOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .setMaxOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .build();
+      } else {
+        dynamicFlowControlSettings =
+            DynamicFlowControlSettings.newBuilder()
+                .setLimitExceededBehavior(LimitExceededBehavior.Block)
+                .setInitialOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setMaxOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setMinOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setInitialOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .setMinOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .setMaxOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .build();
+      }
       return new BigtableBatchingCallSettings(this);
     }
   }
