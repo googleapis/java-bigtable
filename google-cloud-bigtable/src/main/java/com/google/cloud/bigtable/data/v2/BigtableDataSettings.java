@@ -23,6 +23,7 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
@@ -399,6 +400,9 @@ public final class BigtableDataSettings {
      * Enable latency based throttling for {@link BigtableDataClient#newBulkMutationBatcher(String)}
      * with a target rpc latency. The number of allowed in-flight requests will be adjusted to reach
      * the target bulk mutations rpc latency.
+     *
+     * @see BigtableBatchingCallSettings.Builder#getDynamicFlowControlSettings() for explanation on
+     *     default configurations.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {

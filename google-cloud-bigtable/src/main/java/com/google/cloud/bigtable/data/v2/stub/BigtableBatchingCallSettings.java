@@ -21,7 +21,7 @@ import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.DynamicFlowControlSettings;
 import com.google.api.gax.batching.FlowControlSettings;
-import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
+import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallSettings;
@@ -223,26 +223,39 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     }
 
     /**
-     * Gets {@link DynamicFlowControlSettings}.
+     * Gets the {@link DynamicFlowControlSettings} that'll be used to set up a {@link
+     * FlowController} for throttling.
      *
-     * <p>DynamicFlowControlSettings uses maxOutstandingElementCount and maxOutstandingRequestBytes
-     * settings in {@link BatchingSettings#getFlowControlSettings()}.
+     * <p>By default, this will allow a maximum of 1000 entries per channel of {@link
+     * FlowControlSettings.Builder#setMaxOutstandingElementCount request count} and 100MB of {@link
+     * FlowControlSettings.Builder#setMaxOutstandingRequestBytes accumulated size} in-flight
+     * requests. Once the limits are reached, pending operations will by default be {@link
+     * FlowControlSettings.Builder#setLimitExceededBehavior blocked} until some of the in-flight
+     * requests are resolved.
      *
-     * <p>If latency based throttling is enabled,
+     * <p>If latency based throttling is enabled, number of entries allowed by {@link
+     * FlowController} will be adjusted to reach {@link Builder#getTargetRpcLatencyMs()}.
      *
-     * <pre>
-     *   initialOutstandingElementCount = Math.max(batch element count, maxOutstandingElementCount / 4);
-     *   minOutstandingElementCount = Math.max(batch element count, maxOutstandingElementCount / 100).
-     * </pre>
+     * <ul>
+     *   <li>{@link FlowController} will be set to allow Math.max({@link BatchingSettings.Builder
+     *       #setElementCountThreshold batch size}, {@link
+     *       FlowControlSettings.Builder#setMaxOutstandingElementCount request count} / 4) entries
+     *       to start with.
+     *   <li>If bulk mutation rpc latency is higher than target latency, decrease allowed entries to
+     *       a minimum of Math.max({@link BatchingSettings.Builder#setElementCountThreshold batch
+     *       size}, {@link FlowControlSettings.Builder#setMaxOutstandingElementCount request count}
+     *       / 100).
+     *   <li>If bulk mutation rpc latency is lower than target latency and there was throttling,
+     *       increase allowed entries to a maximum of {@link
+     *       FlowControlSettings.Builder#setMaxOutstandingElementCount request count}.
+     * </ul>
      *
-     * If latency based throttling is disabled, initialOutstandingElementCount,
-     * maxOutstandingElementCount and minOutstandingElementCount will be the same.
+     * If latency based throttling is disabled, {@link FlowController} will always allow {@link
+     * FlowControlSettings.Builder#setMaxOutstandingElementCount request count}.
      *
-     * <p>Latency based throttling only adjusts outstanding element count.
-     * initialOutstandingRequestBytes, minOutstandingRequestBytes and maxOutstandingRequestBytes
-     * will always be the same.
-     *
-     * <p>{@link LimitExceededBehavior} will always be {@link LimitExceededBehavior#Block}.
+     * <p>Latency based throttling only updates outstanding entries count. {@link FlowController}
+     * will always allow {@link FlowControlSettings.Builder#setMaxOutstandingRequestBytes
+     * accumulated size}.
      */
     public DynamicFlowControlSettings getDynamicFlowControlSettings() {
       return this.dynamicFlowControlSettings;
@@ -290,7 +303,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
         }
         dynamicFlowControlSettings =
             DynamicFlowControlSettings.newBuilder()
-                .setLimitExceededBehavior(LimitExceededBehavior.Block)
+                .setLimitExceededBehavior(defaultSettings.getLimitExceededBehavior())
                 .setInitialOutstandingElementCount(initialElementCount)
                 .setMaxOutstandingElementCount(maxThrottlingElementCount)
                 .setMinOutstandingElementCount(minElementCount)
@@ -301,7 +314,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       } else {
         dynamicFlowControlSettings =
             DynamicFlowControlSettings.newBuilder()
-                .setLimitExceededBehavior(LimitExceededBehavior.Block)
+                .setLimitExceededBehavior(defaultSettings.getLimitExceededBehavior())
                 .setInitialOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
                 .setMaxOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
                 .setMinOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
