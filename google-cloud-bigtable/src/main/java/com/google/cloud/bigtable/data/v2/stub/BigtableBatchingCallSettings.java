@@ -227,8 +227,9 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
      * <p>By default, set up DynamicFlowControlSettings with values in {@link
      * BatchingSettings#getFlowControlSettings()}. If maxOutstandingElementCount is not set in
      * {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingElementCount =
-     * Math.min(20000, 200 * number of runtime processors). If maxOutstandingRequestBytes is not set
-     * in {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingRequestBytes = 100MB.
+     * Math.min(20000, 2000 * number of runtime processors). If maxOutstandingRequestBytes is not
+     * set in {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingRequestBytes =
+     * 100MB.
      *
      * <p>If latency based throttling is enabled, set initialOutstandingElementCount =
      * Math.max(batch element count, maxOutstandingElementCount / 4); minOutstandingElementCount =
