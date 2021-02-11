@@ -60,10 +60,11 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
 
   // This settings is just a simple wrapper for BatchingCallSettings to allow us to add
   // additional functionality.
-  private BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void> batchingCallSettings;
-  private boolean isLatencyBasedThrottlingEnabled;
-  private Long targetRpcLatencyMs;
-  private DynamicFlowControlSettings dynamicFlowControlSettings;
+  private final BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void>
+      batchingCallSettings;
+  private final boolean isLatencyBasedThrottlingEnabled;
+  private final Long targetRpcLatencyMs;
+  private final DynamicFlowControlSettings dynamicFlowControlSettings;
 
   private BigtableBatchingCallSettings(Builder builder) {
     super(builder);
@@ -224,17 +225,18 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     /**
      * Gets {@link DynamicFlowControlSettings}.
      *
-     * <p>By default, DynamicFlowControlSettings uses settings in {@link
-     * BatchingSettings#getFlowControlSettings()}. If maxOutstandingElementCount is not set in
-     * {@link BatchingSettings#getFlowControlSettings()}, maxOutstandingElementCount =
-     * Math.min(20000, 2000 * number of runtime processors). If maxOutstandingRequestBytes is not
-     * set in {@link BatchingSettings#getFlowControlSettings()}, maxOutstandingRequestBytes = 100MB.
+     * <p>DynamicFlowControlSettings uses maxOutstandingElementCount and maxOutstandingRequestBytes
+     * settings in {@link BatchingSettings#getFlowControlSettings()}.
      *
-     * <p>If latency based throttling is enabled, initialOutstandingElementCount = Math.max(batch
-     * element count, maxOutstandingElementCount / 4); minOutstandingElementCount = Math.max(batch
-     * element count, maxOutstandingElementCount / 100). If latency based throttling is disabled,
-     * initialOutstandingElementCount, maxOutstandingElementCount and minOutstandingElementCount
-     * will be the same.
+     * <p>If latency based throttling is enabled,
+     *
+     * <pre>
+     *   initialOutstandingElementCount = Math.max(batch element count, maxOutstandingElementCount / 4);
+     *   minOutstandingElementCount = Math.max(batch element count, maxOutstandingElementCount / 100).
+     * </pre>
+     *
+     * If latency based throttling is disabled, initialOutstandingElementCount,
+     * maxOutstandingElementCount and minOutstandingElementCount will be the same.
      *
      * <p>Latency based throttling only adjusts outstanding element count.
      * initialOutstandingRequestBytes, minOutstandingRequestBytes and maxOutstandingRequestBytes
@@ -251,21 +253,36 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     public BigtableBatchingCallSettings build() {
       Preconditions.checkState(batchingSettings != null, "batchingSettings must be set");
       FlowControlSettings defaultSettings = batchingSettings.getFlowControlSettings();
+      Preconditions.checkState(
+          defaultSettings.getMaxOutstandingElementCount() != null,
+          "maxOutstandingElementCount must be set in BatchingSettings#FlowControlSettings");
+      Preconditions.checkState(
+          defaultSettings.getMaxOutstandingRequestBytes() != null,
+          "maxOutstandingRequestBytes must be set in BatchingSettings#FlowControlSettings");
+      Preconditions.checkArgument(
+          batchingSettings.getElementCountThreshold() == null
+              || defaultSettings.getMaxOutstandingElementCount()
+                  >= batchingSettings.getElementCountThreshold(),
+          "if elementCountThreshold is set in BatchingSettings, maxOutstandingElementCount must be >= elementCountThreshold");
+      Preconditions.checkArgument(
+          batchingSettings.getRequestByteThreshold() == null
+              || defaultSettings.getMaxOutstandingRequestBytes()
+                  >= batchingSettings.getRequestByteThreshold(),
+          "if requestByteThreshold is set in BatchingSettings, getMaxOutstandingRequestBytes must be >= getRequestByteThreshold");
+      // Combine static FlowControlSettings with latency based throttling settings to create
+      // DynamicFlowControlSettings.
       if (isLatencyBasedThrottlingEnabled()) {
-        Long maxThrottlingElementCount = defaultSettings.getMaxOutstandingElementCount();
-        Long maxThrottlingRequestByteCount = defaultSettings.getMaxOutstandingRequestBytes();
-        if (maxThrottlingElementCount == null) {
-          long maxBulkMutateElementPerBatch = 100L;
-          long defaultChannelPoolSize = 2 * Runtime.getRuntime().availableProcessors();
-          maxThrottlingElementCount =
-              Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * defaultChannelPoolSize);
-        }
-        if (maxThrottlingRequestByteCount == null) {
-          maxThrottlingRequestByteCount = 100L * 1024 * 1024;
-        }
-
+        long maxThrottlingElementCount = defaultSettings.getMaxOutstandingElementCount();
+        long maxThrottlingRequestByteCount = defaultSettings.getMaxOutstandingRequestBytes();
+        //  The maximum in flight element count is pretty high. Set the initial parallelism to 25%
+        //  of the maximum and then work up or down. This reduction should reduce the
+        // impacts of a bursty job, such as those found in Dataflow.
         long initialElementCount = maxThrottlingElementCount / 4;
+        // Decreases are floored at 1% of the maximum so that there is some level of
+        // throughput.
         long minElementCount = maxThrottlingElementCount / 100;
+        // Make sure initialOutstandingElementCount and minOutstandingElementCount element count are
+        // greater or equal to batch size to avoid deadlocks.
         if (batchingSettings.getElementCountThreshold() != null) {
           initialElementCount =
               Math.max(initialElementCount, batchingSettings.getElementCountThreshold());

@@ -142,6 +142,77 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(actualEx).isInstanceOf(IllegalStateException.class);
   }
 
+  @Test
+  public void testFlowControlMandatorySettings() {
+    Exception actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(null)
+                          .setMaxOutstandingRequestBytes(null)
+                          .build())
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalStateException.class);
+
+    BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+        .setBatchingSettings(
+            BatchingSettings.newBuilder()
+                .setFlowControlSettings(
+                    FlowControlSettings.newBuilder()
+                        .setMaxOutstandingElementCount(10L)
+                        .setMaxOutstandingRequestBytes(10L)
+                        .build())
+                .setElementCountThreshold(10L)
+                .setRequestByteThreshold(10L)
+                .build())
+        .build();
+
+    actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(10L)
+                          .setMaxOutstandingRequestBytes(5L)
+                          .build())
+                  .setElementCountThreshold(10L)
+                  .setRequestByteThreshold(10L)
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalArgumentException.class);
+
+    actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(5L)
+                          .setMaxOutstandingRequestBytes(10L)
+                          .build())
+                  .setElementCountThreshold(10L)
+                  .setRequestByteThreshold(10L)
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalArgumentException.class);
+  }
+
   private void verifyFlowControlSettingWhenLatencyBasedThrottlingDisabled(
       DynamicFlowControlSettings settings) {
     assertThat(settings.getInitialOutstandingElementCount())
