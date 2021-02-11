@@ -93,7 +93,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return isLatencyBasedThrottlingEnabled;
   }
 
-  /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+  /** Gets target rpc latency if latency based throttling is enabled. Otherwise returns null. */
   @Nullable
   public Long getTargetRpcLatencyMs() {
     return targetRpcLatencyMs;
@@ -210,7 +210,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       return this;
     }
 
-    /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+    /** Gets target rpc latency if latency based throttling is enabled. Otherwise returns null. */
     @Nullable
     public Long getTargetRpcLatencyMs() {
       return isLatencyBasedThrottlingEnabled ? targetRpcLatencyMs : null;
@@ -224,18 +224,17 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     /**
      * Gets {@link DynamicFlowControlSettings}.
      *
-     * <p>By default, set up DynamicFlowControlSettings with values in {@link
+     * <p>By default, DynamicFlowControlSettings uses settings in {@link
      * BatchingSettings#getFlowControlSettings()}. If maxOutstandingElementCount is not set in
-     * {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingElementCount =
+     * {@link BatchingSettings#getFlowControlSettings()}, maxOutstandingElementCount =
      * Math.min(20000, 2000 * number of runtime processors). If maxOutstandingRequestBytes is not
-     * set in {@link BatchingSettings#getFlowControlSettings()}, set maxOutstandingRequestBytes =
-     * 100MB.
+     * set in {@link BatchingSettings#getFlowControlSettings()}, maxOutstandingRequestBytes = 100MB.
      *
-     * <p>If latency based throttling is enabled, set initialOutstandingElementCount =
-     * Math.max(batch element count, maxOutstandingElementCount / 4); minOutstandingElementCount =
-     * Math.max(batch element count, maxOutstandingElementCount / 100). If latency based throttling
-     * is disabled, set initialOutstandingElementCount = maxOutstandingElementCount;
-     * minOutstandingElementCount = maxOutstandingElementCount.
+     * <p>If latency based throttling is enabled, initialOutstandingElementCount = Math.max(batch
+     * element count, maxOutstandingElementCount / 4); minOutstandingElementCount = Math.max(batch
+     * element count, maxOutstandingElementCount / 100). If latency based throttling is disabled,
+     * initialOutstandingElementCount, maxOutstandingElementCount and minOutstandingElementCount
+     * will be the same.
      *
      * <p>Latency based throttling only adjusts outstanding element count.
      * initialOutstandingRequestBytes, minOutstandingRequestBytes and maxOutstandingRequestBytes

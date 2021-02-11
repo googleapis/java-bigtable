@@ -229,7 +229,10 @@ public final class BigtableDataSettings {
     return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
   }
 
-  /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+  /**
+   * Gets target bulk mutation rpc latency if latency based throttling is enabled for {@link
+   * BigtableDataClient#newBulkMutationBatcher(String)}. Otherwise returns null.
+   */
   @BetaApi("Latency based throttling is not currently stable and may change in the future")
   @Nullable
   public Long getBatchMutationsTargetRpcLatencyMs() {
@@ -422,10 +425,13 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
     }
 
-    /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+    /**
+     * Gets target bulk mutation rpc latency if latency based throttling is enabled for {@link
+     * BigtableDataClient#newBulkMutationBatcher(String)}. Otherwise returns null.
+     */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     @Nullable
-    public Long getBatchMutationsTargetRpcLatencyMs() {
+    public Long getTargetRpcLatencyMsForBatchMutation() {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
     }
 
