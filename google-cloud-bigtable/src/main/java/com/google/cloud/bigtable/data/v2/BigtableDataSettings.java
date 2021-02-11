@@ -30,6 +30,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -228,6 +229,13 @@ public final class BigtableDataSettings {
     return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
   }
 
+  /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+  @BetaApi("Latency based throttling is not currently stable and may change in the future")
+  @Nullable
+  public Long getBatchMutationsTargetRpcLatencyMs() {
+    return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+  }
+
   /** Returns the underlying RPC settings. */
   public EnhancedBigtableStubSettings getStubSettings() {
     return stubSettings;
@@ -413,6 +421,14 @@ public final class BigtableDataSettings {
     public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
       return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
     }
+
+    /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+    @BetaApi("Latency based throttling is not currently stable and may change in the future")
+    @Nullable
+    public Long getBatchMutationsTargetRpcLatencyMs() {
+      return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+    }
+
     /**
      * Returns the underlying settings for making RPC calls. The settings should be changed with
      * care.

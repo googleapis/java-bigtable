@@ -93,9 +93,9 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return isLatencyBasedThrottlingEnabled;
   }
 
-  /** Returns target rpc latency for bulk mutations if latency based throttling is enabled. */
+  /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
   @Nullable
-  Long getTargetRpcLatencyMs() {
+  public Long getTargetRpcLatencyMs() {
     return targetRpcLatencyMs;
   }
 
