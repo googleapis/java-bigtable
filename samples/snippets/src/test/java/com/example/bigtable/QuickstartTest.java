@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.m.examples.bigtable;
+package com.example.bigtable;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import com.example.bigtable.Quickstart;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import org.hamcrest.CoreMatchers;
