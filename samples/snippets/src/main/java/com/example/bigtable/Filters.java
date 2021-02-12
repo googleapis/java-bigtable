@@ -266,7 +266,8 @@ public class Filters {
   }
 
   public static void filterModifyStripValue(String projectId, String instanceId, String tableId) {
-    // A filter that replaces the outputted cell value with the empty string
+    // A filter that replaces the outputted cell value with the empty string, useful for counting
+    // rows.
     Filter filter = FILTERS.value().strip();
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       Query query = Query.create(tableId).filter(filter);
@@ -309,7 +310,7 @@ public class Filters {
   }
 
   public static void filterComposingChain(String projectId, String instanceId, String tableId) {
-    // A filter that selects one cell per column AND within the column family cell_plan
+    // A filter that selects one cell per column AND strips the value for lower bandwidth counting.
     Filter filter =
         FILTERS
             .chain()
@@ -361,8 +362,7 @@ public class Filters {
   }
 
   public static void filterComposingCondition(String projectId, String instanceId, String tableId) {
-    // A filter that applies the label passed-filter IF the cell has the column qualifier
-    // data_plan_10gb AND the value true, OTHERWISE applies the label filtered-out
+    // A filter that passed the row IF the data_plan_10gb value is true, OTHERWISE doesn't return it
     Filter filter =
         FILTERS
             .condition(
@@ -370,8 +370,8 @@ public class Filters {
                     .chain()
                     .filter(FILTERS.qualifier().exactMatch("data_plan_10gb"))
                     .filter(FILTERS.value().exactMatch("true")))
-            .then(FILTERS.label("passed-filter"))
-            .otherwise(FILTERS.label("filtered-out"));
+            .then(FILTERS.pass())
+            .otherwise(FILTERS.block());
     readFilter(projectId, instanceId, tableId, filter);
   }
   // [END bigtable_filters_composing_condition]
