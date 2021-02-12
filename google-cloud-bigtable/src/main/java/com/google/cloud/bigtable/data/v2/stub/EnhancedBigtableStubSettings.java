@@ -38,6 +38,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracer;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.base.MoreObjects;
@@ -88,9 +89,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
-
-  // TODO(weiranf): Remove this temporary endpoint once DirectPath goes to public beta
-  private static final String DIRECT_PATH_ENDPOINT = "test-bigtable.sandbox.googleapis.com:443";
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
@@ -157,6 +155,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final String appProfileId;
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
+  private HeaderTracer headerTracer;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -169,12 +168,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
-
-    if (DIRECT_PATH_ENDPOINT.equals(builder.getEndpoint())) {
-      logger.warning(
-          "Connecting to Bigtable using DirectPath."
-              + " This is currently an experimental feature and should not be used in production.");
-    }
 
     // Since point reads, streaming reads, bulk reads share the same base callable that converts
     // grpc errors into ApiExceptions, they must have the same retry codes.
@@ -196,6 +189,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     appProfileId = builder.appProfileId;
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
+    headerTracer = builder.headerTracer;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -240,22 +234,22 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return primedTableIds;
   }
 
+  /** Gets the tracer for capturing metrics in the header. */
+  HeaderTracer getHeaderTracer() {
+    return headerTracer;
+  }
+
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setPoolSize(getDefaultChannelPoolSize())
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(10)) // sends ping in this interval
+        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
         .setKeepAliveTimeout(
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        .setKeepAliveWithoutCalls(true) // sends ping without active streams
-        // TODO(weiranf): Set this to true by default once DirectPath goes to public beta
-        .setAttemptDirectPath(isDirectPathEnabled());
-  }
-
-  // TODO(weiranf): Remove this once DirectPath goes to public beta
-  private static boolean isDirectPathEnabled() {
-    return Boolean.getBoolean("bigtable.attempt-directpath");
+        // Attempts direct access to CBT service over gRPC to improve throughput,
+        // whether the attempt is allowed is totally controlled by service owner.
+        .setAttemptDirectPath(true);
   }
 
   static int getDefaultChannelPoolSize() {
@@ -502,6 +496,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String appProfileId;
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
+    private HeaderTracer headerTracer;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -525,19 +520,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = false;
       primedTableIds = ImmutableList.of();
+      headerTracer = HeaderTracer.newBuilder().build();
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
-      // TODO(weiranf): remove this once DirectPath goes to public Beta and uses the default
-      // endpoint.
-      if (isDirectPathEnabled()) {
-        setEndpoint(DIRECT_PATH_ENDPOINT);
-      } else {
-        setEndpoint(baseDefaults.getEndpoint());
-      }
-
+      setEndpoint(baseDefaults.getEndpoint());
       setTransportChannelProvider(defaultTransportChannelProvider());
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
@@ -638,6 +627,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       appProfileId = settings.appProfileId;
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
+      headerTracer = settings.headerTracer;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -760,6 +750,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return primedTableIds;
     }
 
+    /** Configure the header tracer for surfacing metrics in the header. */
+    Builder setHeaderTracer(HeaderTracer headerTracer) {
+      this.headerTracer = headerTracer;
+      return this;
+    }
+
+    /** Gets the header tracer that'll be used to surface metrics in the header. */
+    HeaderTracer getHeaderTracer() {
+      return headerTracer;
+    }
+
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
       return readRowsSettings;
@@ -839,6 +840,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
+        .add("headerTracer", headerTracer)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)

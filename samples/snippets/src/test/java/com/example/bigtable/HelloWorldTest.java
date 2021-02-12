@@ -12,11 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-*/
+ */
 
 package com.example.bigtable;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.example.bigtable.HelloWorld;
@@ -25,7 +27,6 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
-import com.google.cloud.bigtable.data.v2.models.Row;
 import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -86,10 +87,11 @@ public class HelloWorldTest {
   }
 
   @After
-  public void after() {
+  public void teardown() {
     if (adminClient.exists(tableId)) {
       adminClient.deleteTable(tableId);
     }
+    helloWorld.close();
   }
 
   @Test
@@ -103,18 +105,26 @@ public class HelloWorldTest {
     // Deletes a table.
     testHelloWorld.deleteTable();
     assertTrue(!adminClient.exists(testTable));
+    testHelloWorld.close();
   }
 
   @Test
   public void testWriteToTable() {
     // Writes to a table.
+    assertNull(dataClient.readRow(tableId, "rowKey0"));
     helloWorld.writeToTable();
-    Row row = dataClient.readRow(tableId, "rowKey0");
-    assertNotNull(row);
+    assertNotNull(dataClient.readRow(tableId, "rowKey0"));
   }
 
-  // TODO: add test for helloWorld.readSingleRow()
-  // TODO: add test for helloWorld.readTable()
+  @Test
+  public void testReads() {
+    assertEquals(0, helloWorld.readTable().size());
+    helloWorld.writeToTable();
+
+    assertEquals(2, helloWorld.readSingleRow().getCells().size());
+    assertEquals(1, helloWorld.readSpecificCells().size());
+    assertEquals(3, helloWorld.readTable().size());
+  }
 
   @Test
   public void testRunDoesNotFail() throws Exception {
