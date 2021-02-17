@@ -406,7 +406,7 @@ public final class BigtableDataSettings {
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
-      stubSettings.bulkMutateRowsSettings().setLatencyBasedThrottling(true, targetRpcLatencyMs);
+      stubSettings.bulkMutateRowsSettings().enableLatencyBasedThrottling(targetRpcLatencyMs);
       return this;
     }
 
@@ -416,7 +416,7 @@ public final class BigtableDataSettings {
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder disableBatchMutationLatencyBasedThrottling() {
-      stubSettings.bulkMutateRowsSettings().setLatencyBasedThrottling(false, null);
+      stubSettings.bulkMutateRowsSettings().disableLatencyBasedThrottling();
       return this;
     }
 

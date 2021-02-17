@@ -461,7 +461,7 @@ public class EnhancedBigtableStubSettingsTest {
         .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
         .setRetrySettings(retrySettings)
         .setBatchingSettings(batchingSettings)
-        .setLatencyBasedThrottling(true, targetLatency)
+        .enableLatencyBasedThrottling(targetLatency)
         .build();
 
     assertThat(builder.bulkMutateRowsSettings().getRetryableCodes())

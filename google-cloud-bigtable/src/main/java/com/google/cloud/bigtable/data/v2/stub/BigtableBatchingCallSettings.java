@@ -25,6 +25,7 @@ import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallSettings;
+import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.base.MoreObjects;
@@ -195,19 +196,21 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     }
 
     /**
-     * Enables / disables latency based throttling. If enabling the setting, targetRpcLatency needs
-     * to be set.
+     * Enable latency based throttling. The number of allowed in-flight requests will be adjusted to
+     * reach the target rpc latency.
      */
-    public Builder setLatencyBasedThrottling(
-        boolean isLatencyBasedThrottlingEnabled, @Nullable Long targetRpcLatency) {
-      Preconditions.checkArgument(
-          !isLatencyBasedThrottlingEnabled || targetRpcLatency != null,
-          "target RPC latency must be set if latency based throttling is enabled");
-      Preconditions.checkArgument(
-          targetRpcLatency == null || targetRpcLatency > 0,
-          "if target RPC latency is set, it must be greater than 0");
-      this.isLatencyBasedThrottlingEnabled = isLatencyBasedThrottlingEnabled;
-      this.targetRpcLatencyMs = isLatencyBasedThrottlingEnabled ? targetRpcLatency : null;
+    public Builder enableLatencyBasedThrottling(long targetRpcLatency) {
+      Preconditions.checkArgument(targetRpcLatency > 0,
+          "target RPC latency must be greater than 0");
+      this.isLatencyBasedThrottlingEnabled = true;
+      this.targetRpcLatencyMs = targetRpcLatency;
+      return this;
+    }
+
+    /** Disable latency based throttling. */
+    public Builder disableLatencyBasedThrottling() {
+      this.isLatencyBasedThrottlingEnabled = false;
+      this.targetRpcLatencyMs = null;
       return this;
     }
 

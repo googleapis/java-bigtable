@@ -81,7 +81,7 @@ public class BigtableBatchingCallSettingsTest {
     verifyFlowControlSettingWhenLatencyBasedThrottlingDisabled(
         settings.getDynamicFlowControlSettings());
 
-    builder.setLatencyBasedThrottling(true, 10L);
+    builder.enableLatencyBasedThrottling(10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(settings.getTargetRpcLatencyMs()).isEqualTo(10);
@@ -89,7 +89,7 @@ public class BigtableBatchingCallSettingsTest {
     verifyFlowControlSettingWhenLatencyBasedThrottlingEnabled(
         settings.getDynamicFlowControlSettings());
 
-    builder.setLatencyBasedThrottling(false, 10L);
+    builder.disableLatencyBasedThrottling();
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(settings.getTargetRpcLatencyMs()).isNull();
@@ -108,7 +108,7 @@ public class BigtableBatchingCallSettingsTest {
         .setBatchingSettings(BATCHING_SETTINGS)
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE, StatusCode.Code.UNAUTHENTICATED)
         .setRetrySettings(retrySettings)
-        .setLatencyBasedThrottling(true, 10L);
+        .enableLatencyBasedThrottling(10L);
 
     BigtableBatchingCallSettings settings = builder.build();
     BigtableBatchingCallSettings.Builder newBuilder = settings.toBuilder();
