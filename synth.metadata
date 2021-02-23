@@ -11,8 +11,8 @@
       "git": {
         "name": "googleapis",
         "remote": "https://github.com/googleapis/googleapis.git",
-        "sha": "af8f71dae961ee036a0ac52a1965270149a6b2c9",
-        "internalRef": "358516065"
+        "sha": "eabec5a21219401bad79e1cc7d900c1658aee5fd",
+        "internalRef": "359130387"
       }
     },
     {
@@ -173,6 +173,8 @@
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/CreateTableFromSnapshotRequestOrBuilder.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/CreateTableRequest.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/CreateTableRequestOrBuilder.java",
+    "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/CryptoKeyName.java",
+    "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/CryptoKeyVersionName.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DeleteAppProfileRequest.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DeleteAppProfileRequestOrBuilder.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DeleteBackupRequest.java",
@@ -187,6 +189,8 @@
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DeleteTableRequestOrBuilder.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DropRowRangeRequest.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/DropRowRangeRequestOrBuilder.java",
+    "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/EncryptionInfo.java",
+    "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/EncryptionInfoOrBuilder.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/GcRule.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/GcRuleOrBuilder.java",
     "proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/GenerateConsistencyTokenRequest.java",

@@ -581,6 +581,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -636,6 +637,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -691,6 +693,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -732,6 +735,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -853,6 +857,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -868,6 +873,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
             .setDefaultStorageType(StorageType.forNumber(0))
+            .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
             .build();
 
     Cluster actualResponse = client.updateClusterAsync(request).get();
@@ -882,6 +888,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Assert.assertEquals(request.getState(), actualRequest.getState());
     Assert.assertEquals(request.getServeNodes(), actualRequest.getServeNodes());
     Assert.assertEquals(request.getDefaultStorageType(), actualRequest.getDefaultStorageType());
+    Assert.assertEquals(request.getEncryptionConfig(), actualRequest.getEncryptionConfig());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
             ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
@@ -900,6 +907,7 @@ public class BaseBigtableInstanceAdminClientTest {
               .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
               .setServeNodes(-1288838783)
               .setDefaultStorageType(StorageType.forNumber(0))
+              .setEncryptionConfig(Cluster.EncryptionConfig.newBuilder().build())
               .build();
       client.updateClusterAsync(request).get();
       Assert.fail("No exception raised");
