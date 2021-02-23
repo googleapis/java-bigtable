@@ -51,6 +51,7 @@ import com.google.bigtable.admin.v2.ListInstancesResponse;
 import com.google.bigtable.admin.v2.LocationName;
 import com.google.bigtable.admin.v2.PartialUpdateInstanceRequest;
 import com.google.bigtable.admin.v2.ProjectName;
+import com.google.bigtable.admin.v2.StorageType;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.bigtable.admin.v2.UpdateAppProfileRequest;
 import com.google.common.collect.Lists;
@@ -579,6 +580,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -633,6 +635,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -687,6 +690,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -727,6 +731,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -847,6 +852,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -861,6 +867,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
             .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
             .setServeNodes(-1288838783)
+            .setDefaultStorageType(StorageType.forNumber(0))
             .build();
 
     Cluster actualResponse = client.updateClusterAsync(request).get();
@@ -892,6 +899,7 @@ public class BaseBigtableInstanceAdminClientTest {
               .setName(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
               .setLocation(LocationName.of("[PROJECT]", "[LOCATION]").toString())
               .setServeNodes(-1288838783)
+              .setDefaultStorageType(StorageType.forNumber(0))
               .build();
       client.updateClusterAsync(request).get();
       Assert.fail("No exception raised");
