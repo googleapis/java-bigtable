@@ -19,6 +19,7 @@ import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
+import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GaxProperties;
@@ -115,6 +116,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
   private final RequestContext requestContext;
+  private final FlowController bulkMutationFlowController;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
@@ -219,6 +221,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
+    this.bulkMutationFlowController =
+        new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
@@ -520,7 +524,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         bulkMutateRowsCallable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
-        clientContext.getExecutor());
+        clientContext.getExecutor(),
+        bulkMutationFlowController);
   }
 
   /**
