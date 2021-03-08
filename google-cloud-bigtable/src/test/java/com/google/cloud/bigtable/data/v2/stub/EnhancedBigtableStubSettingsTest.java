@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.batching.BatchingSettings;
+import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -90,8 +91,7 @@ public class EnhancedBigtableStubSettingsTest {
             .setCredentialsProvider(credentialsProvider)
             .setStreamWatchdogProvider(watchdogProvider)
             .setStreamWatchdogCheckInterval(watchdogInterval)
-            .setHeaderTracer(headerTracer)
-            .enableBatchMutationLatencyBasedThrottling(batchMutationTargetLatency);
+            .setHeaderTracer(headerTracer);
 
     verifyBuilder(
         builder,
@@ -468,14 +468,22 @@ public class EnhancedBigtableStubSettingsTest {
             .setJittered(true)
             .build();
 
-    BatchingSettings batchingSettings = BatchingSettings.newBuilder().build();
+    long flowControlSetting = 10L;
+    BatchingSettings batchingSettings =
+        BatchingSettings.newBuilder()
+            .setFlowControlSettings(
+                FlowControlSettings.newBuilder()
+                    .setMaxOutstandingElementCount(10L)
+                    .setMaxOutstandingRequestBytes(10L)
+                    .build())
+            .build();
     long targetLatency = 10L;
     builder
         .bulkMutateRowsSettings()
         .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
         .setRetrySettings(retrySettings)
         .setBatchingSettings(batchingSettings)
-        .setLatencyBasedThrottling(true, targetLatency)
+        .enableLatencyBasedThrottling(targetLatency)
         .build();
 
     assertThat(builder.bulkMutateRowsSettings().getRetryableCodes())
@@ -486,6 +494,19 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatencyMs()).isEqualTo(targetLatency);
 
+    assertThat(
+            builder
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingElementCount())
+        .isEqualTo(flowControlSetting);
+    assertThat(
+            builder
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingRequestBytes())
+        .isEqualTo(flowControlSetting);
+
     assertThat(builder.build().bulkMutateRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(builder.build().bulkMutateRowsSettings().getRetrySettings())
@@ -495,12 +516,20 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.build().bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(builder.build().bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(targetLatency);
-    assertThat(builder.build().bulkMutateRowsSettings().getFlowController())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());
-    assertThat(builder.build().bulkMutateRowsSettings().getFlowControlEvents())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowControlEvents());
-    assertThat(builder.build().bulkMutateRowsSettings().getDynamicFlowControlStats())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getDynamicFlowControlStats());
+    assertThat(
+            builder
+                .build()
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingElementCount())
+        .isEqualTo(flowControlSetting);
+    assertThat(
+            builder
+                .build()
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingRequestBytes())
+        .isEqualTo(flowControlSetting);
 
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -513,12 +542,22 @@ public class EnhancedBigtableStubSettingsTest {
         .isTrue();
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(targetLatency);
-    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getFlowController())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowController());
-    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getFlowControlEvents())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getFlowControlEvents());
-    assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getDynamicFlowControlStats())
-        .isSameInstanceAs(builder.bulkMutateRowsSettings().getDynamicFlowControlStats());
+    assertThat(
+            builder
+                .build()
+                .toBuilder()
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingElementCount())
+        .isEqualTo(flowControlSetting);
+    assertThat(
+            builder
+                .build()
+                .toBuilder()
+                .bulkMutateRowsSettings()
+                .getDynamicFlowControlSettings()
+                .getMaxOutstandingRequestBytes())
+        .isEqualTo(flowControlSetting);
   }
 
   @Test

@@ -16,12 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.BetaApi;
-import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.DynamicFlowControlSettings;
-import com.google.api.gax.batching.FlowControlEventStats;
+import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
@@ -61,12 +60,11 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
 
   // This settings is just a simple wrapper for BatchingCallSettings to allow us to add
   // additional functionality.
-  private BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void> batchingCallSettings;
-  private boolean isLatencyBasedThrottlingEnabled;
-  private Long targetRpcLatencyMs;
-  private FlowController flowController;
-  private FlowControlEventStats flowControlEvents;
-  private DynamicFlowControlStats dynamicFlowControlStats;
+  private final BatchingCallSettings<RowMutationEntry, Void, BulkMutation, Void>
+      batchingCallSettings;
+  private final boolean isLatencyBasedThrottlingEnabled;
+  private final Long targetRpcLatencyMs;
+  private final DynamicFlowControlSettings dynamicFlowControlSettings;
 
   private BigtableBatchingCallSettings(Builder builder) {
     super(builder);
@@ -78,9 +76,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
             .build();
     this.isLatencyBasedThrottlingEnabled = builder.isLatencyBasedThrottlingEnabled;
     this.targetRpcLatencyMs = builder.targetRpcLatencyMs;
-    this.flowController = builder.flowController;
-    this.flowControlEvents = builder.flowControlEvents;
-    this.dynamicFlowControlStats = builder.dynamicFlowControlStats;
+    this.dynamicFlowControlSettings = builder.dynamicFlowControlSettings;
   }
 
   /** Returns batching settings which contains multiple batch threshold levels. */
@@ -98,25 +94,19 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return isLatencyBasedThrottlingEnabled;
   }
 
-  /** Returns target rpc latency for bulk mutations if latency based throttling is enabled. */
+  /** Gets target rpc latency if latency based throttling is enabled. Otherwise returns null. */
   @Nullable
-  Long getTargetRpcLatencyMs() {
+  public Long getTargetRpcLatencyMs() {
     return targetRpcLatencyMs;
   }
 
-  /** Returns a {@link FlowController} to use in bulk mutation {@link Batcher}. */
-  FlowController getFlowController() {
-    return flowController;
-  }
-
-  /** Returns a {@link FlowControlEventStats} to use in bulk mutation {@link Batcher}. */
-  FlowControlEventStats getFlowControlEvents() {
-    return flowControlEvents;
-  }
-
-  /** Returns a {@link DynamicFlowControlStats}. */
-  DynamicFlowControlStats getDynamicFlowControlStats() {
-    return dynamicFlowControlStats;
+  /**
+   * Gets {@link DynamicFlowControlSettings}.
+   *
+   * @see Builder#getDynamicFlowControlSettings()
+   */
+  DynamicFlowControlSettings getDynamicFlowControlSettings() {
+    return dynamicFlowControlSettings;
   }
 
   static Builder newBuilder(
@@ -139,6 +129,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
         .add("batchingCallSettings", batchingCallSettings)
         .add("isLatencyBasedThrottlingEnabled", isLatencyBasedThrottlingEnabled)
         .add("targetRpcLatency", targetRpcLatencyMs)
+        .add("dynamicFlowControlSettings", dynamicFlowControlSettings)
         .toString();
   }
 
@@ -152,9 +143,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     private BatchingSettings batchingSettings;
     private boolean isLatencyBasedThrottlingEnabled;
     private Long targetRpcLatencyMs;
-    private FlowController flowController;
-    private FlowControlEventStats flowControlEvents;
-    private DynamicFlowControlStats dynamicFlowControlStats;
+    private DynamicFlowControlSettings dynamicFlowControlSettings;
 
     private Builder(
         @Nonnull
@@ -169,9 +158,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       this.batchingSettings = settings.getBatchingSettings();
       this.isLatencyBasedThrottlingEnabled = settings.isLatencyBasedThrottlingEnabled();
       this.targetRpcLatencyMs = settings.getTargetRpcLatencyMs();
-      this.flowController = settings.getFlowController();
-      this.flowControlEvents = settings.getFlowControlEvents();
-      this.dynamicFlowControlStats = settings.getDynamicFlowControlStats();
+      this.dynamicFlowControlSettings = settings.getDynamicFlowControlSettings();
     }
 
     /** Sets the batching settings with various thresholds. */
@@ -208,72 +195,28 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     }
 
     /**
-     * Enables / disables latency based throttling. If enabling the setting, targetRpcLatency needs
-     * to be set.
-     *
-     * <p>{@link BatchingSettings} must be set before calling this setting. Sets up a {@link
-     * FlowController} bases on isLatencyBasedThrottlingEnabled and BatchingSettings.
+     * Enable latency based throttling. The number of allowed in-flight requests will be adjusted to
+     * reach the target rpc latency.
      */
-    public Builder setLatencyBasedThrottling(
-        boolean isLatencyBasedThrottlingEnabled, @Nullable Long targetRpcLatency) {
-      Preconditions.checkState(
-          this.batchingSettings != null,
-          "batchingSettings must be set before enabling / disabling throttling");
-      Preconditions.checkArgument(
-          !isLatencyBasedThrottlingEnabled || targetRpcLatency != null,
-          "target RPC latency must be set if latency based throttling is enabled");
-      Preconditions.checkArgument(
-          targetRpcLatency == null || targetRpcLatency > 0,
-          "if target RPC latency is set, it must be greater than 0");
-      this.isLatencyBasedThrottlingEnabled = isLatencyBasedThrottlingEnabled;
-      this.targetRpcLatencyMs = isLatencyBasedThrottlingEnabled ? targetRpcLatency : null;
-      if (isLatencyBasedThrottlingEnabled) {
-        // Set up a flow controller with DynamicFlowControlSettings
-        Long maxThrottlingElementCount =
-            batchingSettings.getFlowControlSettings().getMaxOutstandingElementCount();
-        Long maxThrottlingRequestByteCount =
-            batchingSettings.getFlowControlSettings().getMaxOutstandingRequestBytes();
-        if (maxThrottlingElementCount == null) {
-          long maxBulkMutateElementPerBatch = 100L;
-          long defaultChannelPoolSize = 2 * Runtime.getRuntime().availableProcessors();
-          maxThrottlingElementCount =
-              Math.min(20_000L, 10L * maxBulkMutateElementPerBatch * defaultChannelPoolSize);
-        }
-        if (maxThrottlingRequestByteCount == null) {
-          maxThrottlingRequestByteCount = 100L * 1024 * 1024;
-        }
-
-        long initialElementCount = maxThrottlingElementCount / 4;
-        long minElementCount = maxThrottlingElementCount / 100;
-        if (batchingSettings.getElementCountThreshold() != null) {
-          initialElementCount =
-              Math.max(initialElementCount, batchingSettings.getElementCountThreshold());
-          minElementCount = Math.max(minElementCount, batchingSettings.getElementCountThreshold());
-        }
-        DynamicFlowControlSettings dynamicFlowControlSettings =
-            DynamicFlowControlSettings.newBuilder()
-                .setInitialOutstandingElementCount(initialElementCount)
-                .setMaxOutstandingElementCount(maxThrottlingElementCount)
-                .setMinOutstandingElementCount(minElementCount)
-                .setInitialOutstandingRequestBytes(maxThrottlingRequestByteCount)
-                .setMinOutstandingRequestBytes(maxThrottlingRequestByteCount)
-                .setMaxOutstandingRequestBytes(maxThrottlingRequestByteCount)
-                .build();
-        this.flowController = new FlowController(dynamicFlowControlSettings);
-      } else {
-        this.flowController = new FlowController(batchingSettings.getFlowControlSettings());
-      }
+    public Builder enableLatencyBasedThrottling(long targetRpcLatency) {
+      Preconditions.checkArgument(targetRpcLatency > 0,
+          "target RPC latency must be greater than 0");
+      this.isLatencyBasedThrottlingEnabled = true;
+      this.targetRpcLatencyMs = targetRpcLatency;
       return this;
     }
 
-    /** Gets target rpc latency if latency based throttling is enabled. Otherwise return null. */
+    /** Disable latency based throttling. */
+    public Builder disableLatencyBasedThrottling() {
+      this.isLatencyBasedThrottlingEnabled = false;
+      this.targetRpcLatencyMs = null;
+      return this;
+    }
+
+    /** Gets target rpc latency if latency based throttling is enabled. Otherwise returns null. */
     @Nullable
     public Long getTargetRpcLatencyMs() {
-      if (isLatencyBasedThrottlingEnabled) {
-        return this.targetRpcLatencyMs;
-      } else {
-        return null;
-      }
+      return isLatencyBasedThrottlingEnabled ? targetRpcLatencyMs : null;
     }
 
     /** Gets if latency based throttling is enabled. */
@@ -281,33 +224,106 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       return this.isLatencyBasedThrottlingEnabled;
     }
 
-    /** Returns a {@link FlowController} to use in bulk mutation {@link Batcher}. */
-    public FlowController getFlowController() {
-      return flowController;
-    }
-
-    /** Returns a {@link FlowControlEventStats} to use in bulk mutation {@link Batcher}. */
-    public FlowControlEventStats getFlowControlEvents() {
-      return flowControlEvents;
-    }
-
-    /** Returns a {@link DynamicFlowControlStats}. */
-    public DynamicFlowControlStats getDynamicFlowControlStats() {
-      return dynamicFlowControlStats;
+    /**
+     * Gets the {@link DynamicFlowControlSettings} that'll be used to set up a {@link
+     * FlowController} for throttling.
+     *
+     * <p>By default, this will allow a maximum of 1000 entries per channel of {@link
+     * FlowControlSettings.Builder#setMaxOutstandingElementCount request count} and 100MB of {@link
+     * FlowControlSettings.Builder#setMaxOutstandingRequestBytes accumulated size} in-flight
+     * requests. Once the limits are reached, pending operations will by default be {@link
+     * FlowControlSettings.Builder#setLimitExceededBehavior blocked} until some of the in-flight
+     * requests are resolved.
+     *
+     * <p>If latency based throttling is enabled, number of entries allowed by {@link
+     * FlowController} will be adjusted to reach {@link Builder#getTargetRpcLatencyMs()}.
+     *
+     * <ul>
+     *   <li>{@link FlowController} will be set to allow Math.max({@link BatchingSettings.Builder
+     *       #setElementCountThreshold batch size}, {@link
+     *       FlowControlSettings.Builder#setMaxOutstandingElementCount request count} / 4) entries
+     *       to start with.
+     *   <li>If bulk mutation rpc latency is higher than target latency, decrease allowed entries to
+     *       a minimum of Math.max({@link BatchingSettings.Builder#setElementCountThreshold batch
+     *       size}, {@link FlowControlSettings.Builder#setMaxOutstandingElementCount request count}
+     *       / 100).
+     *   <li>If bulk mutation rpc latency is lower than target latency and there was throttling,
+     *       increase allowed entries to a maximum of {@link
+     *       FlowControlSettings.Builder#setMaxOutstandingElementCount request count}.
+     * </ul>
+     *
+     * If latency based throttling is disabled, {@link FlowController} will always allow {@link
+     * FlowControlSettings.Builder#setMaxOutstandingElementCount request count}.
+     *
+     * <p>Latency based throttling only updates outstanding entries count. {@link FlowController}
+     * will always allow {@link FlowControlSettings.Builder#setMaxOutstandingRequestBytes
+     * accumulated size}.
+     */
+    public DynamicFlowControlSettings getDynamicFlowControlSettings() {
+      return this.dynamicFlowControlSettings;
     }
 
     /** Builds the {@link BigtableBatchingCallSettings} object with provided configuration. */
     @Override
     public BigtableBatchingCallSettings build() {
       Preconditions.checkState(batchingSettings != null, "batchingSettings must be set");
-      if (flowController == null) {
-        this.flowController = new FlowController(batchingSettings.getFlowControlSettings());
-      }
-      if (flowControlEvents == null) {
-        this.flowControlEvents = new FlowControlEventStats();
-      }
-      if (dynamicFlowControlStats == null) {
-        this.dynamicFlowControlStats = new DynamicFlowControlStats();
+      FlowControlSettings defaultSettings = batchingSettings.getFlowControlSettings();
+      Preconditions.checkState(
+          defaultSettings.getMaxOutstandingElementCount() != null,
+          "maxOutstandingElementCount must be set in BatchingSettings#FlowControlSettings");
+      Preconditions.checkState(
+          defaultSettings.getMaxOutstandingRequestBytes() != null,
+          "maxOutstandingRequestBytes must be set in BatchingSettings#FlowControlSettings");
+      Preconditions.checkArgument(
+          batchingSettings.getElementCountThreshold() == null
+              || defaultSettings.getMaxOutstandingElementCount()
+                  >= batchingSettings.getElementCountThreshold(),
+          "if elementCountThreshold is set in BatchingSettings, maxOutstandingElementCount must be >= elementCountThreshold");
+      Preconditions.checkArgument(
+          batchingSettings.getRequestByteThreshold() == null
+              || defaultSettings.getMaxOutstandingRequestBytes()
+                  >= batchingSettings.getRequestByteThreshold(),
+          "if requestByteThreshold is set in BatchingSettings, getMaxOutstandingRequestBytes must be >= getRequestByteThreshold");
+      // Combine static FlowControlSettings with latency based throttling settings to create
+      // DynamicFlowControlSettings.
+      if (isLatencyBasedThrottlingEnabled()) {
+        long maxThrottlingElementCount = defaultSettings.getMaxOutstandingElementCount();
+        long maxThrottlingRequestByteCount = defaultSettings.getMaxOutstandingRequestBytes();
+        //  The maximum in flight element count is pretty high. Set the initial parallelism to 25%
+        //  of the maximum and then work up or down. This reduction should reduce the
+        // impacts of a bursty job, such as those found in Dataflow.
+        long initialElementCount = maxThrottlingElementCount / 4;
+        // Decreases are floored at 1% of the maximum so that there is some level of
+        // throughput.
+        long minElementCount = maxThrottlingElementCount / 100;
+        // Make sure initialOutstandingElementCount and minOutstandingElementCount element count are
+        // greater or equal to batch size to avoid deadlocks.
+        if (batchingSettings.getElementCountThreshold() != null) {
+          initialElementCount =
+              Math.max(initialElementCount, batchingSettings.getElementCountThreshold());
+          minElementCount = Math.max(minElementCount, batchingSettings.getElementCountThreshold());
+        }
+        dynamicFlowControlSettings =
+            DynamicFlowControlSettings.newBuilder()
+                .setLimitExceededBehavior(defaultSettings.getLimitExceededBehavior())
+                .setInitialOutstandingElementCount(initialElementCount)
+                .setMaxOutstandingElementCount(maxThrottlingElementCount)
+                .setMinOutstandingElementCount(minElementCount)
+                .setInitialOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .setMinOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .setMaxOutstandingRequestBytes(maxThrottlingRequestByteCount)
+                .build();
+      } else {
+        dynamicFlowControlSettings =
+            DynamicFlowControlSettings.newBuilder()
+                .setLimitExceededBehavior(defaultSettings.getLimitExceededBehavior())
+                .setInitialOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setMaxOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setMinOutstandingElementCount(defaultSettings.getMaxOutstandingElementCount())
+                .setInitialOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .setMinOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .setMaxOutstandingRequestBytes(defaultSettings.getMaxOutstandingRequestBytes())
+                .build();
       }
       return new BigtableBatchingCallSettings(this);
     }

@@ -19,6 +19,8 @@ import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
+import com.google.api.gax.batching.FlowController;
+import com.google.api.gax.batching.FlowControlEventStats;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GaxProperties;
@@ -116,6 +118,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
   private final RequestContext requestContext;
+  private final FlowController bulkMutationFlowController;
+  private final FlowControlEventStats bulkMutationFlowControlEvents;
+  private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
@@ -220,6 +225,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
+    this.bulkMutationFlowController =
+        new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
+    this.bulkMutationFlowControlEvents = new FlowControlEventStats();
+    this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
@@ -489,9 +498,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
       flowControlCallable =
           new DynamicFlowControlCallable(
               baseCallable,
-              settings.bulkMutateRowsSettings().getFlowController(),
-              settings.bulkMutateRowsSettings().getFlowControlEvents(),
-              settings.bulkMutateRowsSettings().getDynamicFlowControlStats(),
+              bulkMutationFlowController,
+              bulkMutationFlowControlEvents,
+              bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
               TimeUnit.SECONDS.toMillis(20));
     }
@@ -534,8 +543,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
-        settings.bulkMutateRowsSettings().getFlowController(),
-        settings.bulkMutateRowsSettings().getFlowControlEvents());
+        bulkMutationFlowController,
+        bulkMutationFlowControlEvents);
   }
 
   /**

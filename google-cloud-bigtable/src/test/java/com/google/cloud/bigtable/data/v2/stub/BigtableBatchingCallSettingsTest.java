@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.batching.BatchingSettings;
+import com.google.api.gax.batching.DynamicFlowControlSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
@@ -55,9 +56,7 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(builder.getRetrySettings()).isNotNull();
     assertThat(builder.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(builder.getTargetRpcLatencyMs()).isNull();
-    assertThat(builder.getFlowController()).isNull();
-    assertThat(builder.getFlowControlEvents()).isNull();
-    assertThat(builder.getDynamicFlowControlStats()).isNull();
+    assertThat(builder.getDynamicFlowControlSettings()).isNull();
   }
 
   @Test
@@ -78,23 +77,25 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(settings.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(settings.getTargetRpcLatencyMs()).isNull();
-    assertThat(settings.getFlowController()).isNotNull();
-    assertThat(settings.getFlowControlEvents()).isNotNull();
-    assertThat(settings.getDynamicFlowControlStats()).isNotNull();
-    FlowController flowController = settings.getFlowController();
+    assertThat(settings.getDynamicFlowControlSettings()).isNotNull();
+    verifyFlowControlSettingWhenLatencyBasedThrottlingDisabled(
+        settings.getDynamicFlowControlSettings());
 
-    builder.setLatencyBasedThrottling(true, 10L);
+    builder.enableLatencyBasedThrottling(10L);
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(settings.getTargetRpcLatencyMs()).isEqualTo(10);
-    assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
-    flowController = settings.getFlowController();
+    assertThat(settings.getDynamicFlowControlSettings()).isNotNull();
+    verifyFlowControlSettingWhenLatencyBasedThrottlingEnabled(
+        settings.getDynamicFlowControlSettings());
 
-    builder.setLatencyBasedThrottling(false, 10L);
+    builder.disableLatencyBasedThrottling();
     settings = builder.build();
     assertThat(settings.isLatencyBasedThrottlingEnabled()).isFalse();
     assertThat(settings.getTargetRpcLatencyMs()).isNull();
-    assertThat(settings.getFlowController()).isNotSameInstanceAs(flowController);
+    assertThat(settings.getDynamicFlowControlSettings()).isNotNull();
+    verifyFlowControlSettingWhenLatencyBasedThrottlingDisabled(
+        settings.getDynamicFlowControlSettings());
   }
 
   @Test
@@ -107,7 +108,7 @@ public class BigtableBatchingCallSettingsTest {
         .setBatchingSettings(BATCHING_SETTINGS)
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE, StatusCode.Code.UNAUTHENTICATED)
         .setRetrySettings(retrySettings)
-        .setLatencyBasedThrottling(true, 10L);
+        .enableLatencyBasedThrottling(10L);
 
     BigtableBatchingCallSettings settings = builder.build();
     BigtableBatchingCallSettings.Builder newBuilder = settings.toBuilder();
@@ -118,35 +119,9 @@ public class BigtableBatchingCallSettingsTest {
     assertThat(newBuilder.getRetrySettings()).isEqualTo(retrySettings);
     assertThat(newBuilder.isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(newBuilder.getTargetRpcLatencyMs()).isEqualTo(10L);
-    assertThat(newBuilder.getFlowController()).isSameInstanceAs(builder.getFlowController());
-    assertThat(newBuilder.getFlowControlEvents()).isSameInstanceAs(builder.getFlowControlEvents());
-    assertThat(newBuilder.getDynamicFlowControlStats())
-        .isSameInstanceAs(builder.getDynamicFlowControlStats());
-  }
-
-  @Test
-  public void testFlowControllerSetUp() {
-    BigtableBatchingCallSettings.Builder builder =
-        BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor());
-    BatchingSettings settings =
-        BatchingSettings.newBuilder()
-            .setElementCountThreshold(100L)
-            .setRequestByteThreshold(100L)
-            .setFlowControlSettings(
-                FlowControlSettings.newBuilder()
-                    .setMaxOutstandingElementCount(150L)
-                    .setMaxOutstandingRequestBytes(150L)
-                    .build())
-            .build();
-    builder.setBatchingSettings(settings).setLatencyBasedThrottling(true, 10L);
-    FlowController flowController = builder.build().getFlowController();
-    assertThat(flowController).isNotNull();
-    assertThat(flowController.getCurrentOutstandingElementCount()).isEqualTo(100);
-    assertThat(flowController.getMinOutstandingElementCount()).isEqualTo(100);
-    assertThat(flowController.getMaxOutstandingElementCount()).isEqualTo(150);
-    assertThat(flowController.getCurrentOutstandingRequestBytes()).isEqualTo(150);
-    assertThat(flowController.getMinOutstandingRequestBytes()).isEqualTo(150);
-    assertThat(flowController.getMaxOutstandingRequestBytes()).isEqualTo(150);
+    assertThat(newBuilder.getDynamicFlowControlSettings()).isNotNull();
+    verifyFlowControlSettingWhenLatencyBasedThrottlingEnabled(
+        newBuilder.getDynamicFlowControlSettings());
   }
 
   @Test
@@ -165,5 +140,104 @@ public class BigtableBatchingCallSettingsTest {
       actualEx = ex;
     }
     assertThat(actualEx).isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  public void testFlowControlMandatorySettings() {
+    Exception actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(null)
+                          .setMaxOutstandingRequestBytes(null)
+                          .build())
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalStateException.class);
+
+    BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+        .setBatchingSettings(
+            BatchingSettings.newBuilder()
+                .setFlowControlSettings(
+                    FlowControlSettings.newBuilder()
+                        .setMaxOutstandingElementCount(10L)
+                        .setMaxOutstandingRequestBytes(10L)
+                        .build())
+                .setElementCountThreshold(10L)
+                .setRequestByteThreshold(10L)
+                .build())
+        .build();
+
+    actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(10L)
+                          .setMaxOutstandingRequestBytes(5L)
+                          .build())
+                  .setElementCountThreshold(10L)
+                  .setRequestByteThreshold(10L)
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalArgumentException.class);
+
+    actualEx = null;
+    try {
+      BigtableBatchingCallSettings.newBuilder(new MutateRowsBatchingDescriptor())
+          .setBatchingSettings(
+              BatchingSettings.newBuilder()
+                  .setFlowControlSettings(
+                      FlowControlSettings.newBuilder()
+                          .setMaxOutstandingElementCount(5L)
+                          .setMaxOutstandingRequestBytes(10L)
+                          .build())
+                  .setElementCountThreshold(10L)
+                  .setRequestByteThreshold(10L)
+                  .build())
+          .build();
+    } catch (Exception ex) {
+      actualEx = ex;
+    }
+    assertThat(actualEx).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  private void verifyFlowControlSettingWhenLatencyBasedThrottlingDisabled(
+      DynamicFlowControlSettings settings) {
+    assertThat(settings.getInitialOutstandingElementCount())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingElementCount());
+    assertThat(settings.getMaxOutstandingElementCount())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingElementCount());
+    assertThat(settings.getMinOutstandingElementCount())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingElementCount());
+    assertThat(settings.getInitialOutstandingRequestBytes())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingRequestBytes());
+    assertThat(settings.getMaxOutstandingRequestBytes())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingRequestBytes());
+    assertThat(settings.getMinOutstandingRequestBytes())
+        .isEqualTo(BATCHING_SETTINGS.getFlowControlSettings().getMaxOutstandingRequestBytes());
+  }
+
+  private void verifyFlowControlSettingWhenLatencyBasedThrottlingEnabled(
+      DynamicFlowControlSettings settings) {
+    assertThat(settings.getInitialOutstandingElementCount())
+        .isLessThan(settings.getMaxOutstandingElementCount());
+    assertThat(settings.getMinOutstandingElementCount())
+        .isLessThan(settings.getMaxOutstandingElementCount());
+    assertThat(settings.getInitialOutstandingRequestBytes())
+        .isEqualTo(settings.getMaxOutstandingRequestBytes());
+    assertThat(settings.getMinOutstandingRequestBytes())
+        .isEqualTo(settings.getMaxOutstandingRequestBytes());
   }
 }

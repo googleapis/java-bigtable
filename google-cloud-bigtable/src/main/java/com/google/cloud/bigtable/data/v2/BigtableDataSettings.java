@@ -23,6 +23,7 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
@@ -30,6 +31,7 @@ import io.grpc.ManagedChannelBuilder;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -220,12 +222,22 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Gets if latency based throttling is enabled for bulk mutation {@link
+   * Gets if latency based throttling is enabled for {@link
    * BigtableDataClient#newBulkMutationBatcher(String)}
    */
   @BetaApi("Latency based throttling is not currently stable and may change in the future")
   public boolean isLatencyBasedThrottlingForBatchMutationsEnabled() {
     return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
+  }
+
+  /**
+   * Gets target bulk mutation rpc latency if latency based throttling is enabled for {@link
+   * BigtableDataClient#newBulkMutationBatcher(String)}. Otherwise returns null.
+   */
+  @BetaApi("Latency based throttling is not currently stable and may change in the future")
+  @Nullable
+  public Long getBatchMutationsTargetRpcLatencyMs() {
+    return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
   }
 
   /** Returns the underlying RPC settings. */
@@ -385,34 +397,48 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Enable latency based throttling for bulk mutation {@link
-     * BigtableDataClient#newBulkMutationBatcher(String)} with a target rpc latency. The number of
-     * allowed in-flight requests will be adjusted to reach the target bulk mutations rpc latency.
+     * Enable latency based throttling for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+     * with a target rpc latency. The number of allowed in-flight requests will be adjusted to reach
+     * the target bulk mutations rpc latency.
+     *
+     * @see BigtableBatchingCallSettings.Builder#getDynamicFlowControlSettings() for explanation on
+     *     default configurations.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationLatencyBasedThrottling(long targetRpcLatencyMs) {
-      stubSettings.enableBatchMutationLatencyBasedThrottling(targetRpcLatencyMs);
+      stubSettings.bulkMutateRowsSettings().enableLatencyBasedThrottling(targetRpcLatencyMs);
       return this;
     }
 
     /**
-     * Disable latency based throttling for bulk mutation {@link
+     * Disable latency based throttling for {@link
      * BigtableDataClient#newBulkMutationBatcher(String)}.
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public Builder disableBatchMutationLatencyBasedThrottling() {
-      stubSettings.disableBatchMutationLatencyBasedThrottling();
+      stubSettings.bulkMutateRowsSettings().disableLatencyBasedThrottling();
       return this;
     }
 
     /**
-     * Gets if latency based throttling is enabled for bulk mutation {@link
+     * Gets if latency based throttling is enabled for {@link
      * BigtableDataClient#newBulkMutationBatcher(String)}
      */
     @BetaApi("Latency based throttling is not currently stable and may change in the future")
     public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
-      return stubSettings.isLatencyBasedThrottlingForBatchMutationEnabled();
+      return stubSettings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled();
     }
+
+    /**
+     * Gets target bulk mutation rpc latency if latency based throttling is enabled for {@link
+     * BigtableDataClient#newBulkMutationBatcher(String)}. Otherwise returns null.
+     */
+    @BetaApi("Latency based throttling is not currently stable and may change in the future")
+    @Nullable
+    public Long getTargetRpcLatencyMsForBatchMutation() {
+      return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+    }
+
     /**
      * Returns the underlying settings for making RPC calls. The settings should be changed with
      * care.
