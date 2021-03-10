@@ -199,8 +199,8 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
      * reach the target rpc latency.
      */
     public Builder enableLatencyBasedThrottling(long targetRpcLatency) {
-      Preconditions.checkArgument(targetRpcLatency > 0,
-          "target RPC latency must be greater than 0");
+      Preconditions.checkArgument(
+          targetRpcLatency > 0, "target RPC latency must be greater than 0");
       this.isLatencyBasedThrottlingEnabled = true;
       this.targetRpcLatencyMs = targetRpcLatency;
       return this;

@@ -183,11 +183,16 @@ public class EnhancedBigtableStubTest {
     EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(settings.build().getStubSettings());
     EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(settings.build().getStubSettings());
 
+    // Creating 2 batchers from the same stub, they should share the same FlowController and
+    // FlowControlEventStats
     try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
         BatcherImpl batcher2 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table2")) {
       assertThat(batcher1.getFlowController()).isNotNull();
+      assertThat(batcher1.getFlowControlEventStats()).isNotNull();
       assertThat(batcher1).isNotSameInstanceAs(batcher2);
       assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
+      assertThat(batcher1.getFlowControlEventStats())
+          .isSameInstanceAs(batcher2.getFlowControlEventStats());
       // Verify flow controller settings
       assertThat(batcher1.getFlowController().getLimitExceededBehavior())
           .isEqualTo(LimitExceededBehavior.Block);
@@ -205,9 +210,15 @@ public class EnhancedBigtableStubTest {
       assertThat(batcher1.getFlowController().getMinOutstandingRequestBytes()).isEqualTo(1000L);
     }
 
+    // Creating 2 batchers from different stubs, they should not share the same FlowController and
+    // FlowControlEventStats
     try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
         BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
+      assertThat(batcher1.getFlowController()).isNotNull();
+      assertThat(batcher1.getFlowControlEventStats()).isNotNull();
       assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
+      assertThat(batcher1.getFlowControlEventStats())
+          .isNotSameInstanceAs(batcher2.getFlowControlEventStats());
     }
 
     stub2 =

@@ -95,6 +95,7 @@ final class DynamicFlowControlCallable extends UnaryCallable {
       dynamicFlowControlStats.updateLatency(timer.elapsed(TimeUnit.MILLISECONDS));
       long lastAdjustedTimestamp = dynamicFlowControlStats.getLastAdjustedTimestampMs();
       long now = System.currentTimeMillis();
+      // Avoid adjusting the thresholds too frequently
       if (now - lastAdjustedTimestamp < adjustingIntervalMs) {
         return;
       }
@@ -105,17 +106,26 @@ final class DynamicFlowControlCallable extends UnaryCallable {
               : (now - flowControlEvents.getLastFlowControlEvent().getTimestampMs()
                   <= TimeUnit.MINUTES.toMillis(5));
       if (meanLatency > targetLatency * 3) {
+        // Decrease at 30% of the maximum
         decrease(
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 3 / 10);
       } else if (meanLatency > targetLatency * 1.2) {
+        // Decrease at 10% of the maximum
         decrease(lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() / 10);
       } else if (throttled && meanLatency < targetLatency * 0.8) {
+        // If latency is low, and there was throttling, then increase the parallelism so that new
+        // calls will not be throttled.
+
+        // Increase parallelism at a slower than we decrease. The lower rate should help the
+        // system maintain stability.
         increase(
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 5 / 100);
       } else if (throttled
           && flowController.getCurrentOutstandingElementCount()
               < flowController.getMaxOutstandingElementCount() * 0.05
           && meanLatency < 2 * targetLatency) {
+        // When parallelism is reduced latency tends to be artificially higher.
+        // Increase slowly to ensure that the system restabilizes.
         increase(
             lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 2 / 100);
       }

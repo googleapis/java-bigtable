@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.FlowController;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -26,13 +25,11 @@ import java.util.concurrent.atomic.AtomicLong;
  * Records stats used in dynamic flow control, the decaying average of recorded latencies and the
  * last timestamp when the thresholds in {@link FlowController} are updated.
  */
-@InternalApi
-public class DynamicFlowControlStats {
+final class DynamicFlowControlStats {
 
   private static final double DEFAULT_DECAY_CONSTANT = 0.015; // Biased to the past 5 minutes
 
   private AtomicLong lastAdjustedTimestampMs;
-  private AtomicLong adjustedCounter;
   private DecayingAverage meanLatency;
 
   DynamicFlowControlStats() {
@@ -41,7 +38,6 @@ public class DynamicFlowControlStats {
 
   DynamicFlowControlStats(double decayConstant) {
     this.lastAdjustedTimestampMs = new AtomicLong(0);
-    this.adjustedCounter = new AtomicLong(0);
     this.meanLatency = new DecayingAverage(decayConstant);
   }
 
@@ -67,13 +63,8 @@ public class DynamicFlowControlStats {
     return lastAdjustedTimestampMs.get();
   }
 
-  public long getAdjustedCounter() {
-    return adjustedCounter.get();
-  }
-
   boolean setLastAdjustedTimestampMs(long last, long now) {
     if (lastAdjustedTimestampMs.compareAndSet(last, now)) {
-      adjustedCounter.addAndGet(1);
       return true;
     }
     return false;
@@ -107,6 +98,7 @@ public class DynamicFlowControlStats {
         // Exponential moving average = weightedSum / weightedCount, where
         // weightedSum(n) = value + alpha * weightedSum(n - 1)
         // weightedCount(n) = 1 + alpha * weightedCount(n - 1)
+        // Using weighted count in case the sum overflows
         mean =
             mean * ((weightedCount * alpha) / (weightedCount * alpha + 1))
                 + value / (weightedCount * alpha + 1);

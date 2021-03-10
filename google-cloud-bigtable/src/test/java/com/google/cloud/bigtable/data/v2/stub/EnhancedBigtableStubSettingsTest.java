@@ -78,8 +78,6 @@ public class EnhancedBigtableStubSettingsTest {
     WatchdogProvider watchdogProvider = Mockito.mock(WatchdogProvider.class);
     Duration watchdogInterval = Duration.ofSeconds(12);
     HeaderTracer headerTracer = Mockito.mock(HeaderTracer.class);
-    boolean isBatchMutationLatencyBasedThrottlingEnabled = true;
-    long batchMutationTargetLatency = 10;
 
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
@@ -103,9 +101,7 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer,
-        isBatchMutationLatencyBasedThrottlingEnabled,
-        batchMutationTargetLatency);
+        headerTracer);
     verifySettings(
         builder.build(),
         projectId,
@@ -116,9 +112,7 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer,
-        isBatchMutationLatencyBasedThrottlingEnabled,
-        batchMutationTargetLatency);
+        headerTracer);
     verifyBuilder(
         builder.build().toBuilder(),
         projectId,
@@ -129,9 +123,7 @@ public class EnhancedBigtableStubSettingsTest {
         credentialsProvider,
         watchdogProvider,
         watchdogInterval,
-        headerTracer,
-        isBatchMutationLatencyBasedThrottlingEnabled,
-        batchMutationTargetLatency);
+        headerTracer);
   }
 
   private void verifyBuilder(
@@ -144,9 +136,7 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      HeaderTracer headerTracer,
-      boolean isBatchMutationLatencyBasedThrottlingEnabled,
-      long batchMutationTargetLatency) {
+      HeaderTracer headerTracer) {
     assertThat(builder.getProjectId()).isEqualTo(projectId);
     assertThat(builder.getInstanceId()).isEqualTo(instanceId);
     assertThat(builder.getAppProfileId()).isEqualTo(appProfileId);
@@ -156,12 +146,6 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(builder.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(builder.getHeaderTracer()).isEqualTo(headerTracer);
-    assertThat(builder.isLatencyBasedThrottlingForBatchMutationEnabled())
-        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
-    assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
-        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
-    assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatencyMs())
-        .isEqualTo(batchMutationTargetLatency);
   }
 
   private void verifySettings(
@@ -174,9 +158,7 @@ public class EnhancedBigtableStubSettingsTest {
       CredentialsProvider credentialsProvider,
       WatchdogProvider watchdogProvider,
       Duration watchdogInterval,
-      HeaderTracer headerTracer,
-      boolean isBatchMutationLatencyBasedThrottlingEnabled,
-      long batchMutationTargetLatency) {
+      HeaderTracer headerTracer) {
     assertThat(settings.getProjectId()).isEqualTo(projectId);
     assertThat(settings.getInstanceId()).isEqualTo(instanceId);
     assertThat(settings.getAppProfileId()).isEqualTo(appProfileId);
@@ -186,10 +168,6 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
     assertThat(settings.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(settings.getHeaderTracer()).isEqualTo(headerTracer);
-    assertThat(settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled())
-        .isEqualTo(isBatchMutationLatencyBasedThrottlingEnabled);
-    assertThat(settings.bulkMutateRowsSettings().getTargetRpcLatencyMs())
-        .isEqualTo(batchMutationTargetLatency);
   }
 
   @Test
@@ -493,7 +471,6 @@ public class EnhancedBigtableStubSettingsTest {
         .isSameInstanceAs(batchingSettings);
     assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isTrue();
     assertThat(builder.bulkMutateRowsSettings().getTargetRpcLatencyMs()).isEqualTo(targetLatency);
-
     assertThat(
             builder
                 .bulkMutateRowsSettings()

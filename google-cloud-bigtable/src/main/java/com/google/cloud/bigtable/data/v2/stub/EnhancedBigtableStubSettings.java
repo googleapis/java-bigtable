@@ -33,7 +33,6 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
 import com.google.cloud.bigtable.Version;
-import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -750,15 +749,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     @BetaApi("Channel priming is not currently stable and might change in the future")
     public List<String> getPrimedTableIds() {
       return primedTableIds;
-    }
-
-    /**
-     * Gets if latency based throttling is enabled for bulk mutation {@link
-     * BigtableDataClient#newBulkMutationBatcher(String)}
-     */
-    @BetaApi("Latency based throttling is not currently stable and may change in the future")
-    public boolean isLatencyBasedThrottlingForBatchMutationEnabled() {
-      return bulkMutateRowsSettings.isLatencyBasedThrottlingEnabled();
     }
 
     /** Configure the header tracer for surfacing metrics in the header. */
