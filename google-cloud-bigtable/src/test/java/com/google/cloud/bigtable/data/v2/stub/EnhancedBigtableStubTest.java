@@ -188,11 +188,11 @@ public class EnhancedBigtableStubTest {
     try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
         BatcherImpl batcher2 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table2")) {
       assertThat(batcher1.getFlowController()).isNotNull();
-      assertThat(batcher1.getFlowControlEventStats()).isNotNull();
+      assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
       assertThat(batcher1).isNotSameInstanceAs(batcher2);
       assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
-      assertThat(batcher1.getFlowControlEventStats())
-          .isSameInstanceAs(batcher2.getFlowControlEventStats());
+      assertThat(batcher1.getFlowController().getFlowControlEventStats())
+          .isSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
       // Verify flow controller settings
       assertThat(batcher1.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
       assertThat(batcher1.getFlowController().getMaxRequestBytesLimit()).isEqualTo(1000L);
@@ -213,10 +213,10 @@ public class EnhancedBigtableStubTest {
     try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
         BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
       assertThat(batcher1.getFlowController()).isNotNull();
-      assertThat(batcher1.getFlowControlEventStats()).isNotNull();
+      assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
       assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
-      assertThat(batcher1.getFlowControlEventStats())
-          .isNotSameInstanceAs(batcher2.getFlowControlEventStats());
+      assertThat(batcher1.getFlowController().getFlowControlEventStats())
+          .isNotSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
     }
 
     stub2 =

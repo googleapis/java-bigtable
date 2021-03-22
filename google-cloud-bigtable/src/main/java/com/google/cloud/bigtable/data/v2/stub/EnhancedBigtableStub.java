@@ -19,7 +19,6 @@ import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
-import com.google.api.gax.batching.FlowControlEventStats;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.FixedCredentialsProvider;
@@ -119,7 +118,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final ClientContext clientContext;
   private final RequestContext requestContext;
   private final FlowController bulkMutationFlowController;
-  private final FlowControlEventStats bulkMutationFlowControlEvents;
   private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
@@ -227,7 +225,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
     this.bulkMutationFlowController =
         new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
-    this.bulkMutationFlowControlEvents = new FlowControlEventStats();
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
@@ -500,7 +497,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
           new DynamicFlowControlCallable(
               baseCallable,
               bulkMutationFlowController,
-              bulkMutationFlowControlEvents,
+              bulkMutationFlowController.getFlowControlEventStats(),
               bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
               flowControlAdjustingIntervalMs);
@@ -544,8 +541,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
-        bulkMutationFlowController,
-        bulkMutationFlowControlEvents);
+        bulkMutationFlowController);
   }
 
   /**

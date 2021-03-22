@@ -46,7 +46,7 @@ public class BulkMutateIT {
     BatcherImpl batcher =
         (BatcherImpl) client.newBulkMutationBatcher(testEnvRule.env().getTableId());
     try {
-      FlowControlEventStats events = batcher.getFlowControlEventStats();
+      FlowControlEventStats events = batcher.getFlowController().getFlowControlEventStats();
       long initialThreashold = batcher.getFlowController().getCurrentElementCountLimit();
       assertThat(batcher.getFlowController().getCurrentElementCountLimit())
           .isNotEqualTo(batcher.getFlowController().getMinElementCountLimit());

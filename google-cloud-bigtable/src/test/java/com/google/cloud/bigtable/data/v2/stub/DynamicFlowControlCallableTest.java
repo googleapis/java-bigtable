@@ -199,21 +199,6 @@ public class DynamicFlowControlCallableTest {
   }
 
   @Test
-  public void testIncreasingThresholdIgnored() throws Exception {
-    callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, flowControlEvents, stats, 1000, ADJUSTING_INTERVAL_MS);
-    // flow control happened 5 minutes ago, should not trigger adjusting thresholds
-    flowControlEvents.recordFlowControlEvent(
-        FlowControlEvent.create(
-            TimeUnit.MILLISECONDS.toNanos(10),
-            System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(6)));
-    ApiFuture future = callableToTest.futureCall(request, context);
-    future.get();
-    assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(INITIAL_ELEMENT);
-  }
-
-  @Test
   public void testConcurrentUpdates() throws Exception {
     callableToTest =
         new DynamicFlowControlCallable(
