@@ -22,6 +22,7 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import java.io.IOException;
 
 public class ConfigureConnectionPool {
 
@@ -48,7 +49,7 @@ public class ConfigureConnectionPool {
       int poolSize = provider.toBuilder().getPoolSize();
 
       System.out.println(String.format("Connected with pool size of %d", poolSize));
-    } catch (Exception e) {
+    } catch (IOException e) {
       System.out.println("Error during ConfigureConnectionPool: \n" + e.toString());
     }
   }
