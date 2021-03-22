@@ -30,7 +30,6 @@ import javax.annotation.Nonnull;
  * throttling.
  */
 final class DynamicFlowControlCallable extends UnaryCallable {
-
   private final FlowController flowController;
   private final FlowControlEventStats flowControlEvents;
   private final DynamicFlowControlStats dynamicFlowControlStats;
@@ -68,13 +67,23 @@ final class DynamicFlowControlCallable extends UnaryCallable {
   }
 
   class DynamicFlowControlRunnable implements Runnable {
-
     private final FlowController flowController;
     private final FlowControlEventStats flowControlEvents;
     private final DynamicFlowControlStats dynamicFlowControlStats;
     private final long targetLatency;
     private final long adjustingIntervalMs;
     private Stopwatch timer;
+
+    private final long slowIncreaseStep;
+    private final long fastIncreaseStep;
+    private final long slowDecreaseStep;
+    private final long fastDecreaseStep;
+    private final double highTargetLatencyMs;
+    private final double lowTargetLatencyMs;
+    private final double highLatencyMs;
+    private final double lowParallelismLatencyMs;
+    private final double lowParallelismLimit;
+    private final long throttlingEventTimeRangeMs;
 
     DynamicFlowControlRunnable(
         @Nonnull FlowController flowController,
@@ -88,6 +97,25 @@ final class DynamicFlowControlCallable extends UnaryCallable {
       this.targetLatency = targetLatency;
       this.adjustingIntervalMs = adjustingIntervalMs;
       timer = Stopwatch.createStarted();
+
+      // Defining adjusting criteria and adjusting steps
+      // targeting roughly 20% around target latency so there isn't too much churn
+      highTargetLatencyMs = targetLatencyMs * 1.2;
+      lowTargetLatencyMs = targetLatencyMs * 0.8;
+      // when latency is too high, decreasing the thresholds faster
+      highLatencyMs = targetLatencyMs * 3;
+      long maxElementCountLimit = flowController.getMaxElementCountLimit();
+      // make sure the parallelism is not too low
+      lowParallelismLimit = 0.05 * maxElementCountLimit;
+      lowParallelismLatencyMs = targetLatency * 2;
+      // Increase parallelism at a slower rate than decrease. The lower rate should help the system
+      // maintain stability.
+      slowIncreaseStep = Math.round(0.02 * maxElementCountLimit);
+      fastIncreaseStep = Math.round(0.05 * maxElementCountLimit);
+      slowDecreaseStep = Math.round(0.1 * maxElementCountLimit);
+      fastDecreaseStep = Math.round(0.3 * maxElementCountLimit);
+      // only look for throttling events in the past 5 minutes
+      throttlingEventTimeRangeMs = TimeUnit.MINUTES.toMillis(5);
     }
 
     @Override
@@ -104,30 +132,26 @@ final class DynamicFlowControlCallable extends UnaryCallable {
           flowControlEvents.getLastFlowControlEvent() == null
               ? false
               : (now - flowControlEvents.getLastFlowControlEvent().getTimestampMs()
-                  <= TimeUnit.MINUTES.toMillis(5));
-      if (meanLatency > targetLatency * 3) {
+                  <= throttlingEventTimeRangeMs);
+      if (meanLatency > highLatencyMs) {
         // Decrease at 30% of the maximum
-        decrease(
-            lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 3 / 10);
-      } else if (meanLatency > targetLatency * 1.2) {
+        decrease(lastAdjustedTimestamp, now, fastDecreaseStep);
+      } else if (meanLatency > highTargetLatencyMs) {
         // Decrease at 10% of the maximum
-        decrease(lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() / 10);
-      } else if (throttled && meanLatency < targetLatency * 0.8) {
+        decrease(lastAdjustedTimestamp, now, slowDecreaseStep);
+      } else if (throttled && meanLatency < lowTargetLatencyMs) {
         // If latency is low, and there was throttling, then increase the parallelism so that new
         // calls will not be throttled.
 
         // Increase parallelism at a slower than we decrease. The lower rate should help the
         // system maintain stability.
-        increase(
-            lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 5 / 100);
+        increase(lastAdjustedTimestamp, now, fastIncreaseStep);
       } else if (throttled
-          && flowController.getCurrentOutstandingElementCount()
-              < flowController.getMaxOutstandingElementCount() * 0.05
-          && meanLatency < 2 * targetLatency) {
+          && flowController.getCurrentElementCountLimit() < lowParallelismLimit
+          && meanLatency < lowParallelismLatencyMs) {
         // When parallelism is reduced latency tends to be artificially higher.
         // Increase slowly to ensure that the system restabilizes.
-        increase(
-            lastAdjustedTimestamp, now, flowController.getMaxOutstandingElementCount() * 2 / 100);
+        increase(lastAdjustedTimestamp, now, slowIncreaseStep);
       }
     }
 

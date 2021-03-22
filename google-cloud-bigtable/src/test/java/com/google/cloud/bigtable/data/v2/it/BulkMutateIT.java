@@ -47,14 +47,14 @@ public class BulkMutateIT {
         (BatcherImpl) client.newBulkMutationBatcher(testEnvRule.env().getTableId());
     try {
       FlowControlEventStats events = batcher.getFlowControlEventStats();
-      long initialThreashold = batcher.getFlowController().getCurrentOutstandingElementCount();
-      assertThat(batcher.getFlowController().getCurrentOutstandingElementCount())
-          .isNotEqualTo(batcher.getFlowController().getMinOutstandingElementCount());
-      assertThat(batcher.getFlowController().getCurrentOutstandingElementCount())
-          .isNotEqualTo(batcher.getFlowController().getMaxOutstandingElementCount());
+      long initialThreashold = batcher.getFlowController().getCurrentElementCountLimit();
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
+          .isNotEqualTo(batcher.getFlowController().getMinElementCountLimit());
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
+          .isNotEqualTo(batcher.getFlowController().getMaxElementCountLimit());
 
       String familyId = testEnvRule.env().getFamilyId();
-      long initial = batcher.getFlowController().getCurrentOutstandingElementCount();
+      long initial = batcher.getFlowController().getCurrentElementCountLimit();
       for (long i = 0; i < initial * 3; i++) {
         String key = "test-key" + i;
         batcher.add(RowMutationEntry.create(key).setCell(familyId, "qualifier", i));
@@ -62,7 +62,7 @@ public class BulkMutateIT {
       batcher.flush();
       assertThat(events.getLastFlowControlEvent()).isNotNull();
       // Verify that the threshold is adjusted
-      assertThat(batcher.getFlowController().getCurrentOutstandingElementCount())
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
           .isNotEqualTo(initialThreashold);
       // Query a key to make sure the write succeeded
       Row row =

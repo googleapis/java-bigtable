@@ -495,6 +495,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
+      long flowControlAdjustingIntervalMs = TimeUnit.SECONDS.toMillis(20);
       flowControlCallable =
           new DynamicFlowControlCallable(
               baseCallable,
@@ -502,7 +503,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
               bulkMutationFlowControlEvents,
               bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
-              TimeUnit.SECONDS.toMillis(20));
+              flowControlAdjustingIntervalMs);
     }
     UnaryCallable<BulkMutation, Void> userFacing =
         new BulkMutateRowsUserFacingCallable(

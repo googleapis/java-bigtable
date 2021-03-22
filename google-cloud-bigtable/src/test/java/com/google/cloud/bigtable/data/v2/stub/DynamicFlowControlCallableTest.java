@@ -117,7 +117,7 @@ public class DynamicFlowControlCallableTest {
     assertThat(stats.getMeanLatency()).isAtLeast(TARGET_LATENCY_MS * 3);
     assertThat(stats.getLastAdjustedTimestampMs()).isGreaterThan(currentTimeMs);
     long expectedStep = MAX_ELEMENT * 3 / 10;
-    assertThat(flowController.getCurrentOutstandingElementCount())
+    assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT - expectedStep);
   }
 
@@ -136,7 +136,7 @@ public class DynamicFlowControlCallableTest {
     assertThat(stats.getLastAdjustedTimestampMs()).isGreaterThan(firstRequest);
     assertThat(stats.getLastAdjustedTimestampMs()).isAtMost(secondRequest);
     long expectedStep = MAX_ELEMENT * 3 / 10;
-    assertThat(flowController.getCurrentOutstandingElementCount())
+    assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT - expectedStep);
   }
 
@@ -159,7 +159,7 @@ public class DynamicFlowControlCallableTest {
     }
     long expectedStep = MAX_ELEMENT * 3 / 10 * 3;
     assertThat(INITIAL_ELEMENT - expectedStep).isLessThan(MIN_ELEMENT);
-    assertThat(flowController.getCurrentOutstandingElementCount()).isEqualTo(MIN_ELEMENT);
+    assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(MIN_ELEMENT);
   }
 
   @Test
@@ -171,10 +171,10 @@ public class DynamicFlowControlCallableTest {
         FlowControlEvent.create(TimeUnit.MILLISECONDS.toNanos(10)));
     ApiFuture future = callableToTest.futureCall(request, context);
     future.get();
-    long expectedIncrease = MAX_ELEMENT * 5 / 100;
+    long expectedIncrease = Math.round(0.05 * MAX_ELEMENT);
     assertThat(expectedIncrease).isNotEqualTo(0);
     assertThat(INITIAL_ELEMENT + expectedIncrease).isLessThan(MAX_ELEMENT);
-    assertThat(flowController.getCurrentOutstandingElementCount())
+    assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT + expectedIncrease);
   }
 
@@ -195,7 +195,7 @@ public class DynamicFlowControlCallableTest {
     }
     long expectedIncrease = MAX_ELEMENT * 5 / 100 * 20;
     assertThat(INITIAL_ELEMENT + expectedIncrease).isGreaterThan(MAX_ELEMENT);
-    assertThat(flowController.getCurrentOutstandingElementCount()).isEqualTo(MAX_ELEMENT);
+    assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(MAX_ELEMENT);
   }
 
   @Test
@@ -210,7 +210,7 @@ public class DynamicFlowControlCallableTest {
             System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(6)));
     ApiFuture future = callableToTest.futureCall(request, context);
     future.get();
-    assertThat(flowController.getCurrentOutstandingElementCount()).isEqualTo(INITIAL_ELEMENT);
+    assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(INITIAL_ELEMENT);
   }
 
   @Test
@@ -229,10 +229,10 @@ public class DynamicFlowControlCallableTest {
       f.get();
     }
     // should only be updated once
-    long expectedIncrease = MAX_ELEMENT * 5 / 100;
+    long expectedIncrease = Math.round(MAX_ELEMENT * 0.05);
     assertThat(expectedIncrease).isNotEqualTo(0);
     assertThat(INITIAL_ELEMENT + expectedIncrease).isLessThan(MAX_ELEMENT);
-    assertThat(flowController.getCurrentOutstandingElementCount())
+    assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT + expectedIncrease);
   }
 

@@ -194,20 +194,18 @@ public class EnhancedBigtableStubTest {
       assertThat(batcher1.getFlowControlEventStats())
           .isSameInstanceAs(batcher2.getFlowControlEventStats());
       // Verify flow controller settings
-      assertThat(batcher1.getFlowController().getLimitExceededBehavior())
-          .isEqualTo(LimitExceededBehavior.Block);
-      assertThat(batcher1.getFlowController().getMaxOutstandingElementCount()).isEqualTo(100L);
-      assertThat(batcher1.getFlowController().getMaxOutstandingRequestBytes()).isEqualTo(1000L);
-      assertThat(batcher1.getFlowController().getCurrentOutstandingElementCount()).isLessThan(100L);
-      assertThat(batcher1.getFlowController().getCurrentOutstandingRequestBytes()).isEqualTo(1000L);
-      assertThat(batcher1.getFlowController().getMinOutstandingElementCount())
+      assertThat(batcher1.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
+      assertThat(batcher1.getFlowController().getMaxRequestBytesLimit()).isEqualTo(1000L);
+      assertThat(batcher1.getFlowController().getCurrentElementCountLimit()).isLessThan(100L);
+      assertThat(batcher1.getFlowController().getCurrentRequestBytesLimit()).isEqualTo(1000L);
+      assertThat(batcher1.getFlowController().getMinElementCountLimit())
           .isAtLeast(
               settings
                   .stubSettings()
                   .bulkMutateRowsSettings()
                   .getBatchingSettings()
                   .getElementCountThreshold());
-      assertThat(batcher1.getFlowController().getMinOutstandingRequestBytes()).isEqualTo(1000L);
+      assertThat(batcher1.getFlowController().getMinRequestBytesLimit()).isEqualTo(1000L);
     }
 
     // Creating 2 batchers from different stubs, they should not share the same FlowController and
@@ -225,9 +223,9 @@ public class EnhancedBigtableStubTest {
         EnhancedBigtableStub.create(
             settings.disableBatchMutationLatencyBasedThrottling().build().getStubSettings());
     try (BatcherImpl batcher = (BatcherImpl) stub2.newMutateRowsBatcher("my-table")) {
-      assertThat(batcher.getFlowController().getMaxOutstandingElementCount()).isEqualTo(100L);
-      assertThat(batcher.getFlowController().getCurrentOutstandingElementCount()).isEqualTo(100L);
-      assertThat(batcher.getFlowController().getMinOutstandingElementCount()).isEqualTo(100L);
+      assertThat(batcher.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit()).isEqualTo(100L);
+      assertThat(batcher.getFlowController().getMinElementCountLimit()).isEqualTo(100L);
     }
   }
 

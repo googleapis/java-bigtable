@@ -17,6 +17,8 @@ package com.google.cloud.bigtable.data.v2;
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
+import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -400,6 +402,31 @@ public final class BigtableDataSettings {
      * Enable latency based throttling for {@link BigtableDataClient#newBulkMutationBatcher(String)}
      * with a target rpc latency. The number of allowed in-flight requests will be adjusted to reach
      * the target bulk mutations rpc latency.
+     *
+     * <p>The logic of adjusting in-flight request limits is as follows:
+     *
+     * <pre>
+     * To start, {@link Batcher} allows {@link FlowController#getCurrentElementCountLimit()}
+     * in-flight elements with a total size of {@link FlowController#getCurrentRequestBytesLimit()}.
+     *
+     * Every 20 seconds, {@link Batcher} checks the mean rpc latency of the requests and compare
+     * it with the target rpc latency:
+     *   if (mean latency &gt; 3 * target latency) {
+     *     decrease element count limit by 30% of {@link FlowController#getMaxElementCountLimit()}
+     *   } else if (mean latency &gt; 1.2 * target latency) {
+     *     decrease element count limit by 10% of {@link FlowController#getMaxElementCountLimit()}
+     *   } else if (there was throttling in the past 5 minutes
+     *        && mean latency &lt; 0.8 * target latency) {
+     *     increase element count limit by 5% of {@link FlowController#getMaxElementCountLimit()}
+     *   } else if (there was throttling in the past 5 minutes
+     *        && parallelism is 5% of {@link FlowController#getMaxElementCountLimit()}
+     *        && mean latency &lt; 2 * target latency) {
+     *     increase element count limit by 2% of {@link FlowController#getMaxElementCountLimit()}
+     *
+     * Increases are capped by {@link
+     * FlowController#getMaxElementCountLimit()}, Decreases are floored at {@link
+     * FlowController#getMinElementCountLimit()} so that there is some level of throughput.
+     * </pre>
      *
      * @see BigtableBatchingCallSettings.Builder#getDynamicFlowControlSettings() for explanation on
      *     default configurations.
