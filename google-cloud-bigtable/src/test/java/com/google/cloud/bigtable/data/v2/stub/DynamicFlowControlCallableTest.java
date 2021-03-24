@@ -21,7 +21,6 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.batching.DynamicFlowControlSettings;
 import com.google.api.gax.batching.FlowControlEventStats;
-import com.google.api.gax.batching.FlowControlEventStats.FlowControlEvent;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
 import com.google.api.gax.grpc.GrpcCallContext;
@@ -77,7 +76,7 @@ public class DynamicFlowControlCallableTest {
                 .setMinOutstandingRequestBytes(15L)
                 .setLimitExceededBehavior(LimitExceededBehavior.Block)
                 .build());
-    flowControlEvents = new FlowControlEventStats();
+    flowControlEvents = flowController.getFlowControlEventStats();
     stats = new DynamicFlowControlStats();
     context = GrpcCallContext.createDefault();
     innerCallable = new MockInnerCallable();
@@ -87,12 +86,7 @@ public class DynamicFlowControlCallableTest {
             .build();
     callableToTest =
         new DynamicFlowControlCallable(
-            innerCallable,
-            flowController,
-            flowControlEvents,
-            stats,
-            TARGET_LATENCY_MS,
-            ADJUSTING_INTERVAL_MS);
+            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
   }
 
   @Test
@@ -144,8 +138,7 @@ public class DynamicFlowControlCallableTest {
   public void testDecreasingThresholdsCantGoOverLimit() throws Exception {
     // set adjusting intervals to 0 so the thresholds can keep getting updated
     callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, flowControlEvents, stats, TARGET_LATENCY_MS, 0);
+        new DynamicFlowControlCallable(innerCallable, flowController, stats, TARGET_LATENCY_MS, 0);
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList(String.valueOf(TARGET_LATENCY_MS * 4)));
     ApiCallContext newContext = context.withExtraHeaders(extraHeaders);
@@ -164,11 +157,11 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testIncreasingThreshold() throws Exception {
+    // Test when there was flow control events and mean latency is low, increase the thresholds
     callableToTest =
         new DynamicFlowControlCallable(
-            innerCallable, flowController, flowControlEvents, stats, 1000, ADJUSTING_INTERVAL_MS);
-    flowControlEvents.recordFlowControlEvent(
-        FlowControlEvent.create(TimeUnit.MILLISECONDS.toNanos(10)));
+            innerCallable, flowController, stats, 1000, ADJUSTING_INTERVAL_MS);
+    createFlowControlEvent(flowController);
     ApiFuture future = callableToTest.futureCall(request, context);
     future.get();
     long expectedIncrease = Math.round(0.05 * MAX_ELEMENT);
@@ -180,11 +173,8 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testIncreasingThresholdCantGoOverLimit() throws Exception {
-    callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, flowControlEvents, stats, 1000, 0);
-    flowControlEvents.recordFlowControlEvent(
-        FlowControlEvent.create(TimeUnit.MILLISECONDS.toNanos(10)));
+    callableToTest = new DynamicFlowControlCallable(innerCallable, flowController, stats, 1000, 0);
+    createFlowControlEvent(flowController);
     List<Future> futures = new ArrayList<>();
     for (int i = 0; i < 20; i++) {
       ApiFuture future = callableToTest.futureCall(request, context);
@@ -202,9 +192,8 @@ public class DynamicFlowControlCallableTest {
   public void testConcurrentUpdates() throws Exception {
     callableToTest =
         new DynamicFlowControlCallable(
-            innerCallable, flowController, flowControlEvents, stats, 1000, ADJUSTING_INTERVAL_MS);
-    flowControlEvents.recordFlowControlEvent(
-        FlowControlEvent.create(TimeUnit.MILLISECONDS.toNanos(10)));
+            innerCallable, flowController, stats, 1000, ADJUSTING_INTERVAL_MS);
+    createFlowControlEvent(flowController);
     List<Future> futures = new ArrayList<>();
     for (int i = 0; i < 20; i++) {
       ApiFuture future = callableToTest.futureCall(request, context);
@@ -237,5 +226,27 @@ public class DynamicFlowControlCallableTest {
       }
       return ApiFutures.immediateFuture(response);
     }
+  }
+
+  private void createFlowControlEvent(final FlowController flowController) throws Exception {
+    flowController.reserve(INITIAL_ELEMENT, 0);
+    Thread t =
+        new Thread(
+            new Runnable() {
+              @Override
+              public void run() {
+                try {
+                  flowController.reserve(1, 0);
+                } catch (Exception e) {
+                }
+              }
+            });
+    t.start();
+    Thread.sleep(10);
+    flowController.release(INITIAL_ELEMENT, 0);
+    t.join();
+    flowController.release(1, 0);
+
+    assertThat(flowController.getFlowControlEventStats().getLastFlowControlEvent()).isNotNull();
   }
 }

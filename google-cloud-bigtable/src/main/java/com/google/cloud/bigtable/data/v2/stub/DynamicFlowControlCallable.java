@@ -16,7 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiFuture;
-import com.google.api.gax.batching.FlowControlEventStats;
+import com.google.api.gax.batching.FlowControlEventStats.FlowControlEvent;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
  */
 final class DynamicFlowControlCallable extends UnaryCallable {
   private final FlowController flowController;
-  private final FlowControlEventStats flowControlEvents;
   private final DynamicFlowControlStats dynamicFlowControlStats;
   private final long targetLatencyMs;
   private final long adjustingIntervalMs;
@@ -40,13 +39,11 @@ final class DynamicFlowControlCallable extends UnaryCallable {
   DynamicFlowControlCallable(
       @Nonnull UnaryCallable innerCallable,
       @Nonnull FlowController flowController,
-      @Nonnull FlowControlEventStats flowControlEvents,
       @Nonnull DynamicFlowControlStats stats,
       long targetLatencyMs,
       long adjustingIntervalMs) {
     this.innerCallable = innerCallable;
     this.flowController = flowController;
-    this.flowControlEvents = flowControlEvents;
     this.dynamicFlowControlStats = stats;
     this.targetLatencyMs = targetLatencyMs;
     this.adjustingIntervalMs = adjustingIntervalMs;
@@ -54,48 +51,29 @@ final class DynamicFlowControlCallable extends UnaryCallable {
 
   @Override
   public ApiFuture futureCall(Object request, ApiCallContext context) {
-    Runnable flowControllerRunnable =
-        new DynamicFlowControlRunnable(
-            flowController,
-            flowControlEvents,
-            dynamicFlowControlStats,
-            targetLatencyMs,
-            adjustingIntervalMs);
+    Runnable flowControllerRunnable = new DynamicFlowControlRunnable();
     ApiFuture future = innerCallable.futureCall(request, context);
     future.addListener(flowControllerRunnable, MoreExecutors.directExecutor());
     return future;
   }
 
   class DynamicFlowControlRunnable implements Runnable {
-    private final FlowController flowController;
-    private final FlowControlEventStats flowControlEvents;
-    private final DynamicFlowControlStats dynamicFlowControlStats;
-    private final long targetLatency;
-    private final long adjustingIntervalMs;
-    private Stopwatch timer;
+    private final Stopwatch timer;
 
+    // Latency and throttling thresholds that will trigger flow control changes
+    private final double highTargetLatencyMs;
+    private final double lowTargetLatencyMs;
+    private final double veryHighTargetLatencyMs;
+    private final double lowParallelismLatencyMs;
+    private final double lowParallelismLimit;
+    private final long throttlingEventTimeRangeMs;
+    // Rate of change that corresponds to the the thresholds above:
     private final long slowIncreaseStep;
     private final long fastIncreaseStep;
     private final long slowDecreaseStep;
     private final long fastDecreaseStep;
-    private final double highTargetLatencyMs;
-    private final double lowTargetLatencyMs;
-    private final double highLatencyMs;
-    private final double lowParallelismLatencyMs;
-    private final double lowParallelismLimit;
-    private final long throttlingEventTimeRangeMs;
 
-    DynamicFlowControlRunnable(
-        @Nonnull FlowController flowController,
-        @Nonnull FlowControlEventStats flowControlStats,
-        @Nonnull DynamicFlowControlStats stats,
-        long targetLatency,
-        long adjustingIntervalMs) {
-      this.flowController = flowController;
-      this.flowControlEvents = flowControlStats;
-      this.dynamicFlowControlStats = stats;
-      this.targetLatency = targetLatency;
-      this.adjustingIntervalMs = adjustingIntervalMs;
+    DynamicFlowControlRunnable() {
       timer = Stopwatch.createStarted();
 
       // Defining adjusting criteria and adjusting steps
@@ -103,11 +81,11 @@ final class DynamicFlowControlCallable extends UnaryCallable {
       highTargetLatencyMs = targetLatencyMs * 1.2;
       lowTargetLatencyMs = targetLatencyMs * 0.8;
       // when latency is too high, decreasing the thresholds faster
-      highLatencyMs = targetLatencyMs * 3;
+      veryHighTargetLatencyMs = targetLatencyMs * 3;
       long maxElementCountLimit = flowController.getMaxElementCountLimit();
       // make sure the parallelism is not too low
       lowParallelismLimit = 0.05 * maxElementCountLimit;
-      lowParallelismLatencyMs = targetLatency * 2;
+      lowParallelismLatencyMs = targetLatencyMs * 2;
       // Increase parallelism at a slower rate than decrease. The lower rate should help the system
       // maintain stability.
       slowIncreaseStep = Math.round(0.02 * maxElementCountLimit);
@@ -128,12 +106,13 @@ final class DynamicFlowControlCallable extends UnaryCallable {
         return;
       }
       double meanLatency = dynamicFlowControlStats.getMeanLatency();
+      FlowControlEvent flowControlEvent =
+          flowController.getFlowControlEventStats().getLastFlowControlEvent();
       boolean throttled =
-          flowControlEvents.getLastFlowControlEvent() == null
+          flowControlEvent == null
               ? false
-              : (now - flowControlEvents.getLastFlowControlEvent().getTimestampMs()
-                  <= throttlingEventTimeRangeMs);
-      if (meanLatency > highLatencyMs) {
+              : (now - flowControlEvent.getTimestampMs() <= throttlingEventTimeRangeMs);
+      if (meanLatency > veryHighTargetLatencyMs) {
         // Decrease at 30% of the maximum
         decrease(lastAdjustedTimestamp, now, fastDecreaseStep);
       } else if (meanLatency > highTargetLatencyMs) {

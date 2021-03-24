@@ -107,11 +107,9 @@ final class DynamicFlowControlStats {
     }
 
     double getMean(long timestampMs) {
-      long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      Preconditions.checkArgument(
-          now >= lastUpdateTimeInSecond.get(), "can't get the mean from a timestamp in the past");
-      long elapsed = now - lastUpdateTimeInSecond.get();
-      return mean * getAlpha(elapsed);
+      long timestampSecs = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
+      long elapsed = timestampSecs - lastUpdateTimeInSecond.get();
+      return mean * getAlpha(Math.max(0, elapsed));
     }
 
     private double getAlpha(long elapsedSecond) {

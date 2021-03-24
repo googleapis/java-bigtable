@@ -89,6 +89,7 @@ public class EnhancedBigtableStubTest {
 
   @After
   public void tearDown() {
+    enhancedBigtableStub.close();
     serviceHelper.shutdown();
   }
 
@@ -180,52 +181,61 @@ public class EnhancedBigtableStubTest {
                 .build())
         .build();
 
-    EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(settings.build().getStubSettings());
-    EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(settings.build().getStubSettings());
+    try (EnhancedBigtableStub stub1 =
+            EnhancedBigtableStub.create(settings.build().getStubSettings());
+        EnhancedBigtableStub stub2 =
+            EnhancedBigtableStub.create(settings.build().getStubSettings())) {
 
-    // Creating 2 batchers from the same stub, they should share the same FlowController and
-    // FlowControlEventStats
-    try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
-        BatcherImpl batcher2 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table2")) {
-      assertThat(batcher1.getFlowController()).isNotNull();
-      assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
-      assertThat(batcher1).isNotSameInstanceAs(batcher2);
-      assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
-      assertThat(batcher1.getFlowController().getFlowControlEventStats())
-          .isSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
-      // Verify flow controller settings
-      assertThat(batcher1.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
-      assertThat(batcher1.getFlowController().getMaxRequestBytesLimit()).isEqualTo(1000L);
-      assertThat(batcher1.getFlowController().getCurrentElementCountLimit()).isLessThan(100L);
-      assertThat(batcher1.getFlowController().getCurrentRequestBytesLimit()).isEqualTo(1000L);
-      assertThat(batcher1.getFlowController().getMinElementCountLimit())
-          .isAtLeast(
-              settings
-                  .stubSettings()
-                  .bulkMutateRowsSettings()
-                  .getBatchingSettings()
-                  .getElementCountThreshold());
-      assertThat(batcher1.getFlowController().getMinRequestBytesLimit()).isEqualTo(1000L);
+      // Creating 2 batchers from the same stub, they should share the same FlowController and
+      // FlowControlEventStats
+      try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
+          BatcherImpl batcher2 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table2")) {
+        assertThat(batcher1.getFlowController()).isNotNull();
+        assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
+        assertThat(batcher1).isNotSameInstanceAs(batcher2);
+        assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
+        assertThat(batcher1.getFlowController().getFlowControlEventStats())
+            .isSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
+        // Verify flow controller settings
+        assertThat(batcher1.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
+        assertThat(batcher1.getFlowController().getMaxRequestBytesLimit()).isEqualTo(1000L);
+        assertThat(batcher1.getFlowController().getCurrentElementCountLimit()).isLessThan(100L);
+        assertThat(batcher1.getFlowController().getCurrentRequestBytesLimit()).isEqualTo(1000L);
+        assertThat(batcher1.getFlowController().getMinElementCountLimit())
+            .isAtLeast(
+                settings
+                    .stubSettings()
+                    .bulkMutateRowsSettings()
+                    .getBatchingSettings()
+                    .getElementCountThreshold());
+        assertThat(batcher1.getFlowController().getMinRequestBytesLimit()).isEqualTo(1000L);
+      }
+
+      // Creating 2 batchers from different stubs, they should not share the same FlowController and
+      // FlowControlEventStats
+      try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
+          BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
+        assertThat(batcher1.getFlowController()).isNotNull();
+        assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
+        assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
+        assertThat(batcher1.getFlowController().getFlowControlEventStats())
+            .isNotSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
+      }
     }
+    try (EnhancedBigtableStub stub1 =
+            EnhancedBigtableStub.create(settings.build().getStubSettings());
+        EnhancedBigtableStub stub2 =
+            EnhancedBigtableStub.create(
+                settings
+                    .disableBatchMutationLatencyBasedThrottling()
+                    .build()
+                    .getStubSettings()); ) {
 
-    // Creating 2 batchers from different stubs, they should not share the same FlowController and
-    // FlowControlEventStats
-    try (BatcherImpl batcher1 = (BatcherImpl) stub1.newMutateRowsBatcher("my-table1");
-        BatcherImpl batcher2 = (BatcherImpl) stub2.newMutateRowsBatcher("my-table2")) {
-      assertThat(batcher1.getFlowController()).isNotNull();
-      assertThat(batcher1.getFlowController().getFlowControlEventStats()).isNotNull();
-      assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
-      assertThat(batcher1.getFlowController().getFlowControlEventStats())
-          .isNotSameInstanceAs(batcher2.getFlowController().getFlowControlEventStats());
-    }
-
-    stub2 =
-        EnhancedBigtableStub.create(
-            settings.disableBatchMutationLatencyBasedThrottling().build().getStubSettings());
-    try (BatcherImpl batcher = (BatcherImpl) stub2.newMutateRowsBatcher("my-table")) {
-      assertThat(batcher.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
-      assertThat(batcher.getFlowController().getCurrentElementCountLimit()).isEqualTo(100L);
-      assertThat(batcher.getFlowController().getMinElementCountLimit()).isEqualTo(100L);
+      try (BatcherImpl batcher = (BatcherImpl) stub2.newMutateRowsBatcher("my-table")) {
+        assertThat(batcher.getFlowController().getMaxElementCountLimit()).isEqualTo(100L);
+        assertThat(batcher.getFlowController().getCurrentElementCountLimit()).isEqualTo(100L);
+        assertThat(batcher.getFlowController().getMinElementCountLimit()).isEqualTo(100L);
+      }
     }
   }
 

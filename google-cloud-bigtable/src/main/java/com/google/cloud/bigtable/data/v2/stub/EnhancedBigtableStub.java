@@ -113,6 +113,7 @@ import javax.annotation.Nonnull;
 @InternalApi
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
+  private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
@@ -497,7 +498,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
           new DynamicFlowControlCallable(
               baseCallable,
               bulkMutationFlowController,
-              bulkMutationFlowController.getFlowControlEventStats(),
               bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
               flowControlAdjustingIntervalMs);
