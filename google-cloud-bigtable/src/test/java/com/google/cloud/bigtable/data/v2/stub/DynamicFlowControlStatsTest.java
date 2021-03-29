@@ -59,7 +59,7 @@ public class DynamicFlowControlStatsTest {
     assertThat(stats.getMeanLatency(timestamp)).isLessThan(6);
   }
 
-  @Test(timeout = 500)
+  @Test(timeout = 1000)
   public void testConcurrentUpdates() throws InterruptedException {
     final DynamicFlowControlStats stats = new DynamicFlowControlStats();
     List<Thread> threads = new ArrayList<>();

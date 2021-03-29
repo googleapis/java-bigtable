@@ -75,8 +75,7 @@ class MetricsTracer implements ApiTracer {
   public Scope inScope() {
     return new Scope() {
       @Override
-      public void close() {
-      }
+      public void close() {}
     };
   }
 

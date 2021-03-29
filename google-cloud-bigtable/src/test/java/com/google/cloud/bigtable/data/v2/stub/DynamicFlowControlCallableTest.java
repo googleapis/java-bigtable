@@ -27,12 +27,10 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.common.collect.Lists;
-import io.grpc.Status;
 import io.grpc.Status.Code;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -114,9 +112,12 @@ public class DynamicFlowControlCallableTest {
     ApiCallContext newContext = context.withExtraHeaders(extraHeaders);
     ApiFuture future = callableToTest.futureCall(request, newContext);
     future.get();
-    assertThat(stats.getMeanLatency()).isAtLeast(TARGET_LATENCY_MS * DynamicFlowControlCallable.VERY_HIGH_LATENCY_MULTIPLIER);
+    assertThat(stats.getMeanLatency())
+        .isAtLeast(TARGET_LATENCY_MS * DynamicFlowControlCallable.VERY_HIGH_LATENCY_MULTIPLIER);
     assertThat(stats.getLastAdjustedTimestampMs()).isGreaterThan(currentTimeMs);
-    long expectedStep = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
+    long expectedStep =
+        Math.round(
+            MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
     assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT - expectedStep);
   }
@@ -132,10 +133,13 @@ public class DynamicFlowControlCallableTest {
     long secondRequest = System.currentTimeMillis();
     future = callableToTest.futureCall(request, newContext);
     future.get();
-    assertThat(stats.getMeanLatency()).isAtLeast(TARGET_LATENCY_MS * DynamicFlowControlCallable.VERY_HIGH_LATENCY_MULTIPLIER);
+    assertThat(stats.getMeanLatency())
+        .isAtLeast(TARGET_LATENCY_MS * DynamicFlowControlCallable.VERY_HIGH_LATENCY_MULTIPLIER);
     assertThat(stats.getLastAdjustedTimestampMs()).isGreaterThan(firstRequest);
     assertThat(stats.getLastAdjustedTimestampMs()).isAtMost(secondRequest);
-    long expectedStep = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
+    long expectedStep =
+        Math.round(
+            MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
     assertThat(flowController.getCurrentElementCountLimit())
         .isEqualTo(INITIAL_ELEMENT - expectedStep);
   }
@@ -156,7 +160,11 @@ public class DynamicFlowControlCallableTest {
     for (Future f : futures) {
       f.get();
     }
-    long expectedStep = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE) * 3;
+    long expectedStep =
+        Math.round(
+                MAX_ELEMENT
+                    * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE)
+            * 3;
     assertThat(INITIAL_ELEMENT - expectedStep).isLessThan(MIN_ELEMENT);
     assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(MIN_ELEMENT);
   }
@@ -170,7 +178,8 @@ public class DynamicFlowControlCallableTest {
     createFlowControlEvent(flowController);
     ApiFuture future = callableToTest.futureCall(request, context);
     future.get();
-    long expectedIncrease = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE);
+    long expectedIncrease =
+        Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE);
     assertThat(expectedIncrease).isNotEqualTo(0);
     assertThat(INITIAL_ELEMENT + expectedIncrease).isLessThan(MAX_ELEMENT);
     assertThat(flowController.getCurrentElementCountLimit())
@@ -190,7 +199,9 @@ public class DynamicFlowControlCallableTest {
     for (Future f : futures) {
       f.get();
     }
-    long expectedIncrease = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE) * 20;
+    long expectedIncrease =
+        Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE)
+            * 20;
     assertThat(INITIAL_ELEMENT + expectedIncrease).isGreaterThan(MAX_ELEMENT);
     assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(MAX_ELEMENT);
   }
@@ -210,7 +221,8 @@ public class DynamicFlowControlCallableTest {
       f.get();
     }
     // should only be updated once
-    long expectedIncrease = Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE);
+    long expectedIncrease =
+        Math.round(MAX_ELEMENT * DynamicFlowControlCallable.LOW_LATENCY_INCREASE_CONCURRENCY_RATE);
     assertThat(expectedIncrease).isNotEqualTo(0);
     assertThat(INITIAL_ELEMENT + expectedIncrease).isLessThan(MAX_ELEMENT);
     assertThat(flowController.getCurrentElementCountLimit())
@@ -223,8 +235,12 @@ public class DynamicFlowControlCallableTest {
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList(String.valueOf(DEADLINE_EXCEEDED_LATENCY)));
     callableToTest.futureCall(request, context.withExtraHeaders(extraHeaders));
-    assertThat(flowController.getCurrentElementCountLimit()).isEqualTo(
-        INITIAL_ELEMENT - Math.round(MAX_ELEMENT * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE));
+    assertThat(flowController.getCurrentElementCountLimit())
+        .isEqualTo(
+            INITIAL_ELEMENT
+                - Math.round(
+                    MAX_ELEMENT
+                        * DynamicFlowControlCallable.VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE));
   }
 
   static class MockInnerCallable
@@ -241,8 +257,9 @@ public class DynamicFlowControlCallableTest {
         } catch (InterruptedException e) {
         }
         if (Integer.valueOf(latencyHeader.get(0)) == DEADLINE_EXCEEDED_LATENCY) {
-          return ApiFutures.immediateFailedFuture(new DeadlineExceededException("deadline exceeded", null,
-              GrpcStatusCode.of(Code.DEADLINE_EXCEEDED), false));
+          return ApiFutures.immediateFailedFuture(
+              new DeadlineExceededException(
+                  "deadline exceeded", null, GrpcStatusCode.of(Code.DEADLINE_EXCEEDED), false));
         }
       }
       return ApiFutures.immediateFuture(response);

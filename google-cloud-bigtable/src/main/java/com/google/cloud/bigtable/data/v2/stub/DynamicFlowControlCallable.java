@@ -38,6 +38,7 @@ final class DynamicFlowControlCallable extends UnaryCallable {
   // Defining adjusting criteria and adjusting rates
   // Latency thresholds multipliers that will trigger flow control changes
   static final double VERY_HIGH_LATENCY_MULTIPLIER = 3;
+  // targeting roughly 20% around target latency so there isn't too much churn
   static final double HIGH_LATENCY_MULTIPLIER = 1.2;
   static final double LOW_LATENCY_MULTIPLIER = 0.8;
   static final double LOW_CONCURRENCY_MULTIPLIER = 0.05;
@@ -75,53 +76,29 @@ final class DynamicFlowControlCallable extends UnaryCallable {
   public ApiFuture futureCall(Object request, ApiCallContext context) {
     final Runnable flowControllerRunnable = new DynamicFlowControlRunnable();
     ApiFuture future = innerCallable.futureCall(request, context);
-    ApiFutures.addCallback(future, new ApiFutureCallback() {
-      @Override
-      public void onFailure(Throwable t) {
-        if (t instanceof DeadlineExceededException) {
-          flowControllerRunnable.run();
-        }
-      }
+    ApiFutures.addCallback(
+        future,
+        new ApiFutureCallback() {
+          @Override
+          public void onFailure(Throwable t) {
+            if (t instanceof DeadlineExceededException) {
+              flowControllerRunnable.run();
+            }
+          }
 
-      @Override
-      public void onSuccess(Object result) {
-        flowControllerRunnable.run();
-      }
-    }, MoreExecutors.directExecutor());
+          @Override
+          public void onSuccess(Object result) {
+            flowControllerRunnable.run();
+          }
+        },
+        MoreExecutors.directExecutor());
     return future;
   }
 
   class DynamicFlowControlRunnable implements Runnable {
-
-    // Latency and throttling thresholds that will trigger flow control changes
-    private final double highTargetLatencyMs;
-    private final double lowTargetLatencyMs;
-    private final double veryHighTargetLatencyMs;
-    private final double lowConcurrencyLatencyMs;
-    private final double lowConcurrencyLimit;
-    // Rate of change that corresponds to the the thresholds above:
-    private final long highLatencyDecreaseConcurrencyStep;
-    private final long lowLatencyIncreaseConcurrencyStep;
-    private final long veryHighLatencyDecreaseConcurrencyStep;
-    private final long lowConcurrencyIncreaseConcurrencyStep;
-
     private final Stopwatch timer;
 
     DynamicFlowControlRunnable() {
-      long maxElementLimit = flowController.getMaxElementCountLimit();
-      // targeting roughly 20% around target latency so there isn't too much churn
-      highTargetLatencyMs = targetLatencyMs * HIGH_LATENCY_MULTIPLIER;
-      lowTargetLatencyMs = targetLatencyMs * LOW_LATENCY_MULTIPLIER;
-      veryHighTargetLatencyMs = targetLatencyMs * VERY_HIGH_LATENCY_MULTIPLIER;
-      // make sure the parallelism is not too low
-      lowConcurrencyLimit = maxElementLimit * LOW_CONCURRENCY_MULTIPLIER;
-      lowConcurrencyLatencyMs = targetLatencyMs * LOW_CONCURRENCY_LATENCY_MULTIPLIER;
-
-      highLatencyDecreaseConcurrencyStep = round(maxElementLimit * HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
-      lowLatencyIncreaseConcurrencyStep = round(maxElementLimit * LOW_LATENCY_INCREASE_CONCURRENCY_RATE);
-      veryHighLatencyDecreaseConcurrencyStep = round(maxElementLimit * VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE);
-      lowConcurrencyIncreaseConcurrencyStep = round(maxElementLimit * LOW_CONCURRENCY_INCREASE_CONCURRENCY_RATE);
-
       timer = Stopwatch.createStarted();
     }
 
@@ -137,30 +114,42 @@ final class DynamicFlowControlCallable extends UnaryCallable {
       double meanLatency = dynamicFlowControlStats.getMeanLatency();
       FlowControlEvent flowControlEvent =
           flowController.getFlowControlEventStats().getLastFlowControlEvent();
-      boolean throttled =
-          flowControlEvent == null
-              ? false
-              : (now - flowControlEvent.getTimestampMs() <= THROTTLING_EVENT_TIME_RANGE_MS);
+      boolean wasRecentlyThrottled =
+          flowControlEvent != null
+              && (now - flowControlEvent.getTimestampMs() <= THROTTLING_EVENT_TIME_RANGE_MS);
       long maxElementLimit = flowController.getMaxElementCountLimit();
-      if (meanLatency > veryHighTargetLatencyMs) {
+      if (meanLatency > targetLatencyMs * VERY_HIGH_LATENCY_MULTIPLIER) {
         // Decrease at 30% of the maximum
-        decrease(lastAdjustedTimestamp, now, veryHighLatencyDecreaseConcurrencyStep);
-      } else if (meanLatency > highTargetLatencyMs) {
+        decrease(
+            lastAdjustedTimestamp,
+            now,
+            round(maxElementLimit * VERY_HIGH_LATENCY_DECREASE_CONCURRENCY_RATE));
+      } else if (meanLatency > targetLatencyMs * HIGH_LATENCY_MULTIPLIER) {
         // Decrease at 10% of the maximum
-        decrease(lastAdjustedTimestamp, now, highLatencyDecreaseConcurrencyStep);
-      } else if (throttled && meanLatency < lowTargetLatencyMs) {
+        decrease(
+            lastAdjustedTimestamp,
+            now,
+            round(maxElementLimit * HIGH_LATENCY_DECREASE_CONCURRENCY_RATE));
+      } else if (wasRecentlyThrottled && meanLatency < targetLatencyMs * LOW_LATENCY_MULTIPLIER) {
         // If latency is low, and there was throttling, then increase the parallelism so that new
         // calls will not be throttled.
 
         // Increase parallelism at a slower than we decrease. The lower rate should help the
         // system maintain stability.
-        increase(lastAdjustedTimestamp, now, lowLatencyIncreaseConcurrencyStep);
-      } else if (throttled
-          && flowController.getCurrentElementCountLimit() < lowConcurrencyLimit
-          && meanLatency < lowConcurrencyLatencyMs) {
+        increase(
+            lastAdjustedTimestamp,
+            now,
+            round(maxElementLimit * LOW_LATENCY_INCREASE_CONCURRENCY_RATE));
+      } else if (wasRecentlyThrottled
+          && flowController.getCurrentElementCountLimit()
+              < maxElementLimit * LOW_CONCURRENCY_MULTIPLIER
+          && meanLatency < targetLatencyMs * LOW_CONCURRENCY_LATENCY_MULTIPLIER) {
         // When parallelism is reduced latency tends to be artificially higher.
         // Increase slowly to ensure that the system restabilizes.
-        increase(lastAdjustedTimestamp, now, lowConcurrencyIncreaseConcurrencyStep);
+        increase(
+            lastAdjustedTimestamp,
+            now,
+            round(maxElementLimit * LOW_CONCURRENCY_INCREASE_CONCURRENCY_RATE));
       }
     }
 
