@@ -25,7 +25,6 @@ import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallSettings;
-import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.base.MoreObjects;
@@ -200,8 +199,8 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
      * reach the target rpc latency.
      */
     public Builder enableLatencyBasedThrottling(long targetRpcLatency) {
-      Preconditions.checkArgument(targetRpcLatency > 0,
-          "target RPC latency must be greater than 0");
+      Preconditions.checkArgument(
+          targetRpcLatency > 0, "target RPC latency must be greater than 0");
       this.isLatencyBasedThrottlingEnabled = true;
       this.targetRpcLatencyMs = targetRpcLatency;
       return this;
