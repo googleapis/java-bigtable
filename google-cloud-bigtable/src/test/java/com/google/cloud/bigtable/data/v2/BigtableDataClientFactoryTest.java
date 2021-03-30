@@ -295,18 +295,19 @@ public class BigtableDataClientFactoryTest {
             .setInstanceId("my-instance")
             .enableBatchMutationLatencyBasedThrottling(10L)
             .build();
-    BigtableDataClientFactory factory = BigtableDataClientFactory.create(settings);
-    BigtableDataClient client1 = factory.createDefault();
-    BigtableDataClient client2 = factory.createForAppProfile("app-profile");
+    try (BigtableDataClientFactory factory = BigtableDataClientFactory.create(settings)) {
+      BigtableDataClient client1 = factory.createDefault();
+      BigtableDataClient client2 = factory.createForAppProfile("app-profile");
 
-    try (BatcherImpl batcher1 = (BatcherImpl) client1.newBulkMutationBatcher("my-table");
-        BatcherImpl batcher2 = (BatcherImpl) client1.newBulkMutationBatcher("my-table")) {
-      assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
-    }
+      try (BatcherImpl batcher1 = (BatcherImpl) client1.newBulkMutationBatcher("my-table");
+          BatcherImpl batcher2 = (BatcherImpl) client1.newBulkMutationBatcher("my-table")) {
+        assertThat(batcher1.getFlowController()).isSameInstanceAs(batcher2.getFlowController());
+      }
 
-    try (BatcherImpl batcher1 = (BatcherImpl) client1.newBulkMutationBatcher("my-table");
-        BatcherImpl batcher2 = (BatcherImpl) client2.newBulkMutationBatcher("my-table")) {
-      assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
+      try (BatcherImpl batcher1 = (BatcherImpl) client1.newBulkMutationBatcher("my-table");
+          BatcherImpl batcher2 = (BatcherImpl) client2.newBulkMutationBatcher("my-table")) {
+        assertThat(batcher1.getFlowController()).isNotSameInstanceAs(batcher2.getFlowController());
+      }
     }
   }
 
