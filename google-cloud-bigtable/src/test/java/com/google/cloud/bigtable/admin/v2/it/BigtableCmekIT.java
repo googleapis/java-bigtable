@@ -62,6 +62,7 @@ public class BigtableCmekIT {
   private static final int[] BACKOFF_DURATION = {5, 10, 50, 100, 150, 200, 250, 300};
   private static final Logger LOGGER = Logger.getLogger(BigtableCmekIT.class.getName());
   private static final String TEST_TABLE_ID = "test-table-for-cmek-it";
+  private final String BACKUP_ID = "test-table-for-cmek-it-backup";
 
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
@@ -103,9 +104,7 @@ public class BigtableCmekIT {
   @After
   public void teardown() {
     try {
-      for (String backup : tableAdmin.listBackups(clusterId)) {
-        tableAdmin.deleteBackup(clusterId, backup);
-      }
+      tableAdmin.deleteBackup(clusterId, BACKUP_ID);
     } catch (NotFoundException ignored) {
     }
 
@@ -205,7 +204,6 @@ public class BigtableCmekIT {
 
   @Test
   public void backupTest() throws Exception {
-    String backupId = "test-table-for-cmek-it-backup";
     String zoneId = testEnvRule.env().getPrimaryZone();
 
     instanceAdmin.createInstance(
@@ -217,11 +215,11 @@ public class BigtableCmekIT {
     // Backups are pinned to the primary version of their table's CMEK key at the time they are
     // taken
     tableAdmin.createBackup(
-        CreateBackupRequest.of(clusterId, backupId)
+        CreateBackupRequest.of(clusterId, BACKUP_ID)
             .setExpireTime(Instant.now().plus(6, ChronoUnit.HOURS))
             .setSourceTableId(TEST_TABLE_ID));
 
-    Backup backup = tableAdmin.getBackup(clusterId, backupId);
+    Backup backup = tableAdmin.getBackup(clusterId, BACKUP_ID);
 
     // Confirm encryption details for an existing backup
     // The backup will be returned with the CMEK key version that the backup is pinned to.
