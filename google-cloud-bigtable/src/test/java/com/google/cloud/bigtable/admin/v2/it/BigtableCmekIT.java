@@ -80,7 +80,8 @@ public class BigtableCmekIT {
         .isNotInstanceOf(EmulatorEnv.class);
 
     kmsKeyName = testEnvRule.env().getKmsKeyName();
-    assume().withMessage("%s property is not set, skipping CMEK test", kmsKeyName);
+    assertThat(kmsKeyName).isNotNull();
+    assertThat(kmsKeyName).isNotEmpty();
   }
 
   @Before
@@ -102,7 +103,7 @@ public class BigtableCmekIT {
   @After
   public void teardown() {
     try {
-      for (String backup : tableAdmin.listBackups("-")) {
+      for (String backup : tableAdmin.listBackups(clusterId)) {
         tableAdmin.deleteBackup(clusterId, backup);
       }
     } catch (NotFoundException ignored) {
@@ -114,6 +115,7 @@ public class BigtableCmekIT {
     }
 
     tableAdmin.close();
+    instanceAdmin.close();
   }
 
   @Test
@@ -163,6 +165,7 @@ public class BigtableCmekIT {
     }
   }
 
+  @Test
   public void tableTest() throws Exception {
     String zoneId = testEnvRule.env().getPrimaryZone();
 
@@ -200,6 +203,7 @@ public class BigtableCmekIT {
     }
   }
 
+  @Test
   public void backupTest() throws Exception {
     String backupId = "test-table-for-cmek-it-backup";
     String zoneId = testEnvRule.env().getPrimaryZone();
