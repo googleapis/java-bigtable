@@ -14,13 +14,12 @@
  * limitations under the License.
 */
 
-package com.m.examples.bigtable;
+package com.example.bigtable;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.example.bigtable.InstanceAdminExample;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminSettings;
@@ -40,26 +39,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /** Integration tests for {@link InstanceAdminExample} */
-public class InstanceAdminExampleTest {
+public class InstanceAdminExampleTest extends BigtableBaseTest {
 
   private static final String ID_PREFIX = "instanceadmin";
   private static final String CLUSTER = "cluster";
-  private static String projectId;
   private static BigtableInstanceAdminClient adminClient;
   private String clusterId;
-  private String instanceId;
   private InstanceAdminExample instanceAdmin;
-
-  private static String requireEnv(String varName) {
-    assertNotNull(
-        System.getenv(varName),
-        "Environment variable '%s' is required to perform these tests.".format(varName));
-    return System.getenv(varName);
-  }
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    projectId = requireEnv("GOOGLE_CLOUD_PROJECT");
+    initializeVariables();
     BigtableInstanceAdminSettings instanceAdminSettings =
         BigtableInstanceAdminSettings.newBuilder().setProjectId(projectId).build();
     adminClient = BigtableInstanceAdminClient.create(instanceAdminSettings);

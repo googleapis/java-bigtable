@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.m.examples.bigtable;
+package com.example.bigtable;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.example.bigtable.HelloWorld;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
@@ -39,28 +38,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /** Integration tests for {@link HelloWorld} */
-public class HelloWorldTest {
+public class HelloWorldTest extends BigtableBaseTest {
 
-  private static final String INSTANCE_ENV = "BIGTABLE_TESTING_INSTANCE";
   private static final String TABLE_PREFIX = "table";
   private static String tableId;
   private static BigtableDataClient dataClient;
   private static BigtableTableAdminClient adminClient;
-  private static String projectId;
-  private static String instanceId;
   private HelloWorld helloWorld;
-
-  private static String requireEnv(String varName) {
-    assertNotNull(
-        System.getenv(varName),
-        "Environment variable '%s' is required to perform these tests.".format(varName));
-    return System.getenv(varName);
-  }
 
   @BeforeClass
   public static void beforeClass() throws IOException {
-    projectId = requireEnv("GOOGLE_CLOUD_PROJECT");
-    instanceId = requireEnv(INSTANCE_ENV);
+    initializeVariables();
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
     dataClient = BigtableDataClient.create(settings);
