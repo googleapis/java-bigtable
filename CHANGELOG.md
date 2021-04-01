@@ -1,5 +1,19 @@
 # Changelog
 
+### [1.21.3](https://www.github.com/googleapis/java-bigtable/compare/v1.21.2...v1.21.3) (2021-04-01)
+
+
+### Dependencies
+
+* update dependency com.google.errorprone:error_prone_annotations to v2.6.0 ([#693](https://www.github.com/googleapis/java-bigtable/issues/693)) ([831d044](https://www.github.com/googleapis/java-bigtable/commit/831d044f31c7643b34df4f23765d521e8f68035d))
+
+### [1.21.2](https://www.github.com/googleapis/java-bigtable/compare/v1.21.1...v1.21.2) (2021-03-22)
+
+
+### Dependencies
+
+* update autovalue.version to v1.7.5 ([#684](https://www.github.com/googleapis/java-bigtable/issues/684)) ([75baa79](https://www.github.com/googleapis/java-bigtable/commit/75baa79e94c31e1694c3e29ea2f1ed42dbc60eb8))
+
 ### [1.21.1](https://www.github.com/googleapis/java-bigtable/compare/v1.21.0...v1.21.1) (2021-03-15)
 
 

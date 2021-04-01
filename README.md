@@ -17,7 +17,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>19.0.0</version>
+      <version>19.2.1</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -38,25 +38,25 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>1.21.1</version>
+  <version>1.21.2</version>
 </dependency>
 
 ```
 
 If you are using Gradle 5.x or later, add this to your dependencies
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:19.0.0')
+implementation platform('com.google.cloud:libraries-bom:19.2.1')
 
 compile 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies
 ```Groovy
-compile 'com.google.cloud:google-cloud-bigtable:1.21.1'
+compile 'com.google.cloud:google-cloud-bigtable:1.21.2'
 ```
 
 If you are using SBT, add this to your dependencies
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "1.21.1"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "1.21.2"
 ```
 
 ## Authentication
@@ -463,6 +463,7 @@ has instructions for running the samples.
 
 | Sample                      | Source Code                       | Try it |
 | --------------------------- | --------------------------------- | ------ |
+| Configure Connection Pool | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) |
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
 | Write Batch | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) |
