@@ -40,7 +40,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -97,8 +96,8 @@ public class BigtableCmekIT {
                 .build());
 
     instanceAdmin.createInstance(
-            CreateInstanceRequest.of(instanceId)
-                    .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
+        CreateInstanceRequest.of(instanceId)
+            .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
     // Create a table. Key is inherited from the cluster configuration
     tableAdmin.createTable(CreateTableRequest.of(TEST_TABLE_ID).addFamily("cf"));
   }
@@ -119,96 +118,94 @@ public class BigtableCmekIT {
 
   @Test
   public void instanceAndClusterTest() {
-      // Keys are specified per-cluster with each cluster requesting the same key and the cluster's
-      // zone must be within the region of the key
-      Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
-      assertThat(cluster.getKmsKeyName()).isEqualTo(kmsKeyName);
+    // Keys are specified per-cluster with each cluster requesting the same key and the cluster's
+    // zone must be within the region of the key
+    Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
+    assertThat(cluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
-      String secondZoneId = testEnvRule.env().getPrimaryRegionSecondZone();
+    String secondZoneId = testEnvRule.env().getPrimaryRegionSecondZone();
+    instanceAdmin.createCluster(
+        CreateClusterRequest.of(instanceId, clusterId2)
+            .setZone(secondZoneId)
+            .setServeNodes(1)
+            .setStorageType(StorageType.SSD)
+            .setKmsKeyName(kmsKeyName));
+
+    Cluster secondCluster = instanceAdmin.getCluster(instanceId, clusterId2);
+    assertThat(secondCluster.getKmsKeyName()).isEqualTo(kmsKeyName);
+
+    final String nonPrimaryRegionZoneId = testEnvRule.env().getSecondaryZone();
+    try {
       instanceAdmin.createCluster(
           CreateClusterRequest.of(instanceId, clusterId2)
-              .setZone(secondZoneId)
+              .setZone(nonPrimaryRegionZoneId)
               .setServeNodes(1)
               .setStorageType(StorageType.SSD)
               .setKmsKeyName(kmsKeyName));
-
-      Cluster secondCluster = instanceAdmin.getCluster(instanceId, clusterId2);
-      assertThat(secondCluster.getKmsKeyName()).isEqualTo(kmsKeyName);
-
-      final String nonPrimaryRegionZoneId = testEnvRule.env().getSecondaryZone();
-      try {
-        instanceAdmin.createCluster(
-            CreateClusterRequest.of(instanceId, clusterId2)
-                .setZone(nonPrimaryRegionZoneId)
-                .setServeNodes(1)
-                .setStorageType(StorageType.SSD)
-                .setKmsKeyName(kmsKeyName));
-        Assert.fail("should have thrown an error");
-      } catch (com.google.api.gax.rpc.FailedPreconditionException e) {
-        assertThat(e.getMessage())
-            .contains(
-                "FAILED_PRECONDITION: Error in field 'cluster' : "
-                    + "Error in field 'encryption_config.kms_key_name' : CMEK key "
-                    + kmsKeyName
-                    + " cannot be used to protect a cluster in zone "
-                    + NameUtil.formatLocationName(
-                        testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
-      }
+      Assert.fail("should have thrown an error");
+    } catch (com.google.api.gax.rpc.FailedPreconditionException e) {
+      assertThat(e.getMessage())
+          .contains(
+              "FAILED_PRECONDITION: Error in field 'cluster' : "
+                  + "Error in field 'encryption_config.kms_key_name' : CMEK key "
+                  + kmsKeyName
+                  + " cannot be used to protect a cluster in zone "
+                  + NameUtil.formatLocationName(
+                      testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
+    }
   }
 
   @Test
   public void tableTest() throws Exception {
-      // Confirm that table is CMEK-protected
-      if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
-        waitForCmekStatus(TEST_TABLE_ID, clusterId1);
-      }
-      Map<String, List<EncryptionInfo>> encryptionInfos =
-          tableAdmin.getEncryptionInfo(TEST_TABLE_ID);
-      assertThat(encryptionInfos).hasSize(1);
-      assertThat(encryptionInfos.get(clusterId1)).hasSize(1);
-      EncryptionInfo encryptionInfo = encryptionInfos.get(clusterId1).get(0);
-      assertThat(encryptionInfo.getType())
-          .isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
-      assertThat(encryptionInfo.getStatus().getCode()).isAnyOf(Status.Code.OK, Status.Code.UNKNOWN);
-      if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
-        assertThat(encryptionInfo.getStatus().getCode()).isEqualTo(Status.Code.OK);
-      }
-      // For up to 5 minutes after a table is newly created, the key version and status fields are
-      // not
-      // populated.
-      // Set the `bigtable.wait-for-cmek-key-status` system property to `true` when running the test
-      // in order to poll until the final state can be asserted.
-      if (encryptionInfo.getStatus().getCode() == Code.UNKNOWN) {
-        assertThat(encryptionInfo.getKmsKeyVersion()).isEmpty();
-        assertThat(encryptionInfo.getStatus().getMessage())
-            .isEqualTo("Key version is not yet known.");
-      } else {
-        assertThat(encryptionInfo.getKmsKeyVersion()).startsWith(kmsKeyName);
-        assertThat(encryptionInfo.getStatus().getMessage()).isEqualTo("");
-      }
+    // Confirm that table is CMEK-protected
+    if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
+      waitForCmekStatus(TEST_TABLE_ID, clusterId1);
+    }
+    Map<String, List<EncryptionInfo>> encryptionInfos = tableAdmin.getEncryptionInfo(TEST_TABLE_ID);
+    assertThat(encryptionInfos).hasSize(1);
+    assertThat(encryptionInfos.get(clusterId1)).hasSize(1);
+    EncryptionInfo encryptionInfo = encryptionInfos.get(clusterId1).get(0);
+    assertThat(encryptionInfo.getType()).isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
+    assertThat(encryptionInfo.getStatus().getCode()).isAnyOf(Status.Code.OK, Status.Code.UNKNOWN);
+    if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
+      assertThat(encryptionInfo.getStatus().getCode()).isEqualTo(Status.Code.OK);
+    }
+    // For up to 5 minutes after a table is newly created, the key version and status fields are
+    // not
+    // populated.
+    // Set the `bigtable.wait-for-cmek-key-status` system property to `true` when running the test
+    // in order to poll until the final state can be asserted.
+    if (encryptionInfo.getStatus().getCode() == Code.UNKNOWN) {
+      assertThat(encryptionInfo.getKmsKeyVersion()).isEmpty();
+      assertThat(encryptionInfo.getStatus().getMessage())
+          .isEqualTo("Key version is not yet known.");
+    } else {
+      assertThat(encryptionInfo.getKmsKeyVersion()).startsWith(kmsKeyName);
+      assertThat(encryptionInfo.getStatus().getMessage()).isEqualTo("");
+    }
   }
 
   @Test
   public void backupTest() {
-      // Create a backup.
-      // Backups are pinned to the primary version of their table's CMEK key at the time they are
-      // taken
-      tableAdmin.createBackup(
-          CreateBackupRequest.of(clusterId1, BACKUP_ID)
-              .setExpireTime(Instant.now().plus(6, ChronoUnit.HOURS))
-              .setSourceTableId(TEST_TABLE_ID));
+    // Create a backup.
+    // Backups are pinned to the primary version of their table's CMEK key at the time they are
+    // taken
+    tableAdmin.createBackup(
+        CreateBackupRequest.of(clusterId1, BACKUP_ID)
+            .setExpireTime(Instant.now().plus(6, ChronoUnit.HOURS))
+            .setSourceTableId(TEST_TABLE_ID));
 
-      Backup backup = tableAdmin.getBackup(clusterId1, BACKUP_ID);
+    Backup backup = tableAdmin.getBackup(clusterId1, BACKUP_ID);
 
-      // Confirm encryption details for an existing backup
-      // The backup will be returned with the CMEK key version that the backup is pinned to.
-      // The status of that key version will always be UNKNOWN.
-      assertThat(backup.getEncryptionInfo().getKmsKeyVersion()).startsWith(kmsKeyName);
-      assertThat(backup.getEncryptionInfo().getStatus().getCode()).isEqualTo(Status.Code.UNKNOWN);
-      assertThat(backup.getEncryptionInfo().getType())
-          .isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
-      assertThat(backup.getEncryptionInfo().getStatus().getMessage())
-          .isEqualTo("Status of the associated key version is not tracked.");
+    // Confirm encryption details for an existing backup
+    // The backup will be returned with the CMEK key version that the backup is pinned to.
+    // The status of that key version will always be UNKNOWN.
+    assertThat(backup.getEncryptionInfo().getKmsKeyVersion()).startsWith(kmsKeyName);
+    assertThat(backup.getEncryptionInfo().getStatus().getCode()).isEqualTo(Status.Code.UNKNOWN);
+    assertThat(backup.getEncryptionInfo().getType())
+        .isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
+    assertThat(backup.getEncryptionInfo().getStatus().getMessage())
+        .isEqualTo("Status of the associated key version is not tracked.");
   }
 
   private void waitForCmekStatus(String tableId, String clusterId) throws InterruptedException {
