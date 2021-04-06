@@ -180,7 +180,7 @@ public class BigtableCmekIT {
       waitForCmekStatus(TEST_TABLE_ID, clusterId);
     }
     Map<String, List<EncryptionInfo>> encryptionInfos = tableAdmin.getEncryptionInfo(TEST_TABLE_ID);
-    assertThat(encryptionInfos).hasSize(2);
+    assertThat(encryptionInfos).hasSize(1);
     assertThat(encryptionInfos.get(clusterId)).hasSize(1);
     EncryptionInfo encryptionInfo = encryptionInfos.get(clusterId).get(0);
     assertThat(encryptionInfo.getType()).isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
