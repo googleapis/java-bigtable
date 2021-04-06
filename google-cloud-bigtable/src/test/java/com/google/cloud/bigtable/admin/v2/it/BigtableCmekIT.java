@@ -102,8 +102,12 @@ public class BigtableCmekIT {
 
   @AfterClass
   public static void teardown() {
-    tableAdmin.close();
-    instanceAdmin.close();
+    if (tableAdmin != null) {
+      tableAdmin.close();
+    }
+    if (instanceAdmin != null) {
+      instanceAdmin.close();
+    }
   }
 
   @Test
@@ -147,7 +151,7 @@ public class BigtableCmekIT {
                     + kmsKeyName
                     + " cannot be used to protect a cluster in zone "
                     + NameUtil.formatLocationName(
-                    testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
+                        testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
       }
     } finally {
       instanceAdmin.deleteInstance(instanceId);
@@ -168,8 +172,8 @@ public class BigtableCmekIT {
       if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
         waitForCmekStatus(TEST_TABLE_ID, clusterId1);
       }
-      Map<String, List<EncryptionInfo>> encryptionInfos = tableAdmin
-          .getEncryptionInfo(TEST_TABLE_ID);
+      Map<String, List<EncryptionInfo>> encryptionInfos =
+          tableAdmin.getEncryptionInfo(TEST_TABLE_ID);
       assertThat(encryptionInfos).hasSize(1);
       assertThat(encryptionInfos.get(clusterId1)).hasSize(1);
       EncryptionInfo encryptionInfo = encryptionInfos.get(clusterId1).get(0);
@@ -179,7 +183,8 @@ public class BigtableCmekIT {
       if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
         assertThat(encryptionInfo.getStatus().getCode()).isEqualTo(Status.Code.OK);
       }
-      // For up to 5 minutes after a table is newly created, the key version and status fields are not
+      // For up to 5 minutes after a table is newly created, the key version and status fields are
+      // not
       // populated.
       // Set the `bigtable.wait-for-cmek-key-status` system property to `true` when running the test
       // in order to poll until the final state can be asserted.
