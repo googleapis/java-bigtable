@@ -104,14 +104,13 @@ public class BigtableCmekIT {
 
   @AfterClass
   public static void teardown() {
-    tableAdmin.deleteBackup(clusterId1, BACKUP_ID);
-    tableAdmin.deleteTable(TEST_TABLE_ID);
-    instanceAdmin.deleteInstance(instanceId);
-
-    if (tableAdmin != null) {
+    if(tableAdmin != null) {
+      tableAdmin.deleteBackup(clusterId1, BACKUP_ID);
+      tableAdmin.deleteTable(TEST_TABLE_ID);
       tableAdmin.close();
     }
-    if (instanceAdmin != null) {
+    if(instanceAdmin != null) {
+      instanceAdmin.deleteInstance(instanceId);
       instanceAdmin.close();
     }
   }
