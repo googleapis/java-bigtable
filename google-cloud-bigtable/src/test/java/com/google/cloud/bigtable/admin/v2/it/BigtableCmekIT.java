@@ -40,10 +40,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.threeten.bp.Instant;
@@ -68,7 +66,6 @@ public class BigtableCmekIT {
   private static String clusterId1;
   private static String clusterId2;
   private static String kmsKeyName;
-  private static String zoneId;
 
   private static BigtableInstanceAdminClient instanceAdmin;
   private static BigtableTableAdminClient tableAdmin;
@@ -87,7 +84,7 @@ public class BigtableCmekIT {
     instanceId = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
     clusterId1 = instanceId + "-c1";
     clusterId2 = instanceId + "-c2";
-    zoneId = testEnvRule.env().getPrimaryZone();
+    String zoneId = testEnvRule.env().getPrimaryZone();
 
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
     tableAdmin =
@@ -98,10 +95,20 @@ public class BigtableCmekIT {
                 .toBuilder()
                 .setInstanceId(instanceId)
                 .build());
+
+    instanceAdmin.createInstance(
+            CreateInstanceRequest.of(instanceId)
+                    .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
+    // Create a table. Key is inherited from the cluster configuration
+    tableAdmin.createTable(CreateTableRequest.of(TEST_TABLE_ID).addFamily("cf"));
   }
 
   @AfterClass
   public static void teardown() {
+    tableAdmin.deleteBackup(clusterId1, BACKUP_ID);
+    tableAdmin.deleteTable(TEST_TABLE_ID);
+    instanceAdmin.deleteInstance(instanceId);
+
     if (tableAdmin != null) {
       tableAdmin.close();
     }
@@ -112,13 +119,6 @@ public class BigtableCmekIT {
 
   @Test
   public void instanceAndClusterTest() {
-    try {
-      // With a KMS_KEY created and specified using `bigtable.kms_key_name` env variable, create a
-      // CMEK protected instance
-      instanceAdmin.createInstance(
-          CreateInstanceRequest.of(instanceId)
-              .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
-
       // Keys are specified per-cluster with each cluster requesting the same key and the cluster's
       // zone must be within the region of the key
       Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
@@ -143,6 +143,7 @@ public class BigtableCmekIT {
                 .setServeNodes(1)
                 .setStorageType(StorageType.SSD)
                 .setKmsKeyName(kmsKeyName));
+        Assert.fail("should have thrown an error");
       } catch (com.google.api.gax.rpc.FailedPreconditionException e) {
         assertThat(e.getMessage())
             .contains(
@@ -153,21 +154,10 @@ public class BigtableCmekIT {
                     + NameUtil.formatLocationName(
                         testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
       }
-    } finally {
-      instanceAdmin.deleteInstance(instanceId);
-    }
   }
 
   @Test
   public void tableTest() throws Exception {
-    try {
-      instanceAdmin.createInstance(
-          CreateInstanceRequest.of(instanceId)
-              .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
-
-      // Create a table. Key is inherited from the cluster configuration
-      tableAdmin.createTable(CreateTableRequest.of(TEST_TABLE_ID).addFamily("cf"));
-
       // Confirm that table is CMEK-protected
       if (testEnvRule.env().shouldWaitForCmekKeyStatusUpdate()) {
         waitForCmekStatus(TEST_TABLE_ID, clusterId1);
@@ -196,20 +186,10 @@ public class BigtableCmekIT {
         assertThat(encryptionInfo.getKmsKeyVersion()).startsWith(kmsKeyName);
         assertThat(encryptionInfo.getStatus().getMessage()).isEqualTo("");
       }
-    } finally {
-      tableAdmin.deleteTable(TEST_TABLE_ID);
-      instanceAdmin.deleteInstance(instanceId);
-    }
   }
 
   @Test
   public void backupTest() {
-    try {
-      instanceAdmin.createInstance(
-          CreateInstanceRequest.of(instanceId)
-              .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
-      tableAdmin.createTable(CreateTableRequest.of(TEST_TABLE_ID).addFamily("cf"));
-
       // Create a backup.
       // Backups are pinned to the primary version of their table's CMEK key at the time they are
       // taken
@@ -229,11 +209,6 @@ public class BigtableCmekIT {
           .isEqualTo(EncryptionInfo.Type.CUSTOMER_MANAGED_ENCRYPTION);
       assertThat(backup.getEncryptionInfo().getStatus().getMessage())
           .isEqualTo("Status of the associated key version is not tracked.");
-    } finally {
-      tableAdmin.deleteBackup(clusterId1, BACKUP_ID);
-      tableAdmin.deleteTable(TEST_TABLE_ID);
-      instanceAdmin.deleteInstance(instanceId);
-    }
   }
 
   private void waitForCmekStatus(String tableId, String clusterId) throws InterruptedException {
