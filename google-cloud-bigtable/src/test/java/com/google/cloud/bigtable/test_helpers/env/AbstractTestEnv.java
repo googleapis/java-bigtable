@@ -89,9 +89,11 @@ public abstract class AbstractTestEnv {
   }
 
   public ConnectionMode getConnectionMode() {
-    return MoreObjects.firstNonNull(
-        ConnectionMode.valueOf(System.getProperty("bigtable.connection-mode")),
-        ConnectionMode.Default);
+    String modeStr =
+        MoreObjects.firstNonNull(
+            System.getProperty("bigtable.connection-mode"), ConnectionMode.Default.name());
+
+    return ConnectionMode.valueOf(modeStr);
   }
 
   public String getPrimaryZone() {
