@@ -39,10 +39,10 @@ public abstract class AbstractTestEnv {
   public static final String TEST_APP_PREFIX = "temp-Ap-";
 
   public enum ConnectionMode {
-    Default,
-    RequireCfe,
-    RequireDirectPath,
-    RequireDirectPathIPv4
+    DEFAULT,
+    REQUIRE_CFE,
+    REQUIRE_DIRECT_PATH,
+    REQUIRE_DIRECT_PATH_IPV4
   }
 
   abstract void start() throws Exception;
@@ -91,7 +91,7 @@ public abstract class AbstractTestEnv {
   public ConnectionMode getConnectionMode() {
     String modeStr =
         MoreObjects.firstNonNull(
-            System.getProperty("bigtable.connection-mode"), ConnectionMode.Default.name());
+            System.getProperty("bigtable.connection-mode"), ConnectionMode.DEFAULT.name());
 
     return ConnectionMode.valueOf(modeStr);
   }

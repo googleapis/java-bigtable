@@ -140,20 +140,20 @@ class CloudEnv extends AbstractTestEnv {
     final ClientInterceptor interceptor;
 
     switch (getConnectionMode()) {
-      case Default:
+      case DEFAULT:
         // nothing special
         return;
-      case RequireDirectPath:
+      case REQUIRE_DIRECT_PATH:
         interceptor =
             buildRemoteAddrInterceptor(
                 "DirectPath IPv4 or IPv6",
                 Predicates.or(DIRECT_PATH_IPV4_MATCHER, DIRECT_PATH_IPV6_MATCHER));
         break;
-      case RequireDirectPathIPv4:
+      case REQUIRE_DIRECT_PATH_IPV4:
         interceptor =
             buildRemoteAddrInterceptor("DirectPath IPv4", Predicates.or(DIRECT_PATH_IPV4_MATCHER));
         break;
-      case RequireCfe:
+      case REQUIRE_CFE:
         interceptor =
             buildRemoteAddrInterceptor(
                 "a CFE ip",
@@ -230,14 +230,14 @@ class CloudEnv extends AbstractTestEnv {
     parts.add("java-bigtable-int-test");
 
     switch (getConnectionMode()) {
-      case Default:
+      case DEFAULT:
         // nothing special
         break;
-      case RequireCfe:
+      case REQUIRE_CFE:
         parts.add("bigtable-directpath-disable");
         break;
-      case RequireDirectPath:
-      case RequireDirectPathIPv4:
+      case REQUIRE_DIRECT_PATH:
+      case REQUIRE_DIRECT_PATH_IPV4:
         parts.add("bigtable-directpath-enable");
         break;
       default:
