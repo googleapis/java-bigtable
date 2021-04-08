@@ -122,7 +122,7 @@ public class BigtableCmekIT {
     Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
     assertThat(cluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
-    String secondZoneId = testEnvRule.env().getPrimaryRegionSecondZone();
+    String secondZoneId = testEnvRule.env().getSecondaryZone();
     instanceAdmin.createCluster(
         CreateClusterRequest.of(instanceId, clusterId2)
             .setZone(secondZoneId)
@@ -133,7 +133,7 @@ public class BigtableCmekIT {
     Cluster secondCluster = instanceAdmin.getCluster(instanceId, clusterId2);
     assertThat(secondCluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
-    final String nonPrimaryRegionZoneId = testEnvRule.env().getSecondaryZone();
+    final String nonPrimaryRegionZoneId = testEnvRule.env().getSecondaryRegionZone();
     try {
       instanceAdmin.createCluster(
           CreateClusterRequest.of(instanceId, clusterId2)
