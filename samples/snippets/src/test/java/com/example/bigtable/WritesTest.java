@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class WritesTest extends BigtableBaseTest {
+public class WritesTest extends MobileTimeSeriesBaseTest {
 
   @BeforeClass
   public static void beforeClass() throws IOException {

@@ -17,21 +17,10 @@
 package com.example.bigtable;
 
 
-import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertNotNull;
 
-import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.BulkMutation;
-import com.google.cloud.bigtable.data.v2.models.Mutation;
-import com.google.protobuf.ByteString;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Random;
 import java.util.UUID;
 import org.junit.After;
 import org.junit.Before;
@@ -45,16 +34,6 @@ public class BigtableBaseTest {
   // Test output stream
   private static PrintStream originalOut;
   public ByteArrayOutputStream bout;
-
-  // Mobile time series db variables
-  public static final String TABLE_ID = generateTableId("mobile-time-series");
-  public static final String COLUMN_FAMILY_NAME_STATS = "stats_summary";
-  public static final String COLUMN_FAMILY_NAME_PLAN = "cell_plan";
-  public static final Instant CURRENT_TIME = Instant.now();
-  public static final long TIMESTAMP = CURRENT_TIME.toEpochMilli() * 1000;
-  public static final long TIMESTAMP_MINUS_HR =
-      CURRENT_TIME.minus(1, ChronoUnit.HOURS).toEpochMilli() * 1000;
-
 
   private static String requireEnv(String varName) {
     String value = System.getenv(varName);
@@ -77,158 +56,12 @@ public class BigtableBaseTest {
     bout.reset();
   }
 
-  public static void createTable() throws IOException {
-    try (BigtableTableAdminClient adminClient =
-        BigtableTableAdminClient.create(projectId, instanceId)) {
-      CreateTableRequest createTableRequest =
-          CreateTableRequest.of(TABLE_ID)
-              .addFamily(COLUMN_FAMILY_NAME_STATS)
-              .addFamily(COLUMN_FAMILY_NAME_PLAN);
-      adminClient.createTable(createTableRequest);
-    } catch (IOException e) {
-      System.out.println("Error during createTable: \n" + e.toString());
-      throw (e);
-    }
-  }
-
   public static String generateTableId(String prefix) {
     return prefix + "-" + UUID.randomUUID().toString().substring(0, 20);
   }
-
-
-  public static void writeStatsData() throws IOException {
-    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      BulkMutation bulkMutation =
-          BulkMutation.create(TABLE_ID)
-              .add(
-                  "phone#4c410523#20190501",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_cell".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_wifi".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190405.003"))
-              .add(
-                  "phone#4c410523#20190502",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_cell".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_wifi".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190405.004")
-              )
-              .add(
-                  "phone#4c410523#20190505",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_cell".getBytes()),
-                          TIMESTAMP,
-                          0)
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_wifi".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190406.000")
-              )
-              .add(
-                  "phone#5c10102#20190501",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_cell".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_wifi".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190401.002")
-              )
-              .add(
-                  "phone#5c10102#20190502",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_cell".getBytes()),
-                          TIMESTAMP,
-                          1)
-                      .setCell(
-                          COLUMN_FAMILY_NAME_STATS,
-                          ByteString.copyFrom("connected_wifi".getBytes()),
-                          TIMESTAMP,
-                          0)
-                      .setCell(COLUMN_FAMILY_NAME_STATS, "os_build", TIMESTAMP, "PQ2A.190406.000"));
-
-      dataClient.bulkMutateRows(bulkMutation);
-    } catch (IOException e) {
-      System.out.println("Error during writeTestData: \n" + e.toString());
-      throw (e);
-    }
-  }
-
-  public static void writePlanData() throws IOException {
-    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      BulkMutation bulkMutation =
-          BulkMutation.create(TABLE_ID)
-              .add(
-                  "phone#4c410523#20190501",
-                  Mutation.create()
-                      .setCell(
-                          COLUMN_FAMILY_NAME_PLAN, "data_plan_01gb", TIMESTAMP_MINUS_HR, "true")
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_01gb", TIMESTAMP, "false")
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
-              .add(
-                  "phone#4c410523#20190502",
-                  Mutation.create()
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
-              .add(
-                  "phone#4c410523#20190505",
-                  Mutation.create()
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_05gb", TIMESTAMP, "true"))
-              .add(
-                  "phone#5c10102#20190501",
-                  Mutation.create()
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_10gb", TIMESTAMP, "true"))
-              .add(
-                  "phone#5c10102#20190502",
-                  Mutation.create()
-                      .setCell(COLUMN_FAMILY_NAME_PLAN, "data_plan_10gb", TIMESTAMP, "true"));
-
-      dataClient.bulkMutateRows(bulkMutation);
-    } catch (IOException e) {
-      System.out.println("Error during writeTestData: \n" + e.toString());
-      throw (e);
-    }
-  }
-
+  
   public static void initializeVariables() {
     projectId = requireEnv("GOOGLE_CLOUD_PROJECT");
     instanceId = requireEnv("BIGTABLE_TESTING_INSTANCE");
   }
-
-  public static void cleanupTable() throws IOException {
-    try (BigtableTableAdminClient adminClient =
-        BigtableTableAdminClient.create(projectId, instanceId)) {
-      adminClient.deleteTable(TABLE_ID);
-    } catch (Exception e) {
-      System.out.println("Error during afterClass: \n" + e.toString());
-      throw (e);
-    }
-  }
-
 }
