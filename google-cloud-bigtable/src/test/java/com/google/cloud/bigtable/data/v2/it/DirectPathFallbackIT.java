@@ -93,7 +93,8 @@ public class DirectPathFallbackIT {
   @Before
   public void setup() throws IOException {
     Set<ConnectionMode> validModes =
-        ImmutableSet.of(ConnectionMode.REQUIRE_DIRECT_PATH, ConnectionMode.REQUIRE_DIRECT_PATH_IPV4);
+        ImmutableSet.of(
+            ConnectionMode.REQUIRE_DIRECT_PATH, ConnectionMode.REQUIRE_DIRECT_PATH_IPV4);
     assume()
         .withMessage("DirectPathFallbackIT can only return when explicitly requested")
         .that(validModes.contains(testEnvRule.env().getConnectionMode()))
