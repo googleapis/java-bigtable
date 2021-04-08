@@ -109,15 +109,11 @@ public abstract class AbstractTestEnv {
   }
 
   public String getPrimaryZone() {
-    return "us-east1-c";
+    return "us-central1-b";
   }
 
   public String getSecondaryZone() {
     return "us-east1-b";
-  }
-
-  public String getSecondaryRegionZone() {
-    return "us-central1-b";
   }
 
   void cleanUpStale() {
