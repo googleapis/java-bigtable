@@ -54,6 +54,7 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
+import com.google.cloud.bigtable.ClientVersion;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -194,9 +195,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         // Also annotate traces with library versions
                         .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
                         .put("grpc", GaxGrpcProperties.getGrpcVersion())
-                        .put(
-                            "gapic",
-                            GaxProperties.getLibraryVersion(EnhancedBigtableStubSettings.class))
+                        .put("gapic", ClientVersion.VERSION)
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(tagger, stats, attributes),
