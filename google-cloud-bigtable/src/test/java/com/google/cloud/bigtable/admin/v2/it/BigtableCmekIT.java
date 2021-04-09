@@ -36,11 +36,19 @@ import com.google.cloud.bigtable.common.Status.Code;
 import com.google.cloud.bigtable.test_helpers.env.AbstractTestEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.threeten.bp.Instant;
@@ -59,12 +67,15 @@ public class BigtableCmekIT {
   private static final String TEST_TABLE_ID = "test-table-for-cmek-it";
   private static final String BACKUP_ID = "test-table-for-cmek-it-backup";
 
-  @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+  @ClassRule
+  public static TestEnvRule testEnvRule = new TestEnvRule();
 
   private static String instanceId;
   private static String clusterId1;
   private static String clusterId2;
   private static String kmsKeyName;
+  private static List<String> zones;
+  private static String otherZone;
 
   private static BigtableInstanceAdminClient instanceAdmin;
   private static BigtableTableAdminClient tableAdmin;
@@ -83,7 +94,10 @@ public class BigtableCmekIT {
     instanceId = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
     clusterId1 = instanceId + "-c1";
     clusterId2 = instanceId + "-c2";
-    String zoneId = "us-east1-b";
+    zones = testEnvRule.env().getMultipleZonesInSameRegion();
+    otherZone = Sets.difference(
+        ImmutableSet.of(testEnvRule.env().getPrimaryZone(), testEnvRule.env().getSecondaryZone()),
+        ImmutableSet.of(zones)).iterator().next();
 
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
     tableAdmin =
@@ -97,7 +111,7 @@ public class BigtableCmekIT {
 
     instanceAdmin.createInstance(
         CreateInstanceRequest.of(instanceId)
-            .addCmekCluster(clusterId1, zoneId, 1, StorageType.SSD, kmsKeyName));
+            .addCmekCluster(clusterId1, zones.get(0), 1, StorageType.SSD, kmsKeyName));
     // Create a table. Key is inherited from the cluster configuration
     tableAdmin.createTable(CreateTableRequest.of(TEST_TABLE_ID).addFamily("cf"));
   }
@@ -122,10 +136,9 @@ public class BigtableCmekIT {
     Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
     assertThat(cluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
-    String secondZoneId = "us-east1-c";
     instanceAdmin.createCluster(
         CreateClusterRequest.of(instanceId, clusterId2)
-            .setZone(secondZoneId)
+            .setZone(zones.get(1))
             .setServeNodes(1)
             .setStorageType(StorageType.SSD)
             .setKmsKeyName(kmsKeyName));
@@ -133,11 +146,10 @@ public class BigtableCmekIT {
     Cluster secondCluster = instanceAdmin.getCluster(instanceId, clusterId2);
     assertThat(secondCluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
-    final String nonPrimaryRegionZoneId = "us-central1-b";
     try {
       instanceAdmin.createCluster(
           CreateClusterRequest.of(instanceId, clusterId2)
-              .setZone(nonPrimaryRegionZoneId)
+              .setZone(otherZone)
               .setServeNodes(1)
               .setStorageType(StorageType.SSD)
               .setKmsKeyName(kmsKeyName));
@@ -150,7 +162,7 @@ public class BigtableCmekIT {
                   + kmsKeyName
                   + " cannot be used to protect a cluster in zone "
                   + NameUtil.formatLocationName(
-                      testEnvRule.env().getProjectId(), nonPrimaryRegionZoneId));
+                  testEnvRule.env().getProjectId(), otherZone));
     }
   }
 
