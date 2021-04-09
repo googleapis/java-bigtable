@@ -125,7 +125,6 @@ public abstract class AbstractTestEnv {
    */
   public List<String> getMultipleZonesInSameRegion() {
     return ImmutableList.of("us-east1-b", "us-east1-c");
-
   }
 
   void cleanUpStale() {

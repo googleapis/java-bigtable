@@ -39,10 +39,8 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -67,8 +65,7 @@ public class BigtableCmekIT {
   private static final String TEST_TABLE_ID = "test-table-for-cmek-it";
   private static final String BACKUP_ID = "test-table-for-cmek-it-backup";
 
-  @ClassRule
-  public static TestEnvRule testEnvRule = new TestEnvRule();
+  @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
   private static String instanceId;
   private static String clusterId1;
@@ -95,9 +92,13 @@ public class BigtableCmekIT {
     clusterId1 = instanceId + "-c1";
     clusterId2 = instanceId + "-c2";
     zones = testEnvRule.env().getMultipleZonesInSameRegion();
-    otherZone = Sets.difference(
-        ImmutableSet.of(testEnvRule.env().getPrimaryZone(), testEnvRule.env().getSecondaryZone()),
-        ImmutableSet.of(zones)).iterator().next();
+    otherZone =
+        Sets.difference(
+                ImmutableSet.of(
+                    testEnvRule.env().getPrimaryZone(), testEnvRule.env().getSecondaryZone()),
+                ImmutableSet.of(zones))
+            .iterator()
+            .next();
 
     instanceAdmin = testEnvRule.env().getInstanceAdminClient();
     tableAdmin =
@@ -161,8 +162,7 @@ public class BigtableCmekIT {
                   + "Error in field 'encryption_config.kms_key_name' : CMEK key "
                   + kmsKeyName
                   + " cannot be used to protect a cluster in zone "
-                  + NameUtil.formatLocationName(
-                  testEnvRule.env().getProjectId(), otherZone));
+                  + NameUtil.formatLocationName(testEnvRule.env().getProjectId(), otherZone));
     }
   }
 
