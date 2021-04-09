@@ -31,7 +31,6 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
-import com.google.cloud.bigtable.ClientVersion;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
@@ -538,7 +537,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .putAll(
                   BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
               // GrpcHeaderInterceptor treats the `user-agent` as a magic string
-              .put("user-agent", "bigtable-java/" + ClientVersion.VERSION)
+              .put("user-agent", "bigtable-java/" + Version.VERSION)
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 
