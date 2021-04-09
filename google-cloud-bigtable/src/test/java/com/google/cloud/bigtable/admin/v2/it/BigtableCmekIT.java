@@ -70,6 +70,7 @@ public class BigtableCmekIT {
   private static String instanceId;
   private static String clusterId1;
   private static String clusterId2;
+  private static String clusterId3;
   private static String kmsKeyName;
   private static List<String> zones;
   private static String otherZone;
@@ -91,6 +92,7 @@ public class BigtableCmekIT {
     instanceId = AbstractTestEnv.TEST_INSTANCE_PREFIX + Instant.now().getEpochSecond();
     clusterId1 = instanceId + "-c1";
     clusterId2 = instanceId + "-c2";
+    clusterId3 = instanceId + "-c3";
     zones = testEnvRule.env().getMultipleZonesInSameRegion();
     otherZone =
         Sets.difference(
@@ -149,7 +151,7 @@ public class BigtableCmekIT {
 
     try {
       instanceAdmin.createCluster(
-          CreateClusterRequest.of(instanceId, clusterId2)
+          CreateClusterRequest.of(instanceId, clusterId3)
               .setZone(otherZone)
               .setServeNodes(1)
               .setStorageType(StorageType.SSD)
