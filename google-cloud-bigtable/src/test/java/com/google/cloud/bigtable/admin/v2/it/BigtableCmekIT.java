@@ -112,6 +112,7 @@ public class BigtableCmekIT {
                 .setInstanceId(instanceId)
                 .build());
 
+    LOGGER.info("Creating cluster in zone: " + zones.get(0));
     instanceAdmin.createInstance(
         CreateInstanceRequest.of(instanceId)
             .addCmekCluster(clusterId1, zones.get(0), 1, StorageType.SSD, kmsKeyName));
@@ -139,6 +140,7 @@ public class BigtableCmekIT {
     Cluster cluster = instanceAdmin.getCluster(instanceId, clusterId1);
     assertThat(cluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
+    LOGGER.info("Creating cluster in zone: " + zones.get(1));
     instanceAdmin.createCluster(
         CreateClusterRequest.of(instanceId, clusterId2)
             .setZone(zones.get(1))
@@ -149,6 +151,7 @@ public class BigtableCmekIT {
     Cluster secondCluster = instanceAdmin.getCluster(instanceId, clusterId2);
     assertThat(secondCluster.getKmsKeyName()).isEqualTo(kmsKeyName);
 
+    LOGGER.info("Trying to create cluster in zone: " + otherZone);
     try {
       instanceAdmin.createCluster(
           CreateClusterRequest.of(instanceId, clusterId3)
