@@ -18,11 +18,13 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowSet;
+import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
@@ -39,9 +41,24 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCall.Listener;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.grpc.internal.GrpcUtil;
 import io.grpc.stub.StreamObserver;
+import io.opencensus.common.Scope;
+import io.opencensus.trace.AttributeValue;
+import io.opencensus.trace.Tracer;
+import io.opencensus.trace.Tracing;
+import io.opencensus.trace.export.SpanData;
+import io.opencensus.trace.export.SpanExporter;
+import io.opencensus.trace.export.SpanExporter.Handler;
+import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -151,6 +168,56 @@ public class EnhancedBigtableStubTest {
     assertThat(metadata.get(Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER)))
         .containsMatch("bigtable-java/\\d+\\.\\d+\\.\\d+(?:-SNAPSHOT)?");
   }
+
+  @Test
+  public void testSpanAttributes() throws InterruptedException {
+    final BlockingQueue<SpanData> spans = new ArrayBlockingQueue<>(100);
+
+    // inject a temporary trace exporter
+    String handlerName = "stub-test-exporter";
+
+    Tracing.getExportComponent().getSpanExporter().registerHandler(handlerName,
+        new Handler() {
+          @Override
+          public void export(Collection<SpanData> collection) {
+            spans.addAll(collection);
+          }
+        });
+
+    SpanData foundSpanData = null;
+    // Issue the rpc and grab the span
+    try {
+      try (Scope ignored = Tracing.getTracer().spanBuilder("fake-parent-span")
+          .setSampler(Samplers.alwaysSample())
+          .startScopedSpan()) {
+        enhancedBigtableStub.readRowCallable().call(Query.create("table-id").rowKey("row-key"));
+      }
+
+      for (int i = 0; i < 100; i++) {
+        SpanData spanData = spans.poll(10, TimeUnit.SECONDS);
+        if ("Bigtable.ReadRow".equals(spanData.getName())) {
+          foundSpanData = spanData;
+          break;
+        }
+      }
+    } finally {
+      // cleanup
+      Tracing.getExportComponent().getSpanExporter().unregisterHandler(handlerName);
+    }
+
+    // Examine the caught span
+    assertThat(foundSpanData).isNotNull();
+    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
+        "gapic", AttributeValue.stringAttributeValue(Version.VERSION)
+    );
+    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
+        "grpc", AttributeValue.stringAttributeValue(GrpcUtil.getGrpcBuildVersion().getImplementationVersion())
+    );
+    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
+        "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion())
+    );
+  }
+
 
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
