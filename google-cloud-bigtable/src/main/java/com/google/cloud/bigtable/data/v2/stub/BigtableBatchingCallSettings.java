@@ -259,7 +259,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
      * will always allow {@link FlowControlSettings.Builder#setMaxOutstandingRequestBytes
      * accumulated size}.
      */
-    public DynamicFlowControlSettings getDynamicFlowControlSettings() {
+    DynamicFlowControlSettings getDynamicFlowControlSettings() {
       return this.dynamicFlowControlSettings;
     }
 

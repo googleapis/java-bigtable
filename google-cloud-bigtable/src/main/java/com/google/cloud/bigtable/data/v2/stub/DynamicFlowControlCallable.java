@@ -81,6 +81,10 @@ final class DynamicFlowControlCallable extends UnaryCallable {
         new ApiFutureCallback() {
           @Override
           public void onFailure(Throwable t) {
+            // If the deadline expired before the operation could complete, it could mean that the
+            // server side is slow, and we should record the latency so flow control limits can be
+            // adjusted. Other errors might be user errors and may return immediately, so we're
+            // skipping recording the latencies for those.
             if (t instanceof DeadlineExceededException) {
               flowControllerRunnable.run();
             }

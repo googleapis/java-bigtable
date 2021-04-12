@@ -64,10 +64,7 @@ final class DynamicFlowControlStats {
   }
 
   boolean setLastAdjustedTimestampMs(long last, long now) {
-    if (lastAdjustedTimestampMs.compareAndSet(last, now)) {
-      return true;
-    }
-    return false;
+    return lastAdjustedTimestampMs.compareAndSet(last, now);
   }
 
   private class DecayingAverage {
