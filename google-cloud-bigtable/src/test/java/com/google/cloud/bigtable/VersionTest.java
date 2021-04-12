@@ -21,17 +21,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/**
- * Smoke test to ensure that release tooling doesn't accidentally corrupt the version
- */
+/** Smoke test to ensure that release tooling doesn't accidentally corrupt the version */
 @RunWith(JUnit4.class)
 public class VersionTest {
   @Test
   public void testVersion() {
-    assertThat(Version.VERSION)
-        .matches("\\d+\\.\\d+\\.\\d(?:-SNAPSHOT)?");
+    assertThat(Version.VERSION).matches("\\d+\\.\\d+\\.\\d(?:-SNAPSHOT)?");
 
-    assertThat(Version.VERSION)
-        .isGreaterThan("1.22.0");
+    assertThat(Version.VERSION).isGreaterThan("1.22.0");
   }
 }

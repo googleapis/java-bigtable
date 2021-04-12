@@ -45,20 +45,14 @@ import io.grpc.internal.GrpcUtil;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.common.Scope;
 import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Tracer;
 import io.opencensus.trace.Tracing;
 import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter;
 import io.opencensus.trace.export.SpanExporter.Handler;
 import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -176,20 +170,25 @@ public class EnhancedBigtableStubTest {
     // inject a temporary trace exporter
     String handlerName = "stub-test-exporter";
 
-    Tracing.getExportComponent().getSpanExporter().registerHandler(handlerName,
-        new Handler() {
-          @Override
-          public void export(Collection<SpanData> collection) {
-            spans.addAll(collection);
-          }
-        });
+    Tracing.getExportComponent()
+        .getSpanExporter()
+        .registerHandler(
+            handlerName,
+            new Handler() {
+              @Override
+              public void export(Collection<SpanData> collection) {
+                spans.addAll(collection);
+              }
+            });
 
     SpanData foundSpanData = null;
     // Issue the rpc and grab the span
     try {
-      try (Scope ignored = Tracing.getTracer().spanBuilder("fake-parent-span")
-          .setSampler(Samplers.alwaysSample())
-          .startScopedSpan()) {
+      try (Scope ignored =
+          Tracing.getTracer()
+              .spanBuilder("fake-parent-span")
+              .setSampler(Samplers.alwaysSample())
+              .startScopedSpan()) {
         enhancedBigtableStub.readRowCallable().call(Query.create("table-id").rowKey("row-key"));
       }
 
@@ -207,17 +206,17 @@ public class EnhancedBigtableStubTest {
 
     // Examine the caught span
     assertThat(foundSpanData).isNotNull();
-    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
-        "gapic", AttributeValue.stringAttributeValue(Version.VERSION)
-    );
-    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
-        "grpc", AttributeValue.stringAttributeValue(GrpcUtil.getGrpcBuildVersion().getImplementationVersion())
-    );
-    assertThat(foundSpanData.getAttributes().getAttributeMap()).containsEntry(
-        "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion())
-    );
+    assertThat(foundSpanData.getAttributes().getAttributeMap())
+        .containsEntry("gapic", AttributeValue.stringAttributeValue(Version.VERSION));
+    assertThat(foundSpanData.getAttributes().getAttributeMap())
+        .containsEntry(
+            "grpc",
+            AttributeValue.stringAttributeValue(
+                GrpcUtil.getGrpcBuildVersion().getImplementationVersion()));
+    assertThat(foundSpanData.getAttributes().getAttributeMap())
+        .containsEntry(
+            "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion()));
   }
-
 
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
