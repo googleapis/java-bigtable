@@ -26,6 +26,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.io.IOException;
+import java.util.UUID;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +40,7 @@ public class BulkMutateIT {
   @Test(timeout = 60 * 1000)
   public void test() throws IOException, InterruptedException {
     BigtableDataSettings settings = testEnvRule.env().getDataClientSettings();
+    String rowPrefix = UUID.randomUUID().toString();
     // Set target latency really low so it'll trigger adjusting thresholds
     BigtableDataSettings.Builder builder =
         settings.toBuilder().enableBatchMutationLatencyBasedThrottling(2L);
@@ -56,7 +58,7 @@ public class BulkMutateIT {
       String familyId = testEnvRule.env().getFamilyId();
       long initial = batcher.getFlowController().getCurrentElementCountLimit();
       for (long i = 0; i < initial * 3; i++) {
-        String key = "test-key" + i;
+        String key = rowPrefix + "test-key" + i;
         batcher.add(RowMutationEntry.create(key).setCell(familyId, "qualifier", i));
       }
       batcher.flush();
@@ -71,7 +73,9 @@ public class BulkMutateIT {
               .getDataClient()
               .readRowsCallable()
               .first()
-              .call(Query.create(testEnvRule.env().getTableId()).rowKey("test-key" + initial));
+              .call(
+                  Query.create(testEnvRule.env().getTableId())
+                      .rowKey(rowPrefix + "test-key" + initial));
       assertThat(row.getCells()).hasSize(1);
     } finally {
       batcher.close();
