@@ -163,6 +163,7 @@ public class EnhancedBigtableStubTest {
         BigtableDataSettings.newBuilder()
             .setProjectId("my-project")
             .setInstanceId("my-instance")
+            .setCredentialsProvider(defaultSettings.getCredentialsProvider())
             .enableBatchMutationLatencyBasedThrottling(10L);
 
     settings

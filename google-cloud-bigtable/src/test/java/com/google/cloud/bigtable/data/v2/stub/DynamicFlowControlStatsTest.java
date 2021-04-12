@@ -17,8 +17,12 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -60,26 +64,26 @@ public class DynamicFlowControlStatsTest {
   }
 
   @Test(timeout = 1000)
-  public void testConcurrentUpdates() throws InterruptedException {
+  public void testConcurrentUpdates() throws InterruptedException, ExecutionException {
     final DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    List<Thread> threads = new ArrayList<>();
-    for (int i = 1; i <= 1000; i++) {
+    ExecutorService executor = Executors.newCachedThreadPool();
+    List<Future<?>> futures = new LinkedList<>();
+    for (int i = 1; i <= 50; i++) {
       final long latency = i;
-      Thread t =
-          new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  stats.updateLatency(latency);
-                }
-              });
-      t.start();
+      Runnable r =
+          new Runnable() {
+            @Override
+            public void run() {
+              stats.updateLatency(latency);
+            }
+          };
+      futures.add(executor.submit(r));
     }
-    for (Thread t : threads) {
-      t.join();
+    for (Future f : futures) {
+      f.get();
     }
-    // Mean should be around 500
-    assertThat(stats.getMeanLatency()).isGreaterThan(490);
-    assertThat(stats.getMeanLatency()).isLessThan(510);
+    // Mean should be around 50 / 2 = 25
+    assertThat(stats.getMeanLatency()).isGreaterThan(20);
+    assertThat(stats.getMeanLatency()).isLessThan(30);
   }
 }

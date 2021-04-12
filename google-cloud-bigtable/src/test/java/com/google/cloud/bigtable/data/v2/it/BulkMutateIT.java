@@ -36,7 +36,7 @@ public class BulkMutateIT {
 
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  @Test(timeout = 10 * 1000)
+  @Test(timeout = 60 * 1000)
   public void test() throws IOException, InterruptedException {
     BigtableDataSettings settings = testEnvRule.env().getDataClientSettings();
     // Set target latency really low so it'll trigger adjusting thresholds

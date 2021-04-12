@@ -293,6 +293,7 @@ public class BigtableDataClientFactoryTest {
         BigtableDataSettings.newBuilder()
             .setProjectId("my-project")
             .setInstanceId("my-instance")
+            .setCredentialsProvider(credentialsProvider)
             .enableBatchMutationLatencyBasedThrottling(10L)
             .build();
     try (BigtableDataClientFactory factory = BigtableDataClientFactory.create(settings)) {
