@@ -37,8 +37,11 @@ public final class EncryptionInfo {
     GOOGLE_DEFAULT_ENCRYPTION(
         com.google.bigtable.admin.v2.EncryptionInfo.EncryptionType.GOOGLE_DEFAULT_ENCRYPTION),
     /**
-     * The data backing this resource is encrypted at rest with a key that is fully managed by
-     * Google. No key version or status will be populated. This is the default state.
+     * The data backing this resource is encrypted at rest with a key that is managed by the
+     * customer. The in-use version of the key and its status are populated for CMEK-protected
+     * tables. CMEK-protected backups are pinned to the key version that was in use at the time the
+     * backup was taken. This key version is populated but its status is not tracked and is reported
+     * as `UNKNOWN`.
      */
     CUSTOMER_MANAGED_ENCRYPTION(
         com.google.bigtable.admin.v2.EncryptionInfo.EncryptionType.CUSTOMER_MANAGED_ENCRYPTION),
