@@ -32,7 +32,7 @@ public final class EncryptionInfo {
         com.google.bigtable.admin.v2.EncryptionInfo.EncryptionType.ENCRYPTION_TYPE_UNSPECIFIED),
     /**
      * The data backing this resource is encrypted at rest with a key that is fully managed by
-     * Google. No key version or status will be populated.
+     * Google. No key version or status will be populated. This is the default state.
      */
     GOOGLE_DEFAULT_ENCRYPTION(
         com.google.bigtable.admin.v2.EncryptionInfo.EncryptionType.GOOGLE_DEFAULT_ENCRYPTION),
