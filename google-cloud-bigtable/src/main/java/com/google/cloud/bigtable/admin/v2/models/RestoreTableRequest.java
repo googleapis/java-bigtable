@@ -41,9 +41,8 @@ public final class RestoreTableRequest {
   }
 
   /**
-   * Create a {@link RestoreTableRequest} object. It assumes the source backup locates in the same
-   * instance as the destination table. To restore a table from a backup in another instance, use
-   * {@link #of(String, String, String) of} method.
+   * Create a {@link RestoreTableRequest} object. The source backup could locate in a the same or a
+   * different instance.
    */
   public static RestoreTableRequest of(
       String sourceInstanceId, String sourceClusterId, String sourceBackupId) {
