@@ -1,11 +1,11 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     https://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.cloud.bigtable.admin.v2.stub;
 
 import static com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListAppProfilesPagedResponse;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.BackgroundResourceAggregation;
@@ -68,12 +68,11 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Generated;
 
-// AUTO-GENERATED DOCUMENTATION AND CLASS
+// AUTO-GENERATED DOCUMENTATION AND CLASS.
 /** For internal use only. */
 @Generated("by gapic-generator")
 @InternalApi
 public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
-
   private static final MethodDescriptor<CreateInstanceRequest, Operation>
       createInstanceMethodDescriptor =
           MethodDescriptor.<CreateInstanceRequest, Operation>newBuilder()
@@ -83,6 +82,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(CreateInstanceRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<GetInstanceRequest, Instance> getInstanceMethodDescriptor =
       MethodDescriptor.<GetInstanceRequest, Instance>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -90,6 +90,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(GetInstanceRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Instance.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<ListInstancesRequest, ListInstancesResponse>
       listInstancesMethodDescriptor =
           MethodDescriptor.<ListInstancesRequest, ListInstancesResponse>newBuilder()
@@ -100,6 +101,15 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListInstancesResponse.getDefaultInstance()))
               .build();
+
+  private static final MethodDescriptor<Instance, Instance> updateInstanceMethodDescriptor =
+      MethodDescriptor.<Instance, Instance>newBuilder()
+          .setType(MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName("google.bigtable.admin.v2.BigtableInstanceAdmin/UpdateInstance")
+          .setRequestMarshaller(ProtoUtils.marshaller(Instance.getDefaultInstance()))
+          .setResponseMarshaller(ProtoUtils.marshaller(Instance.getDefaultInstance()))
+          .build();
+
   private static final MethodDescriptor<PartialUpdateInstanceRequest, Operation>
       partialUpdateInstanceMethodDescriptor =
           MethodDescriptor.<PartialUpdateInstanceRequest, Operation>newBuilder()
@@ -110,6 +120,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(PartialUpdateInstanceRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<DeleteInstanceRequest, Empty>
       deleteInstanceMethodDescriptor =
           MethodDescriptor.<DeleteInstanceRequest, Empty>newBuilder()
@@ -119,6 +130,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(DeleteInstanceRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<CreateClusterRequest, Operation>
       createClusterMethodDescriptor =
           MethodDescriptor.<CreateClusterRequest, Operation>newBuilder()
@@ -128,6 +140,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(CreateClusterRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<GetClusterRequest, Cluster> getClusterMethodDescriptor =
       MethodDescriptor.<GetClusterRequest, Cluster>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -135,6 +148,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(GetClusterRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Cluster.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<ListClustersRequest, ListClustersResponse>
       listClustersMethodDescriptor =
           MethodDescriptor.<ListClustersRequest, ListClustersResponse>newBuilder()
@@ -144,6 +158,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListClustersResponse.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<Cluster, Operation> updateClusterMethodDescriptor =
       MethodDescriptor.<Cluster, Operation>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -151,6 +166,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(Cluster.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<DeleteClusterRequest, Empty> deleteClusterMethodDescriptor =
       MethodDescriptor.<DeleteClusterRequest, Empty>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -158,6 +174,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(DeleteClusterRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<CreateAppProfileRequest, AppProfile>
       createAppProfileMethodDescriptor =
           MethodDescriptor.<CreateAppProfileRequest, AppProfile>newBuilder()
@@ -167,6 +184,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(CreateAppProfileRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(AppProfile.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<GetAppProfileRequest, AppProfile>
       getAppProfileMethodDescriptor =
           MethodDescriptor.<GetAppProfileRequest, AppProfile>newBuilder()
@@ -176,6 +194,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(GetAppProfileRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(AppProfile.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<ListAppProfilesRequest, ListAppProfilesResponse>
       listAppProfilesMethodDescriptor =
           MethodDescriptor.<ListAppProfilesRequest, ListAppProfilesResponse>newBuilder()
@@ -186,6 +205,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ListAppProfilesResponse.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<UpdateAppProfileRequest, Operation>
       updateAppProfileMethodDescriptor =
           MethodDescriptor.<UpdateAppProfileRequest, Operation>newBuilder()
@@ -195,6 +215,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(UpdateAppProfileRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<DeleteAppProfileRequest, Empty>
       deleteAppProfileMethodDescriptor =
           MethodDescriptor.<DeleteAppProfileRequest, Empty>newBuilder()
@@ -204,6 +225,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(DeleteAppProfileRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
               .build();
+
   private static final MethodDescriptor<GetIamPolicyRequest, Policy> getIamPolicyMethodDescriptor =
       MethodDescriptor.<GetIamPolicyRequest, Policy>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -211,6 +233,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(GetIamPolicyRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Policy.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<SetIamPolicyRequest, Policy> setIamPolicyMethodDescriptor =
       MethodDescriptor.<SetIamPolicyRequest, Policy>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -218,6 +241,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(SetIamPolicyRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Policy.getDefaultInstance()))
           .build();
+
   private static final MethodDescriptor<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsMethodDescriptor =
           MethodDescriptor.<TestIamPermissionsRequest, TestIamPermissionsResponse>newBuilder()
@@ -230,14 +254,12 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   ProtoUtils.marshaller(TestIamPermissionsResponse.getDefaultInstance()))
               .build();
 
-  private final BackgroundResource backgroundResources;
-  private final GrpcOperationsStub operationsStub;
-
   private final UnaryCallable<CreateInstanceRequest, Operation> createInstanceCallable;
   private final OperationCallable<CreateInstanceRequest, Instance, CreateInstanceMetadata>
       createInstanceOperationCallable;
   private final UnaryCallable<GetInstanceRequest, Instance> getInstanceCallable;
   private final UnaryCallable<ListInstancesRequest, ListInstancesResponse> listInstancesCallable;
+  private final UnaryCallable<Instance, Instance> updateInstanceCallable;
   private final UnaryCallable<PartialUpdateInstanceRequest, Operation>
       partialUpdateInstanceCallable;
   private final OperationCallable<PartialUpdateInstanceRequest, Instance, UpdateInstanceMetadata>
@@ -267,6 +289,8 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
   private final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable;
 
+  private final BackgroundResource backgroundResources;
+  private final GrpcOperationsStub operationsStub;
   private final GrpcStubCallableFactory callableFactory;
 
   public static final GrpcBigtableInstanceAdminStub create(
@@ -344,6 +368,19 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
                   public Map<String, String> extract(ListInstancesRequest request) {
                     ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
                     params.put("parent", String.valueOf(request.getParent()));
+                    return params.build();
+                  }
+                })
+            .build();
+    GrpcCallSettings<Instance, Instance> updateInstanceTransportSettings =
+        GrpcCallSettings.<Instance, Instance>newBuilder()
+            .setMethodDescriptor(updateInstanceMethodDescriptor)
+            .setParamsExtractor(
+                new RequestParamsExtractor<Instance>() {
+                  @Override
+                  public Map<String, String> extract(Instance request) {
+                    ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
+                    params.put("name", String.valueOf(request.getName()));
                     return params.build();
                   }
                 })
@@ -557,13 +594,16 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             createInstanceTransportSettings,
             settings.createInstanceOperationSettings(),
             clientContext,
-            this.operationsStub);
+            operationsStub);
     this.getInstanceCallable =
         callableFactory.createUnaryCallable(
             getInstanceTransportSettings, settings.getInstanceSettings(), clientContext);
     this.listInstancesCallable =
         callableFactory.createUnaryCallable(
             listInstancesTransportSettings, settings.listInstancesSettings(), clientContext);
+    this.updateInstanceCallable =
+        callableFactory.createUnaryCallable(
+            updateInstanceTransportSettings, settings.updateInstanceSettings(), clientContext);
     this.partialUpdateInstanceCallable =
         callableFactory.createUnaryCallable(
             partialUpdateInstanceTransportSettings,
@@ -574,7 +614,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             partialUpdateInstanceTransportSettings,
             settings.partialUpdateInstanceOperationSettings(),
             clientContext,
-            this.operationsStub);
+            operationsStub);
     this.deleteInstanceCallable =
         callableFactory.createUnaryCallable(
             deleteInstanceTransportSettings, settings.deleteInstanceSettings(), clientContext);
@@ -586,7 +626,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             createClusterTransportSettings,
             settings.createClusterOperationSettings(),
             clientContext,
-            this.operationsStub);
+            operationsStub);
     this.getClusterCallable =
         callableFactory.createUnaryCallable(
             getClusterTransportSettings, settings.getClusterSettings(), clientContext);
@@ -601,7 +641,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             updateClusterTransportSettings,
             settings.updateClusterOperationSettings(),
             clientContext,
-            this.operationsStub);
+            operationsStub);
     this.deleteClusterCallable =
         callableFactory.createUnaryCallable(
             deleteClusterTransportSettings, settings.deleteClusterSettings(), clientContext);
@@ -625,7 +665,7 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             updateAppProfileTransportSettings,
             settings.updateAppProfileOperationSettings(),
             clientContext,
-            this.operationsStub);
+            operationsStub);
     this.deleteAppProfileCallable =
         callableFactory.createUnaryCallable(
             deleteAppProfileTransportSettings, settings.deleteAppProfileSettings(), clientContext);
@@ -641,117 +681,141 @@ public class GrpcBigtableInstanceAdminStub extends BigtableInstanceAdminStub {
             settings.testIamPermissionsSettings(),
             clientContext);
 
-    backgroundResources = new BackgroundResourceAggregation(clientContext.getBackgroundResources());
+    this.backgroundResources =
+        new BackgroundResourceAggregation(clientContext.getBackgroundResources());
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
   public GrpcOperationsStub getOperationsStub() {
     return operationsStub;
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
+  @Override
+  public UnaryCallable<CreateInstanceRequest, Operation> createInstanceCallable() {
+    return createInstanceCallable;
+  }
+
+  @Override
   public OperationCallable<CreateInstanceRequest, Instance, CreateInstanceMetadata>
       createInstanceOperationCallable() {
     return createInstanceOperationCallable;
   }
 
-  public UnaryCallable<CreateInstanceRequest, Operation> createInstanceCallable() {
-    return createInstanceCallable;
-  }
-
+  @Override
   public UnaryCallable<GetInstanceRequest, Instance> getInstanceCallable() {
     return getInstanceCallable;
   }
 
+  @Override
   public UnaryCallable<ListInstancesRequest, ListInstancesResponse> listInstancesCallable() {
     return listInstancesCallable;
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
+  @Override
+  public UnaryCallable<Instance, Instance> updateInstanceCallable() {
+    return updateInstanceCallable;
+  }
+
+  @Override
+  public UnaryCallable<PartialUpdateInstanceRequest, Operation> partialUpdateInstanceCallable() {
+    return partialUpdateInstanceCallable;
+  }
+
+  @Override
   public OperationCallable<PartialUpdateInstanceRequest, Instance, UpdateInstanceMetadata>
       partialUpdateInstanceOperationCallable() {
     return partialUpdateInstanceOperationCallable;
   }
 
-  public UnaryCallable<PartialUpdateInstanceRequest, Operation> partialUpdateInstanceCallable() {
-    return partialUpdateInstanceCallable;
-  }
-
+  @Override
   public UnaryCallable<DeleteInstanceRequest, Empty> deleteInstanceCallable() {
     return deleteInstanceCallable;
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
+  @Override
+  public UnaryCallable<CreateClusterRequest, Operation> createClusterCallable() {
+    return createClusterCallable;
+  }
+
+  @Override
   public OperationCallable<CreateClusterRequest, Cluster, CreateClusterMetadata>
       createClusterOperationCallable() {
     return createClusterOperationCallable;
   }
 
-  public UnaryCallable<CreateClusterRequest, Operation> createClusterCallable() {
-    return createClusterCallable;
-  }
-
+  @Override
   public UnaryCallable<GetClusterRequest, Cluster> getClusterCallable() {
     return getClusterCallable;
   }
 
+  @Override
   public UnaryCallable<ListClustersRequest, ListClustersResponse> listClustersCallable() {
     return listClustersCallable;
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
+  @Override
+  public UnaryCallable<Cluster, Operation> updateClusterCallable() {
+    return updateClusterCallable;
+  }
+
+  @Override
   public OperationCallable<Cluster, Cluster, UpdateClusterMetadata>
       updateClusterOperationCallable() {
     return updateClusterOperationCallable;
   }
 
-  public UnaryCallable<Cluster, Operation> updateClusterCallable() {
-    return updateClusterCallable;
-  }
-
+  @Override
   public UnaryCallable<DeleteClusterRequest, Empty> deleteClusterCallable() {
     return deleteClusterCallable;
   }
 
+  @Override
   public UnaryCallable<CreateAppProfileRequest, AppProfile> createAppProfileCallable() {
     return createAppProfileCallable;
   }
 
+  @Override
   public UnaryCallable<GetAppProfileRequest, AppProfile> getAppProfileCallable() {
     return getAppProfileCallable;
   }
 
+  @Override
+  public UnaryCallable<ListAppProfilesRequest, ListAppProfilesResponse> listAppProfilesCallable() {
+    return listAppProfilesCallable;
+  }
+
+  @Override
   public UnaryCallable<ListAppProfilesRequest, ListAppProfilesPagedResponse>
       listAppProfilesPagedCallable() {
     return listAppProfilesPagedCallable;
   }
 
-  public UnaryCallable<ListAppProfilesRequest, ListAppProfilesResponse> listAppProfilesCallable() {
-    return listAppProfilesCallable;
+  @Override
+  public UnaryCallable<UpdateAppProfileRequest, Operation> updateAppProfileCallable() {
+    return updateAppProfileCallable;
   }
 
-  @BetaApi("The surface for use by generated code is not stable yet and may change in the future.")
+  @Override
   public OperationCallable<UpdateAppProfileRequest, AppProfile, UpdateAppProfileMetadata>
       updateAppProfileOperationCallable() {
     return updateAppProfileOperationCallable;
   }
 
-  public UnaryCallable<UpdateAppProfileRequest, Operation> updateAppProfileCallable() {
-    return updateAppProfileCallable;
-  }
-
+  @Override
   public UnaryCallable<DeleteAppProfileRequest, Empty> deleteAppProfileCallable() {
     return deleteAppProfileCallable;
   }
 
+  @Override
   public UnaryCallable<GetIamPolicyRequest, Policy> getIamPolicyCallable() {
     return getIamPolicyCallable;
   }
 
+  @Override
   public UnaryCallable<SetIamPolicyRequest, Policy> setIamPolicyCallable() {
     return setIamPolicyCallable;
   }
 
+  @Override
   public UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable() {
     return testIamPermissionsCallable;

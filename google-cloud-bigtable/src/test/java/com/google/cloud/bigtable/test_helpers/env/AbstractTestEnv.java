@@ -16,13 +16,18 @@
 package com.google.cloud.bigtable.test_helpers.env;
 
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
+import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminSettings;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
+import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import java.io.IOException;
+import java.util.List;
 import org.threeten.bp.Instant;
 import org.threeten.bp.temporal.ChronoUnit;
 
@@ -32,10 +37,18 @@ import org.threeten.bp.temporal.ChronoUnit;
  * <p>This allows for integration tests to run against either production or an emulator.
  */
 public abstract class AbstractTestEnv {
+
   private static final String PREFIX = "temp-";
   public static final String TEST_INSTANCE_PREFIX = "temp-instance-";
   public static final String TEST_CLUSTER_PREFIX = "temp-cluster-";
   public static final String TEST_APP_PREFIX = "temp-Ap-";
+
+  public enum ConnectionMode {
+    DEFAULT,
+    REQUIRE_CFE,
+    REQUIRE_DIRECT_PATH,
+    REQUIRE_DIRECT_PATH_IPV4
+  }
 
   abstract void start() throws Exception;
 
@@ -54,11 +67,17 @@ public abstract class AbstractTestEnv {
 
   public abstract BigtableDataSettings getDataClientSettings();
 
+  public abstract BigtableInstanceAdminSettings getInstanceAdminClientSettings();
+
+  public abstract BigtableTableAdminSettings getTableAdminSettings();
+
   public abstract String getProjectId();
 
   public abstract String getInstanceId();
 
   public abstract String getTableId();
+
+  public abstract String getKmsKeyName();
 
   public String getFamilyId() {
     return "cf";
@@ -80,12 +99,16 @@ public abstract class AbstractTestEnv {
     return true;
   }
 
-  public boolean isDirectPathEnabled() {
-    return Boolean.getBoolean("bigtable.attempt-directpath");
+  public ConnectionMode getConnectionMode() {
+    String modeStr =
+        MoreObjects.firstNonNull(
+            System.getProperty("bigtable.connection-mode"), ConnectionMode.DEFAULT.name());
+
+    return ConnectionMode.valueOf(modeStr);
   }
 
-  public boolean isDirectPathIpv4Only() {
-    return Boolean.getBoolean("bigtable.directpath-ipv4only");
+  public boolean shouldWaitForCmekKeyStatusUpdate() {
+    return Boolean.getBoolean("bigtable.wait-for-cmek-key-status");
   }
 
   public String getPrimaryZone() {
@@ -94,6 +117,14 @@ public abstract class AbstractTestEnv {
 
   public String getSecondaryZone() {
     return "us-east1-b";
+  }
+
+  /**
+   * Returns test zones that can be used for intra-region testing. This might overlap with primary
+   * and secondary zones
+   */
+  public List<String> getMultipleZonesInSameRegion() {
+    return ImmutableList.of("us-east1-b", "us-east1-c");
   }
 
   void cleanUpStale() {

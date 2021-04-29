@@ -17,7 +17,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>16.3.0</version>
+      <version>20.1.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -38,25 +38,25 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>1.19.2</version>
+  <version>1.23.1</version>
 </dependency>
 
 ```
 
 If you are using Gradle 5.x or later, add this to your dependencies
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:16.3.0')
+implementation platform('com.google.cloud:libraries-bom:20.1.0')
 
 compile 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies
 ```Groovy
-compile 'com.google.cloud:google-cloud-bigtable:1.19.2'
+compile 'com.google.cloud:google-cloud-bigtable:1.23.1'
 ```
 
 If you are using SBT, add this to your dependencies
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "1.19.2"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "1.23.1"
 ```
 
 ## Authentication
@@ -203,7 +203,7 @@ try {
 
 TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
 
-## OpenCensus Tracing
+## Client request tracing: OpenCensus Tracing
 
 Cloud Bigtable client supports [OpenCensus Tracing](https://opencensus.io/tracing/),
 which gives insight into the client internals and aids in debugging production issues.
@@ -259,6 +259,9 @@ StackdriverTraceExporter.createAndRegister(
       .build());
 ```
 
+You can view the traces on the Google Cloud Platform Console
+[Trace](https://console.cloud.google.com/traces) page.
+
 By default traces are [sampled](https://opencensus.io/tracing/sampling) at a rate of about 1/10,000.
 You can configure a higher rate by updating the active tracing params:
 
@@ -273,7 +276,7 @@ Tracing.getTraceConfig().updateActiveTraceParams(
 );
 ```
 
-## OpenCensus Stats
+## Enabling Cloud Bigtable Metrics: OpenCensus Stats
 
 Cloud Bigtable client supports [Opencensus Metrics](https://opencensus.io/stats/),
 which gives insight into the client internals and aids in debugging production issues.
@@ -376,6 +379,34 @@ BigtableDataSettings.enableOpenCensusStats();
 BigtableDataSettings.enableGfeOpenCensusStats();
 ```
 
+You can view the metrics on the Google Cloud Platform Console
+[Metrics explorer](https://console.cloud.google.com/monitoring/metrics-explorer)
+page.
+
+You can configure how frequently metrics are pushed to StackDriver and the
+[Monitored resource type](https://cloud.google.com/monitoring/api/resources) by
+updating `StackdriverStatsConfiguration`:
+
+``` java
+// Example: configuring export interval and monitored resource type
+StackdriverStatsExporter.createAndRegister(
+    StackdriverStatsConfiguration.builder()
+        .setProjectId("YOUR_PROJECT_ID")
+        // Exporting metrics every 10 seconds
+        .setExportInterval(Duration.create(10, 0))
+        // Configure monitored resource type. A common practice is to use the
+        // monitored resource objects that represent the physical resources
+        // where your application code is running. See the full list of
+        // monitored resource type here:
+        // https://cloud.google.com/monitoring/api/resources
+        .setMonitoredResource(MonitoredResource.newBuilder()
+            .setType("global")
+            .putLabels("project_id", "YOUR_PROJECT_ID")
+          .build())
+        .build()
+);
+```
+
 ## Version Conflicts
 
 google-cloud-bigtable depends on gRPC directly which may conflict with the versions brought
@@ -432,16 +463,17 @@ has instructions for running the samples.
 
 | Sample                      | Source Code                       | Try it |
 | --------------------------- | --------------------------------- | ------ |
+| Configure Connection Pool | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) |
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
+| Hello World | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) |
+| Instance Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) |
+| Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
+| Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) |
 | Write Batch | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) |
 | Write Conditionally | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) |
 | Write Increment | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) |
 | Write Simple | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/example/bigtable/WriteSimple.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteSimple.java) |
-| Hello World | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/m/examples/bigtable/HelloWorld.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/m/examples/bigtable/HelloWorld.java) |
-| Instance Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/m/examples/bigtable/InstanceAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/m/examples/bigtable/InstanceAdminExample.java) |
-| Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/m/examples/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/m/examples/bigtable/Quickstart.java) |
-| Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/master/samples/snippets/src/main/java/com/m/examples/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/m/examples/bigtable/TableAdminExample.java) |
 
 
 

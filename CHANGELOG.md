@@ -1,5 +1,132 @@
 # Changelog
 
+### [1.23.2](https://www.github.com/googleapis/java-bigtable/compare/v1.23.1...v1.23.2) (2021-04-23)
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v1 ([#781](https://www.github.com/googleapis/java-bigtable/issues/781)) ([dbf856f](https://www.github.com/googleapis/java-bigtable/commit/dbf856f93942cbec48433821da8e5a96e61a9d7e))
+
+### [1.23.1](https://www.github.com/googleapis/java-bigtable/compare/v1.23.0...v1.23.1) (2021-04-20)
+
+
+### Bug Fixes
+
+* **docs:** correct docs for CUSTOMER_MANAGED_ENCRYPTION ([#737](https://www.github.com/googleapis/java-bigtable/issues/737)) ([b3bb7f7](https://www.github.com/googleapis/java-bigtable/commit/b3bb7f77610e48e849766a6e9dbacb98fc3f9811))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.21.1 ([#741](https://www.github.com/googleapis/java-bigtable/issues/741)) ([cfdd0cd](https://www.github.com/googleapis/java-bigtable/commit/cfdd0cd760f9273e644cddc492d9c4d5327498e7))
+
+## [1.23.0](https://www.github.com/googleapis/java-bigtable/compare/v1.22.0...v1.23.0) (2021-04-13)
+
+
+### Features
+
+* dynamic flow control ([#721](https://www.github.com/googleapis/java-bigtable/issues/721)) ([b61c5ce](https://www.github.com/googleapis/java-bigtable/commit/b61c5ce5de9cbe2a93a4ea95bad03585069b85bb))
+
+
+### Bug Fixes
+
+* change clusterId in Cmek test ([#716](https://www.github.com/googleapis/java-bigtable/issues/716)) ([67ef155](https://www.github.com/googleapis/java-bigtable/commit/67ef15591d49d51728c769eb54a1167b15524aa1))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.21.0 ([#717](https://www.github.com/googleapis/java-bigtable/issues/717)) ([dfc2efd](https://www.github.com/googleapis/java-bigtable/commit/dfc2efda536bb5db209b7c50114b417edd7af5cd))
+
+## [1.22.0](https://www.github.com/googleapis/java-bigtable/compare/v1.21.3...v1.22.0) (2021-04-06)
+
+
+### Features
+
+* add CMEK Support  ([#656](https://www.github.com/googleapis/java-bigtable/issues/656)) ([2821902](https://www.github.com/googleapis/java-bigtable/commit/2821902b34ae04596771a9fc5e2b62d5c24a7253))
+
+
+### Dependencies
+
+* update autovalue.version to v1.8 ([#703](https://www.github.com/googleapis/java-bigtable/issues/703)) ([13e7796](https://www.github.com/googleapis/java-bigtable/commit/13e7796d96222fe0181771d160d12a3da7f0a7a7))
+* update dependency com.google.truth.extensions:truth-proto-extension to v1.1.2 ([#704](https://www.github.com/googleapis/java-bigtable/issues/704)) ([3fa8b00](https://www.github.com/googleapis/java-bigtable/commit/3fa8b0069d58a5705f11fac481ddcd4ad7d447f4))
+
+### [1.21.3](https://www.github.com/googleapis/java-bigtable/compare/v1.21.2...v1.21.3) (2021-04-01)
+
+
+### Dependencies
+
+* update dependency com.google.errorprone:error_prone_annotations to v2.6.0 ([#693](https://www.github.com/googleapis/java-bigtable/issues/693)) ([831d044](https://www.github.com/googleapis/java-bigtable/commit/831d044f31c7643b34df4f23765d521e8f68035d))
+
+### [1.21.2](https://www.github.com/googleapis/java-bigtable/compare/v1.21.1...v1.21.2) (2021-03-22)
+
+
+### Dependencies
+
+* update autovalue.version to v1.7.5 ([#684](https://www.github.com/googleapis/java-bigtable/issues/684)) ([75baa79](https://www.github.com/googleapis/java-bigtable/commit/75baa79e94c31e1694c3e29ea2f1ed42dbc60eb8))
+
+### [1.21.1](https://www.github.com/googleapis/java-bigtable/compare/v1.21.0...v1.21.1) (2021-03-15)
+
+
+### Bug Fixes
+
+* **retry:** restore grpc_service_config for CreateBackup and {Restore,Snapshot}Table ([#667](https://www.github.com/googleapis/java-bigtable/issues/667)) ([121f071](https://www.github.com/googleapis/java-bigtable/commit/121f07159c2715368cb53753ba39d70d1d25efb8))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.20.1 ([#671](https://www.github.com/googleapis/java-bigtable/issues/671)) ([6ba3bf3](https://www.github.com/googleapis/java-bigtable/commit/6ba3bf3a642bd5b7ecf2a86a821ede0f2bae084f))
+
+## [1.21.0](https://www.github.com/googleapis/java-bigtable/compare/v1.20.1...v1.21.0) (2021-03-02)
+
+
+### Features
+
+* **generator:** update protoc to v3.15.3 ([#654](https://www.github.com/googleapis/java-bigtable/issues/654)) ([4b0c59a](https://www.github.com/googleapis/java-bigtable/commit/4b0c59a17d668e724fb79369ad7a6f7fbbb31d89))
+* migrate to java microgenerator ([#629](https://www.github.com/googleapis/java-bigtable/issues/629)) ([60d17dc](https://www.github.com/googleapis/java-bigtable/commit/60d17dc1d0a0a568a8bdd3bcc1e7491c17142af3))
+* publish new fields for CMEK support ([#646](https://www.github.com/googleapis/java-bigtable/issues/646)) ([e039386](https://www.github.com/googleapis/java-bigtable/commit/e039386898b82f7b03f5a4064c5dcca0fdd3f330))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-gcloud-maven-plugin to v0.1.2 ([#652](https://www.github.com/googleapis/java-bigtable/issues/652)) ([71a8fd7](https://www.github.com/googleapis/java-bigtable/commit/71a8fd7fe55bd40ad32963ffdfc06999be2ff7fc))
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.20.0 ([#653](https://www.github.com/googleapis/java-bigtable/issues/653)) ([c5049c1](https://www.github.com/googleapis/java-bigtable/commit/c5049c1f988e0f4465d9d805fd092087bfa69fdc))
+
+### [1.20.1](https://www.github.com/googleapis/java-bigtable/compare/v1.20.0...v1.20.1) (2021-02-22)
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.19.0 ([#640](https://www.github.com/googleapis/java-bigtable/issues/640)) ([bf1f49f](https://www.github.com/googleapis/java-bigtable/commit/bf1f49fbff344510501b9b836771d9cfab4defcd))
+
+## [1.20.0](https://www.github.com/googleapis/java-bigtable/compare/v1.19.2...v1.20.0) (2021-02-05)
+
+
+### Features
+
+* Surface the server-timing metric ([#535](https://www.github.com/googleapis/java-bigtable/issues/535)) ([8240779](https://www.github.com/googleapis/java-bigtable/commit/8240779434a602dc8b2bf90dbe539c5d7470d850))
+
+
+### Bug Fixes
+
+* fix MetricTracerTest to rebase on head ([#581](https://www.github.com/googleapis/java-bigtable/issues/581)) ([23e97cb](https://www.github.com/googleapis/java-bigtable/commit/23e97cb308403b35fbe972b08048d0e59423e694))
+* fix MutateRowsAttemptCallable to avoid NPE in MetricTracer ([#557](https://www.github.com/googleapis/java-bigtable/issues/557)) ([8d71020](https://www.github.com/googleapis/java-bigtable/commit/8d7102003b54757b64fd598290301d3b24fd9c29))
+* Retry "received rst stream" ([#586](https://www.github.com/googleapis/java-bigtable/issues/586)) ([b09a21c](https://www.github.com/googleapis/java-bigtable/commit/b09a21c1dd1a05b68bfd3a0134089ba32dca1774))
+* update repo name ([#615](https://www.github.com/googleapis/java-bigtable/issues/615)) ([bb3ed6d](https://www.github.com/googleapis/java-bigtable/commit/bb3ed6dcbadbd70dbd9c68152c8d93c4cefd4dcb))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.17.1 ([#590](https://www.github.com/googleapis/java-bigtable/issues/590)) ([5035ad0](https://www.github.com/googleapis/java-bigtable/commit/5035ad0db01a9247634137050698c30da29722a6))
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v0.18.0 ([#592](https://www.github.com/googleapis/java-bigtable/issues/592)) ([c58b73a](https://www.github.com/googleapis/java-bigtable/commit/c58b73a7d70c8da1581ac06d77b5e362648a0868))
+* update dependency com.google.errorprone:error_prone_annotations to v2.5.0 ([#591](https://www.github.com/googleapis/java-bigtable/issues/591)) ([dfa4da7](https://www.github.com/googleapis/java-bigtable/commit/dfa4da75e5ac81cc941177462326f7c38f18bacd))
+* update dependency com.google.errorprone:error_prone_annotations to v2.5.1 ([#594](https://www.github.com/googleapis/java-bigtable/issues/594)) ([ea599a1](https://www.github.com/googleapis/java-bigtable/commit/ea599a10e2e4fdbaf56c45b74fbb1ea5a708a7f2))
+
+
+### Documentation
+
+* Expand hello world snippet to show how to access specific cells ([#516](https://www.github.com/googleapis/java-bigtable/issues/516)) ([a9001a8](https://www.github.com/googleapis/java-bigtable/commit/a9001a88f338fc2acf6bc48927765f29819124ee))
+* Update stackdriver examples for tracing and stats ([#613](https://www.github.com/googleapis/java-bigtable/issues/613)) ([3e8af74](https://www.github.com/googleapis/java-bigtable/commit/3e8af747b329f6656a410160e8da14fd8227c8fc))
+* use autogenerated readme functionality and regenerate ([#568](https://www.github.com/googleapis/java-bigtable/issues/568)) ([844e5be](https://www.github.com/googleapis/java-bigtable/commit/844e5beb6230df6ca220935056aae7f6e73d2bc0))
+
 ### [1.19.2](https://www.github.com/googleapis/java-bigtable/compare/v1.19.1...v1.19.2) (2020-12-15)
 
 
