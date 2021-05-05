@@ -311,9 +311,6 @@
                                 <goals>
                                     <goal>aggregate</goal>
                                 </goals>
-                                <configuration>
-                                    <failOnError>false</failOnError>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
