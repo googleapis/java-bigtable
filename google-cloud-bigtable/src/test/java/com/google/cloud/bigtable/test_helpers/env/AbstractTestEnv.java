@@ -249,9 +249,13 @@ public abstract class AbstractTestEnv {
       }
 
       try {
-        deleteCluster(getTableAdminClient(), cluster.getId());
+        deleteBackups(getTableAdminClient(), cluster.getId());
       } catch (NotFoundException ignored) {
+      }
 
+      try {
+        getInstanceAdminClient().deleteCluster(getInstanceId(), cluster.getId());
+      } catch (NotFoundException ignored) {
       }
     }
   }
@@ -292,7 +296,9 @@ public abstract class AbstractTestEnv {
       boolean isFirstCluster = true;
 
       for (Cluster cluster : clusters) {
-        deleteCluster(tableAdmin, cluster.getId());
+        deleteBackups(tableAdmin, cluster.getId());
+        // Skip the first cluster so that it can be delete by deleteInstance (instances can't exist
+        // without clusters)
         if (!isFirstCluster) {
           try {
             getInstanceAdminClient().deleteCluster(instanceId, cluster.getId());
@@ -312,7 +318,7 @@ public abstract class AbstractTestEnv {
     }
   }
 
-  private void deleteCluster(BigtableTableAdminClient tableAdmin, String clusterId)
+  private void deleteBackups(BigtableTableAdminClient tableAdmin, String clusterId)
       throws ExecutionException, InterruptedException {
     List<ApiFuture<?>> futures = new ArrayList<>();
 
