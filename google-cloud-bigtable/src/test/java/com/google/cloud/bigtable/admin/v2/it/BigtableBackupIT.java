@@ -40,12 +40,14 @@ import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
+import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Logger;
 import org.junit.AfterClass;
@@ -245,54 +247,55 @@ public class BigtableBackupIT {
     String backupId = testEnvRule.env().newPrefix();
     String restoredTableId = testEnvRule.env().newPrefix();
 
-    // Set up a new instance to test cross-instance restore. The source backup is stored in this
-    // instance.
-    String sourceInstance = testEnvRule.env().newPrefix();
-    String sourceCluster = sourceInstance;
+    // Create the backup
+    tableAdmin.createBackup(
+        CreateBackupRequest.of(targetCluster, backupId)
+            .setSourceTableId(testTable.getId())
+            .setExpireTime(Instant.now().plus(Duration.ofHours(6))));
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+
+    // Set up a new instance to test cross-instance restore. The backup will be restored here
+    String targetInstance = testEnvRule.env().newPrefix();
     instanceAdmin.createInstance(
-        CreateInstanceRequest.of(sourceInstance)
-            .addCluster(sourceCluster, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
-            .setDisplayName("backups-source-test-instance")
+        CreateInstanceRequest.of(targetInstance)
+            .addCluster(targetInstance, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
+            .setDisplayName("backups-dest-test-instance")
             .addLabel("state", "readytodelete")
             .setType(Type.PRODUCTION));
 
-    try (BigtableTableAdminClient srcTableAdmin =
-            testEnvRule.env().getTableAdminClientForInstance(sourceInstance);
-        BigtableDataClient srcDataClient =
-            testEnvRule.env().getDataClientForInstance(sourceInstance)) {
-
-      Table sourceTable = createAndPopulateTestTable(srcTableAdmin, srcDataClient);
-      srcTableAdmin.createBackup(
-          CreateBackupRequest.of(sourceCluster, backupId)
-              .setSourceTableId(sourceTable.getId())
-              .setExpireTime(Instant.now().plus(Duration.ofHours(6))));
+    try (BigtableTableAdminClient destTableAdmin =
+        testEnvRule.env().getTableAdminClientForInstance(targetInstance)) {
 
       // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
       // table operation.
-      Thread.sleep(120 * 1000);
+      Thread.sleep(
+          Duration.ofMinutes(2)
+              .minus(Duration.ofMillis(stopwatch.elapsed(TimeUnit.MILLISECONDS)))
+              .toMillis());
 
       try {
         RestoreTableRequest req =
-            RestoreTableRequest.of(sourceInstance, sourceCluster, backupId)
+            RestoreTableRequest.of(testEnvRule.env().getInstanceId(), targetCluster, backupId)
                 .setTableId(restoredTableId);
-        RestoredTableResult result = tableAdmin.restoreTable(req);
+        RestoredTableResult result = destTableAdmin.restoreTable(req);
         assertWithMessage("Incorrect restored table id")
             .that(result.getTable().getId())
             .isEqualTo(restoredTableId);
         assertWithMessage("Incorrect instance id")
             .that(result.getTable().getInstanceId())
-            .isEqualTo(testEnvRule.env().getInstanceId());
+            .isEqualTo(targetInstance);
 
         // The assertion might be missing if the test is running against a HDD cluster or an
         // optimization is not necessary.
         assertWithMessage("Empty OptimizeRestoredTable token")
             .that(result.getOptimizeRestoredTableOperationToken())
             .isNotNull();
-        tableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
-        tableAdmin.getTable(restoredTableId);
+        destTableAdmin.awaitOptimizeRestoredTable(result.getOptimizeRestoredTableOperationToken());
+        destTableAdmin.getTable(restoredTableId);
       } finally {
-        srcTableAdmin.deleteBackup(sourceCluster, backupId);
-        instanceAdmin.deleteInstance(sourceInstance);
+        tableAdmin.deleteBackup(targetCluster, backupId);
+        instanceAdmin.deleteInstance(targetInstance);
       }
     }
   }
