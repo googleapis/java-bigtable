@@ -101,7 +101,7 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetBackupTest() {
     String backupId = testEnvRule.env().newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofDays(15));
+    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetCluster, backupId)
