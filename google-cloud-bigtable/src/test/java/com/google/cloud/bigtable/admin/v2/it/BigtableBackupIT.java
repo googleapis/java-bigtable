@@ -214,7 +214,7 @@ public class BigtableBackupIT {
   @Test
   public void restoreTableTest() throws InterruptedException, ExecutionException {
     String backupId = prefixGenerator.newPrefix();
-    String restoredTableId = prefixGenerator.newPrefix() + "-restore";
+    String restoredTableId = prefixGenerator.newPrefix();
     tableAdmin.createBackup(createBackupRequest(backupId));
 
     // Wait 2 minutes so that the RestoreTable API will trigger an optimize restored
