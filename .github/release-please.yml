@@ -1,4 +1,4 @@
 releaseType: java-yoshi
 bumpMinorPreMajor: true
 extraFiles:
-  - google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/ClientVersion.java
+  - google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
