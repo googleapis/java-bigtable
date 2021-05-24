@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.22.0-sp.1](https://www.github.com/googleapis/java-bigtable/compare/1.22.0...v1.22.0-sp.1) (2021-05-21)
+
+
+### Features
+
+* configure initial sp version ([#829](https://www.github.com/googleapis/java-bigtable/issues/829)) ([47480c5](https://www.github.com/googleapis/java-bigtable/commit/47480c55ab08b80154a4a7d2bb76a9dccfcdea03))
+
+
+### Bug Fixes
+
+* filter limit constant ([#787](https://www.github.com/googleapis/java-bigtable/issues/787)) ([#835](https://www.github.com/googleapis/java-bigtable/issues/835)) ([cf16cfe](https://www.github.com/googleapis/java-bigtable/commit/cf16cfe5ee1ec509ed8faf3ff1342bd02a041468))
+* improve embedded version handling ([#715](https://www.github.com/googleapis/java-bigtable/issues/715)) ([#832](https://www.github.com/googleapis/java-bigtable/issues/832)) ([f0fc1bf](https://www.github.com/googleapis/java-bigtable/commit/f0fc1bf77962ddc80bfd5aca6a8ca731641d940b))
+
 ## [1.22.0](https://www.github.com/googleapis/java-bigtable/compare/v1.21.3...v1.22.0) (2021-04-06)
 
 
