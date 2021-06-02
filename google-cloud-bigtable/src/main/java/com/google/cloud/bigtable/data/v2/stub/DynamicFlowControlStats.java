@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.gax.batching.FlowController;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Preconditions;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,7 +26,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 final class DynamicFlowControlStats {
 
-  private static final double DEFAULT_DECAY_CONSTANT = 0.015; // Biased to the past 5 minutes
+  // Biased to the past 5 minutes (300 seconds), e^(-decay_constant * 300) = 0.01, decay_constant ~= 0.015
+  private static final double DEFAULT_DECAY_CONSTANT = 0.015;
+  // Update start time every 15 minutes so the values won't be infinite
+  private static final long UPDATE_START_TIME_THRESHOLD_SECOND = TimeUnit.MINUTES.toSeconds(15);
 
   private AtomicLong lastAdjustedTimestampMs;
   private DecayingAverage meanLatency;
@@ -72,45 +74,60 @@ final class DynamicFlowControlStats {
     private double mean;
     private double weightedCount;
     private AtomicLong lastUpdateTimeInSecond;
+    private long startTimeSecond;
 
     DecayingAverage(double decayConstant) {
       this.decayConstant = decayConstant;
       this.mean = 0.0;
       this.weightedCount = 0.0;
+      this.startTimeSecond = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
       this.lastUpdateTimeInSecond = new AtomicLong(0);
     }
 
     synchronized void update(long value, long timestampMs) {
+      updateStartTime(timestampMs);
       long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      Preconditions.checkArgument(
-          now >= lastUpdateTimeInSecond.get(), "can't update an event in the past");
       if (lastUpdateTimeInSecond.get() == 0) {
-        lastUpdateTimeInSecond.set(now);
         mean = value;
         weightedCount = 1;
       } else {
-        long prev = lastUpdateTimeInSecond.getAndSet(now);
-        long elapsed = now - prev;
-        double alpha = getAlpha(elapsed);
+        long elapsed = now - startTimeSecond;
+        double weight = getWeight(elapsed);
         // Exponential moving average = weightedSum / weightedCount, where
-        // weightedSum(n) = value + alpha * weightedSum(n - 1)
-        // weightedCount(n) = 1 + alpha * weightedCount(n - 1)
-        // Using weighted count in case the sum overflows
-        mean =
-            mean * ((weightedCount * alpha) / (weightedCount * alpha + 1))
-                + value / (weightedCount * alpha + 1);
-        weightedCount = weightedCount * alpha + 1;
+        // weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
+        // weightedCount(n) = weight(n) + weightedCount(n - 1), where weight(n) grows exponentially
+        // over elapsed time.
+        // Using weighted count in case the sum overflows.
+        mean = mean * (weightedCount / (weightedCount + weight)) + weight * value / (weightedCount + weight);
+        weightedCount = weightedCount + weight;
+      }
+      // Set last update time so when we're getting the mean we can calculate the decay based on the
+      // last time the mean was updated.
+      if (now > lastUpdateTimeInSecond.get()) {
+        lastUpdateTimeInSecond.set(now);
       }
     }
 
     double getMean(long timestampMs) {
-      long timestampSecs = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      long elapsed = timestampSecs - lastUpdateTimeInSecond.get();
-      return mean * getAlpha(Math.max(0, elapsed));
+      long timestampSecond = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
+      long elapsed = timestampSecond - lastUpdateTimeInSecond.get();
+      double decay = getWeight(Math.min(0, -elapsed));
+      return mean * decay;
     }
 
-    private double getAlpha(long elapsedSecond) {
-      return Math.exp(-decayConstant * elapsedSecond);
+    private double getWeight(long elapsedSecond) {
+      return Math.exp(decayConstant * elapsedSecond);
+    }
+
+    private synchronized void updateStartTime(long timestampMs) {
+      long timestampSecond = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
+      long elapsed = timestampSecond - lastUpdateTimeInSecond.get();
+      if (elapsed > UPDATE_START_TIME_THRESHOLD_SECOND) {
+        double decay = getWeight(-elapsed);
+        mean *= decay;
+        startTimeSecond = timestampSecond;
+        lastUpdateTimeInSecond.set(timestampSecond);
+      }
     }
   }
 }
