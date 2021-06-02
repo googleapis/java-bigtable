@@ -16,10 +16,10 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiClock;
+import com.google.api.core.NanoClock;
 import com.google.api.gax.batching.FlowController;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import org.threeten.bp.Instant;
 
 /**
  * Records stats used in dynamic flow control, the decaying average of recorded latencies and the
@@ -42,7 +42,7 @@ final class DynamicFlowControlStats {
   private DecayingAverage meanLatency;
 
   DynamicFlowControlStats() {
-    this(DEFAULT_DECAY_CONSTANT, null);
+    this(DEFAULT_DECAY_CONSTANT, NanoClock.getDefaultClock());
   }
 
   DynamicFlowControlStats(ApiClock clock) {
@@ -83,21 +83,12 @@ final class DynamicFlowControlStats {
       this.mean = 0.0;
       this.weightedCount = 0.0;
       this.clock = clock;
-      this.startTimeSecond =
-          clock == null
-              ? Instant.now().getEpochSecond()
-              : TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
+      this.startTimeSecond = TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
     }
 
     synchronized void update(long value) {
-      // Decay mean and weightedCount if now - startTime > threshold, so weight won't be infinite
-      long now = getCurrentTimeInSecond();
-      double decay = getDecay(now);
-      mean /= decay;
-      weightedCount /= decay;
-
-      long elapsed = now - startTimeSecond;
-      double weight = getWeight(elapsed);
+      long now = TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
+      double weight = getWeight(now);
       // Using weighted count in case the sum overflows.
       mean =
           mean * (weightedCount / (weightedCount + weight))
@@ -109,24 +100,20 @@ final class DynamicFlowControlStats {
       return mean;
     }
 
-    private long getCurrentTimeInSecond() {
-      return clock == null
-          ? Instant.now().getEpochSecond()
-          : TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
-    }
-
-    private double getWeight(long elapsedSecond) {
-      return Math.exp(decayConstant * elapsedSecond);
-    }
-
-    private synchronized double getDecay(long now) {
-      long elapsed = now - startTimeSecond;
-      if (elapsed > UPDATE_START_TIME_THRESHOLD_SECOND) {
-        double decay = getWeight(elapsed);
+    private double getWeight(long now) {
+      long elapsedSecond = now - startTimeSecond;
+      double weight = Math.exp(decayConstant * elapsedSecond);
+      // Decay mean, weightedCount and reset start time if elapsed time > threshold, so weight won't
+      // be infinite
+      if (elapsedSecond > UPDATE_START_TIME_THRESHOLD_SECOND) {
+        mean /= weight;
+        weightedCount /= weight;
         startTimeSecond = now;
-        return decay;
+        // After resetting start time, weight = e^0 = 1
+        return 1;
+      } else {
+        return weight;
       }
-      return 1;
     }
   }
 }
