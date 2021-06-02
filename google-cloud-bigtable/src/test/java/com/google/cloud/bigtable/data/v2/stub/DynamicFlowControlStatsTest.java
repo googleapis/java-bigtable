@@ -27,40 +27,39 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class DynamicFlowControlStatsTest {
 
   @Test
   public void testUpdate() {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    long now = System.currentTimeMillis();
+    FakeApiClock clock = new FakeApiClock(Instant.now().toEpochMilli());
 
-    stats.updateLatency(10, now);
-    assertThat(stats.getMeanLatency(now)).isEqualTo(10);
+    DynamicFlowControlStats stats = new DynamicFlowControlStats(clock);
 
-    stats.updateLatency(10, now);
-    stats.updateLatency(10, now);
-    assertThat(stats.getMeanLatency(now)).isEqualTo(10);
+    stats.updateLatency(10);
+    assertThat(stats.getMeanLatency()).isEqualTo(10);
+    stats.updateLatency(10);
+    stats.updateLatency(10);
+    assertThat(stats.getMeanLatency()).isEqualTo(10);
 
     // In five minutes the previous latency should be decayed to under 1. And the new average should
     // be very close to 20
-    long fiveMinutesLater = now + TimeUnit.MINUTES.toMillis(5);
-    assertThat(stats.getMeanLatency(fiveMinutesLater)).isLessThan(1);
-    stats.updateLatency(20, fiveMinutesLater);
-    assertThat(stats.getMeanLatency(fiveMinutesLater)).isGreaterThan(19);
-    assertThat(stats.getMeanLatency(fiveMinutesLater)).isLessThan(20);
+    clock.tick(TimeUnit.MINUTES.toMillis(5));
+    stats.updateLatency(20);
+    assertThat(stats.getMeanLatency()).isGreaterThan(19);
+    assertThat(stats.getMeanLatency()).isLessThan(20);
 
-    long aDayLater = now + TimeUnit.HOURS.toMillis(24);
-    assertThat(stats.getMeanLatency(aDayLater)).isZero();
+    // After a day
+    clock.tick(TimeUnit.HOURS.toMillis(24));
 
-    long timestamp = aDayLater;
     for (int i = 0; i < 10; i++) {
-      timestamp += TimeUnit.SECONDS.toMillis(i);
-      stats.updateLatency(i, timestamp);
+      clock.tick(TimeUnit.SECONDS.toMillis(i));
+      stats.updateLatency(i);
     }
-    assertThat(stats.getMeanLatency(timestamp)).isGreaterThan(4.5);
-    assertThat(stats.getMeanLatency(timestamp)).isLessThan(6);
+    assertThat(stats.getMeanLatency()).isGreaterThan(4.5);
+    assertThat(stats.getMeanLatency()).isLessThan(6);
   }
 
   @Test(timeout = 1000)

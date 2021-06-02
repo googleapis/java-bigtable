@@ -15,8 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.ApiClock;
 import com.google.api.gax.batching.FlowController;
-import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import org.threeten.bp.Instant;
@@ -24,6 +24,11 @@ import org.threeten.bp.Instant;
 /**
  * Records stats used in dynamic flow control, the decaying average of recorded latencies and the
  * last timestamp when the thresholds in {@link FlowController} are updated.
+ *
+ * <pre>Exponential decaying average = weightedSum / weightedCount, where
+ *   weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
+ *   weightedCount(n) = weight(n) + weightedCount(n - 1),
+ * and weight(n) grows exponentially over elapsed time.
  */
 final class DynamicFlowControlStats {
 
@@ -37,30 +42,25 @@ final class DynamicFlowControlStats {
   private DecayingAverage meanLatency;
 
   DynamicFlowControlStats() {
-    this(DEFAULT_DECAY_CONSTANT);
+    this(DEFAULT_DECAY_CONSTANT, null);
   }
 
-  DynamicFlowControlStats(double decayConstant) {
+  DynamicFlowControlStats(ApiClock clock) {
+    this(DEFAULT_DECAY_CONSTANT, clock);
+  }
+
+  DynamicFlowControlStats(double decayConstant, ApiClock clock) {
     this.lastAdjustedTimestampMs = new AtomicLong(0);
-    this.meanLatency = new DecayingAverage(decayConstant);
+    this.meanLatency = new DecayingAverage(decayConstant, clock);
   }
 
   void updateLatency(long latency) {
-    updateLatency(latency, Instant.now().getEpochSecond());
+    meanLatency.update(latency);
   }
 
-  @VisibleForTesting
-  void updateLatency(long latency, long timestampMs) {
-    meanLatency.update(latency, TimeUnit.MILLISECONDS.toSeconds(timestampMs));
-  }
-
+  /** Return the mean calculated from the last update, will not decay over time. */
   double getMeanLatency() {
-    return getMeanLatency(Instant.now().getEpochSecond());
-  }
-
-  @VisibleForTesting
-  double getMeanLatency(long timestampMs) {
-    return meanLatency.getMean(TimeUnit.MILLISECONDS.toSeconds(timestampMs));
+    return meanLatency.getMean();
   }
 
   public long getLastAdjustedTimestampMs() {
@@ -71,29 +71,30 @@ final class DynamicFlowControlStats {
     return lastAdjustedTimestampMs.compareAndSet(last, now);
   }
 
-  /**
-   * <pre>Exponential decaying average = weightedSum / weightedCount, where
-   *   weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
-   *   weightedCount(n) = weight(n) + weightedCount(n - 1),
-   * and weight(n) grows exponentially over elapsed time.
-   */
   private class DecayingAverage {
     private double decayConstant;
     private double mean;
     private double weightedCount;
-    private AtomicLong lastUpdateTimeInSecond;
     private long startTimeSecond;
+    private ApiClock clock;
 
-    DecayingAverage(double decayConstant) {
+    DecayingAverage(double decayConstant, ApiClock clock) {
       this.decayConstant = decayConstant;
       this.mean = 0.0;
       this.weightedCount = 0.0;
-      this.startTimeSecond = Instant.now().getEpochSecond();
-      this.lastUpdateTimeInSecond = new AtomicLong(0);
+      this.clock = clock;
+      this.startTimeSecond =
+          clock == null
+              ? Instant.now().getEpochSecond()
+              : TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
     }
 
-    synchronized void update(long value, long now) {
-      updateStartTime(now);
+    synchronized void update(long value) {
+      // Decay mean and weightedCount if now - startTime > threshold, so weight won't be infinite
+      long now = getCurrentTimeInSecond();
+      double decay = getDecay(now);
+      mean /= decay;
+      weightedCount /= decay;
 
       long elapsed = now - startTimeSecond;
       double weight = getWeight(elapsed);
@@ -102,33 +103,30 @@ final class DynamicFlowControlStats {
           mean * (weightedCount / (weightedCount + weight))
               + weight * value / (weightedCount + weight);
       weightedCount += weight;
-
-      // Set last update time so when we're getting the mean we can calculate the decay based on the
-      // last time the mean was updated.
-      if (now > lastUpdateTimeInSecond.get()) {
-        lastUpdateTimeInSecond.set(now);
-      }
     }
 
-    double getMean(long now) {
-      long elapsed = now - lastUpdateTimeInSecond.get();
-      double decay = 1 / getWeight(Math.max(0, elapsed));
-      return mean * decay;
+    double getMean() {
+      return mean;
+    }
+
+    private long getCurrentTimeInSecond() {
+      return clock == null
+          ? Instant.now().getEpochSecond()
+          : TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
     }
 
     private double getWeight(long elapsedSecond) {
       return Math.exp(decayConstant * elapsedSecond);
     }
 
-    private synchronized void updateStartTime(long now) {
-      long elapsed = now - lastUpdateTimeInSecond.get();
+    private synchronized double getDecay(long now) {
+      long elapsed = now - startTimeSecond;
       if (elapsed > UPDATE_START_TIME_THRESHOLD_SECOND) {
-        double decay = 1 / getWeight(elapsed);
-        mean *= decay;
-        weightedCount *= decay;
+        double decay = getWeight(elapsed);
         startTimeSecond = now;
-        lastUpdateTimeInSecond.set(now);
+        return decay;
       }
+      return 1;
     }
   }
 }
