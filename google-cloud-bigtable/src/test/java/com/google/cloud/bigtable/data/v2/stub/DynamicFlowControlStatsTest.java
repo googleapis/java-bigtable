@@ -36,7 +36,7 @@ public class DynamicFlowControlStatsTest {
   public void testUpdate() {
     FakeApiClock clock = new FakeApiClock(Instant.now().toEpochMilli());
 
-    DynamicFlowControlStats stats = new DynamicFlowControlStats(clock);
+    DynamicFlowControlStats stats = new DynamicFlowControlStats(0.015, clock);
 
     stats.updateLatency(10);
     assertThat(stats.getMeanLatency()).isEqualTo(10);

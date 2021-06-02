@@ -28,7 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <pre>Exponential decaying average = weightedSum / weightedCount, where
  *   weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
  *   weightedCount(n) = weight(n) + weightedCount(n - 1),
- * and weight(n) grows exponentially over elapsed time.
+ * and weight(n) grows exponentially over elapsed time. Biased to the past 5 minutes.
  */
 final class DynamicFlowControlStats {
 
@@ -43,10 +43,6 @@ final class DynamicFlowControlStats {
 
   DynamicFlowControlStats() {
     this(DEFAULT_DECAY_CONSTANT, NanoClock.getDefaultClock());
-  }
-
-  DynamicFlowControlStats(ApiClock clock) {
-    this(DEFAULT_DECAY_CONSTANT, clock);
   }
 
   DynamicFlowControlStats(double decayConstant, ApiClock clock) {
@@ -103,8 +99,8 @@ final class DynamicFlowControlStats {
     private double getWeight(long now) {
       long elapsedSecond = now - startTimeSecond;
       double weight = Math.exp(decayConstant * elapsedSecond);
-      // Decay mean, weightedCount and reset start time if elapsed time > threshold, so weight won't
-      // be infinite
+      // Decay mean, weightedCount and reset start time if elapsed time > threshold, so the values
+      // won't be infinite
       if (elapsedSecond > UPDATE_START_TIME_THRESHOLD_SECOND) {
         mean /= weight;
         weightedCount /= weight;
