@@ -26,7 +26,8 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 final class DynamicFlowControlStats {
 
-  // Biased to the past 5 minutes (300 seconds), e^(-decay_constant * 300) = 0.01, decay_constant ~= 0.015
+  // Biased to the past 5 minutes (300 seconds), e^(-decay_constant * 300) = 0.01, decay_constant ~=
+  // 0.015
   private static final double DEFAULT_DECAY_CONSTANT = 0.015;
   // Update start time every 15 minutes so the values won't be infinite
   private static final long UPDATE_START_TIME_THRESHOLD_SECOND = TimeUnit.MINUTES.toSeconds(15);
@@ -87,7 +88,7 @@ final class DynamicFlowControlStats {
     synchronized void update(long value, long timestampMs) {
       updateStartTime(timestampMs);
       long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      if (mean == 0) {
+      if (lastUpdateTimeInSecond.get() == 0) {
         mean = value;
         weightedCount = 1;
       } else {
@@ -98,7 +99,9 @@ final class DynamicFlowControlStats {
         // weightedCount(n) = weight(n) + weightedCount(n - 1), where weight(n) grows exponentially
         // over elapsed time.
         // Using weighted count in case the sum overflows.
-        mean = mean * (weightedCount / (weightedCount + weight)) + weight * value / (weightedCount + weight);
+        mean =
+            mean * (weightedCount / (weightedCount + weight))
+                + weight * value / (weightedCount + weight);
         weightedCount = weightedCount + weight;
       }
       // Set last update time so when we're getting the mean we can calculate the decay based on the
@@ -125,6 +128,7 @@ final class DynamicFlowControlStats {
       if (elapsed > UPDATE_START_TIME_THRESHOLD_SECOND) {
         double decay = getWeight(-elapsed);
         mean *= decay;
+        weightedCount *= decay;
         startTimeSecond = timestampSecond;
         lastUpdateTimeInSecond.set(timestampSecond);
       }
