@@ -46,7 +46,7 @@ final class DynamicFlowControlStats {
   }
 
   void updateLatency(long latency) {
-    updateLatency(latency, Instant.EPOCH.getEpochSecond());
+    updateLatency(latency, Instant.now().getEpochSecond());
   }
 
   @VisibleForTesting
@@ -55,7 +55,7 @@ final class DynamicFlowControlStats {
   }
 
   double getMeanLatency() {
-    return getMeanLatency(Instant.EPOCH.getEpochSecond());
+    return getMeanLatency(Instant.now().getEpochSecond());
   }
 
   @VisibleForTesting
@@ -88,7 +88,7 @@ final class DynamicFlowControlStats {
       this.decayConstant = decayConstant;
       this.mean = 0.0;
       this.weightedCount = 0.0;
-      this.startTimeSecond = Instant.EPOCH.getEpochSecond();
+      this.startTimeSecond = Instant.now().getEpochSecond();
       this.lastUpdateTimeInSecond = new AtomicLong(0);
     }
 
