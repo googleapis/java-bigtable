@@ -152,6 +152,7 @@
         <github.global.server>github</github.global.server>
         <site.installationModule>google-cloud-bigtable-parent</site.installationModule>
         <project.javadoc.protobufBaseURL>https://googleapis.dev/java/google-api-grpc/latest</project.javadoc.protobufBaseURL>
+        <enforcer.skip>true</enforcer.skip>
     </properties>
 
     <dependencyManagement>

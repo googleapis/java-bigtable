@@ -99,10 +99,12 @@
     <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>api-common</artifactId>
+      <version>1.10.1-sp.1</version>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-api</artifactId>
+      <version>1.36.2</version>
       <!-- gRPC deps are provided by the client -->
       <scope>provided</scope>
     </dependency>
@@ -143,6 +145,7 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
+      <version>3.16.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -155,6 +158,7 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-netty-shaded</artifactId>
+      <version>1.36.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
