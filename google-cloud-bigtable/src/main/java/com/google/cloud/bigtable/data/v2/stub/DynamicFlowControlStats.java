@@ -19,6 +19,7 @@ import com.google.api.gax.batching.FlowController;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import org.threeten.bp.Instant;
 
 /**
  * Records stats used in dynamic flow control, the decaying average of recorded latencies and the
@@ -45,21 +46,21 @@ final class DynamicFlowControlStats {
   }
 
   void updateLatency(long latency) {
-    updateLatency(latency, System.currentTimeMillis());
+    updateLatency(latency, Instant.EPOCH.getEpochSecond());
   }
 
   @VisibleForTesting
   void updateLatency(long latency, long timestampMs) {
-    meanLatency.update(latency, timestampMs);
+    meanLatency.update(latency, TimeUnit.MILLISECONDS.toSeconds(timestampMs));
   }
 
   double getMeanLatency() {
-    return getMeanLatency(System.currentTimeMillis());
+    return getMeanLatency(Instant.EPOCH.getEpochSecond());
   }
 
   @VisibleForTesting
   double getMeanLatency(long timestampMs) {
-    return meanLatency.getMean(timestampMs);
+    return meanLatency.getMean(TimeUnit.MILLISECONDS.toSeconds(timestampMs));
   }
 
   public long getLastAdjustedTimestampMs() {
@@ -70,6 +71,12 @@ final class DynamicFlowControlStats {
     return lastAdjustedTimestampMs.compareAndSet(last, now);
   }
 
+  /**
+   * <pre>Exponential decaying average = weightedSum / weightedCount, where
+   *   weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
+   *   weightedCount(n) = weight(n) + weightedCount(n - 1),
+   * and weight(n) grows exponentially over elapsed time.
+   */
   private class DecayingAverage {
     private double decayConstant;
     private double mean;
@@ -81,20 +88,15 @@ final class DynamicFlowControlStats {
       this.decayConstant = decayConstant;
       this.mean = 0.0;
       this.weightedCount = 0.0;
-      this.startTimeSecond = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis());
+      this.startTimeSecond = Instant.EPOCH.getEpochSecond();
       this.lastUpdateTimeInSecond = new AtomicLong(0);
     }
 
-    synchronized void update(long value, long timestampMs) {
-      updateStartTime(timestampMs);
+    synchronized void update(long value, long now) {
+      updateStartTime(now);
 
-      long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
       long elapsed = now - startTimeSecond;
       double weight = getWeight(elapsed);
-      // Exponential moving average = weightedSum / weightedCount, where
-      // weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
-      // weightedCount(n) = weight(n) + weightedCount(n - 1), where weight(n) grows exponentially
-      // over elapsed time.
       // Using weighted count in case the sum overflows.
       mean =
           mean * (weightedCount / (weightedCount + weight))
@@ -108,10 +110,9 @@ final class DynamicFlowControlStats {
       }
     }
 
-    double getMean(long timestampMs) {
-      long timestampSecond = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      long elapsed = timestampSecond - lastUpdateTimeInSecond.get();
-      double decay = getWeight(Math.min(0, -elapsed));
+    double getMean(long now) {
+      long elapsed = now - lastUpdateTimeInSecond.get();
+      double decay = 1 / getWeight(Math.max(0, elapsed));
       return mean * decay;
     }
 
@@ -119,15 +120,14 @@ final class DynamicFlowControlStats {
       return Math.exp(decayConstant * elapsedSecond);
     }
 
-    private synchronized void updateStartTime(long timestampMs) {
-      long timestampSecond = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      long elapsed = timestampSecond - lastUpdateTimeInSecond.get();
+    private synchronized void updateStartTime(long now) {
+      long elapsed = now - lastUpdateTimeInSecond.get();
       if (elapsed > UPDATE_START_TIME_THRESHOLD_SECOND) {
-        double decay = getWeight(-elapsed);
+        double decay = 1 / getWeight(elapsed);
         mean *= decay;
         weightedCount *= decay;
-        startTimeSecond = timestampSecond;
-        lastUpdateTimeInSecond.set(timestampSecond);
+        startTimeSecond = now;
+        lastUpdateTimeInSecond.set(now);
       }
     }
   }
