@@ -87,23 +87,20 @@ final class DynamicFlowControlStats {
 
     synchronized void update(long value, long timestampMs) {
       updateStartTime(timestampMs);
+
       long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      if (lastUpdateTimeInSecond.get() == 0) {
-        mean = value;
-        weightedCount = 1;
-      } else {
-        long elapsed = now - startTimeSecond;
-        double weight = getWeight(elapsed);
-        // Exponential moving average = weightedSum / weightedCount, where
-        // weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
-        // weightedCount(n) = weight(n) + weightedCount(n - 1), where weight(n) grows exponentially
-        // over elapsed time.
-        // Using weighted count in case the sum overflows.
-        mean =
-            mean * (weightedCount / (weightedCount + weight))
-                + weight * value / (weightedCount + weight);
-        weightedCount = weightedCount + weight;
-      }
+      long elapsed = now - startTimeSecond;
+      double weight = getWeight(elapsed);
+      // Exponential moving average = weightedSum / weightedCount, where
+      // weightedSum(n) = weight(n) * value(n) + weightedSum(n - 1)
+      // weightedCount(n) = weight(n) + weightedCount(n - 1), where weight(n) grows exponentially
+      // over elapsed time.
+      // Using weighted count in case the sum overflows.
+      mean =
+          mean * (weightedCount / (weightedCount + weight))
+              + weight * value / (weightedCount + weight);
+      weightedCount = weightedCount + weight;
+
       // Set last update time so when we're getting the mean we can calculate the decay based on the
       // last time the mean was updated.
       if (now > lastUpdateTimeInSecond.get()) {
