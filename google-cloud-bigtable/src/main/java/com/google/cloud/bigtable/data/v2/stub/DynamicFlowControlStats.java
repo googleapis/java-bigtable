@@ -87,7 +87,7 @@ final class DynamicFlowControlStats {
     synchronized void update(long value, long timestampMs) {
       updateStartTime(timestampMs);
       long now = TimeUnit.MILLISECONDS.toSeconds(timestampMs);
-      if (lastUpdateTimeInSecond.get() == 0) {
+      if (mean == 0) {
         mean = value;
         weightedCount = 1;
       } else {
