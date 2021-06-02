@@ -99,7 +99,7 @@ final class DynamicFlowControlStats {
       mean =
           mean * (weightedCount / (weightedCount + weight))
               + weight * value / (weightedCount + weight);
-      weightedCount = weightedCount + weight;
+      weightedCount += weight;
 
       // Set last update time so when we're getting the mean we can calculate the decay based on the
       // last time the mean was updated.
