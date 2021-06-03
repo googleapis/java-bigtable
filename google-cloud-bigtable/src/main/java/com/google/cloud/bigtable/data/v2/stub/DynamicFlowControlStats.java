@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiClock;
+import com.google.api.core.InternalApi;
 import com.google.api.core.NanoClock;
 import com.google.api.gax.batching.FlowController;
 import java.util.concurrent.TimeUnit;
@@ -35,16 +36,17 @@ final class DynamicFlowControlStats {
   // Biased to the past 5 minutes (300 seconds), e^(-decay_constant * 300) = 0.01, decay_constant ~=
   // 0.015
   private static final double DEFAULT_DECAY_CONSTANT = 0.015;
-  // Update start time every 15 minutes so the values won't be infinite
-  private static final long UPDATE_START_TIME_THRESHOLD_SECOND = TimeUnit.MINUTES.toSeconds(15);
+  // Update decay cycle start time every 15 minutes so the values won't be infinite
+  private static final long DECAY_CYCLE_SECOND = TimeUnit.MINUTES.toSeconds(15);
 
-  private AtomicLong lastAdjustedTimestampMs;
-  private DecayingAverage meanLatency;
+  private final AtomicLong lastAdjustedTimestampMs;
+  private final DecayingAverage meanLatency;
 
   DynamicFlowControlStats() {
     this(DEFAULT_DECAY_CONSTANT, NanoClock.getDefaultClock());
   }
 
+  @InternalApi("visible for testing")
   DynamicFlowControlStats(double decayConstant, ApiClock clock) {
     this.lastAdjustedTimestampMs = new AtomicLong(0);
     this.meanLatency = new DecayingAverage(decayConstant, clock);
@@ -71,15 +73,15 @@ final class DynamicFlowControlStats {
     private double decayConstant;
     private double mean;
     private double weightedCount;
-    private long startTimeSecond;
-    private ApiClock clock;
+    private long decayCycleStartEpoch;
+    private final ApiClock clock;
 
     DecayingAverage(double decayConstant, ApiClock clock) {
       this.decayConstant = decayConstant;
       this.mean = 0.0;
       this.weightedCount = 0.0;
       this.clock = clock;
-      this.startTimeSecond = TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
+      this.decayCycleStartEpoch = TimeUnit.MILLISECONDS.toSeconds(clock.millisTime());
     }
 
     synchronized void update(long value) {
@@ -97,14 +99,14 @@ final class DynamicFlowControlStats {
     }
 
     private double getWeight(long now) {
-      long elapsedSecond = now - startTimeSecond;
+      long elapsedSecond = now - decayCycleStartEpoch;
       double weight = Math.exp(decayConstant * elapsedSecond);
-      // Decay mean, weightedCount and reset start time if elapsed time > threshold, so the values
-      // won't be infinite
-      if (elapsedSecond > UPDATE_START_TIME_THRESHOLD_SECOND) {
+      // Decay mean, weightedCount and reset decay cycle start epoch every 15 minutes, so the
+      // values won't be infinite
+      if (elapsedSecond > DECAY_CYCLE_SECOND) {
         mean /= weight;
         weightedCount /= weight;
-        startTimeSecond = now;
+        decayCycleStartEpoch = now;
         // After resetting start time, weight = e^0 = 1
         return 1;
       } else {
