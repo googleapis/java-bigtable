@@ -27,5 +27,6 @@
         <!-- change method args is ok because EnhancedBigtableStub is InternalApi -->
         <differenceType>7004</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/EnhancedBigtableStub</className>
+        <method>*</method>
     </difference>
 </differences>
