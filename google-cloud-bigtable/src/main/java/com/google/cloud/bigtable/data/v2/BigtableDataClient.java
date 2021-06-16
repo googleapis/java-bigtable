@@ -1082,8 +1082,8 @@ public class BigtableDataClient implements AutoCloseable {
    * but the entire batch is not executed atomically. The returned Batcher instance is not
    * threadsafe, it can only be used from single thread. This method allows customization of the
    * underlying RPCs by passing in a {@link com.google.api.gax.grpc.GrpcCallContext}. The same
-   * context will be reused for all batches. This can be used to customize things like per
-   * attempt timeouts.
+   * context will be reused for all batches. This can be used to customize things like per attempt
+   * timeouts.
    *
    * <p>Sample Code:
    *
@@ -1200,8 +1200,8 @@ public class BigtableDataClient implements AutoCloseable {
    * Reads rows for given tableId and filter criteria in a batch. If the row does not exist, the
    * value will be null. The returned Batcher instance is not threadsafe, it can only be used from a
    * single thread. This method allows customization of the underlying RPCs by passing in a {@link
-   * com.google.api.gax.grpc.GrpcCallContext}. The same context will be reused for all batches.
-   * This can be used to customize things like per attempt timeouts.
+   * com.google.api.gax.grpc.GrpcCallContext}. The same context will be reused for all batches. This
+   * can be used to customize things like per attempt timeouts.
    *
    * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
    * order, which means that the keys are processed sequentially on the server-side, so batching
