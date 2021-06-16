@@ -351,7 +351,7 @@ public class EnhancedBigtableStubTest {
       // Ensure that the server got the overriden deadline
       Context serverCtx = contextInterceptor.contexts.poll();
       assertThat(serverCtx).isNotNull();
-      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(5, TimeUnit.MINUTES));
+      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
     }
   }
 

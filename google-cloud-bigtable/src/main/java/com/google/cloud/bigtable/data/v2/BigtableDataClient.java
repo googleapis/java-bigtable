@@ -1082,7 +1082,8 @@ public class BigtableDataClient implements AutoCloseable {
    * but the entire batch is not executed atomically. The returned Batcher instance is not
    * threadsafe, it can only be used from single thread. This method allows customization of the
    * underlying RPCs by passing in a {@link com.google.api.gax.grpc.GrpcCallContext}. The same
-   * context will be reused for all batches.
+   * context will be reused for all batches. This can be used to customize things like per
+   * attempt timeouts.
    *
    * <p>Sample Code:
    *
@@ -1200,6 +1201,7 @@ public class BigtableDataClient implements AutoCloseable {
    * value will be null. The returned Batcher instance is not threadsafe, it can only be used from a
    * single thread. This method allows customization of the underlying RPCs by passing in a {@link
    * com.google.api.gax.grpc.GrpcCallContext}. The same context will be reused for all batches.
+   * This can be used to customize things like per attempt timeouts.
    *
    * <p>Performance notice: The ReadRows protocol requires that rows are sent in ascending key
    * order, which means that the keys are processed sequentially on the server-side, so batching
@@ -1218,7 +1220,8 @@ public class BigtableDataClient implements AutoCloseable {
    *
    *   List<ApiFuture<Row>> rows = new ArrayList<>();
    *
-   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher("[TABLE]", filter)) {
+   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher(
+   *    "[TABLE]", filter, GrpcCallContext.createDefault().withTimeout(Duration.ofSeconds(10)))) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Row> rowFuture =
    *           batcher.add(ByteString.copyFromUtf8("[ROW KEY]"));
