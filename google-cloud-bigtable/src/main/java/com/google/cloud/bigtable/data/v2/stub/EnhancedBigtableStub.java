@@ -31,6 +31,7 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
+import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -512,9 +513,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new HeaderTracerUnaryCallable<>(
             userFacing, settings.getHeaderTracer(), spanName.toString());
 
-    // TracedBatchingContextCallable needs the last in the callable chain so Batcher can call
-    // TracedBatchingCOntextCallable#futureCall(request, batchingCallContext) to add batching
-    // metrics to ApiTracer.
+    // TracedBatchingContextCallable needs to be the last in the callable chain so Batcher can pass
+    // batchingCallContext to add batching metrics to ApiTracer.
     UnaryCallable<BulkMutation, Void> batchingContextCallable =
         new TracedBatchingContextCallable<>(
             withHeaderTracer,
@@ -578,15 +578,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
       @Nonnull Query query, @Nullable GrpcCallContext ctx) {
     Preconditions.checkNotNull(query, "query cannot be null");
     UnaryCallable<Query, List<Row>> callable = readRowsCallable().all();
+    ApiCallContext callContext = clientContext.getDefaultCallContext();
     if (ctx != null) {
-      callable = callable.withDefaultCallContext(ctx);
+      callContext = ctx.merge(callContext);
     }
     UnaryCallable<Query, List<Row>> batchingContextCallable =
         new TracedBatchingContextCallable(
-            callable,
-            clientContext.getDefaultCallContext(),
-            clientContext.getTracerFactory(),
-            getSpanName("ReadRows"));
+            callable, callContext, clientContext.getTracerFactory(), getSpanName("ReadRows"));
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
         batchingContextCallable,
