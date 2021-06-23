@@ -38,4 +38,7 @@ public abstract class BigtableTracer extends BaseApiTracer {
    * missing header count.
    */
   public abstract void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable);
+
+  /** Adds an annotation of the total throttled time of a batch. */
+  public abstract void batchRequestThrottled(long throttledTimeMs);
 }

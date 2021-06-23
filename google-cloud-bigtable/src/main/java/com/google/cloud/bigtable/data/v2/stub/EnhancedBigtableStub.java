@@ -77,6 +77,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -132,6 +133,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
+  private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
@@ -267,6 +269,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
+    bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
@@ -431,6 +434,46 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * Creates a callable chain to handle bulk ReadRows RPCs. This is meant to be used in ReadRows
+   * batcher. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured in by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   *   <li>Construct a {@link UnaryCallable} that will buffer the entire stream into memory before
+   *       completing. If the stream is empty, then the list will be empty.
+   *   <li>Add tracing & metrics.
+   * </ul>
+   */
+  private <RowT> UnaryCallable<Query, List<RowT>> createBulkReadRowsCallable(
+      RowAdapter<RowT> rowAdapter) {
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
+        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
+
+    ServerStreamingCallable<Query, RowT> readRowsUserCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
+
+    SpanName span = getSpanName("ReadRows");
+
+    // TracedBatcherUnaryCallable needs to be created before TracedUnaryCallable so a tracer is
+    // created before TracedBatcherUnaryCallable is called.
+    UnaryCallable<Query, List<RowT>> tracedBatcher =
+        new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
+
+    UnaryCallable<Query, List<RowT>> withHeaderTracer =
+        new HeaderTracerUnaryCallable(tracedBatcher);
+
+    UnaryCallable<Query, List<RowT>> traced =
+        new TracedUnaryCallable<>(withHeaderTracer, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
    * Creates a callable chain to handle SampleRowKeys RPcs. The chain will:
    *
    * <ul>
@@ -549,8 +592,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
             flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
 
     SpanName spanName = getSpanName("MutateRows");
+
+    UnaryCallable<BulkMutation, Void> tracedBatcher = new TracedBatcherUnaryCallable<>(userFacing);
+
     UnaryCallable<BulkMutation, Void> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(userFacing);
+        new HeaderTracerUnaryCallable<>(tracedBatcher);
+
     UnaryCallable<BulkMutation, Void> traced =
         new TracedUnaryCallable<>(withHeaderTracer, clientContext.getTracerFactory(), spanName);
 
@@ -588,7 +635,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
-        bulkMutationFlowController);
+        bulkMutationFlowController,
+        ctx == null ? clientContext.getDefaultCallContext() : ctx);
   }
 
   /**
@@ -609,7 +657,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       @Nonnull Query query, @Nullable GrpcCallContext ctx) {
     Preconditions.checkNotNull(query, "query cannot be null");
-    UnaryCallable<Query, List<Row>> callable = readRowsCallable().all();
+    UnaryCallable<Query, List<Row>> callable = bulkReadRowsCallable;
     if (ctx != null) {
       callable = callable.withDefaultCallContext(ctx);
     }
@@ -618,7 +666,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
         callable,
         query,
         settings.bulkReadRowsSettings().getBatchingSettings(),
-        clientContext.getExecutor());
+        clientContext.getExecutor(),
+        null,
+        ctx == null ? clientContext.getDefaultCallContext() : ctx);
   }
 
   /**
