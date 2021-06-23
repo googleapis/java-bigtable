@@ -39,6 +39,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
+import com.google.api.gax.tracing.TracedBatchingContextCallable;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
 import com.google.api.gax.tracing.TracedUnaryCallable;
 import com.google.auth.Credentials;
@@ -506,12 +507,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
             flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
 
     SpanName spanName = getSpanName("MutateRows");
-    UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(userFacing, clientContext.getTracerFactory(), spanName);
-    UnaryCallable<BulkMutation, Void> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(traced, settings.getHeaderTracer(), spanName.toString());
 
-    return withHeaderTracer.withDefaultCallContext(clientContext.getDefaultCallContext());
+    UnaryCallable<BulkMutation, Void> withHeaderTracer =
+        new HeaderTracerUnaryCallable<>(
+            userFacing, settings.getHeaderTracer(), spanName.toString());
+
+    // TracedBatchingContextCallable needs the last in the callable chain so Batcher can call
+    // TracedBatchingCOntextCallable#futureCall(request, batchingCallContext) to add batching
+    // metrics to ApiTracer.
+    UnaryCallable<BulkMutation, Void> batchingContextCallable =
+        new TracedBatchingContextCallable<>(
+            withHeaderTracer,
+            clientContext.getDefaultCallContext(),
+            clientContext.getTracerFactory(),
+            spanName);
+
+    return batchingContextCallable;
   }
 
   /**
@@ -570,9 +581,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
     if (ctx != null) {
       callable = callable.withDefaultCallContext(ctx);
     }
+    UnaryCallable<Query, List<Row>> batchingContextCallable =
+        new TracedBatchingContextCallable(
+            callable,
+            clientContext.getDefaultCallContext(),
+            clientContext.getTracerFactory(),
+            getSpanName("ReadRows"));
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
-        callable,
+        batchingContextCallable,
         query,
         settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor());

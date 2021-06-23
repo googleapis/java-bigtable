@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.api.gax.tracing.SpanName;
@@ -202,6 +201,15 @@ class MetricsTracer extends BaseApiTracer {
   @Override
   public void batchRequestSent(long elementCount, long requestSize) {
     // noop
+  }
+
+  @Override
+  public void batchRequestThrottled(long totalThrottledMs) {
+    MeasureMap measures =
+        stats
+            .newMeasureMap()
+            .put(RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME, totalThrottledMs);
+    measures.record(newTagCtxBuilder().build());
   }
 
   private TagContextBuilder newTagCtxBuilder() {

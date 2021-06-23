@@ -193,6 +193,12 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
+  /** Enables OpenCensus metric aggregations for Batch operations. */
+  @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
+  public static void enableOpenCensusBatchStats() {
+    com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientBatchViews();
+  }
+
   /** Returns the target project id. */
   public String getProjectId() {
     return stubSettings.getProjectId();
