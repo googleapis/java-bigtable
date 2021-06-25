@@ -31,7 +31,6 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
-import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -40,7 +39,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
-import com.google.api.gax.tracing.TracedBatchingContextCallable;
+import com.google.api.gax.tracing.TracedBatchedContextCallable;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
 import com.google.api.gax.tracing.TracedUnaryCallable;
 import com.google.auth.Credentials;
@@ -127,6 +126,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
+  private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
@@ -232,6 +232,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
+    bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
@@ -394,6 +395,31 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * @param rowAdapter
+   * @param <RowT>
+   * @return
+   */
+  private <RowT> UnaryCallable<Query, List<RowT>> createBulkReadRowsCallable(
+      RowAdapter<RowT> rowAdapter) {
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
+        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
+
+    ServerStreamingCallable<Query, RowT> readRowsUserCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
+
+    SpanName span = getSpanName("ReadRows");
+
+    UnaryCallable<Query, List<RowT>> traced =
+        new TracedBatchedContextCallable<>(
+            readRowsUserCallable.all(),
+            clientContext.getDefaultCallContext(),
+            clientContext.getTracerFactory(),
+            span);
+
+    return traced;
+  }
+
+  /**
    * Creates a callable chain to handle SampleRowKeys RPcs. The chain will:
    *
    * <ul>
@@ -516,7 +542,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // TracedBatchingContextCallable needs to be the last in the callable chain so Batcher can pass
     // batchingCallContext to add batching metrics to ApiTracer.
     UnaryCallable<BulkMutation, Void> batchingContextCallable =
-        new TracedBatchingContextCallable<>(
+        new TracedBatchedContextCallable<>(
             withHeaderTracer,
             clientContext.getDefaultCallContext(),
             clientContext.getTracerFactory(),
@@ -577,17 +603,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       @Nonnull Query query, @Nullable GrpcCallContext ctx) {
     Preconditions.checkNotNull(query, "query cannot be null");
-    UnaryCallable<Query, List<Row>> callable = readRowsCallable().all();
-    ApiCallContext callContext = clientContext.getDefaultCallContext();
+    UnaryCallable<Query, List<Row>> callable = bulkReadRowsCallable;
     if (ctx != null) {
-      callContext = ctx.merge(callContext);
+      callable = callable.withDefaultCallContext(ctx);
     }
-    UnaryCallable<Query, List<Row>> batchingContextCallable =
-        new TracedBatchingContextCallable(
-            callable, callContext, clientContext.getTracerFactory(), getSpanName("ReadRows"));
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
-        batchingContextCallable,
+        callable,
         query,
         settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor());
