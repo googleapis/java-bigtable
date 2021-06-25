@@ -395,9 +395,20 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * @param rowAdapter
-   * @param <RowT>
-   * @return
+   * Creates a callable chain to handle bulk ReadRows RPCs. This is meant to be used in ReadRows
+   * batcher. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest}.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured in by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   *   <li>Construct a {@link UnaryCallable} that will buffer the entire stream into memory before
+   *       completing. If the stream is empty, then the list will be empty.
+   *   <li>Add tracing & metrics.
+   * </ul>
    */
   private <RowT> UnaryCallable<Query, List<RowT>> createBulkReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
@@ -409,6 +420,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     SpanName span = getSpanName("ReadRows");
 
+    // TracedBatchingContextCallable needs to be the last in the callable chain so Batcher can pass
+    // a BatchedCallContext to add batching metrics to ApiTracer.
     UnaryCallable<Query, List<RowT>> traced =
         new TracedBatchedContextCallable<>(
             readRowsUserCallable.all(),
@@ -540,7 +553,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             userFacing, settings.getHeaderTracer(), spanName.toString());
 
     // TracedBatchingContextCallable needs to be the last in the callable chain so Batcher can pass
-    // batchingCallContext to add batching metrics to ApiTracer.
+    // a BatchedCallContext to add batching metrics to ApiTracer.
     UnaryCallable<BulkMutation, Void> batchingContextCallable =
         new TracedBatchedContextCallable<>(
             withHeaderTracer,
