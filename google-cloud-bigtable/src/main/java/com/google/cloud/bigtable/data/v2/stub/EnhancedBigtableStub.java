@@ -21,8 +21,10 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.BackgroundResource;
+import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.GaxGrpcProperties;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -41,6 +43,7 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
 import com.google.api.gax.tracing.TracedUnaryCallable;
 import com.google.auth.Credentials;
+import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
@@ -55,6 +58,7 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -75,7 +79,6 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacin
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
-import com.google.cloud.bigtable.data.v2.stub.readrows.PointReadTimeoutCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsConvertExceptionCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
@@ -94,10 +97,13 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * The core client that converts method calls to RPCs.
@@ -144,6 +150,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
+
+    // workaround JWT audience issues
+    patchCredentials(builder);
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
@@ -215,6 +224,41 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .setStatsAttributes(attributes)
             .build());
     return builder.build();
+  }
+
+  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
+      throws IOException {
+    int i = settings.getEndpoint().lastIndexOf(":");
+    String host = settings.getEndpoint().substring(0, i);
+    String audience = settings.getJwtAudienceMapping().get(host);
+
+    if (audience == null) {
+      return;
+    }
+    URI audienceUri = null;
+    try {
+      audienceUri = new URI(audience);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("invalid JWT audience override", e);
+    }
+
+    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
+    if (credentialsProvider == null) {
+      return;
+    }
+
+    Credentials credentials = credentialsProvider.getCredentials();
+    if (credentials == null) {
+      return;
+    }
+
+    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
+      return;
+    }
+
+    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
+    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
+    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
@@ -337,7 +381,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
       ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
 
-    final ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
+    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<ReadRowsRequest, ReadRowsResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getReadRowsMethod())
@@ -353,15 +397,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             readRowsSettings.getRetryableCodes());
 
-    // Promote streamWaitTimeout to deadline for point reads
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withPointTimeouts =
-        new PointReadTimeoutCallable<>(base);
-
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ReadRowsConvertExceptionCallable<>(withPointTimeouts);
+        new ReadRowsConvertExceptionCallable<>(base);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
@@ -536,10 +576,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Split the responses using {@link MutateRowsBatchingDescriptor}.
    * </ul>
    */
-  public Batcher<RowMutationEntry, Void> newMutateRowsBatcher(@Nonnull String tableId) {
+  public Batcher<RowMutationEntry, Void> newMutateRowsBatcher(
+      @Nonnull String tableId, @Nullable GrpcCallContext ctx) {
+    UnaryCallable<BulkMutation, Void> callable = this.bulkMutateRowsCallable;
+    if (ctx != null) {
+      callable = callable.withDefaultCallContext(ctx);
+    }
     return new BatcherImpl<>(
         settings.bulkMutateRowsSettings().getBatchingDescriptor(),
-        bulkMutateRowsCallable,
+        callable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
@@ -561,11 +606,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Split the responses using {@link ReadRowsBatchingDescriptor}.
    * </ul>
    */
-  public Batcher<ByteString, Row> newBulkReadRowsBatcher(@Nonnull Query query) {
+  public Batcher<ByteString, Row> newBulkReadRowsBatcher(
+      @Nonnull Query query, @Nullable GrpcCallContext ctx) {
     Preconditions.checkNotNull(query, "query cannot be null");
+    UnaryCallable<Query, List<Row>> callable = readRowsCallable().all();
+    if (ctx != null) {
+      callable = callable.withDefaultCallContext(ctx);
+    }
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
-        readRowsCallable().all(),
+        callable,
         query,
         settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor());

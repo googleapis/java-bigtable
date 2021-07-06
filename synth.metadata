@@ -4,7 +4,7 @@
       "git": {
         "name": ".",
         "remote": "https://github.com/googleapis/java-bigtable.git",
-        "sha": "ea7de844333ea43d55b8907f86534ccbb679ac18"
+        "sha": "099f5068891991539ab584571a2b22cf7f45fab6"
       }
     },
     {
@@ -19,7 +19,7 @@
       "git": {
         "name": "synthtool",
         "remote": "https://github.com/googleapis/synthtool.git",
-        "sha": "8eae0234a16b26c2ff616d305dbd9786c8b10a47"
+        "sha": "87254ac89a9559864c0a245d6b150406439ce3d8"
       }
     }
   ],
@@ -104,6 +104,7 @@
     ".kokoro/trampoline.sh",
     "CODE_OF_CONDUCT.md",
     "LICENSE",
+    "SECURITY.md",
     "codecov.yaml",
     "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminClient.java",
     "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminSettings.java",

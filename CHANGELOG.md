@@ -1,5 +1,47 @@
 # Changelog
 
+### [1.27.2](https://www.github.com/googleapis/java-bigtable/compare/v1.27.1...v1.27.2) (2021-07-01)
+
+
+### Bug Fixes
+
+* jwt authentication on batch-bigtable.googleapis.com ([#892](https://www.github.com/googleapis/java-bigtable/issues/892)) ([d2ca9c6](https://www.github.com/googleapis/java-bigtable/commit/d2ca9c62f3fcb9c79c97ef8a73bad3a0e7555afc))
+
+### [1.27.1](https://www.github.com/googleapis/java-bigtable/compare/v1.27.0...v1.27.1) (2021-06-30)
+
+
+### Bug Fixes
+
+* Add `shopt -s nullglob` to dependencies script ([#884](https://www.github.com/googleapis/java-bigtable/issues/884)) ([8b971a2](https://www.github.com/googleapis/java-bigtable/commit/8b971a2510685be336b0dd19fc048905b56906e3))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v1.4.0 ([#889](https://www.github.com/googleapis/java-bigtable/issues/889)) ([8b6754f](https://www.github.com/googleapis/java-bigtable/commit/8b6754fb1fbdca43a327e3f253be076eb0c2cd2f))
+
+## [1.27.0](https://www.github.com/googleapis/java-bigtable/compare/v1.26.1...v1.27.0) (2021-06-22)
+
+
+### Features
+
+* all setting timeouts for batchers + fix handling of timeouts for point reads ([#861](https://www.github.com/googleapis/java-bigtable/issues/861)) ([c145ceb](https://www.github.com/googleapis/java-bigtable/commit/c145ceb592f04f94a09be815feff87e0c64e8e7d))
+* call setting timeouts for batchers ([#877](https://www.github.com/googleapis/java-bigtable/issues/877)) ([0f3654d](https://www.github.com/googleapis/java-bigtable/commit/0f3654d726dbb45b4a12ef98f872612e49b9a263))
+
+
+### Bug Fixes
+
+* Update dependencies.sh to not break on mac ([#873](https://www.github.com/googleapis/java-bigtable/issues/873)) ([9e6b85d](https://www.github.com/googleapis/java-bigtable/commit/9e6b85deffff15961d12eb8b656210b5e12d8162))
+
+
+### Reverts
+
+* Revert "feat: promote stream wait timeouts to deadlines for point reads" ([#876](https://www.github.com/googleapis/java-bigtable/issues/876)) ([4614912](https://www.github.com/googleapis/java-bigtable/commit/4614912b6ea76c9057b1a4cbf869eb3145bce18f))
+
+
+### Documentation
+
+* fix connection pool size for samples ([#880](https://www.github.com/googleapis/java-bigtable/issues/880)) ([d0d1aa3](https://www.github.com/googleapis/java-bigtable/commit/d0d1aa3195c0d63242254eece3e92e9ad078069b))
+
 ### [1.26.1](https://www.github.com/googleapis/java-bigtable/compare/v1.26.0...v1.26.1) (2021-06-07)
 
 
