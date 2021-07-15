@@ -152,4 +152,11 @@ class CompositeTracer extends BaseApiTracer {
       child.batchRequestSent(elementCount, requestSize);
     }
   }
+
+  @Override
+  public void batchRequestThrottled(long throttledTimeMs) {
+    for (ApiTracer child : children) {
+      child.batchRequestThrottled(throttledTimeMs);
+    }
+  }
 }

@@ -203,6 +203,15 @@ class MetricsTracer extends BaseApiTracer {
     // noop
   }
 
+  @Override
+  public void batchRequestThrottled(long totalThrottledMs) {
+    MeasureMap measures =
+        stats
+            .newMeasureMap()
+            .put(RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME, totalThrottledMs);
+    measures.record(newTagCtxBuilder().build());
+  }
+
   private TagContextBuilder newTagCtxBuilder() {
     TagContextBuilder tagCtx =
         tagger
