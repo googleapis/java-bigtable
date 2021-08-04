@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.common.collect.ImmutableList;
@@ -23,8 +24,10 @@ import java.util.List;
 import org.threeten.bp.Duration;
 
 /** Combines multiple {@link ApiTracer}s into a single {@link ApiTracer}. */
-class CompositeTracer extends BaseApiTracer {
+@InternalApi("For internal use only")
+public class CompositeTracer extends BaseApiTracer {
   private final List<ApiTracer> children;
+  private int attempt = 0;
 
   CompositeTracer(List<ApiTracer> children) {
     this.children = ImmutableList.copyOf(children);
@@ -81,6 +84,7 @@ class CompositeTracer extends BaseApiTracer {
     for (ApiTracer child : children) {
       child.attemptStarted(attemptNumber);
     }
+    this.attempt = attemptNumber;
   }
 
   @Override
@@ -151,5 +155,9 @@ class CompositeTracer extends BaseApiTracer {
     for (ApiTracer child : children) {
       child.batchRequestSent(elementCount, requestSize);
     }
+  }
+
+  public int getAttempt() {
+    return attempt;
   }
 }
