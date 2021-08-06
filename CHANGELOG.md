@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://www.github.com/googleapis/java-bigtable/compare/v1.27.3...v1.28.0) (2021-08-06)
+
+
+### Features
+
+* configure initial sp version ([#932](https://www.github.com/googleapis/java-bigtable/issues/932)) ([f568a7b](https://www.github.com/googleapis/java-bigtable/commit/f568a7b2352b0e13bbc00406a07f6cb9b9e0317b))
+
 ### [1.27.3](https://www.github.com/googleapis/java-bigtable/compare/v1.27.2...v1.27.3) (2021-07-19)
 
 
