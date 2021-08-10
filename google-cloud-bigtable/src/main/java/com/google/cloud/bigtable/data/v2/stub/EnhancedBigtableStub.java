@@ -70,7 +70,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
@@ -90,7 +90,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
-import io.grpc.Metadata;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -120,11 +119,6 @@ import javax.annotation.Nullable;
  */
 @InternalApi
 public class EnhancedBigtableStub implements AutoCloseable {
-  static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
-      Metadata.Key.of("attempt", Metadata.ASCII_STRING_MARSHALLER);
-  static final Metadata.Key<String> TIMESTAMP_HEADER_KEY =
-      Metadata.Key.of("client-timing", Metadata.ASCII_STRING_MARSHALLER);
-
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
 
@@ -197,7 +191,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .build();
     // Inject Opencensus instrumentation
     builder.setTracerFactory(
-        new CompositeTracerFactory(
+        new BigtableTracerFactory(
             ImmutableList.of(
                 // Add OpenCensus Tracing
                 new OpencensusTracerFactory(

@@ -19,13 +19,12 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracer;
-import com.google.common.collect.ImmutableMap;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 
-/** A callable that injects client timestamp and attempt count to request headers. */
+/**
+ * A callable that injects client timestamp and current attempt number to request headers. Attempt
+ * number starts from 0.
+ */
 final class ExtraHeadersSeverStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
   private final ServerStreamingCallable innerCallable;
@@ -39,17 +38,8 @@ final class ExtraHeadersSeverStreamingCallable<RequestT, ResponseT>
       RequestT request,
       ResponseObserver<ResponseT> responseObserver,
       ApiCallContext apiCallContext) {
-    int attemptCount = -1;
-    if (apiCallContext.getTracer() instanceof CompositeTracer) {
-      attemptCount = ((CompositeTracer) apiCallContext.getTracer()).getAttempt();
-    }
-    Map<String, List<String>> headers =
-        ImmutableMap.of(
-            EnhancedBigtableStub.ATTEMPT_HEADER_KEY.name(),
-            Arrays.asList(String.valueOf(attemptCount)),
-            EnhancedBigtableStub.TIMESTAMP_HEADER_KEY.name(),
-            Arrays.asList(String.valueOf(System.currentTimeMillis())));
-    ApiCallContext newCallContext = apiCallContext.withExtraHeaders(headers);
+    ApiCallContext newCallContext =
+        apiCallContext.withExtraHeaders(Util.createExtraHeaders(apiCallContext));
     innerCallable.call(request, responseObserver, newCallContext);
   }
 }

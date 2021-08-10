@@ -40,6 +40,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.common.collect.Queues;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -52,8 +53,6 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
-import io.opencensus.stats.StatsComponent;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
@@ -68,7 +67,6 @@ public class ExtraHeadersCallableTest {
 
   private FakeService fakeService = new FakeService();
 
-  private final StatsComponent localStats = new StatsComponentImpl();
   private EnhancedBigtableStub stub;
 
   private static final String PROJECT_ID = "fake-project";
@@ -261,11 +259,11 @@ public class ExtraHeadersCallableTest {
 
     for (int i = 0; i < expectedAttemptCounts; i++) {
       Metadata headers = metadataInterceptor.headers.take();
-      String attemptCount = headers.get(EnhancedBigtableStub.ATTEMPT_HEADER_KEY);
+      String attemptCount = headers.get(Util.ATTEMPT_HEADER_KEY);
       assertThat(attemptCount).isNotNull();
       assertThat(Integer.valueOf(attemptCount)).isEqualTo(i);
 
-      String clientTimeStr = headers.get(EnhancedBigtableStub.TIMESTAMP_HEADER_KEY);
+      String clientTimeStr = headers.get(Util.TIMESTAMP_HEADER_KEY);
       assertThat(clientTimeStr).isNotNull();
       long clientTime = Long.valueOf(clientTimeStr);
       assertThat(clientTime).isAtLeast(timestamp);
