@@ -14,32 +14,30 @@
  * limitations under the License.
  */
 
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.ApiFuture;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ResponseObserver;
-import com.google.api.gax.rpc.ServerStreamingCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
+import com.google.api.gax.rpc.UnaryCallable;
 
 /**
  * A callable that injects client timestamp and current attempt number to request headers. Attempt
  * number starts from 0.
  */
-final class ExtraHeadersSeverStreamingCallable<RequestT, ResponseT>
-    extends ServerStreamingCallable<RequestT, ResponseT> {
-  private final ServerStreamingCallable innerCallable;
+@InternalApi("For internal use only")
+public final class ExtraHeadersUnaryCallable<RequestT, ResponseT>
+    extends UnaryCallable<RequestT, ResponseT> {
+  private final UnaryCallable innerCallable;
 
-  ExtraHeadersSeverStreamingCallable(ServerStreamingCallable innerCallable) {
+  public ExtraHeadersUnaryCallable(UnaryCallable innerCallable) {
     this.innerCallable = innerCallable;
   }
 
   @Override
-  public void call(
-      RequestT request,
-      ResponseObserver<ResponseT> responseObserver,
-      ApiCallContext apiCallContext) {
+  public ApiFuture futureCall(RequestT request, ApiCallContext apiCallContext) {
     ApiCallContext newCallContext =
         apiCallContext.withExtraHeaders(Util.createExtraHeaders(apiCallContext));
-    innerCallable.call(request, responseObserver, newCallContext);
+    return innerCallable.futureCall(request, newCallContext);
   }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
@@ -35,11 +34,10 @@ import java.util.concurrent.Future;
 import javax.annotation.Nullable;
 
 /** Utilities to help integrating with OpenCensus. */
-@InternalApi("For internal use only")
-public class Util {
-  public static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
+class Util {
+  static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
       Metadata.Key.of("attempt", Metadata.ASCII_STRING_MARSHALLER);
-  public static final Metadata.Key<String> TIMESTAMP_HEADER_KEY =
+  static final Metadata.Key<String> TIMESTAMP_HEADER_KEY =
       Metadata.Key.of("client-timing", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
@@ -89,7 +87,7 @@ public class Util {
    * Create extra headers with attempt number and client timestamp from api call context. Attempt
    * number starts from 0.
    */
-  public static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
+  static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
     int attemptCount = -1;
     if (apiCallContext.getTracer() instanceof BigtableTracer) {
       attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();

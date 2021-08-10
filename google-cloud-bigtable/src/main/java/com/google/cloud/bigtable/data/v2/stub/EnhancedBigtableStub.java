@@ -71,6 +71,8 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ExtraHeadersSeverStreamingCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ExtraHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
