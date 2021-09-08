@@ -133,6 +133,7 @@ public class BuiltinMetricsRecorder {
             .put(BuiltinMeasureConstants.APPLICATION_LATENCIES, applicationLatency);
 
     TagContextBuilder tagCtx = newTagContextBuilder(tableId, zone, cluster);
+
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
       tagCtx.putLocal(BuiltinMeasureConstants.STREAMING, TagValue.create("true"));
