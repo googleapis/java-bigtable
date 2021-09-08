@@ -49,8 +49,27 @@
             <artifactId>api-common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-monitoring</artifactId>
+            <version>3.2.9</version>
+        </dependency>
+        <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.cloud</groupId>
+                    <artifactId>google-cloud-monitoring</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
