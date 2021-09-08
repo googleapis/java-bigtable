@@ -21,6 +21,14 @@ import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Metadata;
+import com.google.api.core.InternalApi;
+import com.google.bigtable.v2.CheckAndMutateRowRequest;
+import com.google.bigtable.v2.MutateRowRequest;
+import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.ReadModifyWriteRowRequest;
+import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.bigtable.v2.SampleRowKeysRequest;
+import com.google.bigtable.v2.TableName;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -38,7 +46,8 @@ import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
 /** Utilities to help integrating with OpenCensus. */
-class Util {
+@InternalApi("For internal use only")
+public class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
       Metadata.Key.of("bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
@@ -51,11 +60,11 @@ class Util {
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
   /** Convert an exception into a value that can be used as an OpenCensus tag value. */
-  static TagValue extractStatus(@Nullable Throwable error) {
+  public static String extractStatus(@Nullable Throwable error) {
     final String statusString;
 
     if (error == null) {
-      return OK_STATUS;
+      return StatusCode.Code.OK.toString();
     } else if (error instanceof CancellationException) {
       statusString = Status.Code.CANCELLED.toString();
     } else if (error instanceof ApiException) {
@@ -68,7 +77,7 @@ class Util {
       statusString = Code.UNKNOWN.toString();
     }
 
-    return TagValue.create(statusString);
+    return statusString;
   }
 
   /**
@@ -88,7 +97,25 @@ class Util {
     } catch (RuntimeException e) {
       error = e;
     }
-    return extractStatus(error);
+    return TagValue.create(extractStatus(error));
+  }
+
+  public static String extractTableId(Object request) {
+    String tableName = null;
+    if (request instanceof ReadRowsRequest) {
+      tableName = ((ReadRowsRequest) request).getTableName();
+    } else if (request instanceof MutateRowsRequest) {
+      tableName = ((MutateRowsRequest) request).getTableName();
+    } else if (request instanceof MutateRowRequest) {
+      tableName = ((MutateRowRequest) request).getTableName();
+    } else if (request instanceof SampleRowKeysRequest) {
+      tableName = ((SampleRowKeysRequest) request).getTableName();
+    } else if (request instanceof CheckAndMutateRowRequest) {
+      tableName = ((CheckAndMutateRowRequest) request).getTableName();
+    } else if (request instanceof ReadModifyWriteRowRequest) {
+      tableName = ((ReadModifyWriteRowRequest) request).getTableName();
+    }
+    return tableName != null ? TableName.parse(tableName).getTable() : "undefined";
   }
 
   /**
