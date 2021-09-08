@@ -71,6 +71,7 @@ public class BuiltinMetricsRecorderTest {
     tracer.recordGfeLatencies(serverLatency);
     tracer.recordGfeMissingHeaders(connectivityErrorCount);
     tracer.recordFirstResponseLatency(firstResponseLatency);
+
     tracer.recordBatchRequestThrottled(throttlingLatency, TABLE_ID, ZONE, CLUSTER);
 
     tracer.recordAttemptLevelWithoutStreaming(
