@@ -15,13 +15,15 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutureCallback;
+import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ResponseObserver;
-import com.google.api.gax.rpc.ServerStreamingCallable;
-import com.google.api.gax.rpc.StreamController;
+import com.google.api.gax.rpc.UnaryCallable;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.MoreExecutors;
 import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
@@ -40,72 +42,53 @@ import javax.annotation.Nonnull;
  * applications.
  */
 @InternalApi
-public class HeaderTracerStreamingCallable<RequestT, ResponseT>
-    extends ServerStreamingCallable<RequestT, ResponseT> {
+public class BigtableTracerUnaryCallable<RequestT, ResponseT>
+    extends UnaryCallable<RequestT, ResponseT> {
 
-  private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
+  private final UnaryCallable<RequestT, ResponseT> innerCallable;
 
-  public HeaderTracerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable) {
-    this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
+  public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
+    this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
   }
 
   @Override
-  public void call(
-      RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-    // tracer should always be an instance of bigtable tracer
+  public ApiFuture futureCall(RequestT request, ApiCallContext context) {
+    // tracer should always be an instance of BigtableTracer
     if (RpcViews.isGfeMetricsRegistered() && context.getTracer() instanceof BigtableTracer) {
-      HeaderTracerResponseObserver<ResponseT> innerObserver =
-          new HeaderTracerResponseObserver<>(
-              responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
-      innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
+      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+      final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
+      BigtableTracerUnaryCallback callback =
+          new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
+      ApiFuture<ResponseT> future = innerCallable.futureCall(request, contextWithResponseMetadata);
+      ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
+      return future;
     } else {
-      innerCallable.call(request, responseObserver, context);
+      return innerCallable.futureCall(request, context);
     }
   }
 
-  private class HeaderTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
+  class BigtableTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
 
     private final BigtableTracer tracer;
-    private final ResponseObserver<ResponseT> outerObserver;
     private final GrpcResponseMetadata responseMetadata;
 
-    HeaderTracerResponseObserver(
-        ResponseObserver<ResponseT> observer,
-        BigtableTracer tracer,
-        GrpcResponseMetadata metadata) {
+    BigtableTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
       this.tracer = tracer;
-      this.outerObserver = observer;
-      this.responseMetadata = metadata;
+      this.responseMetadata = responseMetadata;
     }
 
     @Override
-    public void onStart(final StreamController controller) {
-      outerObserver.onStart(controller);
-    }
-
-    @Override
-    public void onResponse(ResponseT response) {
-      outerObserver.onResponse(response);
-    }
-
-    @Override
-    public void onError(Throwable t) {
-      // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
-      // so it's not checking trailing metadata here.
+    public void onFailure(Throwable throwable) {
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
-      tracer.recordGfeMetadata(latency, t);
-      outerObserver.onError(t);
+      tracer.recordGfeMetadata(latency, throwable);
     }
 
     @Override
-    public void onComplete() {
+    public void onSuccess(ResponseT response) {
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
-      outerObserver.onComplete();
     }
   }
 }
