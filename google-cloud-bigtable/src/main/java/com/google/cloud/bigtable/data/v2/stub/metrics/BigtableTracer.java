@@ -35,6 +35,11 @@ public class BigtableTracer extends BaseApiTracer {
     this.attempt = attemptNumber;
   }
 
+  /** annotate when onRequest is called */
+  public void onRequest() {
+    // noop
+  }
+
   /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
    * and should be recorded in {@link #attemptStarted(int)}. With the getter we can access it from
@@ -55,6 +60,13 @@ public class BigtableTracer extends BaseApiTracer {
 
   /** Adds an annotation of the total throttled time of a batch. */
   public void batchRequestThrottled(long throttledTimeMs) {
+    // noop
+  }
+
+  /**
+   * Set the Bigtable zone and cluster so metrics can be tagged with location information.
+   */
+  public void setLocations(String zone, String cluster) {
     // noop
   }
 }
