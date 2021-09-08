@@ -55,7 +55,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.StatsComponent;
-import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -68,7 +67,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class HeaderTracerCallableTest {
+public class BigtableTracerCallableTest {
   private FakeServiceHelper serviceHelper;
   private FakeServiceHelper serviceHelperNoHeader;
 
@@ -381,24 +380,6 @@ public class HeaderTracerCallableTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
     assertThat(missingCount).isEqualTo(attempts);
-  }
-
-  @Test
-  public void testCallableBypassed() throws InterruptedException {
-    RpcViews.setGfeMetricsRegistered(false);
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    ViewData headerMissingView =
-        localStats
-            .getViewManager()
-            .getView(RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW.getName());
-    ViewData latencyView =
-        localStats.getViewManager().getView(RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW.getName());
-    // Verify that the view is registered by it's not collecting metrics
-    assertThat(headerMissingView).isNotNull();
-    assertThat(latencyView).isNotNull();
-    assertThat(headerMissingView.getAggregationMap()).isEmpty();
-    assertThat(latencyView.getAggregationMap()).isEmpty();
   }
 
   private class FakeService extends BigtableImplBase {

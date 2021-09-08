@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4;
 public class UtilTest {
   @Test
   public void testOk() {
-    TagValue tagValue = Util.extractStatus((Throwable) null);
+    TagValue tagValue = TagValue.create(Util.extractStatus((Throwable) null));
     assertThat(tagValue.asString()).isEqualTo("OK");
   }
 
@@ -45,7 +45,7 @@ public class UtilTest {
     DeadlineExceededException error =
         new DeadlineExceededException(
             "Deadline exceeded", null, GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED), true);
-    TagValue tagValue = Util.extractStatus(error);
+    TagValue tagValue = TagValue.create(Util.extractStatus(error));
     assertThat(tagValue.asString()).isEqualTo("DEADLINE_EXCEEDED");
   }
 
