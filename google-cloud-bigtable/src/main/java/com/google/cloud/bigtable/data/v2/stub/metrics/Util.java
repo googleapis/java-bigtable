@@ -36,9 +36,9 @@ import javax.annotation.Nullable;
 /** Utilities to help integrating with OpenCensus. */
 class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
-      Metadata.Key.of("x-bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
-      Metadata.Key.of("x-bigtable-client-attempt-epoch", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-client-attempt-epoch", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
