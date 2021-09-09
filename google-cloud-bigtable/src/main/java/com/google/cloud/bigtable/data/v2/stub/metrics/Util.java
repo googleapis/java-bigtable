@@ -36,9 +36,9 @@ import javax.annotation.Nullable;
 /** Utilities to help integrating with OpenCensus. */
 class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
-      Metadata.Key.of("attempt", Metadata.ASCII_STRING_MARSHALLER);
-  static final Metadata.Key<String> TIMESTAMP_HEADER_KEY =
-      Metadata.Key.of("client-timing", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("x-bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
+  static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
+      Metadata.Key.of("x-bigtable-client-attempt-epoch", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
@@ -88,16 +88,14 @@ class Util {
    * number starts from 0.
    */
   static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
-    int attemptCount = -1;
-    if (apiCallContext.getTracer() instanceof BigtableTracer) {
-      attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
-    }
     ImmutableMap.Builder headers = ImmutableMap.<String, List<String>>builder();
-    if (attemptCount != -1) {
+    headers.put(
+        ATTEMPT_EPOCH_KEY.name(), Arrays.asList(String.valueOf(System.currentTimeMillis())));
+
+    if (apiCallContext.getTracer() instanceof BigtableTracer) {
+      int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
       headers.put(ATTEMPT_HEADER_KEY.name(), Arrays.asList(String.valueOf(attemptCount)));
     }
-    headers.put(
-        TIMESTAMP_HEADER_KEY.name(), Arrays.asList(String.valueOf(System.currentTimeMillis())));
     return headers.build();
   }
 }

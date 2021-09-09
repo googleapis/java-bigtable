@@ -167,7 +167,9 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
       // attemptStared should be called at the very start of the operation. This will initialize
       // variables in ApiTracer and avoid exceptions when the tracer marks the attempt as finished
-      callContext.getTracer().attemptStarted(externalFuture.getAttemptSettings().getAttemptCount());
+      callContext
+          .getTracer()
+          .attemptStarted(externalFuture.getAttemptSettings().getOverallAttemptCount());
 
       Preconditions.checkState(
           currentRequest.getEntriesCount() > 0, "Request doesn't have any mutations to send");

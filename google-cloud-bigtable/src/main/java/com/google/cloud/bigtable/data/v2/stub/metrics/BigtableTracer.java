@@ -31,7 +31,7 @@ import org.threeten.bp.Duration;
  */
 class BigtableTracer extends BaseApiTracer {
   private final List<ApiTracer> children;
-  private int attempt = 0;
+  private volatile int attempt = 0;
 
   BigtableTracer(List<ApiTracer> children) {
     this.children = ImmutableList.copyOf(children);

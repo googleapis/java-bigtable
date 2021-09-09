@@ -264,7 +264,7 @@ public class ExtraHeadersCallableTest {
       assertThat(attemptCount).isNotNull();
       assertThat(Integer.valueOf(attemptCount)).isEqualTo(i);
 
-      String clientTimeStr = headers.get(Util.TIMESTAMP_HEADER_KEY);
+      String clientTimeStr = headers.get(Util.ATTEMPT_EPOCH_KEY);
       assertThat(clientTimeStr).isNotNull();
       long clientTime = Long.valueOf(clientTimeStr);
       assertThat(clientTime).isAtLeast(timestamp);
