@@ -22,7 +22,6 @@ import static org.mockito.Matchers.any;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.batching.Batcher;
-import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -44,17 +43,24 @@ import com.google.protobuf.Empty;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class BigtableDataClientTest {
+
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
+
   @Mock private EnhancedBigtableStub mockStub;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -81,13 +87,9 @@ public class BigtableDataClientTest {
     Mockito.when(mockStub.bulkMutateRowsCallable()).thenReturn(mockBulkMutateRowsCallable);
     Mockito.when(mockStub.checkAndMutateRowCallable()).thenReturn(mockCheckAndMutateRowCallable);
     Mockito.when(mockStub.readModifyWriteRowCallable()).thenReturn(mockReadModifyWriteRowCallable);
-    Mockito.when(
-            mockStub.newMutateRowsBatcher(
-                Mockito.any(String.class), Mockito.any(GrpcCallContext.class)))
+    Mockito.when(mockStub.newMutateRowsBatcher(Mockito.any(String.class), Mockito.any()))
         .thenReturn(mockBulkMutationBatcher);
-    Mockito.when(
-            mockStub.newBulkReadRowsBatcher(
-                Mockito.any(Query.class), Mockito.any(GrpcCallContext.class)))
+    Mockito.when(mockStub.newBulkReadRowsBatcher(Mockito.any(Query.class), Mockito.any()))
         .thenReturn(mockBulkReadRowsBatcher);
   }
 
@@ -379,8 +381,7 @@ public class BigtableDataClientTest {
     ApiFuture<Void> actualRes = batcher.add(request);
     assertThat(actualRes).isSameInstanceAs(expectedResponse);
 
-    Mockito.verify(mockStub)
-        .newMutateRowsBatcher(Mockito.any(String.class), Mockito.any(GrpcCallContext.class));
+    Mockito.verify(mockStub).newMutateRowsBatcher(Mockito.any(String.class), Mockito.any());
   }
 
   @Test
@@ -396,8 +397,7 @@ public class BigtableDataClientTest {
     ApiFuture<Row> actualResponse = batcher.add(request);
     assertThat(actualResponse).isSameInstanceAs(expectedResponse);
 
-    Mockito.verify(mockStub)
-        .newBulkReadRowsBatcher(Mockito.any(Query.class), Mockito.any(GrpcCallContext.class));
+    Mockito.verify(mockStub).newBulkReadRowsBatcher(Mockito.any(Query.class), Mockito.any());
   }
 
   @Test
@@ -414,8 +414,7 @@ public class BigtableDataClientTest {
     ApiFuture<Row> actualResponse = batcher.add(request);
     assertThat(actualResponse).isSameInstanceAs(expectedResponse);
 
-    Mockito.verify(mockStub)
-        .newBulkReadRowsBatcher(Mockito.any(Query.class), Mockito.any(GrpcCallContext.class));
+    Mockito.verify(mockStub).newBulkReadRowsBatcher(Mockito.any(Query.class), Mockito.any());
   }
 
   @Test
