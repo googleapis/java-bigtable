@@ -71,7 +71,7 @@ public class TestEnvRule implements TestRule {
 
   private static final Logger LOGGER = Logger.getLogger(TestEnvRule.class.getName());
   private static final Boolean BIGTABLE_ENABLE_VERBOSE_GRPC_LOGS =
-      Boolean.getBoolean("enable-verbose-grpc-logs");
+      Boolean.getBoolean("bigtable.enable-grpc-logs");
   private static final String BIGTABLE_GRPC_LOG_DIR = System.getProperty("bigtable.grpc-log-dir");
   private static final String BIGTABLE_EMULATOR_HOST_ENV_VAR = "BIGTABLE_EMULATOR_HOST";
   private static final String ENV_PROPERTY = "bigtable.env";
