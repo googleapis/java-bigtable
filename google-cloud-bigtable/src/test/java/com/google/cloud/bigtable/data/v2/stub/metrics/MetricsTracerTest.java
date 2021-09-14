@@ -132,7 +132,7 @@ public class MetricsTracerTest {
               }
             })
         .when(mockService)
-        .readRows(any(ReadRowsRequest.class), anyObserver(ReadRowsResponse.class));
+        .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
@@ -169,7 +169,7 @@ public class MetricsTracerTest {
               }
             })
         .when(mockService)
-        .readRows(any(ReadRowsRequest.class), anyObserver(ReadRowsResponse.class));
+        .readRows(any(ReadRowsRequest.class), any());
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
@@ -210,7 +210,7 @@ public class MetricsTracerTest {
               }
             })
         .when(mockService)
-        .readRows(any(ReadRowsRequest.class), anyObserver(ReadRowsResponse.class));
+        .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
@@ -258,7 +258,7 @@ public class MetricsTracerTest {
               }
             })
         .when(mockService)
-        .readRows(any(ReadRowsRequest.class), anyObserver(ReadRowsResponse.class));
+        .readRows(any(ReadRowsRequest.class), any());
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
@@ -305,7 +305,7 @@ public class MetricsTracerTest {
               }
             })
         .when(mockService)
-        .readRows(any(ReadRowsRequest.class), anyObserver(ReadRowsResponse.class));
+        .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
