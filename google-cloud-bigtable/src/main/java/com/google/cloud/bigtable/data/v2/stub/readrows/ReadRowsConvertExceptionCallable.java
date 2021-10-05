@@ -78,7 +78,7 @@ public final class ReadRowsConvertExceptionCallable<ReadRowsRequest, RowT>
     // Long lived connections sometimes are disconnected via an RST frame. This error is
     // transient and should be retried.
     if (t instanceof InternalException) {
-      if (t.getMessage() != null && t.getMessage().contains("Received Rst stream")) {
+      if (t.getMessage() != null && t.getMessage().contains("Received Rst Stream")) {
         return new InternalException(t, ((InternalException) t).getStatusCode(), true);
       }
     }
