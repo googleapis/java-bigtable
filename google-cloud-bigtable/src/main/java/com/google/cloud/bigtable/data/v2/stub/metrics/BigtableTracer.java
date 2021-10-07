@@ -85,10 +85,10 @@ class BigtableTracer extends BaseApiTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    this.attempt = attemptNumber;
     for (ApiTracer child : children) {
       child.attemptStarted(attemptNumber);
     }
-    this.attempt = attemptNumber;
   }
 
   @Override
