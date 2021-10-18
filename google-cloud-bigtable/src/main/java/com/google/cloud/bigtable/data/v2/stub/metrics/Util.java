@@ -38,7 +38,7 @@ class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
       Metadata.Key.of("bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
-      Metadata.Key.of("bigtable-client-attempt-epoch", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-client-attempt-epoch-ms", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
