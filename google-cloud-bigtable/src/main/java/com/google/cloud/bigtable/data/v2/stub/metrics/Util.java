@@ -25,6 +25,7 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,7 @@ class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
       Metadata.Key.of("bigtable-attempt", Metadata.ASCII_STRING_MARSHALLER);
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
-      Metadata.Key.of("bigtable-client-attempt-epoch-ms", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-client-attempt-epoch-usec", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
@@ -89,8 +90,9 @@ class Util {
    */
   static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
     ImmutableMap.Builder headers = ImmutableMap.<String, List<String>>builder();
-    headers.put(
-        ATTEMPT_EPOCH_KEY.name(), Arrays.asList(String.valueOf(System.currentTimeMillis())));
+    Instant now = Instant.now();
+    long epochUsec = now.getEpochSecond() * 1000000 + now.getNano() / 1000;
+    headers.put(ATTEMPT_EPOCH_KEY.name(), Arrays.asList(String.valueOf(epochUsec)));
 
     if (apiCallContext.getTracer() instanceof BigtableTracer) {
       int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();

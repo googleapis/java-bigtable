@@ -102,21 +102,21 @@ public class ExtraHeadersCallableTest {
 
   @Test
   public void testReadRowsHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.readRowsCallable().call(Query.create(TABLE_ID).rowKey("key")).iterator().next();
     verifyHeaders(attemptCounts, startTimestamp);
   }
 
   @Test
   public void testReadRowHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.readRowCallable().futureCall(Query.create(TABLE_ID).rowKey("key")).get();
     verifyHeaders(attemptCounts, startTimestamp);
   }
 
   @Test
   public void testMutateRowsHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.bulkMutateRowsCallable()
         .futureCall(BulkMutation.create(TABLE_ID).add(RowMutationEntry.create("key")))
         .get();
@@ -125,7 +125,7 @@ public class ExtraHeadersCallableTest {
 
   @Test
   public void testMutateRowHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.mutateRowCallable()
         .futureCall(RowMutation.create(TABLE_ID, "key").setCell("f", "q", "value"))
         .get();
@@ -134,14 +134,14 @@ public class ExtraHeadersCallableTest {
 
   @Test
   public void testSampleRowKeysHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.sampleRowKeysCallable().call(TABLE_ID).get(0);
     verifyHeaders(attemptCounts, startTimestamp);
   }
 
   @Test
   public void testCheckAndMutateHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.checkAndMutateRowCallable()
         .call(
             ConditionalRowMutation.create(TABLE_ID, "key")
@@ -151,7 +151,7 @@ public class ExtraHeadersCallableTest {
 
   @Test
   public void testReadModifyWriteHeaders() throws Exception {
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.readModifyWriteRowCallable()
         .call(ReadModifyWriteRow.create(TABLE_ID, "key").append("f", "q", "value"));
     verifyHeaders(1, startTimestamp);
@@ -160,11 +160,11 @@ public class ExtraHeadersCallableTest {
   @Test
   public void testMultipleRequests() throws Exception {
     // Send multiple requests and make sure headers are set correctly
-    long startTimestamp = System.currentTimeMillis();
+    long startTimestamp = System.currentTimeMillis() * 1000;
     stub.readRowsCallable().call(Query.create(TABLE_ID).rowKey("key")).iterator().next();
     verifyHeaders(attemptCounts, startTimestamp);
 
-    startTimestamp = System.currentTimeMillis();
+    startTimestamp = System.currentTimeMillis() * 1000;
     stub.readRowsCallable().call(Query.create(TABLE_ID).rowKey("key")).iterator().next();
     verifyHeaders(1, startTimestamp);
   }
