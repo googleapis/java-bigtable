@@ -62,17 +62,22 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Matchers;
+import org.junit.runners.JUnit4;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class BigtableInstanceAdminClientTest {
+  @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
   private static final String PROJECT_ID = "my-project";
   private static final String INSTANCE_ID = "my-instance";
@@ -192,30 +197,6 @@ public class BigtableInstanceAdminClientTest {
   @Before
   public void setUp() {
     adminClient = BigtableInstanceAdminClient.create(PROJECT_ID, mockStub);
-
-    Mockito.when(mockStub.createInstanceOperationCallable()).thenReturn(mockCreateInstanceCallable);
-    Mockito.when(mockStub.partialUpdateInstanceOperationCallable())
-        .thenReturn(mockUpdateInstanceCallable);
-    Mockito.when(mockStub.getInstanceCallable()).thenReturn(mockGetInstanceCallable);
-    Mockito.when(mockStub.listInstancesCallable()).thenReturn(mockListInstancesCallable);
-    Mockito.when(mockStub.deleteInstanceCallable()).thenReturn(mockDeleteInstanceCallable);
-
-    Mockito.when(mockStub.createClusterOperationCallable()).thenReturn(mockCreateClusterCallable);
-    Mockito.when(mockStub.getClusterCallable()).thenReturn(mockGetClusterCallable);
-    Mockito.when(mockStub.listClustersCallable()).thenReturn(mockListClustersCallable);
-    Mockito.when(mockStub.updateClusterOperationCallable()).thenReturn(mockUpdateClusterCallable);
-    Mockito.when(mockStub.deleteClusterCallable()).thenReturn(mockDeleteClusterCallable);
-
-    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
-    Mockito.when(mockStub.getAppProfileCallable()).thenReturn(mockGetAppProfileCallable);
-    Mockito.when(mockStub.listAppProfilesPagedCallable()).thenReturn(mockListAppProfilesCallable);
-    Mockito.when(mockStub.updateAppProfileOperationCallable())
-        .thenReturn(mockUpdateAppProfileCallable);
-    Mockito.when(mockStub.deleteAppProfileCallable()).thenReturn(mockDeleteAppProfileCallable);
-
-    Mockito.when(mockStub.getIamPolicyCallable()).thenReturn(mockGetIamPolicyCallable);
-    Mockito.when(mockStub.setIamPolicyCallable()).thenReturn(mockSetIamPolicyCallable);
-    Mockito.when(mockStub.testIamPermissionsCallable()).thenReturn(mockTestIamPermissionsCallable);
   }
 
   @Test
@@ -232,6 +213,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateInstance() {
     // Setup
+    Mockito.when(mockStub.createInstanceOperationCallable()).thenReturn(mockCreateInstanceCallable);
+
     com.google.bigtable.admin.v2.CreateInstanceRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateInstanceRequest.newBuilder()
             .setParent(PROJECT_NAME)
@@ -268,6 +251,9 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testUpdateInstance() {
     // Setup
+    Mockito.when(mockStub.partialUpdateInstanceOperationCallable())
+        .thenReturn(mockUpdateInstanceCallable);
+
     com.google.bigtable.admin.v2.PartialUpdateInstanceRequest expectedRequest =
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.newBuilder()
             .setUpdateMask(FieldMask.newBuilder().addPaths("display_name"))
@@ -294,6 +280,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testGetInstance() {
     // Setup
+    Mockito.when(mockStub.getInstanceCallable()).thenReturn(mockGetInstanceCallable);
+
     com.google.bigtable.admin.v2.GetInstanceRequest expectedRequest =
         com.google.bigtable.admin.v2.GetInstanceRequest.newBuilder().setName(INSTANCE_NAME).build();
 
@@ -313,6 +301,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testListInstances() {
     // Setup
+    Mockito.when(mockStub.listInstancesCallable()).thenReturn(mockListInstancesCallable);
+
     com.google.bigtable.admin.v2.ListInstancesRequest expectedRequest =
         com.google.bigtable.admin.v2.ListInstancesRequest.newBuilder()
             .setParent(PROJECT_NAME)
@@ -346,6 +336,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testListInstancesFailedZone() {
     // Setup
+    Mockito.when(mockStub.listInstancesCallable()).thenReturn(mockListInstancesCallable);
+
     com.google.bigtable.admin.v2.ListInstancesRequest expectedRequest =
         com.google.bigtable.admin.v2.ListInstancesRequest.newBuilder()
             .setParent(PROJECT_NAME)
@@ -385,6 +377,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testDeleteInstance() {
     // Setup
+    Mockito.when(mockStub.deleteInstanceCallable()).thenReturn(mockDeleteInstanceCallable);
+
     com.google.bigtable.admin.v2.DeleteInstanceRequest expectedRequest =
         com.google.bigtable.admin.v2.DeleteInstanceRequest.newBuilder()
             .setName(INSTANCE_NAME)
@@ -412,6 +406,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateCluster() {
     // Setup
+    Mockito.when(mockStub.createClusterOperationCallable()).thenReturn(mockCreateClusterCallable);
+
     com.google.bigtable.admin.v2.CreateClusterRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateClusterRequest.newBuilder()
             .setParent(INSTANCE_NAME)
@@ -440,6 +436,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testGetCluster() {
     // Setup
+    Mockito.when(mockStub.getClusterCallable()).thenReturn(mockGetClusterCallable);
+
     com.google.bigtable.admin.v2.GetClusterRequest expectedRequest =
         com.google.bigtable.admin.v2.GetClusterRequest.newBuilder().setName(CLUSTER_NAME).build();
 
@@ -459,6 +457,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testListClusters() {
     // Setup
+    Mockito.when(mockStub.listClustersCallable()).thenReturn(mockListClustersCallable);
+
     com.google.bigtable.admin.v2.ListClustersRequest expectedRequest =
         com.google.bigtable.admin.v2.ListClustersRequest.newBuilder()
             .setParent(INSTANCE_NAME)
@@ -488,6 +488,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testListClustersFailedZone() {
     // Setup
+    Mockito.when(mockStub.listClustersCallable()).thenReturn(mockListClustersCallable);
+
     com.google.bigtable.admin.v2.ListClustersRequest expectedRequest =
         com.google.bigtable.admin.v2.ListClustersRequest.newBuilder()
             .setParent(INSTANCE_NAME)
@@ -523,6 +525,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testResizeCluster() {
     // Setup
+    Mockito.when(mockStub.updateClusterOperationCallable()).thenReturn(mockUpdateClusterCallable);
+
     com.google.bigtable.admin.v2.Cluster expectedRequest =
         com.google.bigtable.admin.v2.Cluster.newBuilder()
             .setName(CLUSTER_NAME)
@@ -548,6 +552,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testDeleteCluster() {
     // Setup
+    Mockito.when(mockStub.deleteClusterCallable()).thenReturn(mockDeleteClusterCallable);
+
     com.google.bigtable.admin.v2.DeleteClusterRequest expectedRequest =
         com.google.bigtable.admin.v2.DeleteClusterRequest.newBuilder()
             .setName(CLUSTER_NAME)
@@ -575,6 +581,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateAppProfile() {
     // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
     com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -732,6 +740,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testGetAppProfile() {
     // Setup
+    Mockito.when(mockStub.getAppProfileCallable()).thenReturn(mockGetAppProfileCallable);
+
     com.google.bigtable.admin.v2.GetAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.GetAppProfileRequest.newBuilder()
             .setName(APP_PROFILE_NAME)
@@ -759,6 +769,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testListAppProfiles() {
     // Setup
+    Mockito.when(mockStub.listAppProfilesPagedCallable()).thenReturn(mockListAppProfilesCallable);
+
     com.google.bigtable.admin.v2.ListAppProfilesRequest expectedRequest =
         com.google.bigtable.admin.v2.ListAppProfilesRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -779,7 +791,6 @@ public class BigtableInstanceAdminClientTest {
     // 2 on the first page
     ListAppProfilesPage page0 = Mockito.mock(ListAppProfilesPage.class);
     Mockito.when(page0.getValues()).thenReturn(expectedProtos.subList(0, 2));
-    Mockito.when(page0.getNextPageToken()).thenReturn("next-page");
     Mockito.when(page0.hasNextPage()).thenReturn(true);
 
     // 1 on the last page
@@ -811,6 +822,9 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testUpdateAppProfile() {
     // Setup
+    Mockito.when(mockStub.updateAppProfileOperationCallable())
+        .thenReturn(mockUpdateAppProfileCallable);
+
     com.google.bigtable.admin.v2.UpdateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.UpdateAppProfileRequest.newBuilder()
             .setAppProfile(
@@ -844,6 +858,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testDeleteAppProfile() throws Exception {
     // Setup
+    Mockito.when(mockStub.deleteAppProfileCallable()).thenReturn(mockDeleteAppProfileCallable);
+
     com.google.bigtable.admin.v2.DeleteAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.DeleteAppProfileRequest.newBuilder()
             .setName(APP_PROFILE_NAME)
@@ -910,6 +926,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testGetIamPolicy() {
     // Setup
+    Mockito.when(mockStub.getIamPolicyCallable()).thenReturn(mockGetIamPolicyCallable);
+
     com.google.iam.v1.GetIamPolicyRequest expectedRequest =
         com.google.iam.v1.GetIamPolicyRequest.newBuilder()
             .setResource(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -942,6 +960,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testSetIamPolicy() {
     // Setup
+    Mockito.when(mockStub.setIamPolicyCallable()).thenReturn(mockSetIamPolicyCallable);
+
     com.google.iam.v1.SetIamPolicyRequest expectedRequest =
         com.google.iam.v1.SetIamPolicyRequest.newBuilder()
             .setResource(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -985,6 +1005,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testTestIamPermissions() {
     // Setup
+    Mockito.when(mockStub.testIamPermissionsCallable()).thenReturn(mockTestIamPermissionsCallable);
+
     com.google.iam.v1.TestIamPermissionsRequest expectedRequest =
         com.google.iam.v1.TestIamPermissionsRequest.newBuilder()
             .setResource(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -1010,12 +1032,14 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testExistsTrue() {
     // Setup
+    Mockito.when(mockStub.getInstanceCallable()).thenReturn(mockGetInstanceCallable);
+
     com.google.bigtable.admin.v2.Instance expectedResponse =
         com.google.bigtable.admin.v2.Instance.newBuilder()
             .setName(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .build();
 
-    Mockito.when(mockGetInstanceCallable.futureCall(Matchers.any(GetInstanceRequest.class)))
+    Mockito.when(mockGetInstanceCallable.futureCall(ArgumentMatchers.any(GetInstanceRequest.class)))
         .thenReturn(ApiFutures.immediateFuture(expectedResponse));
 
     // Execute
@@ -1028,10 +1052,12 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testExistsFalse() {
     // Setup
+    Mockito.when(mockStub.getInstanceCallable()).thenReturn(mockGetInstanceCallable);
+
     NotFoundException exception =
         new NotFoundException("fake-error", null, GrpcStatusCode.of(Status.Code.NOT_FOUND), false);
 
-    Mockito.when(mockGetInstanceCallable.futureCall(Matchers.any(GetInstanceRequest.class)))
+    Mockito.when(mockGetInstanceCallable.futureCall(ArgumentMatchers.any(GetInstanceRequest.class)))
         .thenReturn(
             ApiFutures.<com.google.bigtable.admin.v2.Instance>immediateFailedFuture(exception));
 

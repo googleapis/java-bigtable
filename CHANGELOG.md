@@ -1,5 +1,52 @@
 # Changelog
 
+### [2.1.4](https://www.github.com/googleapis/java-bigtable/compare/v2.1.3...v2.1.4) (2021-09-22)
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.3.0 ([#1020](https://www.github.com/googleapis/java-bigtable/issues/1020)) ([272f044](https://www.github.com/googleapis/java-bigtable/commit/272f0443501c502abf1b061414fb2435a9ad7952))
+
+### [2.1.3](https://www.github.com/googleapis/java-bigtable/compare/v2.1.2...v2.1.3) (2021-09-21)
+
+
+### Dependencies
+
+* migrate to mockito-core 3.12.4 ([#1008](https://www.github.com/googleapis/java-bigtable/issues/1008)) ([d9f19db](https://www.github.com/googleapis/java-bigtable/commit/d9f19db82f82615e4476462f9c34da7841169838))
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.2.1 ([#1010](https://www.github.com/googleapis/java-bigtable/issues/1010)) ([a54a021](https://www.github.com/googleapis/java-bigtable/commit/a54a02135f30e3337812938f5794b293ee6535c6))
+
+### [2.1.2](https://www.github.com/googleapis/java-bigtable/compare/v2.1.1...v2.1.2) (2021-09-13)
+
+
+### Bug Fixes
+
+* parallel execution and verbose grpc logs ([#1004](https://www.github.com/googleapis/java-bigtable/issues/1004)) ([dd5164d](https://www.github.com/googleapis/java-bigtable/commit/dd5164dc9de7f060bb0dab79820cb43ac434d703))
+
+
+### Reverts
+
+* temporary workaround for maven wildcard excludes ([#989](https://www.github.com/googleapis/java-bigtable/issues/989)) ([148a928](https://www.github.com/googleapis/java-bigtable/commit/148a928e3f8f6d1e2ee1d1b119ca820d676802fd))
+
+### [2.1.1](https://www.github.com/googleapis/java-bigtable/compare/v2.1.0...v2.1.1) (2021-09-01)
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-conformance-tests to v0.2.0 ([#971](https://www.github.com/googleapis/java-bigtable/issues/971)) ([5c614d5](https://www.github.com/googleapis/java-bigtable/commit/5c614d58dd527a7fd36d32f201138a35e95a0577))
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.2.0 ([#975](https://www.github.com/googleapis/java-bigtable/issues/975)) ([e5bb52e](https://www.github.com/googleapis/java-bigtable/commit/e5bb52eead42e8b351a7469529837d8b509b8332))
+
+## [2.1.0](https://www.github.com/googleapis/java-bigtable/compare/v2.0.1...v2.1.0) (2021-08-25)
+
+
+### Features
+
+* publish new fields to support cluster group routing ([#958](https://www.github.com/googleapis/java-bigtable/issues/958)) ([09b31bd](https://www.github.com/googleapis/java-bigtable/commit/09b31bd9032dc36071cb8d32fc5cb6d4d85878e1))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.1.0 ([#962](https://www.github.com/googleapis/java-bigtable/issues/962)) ([a013e77](https://www.github.com/googleapis/java-bigtable/commit/a013e777af0fb2945099c178832fccd14b33398f))
+
 ### [2.0.1](https://www.github.com/googleapis/java-bigtable/compare/v2.0.0...v2.0.1) (2021-08-11)
 
 
