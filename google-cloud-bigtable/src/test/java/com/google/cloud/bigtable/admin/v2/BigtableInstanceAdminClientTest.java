@@ -621,6 +621,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateAppProfileAddSingleClusterId() {
     // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
     com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -660,6 +662,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateAppProfileAddMultipleClusterIds() {
     // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
     com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -701,6 +705,8 @@ public class BigtableInstanceAdminClientTest {
   @Test
   public void testCreateAppProfileAddMultipleClusterIdsWithList() {
     // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
     com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
