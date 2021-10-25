@@ -27,7 +27,6 @@ import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,8 @@ class Util {
    */
   static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
     ImmutableMap.Builder headers = ImmutableMap.<String, List<String>>builder();
-    headers.put(ATTEMPT_EPOCH_KEY.name(),
+    headers.put(
+        ATTEMPT_EPOCH_KEY.name(),
         Arrays.asList(String.valueOf(Instant.EPOCH.until(Instant.now(), ChronoUnit.MICROS))));
     if (apiCallContext.getTracer() instanceof BigtableTracer) {
       int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
