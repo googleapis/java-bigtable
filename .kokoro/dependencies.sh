@@ -42,10 +42,8 @@ function determineMavenOpts() {
     then
       # MaxPermSize is no longer supported as of jdk 17
       echo -n "-Xmx1024m"
-      ;;
   else
       echo -n "-Xmx1024m -XX:MaxPermSize=128m"
-      ;;
   fi
 }
 
