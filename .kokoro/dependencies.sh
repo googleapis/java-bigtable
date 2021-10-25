@@ -49,8 +49,6 @@ function determineMavenOpts() {
 
 export MAVEN_OPTS=$(determineMavenOpts)
 
-echo $MAVEN_OPTS
-
 # this should run maven enforcer
 retry_with_backoff 3 10 \
   mvn install -B -V -ntp \
