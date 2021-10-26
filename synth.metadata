@@ -77,7 +77,6 @@
     ".kokoro/presubmit/clirr.cfg",
     ".kokoro/presubmit/common.cfg",
     ".kokoro/presubmit/dependencies.cfg",
-    ".kokoro/presubmit/graalvm-native.cfg",
     ".kokoro/presubmit/java11.cfg",
     ".kokoro/presubmit/java7.cfg",
     ".kokoro/presubmit/java8-osx.cfg",
