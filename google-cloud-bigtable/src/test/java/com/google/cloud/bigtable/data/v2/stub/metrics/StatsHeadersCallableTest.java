@@ -63,7 +63,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ExtraHeadersCallableTest {
+public class StatsHeadersCallableTest {
   private FakeServiceHelper serviceHelper;
 
   private FakeService fakeService = new FakeService();

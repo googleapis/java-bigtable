@@ -71,12 +71,12 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ExtraHeadersSeverStreamingCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ExtraHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -400,7 +400,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             readRowsSettings.getRetryableCodes());
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withExtraHeaders =
-        new ExtraHeadersSeverStreamingCallable<>(base);
+        new StatsHeadersServerStreamingCallable<>(base);
 
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
@@ -474,7 +474,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> spoolable = base.all();
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withExtraHeaders =
-        new ExtraHeadersUnaryCallable<>(spoolable);
+        new StatsHeadersUnaryCallable<>(spoolable);
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(
@@ -514,7 +514,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             settings.mutateRowSettings().getRetryableCodes());
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> withExtraHeaders =
-        new ExtraHeadersUnaryCallable<>(base);
+        new StatsHeadersUnaryCallable<>(base);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(
@@ -658,7 +658,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             settings.bulkMutateRowsSettings().getRetryableCodes());
 
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withExtraHeaders =
-        new ExtraHeadersSeverStreamingCallable<>(base);
+        new StatsHeadersServerStreamingCallable<>(base);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
@@ -704,7 +704,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             settings.checkAndMutateRowSettings().getRetryableCodes());
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withExtraHeaders =
-        new ExtraHeadersUnaryCallable<>(base);
+        new StatsHeadersUnaryCallable<>(base);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withHeaderTracer =
         new HeaderTracerUnaryCallable<>(
@@ -745,7 +745,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             settings.readModifyWriteRowSettings().getRetryableCodes());
 
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> withExtraHeaders =
-        new ExtraHeadersUnaryCallable<>(base);
+        new StatsHeadersUnaryCallable<>(base);
 
     String methodName = "ReadModifyWriteRow";
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> withHeaderTracer =

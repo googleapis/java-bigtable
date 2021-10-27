@@ -89,11 +89,12 @@ class Util {
    * Create extra headers with attempt number and client timestamp from api call context. Attempt
    * number starts from 0.
    */
-  static Map<String, List<String>> createExtraHeaders(ApiCallContext apiCallContext) {
-    ImmutableMap.Builder headers = ImmutableMap.<String, List<String>>builder();
+  static Map<String, List<String>> createStatsHeaders(ApiCallContext apiCallContext) {
+    ImmutableMap.Builder<String, List<String>> headers = ImmutableMap.builder();
     headers.put(
         ATTEMPT_EPOCH_KEY.name(),
         Arrays.asList(String.valueOf(Instant.EPOCH.until(Instant.now(), ChronoUnit.MICROS))));
+    // This should always be true
     if (apiCallContext.getTracer() instanceof BigtableTracer) {
       int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
       headers.put(ATTEMPT_HEADER_KEY.name(), Arrays.asList(String.valueOf(attemptCount)));
