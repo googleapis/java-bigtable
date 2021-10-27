@@ -86,7 +86,7 @@ class Util {
   }
 
   /**
-   * Create extra headers with attempt number and client timestamp from api call context. Attempt
+   * Add attempt number and client timestamp from api call context to request headers. Attempt
    * number starts from 0.
    */
   static Map<String, List<String>> createStatsHeaders(ApiCallContext apiCallContext) {
