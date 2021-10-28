@@ -259,13 +259,6 @@ public class Emulator {
 
   /** Gets a random open port number. */
   private static int getAvailablePort() {
-    try {
-      InetAddress moo = InetAddress.getByName(null);
-      System.out.println(moo);
-    } catch (UnknownHostException e) {
-      e.printStackTrace();
-    }
-
     try (ServerSocket serverSocket = new ServerSocket(0)) {
       return serverSocket.getLocalPort();
     } catch (IOException e) {
