@@ -185,4 +185,11 @@ class CompositeTracer extends BigtableTracer {
       tracer.batchRequestThrottled(throttledTimeMs);
     }
   }
+
+  @Override
+  public void setLocations(String zone, String cluster) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.setLocations(zone, cluster);
+    }
+  }
 }

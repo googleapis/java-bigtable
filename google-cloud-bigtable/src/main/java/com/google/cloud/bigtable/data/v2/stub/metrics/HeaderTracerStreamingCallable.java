@@ -55,7 +55,7 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
     final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
     // tracer should always be an instance of bigtable tracer
-    if (RpcViews.isGfeMetricsRegistered() && context.getTracer() instanceof BigtableTracer) {
+    if (context.getTracer() instanceof BigtableTracer) {
       HeaderTracerResponseObserver<ResponseT> innerObserver =
           new HeaderTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);

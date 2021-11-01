@@ -15,13 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
-import com.google.common.collect.ImmutableMap;
-import io.grpc.Metadata;
-import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -29,6 +27,8 @@ import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
+import com.google.common.collect.ImmutableMap;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -59,7 +59,7 @@ public class Util {
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
-  /** Convert an exception into a value that can be used as an OpenCensus tag value. */
+  /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   public static String extractStatus(@Nullable Throwable error) {
     final String statusString;
 

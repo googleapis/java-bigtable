@@ -57,6 +57,7 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.ViewManager;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
@@ -78,6 +79,9 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinViews;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -149,7 +153,23 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public static EnhancedBigtableStubSettings finalizeSettings(
-          EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) throws IOException {
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
+      throws IOException {
+    return finalizeSettings(
+        settings,
+        tagger,
+        stats,
+        com.google.bigtable.veneer.repackaged.io.opencensus.stats.Stats.getStatsRecorder(),
+        com.google.bigtable.veneer.repackaged.io.opencensus.stats.Stats.getViewManager());
+  }
+
+  public static EnhancedBigtableStubSettings finalizeSettings(
+      EnhancedBigtableStubSettings settings,
+      Tagger tagger,
+      StatsRecorder stats,
+      com.google.bigtable.veneer.repackaged.io.opencensus.stats.StatsRecorder builtinStats,
+      ViewManager builtinViewManager)
+      throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
@@ -193,6 +213,27 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
                 TagValue.create(settings.getAppProfileId()))
             .build();
+    ImmutableMap<
+            com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey,
+            com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue>
+        builtinAttributes =
+            ImmutableMap
+                .<com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey,
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue>
+                    builder()
+                .put(
+                    BuiltinMeasureConstants.PROJECT_ID,
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        settings.getProjectId()))
+                .put(
+                    BuiltinMeasureConstants.INSTANCE_ID,
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        settings.getInstanceId()))
+                .put(
+                    BuiltinMeasureConstants.APP_PROFILE,
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        settings.getAppProfileId()))
+                .build();
     // Inject Opencensus instrumentation
     builder.setTracerFactory(
         new CompositeTracerFactory(
@@ -217,8 +258,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(tagger, stats, attributes),
+                BuiltinMetricsTracerFactory.create(
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.Tags.getTagger(),
+                    builtinStats,
+                    builtinAttributes),
                 // Add user configured tracer
                 settings.getTracerFactory())));
+    // TODO: register monitored resource and move project id, instance id to Monitored resource
+    BuiltinViews.registerBigtableBuiltinViews(builtinViewManager);
     return builder.build();
   }
 

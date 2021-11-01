@@ -19,31 +19,33 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
-import com.google.bigtable.repackaged.io.opencensus.stats.StatsRecorder;
-import com.google.bigtable.repackaged.io.opencensus.tags.TagKey;
-import com.google.bigtable.repackaged.io.opencensus.tags.TagValue;
-import com.google.bigtable.repackaged.io.opencensus.tags.Tagger;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.StatsRecorder;
+import com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey;
+import com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue;
+import com.google.bigtable.veneer.repackaged.io.opencensus.tags.Tagger;
 import com.google.common.collect.ImmutableMap;
 
 @InternalApi("For internal use only")
 public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
-    private final Tagger tagger;
-    private final StatsRecorder statsRecorder;
-    private final ImmutableMap<TagKey, TagValue> statsAttributes;
+  private final Tagger tagger;
+  private final StatsRecorder statsRecorder;
+  private final ImmutableMap<TagKey, TagValue> statsAttributes;
 
-    public static BuiltinMetricsTracerFactory create(
-            Tagger tagger, StatsRecorder statsRecorder, ImmutableMap<TagKey, TagValue> statsAttributes) {
-        return new BuiltinMetricsTracerFactory(tagger, statsRecorder, statsAttributes);
-    }
+  public static BuiltinMetricsTracerFactory create(
+      Tagger tagger, StatsRecorder statsRecorder, ImmutableMap<TagKey, TagValue> statsAttributes) {
+    return new BuiltinMetricsTracerFactory(tagger, statsRecorder, statsAttributes);
+  }
 
-    private BuiltinMetricsTracerFactory(Tagger tagger, StatsRecorder statsRecorder, ImmutableMap<TagKey, TagValue> statsAttributes) {
-        this.tagger = tagger;
-        this.statsRecorder = statsRecorder;
-        this.statsAttributes = statsAttributes;
-    }
+  private BuiltinMetricsTracerFactory(
+      Tagger tagger, StatsRecorder statsRecorder, ImmutableMap<TagKey, TagValue> statsAttributes) {
+    this.tagger = tagger;
+    this.statsRecorder = statsRecorder;
+    this.statsAttributes = statsAttributes;
+  }
 
-    @Override
-    public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
-        return new BuiltinMetricsTracer(operationType, tagger, statsRecorder, spanName, statsAttributes);
-    }
+  @Override
+  public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
+    return new BuiltinMetricsTracer(
+        operationType, tagger, statsRecorder, spanName, statsAttributes);
+  }
 }
