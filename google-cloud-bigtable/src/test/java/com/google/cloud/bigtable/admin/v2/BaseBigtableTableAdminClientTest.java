@@ -56,6 +56,7 @@ import com.google.bigtable.admin.v2.ListSnapshotsResponse;
 import com.google.bigtable.admin.v2.ListTablesRequest;
 import com.google.bigtable.admin.v2.ListTablesResponse;
 import com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest;
+import com.google.bigtable.admin.v2.ProjectName;
 import com.google.bigtable.admin.v2.RestoreInfo;
 import com.google.bigtable.admin.v2.RestoreTableRequest;
 import com.google.bigtable.admin.v2.Snapshot;
@@ -1953,7 +1954,7 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = ProjectName.of("[PROJECT]");
 
     Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -1975,7 +1976,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = ProjectName.of("[PROJECT]");
       client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -2033,7 +2034,7 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = ProjectName.of("[PROJECT]");
     Policy policy = Policy.newBuilder().build();
 
     Policy actualResponse = client.setIamPolicy(resource, policy);
@@ -2057,7 +2058,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = ProjectName.of("[PROJECT]");
       Policy policy = Policy.newBuilder().build();
       client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
@@ -2115,7 +2116,7 @@ public class BaseBigtableTableAdminClientTest {
         TestIamPermissionsResponse.newBuilder().addAllPermissions(new ArrayList<String>()).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+    ResourceName resource = ProjectName.of("[PROJECT]");
     List<String> permissions = new ArrayList<>();
 
     TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
@@ -2139,7 +2140,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      ResourceName resource = ProjectName.of("[PROJECT]");
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");
