@@ -1384,7 +1384,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = ProjectName.of("[PROJECT]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
 
     Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -1406,7 +1406,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = ProjectName.of("[PROJECT]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
       client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -1464,7 +1464,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = ProjectName.of("[PROJECT]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
     Policy policy = Policy.newBuilder().build();
 
     Policy actualResponse = client.setIamPolicy(resource, policy);
@@ -1488,7 +1488,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = ProjectName.of("[PROJECT]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
       Policy policy = Policy.newBuilder().build();
       client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
@@ -1546,7 +1546,7 @@ public class BaseBigtableInstanceAdminClientTest {
         TestIamPermissionsResponse.newBuilder().addAllPermissions(new ArrayList<String>()).build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = ProjectName.of("[PROJECT]");
+    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
     List<String> permissions = new ArrayList<>();
 
     TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
@@ -1570,7 +1570,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = ProjectName.of("[PROJECT]");
+      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");
