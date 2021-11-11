@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.22.0-sp.3](https://www.github.com/googleapis/java-bigtable/compare/1.22.0-sp.2...v1.22.0-sp.3) (2021-11-11)
+
+
+### Dependencies
+
+* update shared-dependencies to 0.20.2 ([#1061](https://www.github.com/googleapis/java-bigtable/issues/1061)) ([5b1378e](https://www.github.com/googleapis/java-bigtable/commit/5b1378e0d9cbef0c3b4b5da72646c1d487c8e4f5))
+
 ## [1.22.0-sp.2](https://www.github.com/googleapis/java-bigtable/compare/1.22.0-sp.1...v1.22.0-sp.2) (2021-09-10)
 
 
