@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
@@ -24,15 +23,11 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A Bigtable specific {@link ApiTracerFactory} that combines multiple {@link ApiTracerFactory} into
- * a single one.
- */
-@InternalApi("For internal use only")
-public class BigtableTracerFactory extends BaseApiTracerFactory {
+/** Combines multiple {@link ApiTracerFactory} into a single {@link ApiTracerFactory}. */
+public class CompositeTracerFactory extends BaseApiTracerFactory {
   private final List<ApiTracerFactory> apiTracerFactories;
 
-  public BigtableTracerFactory(List<ApiTracerFactory> apiTracerFactories) {
+  public CompositeTracerFactory(List<ApiTracerFactory> apiTracerFactories) {
     this.apiTracerFactories = ImmutableList.copyOf(apiTracerFactories);
   }
 
@@ -43,6 +38,6 @@ public class BigtableTracerFactory extends BaseApiTracerFactory {
     for (ApiTracerFactory factory : apiTracerFactories) {
       children.add(factory.newTracer(parent, spanName, operationType));
     }
-    return new BigtableTracer(children);
+    return new CompositeTracer(children);
   }
 }

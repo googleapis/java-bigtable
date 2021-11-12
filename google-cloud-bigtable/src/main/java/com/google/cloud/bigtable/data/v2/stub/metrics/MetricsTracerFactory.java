@@ -49,7 +49,8 @@ public class MetricsTracerFactory extends BaseApiTracerFactory {
   }
 
   @Override
-  public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
+  public ApiTracer newTracer(
+      ApiTracer parent, SpanName spanName, OperationType operationType) {
     return new MetricsTracer(operationType, tagger, stats, spanName, statsAttributes);
   }
 }
