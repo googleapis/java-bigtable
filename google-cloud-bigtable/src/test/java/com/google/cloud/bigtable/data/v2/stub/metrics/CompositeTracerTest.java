@@ -23,7 +23,6 @@ import static org.mockito.Mockito.when;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
 import com.google.common.collect.ImmutableList;
-import io.grpc.Metadata;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -224,16 +223,15 @@ public class CompositeTracerTest {
 
   @Test
   public void testRecordGfeLatency() {
-    Metadata metadata = new Metadata();
-    compositeTracer.recordGfeMetadata(metadata);
-    verify(child3, times(1)).recordGfeMetadata(metadata);
-    verify(child4, times(1)).recordGfeMetadata(metadata);
+    compositeTracer.recordGfeMetadata(20);
+    verify(child3, times(1)).recordGfeMetadata(20);
+    verify(child4, times(1)).recordGfeMetadata(20);
   }
 
   @Test
   public void testGfeMissingHeader() {
-    compositeTracer.recordGfeMissingHeader();
-    verify(child3, times(1)).recordGfeMissingHeader();
-    verify(child4, times(1)).recordGfeMissingHeader();
+    compositeTracer.recordGfeMissingHeader(2);
+    verify(child3, times(1)).recordGfeMissingHeader(2);
+    verify(child4, times(1)).recordGfeMissingHeader(2);
   }
 }

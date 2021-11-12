@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Stopwatch;
-import io.grpc.Metadata;
 import io.opencensus.stats.MeasureMap;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagContext;
@@ -31,16 +30,10 @@ import java.util.Map.Entry;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 class MetricsTracer extends BigtableTracer {
-  private static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
-      Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
-  private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
 
   private final OperationType operationType;
 
@@ -218,26 +211,16 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void recordGfeMetadata(@Nonnull Metadata metadata) {
-    MeasureMap measures = stats.newMeasureMap();
-    if (metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
-      String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
-      Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
-      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
-      if (matcher.find()) {
-        long latency = Long.valueOf(matcher.group("dur"));
-        measures.put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency);
-      }
-    } else {
-      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
-    }
+  public void recordGfeMetadata(long latency) {
+    MeasureMap measures =
+        stats.newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency);
     measures.record(newTagCtxBuilder().build());
   }
 
   @Override
-  public void recordGfeMissingHeader() {
+  public void recordGfeMissingHeader(long count) {
     MeasureMap measures =
-        stats.newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
+        stats.newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, count);
     measures.record(newTagCtxBuilder().build());
   }
 

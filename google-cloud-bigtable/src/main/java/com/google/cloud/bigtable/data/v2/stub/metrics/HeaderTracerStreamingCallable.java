@@ -95,10 +95,12 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
       // so it's not checking trailing metadata here.
       Metadata metadata = responseMetadata.getMetadata();
-      if (metadata != null) {
-        tracer.recordGfeMetadata(metadata);
+      Long latency = Util.getGfeLatency(metadata);
+      if (latency != null) {
+        tracer.recordGfeMetadata(latency);
+        tracer.recordGfeMissingHeader(0);
       } else {
-        tracer.recordGfeMissingHeader();
+        tracer.recordGfeMissingHeader(1);
       }
       outerObserver.onError(t);
     }
@@ -106,10 +108,12 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
     @Override
     public void onComplete() {
       Metadata metadata = responseMetadata.getMetadata();
-      if (metadata != null) {
-        tracer.recordGfeMetadata(metadata);
+      Long latency = Util.getGfeLatency(metadata);
+      if (latency != null) {
+        tracer.recordGfeMetadata(latency);
+        tracer.recordGfeMissingHeader(0);
       } else {
-        tracer.recordGfeMissingHeader();
+        tracer.recordGfeMissingHeader(1);
       }
       outerObserver.onComplete();
     }

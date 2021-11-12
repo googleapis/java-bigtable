@@ -63,10 +63,12 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
               if (contextWithResponseMetadata.getTracer() instanceof CompositeTracer) {
                 CompositeTracer tracer = (CompositeTracer) contextWithResponseMetadata.getTracer();
                 Metadata metadata = responseMetadata.getMetadata();
-                if (metadata != null) {
-                  tracer.recordGfeMetadata(metadata);
+                Long latency = Util.getGfeLatency(metadata);
+                if (latency != null) {
+                  tracer.recordGfeMetadata(latency);
+                  tracer.recordGfeMissingHeader(0);
                 } else {
-                  tracer.recordGfeMissingHeader();
+                  tracer.recordGfeMissingHeader(1);
                 }
               }
             }

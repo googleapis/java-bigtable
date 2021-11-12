@@ -18,12 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.common.collect.ImmutableList;
-import io.grpc.Metadata;
-import org.threeten.bp.Duration;
-
 import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 /**
  * Combines multiple {@link ApiTracer}s and {@link BigtableTracer}s into a single {@link ApiTracer}.
@@ -176,15 +173,15 @@ public class CompositeTracer extends BaseApiTracer {
     return 0;
   }
 
-  public void recordGfeMetadata(@Nonnull Metadata metadata) {
+  public void recordGfeMetadata(long latency) {
     for (BigtableTracer tracer : bigtableTracers) {
-      tracer.recordGfeMetadata(metadata);
+      tracer.recordGfeMetadata(latency);
     }
   }
 
-  public void recordGfeMissingHeader() {
+  public void recordGfeMissingHeader(long count) {
     for (BigtableTracer tracer : bigtableTracers) {
-      tracer.recordGfeMissingHeader();
+      tracer.recordGfeMissingHeader(count);
     }
   }
 }

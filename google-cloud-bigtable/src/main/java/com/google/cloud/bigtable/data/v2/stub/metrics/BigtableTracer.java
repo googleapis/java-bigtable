@@ -18,19 +18,23 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
-import io.grpc.Metadata;
-import javax.annotation.Nonnull;
 
 /** A Bigtable specific {@link ApiTracer} that includes additional functionalities. */
 public abstract class BigtableTracer extends BaseApiTracer {
+
   /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
-   * and recorded in {@link #attemptStarted(int)}. With the getter we can access it from {@link
-   * ApiCallContext}. Attempt number starts from 0.
+   * and should be recorded in {@link #attemptStarted(int)}. With the getter we can access it from
+   * {@link ApiCallContext}. Attempt number starts from 0.
    */
   public abstract int getAttempt();
 
-  public abstract void recordGfeMetadata(@Nonnull Metadata metadata);
+  /**
+   * Record the latency between Google's network receives the RPC and reads back the first byte of
+   * the response.
+   */
+  public abstract void recordGfeMetadata(long latency);
 
-  public abstract void recordGfeMissingHeader();
+  /** Adds an annotation of the number of RPCs that never reached Google's network. */
+  public abstract void recordGfeMissingHeader(long count);
 }
