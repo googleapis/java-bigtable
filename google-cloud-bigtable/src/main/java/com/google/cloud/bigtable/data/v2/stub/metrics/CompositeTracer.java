@@ -25,7 +25,7 @@ import org.threeten.bp.Duration;
 /**
  * Combines multiple {@link ApiTracer}s and {@link BigtableTracer}s into a single {@link ApiTracer}.
  */
-public class CompositeTracer extends BigtableTracer {
+class CompositeTracer extends BigtableTracer {
   private final List<ApiTracer> children;
   private final List<BigtableTracer> bigtableTracers;
   private volatile int attempt;

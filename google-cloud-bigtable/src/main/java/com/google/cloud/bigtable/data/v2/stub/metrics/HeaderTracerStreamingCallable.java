@@ -67,9 +67,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
   private class HeaderTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
 
-    private BigtableTracer tracer;
-    private ResponseObserver<ResponseT> outerObserver;
-    private GrpcResponseMetadata responseMetadata;
+    private final BigtableTracer tracer;
+    private final ResponseObserver<ResponseT> outerObserver;
+    private final GrpcResponseMetadata responseMetadata;
 
     HeaderTracerResponseObserver(
         ResponseObserver<ResponseT> observer,
