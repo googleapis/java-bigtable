@@ -9,6 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <!-- This package is experimental. It is a workaround to support and publish built-in metrics to cloud monitoring
+    through Stackdriver. Built-in metrics will be implemented with shaded OpenCensus so it won't interfere with
+    customer's application metrics. -->
     <artifactId>google-cloud-bigtable-stats</artifactId>
 
     <dependencyManagement>
@@ -69,16 +72,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- TODO(mattiefu) ignore the warning for unused dependencies before we add the metrics with shaded OpenCensus -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <configuration>
-                    <ignoredDependencies>
-                        <dependency>*</dependency>
-                    </ignoredDependencies>
-                </configuration>
-            </plugin>
+            <!-- ignore the warning for unused dependencies before we add the metrics with shaded OpenCensus -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -91,4 +85,5 @@
             </plugin>
         </plugins>
     </build>
+
 </project>
