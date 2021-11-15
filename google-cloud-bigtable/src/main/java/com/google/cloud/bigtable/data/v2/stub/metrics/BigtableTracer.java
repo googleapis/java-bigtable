@@ -15,12 +15,14 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.BetaApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
 import javax.annotation.Nullable;
 
 /** A Bigtable specific {@link ApiTracer} that includes additional contexts. */
+@BetaApi("This surface is stable yet it might be removed in the future.")
 public abstract class BigtableTracer extends BaseApiTracer {
 
   /**

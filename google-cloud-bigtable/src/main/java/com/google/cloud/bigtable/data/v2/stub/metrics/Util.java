@@ -101,8 +101,8 @@ class Util {
         ATTEMPT_EPOCH_KEY.name(),
         Arrays.asList(String.valueOf(Instant.EPOCH.until(Instant.now(), ChronoUnit.MICROS))));
     // This should always be true
-    if (apiCallContext.getTracer() instanceof CompositeTracer) {
-      int attemptCount = ((CompositeTracer) apiCallContext.getTracer()).getAttempt();
+    if (apiCallContext.getTracer() instanceof BigtableTracer) {
+      int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
       headers.put(ATTEMPT_HEADER_KEY.name(), Arrays.asList(String.valueOf(attemptCount)));
     }
     return headers.build();
