@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- This package is experimental. It is a workaround to support and publish built-in metrics to cloud monitoring
+    <!-- This module is experimental. It is a workaround to support and publish built-in metrics to cloud monitoring
     through Stackdriver. Built-in metrics will be implemented with shaded OpenCensus so it won't interfere with
     customer's application metrics. -->
     <artifactId>google-cloud-bigtable-stats</artifactId>
