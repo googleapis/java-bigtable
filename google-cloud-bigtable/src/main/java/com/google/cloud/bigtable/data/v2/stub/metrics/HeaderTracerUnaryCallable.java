@@ -60,16 +60,11 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
             @Override
             public void run() {
               // this should always be true
-              if (contextWithResponseMetadata.getTracer() instanceof CompositeTracer) {
-                CompositeTracer tracer = (CompositeTracer) contextWithResponseMetadata.getTracer();
+              if (contextWithResponseMetadata.getTracer() instanceof BigtableTracer) {
+                BigtableTracer tracer = (BigtableTracer) contextWithResponseMetadata.getTracer();
                 Metadata metadata = responseMetadata.getMetadata();
                 Long latency = Util.getGfeLatency(metadata);
-                if (latency != null) {
-                  tracer.recordGfeMetadata(latency);
-                  tracer.recordGfeMissingHeader(0);
-                } else {
-                  tracer.recordGfeMissingHeader(1);
-                }
+                tracer.recordGfeMetadata(latency);
               }
             }
           },

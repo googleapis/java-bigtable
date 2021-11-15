@@ -211,16 +211,15 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void recordGfeMetadata(long latency) {
-    MeasureMap measures =
-        stats.newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency);
-    measures.record(newTagCtxBuilder().build());
-  }
-
-  @Override
-  public void recordGfeMissingHeader(long count) {
-    MeasureMap measures =
-        stats.newMeasureMap().put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, count);
+  public void recordGfeMetadata(@Nullable Long latency) {
+    MeasureMap measures = stats.newMeasureMap();
+    if (latency != null) {
+      measures
+          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency)
+          .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
+    } else {
+      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
+    }
     measures.record(newTagCtxBuilder().build());
   }
 

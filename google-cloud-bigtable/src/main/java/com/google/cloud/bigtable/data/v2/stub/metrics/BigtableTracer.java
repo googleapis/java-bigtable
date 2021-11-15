@@ -18,8 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
+import javax.annotation.Nullable;
 
-/** A Bigtable specific {@link ApiTracer} that includes additional functionalities. */
+/** A Bigtable specific {@link ApiTracer} that includes additional contexts. */
 public abstract class BigtableTracer extends BaseApiTracer {
 
   /**
@@ -31,10 +32,8 @@ public abstract class BigtableTracer extends BaseApiTracer {
 
   /**
    * Record the latency between Google's network receives the RPC and reads back the first byte of
-   * the response.
+   * the response from server-timing header. If server-timing header is missing, increment the
+   * missing header count.
    */
-  public abstract void recordGfeMetadata(long latency);
-
-  /** Adds an annotation of the number of RPCs that never reached Google's network. */
-  public abstract void recordGfeMissingHeader(long count);
+  public abstract void recordGfeMetadata(@Nullable Long latency);
 }

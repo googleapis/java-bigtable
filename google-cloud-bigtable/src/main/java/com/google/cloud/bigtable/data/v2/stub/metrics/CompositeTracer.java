@@ -16,18 +16,19 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.gax.tracing.ApiTracer;
-import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
  * Combines multiple {@link ApiTracer}s and {@link BigtableTracer}s into a single {@link ApiTracer}.
  */
-public class CompositeTracer extends BaseApiTracer {
+public class CompositeTracer extends BigtableTracer {
   private final List<ApiTracer> children;
   private final List<BigtableTracer> bigtableTracers;
+  private volatile int attempt;
 
   CompositeTracer(List<ApiTracer> children) {
     ImmutableList.Builder<ApiTracer> childrenBuilder = ImmutableList.builder();
@@ -91,6 +92,7 @@ public class CompositeTracer extends BaseApiTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    this.attempt = attemptNumber;
     for (ApiTracer child : children) {
       child.attemptStarted(attemptNumber);
     }
@@ -165,23 +167,15 @@ public class CompositeTracer extends BaseApiTracer {
     }
   }
 
+  @Override
   public int getAttempt() {
-    // BigtableTracer should all return the same attempt number
-    for (BigtableTracer tracer : bigtableTracers) {
-      return tracer.getAttempt();
-    }
-    return 0;
+    return attempt;
   }
 
-  public void recordGfeMetadata(long latency) {
+  @Override
+  public void recordGfeMetadata(@Nullable Long latency) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.recordGfeMetadata(latency);
-    }
-  }
-
-  public void recordGfeMissingHeader(long count) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.recordGfeMissingHeader(count);
     }
   }
 }

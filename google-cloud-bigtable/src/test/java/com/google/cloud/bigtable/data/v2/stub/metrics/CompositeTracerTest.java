@@ -216,22 +216,14 @@ public class CompositeTracerTest {
 
   @Test
   public void testGetAttempt() {
-    when(child3.getAttempt()).thenReturn(2);
-    when(child4.getAttempt()).thenReturn(2);
+    compositeTracer.attemptStarted(2);
     Assert.assertEquals(2, compositeTracer.getAttempt());
   }
 
   @Test
   public void testRecordGfeLatency() {
-    compositeTracer.recordGfeMetadata(20);
-    verify(child3, times(1)).recordGfeMetadata(20);
-    verify(child4, times(1)).recordGfeMetadata(20);
-  }
-
-  @Test
-  public void testGfeMissingHeader() {
-    compositeTracer.recordGfeMissingHeader(2);
-    verify(child3, times(1)).recordGfeMissingHeader(2);
-    verify(child4, times(1)).recordGfeMissingHeader(2);
+    compositeTracer.recordGfeMetadata(20L);
+    verify(child3, times(1)).recordGfeMetadata(20L);
+    verify(child4, times(1)).recordGfeMetadata(20L);
   }
 }
