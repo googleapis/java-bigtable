@@ -91,7 +91,6 @@
           <generateReports>false</generateReports>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 </project>
