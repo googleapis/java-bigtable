@@ -16,11 +16,11 @@
 package com.google.cloud.bigtable.stats;
 
 final class MavenPlaceholderShaded {
-    /**
-     * This class is here to force generation of source javadoc jars so that the maven release process
-     * doesn't complain. The shading plugin generated a shaded jar of bigtable-stats, but it doesn't
-     * generate javadoc or source files; this class is here as a hack and better methods should be
-     * employed.
-     */
-    private MavenPlaceholderShaded() {}
+  /**
+   * This class is here to force generation of source javadoc jars so that the maven release process
+   * doesn't complain. The shading plugin generated a shaded jar of bigtable-stats, but it doesn't
+   * generate javadoc or source files; this class is here as a hack and better methods should be
+   * employed.
+   */
+  private MavenPlaceholderShaded() {}
 }
