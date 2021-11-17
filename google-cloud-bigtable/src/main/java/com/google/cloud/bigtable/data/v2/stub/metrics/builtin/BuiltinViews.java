@@ -16,9 +16,9 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics.builtin;
 
 import com.google.api.core.InternalApi;
-import com.google.bigtable.repackaged.io.opencensus.stats.Stats;
-import com.google.bigtable.repackaged.io.opencensus.stats.View;
-import com.google.bigtable.repackaged.io.opencensus.stats.ViewManager;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.Stats;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.View;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.ViewManager;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 

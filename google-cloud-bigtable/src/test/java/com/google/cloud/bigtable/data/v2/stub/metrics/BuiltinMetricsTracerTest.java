@@ -101,8 +101,8 @@ public class BuiltinMetricsTracerTest {
   private EnhancedBigtableStub stub;
 
   private StatsComponentImpl clientStats = new StatsComponentImpl();
-  private com.google.bigtable.repackaged.io.opencensus.impl.stats.StatsComponentImpl builtinStats =
-      new com.google.bigtable.repackaged.io.opencensus.impl.stats.StatsComponentImpl();
+  private com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl builtinStats =
+      new com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl();
 
   @Before
   public void setUp() throws Exception {
@@ -127,8 +127,9 @@ public class BuiltinMetricsTracerTest {
 
                   @Override
                   public void close(Status status, Metadata trailers) {
-                    trailers.put(HeaderTracer.BIGTABLE_ZONE_HEADER_KEY, ZONE);
-                    trailers.put(HeaderTracer.BIGTABLE_CLUSTER_HEADER_KEY, CLUSTER);
+                    //TODO
+//                    trailers.put(HeaderTracer.BIGTABLE_ZONE_HEADER_KEY, ZONE);
+//                    trailers.put(HeaderTracer.BIGTABLE_CLUSTER_HEADER_KEY, CLUSTER);
                     super.close(status, trailers);
                   }
                 },
@@ -216,21 +217,21 @@ public class BuiltinMetricsTracerTest {
             BuiltinViewConstants.OPERATION_LATENCIES_VIEW,
             ImmutableMap.of(
                 BuiltinMeasureConstants.METHOD,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
                         "Bigtable.ReadRows"),
                 BuiltinMeasureConstants.STATUS,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
                 BuiltinMeasureConstants.TABLE,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
                 BuiltinMeasureConstants.ZONE,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
                 BuiltinMeasureConstants.CLUSTER,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
                 BuiltinMeasureConstants.CLIENT_NAME,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
                         "java-bigtable"),
                 BuiltinMeasureConstants.STREAMING,
-                    com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create("true")),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
             PROJECT_ID,
             INSTANCE_ID,
             APP_PROFILE_ID);

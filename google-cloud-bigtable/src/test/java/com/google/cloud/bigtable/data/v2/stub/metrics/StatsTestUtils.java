@@ -346,104 +346,104 @@ class StatsTestUtils {
   }
 
   public static long getAggregationValueAsLong(
-      com.google.bigtable.repackaged.io.opencensus.stats.StatsComponent stats,
-      com.google.bigtable.repackaged.io.opencensus.stats.View view,
+      com.google.bigtable.veneer.repackaged.io.opencensus.stats.StatsComponent stats,
+      com.google.bigtable.veneer.repackaged.io.opencensus.stats.View view,
       ImmutableMap<
-              com.google.bigtable.repackaged.io.opencensus.tags.TagKey,
-              com.google.bigtable.repackaged.io.opencensus.tags.TagValue>
+              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey,
+              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue>
           tags,
       String projectId,
       String instanceId,
       String appProfileId) {
-    com.google.bigtable.repackaged.io.opencensus.stats.ViewData viewData =
+    com.google.bigtable.veneer.repackaged.io.opencensus.stats.ViewData viewData =
         stats.getViewManager().getView(view.getName());
     Map<
-            List<com.google.bigtable.repackaged.io.opencensus.tags.TagValue>,
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData>
+            List<com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue>,
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData>
         aggregationMap = Objects.requireNonNull(viewData).getAggregationMap();
 
-    List<com.google.bigtable.repackaged.io.opencensus.tags.TagValue> tagValues = new ArrayList<>();
+    List<com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue> tagValues = new ArrayList<>();
 
-    for (com.google.bigtable.repackaged.io.opencensus.tags.TagKey column : view.getColumns()) {
+    for (com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey column : view.getColumns()) {
       if (BuiltinMeasureConstants.PROJECT_ID == column) {
-        tagValues.add(com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(projectId));
+        tagValues.add(com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(projectId));
       } else if (BuiltinMeasureConstants.INSTANCE_ID == column) {
         tagValues.add(
-            com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(instanceId));
+            com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(instanceId));
       } else if (BuiltinMeasureConstants.APP_PROFILE == column) {
         tagValues.add(
-            com.google.bigtable.repackaged.io.opencensus.tags.TagValue.create(appProfileId));
+            com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(appProfileId));
       } else {
         tagValues.add(tags.get(column));
       }
     }
 
-    com.google.bigtable.repackaged.io.opencensus.stats.AggregationData aggregationData =
+    com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData aggregationData =
         aggregationMap.get(tagValues);
 
     return aggregationData.match(
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.SumDataDouble,
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataDouble,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.SumDataDouble
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataDouble
                   arg) {
             return (long) arg.getSum();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.SumDataLong,
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataLong,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.SumDataLong arg) {
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataLong arg) {
             return arg.getSum();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.CountData, Long>() {
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData, Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.CountData arg) {
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData arg) {
             return arg.getCount();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.DistributionData,
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.DistributionData,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.DistributionData
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.DistributionData
                   arg) {
             return (long) arg.getMean();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble,
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble
                   arg) {
             return (long) arg.getLastValue();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong,
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong
                   arg) {
             return arg.getLastValue();
           }
         },
-        new com.google.bigtable.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.repackaged.io.opencensus.stats.AggregationData, Long>() {
+        new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData, Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.repackaged.io.opencensus.stats.AggregationData arg) {
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData arg) {
             throw new UnsupportedOperationException();
           }
         });

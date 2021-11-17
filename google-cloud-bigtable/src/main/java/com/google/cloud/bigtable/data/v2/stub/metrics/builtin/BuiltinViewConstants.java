@@ -15,9 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics.builtin;
 
-import static com.google.bigtable.repackaged.io.opencensus.stats.Aggregation.Count;
-import static com.google.bigtable.repackaged.io.opencensus.stats.Aggregation.Distribution;
-import static com.google.bigtable.repackaged.io.opencensus.stats.Aggregation.Sum;
+import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Count;
+import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Distribution;
+import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Sum;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.APPLICATION_LATENCIES;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.APP_PROFILE;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.ATTEMPT_LATENCIES;
@@ -39,9 +39,9 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeas
 import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.ZONE;
 
 import com.google.api.core.InternalApi;
-import com.google.bigtable.repackaged.io.opencensus.stats.Aggregation;
-import com.google.bigtable.repackaged.io.opencensus.stats.BucketBoundaries;
-import com.google.bigtable.repackaged.io.opencensus.stats.View;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.BucketBoundaries;
+import com.google.bigtable.veneer.repackaged.io.opencensus.stats.View;
 import com.google.common.collect.ImmutableList;
 
 @InternalApi("For internal use only")
