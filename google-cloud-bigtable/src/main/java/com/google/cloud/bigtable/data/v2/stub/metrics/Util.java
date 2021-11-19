@@ -59,9 +59,9 @@ public class Util {
 
   // TODO: update key value
   public static final Metadata.Key<String> ZONE_HEADER_KEY =
-          Metadata.Key.of("bigtable-zone", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-zone", Metadata.ASCII_STRING_MARSHALLER);
   public static final Metadata.Key<String> CLUSTER_HEADER_KEY =
-          Metadata.Key.of("bigtable-cluster", Metadata.ASCII_STRING_MARSHALLER);
+      Metadata.Key.of("bigtable-cluster", Metadata.ASCII_STRING_MARSHALLER);
 
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 

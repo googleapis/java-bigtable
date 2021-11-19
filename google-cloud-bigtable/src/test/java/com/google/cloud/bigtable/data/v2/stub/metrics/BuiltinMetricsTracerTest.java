@@ -16,12 +16,13 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
 
 import com.google.api.client.util.Lists;
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.rpc.ServerStream;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -47,18 +48,13 @@ import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.tags.Tags;
-import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Answers;
-import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.stubbing.Answer;
 
 public class BuiltinMetricsTracerTest {
   private static final String PROJECT_ID = "fake-project";
@@ -68,12 +64,13 @@ public class BuiltinMetricsTracerTest {
   private static final String ZONE = "us-east-1";
   private static final String CLUSTER = "cluster-1";
   private static final long FAKE_SERVER_TIMING = 50;
+  private static final long SERVER_LATENCY = 500;
 
   private static final ReadRowsResponse READ_ROWS_RESPONSE_1 =
       ReadRowsResponse.newBuilder()
           .addChunks(
               ReadRowsResponse.CellChunk.newBuilder()
-                  .setRowKey(ByteString.copyFromUtf8("fake-key-0"))
+                  .setRowKey(ByteString.copyFromUtf8("fake-key-1"))
                   .setFamilyName(StringValue.of("cf"))
                   .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
                   .setTimestampMicros(1_000)
@@ -84,7 +81,18 @@ public class BuiltinMetricsTracerTest {
       ReadRowsResponse.newBuilder()
           .addChunks(
               ReadRowsResponse.CellChunk.newBuilder()
-                  .setRowKey(ByteString.copyFromUtf8("fake-key-1"))
+                  .setRowKey(ByteString.copyFromUtf8("fake-key-2"))
+                  .setFamilyName(StringValue.of("cf"))
+                  .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
+                  .setTimestampMicros(1_000)
+                  .setValue(ByteString.copyFromUtf8("value"))
+                  .setCommitRow(true))
+          .build();
+  private static final ReadRowsResponse READ_ROWS_RESPONSE_3 =
+      ReadRowsResponse.newBuilder()
+          .addChunks(
+              ReadRowsResponse.CellChunk.newBuilder()
+                  .setRowKey(ByteString.copyFromUtf8("fake-key-3"))
                   .setFamilyName(StringValue.of("cf"))
                   .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
                   .setTimestampMicros(1_000)
@@ -96,17 +104,19 @@ public class BuiltinMetricsTracerTest {
 
   private FakeServiceHelper serviceHelper;
 
-  @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
 
   private EnhancedBigtableStub stub;
 
   private StatsComponentImpl clientStats = new StatsComponentImpl();
-  private com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl builtinStats =
-      new com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl();
+  private com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl
+      builtinStats =
+          new com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl();
 
   @Before
   public void setUp() throws Exception {
+    mockService = new FakeService();
+
     // Add an interceptor to send location information in the trailers and add server-timing in
     // headers
     ServerInterceptor trailersInterceptor =
@@ -156,6 +166,7 @@ public class BuiltinMetricsTracerTest {
             builtinStats.getViewManager());
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
     RpcViews.registerBigtableClientViews(clientStats.getViewManager());
+    RpcViews.registerBigtableClientGfeViews(clientStats.getViewManager());
 
     serviceHelper.start();
   }
@@ -168,28 +179,8 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testOperationLatencies() throws InterruptedException {
-    final long sleepTime = 500;
-    doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                @SuppressWarnings("unchecked")
-                StreamObserver<ReadRowsResponse> observer =
-                    (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
-                Thread.sleep(sleepTime);
-                observer.onNext(READ_ROWS_RESPONSE_1);
-                observer.onCompleted();
-                return null;
-              }
-            })
-        .when(mockService)
-        .readRows(any(ReadRowsRequest.class), any());
-
     Stopwatch stopwatch = Stopwatch.createStarted();
-    Iterator<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator();
-    while (rows.hasNext()) {
-      rows.next();
-    }
+    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator());
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     // Give OpenCensus a chance to update the views asynchronously.
@@ -207,7 +198,7 @@ public class BuiltinMetricsTracerTest {
             PROJECT_ID,
             INSTANCE_ID,
             APP_PROFILE_ID);
-    assertThat(clientOpLatency).isIn(Range.closed(sleepTime, elapsed));
+    assertThat(clientOpLatency).isIn(Range.closed(SERVER_LATENCY, elapsed));
 
     long builtinOpLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -220,78 +211,164 @@ public class BuiltinMetricsTracerTest {
                 BuiltinMeasureConstants.STATUS,
                     com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
                 BuiltinMeasureConstants.TABLE,
-                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        TABLE_ID),
                 BuiltinMeasureConstants.ZONE,
                     com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
                 BuiltinMeasureConstants.CLUSTER,
-                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        CLUSTER),
                 BuiltinMeasureConstants.CLIENT_NAME,
                     com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
                         "bigtable-java"),
                 BuiltinMeasureConstants.STREAMING,
-                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
+                    com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                        "true")),
             PROJECT_ID,
             INSTANCE_ID,
             APP_PROFILE_ID);
 
-    assertThat(builtinOpLatency).isIn(Range.closed(sleepTime, elapsed));
+    assertThat(builtinOpLatency).isIn(Range.closed(SERVER_LATENCY, elapsed));
   }
 
   @Test
   public void testGfeMetrics() throws Exception {
-      doAnswer(
-              new Answer() {
-                  @Override
-                  public Object answer(InvocationOnMock invocation) throws Throwable {
-                      @SuppressWarnings("unchecked")
-                      StreamObserver<ReadRowsResponse> observer =
-                              (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
-                      observer.onNext(READ_ROWS_RESPONSE_1);
-                      observer.onCompleted();
-                      return null;
-                  }
-              })
-              .when(mockService)
-              .readRows(any(ReadRowsRequest.class), any());
+    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
-      Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    // Give OpenCensus a chance to update the views asynchronously.
+    Thread.sleep(100);
 
-      // Give OpenCensus a chance to update the views asynchronously.
-      Thread.sleep(100);
+    // Verify builtin metrics and client metrics are logged separately
+    long gfeLatency =
+        StatsTestUtils.getAggregationValueAsLong(
+            clientStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP,
+                io.opencensus.tags.TagValue.create("Bigtable.ReadRows"),
+                RpcMeasureConstants.BIGTABLE_STATUS,
+                io.opencensus.tags.TagValue.create("OK")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(gfeLatency).isEqualTo(FAKE_SERVER_TIMING);
 
-      // Verify builtin metrics and client metrics are logged separately
-      long gfeLatency =
-              StatsTestUtils.getAggregationValueAsLong(
-                      clientStats,
-                      RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-                      ImmutableMap.of(
-                              RpcMeasureConstants.BIGTABLE_OP,
-                              io.opencensus.tags.TagValue.create("Bigtable.ReadRows")),
-                      PROJECT_ID,
-                      INSTANCE_ID,
-                      APP_PROFILE_ID);
-      assertThat(gfeLatency).isEqualTo(FAKE_SERVER_TIMING);
+    long builtinGfeLatency =
+        StatsTestUtils.getAggregationValueAsLong(
+            builtinStats,
+            BuiltinViewConstants.SERVER_LATENCIES_VIEW,
+            ImmutableMap.of(
+                BuiltinMeasureConstants.METHOD,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "Bigtable.ReadRows"),
+                BuiltinMeasureConstants.STATUS,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                BuiltinMeasureConstants.TABLE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.CLIENT_NAME,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "bigtable-java")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(builtinGfeLatency).isEqualTo(FAKE_SERVER_TIMING);
 
-      long builtinGfeLatency =
-              StatsTestUtils.getAggregationValueAsLong(
-                      builtinStats,
-                      BuiltinViewConstants.SERVER_LATENCIES_VIEW,
-                      ImmutableMap.of(
-                              BuiltinMeasureConstants.METHOD,
-                              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-                                      "Bigtable.ReadRows"),
-                              BuiltinMeasureConstants.STATUS,
-                              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
-                              BuiltinMeasureConstants.TABLE,
-                              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
-                              BuiltinMeasureConstants.CLIENT_NAME,
-                              com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-                                      "bigtable-java")),
-                      PROJECT_ID,
-                      INSTANCE_ID,
-                      APP_PROFILE_ID);
+    long gfeMissingHeader =
+        StatsTestUtils.getAggregationValueAsLong(
+            clientStats,
+            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP,
+                io.opencensus.tags.TagValue.create("Bigtable.ReadRows"),
+                RpcMeasureConstants.BIGTABLE_STATUS,
+                io.opencensus.tags.TagValue.create("OK")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(gfeMissingHeader).isEqualTo(0);
 
-      assertThat(builtinGfeLatency).isEqualTo(FAKE_SERVER_TIMING);
+    long builtinMissingHeader =
+        StatsTestUtils.getAggregationValueAsLong(
+            builtinStats,
+            BuiltinViewConstants.CONNECTIVITY_ERROR_COUNT_VIEW,
+            ImmutableMap.of(
+                BuiltinMeasureConstants.METHOD,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "Bigtable.ReadRows"),
+                BuiltinMeasureConstants.STATUS,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                BuiltinMeasureConstants.TABLE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.CLIENT_NAME,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "bigtable-java")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(builtinMissingHeader).isEqualTo(0);
+  }
 
+  @Test
+  public void testApplicationLatency() throws Exception {
+    long applicationLatency = 1000;
+    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
+    for (Row r : rows) {
+      r.getCells();
+      Thread.sleep(applicationLatency);
+    }
+
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            builtinStats,
+            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
+            ImmutableMap.of(
+                BuiltinMeasureConstants.METHOD,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "Bigtable.ReadRows"),
+                BuiltinMeasureConstants.STATUS,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                BuiltinMeasureConstants.TABLE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.ZONE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                BuiltinMeasureConstants.CLUSTER,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+                BuiltinMeasureConstants.CLIENT_NAME,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "bigtable-java"),
+                BuiltinMeasureConstants.STREAMING,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+
+    // assertThat(latency).isAtLeast(applicationLatency);
+  }
+
+  private class FakeService extends BigtableGrpc.BigtableImplBase {
+    @Override
+    public void readRows(
+        ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
+      if (!request.getTableName().equals(TABLE_ID)) {
+        responseObserver.onNext(READ_ROWS_RESPONSE_1);
+        responseObserver.onNext(READ_ROWS_RESPONSE_2);
+        responseObserver.onCompleted();
+        return;
+      }
+      try {
+        Thread.sleep(SERVER_LATENCY);
+      } catch (InterruptedException e) {
+
+      }
+      responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void mutateRows(
+        MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
+      responseObserver.onNext(MutateRowsResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
   }
 }

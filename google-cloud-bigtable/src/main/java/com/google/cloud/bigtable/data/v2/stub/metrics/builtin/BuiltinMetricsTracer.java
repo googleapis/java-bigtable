@@ -154,7 +154,16 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void onRequest() {
+    if (!serverLatencyTimer.isRunning()) {
+      serverLatencyTimer.start();
+    }
+  }
+
+  @Override
   public void responseReceived() {
+    totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+    serverLatencyTimer.reset();
     if (firstResponsePerOpTimer.isRunning()) {
       firstResponsePerOpTimer.stop();
     }
@@ -185,7 +194,11 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     } else {
       measures.put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 1L);
     }
-    measures.record(newTagCtxBuilder().build());
+    measures.record(
+        newTagCtxBuilder()
+            .putLocal(
+                BuiltinMeasureConstants.STATUS, TagValue.create(Util.extractStatus(throwable)))
+            .build());
   }
 
   @Override
@@ -211,7 +224,9 @@ public class BuiltinMetricsTracer extends BigtableTracer {
             .newMeasureMap()
             .put(BuiltinMeasureConstants.OPERATION_LATENCIES, operationLatency)
             .put(BuiltinMeasureConstants.RETRY_COUNT, attemptCount)
-            .put(BuiltinMeasureConstants.APPLICATION_LATENCIES, operationLatency - totalServerLatency.get());
+            .put(
+                BuiltinMeasureConstants.APPLICATION_LATENCIES,
+                operationLatency - totalServerLatency.get());
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {

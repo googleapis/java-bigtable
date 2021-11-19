@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-
 import org.threeten.bp.Duration;
 
 /**
@@ -196,6 +195,13 @@ class CompositeTracer extends BigtableTracer {
   public void setLocations(String zone, String cluster) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.setLocations(zone, cluster);
+    }
+  }
+
+  @Override
+  public void onRequest() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.onRequest();
     }
   }
 }

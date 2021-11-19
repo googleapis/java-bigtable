@@ -224,8 +224,10 @@ class MetricsTracer extends BigtableTracer {
     } else {
       measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
     }
-    measures.record(newTagCtxBuilder()
-            .putLocal(RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create(Util.extractStatus(throwable)))
+    measures.record(
+        newTagCtxBuilder()
+            .putLocal(
+                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create(Util.extractStatus(throwable)))
             .build());
   }
 
@@ -254,6 +256,11 @@ class MetricsTracer extends BigtableTracer {
 
   @Override
   public void setLocations(String zone, String cluster) {
-    //noop
+    // noop
+  }
+
+  @Override
+  public void onRequest() {
+    // noop
   }
 }

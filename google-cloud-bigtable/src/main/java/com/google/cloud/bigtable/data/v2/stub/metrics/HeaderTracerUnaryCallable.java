@@ -53,45 +53,50 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
 
   @Override
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
-      // this should always be true
-      if (context.getTracer() instanceof BigtableTracer) {
-          final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-          final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
-          HeaderTracerUnaryCallback callback = new HeaderTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
-          ApiFuture<ResponseT> future = innerCallable.futureCall(request, contextWithResponseMetadata);
-          ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
-          return future;
-      } else {
-          return innerCallable.futureCall(request, context);
-      }
+    // this should always be true
+    if (context.getTracer() instanceof BigtableTracer) {
+      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+      final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
+      HeaderTracerUnaryCallback callback =
+          new HeaderTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
+      ApiFuture<ResponseT> future = innerCallable.futureCall(request, contextWithResponseMetadata);
+      ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
+      return future;
+    } else {
+      return innerCallable.futureCall(request, context);
+    }
   }
 
   class HeaderTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
 
-      private final BigtableTracer tracer;
-      private final GrpcResponseMetadata responseMetadata;
+    private final BigtableTracer tracer;
+    private final GrpcResponseMetadata responseMetadata;
 
-      HeaderTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
-          this.tracer = tracer;
-          this.responseMetadata = responseMetadata;
-      }
+    HeaderTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
+      this.tracer = tracer;
+      this.responseMetadata = responseMetadata;
+    }
 
-      @Override
-      public void onFailure(Throwable throwable) {
-          Metadata metadata = responseMetadata.getMetadata();
-          Long latency = Util.getGfeLatency(metadata);
-          tracer.recordGfeMetadata(latency, throwable);
-          Metadata trailers = responseMetadata.getTrailingMetadata();
-          tracer.setLocations(trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
-      }
+    @Override
+    public void onFailure(Throwable throwable) {
+      Metadata metadata = responseMetadata.getMetadata();
+      Long latency = Util.getGfeLatency(metadata);
+      tracer.recordGfeMetadata(latency, throwable);
+      Metadata trailers = responseMetadata.getTrailingMetadata();
+      tracer.setLocations(
+          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
 
-      @Override
-      public void onSuccess(ResponseT o) {
-          Metadata metadata = responseMetadata.getMetadata();
-          Long latency = Util.getGfeLatency(metadata);
-          tracer.recordGfeMetadata(latency, null);
-          Metadata trailers = responseMetadata.getTrailingMetadata();
-          tracer.setLocations(trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
-      }
+
+    }
+
+    @Override
+    public void onSuccess(ResponseT o) {
+      Metadata metadata = responseMetadata.getMetadata();
+      Long latency = Util.getGfeLatency(metadata);
+      tracer.recordGfeMetadata(latency, null);
+      Metadata trailers = responseMetadata.getTrailingMetadata();
+      tracer.setLocations(
+          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+    }
   }
 }

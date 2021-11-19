@@ -362,11 +362,14 @@ class StatsTestUtils {
             com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData>
         aggregationMap = Objects.requireNonNull(viewData).getAggregationMap();
 
-    List<com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue> tagValues = new ArrayList<>();
+    List<com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue> tagValues =
+        new ArrayList<>();
 
-    for (com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey column : view.getColumns()) {
+    for (com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey column :
+        view.getColumns()) {
       if (BuiltinMeasureConstants.PROJECT_ID == column) {
-        tagValues.add(com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(projectId));
+        tagValues.add(
+            com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(projectId));
       } else if (BuiltinMeasureConstants.INSTANCE_ID == column) {
         tagValues.add(
             com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(instanceId));
@@ -387,7 +390,8 @@ class StatsTestUtils {
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataDouble
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                      .SumDataDouble
                   arg) {
             return (long) arg.getSum();
           }
@@ -397,44 +401,53 @@ class StatsTestUtils {
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataLong arg) {
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.SumDataLong
+                  arg) {
             return arg.getSum();
           }
         },
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData, Long>() {
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData,
+            Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData arg) {
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.CountData
+                  arg) {
             return arg.getCount();
           }
         },
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.DistributionData,
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                .DistributionData,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.DistributionData
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                      .DistributionData
                   arg) {
             return (long) arg.getMean();
           }
         },
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble,
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                .LastValueDataDouble,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataDouble
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                      .LastValueDataDouble
                   arg) {
             return (long) arg.getLastValue();
           }
         },
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
-            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong,
+            com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                .LastValueDataLong,
             Long>() {
           @Override
           public Long apply(
-              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData.LastValueDataLong
+              com.google.bigtable.veneer.repackaged.io.opencensus.stats.AggregationData
+                      .LastValueDataLong
                   arg) {
             return arg.getLastValue();
           }

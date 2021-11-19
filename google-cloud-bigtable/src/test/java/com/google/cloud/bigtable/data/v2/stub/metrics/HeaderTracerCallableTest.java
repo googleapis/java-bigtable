@@ -383,24 +383,6 @@ public class HeaderTracerCallableTest {
     assertThat(missingCount).isEqualTo(attempts);
   }
 
-  @Test
-  public void testCallableBypassed() throws InterruptedException {
-    RpcViews.setGfeMetricsRegistered(false);
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    ViewData headerMissingView =
-        localStats
-            .getViewManager()
-            .getView(RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW.getName());
-    ViewData latencyView =
-        localStats.getViewManager().getView(RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW.getName());
-    // Verify that the view is registered by it's not collecting metrics
-    assertThat(headerMissingView).isNotNull();
-    assertThat(latencyView).isNotNull();
-    assertThat(headerMissingView.getAggregationMap()).isEmpty();
-    assertThat(latencyView.getAggregationMap()).isEmpty();
-  }
-
   private class FakeService extends BigtableImplBase {
     private final String defaultTableName =
         NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID);
