@@ -82,7 +82,6 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      //      outerObserver.onStart(new TracedStreamController(controller, tracer));
       outerObserver.onStart(controller);
     }
 
@@ -99,8 +98,10 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, t);
       Metadata trailers = responseMetadata.getTrailingMetadata();
-      tracer.setLocations(
-          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      if (trailers != null) {
+        tracer.setLocations(
+                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      }
 
       outerObserver.onError(t);
     }
@@ -111,8 +112,10 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       Metadata trailers = responseMetadata.getTrailingMetadata();
-      tracer.setLocations(
-          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      if (trailers != null) {
+        tracer.setLocations(
+                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      }
 
       outerObserver.onComplete();
     }

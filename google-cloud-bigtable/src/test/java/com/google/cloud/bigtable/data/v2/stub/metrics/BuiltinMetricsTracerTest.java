@@ -115,6 +115,7 @@ public class BuiltinMetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
+    System.out.println("STARTING BUILTIN METRICS TEST!!!!");
     mockService = new FakeService();
 
     // Add an interceptor to send location information in the trailers and add server-timing in
@@ -308,53 +309,47 @@ public class BuiltinMetricsTracerTest {
     assertThat(builtinMissingHeader).isEqualTo(0);
   }
 
-  @Test
-  public void testApplicationLatency() throws Exception {
-    long applicationLatency = 1000;
-    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
-    for (Row r : rows) {
-      r.getCells();
-      Thread.sleep(applicationLatency);
-    }
-
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            builtinStats,
-            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
-            ImmutableMap.of(
-                BuiltinMeasureConstants.METHOD,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-                    "Bigtable.ReadRows"),
-                BuiltinMeasureConstants.STATUS,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
-                BuiltinMeasureConstants.TABLE,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
-                BuiltinMeasureConstants.ZONE,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
-                BuiltinMeasureConstants.CLUSTER,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
-                BuiltinMeasureConstants.CLIENT_NAME,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-                    "bigtable-java"),
-                BuiltinMeasureConstants.STREAMING,
-                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+//  @Test
+//  public void testApplicationLatency() throws Exception {
+//    long applicationLatency = 1000;
+//    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
+//    for (Row r : rows) {
+//      r.getCells();
+//      Thread.sleep(applicationLatency);
+//    }
+//
+//    long latency =
+//        StatsTestUtils.getAggregationValueAsLong(
+//            builtinStats,
+//            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
+//            ImmutableMap.of(
+//                BuiltinMeasureConstants.METHOD,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+//                    "Bigtable.ReadRows"),
+//                BuiltinMeasureConstants.STATUS,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+//                BuiltinMeasureConstants.TABLE,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+//                BuiltinMeasureConstants.ZONE,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+//                BuiltinMeasureConstants.CLUSTER,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+//                BuiltinMeasureConstants.CLIENT_NAME,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+//                    "bigtable-java"),
+//                BuiltinMeasureConstants.STREAMING,
+//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
+//            PROJECT_ID,
+//            INSTANCE_ID,
+//            APP_PROFILE_ID);
 
     // assertThat(latency).isAtLeast(applicationLatency);
-  }
+//  }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
-      if (!request.getTableName().equals(TABLE_ID)) {
-        responseObserver.onNext(READ_ROWS_RESPONSE_1);
-        responseObserver.onNext(READ_ROWS_RESPONSE_2);
-        responseObserver.onCompleted();
-        return;
-      }
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {

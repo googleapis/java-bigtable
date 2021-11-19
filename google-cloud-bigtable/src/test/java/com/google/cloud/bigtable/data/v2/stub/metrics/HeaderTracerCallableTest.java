@@ -55,7 +55,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.StatsComponent;
-import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -90,6 +89,7 @@ public class HeaderTracerCallableTest {
 
   @Before
   public void setUp() throws Exception {
+    System.out.println("STARTING HEADER TRACER TEST!!!! ");
     RpcViews.registerBigtableClientGfeViews(localStats.getViewManager());
 
     // Create a server that'll inject a server-timing header with a random number and a stub that

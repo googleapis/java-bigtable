@@ -112,6 +112,7 @@ public class MetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
+    System.out.println("STARTING METRICS TRACER TEST!!!!!");
     serviceHelper = new FakeServiceHelper(mockService);
     serviceHelper.start();
 

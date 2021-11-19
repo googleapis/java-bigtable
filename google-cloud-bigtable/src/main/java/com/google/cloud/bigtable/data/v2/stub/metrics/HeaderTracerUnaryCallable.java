@@ -83,20 +83,22 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, throwable);
       Metadata trailers = responseMetadata.getTrailingMetadata();
-      tracer.setLocations(
-          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
-
-
+      if (trailers != null) {
+        tracer.setLocations(
+                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      }
     }
 
     @Override
-    public void onSuccess(ResponseT o) {
+    public void onSuccess(ResponseT response) {
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       Metadata trailers = responseMetadata.getTrailingMetadata();
-      tracer.setLocations(
+      if (trailers != null) {
+        tracer.setLocations(
           trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      }
     }
   }
 }

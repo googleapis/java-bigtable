@@ -27,12 +27,14 @@ import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -121,7 +123,7 @@ public class Util {
     } else if (request instanceof ReadModifyWriteRowRequest) {
       tableName = ((ReadModifyWriteRowRequest) request).getTableName();
     }
-    return tableName != null ? TableName.parse(tableName).getTable() : "undefined";
+    return !Strings.isNullOrEmpty(tableName) ? TableName.parse(tableName).getTable() : "undefined";
   }
 
   /**
