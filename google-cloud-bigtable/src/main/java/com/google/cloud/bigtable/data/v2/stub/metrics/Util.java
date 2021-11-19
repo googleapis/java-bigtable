@@ -57,6 +57,12 @@ public class Util {
       Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
 
+  // TODO: update key value
+  public static final Metadata.Key<String> ZONE_HEADER_KEY =
+          Metadata.Key.of("bigtable-zone", Metadata.ASCII_STRING_MARSHALLER);
+  public static final Metadata.Key<String> CLUSTER_HEADER_KEY =
+          Metadata.Key.of("bigtable-cluster", Metadata.ASCII_STRING_MARSHALLER);
+
   private static final TagValue OK_STATUS = TagValue.create(StatusCode.Code.OK.toString());
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */

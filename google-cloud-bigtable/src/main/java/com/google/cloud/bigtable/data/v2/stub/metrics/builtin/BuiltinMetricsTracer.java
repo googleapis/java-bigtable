@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
@@ -54,6 +55,10 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   private int attemptCount = 0;
   private Stopwatch attemptTimer;
   private volatile int attempt;
+
+  // Total latency on the server side
+  private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
+  private final AtomicLong totalServerLatency = new AtomicLong(0);
 
   // Monitored resource labels
   private String tableId = "undefined";
@@ -107,6 +112,7 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     this.attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
+    serverLatencyTimer.start();
     if (request != null) {
       tableId = Util.extractTableId(request);
     }
@@ -170,12 +176,12 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void recordGfeMetadata(@Nullable Long latency) {
+  public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
     MeasureMap measures = statsRecorder.newMeasureMap();
     if (latency != null) {
       measures
-              .put(BuiltinMeasureConstants.SERVER_LATENCIES, latency)
-              .put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 0L);
+          .put(BuiltinMeasureConstants.SERVER_LATENCIES, latency)
+          .put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 0L);
     } else {
       measures.put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 1L);
     }
@@ -184,8 +190,12 @@ public class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void setLocations(String zone, String cluster) {
-    this.zone = zone;
-    this.cluster = cluster;
+    if (zone != null) {
+      this.zone = zone;
+    }
+    if (cluster != null) {
+      this.cluster = cluster;
+    }
   }
 
   private void recordOperationCompletion(@Nullable Throwable throwable) {
@@ -200,7 +210,8 @@ public class BuiltinMetricsTracer extends BigtableTracer {
         statsRecorder
             .newMeasureMap()
             .put(BuiltinMeasureConstants.OPERATION_LATENCIES, operationLatency)
-            .put(BuiltinMeasureConstants.RETRY_COUNT, attemptCount);
+            .put(BuiltinMeasureConstants.RETRY_COUNT, attemptCount)
+            .put(BuiltinMeasureConstants.APPLICATION_LATENCIES, operationLatency - totalServerLatency.get());
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
@@ -223,6 +234,8 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private void recordAttemptCompletion(@Nullable Throwable throwable) {
+    totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+    serverLatencyTimer.reset();
     MeasureMap measures =
         statsRecorder
             .newMeasureMap()

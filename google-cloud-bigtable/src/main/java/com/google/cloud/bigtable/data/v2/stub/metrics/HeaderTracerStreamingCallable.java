@@ -97,6 +97,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, t);
+      Metadata trailers = responseMetadata.getTrailingMetadata();
+      tracer.setLocations(trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+
       outerObserver.onError(t);
     }
 
@@ -105,6 +108,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
+      Metadata trailers = responseMetadata.getTrailingMetadata();
+      tracer.setLocations(trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+
       outerObserver.onComplete();
     }
   }

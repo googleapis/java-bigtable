@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+
 import org.threeten.bp.Duration;
 
 /**
@@ -92,9 +93,14 @@ class CompositeTracer extends BigtableTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    attemptStarted(null, attemptNumber);
+  }
+
+  @Override
+  public void attemptStarted(Object request, int attemptNumber) {
     this.attempt = attemptNumber;
     for (ApiTracer child : children) {
-      child.attemptStarted(attemptNumber);
+      child.attemptStarted(request, attemptNumber);
     }
   }
 
