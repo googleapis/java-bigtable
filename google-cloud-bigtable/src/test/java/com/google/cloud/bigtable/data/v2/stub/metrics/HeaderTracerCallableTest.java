@@ -89,7 +89,6 @@ public class HeaderTracerCallableTest {
 
   @Before
   public void setUp() throws Exception {
-    System.out.println("STARTING HEADER TRACER TEST!!!! ");
     RpcViews.registerBigtableClientGfeViews(localStats.getViewManager());
 
     // Create a server that'll inject a server-timing header with a random number and a stub that

@@ -85,7 +85,7 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
       Metadata trailers = responseMetadata.getTrailingMetadata();
       if (trailers != null) {
         tracer.setLocations(
-                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
       }
     }
 
@@ -97,7 +97,7 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
       Metadata trailers = responseMetadata.getTrailingMetadata();
       if (trailers != null) {
         tracer.setLocations(
-          trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
       }
     }
   }

@@ -100,7 +100,7 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Metadata trailers = responseMetadata.getTrailingMetadata();
       if (trailers != null) {
         tracer.setLocations(
-                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
       }
 
       outerObserver.onError(t);
@@ -114,7 +114,7 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Metadata trailers = responseMetadata.getTrailingMetadata();
       if (trailers != null) {
         tracer.setLocations(
-                trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
       }
 
       outerObserver.onComplete();

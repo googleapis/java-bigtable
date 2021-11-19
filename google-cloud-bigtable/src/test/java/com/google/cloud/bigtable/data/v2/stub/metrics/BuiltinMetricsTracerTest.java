@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.client.util.Lists;
 import com.google.api.gax.rpc.ClientContext;
-import com.google.api.gax.rpc.ServerStream;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
@@ -28,7 +27,6 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
@@ -115,7 +113,6 @@ public class BuiltinMetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
-    System.out.println("STARTING BUILTIN METRICS TEST!!!!");
     mockService = new FakeService();
 
     // Add an interceptor to send location information in the trailers and add server-timing in
@@ -309,42 +306,45 @@ public class BuiltinMetricsTracerTest {
     assertThat(builtinMissingHeader).isEqualTo(0);
   }
 
-//  @Test
-//  public void testApplicationLatency() throws Exception {
-//    long applicationLatency = 1000;
-//    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
-//    for (Row r : rows) {
-//      r.getCells();
-//      Thread.sleep(applicationLatency);
-//    }
-//
-//    long latency =
-//        StatsTestUtils.getAggregationValueAsLong(
-//            builtinStats,
-//            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
-//            ImmutableMap.of(
-//                BuiltinMeasureConstants.METHOD,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-//                    "Bigtable.ReadRows"),
-//                BuiltinMeasureConstants.STATUS,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
-//                BuiltinMeasureConstants.TABLE,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
-//                BuiltinMeasureConstants.ZONE,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
-//                BuiltinMeasureConstants.CLUSTER,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
-//                BuiltinMeasureConstants.CLIENT_NAME,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-//                    "bigtable-java"),
-//                BuiltinMeasureConstants.STREAMING,
-//                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
-//            PROJECT_ID,
-//            INSTANCE_ID,
-//            APP_PROFILE_ID);
+  //  @Test
+  //  public void testApplicationLatency() throws Exception {
+  //    long applicationLatency = 1000;
+  //    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
+  //    for (Row r : rows) {
+  //      r.getCells();
+  //      Thread.sleep(applicationLatency);
+  //    }
+  //
+  //    long latency =
+  //        StatsTestUtils.getAggregationValueAsLong(
+  //            builtinStats,
+  //            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
+  //            ImmutableMap.of(
+  //                BuiltinMeasureConstants.METHOD,
+  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+  //                    "Bigtable.ReadRows"),
+  //                BuiltinMeasureConstants.STATUS,
+  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+  //                BuiltinMeasureConstants.TABLE,
+  //
+  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+  //                BuiltinMeasureConstants.ZONE,
+  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+  //                BuiltinMeasureConstants.CLUSTER,
+  //
+  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+  //                BuiltinMeasureConstants.CLIENT_NAME,
+  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+  //                    "bigtable-java"),
+  //                BuiltinMeasureConstants.STREAMING,
+  //
+  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
+  //            PROJECT_ID,
+  //            INSTANCE_ID,
+  //            APP_PROFILE_ID);
 
-    // assertThat(latency).isAtLeast(applicationLatency);
-//  }
+  // assertThat(latency).isAtLeast(applicationLatency);
+  //  }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
     @Override

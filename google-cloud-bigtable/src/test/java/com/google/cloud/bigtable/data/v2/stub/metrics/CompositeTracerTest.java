@@ -120,11 +120,11 @@ public class CompositeTracerTest {
   @Test
   public void testAttemptStarted() {
     ReadRowsRequest request = ReadRowsRequest.getDefaultInstance();
-    compositeTracer.attemptStarted(request,3);
-    verify(child1, times(1)).attemptStarted(request,3);
-    verify(child2, times(1)).attemptStarted(request,3);
-    verify(child3, times(1)).attemptStarted(request,3);
-    verify(child4, times(1)).attemptStarted(request,3);
+    compositeTracer.attemptStarted(request, 3);
+    verify(child1, times(1)).attemptStarted(request, 3);
+    verify(child2, times(1)).attemptStarted(request, 3);
+    verify(child3, times(1)).attemptStarted(request, 3);
+    verify(child4, times(1)).attemptStarted(request, 3);
   }
 
   @Test
