@@ -31,6 +31,7 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.UnaryCallable;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -260,6 +261,19 @@ public class EnhancedBigtableStubTest {
             .build();
     callable.call(expectedRequest2).iterator().next();
     assertThat(fakeDataService.popLastRequest()).isEqualTo(expectedRequest2);
+  }
+
+  @Test
+  public void testCreateReadRowRawCallable() throws InterruptedException {
+    UnaryCallable<Query, Row> callable =
+        enhancedBigtableStub.createReadRowRawCallable(new DefaultRowAdapter());
+
+    Query request = Query.create("table-id").rowKey("row-key");
+    callable.call(request);
+
+    ReadRowsRequest expected =
+        request.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID));
+    assertThat(fakeDataService.popLastRequest()).isEqualTo(expected);
   }
 
   @Test

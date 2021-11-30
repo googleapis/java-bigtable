@@ -132,6 +132,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
+  private final UnaryCallable<Query, Row> readRowRawCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
@@ -267,6 +268,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
+    readRowRawCallable = createReadRowRawCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
@@ -325,6 +327,26 @@ public class EnhancedBigtableStub implements AutoCloseable {
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
+   * Creates a callable chain to handle point ReadRows RPCs. The chain will:
+   *
+   *
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.</p>
+   */
+  public <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(RowAdapter<RowT> rowAdapter) {
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
+        createReadRowsBaseCallable(
+            ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
+                .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
+                .setRetrySettings(settings.readRowSettings().getRetrySettings())
+                .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
+                .build(),
+            rowAdapter).withDefaultCallContext(clientContext.getDefaultCallContext());
+
+    return new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
   }
 
   /**
@@ -769,6 +791,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /** Return a point read callable */
   public UnaryCallable<Query, Row> readRowCallable() {
     return readRowCallable;
+  }
+
+  public UnaryCallable<Query, Row> readRowRawCallable() {
+    return readRowRawCallable;
   }
 
   public UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable() {

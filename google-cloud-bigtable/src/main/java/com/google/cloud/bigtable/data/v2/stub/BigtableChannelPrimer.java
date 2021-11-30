@@ -144,7 +144,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       // Prime all of the table ids in parallel
       for (String tableId : tableIds) {
         ApiFuture<Row> f =
-            stub.readRowCallable()
+            stub.readRowRawCallable()
                 .futureCall(Query.create(tableId).rowKey(PRIMING_ROW_KEY).filter(FILTERS.block()));
 
         primeFutures.put(tableId, f);
