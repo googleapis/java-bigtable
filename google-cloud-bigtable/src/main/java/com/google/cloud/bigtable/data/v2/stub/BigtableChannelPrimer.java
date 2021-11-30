@@ -24,7 +24,9 @@ import com.google.api.gax.core.InstantiatingExecutorProvider;
 import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.UnaryCallable;
 import com.google.auth.Credentials;
+import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.common.base.Preconditions;
@@ -143,8 +145,10 @@ class BigtableChannelPrimer implements ChannelPrimer {
 
       // Prime all of the table ids in parallel
       for (String tableId : tableIds) {
+        UnaryCallable<Query, Row> callable = stub.createReadRowRawCallable(new DefaultRowAdapter());
+
         ApiFuture<Row> f =
-            stub.readRowRawCallable()
+            callable
                 .futureCall(Query.create(tableId).rowKey(PRIMING_ROW_KEY).filter(FILTERS.block()));
 
         primeFutures.put(tableId, f);

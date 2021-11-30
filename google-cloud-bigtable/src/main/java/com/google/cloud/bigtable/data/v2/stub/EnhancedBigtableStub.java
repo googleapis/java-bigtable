@@ -132,7 +132,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
-  private final UnaryCallable<Query, Row> readRowRawCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
@@ -268,7 +267,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
-    readRowRawCallable = createReadRowRawCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
@@ -332,11 +330,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /**
    * Creates a callable chain to handle point ReadRows RPCs. The chain will:
    *
-   *
+   * <ul>
+   *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest} and
+   *       dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will merge the {@link
+   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
+   *       implementation can be configured in by the {@code rowAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Filter out marker rows.
+   * </ul>
    *
    * <p>NOTE: the caller is responsible for adding tracing & metrics.</p>
    */
-  public <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(RowAdapter<RowT> rowAdapter) {
+  protected <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
         createReadRowsBaseCallable(
             ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
@@ -791,10 +797,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /** Return a point read callable */
   public UnaryCallable<Query, Row> readRowCallable() {
     return readRowCallable;
-  }
-
-  public UnaryCallable<Query, Row> readRowRawCallable() {
-    return readRowRawCallable;
   }
 
   public UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable() {
