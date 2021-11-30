@@ -6,3 +6,4 @@ grpc-google-cloud-bigtable-admin-v2:2.3.0:2.3.0
 grpc-google-cloud-bigtable-v2:2.3.0:2.3.0
 proto-google-cloud-bigtable-admin-v2:2.3.0:2.3.0
 proto-google-cloud-bigtable-v2:2.3.0:2.3.0
+google-cloud-bigtable-emulator:2.3.0:2.3.0
