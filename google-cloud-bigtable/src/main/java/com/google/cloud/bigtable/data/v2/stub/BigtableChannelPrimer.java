@@ -148,8 +148,8 @@ class BigtableChannelPrimer implements ChannelPrimer {
         UnaryCallable<Query, Row> callable = stub.createReadRowRawCallable(new DefaultRowAdapter());
 
         ApiFuture<Row> f =
-            callable
-                .futureCall(Query.create(tableId).rowKey(PRIMING_ROW_KEY).filter(FILTERS.block()));
+            callable.futureCall(
+                Query.create(tableId).rowKey(PRIMING_ROW_KEY).filter(FILTERS.block()));
 
         primeFutures.put(tableId, f);
       }

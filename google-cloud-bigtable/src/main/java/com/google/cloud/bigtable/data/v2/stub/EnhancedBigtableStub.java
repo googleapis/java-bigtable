@@ -340,17 +340,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Filter out marker rows.
    * </ul>
    *
-   * <p>NOTE: the caller is responsible for adding tracing & metrics.</p>
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
    */
-  protected <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(RowAdapter<RowT> rowAdapter) {
+  protected <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(
+      RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
         createReadRowsBaseCallable(
-            ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
-                .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
-                .setRetrySettings(settings.readRowSettings().getRetrySettings())
-                .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
-                .build(),
-            rowAdapter).withDefaultCallContext(clientContext.getDefaultCallContext());
+                ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
+                    .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
+                    .setRetrySettings(settings.readRowSettings().getRetrySettings())
+                    .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
+                    .build(),
+                rowAdapter)
+            .withDefaultCallContext(clientContext.getDefaultCallContext());
 
     return new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
   }
