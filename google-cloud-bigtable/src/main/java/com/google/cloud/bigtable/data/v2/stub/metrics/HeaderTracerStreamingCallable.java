@@ -82,7 +82,8 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      outerObserver.onStart(controller);
+      final StreamController tracedController = new TracedStreamController(controller, tracer);
+      outerObserver.onStart(tracedController);
     }
 
     @Override

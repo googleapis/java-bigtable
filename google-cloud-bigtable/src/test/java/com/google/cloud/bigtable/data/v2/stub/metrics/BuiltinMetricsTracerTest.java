@@ -18,21 +18,27 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.client.util.Lists;
+import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.rpc.ResponseObserver;
+import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.BigtableGrpc;
-import com.google.bigtable.v2.MutateRowsRequest;
-import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.MutateRowRequest;
+import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinViewConstants;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Queues;
 import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -43,16 +49,21 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.tags.Tags;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.threeten.bp.Duration;
 
 public class BuiltinMetricsTracerTest {
   private static final String PROJECT_ID = "fake-project";
@@ -63,6 +74,9 @@ public class BuiltinMetricsTracerTest {
   private static final String CLUSTER = "cluster-1";
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 500;
+
+  private final BlockingQueue<ReadRowsResponse> responses = Queues.newLinkedBlockingQueue();
+  private final AtomicInteger rpcCount = new AtomicInteger(0);
 
   private static final ReadRowsResponse READ_ROWS_RESPONSE_1 =
       ReadRowsResponse.newBuilder()
@@ -111,9 +125,15 @@ public class BuiltinMetricsTracerTest {
       builtinStats =
           new com.google.bigtable.veneer.repackaged.io.opencensus.impl.stats.StatsComponentImpl();
 
+  private Stopwatch serverRetryDelayStopwatch;
+  private AtomicLong serverTotalRetryDelay;
+
   @Before
   public void setUp() throws Exception {
     mockService = new FakeService();
+
+    serverRetryDelayStopwatch = Stopwatch.createUnstarted();
+    serverTotalRetryDelay = new AtomicLong(0);
 
     // Add an interceptor to send location information in the trailers and add server-timing in
     // headers
@@ -155,9 +175,15 @@ public class BuiltinMetricsTracerTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
+    EnhancedBigtableStubSettings.Builder stubSettingsBuilder =
+        settings.getStubSettings().toBuilder();
+    stubSettingsBuilder
+        .mutateRowSettings()
+        .retrySettings()
+        .setInitialRetryDelay(Duration.ofMillis(200));
     EnhancedBigtableStubSettings stubSettings =
         EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(),
+            stubSettingsBuilder.build(),
             Tags.getTagger(),
             clientStats.getStatsRecorder(),
             builtinStats.getStatsRecorder(),
@@ -306,63 +332,149 @@ public class BuiltinMetricsTracerTest {
     assertThat(builtinMissingHeader).isEqualTo(0);
   }
 
-  //  @Test
-  //  public void testApplicationLatency() throws Exception {
-  //    long applicationLatency = 1000;
-  //    ServerStream<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID));
-  //    for (Row r : rows) {
-  //      r.getCells();
-  //      Thread.sleep(applicationLatency);
-  //    }
-  //
-  //    long latency =
-  //        StatsTestUtils.getAggregationValueAsLong(
-  //            builtinStats,
-  //            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
-  //            ImmutableMap.of(
-  //                BuiltinMeasureConstants.METHOD,
-  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-  //                    "Bigtable.ReadRows"),
-  //                BuiltinMeasureConstants.STATUS,
-  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
-  //                BuiltinMeasureConstants.TABLE,
-  //
-  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
-  //                BuiltinMeasureConstants.ZONE,
-  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
-  //                BuiltinMeasureConstants.CLUSTER,
-  //
-  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
-  //                BuiltinMeasureConstants.CLIENT_NAME,
-  //                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
-  //                    "bigtable-java"),
-  //                BuiltinMeasureConstants.STREAMING,
-  //
-  // com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
-  //            PROJECT_ID,
-  //            INSTANCE_ID,
-  //            APP_PROFILE_ID);
+  @Test
+  public void testReadRowsApplicationLatency() throws Exception {
+    final long applicationLatency = 1000;
+    final SettableApiFuture future = SettableApiFuture.create();
+    final AtomicInteger counter = new AtomicInteger(0);
+    // We want to measure how long application waited before requesting another message after
+    // the previous message is returned from the server. Using ResponseObserver here so that the
+    // flow will be
+    // onResponse() -> sleep -> onRequest() (for the next message) which is exactly what we want to
+    // measure for
+    // application latency.
+    // If we do readRowsCallable().call(Query.create(TABLE_ID)).iterator() and iterate through the
+    // iterator and sleep in
+    // between responses, when the call started, the client will pre-fetch the first response, which
+    // won't be counted
+    // in application latency. So the test will be flaky and hard to debug.
+    stub.readRowsCallable()
+        .call(
+            Query.create(TABLE_ID),
+            new ResponseObserver<Row>() {
+              @Override
+              public void onStart(StreamController streamController) {}
 
-  // assertThat(latency).isAtLeast(applicationLatency);
-  //  }
+              @Override
+              public void onResponse(Row row) {
+                try {
+                  counter.incrementAndGet();
+                  Thread.sleep(applicationLatency);
+                } catch (InterruptedException e) {
+                }
+              }
+
+              @Override
+              public void onError(Throwable throwable) {
+                future.setException(throwable);
+              }
+
+              @Override
+              public void onComplete() {
+                future.set(null);
+              }
+            });
+    future.get();
+
+    Thread.sleep(500);
+
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            builtinStats,
+            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
+            ImmutableMap.of(
+                BuiltinMeasureConstants.METHOD,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "Bigtable.ReadRows"),
+                BuiltinMeasureConstants.STATUS,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                BuiltinMeasureConstants.TABLE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.ZONE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                BuiltinMeasureConstants.CLUSTER,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+                BuiltinMeasureConstants.CLIENT_NAME,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "bigtable-java"),
+                BuiltinMeasureConstants.STREAMING,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("true")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+
+    assertThat(counter.get()).isGreaterThan(0);
+    assertThat(latency).isAtLeast(applicationLatency * counter.get());
+    assertThat(latency).isLessThan(applicationLatency * (counter.get() + 1));
+  }
+
+  @Test
+  public void testMutateRowApplicationLatency() throws Exception {
+    // Unary callable application latency is the delay between retries
+    stub.mutateRowCallable()
+        .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
+
+    Thread.sleep(500);
+
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            builtinStats,
+            BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
+            ImmutableMap.of(
+                BuiltinMeasureConstants.METHOD,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "Bigtable.MutateRow"),
+                BuiltinMeasureConstants.STATUS,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
+                BuiltinMeasureConstants.TABLE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.ZONE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                BuiltinMeasureConstants.CLUSTER,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
+                BuiltinMeasureConstants.CLIENT_NAME,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
+                    "bigtable-java")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+
+    // Application latency should be slightly less than the total delay between 2 requests observed
+    // from the server side. To make
+    // the test less flaky comparing with half of the server side delay here.
+    assertThat(latency).isAtLeast(serverTotalRetryDelay.get() / 2);
+    assertThat(latency).isAtMost(serverTotalRetryDelay.get());
+  }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
+
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {
-
       }
-      responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+      responseObserver.onNext(READ_ROWS_RESPONSE_1);
+      responseObserver.onNext(READ_ROWS_RESPONSE_2);
+      responseObserver.onNext(READ_ROWS_RESPONSE_3);
       responseObserver.onCompleted();
     }
 
     @Override
-    public void mutateRows(
-        MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
-      responseObserver.onNext(MutateRowsResponse.getDefaultInstance());
+    public void mutateRow(
+        MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
+      if (serverRetryDelayStopwatch.isRunning()) {
+        serverTotalRetryDelay.addAndGet(serverRetryDelayStopwatch.elapsed(TimeUnit.MILLISECONDS));
+        serverRetryDelayStopwatch.reset();
+      }
+      if (rpcCount.get() < 2) {
+        responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE));
+        rpcCount.getAndIncrement();
+        serverRetryDelayStopwatch.start();
+        return;
+      }
+      responseObserver.onNext(MutateRowResponse.getDefaultInstance());
       responseObserver.onCompleted();
     }
   }

@@ -56,9 +56,9 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   private Stopwatch attemptTimer;
   private volatile int attempt;
 
-  // Total latency on the server side
-  private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
-  private final AtomicLong totalServerLatency = new AtomicLong(0);
+  // Total application latency
+  private final Stopwatch applicationLatencyTimer = Stopwatch.createUnstarted();
+  private final AtomicLong totalApplicationLatency = new AtomicLong(0);
 
   // Monitored resource labels
   private String tableId = "undefined";
@@ -112,9 +112,12 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     this.attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
-    serverLatencyTimer.start();
     if (request != null) {
       tableId = Util.extractTableId(request);
+    }
+    if (applicationLatencyTimer.isRunning()) {
+      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+      applicationLatencyTimer.reset();
     }
   }
 
@@ -130,6 +133,9 @@ public class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void attemptFailed(Throwable error, Duration delay) {
+    if (!applicationLatencyTimer.isRunning()) {
+      applicationLatencyTimer.start();
+    }
     recordAttemptCompletion(error);
   }
 
@@ -155,15 +161,17 @@ public class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void onRequest() {
-    if (!serverLatencyTimer.isRunning()) {
-      serverLatencyTimer.start();
+    if (applicationLatencyTimer.isRunning()) {
+      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+      applicationLatencyTimer.reset();
     }
   }
 
   @Override
   public void responseReceived() {
-    totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-    serverLatencyTimer.reset();
+    if (!applicationLatencyTimer.isRunning()) {
+      applicationLatencyTimer.start();
+    }
     if (firstResponsePerOpTimer.isRunning()) {
       firstResponsePerOpTimer.stop();
     }
@@ -217,6 +225,11 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     }
     operationTimer.stop();
 
+    if (applicationLatencyTimer.isRunning()) {
+      applicationLatencyTimer.stop();
+      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+    }
+
     long operationLatency = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
     MeasureMap measures =
@@ -224,9 +237,7 @@ public class BuiltinMetricsTracer extends BigtableTracer {
             .newMeasureMap()
             .put(BuiltinMeasureConstants.OPERATION_LATENCIES, operationLatency)
             .put(BuiltinMeasureConstants.RETRY_COUNT, attemptCount)
-            .put(
-                BuiltinMeasureConstants.APPLICATION_LATENCIES,
-                operationLatency - totalServerLatency.get());
+            .put(BuiltinMeasureConstants.APPLICATION_LATENCIES, totalApplicationLatency.get());
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
@@ -249,8 +260,6 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private void recordAttemptCompletion(@Nullable Throwable throwable) {
-    totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-    serverLatencyTimer.reset();
     MeasureMap measures =
         statsRecorder
             .newMeasureMap()
