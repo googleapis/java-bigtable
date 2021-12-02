@@ -15,6 +15,9 @@
  */
 package com.google.cloud.bigtable.stats;
 
+import com.google.api.core.InternalApi;
+
+@InternalApi
 public final class MavenPlaceholderShaded {
   /**
    * This class is here to force generation of source javadoc jars so that the maven release process
