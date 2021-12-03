@@ -146,10 +146,15 @@ class BigtableChannelPrimer implements ChannelPrimer {
       // Prime all of the table ids in parallel
       for (String tableId : tableIds) {
         ApiFuture<Row> f =
-            stub.createReadRowsRawCallable(new DefaultRowAdapter()).first()
+            stub.createReadRowsRawCallable(new DefaultRowAdapter())
+                .first()
                 .futureCall(
                     ReadRowsRequest.newBuilder()
-                        .setTableName(TableName.format(primingSettings.getProjectId(), primingSettings.getInstanceId(), tableId))
+                        .setTableName(
+                            TableName.format(
+                                primingSettings.getProjectId(),
+                                primingSettings.getInstanceId(),
+                                tableId))
                         .setAppProfileId(primingSettings.getAppProfileId())
                         .setRows(RowSet.newBuilder().addRowKeys(PRIMING_ROW_KEY).build())
                         .setFilter(RowFilter.newBuilder().setBlockAllFilter(true).build())
