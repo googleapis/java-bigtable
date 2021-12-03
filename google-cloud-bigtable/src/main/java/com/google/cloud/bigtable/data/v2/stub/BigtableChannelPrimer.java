@@ -24,10 +24,13 @@ import com.google.api.gax.core.InstantiatingExecutorProvider;
 import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
-import com.google.api.gax.rpc.UnaryCallable;
 import com.google.auth.Credentials;
-import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
+import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.bigtable.v2.RowFilter;
+import com.google.bigtable.v2.RowSet;
+import com.google.bigtable.v2.TableName;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -145,11 +148,16 @@ class BigtableChannelPrimer implements ChannelPrimer {
 
       // Prime all of the table ids in parallel
       for (String tableId : tableIds) {
-        UnaryCallable<Query, Row> callable = stub.createReadRowRawCallable(new DefaultRowAdapter());
-
         ApiFuture<Row> f =
-            callable.futureCall(
-                Query.create(tableId).rowKey(PRIMING_ROW_KEY).filter(FILTERS.block()));
+            stub.createReadRowsRawCallable(new DefaultRowAdapter()).first()
+                .futureCall(
+                    ReadRowsRequest.newBuilder()
+                        .setTableName(TableName.format(primingSettings.getProjectId(), primingSettings.getInstanceId(), tableId))
+                        .setAppProfileId(primingSettings.getAppProfileId())
+                        .setRows(RowSet.newBuilder().addRowKeys(PRIMING_ROW_KEY).build())
+                        .setFilter(RowFilter.newBuilder().setBlockAllFilter(true).build())
+                        .setRowsLimit(1)
+                        .build());
 
         primeFutures.put(tableId, f);
       }

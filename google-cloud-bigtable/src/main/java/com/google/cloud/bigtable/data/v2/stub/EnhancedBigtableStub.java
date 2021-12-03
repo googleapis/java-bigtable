@@ -338,36 +338,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       implementation can be configured in by the {@code rowAdapter} parameter.
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
-   * </ul>
-   *
-   * <p>NOTE: the caller is responsible for adding tracing & metrics.
-   */
-  protected <RowT> UnaryCallable<Query, RowT> createReadRowRawCallable(
-      RowAdapter<RowT> rowAdapter) {
-    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
-        createReadRowsBaseCallable(
-                ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
-                    .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
-                    .setRetrySettings(settings.readRowSettings().getRetrySettings())
-                    .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
-                    .build(),
-                rowAdapter)
-            .withDefaultCallContext(clientContext.getDefaultCallContext());
-
-    return new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
-  }
-
-  /**
-   * Creates a callable chain to handle point ReadRows RPCs. The chain will:
-   *
-   * <ul>
-   *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest} and
-   *       dispatch the RPC.
-   *   <li>Upon receiving the response stream, it will merge the {@link
-   *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
-   *       implementation can be configured in by the {@code rowAdapter} parameter.
-   *   <li>Retry/resume on failure.
-   *   <li>Filter out marker rows.
    *   <li>Add tracing & metrics.
    * </ul>
    */

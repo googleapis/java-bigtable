@@ -264,19 +264,6 @@ public class EnhancedBigtableStubTest {
   }
 
   @Test
-  public void testCreateReadRowRawCallable() throws InterruptedException {
-    UnaryCallable<Query, Row> callable =
-        enhancedBigtableStub.createReadRowRawCallable(new DefaultRowAdapter());
-
-    Query request = Query.create("table-id").rowKey("row-key");
-    callable.call(request);
-
-    ReadRowsRequest expected =
-        request.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID));
-    assertThat(fakeDataService.popLastRequest()).isEqualTo(expected);
-  }
-
-  @Test
   public void testChannelPrimerConfigured() throws IOException {
     EnhancedBigtableStubSettings settings =
         defaultSettings
