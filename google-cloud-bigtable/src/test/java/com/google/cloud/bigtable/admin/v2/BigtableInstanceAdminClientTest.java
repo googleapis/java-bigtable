@@ -171,7 +171,7 @@ public class BigtableInstanceAdminClientTest {
   private OperationCallable<
           PartialUpdateClusterRequest,
           com.google.bigtable.admin.v2.Cluster,
-      PartialUpdateClusterMetadata>
+          PartialUpdateClusterMetadata>
       mockPartialUpdateClusterCallable;
 
   @Mock
