@@ -297,6 +297,7 @@ public class BigtableInstanceAdminClientIT {
                     .setCpuUtilizationTargetPercent(20));
     try {
       Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(0);
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
@@ -319,6 +320,7 @@ public class BigtableInstanceAdminClientIT {
                     .setCpuUtilizationTargetPercent(20));
     try {
       Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(0);
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
@@ -368,6 +370,7 @@ public class BigtableInstanceAdminClientIT {
             .setScalingMode(StaticClusterSize.of(5));
     try {
       Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(5);
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(0);
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(0);
