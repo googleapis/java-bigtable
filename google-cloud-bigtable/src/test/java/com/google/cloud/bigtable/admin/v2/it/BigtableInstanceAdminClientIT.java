@@ -289,7 +289,7 @@ public class BigtableInstanceAdminClientIT {
     String clusterId = prefixGenerator.newPrefix();
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
-            .setZone(testEnvRule.env().getPrimaryZone())
+            .setZone(testEnvRule.env().getSecondaryZone())
             .setStorageType(StorageType.HDD)
             .setScalingMode(
                 ClusterAutoscalingConfig.of(instanceId, clusterId)
@@ -313,7 +313,7 @@ public class BigtableInstanceAdminClientIT {
     String clusterId = prefixGenerator.newPrefix();
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
-            .setZone(testEnvRule.env().getPrimaryZone())
+            .setZone(testEnvRule.env().getSecondaryZone())
             .setStorageType(StorageType.HDD)
             .setScalingMode(
                 ClusterAutoscalingConfig.of("ignored", clusterId)
@@ -369,7 +369,7 @@ public class BigtableInstanceAdminClientIT {
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setStorageType(StorageType.HDD)
-            .setZone(testEnvRule.env().getPrimaryZone())
+            .setZone(testEnvRule.env().getSecondaryZone())
             .setScalingMode(StaticClusterSize.of(5));
     try {
       Cluster cluster = client.createCluster(createClusterRequest);
