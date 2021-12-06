@@ -289,24 +289,25 @@ public class BigtableInstanceAdminClientIT {
     String newInstanceId = prefixGenerator.newPrefix();
     String newClusterId = newInstanceId + "-c1";
 
-    client.createInstance(
-            CreateInstanceRequest.of(newInstanceId)
-                    .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.HDD)
-                    .setDisplayName("Multi-Cluster-Instance-Test")
-                    .addLabel("state", "readytodelete")
-                    .setType(Type.PRODUCTION));
-
-    String clusterId = prefixGenerator.newPrefix();
-    CreateClusterRequest createClusterRequest =
-        CreateClusterRequest.of(newInstanceId, clusterId)
-            .setZone(testEnvRule.env().getSecondaryZone())
-            .setStorageType(StorageType.HDD)
-            .setScalingMode(
-                ClusterAutoscalingConfig.of(newInstanceId, clusterId)
-                    .setMaxNodes(4)
-                    .setMinNodes(1)
-                    .setCpuUtilizationTargetPercent(20));
     try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.HDD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setStorageType(StorageType.HDD)
+              .setScalingMode(
+                  ClusterAutoscalingConfig.of(newInstanceId, clusterId)
+                      .setMaxNodes(4)
+                      .setMinNodes(1)
+                      .setCpuUtilizationTargetPercent(20));
+
       Cluster cluster = client.createCluster(createClusterRequest);
       assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(0);
@@ -323,23 +324,24 @@ public class BigtableInstanceAdminClientIT {
     String newInstanceId = prefixGenerator.newPrefix();
     String newClusterId = newInstanceId + "-c1";
 
-    client.createInstance(
-            CreateInstanceRequest.of(newInstanceId)
-                    .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
-                    .setDisplayName("Multi-Cluster-Instance-Test")
-                    .addLabel("state", "readytodelete")
-                    .setType(Type.PRODUCTION));
-
-    String clusterId = prefixGenerator.newPrefix();
-    CreateClusterRequest createClusterRequest =
-        CreateClusterRequest.of(newInstanceId, clusterId)
-            .setZone(testEnvRule.env().getSecondaryZone())
-            .setScalingMode(
-                ClusterAutoscalingConfig.of("ignored", clusterId)
-                    .setMaxNodes(4)
-                    .setMinNodes(1)
-                    .setCpuUtilizationTargetPercent(20));
     try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setScalingMode(
+                  ClusterAutoscalingConfig.of("ignored", clusterId)
+                      .setMaxNodes(4)
+                      .setMinNodes(1)
+                      .setCpuUtilizationTargetPercent(20));
+
       Cluster cluster = client.createCluster(createClusterRequest);
       assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(0);
@@ -387,19 +389,20 @@ public class BigtableInstanceAdminClientIT {
     String newInstanceId = prefixGenerator.newPrefix();
     String newClusterId = newInstanceId + "-c1";
 
-    client.createInstance(
-            CreateInstanceRequest.of(newInstanceId)
-                    .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
-                    .setDisplayName("Multi-Cluster-Instance-Test")
-                    .addLabel("state", "readytodelete")
-                    .setType(Type.PRODUCTION));
-
-    String clusterId = prefixGenerator.newPrefix();
-    CreateClusterRequest createClusterRequest =
-        CreateClusterRequest.of(newInstanceId, clusterId)
-            .setZone(testEnvRule.env().getSecondaryZone())
-            .setScalingMode(StaticClusterSize.of(5));
     try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setScalingMode(StaticClusterSize.of(5));
+
       Cluster cluster = client.createCluster(createClusterRequest);
       assertThat(cluster.getId()).contains(clusterId);
       assertThat(cluster.getServeNodes()).isEqualTo(5);
