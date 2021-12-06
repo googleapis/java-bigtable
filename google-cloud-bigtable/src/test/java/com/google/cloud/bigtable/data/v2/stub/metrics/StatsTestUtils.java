@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterators;
@@ -51,7 +50,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nullable;
 
-class StatsTestUtils {
+public class StatsTestUtils {
   private StatsTestUtils() {}
 
   public static class MetricsRecord {

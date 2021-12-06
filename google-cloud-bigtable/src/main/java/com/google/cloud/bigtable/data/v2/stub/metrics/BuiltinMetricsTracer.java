@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics.builtin;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
@@ -24,8 +24,6 @@ import com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagContextBuilde
 import com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagKey;
 import com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue;
 import com.google.bigtable.veneer.repackaged.io.opencensus.tags.Tagger;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracer;
-import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.common.base.Stopwatch;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
@@ -64,6 +62,10 @@ public class BuiltinMetricsTracer extends BigtableTracer {
   private String tableId = "undefined";
   private String zone = "undefined";
   private String cluster = "undefined";
+
+  // Gfe metrics
+  private final AtomicLong connectivityErrorCounts = new AtomicLong(0);
+  private volatile long gfeLatency;
 
   BuiltinMetricsTracer(
       OperationType operationType,
@@ -194,19 +196,13 @@ public class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    MeasureMap measures = statsRecorder.newMeasureMap();
+    // Record the metrics and put in the map after the attempt is done so we can have cluster and
+    // zone information
     if (latency != null) {
-      measures
-          .put(BuiltinMeasureConstants.SERVER_LATENCIES, latency)
-          .put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 0L);
+      this.gfeLatency = latency;
     } else {
-      measures.put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, 1L);
+      this.connectivityErrorCounts.incrementAndGet();
     }
-    measures.record(
-        newTagCtxBuilder()
-            .putLocal(
-                BuiltinMeasureConstants.STATUS, TagValue.create(Util.extractStatus(throwable)))
-            .build());
   }
 
   @Override
@@ -217,6 +213,13 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     if (cluster != null) {
       this.cluster = cluster;
     }
+  }
+
+  @Override
+  public void batchRequestThrottled(long throttledTimeMs) {
+    MeasureMap measures = statsRecorder.newMeasureMap();
+    measures.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, throttledTimeMs);
+    measures.record(newTagContextBuilder().build());
   }
 
   private void recordOperationCompletion(@Nullable Throwable throwable) {
@@ -247,7 +250,7 @@ public class BuiltinMetricsTracer extends BigtableTracer {
     }
 
     TagContextBuilder tagCtx =
-        tagContextBuilderWithLocations()
+        newTagContextBuilder()
             .putLocal(
                 BuiltinMeasureConstants.STATUS, TagValue.create(Util.extractStatus(throwable)));
 
@@ -265,31 +268,33 @@ public class BuiltinMetricsTracer extends BigtableTracer {
             .newMeasureMap()
             .put(
                 BuiltinMeasureConstants.ATTEMPT_LATENCIES,
-                attemptTimer.elapsed(TimeUnit.MILLISECONDS));
+                attemptTimer.elapsed(TimeUnit.MILLISECONDS))
+            .put(BuiltinMeasureConstants.SERVER_LATENCIES, gfeLatency)
+            .put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, connectivityErrorCounts.get());
+
+    gfeLatency = 0;
+    connectivityErrorCounts.set(0);
+
     TagContextBuilder tagCtx =
-        tagContextBuilderWithLocations()
+        newTagContextBuilder()
             .putLocal(
                 BuiltinMeasureConstants.STATUS, TagValue.create(Util.extractStatus(throwable)));
 
     measures.record(tagCtx.build());
   }
 
-  private TagContextBuilder newTagCtxBuilder() {
+  private TagContextBuilder newTagContextBuilder() {
     TagContextBuilder tagContextBuilder =
         tagger
             .toBuilder(parentContext)
             .putLocal(BuiltinMeasureConstants.CLIENT_NAME, TagValue.create("bigtable-java"))
             .putLocal(BuiltinMeasureConstants.METHOD, TagValue.create(spanName.toString()))
-            .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId));
+            .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
+            .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
+            .putLocal(BuiltinMeasureConstants.CLUSTER, TagValue.create(cluster));
     for (Map.Entry<TagKey, TagValue> entry : statsAttributes.entrySet()) {
       tagContextBuilder.putLocal(entry.getKey(), entry.getValue());
     }
     return tagContextBuilder;
-  }
-
-  private TagContextBuilder tagContextBuilderWithLocations() {
-    return newTagCtxBuilder()
-        .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
-        .putLocal(BuiltinMeasureConstants.CLUSTER, TagValue.create(cluster));
   }
 }

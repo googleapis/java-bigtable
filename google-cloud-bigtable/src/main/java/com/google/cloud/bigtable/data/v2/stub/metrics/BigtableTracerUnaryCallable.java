@@ -28,11 +28,15 @@ import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will inject a {@link GrpcResponseMetadata} to access the headers and trailers
- * returned by gRPC methods upon completion. The {@link BigtableTracer} will process metrics that
- * were injected in the header/trailer and publish them to OpenCensus. If {@link
- * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
- * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
+ * This callable will:
+ *
+ * <p>- Inject a {@link GrpcResponseMetadata} to access the headers and trailers returned by gRPC
+ * methods upon completion. The {@link BigtableTracer} will process metrics that were injected in
+ * the header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
+ * returned null, it probably means that the request has never reached GFE, and it'll increment the
+ * gfe_header_missing_counter in this case.
+ *
+ * <p>- Get Bigtable zone and cluster information from response trailer and record in tracer.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -49,7 +53,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
 
   @Override
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
-    // this should always be true
+    // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
       final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
