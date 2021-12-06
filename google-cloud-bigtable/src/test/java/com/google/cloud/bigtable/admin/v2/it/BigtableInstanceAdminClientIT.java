@@ -286,10 +286,11 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithAutoscalingTest() {
-    String clusterId = ("create-" + prefixGenerator.newPrefix()).substring(0, 30);
+    String clusterId = prefixGenerator.newPrefix();
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setZone(testEnvRule.env().getPrimaryZone())
+            .setStorageType(StorageType.HDD)
             .setScalingMode(
                 ClusterAutoscalingConfig.of(instanceId, clusterId)
                     .setMaxNodes(4)
@@ -309,10 +310,11 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithAutoscalingAndPartialUpdateTest() {
-    String clusterId = ("update-" + prefixGenerator.newPrefix()).substring(0, 30);
+    String clusterId = prefixGenerator.newPrefix();
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setZone(testEnvRule.env().getPrimaryZone())
+            .setStorageType(StorageType.HDD)
             .setScalingMode(
                 ClusterAutoscalingConfig.of("ignored", clusterId)
                     .setMaxNodes(4)
@@ -363,9 +365,10 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithManualScalingTest() {
-    String clusterId = ("manual-" + prefixGenerator.newPrefix()).substring(0, 30);
+    String clusterId = prefixGenerator.newPrefix();
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
+            .setStorageType(StorageType.HDD)
             .setZone(testEnvRule.env().getPrimaryZone())
             .setScalingMode(StaticClusterSize.of(5));
     try {
