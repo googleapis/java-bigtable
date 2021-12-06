@@ -286,7 +286,7 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithAutoscalingTest() {
-    String clusterId = "create-" + prefixGenerator.newPrefix().substring(0, 30);
+    String clusterId = ("create-" + prefixGenerator.newPrefix()).substring(0, 30);
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setZone(testEnvRule.env().getPrimaryZone())
@@ -308,7 +308,7 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithAutoscalingAndPartialUpdateTest() {
-    String clusterId = "update-" + prefixGenerator.newPrefix().substring(0, 30);
+    String clusterId = ("update-" + prefixGenerator.newPrefix()).substring(0, 30);
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setZone(testEnvRule.env().getPrimaryZone())
@@ -361,7 +361,7 @@ public class BigtableInstanceAdminClientIT {
 
   @Test
   public void createClusterWithManualScalingTest() {
-    String clusterId = "manual-" + prefixGenerator.newPrefix().substring(0, 30);
+    String clusterId = ("manual-" + prefixGenerator.newPrefix()).substring(0, 30);
     CreateClusterRequest createClusterRequest =
         CreateClusterRequest.of(instanceId, clusterId)
             .setZone(testEnvRule.env().getPrimaryZone())
