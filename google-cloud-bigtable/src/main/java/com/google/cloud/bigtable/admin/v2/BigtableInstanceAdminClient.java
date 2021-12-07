@@ -731,7 +731,8 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * Cluster cluster = client.updateClusterAutoscalingConfig(clusterAutoscalingConfig);
    * }</pre>
    */
-  public Cluster updateClusterAutoscalingConfig(ClusterAutoscalingConfig clusterAutoscalingConfig) {
+  public Cluster updateClusterAutoscalingConfig(
+      @Nonnull ClusterAutoscalingConfig clusterAutoscalingConfig) {
     return ApiExceptions.callAndTranslateApiException(
         updateClusterAutoscalingConfigAsync(clusterAutoscalingConfig));
   }
@@ -755,7 +756,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Cluster> updateClusterAutoscalingConfigAsync(
-      ClusterAutoscalingConfig clusterAutoscalingConfig) {
+      @Nonnull ClusterAutoscalingConfig clusterAutoscalingConfig) {
     PartialUpdateClusterRequest proto = clusterAutoscalingConfig.toProto(projectId);
 
     return ApiFutures.transform(
