@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter;
 
 import com.google.api.gax.rpc.ApiException;
@@ -16,7 +31,6 @@ import com.google.monitoring.v3.CreateMetricDescriptorRequest;
 import com.google.monitoring.v3.ProjectName;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,21 +110,21 @@ final class BigtableCreateMetricDescriptorExporter extends MetricExporter {
           this.metricServiceClient.createMetricDescriptor(request);
           span.addAnnotation("Finish creating MetricDescriptor.");
           return true;
-        } catch (ApiException var8) {
-          logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", var8);
+        } catch (ApiException e) {
+          logger.log(Level.WARNING, "ApiException thrown when creating MetricDescriptor.", e);
           span.setStatus(
-              Status.CanonicalCode.valueOf(var8.getStatusCode().getCode().name())
+              Status.CanonicalCode.valueOf(e.getStatusCode().getCode().name())
                   .toStatus()
                   .withDescription(
                       "ApiException thrown when creating MetricDescriptor: "
-                          + BigtableStackdriverExportUtils.exceptionMessage(var8)));
+                          + BigtableStackdriverExportUtils.exceptionMessage(e)));
           return false;
-        } catch (Throwable var9) {
-          logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", var9);
+        } catch (Throwable e) {
+          logger.log(Level.WARNING, "Exception thrown when creating MetricDescriptor.", e);
           span.setStatus(
               Status.UNKNOWN.withDescription(
                   "Exception thrown when creating MetricDescriptor: "
-                      + BigtableStackdriverExportUtils.exceptionMessage(var9)));
+                      + BigtableStackdriverExportUtils.exceptionMessage(e)));
           return false;
         }
       }
@@ -121,24 +135,23 @@ final class BigtableCreateMetricDescriptorExporter extends MetricExporter {
     ArrayList<Metric> registeredMetrics = new ArrayList(metrics.size());
 
     for (Metric metric : metrics) {
-        MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
-        if (metricDescriptor.getType() == MetricDescriptor.Type.SUMMARY) {
-          List<Metric> convertedMetrics =
-              BigtableStackdriverExportUtils.convertSummaryMetric(metric);
-          registeredMetrics.ensureCapacity(registeredMetrics.size() + convertedMetrics.size());
-          
-          for (Metric convertedMetric : convertedMetrics) {
-            if (this.registerMetricDescriptor(convertedMetric.getMetricDescriptor())) {
-              registeredMetrics.add(convertedMetric);
-            }
-          }
-        } else if (this.registerMetricDescriptor(metricDescriptor)) {
-          registeredMetrics.add(metric);
-        }
-      }
+      MetricDescriptor metricDescriptor = metric.getMetricDescriptor();
+      if (metricDescriptor.getType() == MetricDescriptor.Type.SUMMARY) {
+        List<Metric> convertedMetrics = BigtableStackdriverExportUtils.convertSummaryMetric(metric);
+        registeredMetrics.ensureCapacity(registeredMetrics.size() + convertedMetrics.size());
 
-      this.nextExporter.export(registeredMetrics);
-      return;
+        for (Metric convertedMetric : convertedMetrics) {
+          if (this.registerMetricDescriptor(convertedMetric.getMetricDescriptor())) {
+            registeredMetrics.add(convertedMetric);
+          }
+        }
+      } else if (this.registerMetricDescriptor(metricDescriptor)) {
+        registeredMetrics.add(metric);
+      }
+    }
+
+    this.nextExporter.export(registeredMetrics);
+    return;
   }
 
   private static boolean isBuiltInMetric(String metricName) {
@@ -147,7 +160,7 @@ final class BigtableCreateMetricDescriptorExporter extends MetricExporter {
       return false;
     } else {
       String metricDomain = metricName.substring(0, domainIndex);
-      if (!metricDomain.endsWith("googleapis.com")) {
+      if (!metricDomain.endsWith(GOOGLE_APIS_DOMAIN_SUFFIX)) {
         return false;
       } else {
         return !SUPPORTED_EXTERNAL_DOMAINS.contains(metricDomain);

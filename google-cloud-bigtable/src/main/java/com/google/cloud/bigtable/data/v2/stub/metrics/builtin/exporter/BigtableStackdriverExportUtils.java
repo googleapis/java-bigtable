@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter;
 
 import com.google.api.Distribution.BucketOptions;
@@ -36,7 +51,6 @@ import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +73,9 @@ class BigtableStackdriverExportUtils {
   @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
 
   @VisibleForTesting
-  static final String CUSTOM_OPENCENSUS_DOMAIN = "custom.googleapis.com/opencensus/";
+  static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
 
+  // TODO: clean up unused other types
   @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
   private static final String K8S_CONTAINER = "k8s_container";
   private static final String GCP_GCE_INSTANCE = "gce_instance";
@@ -112,8 +127,8 @@ class BigtableStackdriverExportUtils {
 
       try {
         hostname = InetAddress.getLocalHost().getHostName();
-      } catch (UnknownHostException var3) {
-        logger.log(Level.INFO, "Unable to get the hostname.", var3);
+      } catch (UnknownHostException e) {
+        logger.log(Level.INFO, "Unable to get the hostname.", e);
       }
 
       return "java-" + (new SecureRandom()).nextInt() + "@" + hostname;
@@ -135,21 +150,12 @@ class BigtableStackdriverExportUtils {
     builder.setType(type);
     builder.setDescription(metricDescriptor.getDescription());
     builder.setDisplayName(createDisplayName(metricDescriptor.getName(), displayNamePrefix));
-    Iterator var7 = metricDescriptor.getLabelKeys().iterator();
-
-    LabelKey labelKey;
-    while (var7.hasNext()) {
-      labelKey = (LabelKey) var7.next();
+    for (LabelKey labelKey : metricDescriptor.getLabelKeys()) {
       builder.addLabels(createLabelDescriptor(labelKey));
     }
-
-    var7 = constantLabels.keySet().iterator();
-
-    while (var7.hasNext()) {
-      labelKey = (LabelKey) var7.next();
+    for (LabelKey labelKey : constantLabels.keySet()) {
       builder.addLabels(createLabelDescriptor(labelKey));
     }
-
     builder.setUnit(metricDescriptor.getUnit());
     builder.setMetricKind(createMetricKind(metricDescriptor.getType()));
     builder.setValueType(createValueType(metricDescriptor.getType()));
@@ -201,6 +207,33 @@ class BigtableStackdriverExportUtils {
     }
   }
 
+  static TimeSeries convertTimeSeries(
+      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Metric metric,
+      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries timeSeries,
+      MonitoredResource monitoredResource,
+      String domain,
+      String projectId,
+      Map<LabelKey, LabelValue> constantLabels) {
+    if (!projectId.equals(cachedProjectIdForExemplar)) {
+      cachedProjectIdForExemplar = projectId;
+    }
+
+    TimeSeries.Builder builder = TimeSeries.newBuilder();
+    builder.setMetricKind(createMetricKind(metric.getMetricDescriptor().getType()));
+    builder.setResource(monitoredResource);
+    builder.setValueType(createValueType(metric.getMetricDescriptor().getType()));
+    builder.setMetric(
+        createMetric(
+            metric.getMetricDescriptor(), timeSeries.getLabelValues(), domain, constantLabels));
+    com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp startTimeStamp =
+        timeSeries.getStartTimestamp();
+    for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point :
+        timeSeries.getPoints()) {
+      builder.addPoints(createPoint(point, startTimeStamp));
+    }
+    return builder.build();
+  }
+
   static List<TimeSeries> createTimeSeriesList(
       com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Metric metric,
       MonitoredResource monitoredResource,
@@ -218,22 +251,16 @@ class BigtableStackdriverExportUtils {
     shared.setMetricKind(createMetricKind(metricDescriptor.getType()));
     shared.setResource(monitoredResource);
     shared.setValueType(createValueType(metricDescriptor.getType()));
-    Iterator var8 = metric.getTimeSeriesList().iterator();
 
-    while (var8.hasNext()) {
-      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries timeSeries =
-          (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries)
-              var8.next();
+    for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries timeSeries :
+        metric.getTimeSeriesList()) {
       com.google.monitoring.v3.TimeSeries.Builder builder = shared.clone();
       builder.setMetric(
           createMetric(metricDescriptor, timeSeries.getLabelValues(), domain, constantLabels));
       com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp startTimeStamp =
           timeSeries.getStartTimestamp();
-      Iterator var12 = timeSeries.getPoints().iterator();
-
-      while (var12.hasNext()) {
-        com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point =
-            (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point) var12.next();
+      for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point :
+          timeSeries.getPoints()) {
         builder.addPoints(createPoint(point, startTimeStamp));
       }
 
@@ -262,10 +289,7 @@ class BigtableStackdriverExportUtils {
       }
     }
 
-    Iterator var11 = constantLabels.entrySet().iterator();
-
-    while (var11.hasNext()) {
-      Map.Entry<LabelKey, LabelValue> constantLabel = (Map.Entry) var11.next();
+    for (Map.Entry<LabelKey, LabelValue> constantLabel : constantLabels.entrySet()) {
       String constantLabelKey = ((LabelKey) constantLabel.getKey()).getKey();
       String constantLabelValue = ((LabelValue) constantLabel.getValue()).getValue();
       constantLabelValue = constantLabelValue == null ? "" : constantLabelValue;
@@ -338,10 +362,8 @@ class BigtableStackdriverExportUtils {
   private static void setBucketCountsAndExemplars(
       List<Bucket> buckets, com.google.api.Distribution.Builder builder) {
     builder.addBucketCounts(0L);
-    Iterator var2 = buckets.iterator();
 
-    while (var2.hasNext()) {
-      Bucket bucket = (Bucket) var2.next();
+    for (Bucket bucket : buckets) {
       builder.addBucketCounts(bucket.getCount());
       com.google.bigtable.veneer.repackaged.io.opencensus.metrics.data.Exemplar exemplar =
           bucket.getExemplar();
@@ -358,10 +380,8 @@ class BigtableStackdriverExportUtils {
             .setValue(exemplar.getValue())
             .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
     com.google.bigtable.veneer.repackaged.io.opencensus.trace.SpanContext spanContext = null;
-    Iterator var3 = exemplar.getAttachments().entrySet().iterator();
 
-    while (var3.hasNext()) {
-      Map.Entry<String, AttachmentValue> attachment = (Map.Entry) var3.next();
+    for (Map.Entry<String, AttachmentValue> attachment : exemplar.getAttachments().entrySet()) {
       String key = (String) attachment.getKey();
       AttachmentValue value = (AttachmentValue) attachment.getValue();
       if ("SpanContext".equals(key)) {
@@ -426,7 +446,7 @@ class BigtableStackdriverExportUtils {
   static MonitoredResource getDefaultResource() {
     com.google.api.MonitoredResource.Builder builder = MonitoredResource.newBuilder();
     if (MetadataConfig.getProjectId() != null) {
-      builder.putLabels("project_id", MetadataConfig.getProjectId());
+      builder.putLabels(STACKDRIVER_PROJECT_ID_KEY, MetadataConfig.getProjectId());
     }
 
     Resource autoDetectedResource = ResourceUtils.detectResource();
@@ -444,34 +464,32 @@ class BigtableStackdriverExportUtils {
       com.google.api.MonitoredResource.Builder builder, Resource autoDetectedResource) {
     String type = autoDetectedResource.getType();
     if (type != null) {
-      String sdType = "global";
+      String sdType = GLOBAL;
       Map<String, String> mappings = null;
       if ("host".equals(type)) {
         String provider = (String) autoDetectedResource.getLabels().get("cloud.provider");
         if ("gcp".equals(provider)) {
-          sdType = "gce_instance";
+          sdType = GCP_GCE_INSTANCE;
           mappings = GCP_RESOURCE_MAPPING;
         } else if ("aws".equals(provider)) {
-          sdType = "aws_ec2_instance";
+          sdType = AWS_EC2_INSTANCE;
           mappings = AWS_RESOURCE_MAPPING;
         }
       } else if ("container".equals(type)) {
-        sdType = "k8s_container";
+        sdType = K8S_CONTAINER;
         mappings = K8S_RESOURCE_MAPPING;
       }
 
       builder.setType(sdType);
-      if (!"global".equals(sdType) && mappings != null) {
+      if (!GLOBAL.equals(sdType) && mappings != null) {
         Map<String, String> resLabels = autoDetectedResource.getLabels();
-        Iterator var6 = mappings.entrySet().iterator();
 
-        while (var6.hasNext()) {
-          Map.Entry<String, String> entry = (Map.Entry) var6.next();
+        for (Map.Entry<String, String> entry : mappings.entrySet()) {
           if (entry.getValue() != null && resLabels.containsKey(entry.getValue())) {
             String resourceLabelKey = (String) entry.getKey();
             String resourceLabelValue = (String) resLabels.get(entry.getValue());
-            if ("aws_ec2_instance".equals(sdType) && "region".equals(resourceLabelKey)) {
-              resourceLabelValue = "aws:" + resourceLabelValue;
+            if (AWS_EC2_INSTANCE.equals(sdType) && "region".equals(resourceLabelKey)) {
+              resourceLabelValue = AWS_REGION_VALUE_PREFIX + resourceLabelValue;
             }
 
             builder.putLabels(resourceLabelKey, resourceLabelValue);
@@ -493,21 +511,15 @@ class BigtableStackdriverExportUtils {
         summaryCountTimeSeries = new ArrayList();
     final List<com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries>
         summarySumTimeSeries = new ArrayList();
-    Iterator var5 = summaryMetric.getTimeSeriesList().iterator();
 
-    while (var5.hasNext()) {
-      final com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries
-          timeSeries =
-              (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries)
-                  var5.next();
+    for (final com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries
+        timeSeries : summaryMetric.getTimeSeriesList()) {
       final List<LabelValue> labelValuesWithPercentile = new ArrayList(timeSeries.getLabelValues());
       final com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp
           timeSeriesTimestamp = timeSeries.getStartTimestamp();
-      Iterator var9 = timeSeries.getPoints().iterator();
 
-      while (var9.hasNext()) {
-        com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point =
-            (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point) var9.next();
+      for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point :
+          timeSeries.getPoints()) {
         final com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp pointTimestamp =
             point.getTimestamp();
         point
@@ -540,11 +552,8 @@ class BigtableStackdriverExportUtils {
                     }
 
                     Summary.Snapshot snapshot = summary.getSnapshot();
-                    Iterator var5 = snapshot.getValueAtPercentiles().iterator();
-
-                    while (var5.hasNext()) {
-                      Summary.Snapshot.ValueAtPercentile valueAtPercentile =
-                          (Summary.Snapshot.ValueAtPercentile) var5.next();
+                    for (Summary.Snapshot.ValueAtPercentile valueAtPercentile :
+                        snapshot.getValueAtPercentiles()) {
                       labelValuesWithPercentile.add(
                           LabelValue.create(valueAtPercentile.getPercentile() + ""));
                       BigtableStackdriverExportUtils.createTimeSeries(
@@ -669,7 +678,7 @@ class BigtableStackdriverExportUtils {
   static String getDomain(@Nullable String metricNamePrefix) {
     String domain;
     if (Strings.isNullOrEmpty(metricNamePrefix)) {
-      domain = "custom.googleapis.com/opencensus/";
+      domain = CUSTOM_OPENCENSUS_DOMAIN;
     } else if (!metricNamePrefix.endsWith("/")) {
       domain = metricNamePrefix + '/';
     } else {
@@ -681,7 +690,7 @@ class BigtableStackdriverExportUtils {
 
   static String getDisplayNamePrefix(@Nullable String metricNamePrefix) {
     if (metricNamePrefix == null) {
-      return "OpenCensus/";
+      return DEFAULT_DISPLAY_NAME_PREFIX;
     } else {
       if (!metricNamePrefix.endsWith("/") && !metricNamePrefix.isEmpty()) {
         metricNamePrefix = metricNamePrefix + '/';

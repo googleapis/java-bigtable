@@ -57,6 +57,8 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
+import com.google.bigtable.veneer.repackaged.io.opencensus.common.Duration;
+import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import com.google.bigtable.veneer.repackaged.io.opencensus.stats.ViewManager;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
@@ -82,6 +84,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinViews;
+import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter.BigtableStackdriverStatsExporter;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
@@ -110,6 +113,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -145,9 +149,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
 
+  private static AtomicBoolean exporterRegistered = new AtomicBoolean(false);
+
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
     settings = finalizeSettings(settings, Tags.getTagger(), Stats.getStatsRecorder());
+    // TODO: register monitored resource and move project id, instance id to Monitored resource
+    if (EnhancedBigtableStub.exporterRegistered.compareAndSet(false, true)) {
+      BigtableStackdriverStatsExporter.createAndRegister(
+          StackdriverStatsConfiguration.builder()
+              .setProjectId(settings.getProjectId())
+              .setExportInterval(Duration.create(10, 0))
+              .build());
+    }
 
     return new EnhancedBigtableStub(settings, ClientContext.create(settings));
   }
@@ -264,8 +278,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     builtinAttributes),
                 // Add user configured tracer
                 settings.getTracerFactory())));
-    // TODO: register monitored resource and move project id, instance id to Monitored resource
+
     BuiltinViews.registerBigtableBuiltinViews(builtinViewManager);
+
     return builder.build();
   }
 

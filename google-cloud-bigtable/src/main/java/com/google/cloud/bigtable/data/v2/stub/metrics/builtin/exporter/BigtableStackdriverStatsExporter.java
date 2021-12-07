@@ -1,7 +1,22 @@
+/*
+ * Copyright 2021 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter;
 
-
 import com.google.api.MonitoredResource;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.FixedHeaderProvider;
@@ -10,6 +25,7 @@ import com.google.auth.Credentials;
 import com.google.bigtable.veneer.repackaged.io.opencensus.common.Duration;
 import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util.IntervalMetricReader;
 import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util.MetricReader;
+import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.LabelKey;
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.LabelValue;
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.Metrics;
@@ -26,7 +42,8 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
-class BigtableStackdriverStatsExporter {
+@InternalApi
+public class BigtableStackdriverStatsExporter {
   @VisibleForTesting static final Object monitor = new Object();
 
   @Nullable
@@ -75,44 +92,7 @@ class BigtableStackdriverStatsExporter {
             intervalMetricReaderOptionsBuilder.build());
   }
 
-  /** @deprecated */
-  @Deprecated
-  public static void createAndRegisterWithCredentialsAndProjectId(
-      Credentials credentials, String projectId, Duration exportInterval) throws IOException {
-    Preconditions.checkNotNull(credentials, "credentials");
-    Preconditions.checkNotNull(projectId, "projectId");
-    Preconditions.checkNotNull(exportInterval, "exportInterval");
-    createInternal(
-        credentials,
-        projectId,
-        exportInterval,
-        BigtableStackdriverStatsConfiguration.DEFAULT_RESOURCE,
-        (String) null,
-        (String) null,
-        BigtableStackdriverExportUtils.DEFAULT_CONSTANT_LABELS,
-        BigtableStackdriverStatsConfiguration.DEFAULT_DEADLINE,
-        (MetricServiceStub) null);
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public static void createAndRegisterWithProjectId(String projectId, Duration exportInterval)
-      throws IOException {
-    Preconditions.checkNotNull(projectId, "projectId");
-    Preconditions.checkNotNull(exportInterval, "exportInterval");
-    createInternal(
-        (Credentials) null,
-        projectId,
-        exportInterval,
-        BigtableStackdriverStatsConfiguration.DEFAULT_RESOURCE,
-        (String) null,
-        (String) null,
-        BigtableStackdriverExportUtils.DEFAULT_CONSTANT_LABELS,
-        BigtableStackdriverStatsConfiguration.DEFAULT_DEADLINE,
-        (MetricServiceStub) null);
-  }
-
-  public static void createAndRegister(BigtableStackdriverStatsConfiguration configuration)
+  public static void createAndRegister(StackdriverStatsConfiguration configuration)
       throws IOException {
     Preconditions.checkNotNull(configuration, "configuration");
     createInternal(
@@ -128,67 +108,7 @@ class BigtableStackdriverStatsExporter {
   }
 
   public static void createAndRegister() throws IOException {
-    createAndRegister(BigtableStackdriverStatsConfiguration.builder().build());
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public static void createAndRegister(Duration exportInterval) throws IOException {
-    Preconditions.checkNotNull(exportInterval, "exportInterval");
-    Preconditions.checkArgument(
-        !BigtableStackdriverStatsConfiguration.DEFAULT_PROJECT_ID.isEmpty(),
-        "Cannot find a project ID from application default.");
-    createInternal(
-        (Credentials) null,
-        BigtableStackdriverStatsConfiguration.DEFAULT_PROJECT_ID,
-        exportInterval,
-        BigtableStackdriverStatsConfiguration.DEFAULT_RESOURCE,
-        (String) null,
-        (String) null,
-        BigtableStackdriverExportUtils.DEFAULT_CONSTANT_LABELS,
-        BigtableStackdriverStatsConfiguration.DEFAULT_DEADLINE,
-        (MetricServiceStub) null);
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public static void createAndRegisterWithProjectIdAndMonitoredResource(
-      String projectId, Duration exportInterval, MonitoredResource monitoredResource)
-      throws IOException {
-    Preconditions.checkNotNull(projectId, "projectId");
-    Preconditions.checkNotNull(exportInterval, "exportInterval");
-    Preconditions.checkNotNull(monitoredResource, "monitoredResource");
-    createInternal(
-        (Credentials) null,
-        projectId,
-        exportInterval,
-        monitoredResource,
-        (String) null,
-        (String) null,
-        BigtableStackdriverExportUtils.DEFAULT_CONSTANT_LABELS,
-        BigtableStackdriverStatsConfiguration.DEFAULT_DEADLINE,
-        (MetricServiceStub) null);
-  }
-
-  /** @deprecated */
-  @Deprecated
-  public static void createAndRegisterWithMonitoredResource(
-      Duration exportInterval, MonitoredResource monitoredResource) throws IOException {
-    Preconditions.checkNotNull(exportInterval, "exportInterval");
-    Preconditions.checkNotNull(monitoredResource, "monitoredResource");
-    Preconditions.checkArgument(
-        !BigtableStackdriverStatsConfiguration.DEFAULT_PROJECT_ID.isEmpty(),
-        "Cannot find a project ID from application default.");
-    createInternal(
-        (Credentials) null,
-        BigtableStackdriverStatsConfiguration.DEFAULT_PROJECT_ID,
-        exportInterval,
-        monitoredResource,
-        (String) null,
-        (String) null,
-        BigtableStackdriverExportUtils.DEFAULT_CONSTANT_LABELS,
-        BigtableStackdriverStatsConfiguration.DEFAULT_DEADLINE,
-        (MetricServiceStub) null);
+    createAndRegister(StackdriverStatsConfiguration.builder().build());
   }
 
   private static void createInternal(
