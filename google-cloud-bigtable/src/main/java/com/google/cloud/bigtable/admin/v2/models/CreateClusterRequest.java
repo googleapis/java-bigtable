@@ -98,7 +98,7 @@ public final class CreateClusterRequest {
    * Sets the scaling node to manual and sets the number of nodes allocated to this cluster. More
    * nodes enable higher throughput and more consistent performance.
    */
-  public CreateClusterRequest setScalingMode(StaticClusterSize staticClusterSize) {
+  public CreateClusterRequest setScalingMode(@Nonnull StaticClusterSize staticClusterSize) {
     Preconditions.checkState(staticClusterSize.getClusterSize() > 0, "Serve nodes must be > 0");
     if (proto.getCluster().getClusterConfig().hasClusterAutoscalingConfig()) {
       throw new IllegalArgumentException(
