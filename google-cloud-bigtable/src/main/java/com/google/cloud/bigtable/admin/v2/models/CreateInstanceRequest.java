@@ -163,7 +163,7 @@ public final class CreateInstanceRequest {
   public CreateInstanceRequest addCluster(
       @Nonnull String clusterId,
       @Nonnull String zone,
-      ClusterAutoscalingConfig clusterAutoscalingConfig,
+      @Nonnull ClusterAutoscalingConfig clusterAutoscalingConfig,
       @Nonnull StorageType storageType) {
     CreateClusterRequest clusterRequest =
         CreateClusterRequest.of("ignored-instance-id", clusterId)

@@ -112,7 +112,7 @@ public final class CreateClusterRequest {
    * Sets the scaling mode to autoscaling by accepting an AutoscalingConfig where min nodes, max
    * nodes, and CPU utlization percent target are set.
    */
-  public CreateClusterRequest setScalingMode(ClusterAutoscalingConfig autoscalingConfig) {
+  public CreateClusterRequest setScalingMode(@Nonnull ClusterAutoscalingConfig autoscalingConfig) {
     int minNodes = autoscalingConfig.getMinNodes();
     int maxNodes = autoscalingConfig.getMaxNodes();
     int cpuTargetPercent = autoscalingConfig.getCpuUtilizationTargetPercent();
