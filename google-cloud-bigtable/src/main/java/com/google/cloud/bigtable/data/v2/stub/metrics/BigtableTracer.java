@@ -62,7 +62,7 @@ public class BigtableTracer extends BaseApiTracer {
   public void batchRequestThrottled(long throttledTimeMs) {
     // noop
   }
-  
+
   /** Set the Bigtable zone and cluster so metrics can be tagged with location information. */
   public void setLocations(String zone, String cluster) {
     // noop

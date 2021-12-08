@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter;
+package com.google.cloud.bigtable.data.v2.stub.metrics.exporter;
 
 import com.google.api.MonitoredResource;
 import com.google.api.core.InternalApi;
@@ -26,8 +26,6 @@ import com.google.bigtable.veneer.repackaged.io.opencensus.common.Duration;
 import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util.IntervalMetricReader;
 import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util.MetricReader;
 import com.google.bigtable.veneer.repackaged.io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
-import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.LabelKey;
-import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.LabelValue;
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.Metrics;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
@@ -36,7 +34,6 @@ import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.io.IOException;
-import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -62,26 +59,14 @@ public class BigtableStackdriverStatsExporter {
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix,
-      @Nullable String displayNamePrefix,
-      Map<LabelKey, LabelValue> constantLabels) {
+      @Nullable String metricNamePrefix) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
-            new BigtableCreateMetricDescriptorExporter(
-                projectId,
-                metricServiceClient,
-                metricNamePrefix,
-                displayNamePrefix,
-                constantLabels,
-                new BigtableCreateTimeSeriesExporter(
-                    projectId,
-                    metricServiceClient,
-                    monitoredResource,
-                    metricNamePrefix,
-                    constantLabels)),
+            new BigtableCreateTimeSeriesExporter(
+                projectId, metricServiceClient, monitoredResource, metricNamePrefix),
             MetricReader.create(
                 com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util
                     .MetricReader.Options.builder()
@@ -101,14 +86,8 @@ public class BigtableStackdriverStatsExporter {
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
         configuration.getMetricNamePrefix(),
-        configuration.getDisplayNamePrefix(),
-        configuration.getConstantLabels(),
         configuration.getDeadline(),
         configuration.getMetricServiceStub());
-  }
-
-  public static void createAndRegister() throws IOException {
-    createAndRegister(StackdriverStatsConfiguration.builder().build());
   }
 
   private static void createInternal(
@@ -117,8 +96,6 @@ public class BigtableStackdriverStatsExporter {
       Duration exportInterval,
       MonitoredResource monitoredResource,
       @Nullable String metricNamePrefix,
-      @Nullable String displayNamePrefix,
-      Map<LabelKey, LabelValue> constantLabels,
       Duration deadline,
       @Nullable MetricServiceStub stub)
       throws IOException {
@@ -130,13 +107,7 @@ public class BigtableStackdriverStatsExporter {
               : MetricServiceClient.create(stub);
       instance =
           new BigtableStackdriverStatsExporter(
-              projectId,
-              client,
-              exportInterval,
-              monitoredResource,
-              metricNamePrefix,
-              displayNamePrefix,
-              constantLabels);
+              projectId, client, exportInterval, monitoredResource, metricNamePrefix);
     }
   }
 

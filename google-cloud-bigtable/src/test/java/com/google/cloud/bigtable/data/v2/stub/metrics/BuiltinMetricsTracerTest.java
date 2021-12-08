@@ -34,11 +34,8 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants;
-import com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinViewConstants;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Queues;
 import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -53,7 +50,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.tags.Tags;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -75,7 +71,6 @@ public class BuiltinMetricsTracerTest {
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 500;
 
-  private final BlockingQueue<ReadRowsResponse> responses = Queues.newLinkedBlockingQueue();
   private final AtomicInteger rpcCount = new AtomicInteger(0);
 
   private static final ReadRowsResponse READ_ROWS_RESPONSE_1 =
@@ -167,8 +162,6 @@ public class BuiltinMetricsTracerTest {
 
     serviceHelper = new FakeServiceHelper(trailersInterceptor, mockService);
 
-    RpcViews.registerBigtableClientViews(clientStats.getViewManager());
-
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilderForEmulator(serviceHelper.getPort())
             .setProjectId(PROJECT_ID)
@@ -186,12 +179,11 @@ public class BuiltinMetricsTracerTest {
             stubSettingsBuilder.build(),
             Tags.getTagger(),
             clientStats.getStatsRecorder(),
-            builtinStats.getStatsRecorder(),
-            builtinStats.getViewManager());
+            builtinStats.getStatsRecorder());
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
     RpcViews.registerBigtableClientViews(clientStats.getViewManager());
     RpcViews.registerBigtableClientGfeViews(clientStats.getViewManager());
-
+    BuiltinViews.registerBigtableBuiltinViews(builtinStats.getViewManager());
     serviceHelper.start();
   }
 
@@ -289,6 +281,10 @@ public class BuiltinMetricsTracerTest {
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
                 BuiltinMeasureConstants.TABLE,
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.ZONE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                BuiltinMeasureConstants.CLUSTER,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
                 BuiltinMeasureConstants.CLIENT_NAME,
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
                     "bigtable-java")),
@@ -323,6 +319,10 @@ public class BuiltinMetricsTracerTest {
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create("OK"),
                 BuiltinMeasureConstants.TABLE,
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(TABLE_ID),
+                BuiltinMeasureConstants.ZONE,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(ZONE),
+                BuiltinMeasureConstants.CLUSTER,
+                com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(CLUSTER),
                 BuiltinMeasureConstants.CLIENT_NAME,
                 com.google.bigtable.veneer.repackaged.io.opencensus.tags.TagValue.create(
                     "bigtable-java")),

@@ -23,8 +23,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
-import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.common.collect.ImmutableList;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;

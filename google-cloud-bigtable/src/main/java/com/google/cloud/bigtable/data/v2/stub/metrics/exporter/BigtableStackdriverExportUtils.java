@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics.builtin.exporter;
+package com.google.cloud.bigtable.data.v2.stub.metrics.exporter;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -120,7 +120,7 @@ class BigtableStackdriverExportUtils {
           ExplicitOptions, BucketOptions>
       bucketOptionsExplicitFunction;
 
-  private static String generateDefaultTaskValue() {
+  static String generateDefaultTaskValue() {
     String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     if (jvmName.indexOf(64) < 1) {
       String hostname = "localhost";
@@ -208,23 +208,24 @@ class BigtableStackdriverExportUtils {
   }
 
   static TimeSeries convertTimeSeries(
-      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Metric metric,
+      String metricName,
+      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.MetricDescriptor.Type
+          metricType,
+      List<LabelKey> labelKeys,
+      List<LabelValue> labelValues,
       com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries timeSeries,
       MonitoredResource monitoredResource,
       String domain,
-      String projectId,
-      Map<LabelKey, LabelValue> constantLabels) {
+      String projectId) {
     if (!projectId.equals(cachedProjectIdForExemplar)) {
       cachedProjectIdForExemplar = projectId;
     }
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
-    builder.setMetricKind(createMetricKind(metric.getMetricDescriptor().getType()));
+    builder.setMetricKind(createMetricKind(metricType));
     builder.setResource(monitoredResource);
-    builder.setValueType(createValueType(metric.getMetricDescriptor().getType()));
-    builder.setMetric(
-        createMetric(
-            metric.getMetricDescriptor(), timeSeries.getLabelValues(), domain, constantLabels));
+    builder.setValueType(createValueType(metricType));
+    builder.setMetric(createMetric(metricName, labelKeys, labelValues, domain));
     com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp startTimeStamp =
         timeSeries.getStartTimestamp();
     for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point :
@@ -234,66 +235,18 @@ class BigtableStackdriverExportUtils {
     return builder.build();
   }
 
-  static List<TimeSeries> createTimeSeriesList(
-      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Metric metric,
-      MonitoredResource monitoredResource,
-      String domain,
-      String projectId,
-      Map<LabelKey, LabelValue> constantLabels) {
-    List<TimeSeries> timeSeriesList = Lists.newArrayList();
-    com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.MetricDescriptor
-        metricDescriptor = metric.getMetricDescriptor();
-    if (!projectId.equals(cachedProjectIdForExemplar)) {
-      cachedProjectIdForExemplar = projectId;
-    }
-
-    com.google.monitoring.v3.TimeSeries.Builder shared = TimeSeries.newBuilder();
-    shared.setMetricKind(createMetricKind(metricDescriptor.getType()));
-    shared.setResource(monitoredResource);
-    shared.setValueType(createValueType(metricDescriptor.getType()));
-
-    for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.TimeSeries timeSeries :
-        metric.getTimeSeriesList()) {
-      com.google.monitoring.v3.TimeSeries.Builder builder = shared.clone();
-      builder.setMetric(
-          createMetric(metricDescriptor, timeSeries.getLabelValues(), domain, constantLabels));
-      com.google.bigtable.veneer.repackaged.io.opencensus.common.Timestamp startTimeStamp =
-          timeSeries.getStartTimestamp();
-      for (com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Point point :
-          timeSeries.getPoints()) {
-        builder.addPoints(createPoint(point, startTimeStamp));
-      }
-
-      timeSeriesList.add(builder.build());
-    }
-
-    return timeSeriesList;
-  }
-
   @VisibleForTesting
   static com.google.api.Metric createMetric(
-      com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.MetricDescriptor
-          metricDescriptor,
-      List<LabelValue> labelValues,
-      String domain,
-      Map<LabelKey, LabelValue> constantLabels) {
+      String metricName, List<LabelKey> labelKeys, List<LabelValue> labelValues, String domain) {
     com.google.api.Metric.Builder builder = com.google.api.Metric.newBuilder();
-    builder.setType(generateType(metricDescriptor.getName(), domain));
+    builder.setType(generateType(metricName, domain));
     Map<String, String> stringTagMap = Maps.newHashMap();
-    List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
 
     for (int i = 0; i < labelValues.size(); ++i) {
       String value = ((LabelValue) labelValues.get(i)).getValue();
       if (value != null) {
         stringTagMap.put(((LabelKey) labelKeys.get(i)).getKey(), value);
       }
-    }
-
-    for (Map.Entry<LabelKey, LabelValue> constantLabel : constantLabels.entrySet()) {
-      String constantLabelKey = ((LabelKey) constantLabel.getKey()).getKey();
-      String constantLabelValue = ((LabelValue) constantLabel.getValue()).getValue();
-      constantLabelValue = constantLabelValue == null ? "" : constantLabelValue;
-      stringTagMap.put(constantLabelKey, constantLabelValue);
     }
 
     builder.putAllLabels(stringTagMap);

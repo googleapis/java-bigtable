@@ -13,30 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics.builtin;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Count;
 import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Distribution;
 import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation.Sum;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.APPLICATION_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.APP_PROFILE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.ATTEMPT_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.CLIENT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.CLUSTER;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.ERROR_CODE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.FIRST_RESPONSE_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.METHOD;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.OPERATION_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.RETRY_COUNT;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.SERVER_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.STATUS;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.STREAMING;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.TABLE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.THROTTLING_LATENCIES;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.builtin.BuiltinMeasureConstants.ZONE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.APPLICATION_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.APP_PROFILE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.ATTEMPT_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.CLIENT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.CLUSTER;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.ERROR_CODE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.FIRST_RESPONSE_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.METHOD;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.OPERATION_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.RETRY_COUNT;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.SERVER_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.STATUS;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.STREAMING;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.TABLE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.THROTTLING_LATENCIES;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMeasureConstants.ZONE;
 
 import com.google.api.core.InternalApi;
 import com.google.bigtable.veneer.repackaged.io.opencensus.stats.Aggregation;
@@ -151,7 +151,15 @@ public class BuiltinViewConstants {
           SERVER_LATENCIES,
           AGGREGATION_WITH_MILLIS_HISTOGRAM,
           ImmutableList.of(
-              PROJECT_ID, INSTANCE_ID, APP_PROFILE, METHOD, STATUS, CLIENT_NAME, TABLE));
+              PROJECT_ID,
+              INSTANCE_ID,
+              APP_PROFILE,
+              METHOD,
+              STATUS,
+              CLIENT_NAME,
+              TABLE,
+              CLUSTER,
+              ZONE));
 
   public static final View CONNECTIVITY_ERROR_COUNT_VIEW =
       View.create(
@@ -160,7 +168,15 @@ public class BuiltinViewConstants {
           CONNECTIVITY_ERROR_COUNT,
           AGGREGATION_ERROR_COUNT,
           ImmutableList.of(
-              PROJECT_ID, INSTANCE_ID, APP_PROFILE, METHOD, ERROR_CODE, CLIENT_NAME, TABLE));
+              PROJECT_ID,
+              INSTANCE_ID,
+              APP_PROFILE,
+              METHOD,
+              ERROR_CODE,
+              CLIENT_NAME,
+              TABLE,
+              CLUSTER,
+              ZONE));
 
   public static final View APPLICATION_LATENCIES_VIEW =
       View.create(

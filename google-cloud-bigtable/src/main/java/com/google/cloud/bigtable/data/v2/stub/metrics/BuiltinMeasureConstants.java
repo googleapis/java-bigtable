@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics.builtin;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.bigtable.veneer.repackaged.io.opencensus.stats.Measure.MeasureLong;
 
@@ -30,6 +30,7 @@ public class BuiltinMeasureConstants {
   public static final TagKey STREAMING = TagKey.create("streaming");
   public static final TagKey STATUS = TagKey.create("status");
   public static final TagKey CLIENT_NAME = TagKey.create("client_name");
+  public static final TagKey CLIENT_ID = TagKey.create("client_id");
   public static final TagKey ERROR_CODE = TagKey.create("error_code");
 
   // Monitored resource TagKeys
