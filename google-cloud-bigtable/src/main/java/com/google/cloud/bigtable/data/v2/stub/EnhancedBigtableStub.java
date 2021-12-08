@@ -460,8 +460,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     SpanName span = getSpanName("ReadRows");
 
     // The TracedBatcherUnaryCallable has to be wrapped by the TracedUnaryCallable, so that
-    // TracedUnaryCallable can
-    // inject a tracer for the TracedBatcherUnaryCallable to interact with
+    // TracedUnaryCallable can inject a tracer for the TracedBatcherUnaryCallable to interact with
     UnaryCallable<Query, List<RowT>> tracedBatcher =
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
