@@ -459,8 +459,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     SpanName span = getSpanName("ReadRows");
 
-    // TracedBatcherUnaryCallable needs to be created before TracedUnaryCallable so a tracer is
-    // created before TracedBatcherUnaryCallable is called.
+    // The TracedBatcherUnaryCallable has to be wrapped by the TracedUnaryCallable, so that
+    // TracedUnaryCallable can
+    // inject a tracer for the TracedBatcherUnaryCallable to interact with
     UnaryCallable<Query, List<RowT>> tracedBatcher =
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
@@ -625,13 +626,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public Batcher<RowMutationEntry, Void> newMutateRowsBatcher(
       @Nonnull String tableId, @Nullable GrpcCallContext ctx) {
-    UnaryCallable<BulkMutation, Void> callable = this.bulkMutateRowsCallable;
-    if (ctx != null) {
-      callable = callable.withDefaultCallContext(ctx);
-    }
     return new BatcherImpl<>(
         settings.bulkMutateRowsSettings().getBatchingDescriptor(),
-        callable,
+        bulkMutateRowsCallable,
         BulkMutation.create(tableId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
@@ -657,13 +654,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       @Nonnull Query query, @Nullable GrpcCallContext ctx) {
     Preconditions.checkNotNull(query, "query cannot be null");
-    UnaryCallable<Query, List<Row>> callable = bulkReadRowsCallable;
-    if (ctx != null) {
-      callable = callable.withDefaultCallContext(ctx);
-    }
     return new BatcherImpl<>(
         settings.bulkReadRowsSettings().getBatchingDescriptor(),
-        callable,
+        bulkReadRowsCallable,
         query,
         settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),

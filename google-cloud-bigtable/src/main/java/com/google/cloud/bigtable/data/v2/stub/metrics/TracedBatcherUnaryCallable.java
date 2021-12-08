@@ -24,7 +24,7 @@ import com.google.api.gax.tracing.ApiTracer;
 
 /**
  * This callable will extract total throttled time from {@link ApiCallContext} and add it to {@link
- * ApiTracer}.
+ * ApiTracer}. This class needs to be wrapped by a callable that injects the {@link ApiTracer}.
  */
 @InternalApi
 public final class TracedBatcherUnaryCallable<RequestT, ResponseT>

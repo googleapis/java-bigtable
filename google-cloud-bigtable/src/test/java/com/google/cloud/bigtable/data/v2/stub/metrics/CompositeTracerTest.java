@@ -23,8 +23,12 @@ import static org.mockito.Mockito.when;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
 import com.google.common.collect.ImmutableList;
+import com.google.common.truth.Truth;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -228,5 +232,25 @@ public class CompositeTracerTest {
     compositeTracer.recordGfeMetadata(20L, t);
     verify(child3, times(1)).recordGfeMetadata(20L, t);
     verify(child4, times(1)).recordGfeMetadata(20L, t);
+  }
+
+  @Test
+  public void testBatchRequestThrottled() {
+    compositeTracer.batchRequestThrottled(5L);
+    verify(child3, times(1)).batchRequestThrottled(5L);
+    verify(child4, times(1)).batchRequestThrottled(5L);
+  }
+
+  @Test
+  public void testMethodsOverride() {
+    Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
+    Method[] compositeTracerMethods = CompositeTracer.class.getDeclaredMethods();
+    Set<String> compositeTracerMethodNames = new HashSet<>();
+    for (Method method : compositeTracerMethods) {
+      compositeTracerMethodNames.add(method.getName());
+    }
+    for (Method method : baseMethods) {
+      Truth.assertThat(compositeTracerMethodNames).contains(method.getName());
+    }
   }
 }

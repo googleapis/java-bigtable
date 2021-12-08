@@ -28,14 +28,20 @@ import javax.annotation.Nullable;
 @BetaApi("This surface is stable yet it might be removed in the future.")
 public class BigtableTracer extends BaseApiTracer {
 
+  private volatile int attempt = 0;
+
+  @Override
+  public void attemptStarted(int attemptNumber) {
+    this.attempt = attemptNumber;
+  }
+
   /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
    * and should be recorded in {@link #attemptStarted(int)}. With the getter we can access it from
    * {@link ApiCallContext}. Attempt number starts from 0.
    */
   public int getAttempt() {
-    // noop
-    return 0;
+    return attempt;
   }
 
   /**

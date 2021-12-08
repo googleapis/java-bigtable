@@ -45,6 +45,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.google.common.truth.Truth;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -55,6 +56,9 @@ import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -468,6 +472,19 @@ public class MetricsTracerTest {
       Assert.assertTrue(throttledTimeMetric >= throttled);
     } catch (Exception e) {
       throw e;
+    }
+  }
+
+  @Test
+  public void testMethodsOverride() {
+    Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
+    Method[] metricsTracerMethods = MetricsTracer.class.getDeclaredMethods();
+    Set<String> metricsTracerMethodNames = new HashSet<>();
+    for (Method method : metricsTracerMethods) {
+      metricsTracerMethodNames.add(method.getName());
+    }
+    for (Method method : baseMethods) {
+      Truth.assertThat(metricsTracerMethodNames).contains(method.getName());
     }
   }
 
