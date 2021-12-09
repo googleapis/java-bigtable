@@ -17,21 +17,24 @@ package com.google.cloud.bigtable.misc_utilities;
 
 import com.google.common.truth.Correspondence;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
- * A {@link Correspondence} to compare methods names and parameters in different classes. An example
- * usage is to make sure a child class is implementing all the methods in the non-abstract parent
- * class.
+ * A {@link Correspondence} to compare methods names, parameters and return types in different
+ * classes. An example usage is to make sure a child class is implementing all the methods in the
+ * non-abstract parent class.
  */
 public class MethodComparator {
 
   public static final Correspondence<Method, Method> METHOD_CORRESPONDENCE =
-      Correspondence.from(MethodComparator::compareMethods, "compare method names and parameters");
+      Correspondence.from(
+          MethodComparator::compareMethods, "compare method names, parameters and return types");
 
   private static boolean compareMethods(Method actual, Method expected) {
     if (!actual.getName().equals(expected.getName())
-        || actual.getParameters().equals(expected.getParameters())
-        || actual.getModifiers() != expected.getModifiers()) {
+        || !Arrays.equals(actual.getParameterTypes(), expected.getParameterTypes())
+        || actual.getModifiers() != expected.getModifiers()
+        || !actual.getReturnType().equals(expected.getReturnType())) {
       return false;
     }
     return true;
