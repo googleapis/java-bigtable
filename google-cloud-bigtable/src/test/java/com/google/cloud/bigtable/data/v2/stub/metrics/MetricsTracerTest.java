@@ -41,6 +41,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
+import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -56,11 +57,7 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -405,7 +402,7 @@ public class MetricsTracerTest {
               PROJECT_ID,
               INSTANCE_ID,
               APP_PROFILE_ID);
-      Assert.assertEquals(0, throttledTimeMetric);
+      assertThat(throttledTimeMetric).isEqualTo(0);
     }
   }
 
@@ -470,24 +467,16 @@ public class MetricsTracerTest {
             PROJECT_ID,
             INSTANCE_ID,
             APP_PROFILE_ID);
-    Assert.assertTrue(throttledTimeMetric >= throttled);
+    assertThat(throttledTimeMetric).isAtLeast(throttled);
   }
 
   @Test
   public void testMethodsOverride() {
     Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
     Method[] metricsTracerMethods = MetricsTracer.class.getDeclaredMethods();
-    Set<String> metricsTracerMethodNames = new HashSet<>();
-    List<String> baseTracerMethodNames = new ArrayList<>();
-    for (Method method : metricsTracerMethods) {
-      metricsTracerMethodNames.add(method.getName());
-    }
-    for (int i = 0; i < baseMethods.length; i++) {
-      if (baseMethods[i].getModifiers() == Modifier.PUBLIC) {
-        baseTracerMethodNames.add(baseMethods[i].getName());
-      }
-    }
-    assertThat(metricsTracerMethodNames).containsAtLeastElementsIn(baseTracerMethodNames);
+    assertThat(Arrays.asList(metricsTracerMethods))
+        .comparingElementsUsing(MethodComparator.METHOD_CORRESPONDENCE)
+        .containsAtLeastElementsIn(baseMethods);
   }
 
   @SuppressWarnings("unchecked")

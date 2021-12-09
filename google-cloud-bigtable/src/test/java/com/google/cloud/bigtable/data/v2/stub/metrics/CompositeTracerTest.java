@@ -23,15 +23,12 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
+import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.common.collect.ImmutableList;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -248,16 +245,8 @@ public class CompositeTracerTest {
   public void testMethodsOverride() {
     Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
     Method[] compositeTracerMethods = CompositeTracer.class.getDeclaredMethods();
-    Set<String> compositeTracerMethodNames = new HashSet<>();
-    List<String> baseTracerMethodNames = new ArrayList<>();
-    for (Method method : compositeTracerMethods) {
-      compositeTracerMethodNames.add(method.getName());
-    }
-    for (int i = 0; i < baseMethods.length; i++) {
-      if (baseMethods[i].getModifiers() == Modifier.PUBLIC) {
-        baseTracerMethodNames.add(baseMethods[i].getName());
-      }
-    }
-    assertThat(compositeTracerMethodNames).containsAtLeastElementsIn(baseTracerMethodNames);
+    assertThat(Arrays.asList(compositeTracerMethods))
+        .comparingElementsUsing(MethodComparator.METHOD_CORRESPONDENCE)
+        .containsAtLeastElementsIn(baseMethods);
   }
 }
