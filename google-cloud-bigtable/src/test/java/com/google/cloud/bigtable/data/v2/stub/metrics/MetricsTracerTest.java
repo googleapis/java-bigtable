@@ -45,7 +45,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
-import com.google.common.truth.Truth;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -57,7 +56,10 @@ import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -435,7 +437,7 @@ public class MetricsTracerTest {
                 @SuppressWarnings("unchecked")
                 StreamObserver<MutateRowsResponse> observer =
                     (StreamObserver<MutateRowsResponse>) invocation.getArguments()[1];
-                observer.onNext(MutateRowsResponse.newBuilder().build());
+                observer.onNext(MutateRowsResponse.getDefaultInstance());
                 observer.onCompleted();
                 return null;
               }
@@ -445,34 +447,30 @@ public class MetricsTracerTest {
 
     ApiCallContext defaultContext = GrpcCallContext.createDefault();
 
-    try {
-      Batcher batcher =
-          new BatcherImpl(
-              batchingDescriptor,
-              stub.bulkMutateRowsCallable().withDefaultCallContext(defaultContext),
-              BulkMutation.create(TABLE_ID),
-              settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings(),
-              Executors.newSingleThreadScheduledExecutor(),
-              flowController,
-              defaultContext);
+    Batcher batcher =
+        new BatcherImpl(
+            batchingDescriptor,
+            stub.bulkMutateRowsCallable().withDefaultCallContext(defaultContext),
+            BulkMutation.create(TABLE_ID),
+            settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings(),
+            Executors.newSingleThreadScheduledExecutor(),
+            flowController,
+            defaultContext);
 
-      batcher.add(RowMutationEntry.create("key"));
-      batcher.sendOutstanding();
+    batcher.add(RowMutationEntry.create("key"));
+    batcher.sendOutstanding();
 
-      Thread.sleep(100);
-      long throttledTimeMetric =
-          StatsTestUtils.getAggregationValueAsLong(
-              localStats,
-              RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
-              ImmutableMap.of(
-                  RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows")),
-              PROJECT_ID,
-              INSTANCE_ID,
-              APP_PROFILE_ID);
-      Assert.assertTrue(throttledTimeMetric >= throttled);
-    } catch (Exception e) {
-      throw e;
-    }
+    Thread.sleep(100);
+    long throttledTimeMetric =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    Assert.assertTrue(throttledTimeMetric >= throttled);
   }
 
   @Test
@@ -480,12 +478,16 @@ public class MetricsTracerTest {
     Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
     Method[] metricsTracerMethods = MetricsTracer.class.getDeclaredMethods();
     Set<String> metricsTracerMethodNames = new HashSet<>();
+    List<String> baseTracerMethodNames = new ArrayList<>();
     for (Method method : metricsTracerMethods) {
       metricsTracerMethodNames.add(method.getName());
     }
-    for (Method method : baseMethods) {
-      Truth.assertThat(metricsTracerMethodNames).contains(method.getName());
+    for (int i = 0; i < baseMethods.length; i++) {
+      if (baseMethods[i].getModifiers() == Modifier.PUBLIC) {
+        baseTracerMethodNames.add(baseMethods[i].getName());
+      }
     }
+    assertThat(metricsTracerMethodNames).containsAtLeastElementsIn(baseTracerMethodNames);
   }
 
   @SuppressWarnings("unchecked")

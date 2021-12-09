@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,11 +24,13 @@ import static org.mockito.Mockito.when;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
 import com.google.common.collect.ImmutableList;
-import com.google.common.truth.Truth;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
@@ -246,11 +249,15 @@ public class CompositeTracerTest {
     Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
     Method[] compositeTracerMethods = CompositeTracer.class.getDeclaredMethods();
     Set<String> compositeTracerMethodNames = new HashSet<>();
+    List<String> baseTracerMethodNames = new ArrayList<>();
     for (Method method : compositeTracerMethods) {
       compositeTracerMethodNames.add(method.getName());
     }
-    for (Method method : baseMethods) {
-      Truth.assertThat(compositeTracerMethodNames).contains(method.getName());
+    for (int i = 0; i < baseMethods.length; i++) {
+      if (baseMethods[i].getModifiers() == Modifier.PUBLIC) {
+        baseTracerMethodNames.add(baseMethods[i].getName());
+      }
     }
+    assertThat(compositeTracerMethodNames).containsAtLeastElementsIn(baseTracerMethodNames);
   }
 }

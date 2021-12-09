@@ -89,6 +89,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -632,7 +633,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
         bulkMutationFlowController,
-        ctx == null ? clientContext.getDefaultCallContext() : ctx);
+        MoreObjects.firstNonNull(ctx, clientContext.getDefaultCallContext()));
   }
 
   /**
@@ -660,7 +661,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.bulkReadRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
         null,
-        ctx == null ? clientContext.getDefaultCallContext() : ctx);
+        MoreObjects.firstNonNull(ctx, clientContext.getDefaultCallContext()));
   }
 
   /**
