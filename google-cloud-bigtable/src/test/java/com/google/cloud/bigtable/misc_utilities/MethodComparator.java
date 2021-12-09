@@ -31,12 +31,9 @@ public class MethodComparator {
           MethodComparator::compareMethods, "compare method names, parameters and return types");
 
   private static boolean compareMethods(Method actual, Method expected) {
-    if (!actual.getName().equals(expected.getName())
-        || !Arrays.equals(actual.getParameterTypes(), expected.getParameterTypes())
-        || actual.getModifiers() != expected.getModifiers()
-        || !actual.getReturnType().equals(expected.getReturnType())) {
-      return false;
-    }
-    return true;
+    return actual.getName().equals(expected.getName())
+        && Arrays.equals(actual.getParameterTypes(), expected.getParameterTypes())
+        && actual.getModifiers() == expected.getModifiers()
+        && actual.getReturnType().equals(expected.getReturnType());
   }
 }

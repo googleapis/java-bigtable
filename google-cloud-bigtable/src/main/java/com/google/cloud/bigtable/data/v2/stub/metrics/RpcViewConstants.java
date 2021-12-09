@@ -156,6 +156,7 @@ class RpcViewConstants {
               BIGTABLE_OP,
               BIGTABLE_STATUS));
 
+  // use distribution so we can correlate batch throttled time with op_latency
   static final View BIGTABLE_BATCH_THROTTLED_TIME_VIEW =
       View.create(
           View.Name.create("cloud.google.com/java/bigtable/batch_throttled_time"),
