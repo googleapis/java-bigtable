@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable;
+package com.google.cloud.bigtable.admin.v2.models;
 
-import com.google.api.core.InternalApi;
+import com.google.common.truth.Truth;
+import org.junit.Test;
 
-@InternalApi("For internal use only")
-public final class Version {
-  // {x-version-update-start:google-cloud-bigtable:current}
-  public static String VERSION = "2.4.1-SNAPSHOT";
-  // {x-version-update-end}
+public class StaticClusterSizeTest {
+
+  @Test
+  public void testStaticClusterSize() {
+    StaticClusterSize staticClusterSize = StaticClusterSize.of(4);
+    Truth.assertThat(staticClusterSize.getClusterSize()).isEqualTo(4);
+  }
 }

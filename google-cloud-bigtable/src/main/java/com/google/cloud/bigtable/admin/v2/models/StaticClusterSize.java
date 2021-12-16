@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable;
+package com.google.cloud.bigtable.admin.v2.models;
 
-import com.google.api.core.InternalApi;
+import com.google.auto.value.AutoValue;
 
-@InternalApi("For internal use only")
-public final class Version {
-  // {x-version-update-start:google-cloud-bigtable:current}
-  public static String VERSION = "2.4.1-SNAPSHOT";
-  // {x-version-update-end}
+@AutoValue
+public abstract class StaticClusterSize {
+
+  public static StaticClusterSize of(int clusterSize) {
+    return new AutoValue_StaticClusterSize(clusterSize);
+  }
+
+  public abstract int getClusterSize();
 }
