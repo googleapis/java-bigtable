@@ -490,7 +490,7 @@ public final class BigtableDataSettings {
                 .setProjectId(stubSettings.getProjectId())
                 .setMonitoredResource(
                     MonitoredResource.newBuilder().setType("bigtable_table").build())
-                .setMetricNamePrefix("bigtable.googleapis.com/client/")
+                .setMetricNamePrefix("bigtable.googleapis.com/internal/client/")
                 .setExportInterval(
                     com.google.bigtable.veneer.repackaged.io.opencensus.common.Duration.create(
                         10, 0))

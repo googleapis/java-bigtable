@@ -36,6 +36,8 @@ import javax.annotation.Nonnull;
  *
  * <p>- Call {@link BigtableTracer#onRequest()} to record the request events in a stream.
  *
+ * <p>- Get Bigtable zone and cluster information from response trailer and record in tracer.
+ *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */

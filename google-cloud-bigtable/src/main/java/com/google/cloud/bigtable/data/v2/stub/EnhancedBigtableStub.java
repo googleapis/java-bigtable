@@ -146,6 +146,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
     settings = finalizeSettings(settings, Tags.getTagger(), Stats.getStatsRecorder());
+
     return new EnhancedBigtableStub(settings, ClientContext.create(settings));
   }
 
