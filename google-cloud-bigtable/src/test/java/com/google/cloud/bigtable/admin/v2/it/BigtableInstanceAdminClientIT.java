@@ -286,6 +286,41 @@ public class BigtableInstanceAdminClientIT {
   }
 
   @Test
+  public void createInstanceWithAutoscalingTest() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    try {
+      ClusterAutoscalingConfig clusterAutoscalingConfig =
+              ClusterAutoscalingConfig.of(newInstanceId, newClusterId)
+                      .setMaxNodes(3)
+                      .setMinNodes(1)
+                      .setCpuUtilizationTargetPercent(30);
+      client.createInstance(
+              CreateInstanceRequest.of(newInstanceId)
+                      .addCluster(
+                              newClusterId,
+                              testEnvRule.env().getPrimaryZone(),
+                              clusterAutoscalingConfig,
+                              StorageType.HDD)
+                      .setDisplayName("Multi-Cluster-Instance-Test")
+                      .addLabel("state", "readytodelete")
+                      .setType(Type.PRODUCTION));
+
+      Cluster cluster = client.getCluster(newInstanceId, newClusterId);
+      assertThat(cluster.getId()).contains(newClusterId);
+      assertThat(cluster.getServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(30);
+    } catch (Exception e) {
+      Assert.fail("error in the test: " + e.getMessage());
+    } finally {
+      client.deleteInstance(newInstanceId);
+    }
+  }
+
+  @Test
   public void createClusterWithAutoscalingTest() {
     String newInstanceId = prefixGenerator.newPrefix();
     String newClusterId = newInstanceId + "-c1";
