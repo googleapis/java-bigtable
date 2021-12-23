@@ -292,20 +292,20 @@ public class BigtableInstanceAdminClientIT {
 
     try {
       ClusterAutoscalingConfig clusterAutoscalingConfig =
-              ClusterAutoscalingConfig.of(newInstanceId, newClusterId)
-                      .setMaxNodes(3)
-                      .setMinNodes(1)
-                      .setCpuUtilizationTargetPercent(30);
+          ClusterAutoscalingConfig.of(newInstanceId, newClusterId)
+              .setMaxNodes(3)
+              .setMinNodes(1)
+              .setCpuUtilizationTargetPercent(30);
       client.createInstance(
-              CreateInstanceRequest.of(newInstanceId)
-                      .addCluster(
-                              newClusterId,
-                              testEnvRule.env().getPrimaryZone(),
-                              clusterAutoscalingConfig,
-                              StorageType.HDD)
-                      .setDisplayName("Multi-Cluster-Instance-Test")
-                      .addLabel("state", "readytodelete")
-                      .setType(Type.PRODUCTION));
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(
+                  newClusterId,
+                  testEnvRule.env().getPrimaryZone(),
+                  clusterAutoscalingConfig,
+                  StorageType.HDD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
 
       Cluster cluster = client.getCluster(newInstanceId, newClusterId);
       assertThat(cluster.getId()).contains(newClusterId);
