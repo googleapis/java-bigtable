@@ -37,7 +37,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
