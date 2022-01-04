@@ -101,8 +101,8 @@ public class Emulator {
     }
     this.port = getAvailablePort();
 
-    // Try to align the localhost address across java  & golang emulator
-    // This should fix issues on systems that default  to  ipv4 but the  jvm is started with
+    // Try to align the localhost address across java & golang emulator
+    // This should fix issues on systems that default to ipv4 but the jvm is started with
     // -Djava.net.preferIPv6Addresses=true
     Optional<String> localhostAddress = Optional.empty();
     try {
