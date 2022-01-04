@@ -53,9 +53,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.runners.JUnit4;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(JUnit4.class)
 public class ReadRowsRetryTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
@@ -270,7 +270,7 @@ public class ReadRowsRetryTest {
         new InternalException(
             new StatusRuntimeException(
                 Status.INTERNAL.withDescription(
-                    "HTTP/2 error code: INTERNAL_ERROR\nReceived Rst stream")),
+                    "INTERNAL: HTTP/2 error code: INTERNAL_ERROR\nReceived Rst Stream")),
             GrpcStatusCode.of(Code.INTERNAL),
             false);
     service.expectations.add(

@@ -23,11 +23,13 @@ import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
+import com.google.cloud.bigtable.admin.v2.models.ClusterAutoscalingConfig;
 import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateClusterRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
+import com.google.cloud.bigtable.admin.v2.models.StaticClusterSize;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateInstanceRequest;
@@ -35,6 +37,7 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.List;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -94,6 +97,99 @@ public class BigtableInstanceAdminClientIT {
       actualEx = ex;
     }
     assertThat(actualEx).isNull();
+  }
+
+  @Test
+  public void appProfileTestMultiClusterWithIds() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+    String newClusterId2 = newInstanceId + "-c2";
+
+    client.createInstance(
+        CreateInstanceRequest.of(newInstanceId)
+            .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+            .addCluster(newClusterId2, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
+            .setDisplayName("Multi-Cluster-Instance-Test")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
+
+    try {
+      assertThat(client.exists(newInstanceId)).isTrue();
+
+      String testAppProfile = "test-app-profile";
+
+      CreateAppProfileRequest request =
+          CreateAppProfileRequest.of(newInstanceId, testAppProfile)
+              .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.of(newClusterId))
+              .setDescription("This is to test app profile");
+
+      AppProfile newlyCreatedAppProfile = client.createAppProfile(request);
+
+      AppProfile updated =
+          client.updateAppProfile(
+              UpdateAppProfileRequest.of(newlyCreatedAppProfile).setDescription("new description"));
+
+      AppProfile freshAppProfile = client.getAppProfile(newInstanceId, testAppProfile);
+      assertThat(freshAppProfile.getDescription()).isEqualTo(updated.getDescription());
+
+      AppProfile.MultiClusterRoutingPolicy freshAppProfilePolicy =
+          (AppProfile.MultiClusterRoutingPolicy) freshAppProfile.getPolicy();
+      AppProfile.MultiClusterRoutingPolicy updatedAppProfilePolicy =
+          (AppProfile.MultiClusterRoutingPolicy) updated.getPolicy();
+
+      assertThat(freshAppProfilePolicy.getClusterIds()).containsExactly(newClusterId);
+      assertThat(freshAppProfilePolicy.getClusterIds())
+          .isEqualTo(updatedAppProfilePolicy.getClusterIds());
+      assertThat(freshAppProfilePolicy).isEqualTo(updatedAppProfilePolicy);
+
+      assertThat(client.listAppProfiles(newInstanceId)).contains(freshAppProfile);
+
+      // update again with routing policy
+      AppProfile updated2 =
+          client.updateAppProfile(
+              UpdateAppProfileRequest.of(updated)
+                  .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.of(newClusterId2)));
+
+      AppProfile freshAppProfile2 = client.getAppProfile(newInstanceId, testAppProfile);
+      assertThat(freshAppProfile2.getDescription()).isEqualTo(updated2.getDescription());
+
+      AppProfile.MultiClusterRoutingPolicy freshAppProfilePolicy2 =
+          (AppProfile.MultiClusterRoutingPolicy) freshAppProfile2.getPolicy();
+      AppProfile.MultiClusterRoutingPolicy updatedAppProfilePolicy2 =
+          (AppProfile.MultiClusterRoutingPolicy) updated2.getPolicy();
+
+      assertThat(freshAppProfilePolicy2.getClusterIds()).containsExactly(newClusterId2);
+      assertThat(freshAppProfilePolicy2.getClusterIds())
+          .isEqualTo(updatedAppProfilePolicy2.getClusterIds());
+      assertThat(freshAppProfilePolicy2).isEqualTo(updatedAppProfilePolicy2);
+
+      assertThat(client.listAppProfiles(newInstanceId)).contains(freshAppProfile2);
+
+      // update to single routing policy
+      AppProfile updated3 =
+          client.updateAppProfile(
+              UpdateAppProfileRequest.of(updated)
+                  .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(newClusterId)));
+
+      AppProfile freshAppProfile3 = client.getAppProfile(newInstanceId, testAppProfile);
+      assertThat(freshAppProfile3.getDescription()).isEqualTo(updated3.getDescription());
+
+      AppProfile.SingleClusterRoutingPolicy freshAppProfilePolicy3 =
+          (AppProfile.SingleClusterRoutingPolicy) freshAppProfile3.getPolicy();
+      AppProfile.SingleClusterRoutingPolicy updatedAppProfilePolicy3 =
+          (AppProfile.SingleClusterRoutingPolicy) updated3.getPolicy();
+
+      assertThat(freshAppProfilePolicy3.getClusterId()).isEqualTo(newClusterId);
+      assertThat(freshAppProfilePolicy3.getClusterId())
+          .isEqualTo(updatedAppProfilePolicy3.getClusterId());
+      assertThat(freshAppProfilePolicy3).isEqualTo(updatedAppProfilePolicy3);
+
+      assertThat(client.listAppProfiles(newInstanceId)).contains(freshAppProfile3);
+    } finally {
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
+    }
   }
 
   @Test
@@ -189,6 +285,142 @@ public class BigtableInstanceAdminClientIT {
     assertThat(client.listInstances()).contains(instance);
   }
 
+  @Test
+  public void createClusterWithAutoscalingTest() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.HDD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setStorageType(StorageType.HDD)
+              .setScalingMode(
+                  ClusterAutoscalingConfig.of(newInstanceId, clusterId)
+                      .setMaxNodes(4)
+                      .setMinNodes(1)
+                      .setCpuUtilizationTargetPercent(20));
+
+      Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
+      assertThat(cluster.getServeNodes()).isEqualTo(0);
+      assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
+      assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+    } catch (Exception e) {
+      Assert.fail("error in the test" + e.getMessage());
+    } finally {
+      client.deleteInstance(newInstanceId);
+    }
+  }
+
+  @Test
+  public void createClusterWithAutoscalingAndPartialUpdateTest() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setScalingMode(
+                  ClusterAutoscalingConfig.of("ignored", clusterId)
+                      .setMaxNodes(4)
+                      .setMinNodes(1)
+                      .setCpuUtilizationTargetPercent(20));
+
+      Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
+      assertThat(cluster.getServeNodes()).isEqualTo(0);
+      assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
+      assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+
+      Cluster updatedCluster =
+          client.updateClusterAutoscalingConfig(
+              ClusterAutoscalingConfig.of(newInstanceId, clusterId).setMaxNodes(3));
+      assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+
+      updatedCluster =
+          client.updateClusterAutoscalingConfig(
+              ClusterAutoscalingConfig.of(newInstanceId, clusterId).setMinNodes(2));
+      assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+
+      updatedCluster =
+          client.updateClusterAutoscalingConfig(
+              ClusterAutoscalingConfig.of(newInstanceId, clusterId)
+                  .setCpuUtilizationTargetPercent(40));
+      assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(40);
+
+      updatedCluster =
+          client.updateClusterAutoscalingConfig(
+              ClusterAutoscalingConfig.of(newInstanceId, clusterId)
+                  .setCpuUtilizationTargetPercent(45)
+                  .setMaxNodes(5));
+      assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
+      assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+    } catch (Exception e) {
+      Assert.fail("error in the test: " + e.getMessage());
+    } finally {
+      client.deleteInstance(newInstanceId);
+    }
+  }
+
+  @Test
+  public void createClusterWithManualScalingTest() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    try {
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      String clusterId = prefixGenerator.newPrefix();
+      CreateClusterRequest createClusterRequest =
+          CreateClusterRequest.of(newInstanceId, clusterId)
+              .setZone(testEnvRule.env().getSecondaryZone())
+              .setScalingMode(StaticClusterSize.of(5));
+
+      Cluster cluster = client.createCluster(createClusterRequest);
+      assertThat(cluster.getId()).contains(clusterId);
+      assertThat(cluster.getServeNodes()).isEqualTo(5);
+      assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(0);
+      assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(0);
+      assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(0);
+    } catch (Exception e) {
+      Assert.fail("error in the test: " + e.getMessage());
+    } finally {
+      client.deleteInstance(newInstanceId);
+    }
+  }
+
   // To improve test runtime, piggyback off the instance creation/deletion test's fresh instance.
   private void basicClusterOperationTestHelper(String targetInstanceId, String targetClusterId) {
     List<Cluster> clusters = client.listClusters(targetInstanceId);
@@ -210,5 +442,21 @@ public class BigtableInstanceAdminClientIT {
     Cluster resizeCluster =
         client.resizeCluster(targetInstanceId, targetClusterId, freshNumOfNodes);
     assertThat(resizeCluster.getServeNodes()).isEqualTo(freshNumOfNodes);
+
+    ClusterAutoscalingConfig autoscalingConfig =
+        ClusterAutoscalingConfig.of(targetInstanceId, targetClusterId)
+            .setMinNodes(1)
+            .setMaxNodes(4)
+            .setCpuUtilizationTargetPercent(40);
+    Cluster cluster = client.updateClusterAutoscalingConfig(autoscalingConfig);
+    assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
+    assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+    assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(40);
+
+    Cluster updatedCluster = client.disableClusterAutoscaling(targetInstanceId, targetClusterId, 3);
+    assertThat(updatedCluster.getServeNodes()).isEqualTo(3);
+    assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(0);
+    assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(0);
+    assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(0);
   }
 }

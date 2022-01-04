@@ -1,5 +1,76 @@
 # Changelog
 
+## [2.4.0](https://www.github.com/googleapis/java-bigtable/compare/v2.3.1...v2.4.0) (2021-12-07)
+
+
+### Features
+
+* cluster autoscaling ([#1092](https://www.github.com/googleapis/java-bigtable/issues/1092)) ([fa4fe14](https://www.github.com/googleapis/java-bigtable/commit/fa4fe149a6a59600afe75f805f2503d3b45e5032))
+
+### [2.3.1](https://www.github.com/googleapis/java-bigtable/compare/v2.3.0...v2.3.1) (2021-12-03)
+
+
+### Bug Fixes
+
+* add placeholder class for bigtable-stats ([#1075](https://www.github.com/googleapis/java-bigtable/issues/1075)) ([9d9f575](https://www.github.com/googleapis/java-bigtable/commit/9d9f57556216becfeb302bfaf5a4f35a9b73b611))
+* add status label to gfe metrics ([#1077](https://www.github.com/googleapis/java-bigtable/issues/1077)) ([777549e](https://www.github.com/googleapis/java-bigtable/commit/777549e6ac64a03c9bd67d6b5a5cf4819ba8656f))
+* make placeholder class public ([#1085](https://www.github.com/googleapis/java-bigtable/issues/1085)) ([879377a](https://www.github.com/googleapis/java-bigtable/commit/879377a03b86aa9a1f1035245c290ec78501b2cd))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.5.1 ([#1087](https://www.github.com/googleapis/java-bigtable/issues/1087)) ([f290ce7](https://www.github.com/googleapis/java-bigtable/commit/f290ce74f6b803b8c5786e8b4c69b9efa6995c59))
+
+## [2.3.0](https://www.github.com/googleapis/java-bigtable/compare/v2.2.0...v2.3.0) (2021-11-16)
+
+
+### Features
+
+* configure branch 2.2.x as a release branch ([#1044](https://www.github.com/googleapis/java-bigtable/issues/1044)) ([68e8790](https://www.github.com/googleapis/java-bigtable/commit/68e8790f61b90ce2b5e7479b3d23e2f964199d3e))
+* send attempt and timestamp in headers ([#935](https://www.github.com/googleapis/java-bigtable/issues/935)) ([de3b476](https://www.github.com/googleapis/java-bigtable/commit/de3b476d4acd644d1e5bc782dc697ce5b145992e))
+
+
+### Bug Fixes
+
+* **java:** java 17 dependency arguments ([#1046](https://www.github.com/googleapis/java-bigtable/issues/1046)) ([422efa0](https://www.github.com/googleapis/java-bigtable/commit/422efa0289b232118b446224c5e084fe3bc19491))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.5.0 ([#1064](https://www.github.com/googleapis/java-bigtable/issues/1064)) ([5b72aa9](https://www.github.com/googleapis/java-bigtable/commit/5b72aa96bab018f4b5b1b565a6487dbb45ccd323))
+
+## [2.2.0](https://www.github.com/googleapis/java-bigtable/compare/v2.1.4...v2.2.0) (2021-10-20)
+
+
+### Features
+
+* app profile multi cluster routing support with specified cluster ids ([#961](https://www.github.com/googleapis/java-bigtable/issues/961)) ([f4c5c32](https://www.github.com/googleapis/java-bigtable/commit/f4c5c32c05d244a9ce7c3a4386ba9396c65f227e))
+
+
+### Bug Fixes
+
+* fix typo in rst stream message ([#1029](https://www.github.com/googleapis/java-bigtable/issues/1029)) ([50e6860](https://www.github.com/googleapis/java-bigtable/commit/50e686094c316560864c30a0295b3ed3f655c765))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.4.0 ([#1038](https://www.github.com/googleapis/java-bigtable/issues/1038)) ([d3efb29](https://www.github.com/googleapis/java-bigtable/commit/d3efb29df8461caddd3917fc42afa50961723a7d))
+
+### [2.1.4](https://www.github.com/googleapis/java-bigtable/compare/v2.1.3...v2.1.4) (2021-09-22)
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.3.0 ([#1020](https://www.github.com/googleapis/java-bigtable/issues/1020)) ([272f044](https://www.github.com/googleapis/java-bigtable/commit/272f0443501c502abf1b061414fb2435a9ad7952))
+
+### [2.1.3](https://www.github.com/googleapis/java-bigtable/compare/v2.1.2...v2.1.3) (2021-09-21)
+
+
+### Dependencies
+
+* migrate to mockito-core 3.12.4 ([#1008](https://www.github.com/googleapis/java-bigtable/issues/1008)) ([d9f19db](https://www.github.com/googleapis/java-bigtable/commit/d9f19db82f82615e4476462f9c34da7841169838))
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.2.1 ([#1010](https://www.github.com/googleapis/java-bigtable/issues/1010)) ([a54a021](https://www.github.com/googleapis/java-bigtable/commit/a54a02135f30e3337812938f5794b293ee6535c6))
+
 ### [2.1.2](https://www.github.com/googleapis/java-bigtable/compare/v2.1.1...v2.1.2) (2021-09-13)
 
 

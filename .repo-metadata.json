@@ -1,8 +1,8 @@
 {
-  "name": "bigtable",
+  "api_shortname": "bigtable",
   "name_pretty": "Cloud Bigtable",
   "product_documentation": "https://cloud.google.com/bigtable",
-  "client_documentation": "https://googleapis.dev/java/google-cloud-bigtable/latest/index.html",
+  "client_documentation": "https://cloud.google.com/java/docs/reference/google-cloud-bigtable/latest/history",
   "issue_tracker": "https://issuetracker.google.com/savedsearches/559777",
   "release_level": "ga",
   "language": "java",
@@ -10,5 +10,6 @@
   "repo_short": "java-bigtable",
   "distribution_name": "com.google.cloud:google-cloud-bigtable",
   "codeowner_team": "@googleapis/api-bigtable",
+  "library_type": "GAPIC_COMBO",
   "api_id": "bigtable.googleapis.com"
 }

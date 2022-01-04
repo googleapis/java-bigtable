@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -22,7 +23,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracer.Scope;
+import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.common.collect.ImmutableList;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -39,12 +46,14 @@ public class CompositeTracerTest {
 
   @Mock private ApiTracer child1;
   @Mock private ApiTracer child2;
+  @Mock private BigtableTracer child3;
+  @Mock private BigtableTracer child4;
 
   private CompositeTracer compositeTracer;
 
   @Before
   public void setup() {
-    compositeTracer = new CompositeTracer(ImmutableList.of(child1, child2));
+    compositeTracer = new CompositeTracer(ImmutableList.of(child1, child2, child3, child4));
   }
 
   @Test
@@ -55,10 +64,19 @@ public class CompositeTracerTest {
     Scope scope2 = mock(Scope.class);
     when(child2.inScope()).thenReturn(scope2);
 
+    Scope scope3 = mock(Scope.class);
+    when(child3.inScope()).thenReturn(scope3);
+
+    Scope scope4 = mock(Scope.class);
+    when(child4.inScope()).thenReturn(scope4);
+
     Scope parentScope = compositeTracer.inScope();
 
     parentScope.close();
     verify(scope1, times(1)).close();
+    verify(scope2, times(1)).close();
+    verify(scope3, times(1)).close();
+    verify(scope4, times(1)).close();
   }
 
   @Test
@@ -66,6 +84,8 @@ public class CompositeTracerTest {
     compositeTracer.operationSucceeded();
     verify(child1, times(1)).operationSucceeded();
     verify(child2, times(1)).operationSucceeded();
+    verify(child3, times(1)).operationSucceeded();
+    verify(child4, times(1)).operationSucceeded();
   }
 
   @Test
@@ -73,6 +93,8 @@ public class CompositeTracerTest {
     compositeTracer.operationCancelled();
     verify(child1, times(1)).operationCancelled();
     verify(child2, times(1)).operationCancelled();
+    verify(child3, times(1)).operationCancelled();
+    verify(child4, times(1)).operationCancelled();
   }
 
   @Test
@@ -81,6 +103,8 @@ public class CompositeTracerTest {
     compositeTracer.operationFailed(error);
     verify(child1, times(1)).operationFailed(error);
     verify(child2, times(1)).operationFailed(error);
+    verify(child3, times(1)).operationFailed(error);
+    verify(child4, times(1)).operationFailed(error);
   }
 
   @Test
@@ -88,6 +112,8 @@ public class CompositeTracerTest {
     compositeTracer.connectionSelected("connection-one");
     verify(child1, times(1)).connectionSelected("connection-one");
     verify(child2, times(1)).connectionSelected("connection-one");
+    verify(child3, times(1)).connectionSelected("connection-one");
+    verify(child4, times(1)).connectionSelected("connection-one");
   }
 
   @Test
@@ -95,6 +121,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptStarted(3);
     verify(child1, times(1)).attemptStarted(3);
     verify(child2, times(1)).attemptStarted(3);
+    verify(child3, times(1)).attemptStarted(3);
+    verify(child4, times(1)).attemptStarted(3);
   }
 
   @Test
@@ -102,6 +130,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptSucceeded();
     verify(child1, times(1)).attemptSucceeded();
     verify(child2, times(1)).attemptSucceeded();
+    verify(child3, times(1)).attemptSucceeded();
+    verify(child4, times(1)).attemptSucceeded();
   }
 
   @Test
@@ -109,6 +139,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptCancelled();
     verify(child1, times(1)).attemptCancelled();
     verify(child2, times(1)).attemptCancelled();
+    verify(child3, times(1)).attemptCancelled();
+    verify(child4, times(1)).attemptCancelled();
   }
 
   @Test
@@ -118,6 +150,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptFailed(error, delay);
     verify(child1, times(1)).attemptFailed(error, delay);
     verify(child2, times(1)).attemptFailed(error, delay);
+    verify(child3, times(1)).attemptFailed(error, delay);
+    verify(child4, times(1)).attemptFailed(error, delay);
   }
 
   @Test
@@ -126,6 +160,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptFailedRetriesExhausted(error);
     verify(child1, times(1)).attemptFailedRetriesExhausted(error);
     verify(child2, times(1)).attemptFailedRetriesExhausted(error);
+    verify(child3, times(1)).attemptFailedRetriesExhausted(error);
+    verify(child4, times(1)).attemptFailedRetriesExhausted(error);
   }
 
   @Test
@@ -134,6 +170,8 @@ public class CompositeTracerTest {
     compositeTracer.attemptPermanentFailure(error);
     verify(child1, times(1)).attemptPermanentFailure(error);
     verify(child2, times(1)).attemptPermanentFailure(error);
+    verify(child3, times(1)).attemptPermanentFailure(error);
+    verify(child4, times(1)).attemptPermanentFailure(error);
   }
 
   @Test
@@ -142,6 +180,8 @@ public class CompositeTracerTest {
     compositeTracer.lroStartFailed(error);
     verify(child1, times(1)).lroStartFailed(error);
     verify(child2, times(1)).lroStartFailed(error);
+    verify(child3, times(1)).lroStartFailed(error);
+    verify(child4, times(1)).lroStartFailed(error);
   }
 
   @Test
@@ -149,6 +189,8 @@ public class CompositeTracerTest {
     compositeTracer.lroStartSucceeded();
     verify(child1, times(1)).lroStartSucceeded();
     verify(child2, times(1)).lroStartSucceeded();
+    verify(child3, times(1)).lroStartSucceeded();
+    verify(child4, times(1)).lroStartSucceeded();
   }
 
   @Test
@@ -156,6 +198,8 @@ public class CompositeTracerTest {
     compositeTracer.responseReceived();
     verify(child1, times(1)).responseReceived();
     verify(child2, times(1)).responseReceived();
+    verify(child3, times(1)).responseReceived();
+    verify(child4, times(1)).responseReceived();
   }
 
   @Test
@@ -163,6 +207,8 @@ public class CompositeTracerTest {
     compositeTracer.requestSent();
     verify(child1, times(1)).requestSent();
     verify(child2, times(1)).requestSent();
+    verify(child3, times(1)).requestSent();
+    verify(child4, times(1)).requestSent();
   }
 
   @Test
@@ -170,5 +216,37 @@ public class CompositeTracerTest {
     compositeTracer.batchRequestSent(2, 20);
     verify(child1, times(1)).batchRequestSent(2, 20);
     verify(child2, times(1)).batchRequestSent(2, 20);
+    verify(child3, times(1)).batchRequestSent(2, 20);
+    verify(child4, times(1)).batchRequestSent(2, 20);
+  }
+
+  @Test
+  public void testGetAttempt() {
+    compositeTracer.attemptStarted(2);
+    Assert.assertEquals(2, compositeTracer.getAttempt());
+  }
+
+  @Test
+  public void testRecordGfeLatency() {
+    Throwable t = new StatusRuntimeException(Status.UNAVAILABLE);
+    compositeTracer.recordGfeMetadata(20L, t);
+    verify(child3, times(1)).recordGfeMetadata(20L, t);
+    verify(child4, times(1)).recordGfeMetadata(20L, t);
+  }
+
+  @Test
+  public void testBatchRequestThrottled() {
+    compositeTracer.batchRequestThrottled(5L);
+    verify(child3, times(1)).batchRequestThrottled(5L);
+    verify(child4, times(1)).batchRequestThrottled(5L);
+  }
+
+  @Test
+  public void testMethodsOverride() {
+    Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
+    Method[] compositeTracerMethods = CompositeTracer.class.getDeclaredMethods();
+    assertThat(Arrays.asList(compositeTracerMethods))
+        .comparingElementsUsing(MethodComparator.METHOD_CORRESPONDENCE)
+        .containsAtLeastElementsIn(baseMethods);
   }
 }

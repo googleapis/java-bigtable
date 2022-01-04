@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2021 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,32 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.gax.tracing.ApiTracer;
-import com.google.api.gax.tracing.BaseApiTracer;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
-/** Combines multiple {@link ApiTracer}s into a single {@link ApiTracer}. */
-class CompositeTracer extends BaseApiTracer {
+/**
+ * Combines multiple {@link ApiTracer}s and {@link BigtableTracer}s into a single {@link ApiTracer}.
+ */
+class CompositeTracer extends BigtableTracer {
   private final List<ApiTracer> children;
+  private final List<BigtableTracer> bigtableTracers;
+  private volatile int attempt;
 
   CompositeTracer(List<ApiTracer> children) {
-    this.children = ImmutableList.copyOf(children);
+    ImmutableList.Builder<ApiTracer> childrenBuilder = ImmutableList.builder();
+    ImmutableList.Builder<BigtableTracer> bigtableTracerBuilder = ImmutableList.builder();
+
+    for (ApiTracer child : children) {
+      if (child instanceof BigtableTracer) {
+        bigtableTracerBuilder.add((BigtableTracer) child);
+      }
+      childrenBuilder.add(child);
+    }
+    this.children = childrenBuilder.build();
+    this.bigtableTracers = bigtableTracerBuilder.build();
   }
 
   @Override
@@ -78,6 +92,7 @@ class CompositeTracer extends BaseApiTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    this.attempt = attemptNumber;
     for (ApiTracer child : children) {
       child.attemptStarted(attemptNumber);
     }
@@ -97,7 +112,6 @@ class CompositeTracer extends BaseApiTracer {
     }
   }
 
-  @Override
   public void attemptFailed(Throwable error, Duration delay) {
     for (ApiTracer child : children) {
       child.attemptFailed(error, delay);
@@ -150,6 +164,25 @@ class CompositeTracer extends BaseApiTracer {
   public void batchRequestSent(long elementCount, long requestSize) {
     for (ApiTracer child : children) {
       child.batchRequestSent(elementCount, requestSize);
+    }
+  }
+
+  @Override
+  public int getAttempt() {
+    return attempt;
+  }
+
+  @Override
+  public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.recordGfeMetadata(latency, throwable);
+    }
+  }
+
+  @Override
+  public void batchRequestThrottled(long throttledTimeMs) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.batchRequestThrottled(throttledTimeMs);
     }
   }
 }
