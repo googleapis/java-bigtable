@@ -37,7 +37,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -314,9 +313,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(30);
     } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
@@ -351,9 +352,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
     } catch (Exception e) {
-      Assert.fail("error in the test" + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
@@ -418,9 +421,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
     } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
@@ -450,9 +455,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(0);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(0);
     } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
