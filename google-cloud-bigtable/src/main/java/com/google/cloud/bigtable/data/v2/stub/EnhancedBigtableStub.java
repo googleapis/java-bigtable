@@ -173,8 +173,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
           (InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider();
 
       builder.setTransportChannelProvider(
-          transportProvider
-              .toBuilder()
+          transportProvider.toBuilder()
               .setChannelPrimer(
                   BigtableChannelPrimer.create(
                       credentials,

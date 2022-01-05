@@ -105,8 +105,7 @@ public class DirectPathFallbackIT {
         (InstantiatingGrpcChannelProvider)
             defaultSettings.getStubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider instrumentedTransportChannelProvider =
-        defaultTransportProvider
-            .toBuilder()
+        defaultTransportProvider.toBuilder()
             .setAttemptDirectPath(true)
             .setPoolSize(1)
             .setChannelConfigurator(

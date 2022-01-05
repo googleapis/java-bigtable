@@ -93,9 +93,7 @@ public class BigtableTableAdminSettingsTest {
         .containsExactly(Code.INVALID_ARGUMENT);
 
     assertThat(
-            builder
-                .build()
-                .toBuilder()
+            builder.build().toBuilder()
                 .build()
                 .getStubSettings()
                 .createTableSettings()

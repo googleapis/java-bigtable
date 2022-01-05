@@ -153,8 +153,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   public BigtableDataClient createForInstance(@Nonnull String projectId, @Nonnull String instanceId)
       throws IOException {
     BigtableDataSettings.Builder settingsBuilder =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
             .setDefaultAppProfileId();
@@ -177,8 +176,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String appProfileId)
       throws IOException {
     BigtableDataSettings.Builder settingsBuilder =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
             .setAppProfileId(appProfileId);

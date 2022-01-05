@@ -95,11 +95,7 @@ public class HeadersTest {
         .setHeaderProvider(headerProvider)
         .bulkMutateRowsSettings()
         .setBatchingSettings(
-            settings
-                .stubSettings()
-                .bulkMutateRowsSettings()
-                .getBatchingSettings()
-                .toBuilder()
+            settings.stubSettings().bulkMutateRowsSettings().getBatchingSettings().toBuilder()
                 .setElementCountThreshold(1L)
                 .build());
 

@@ -79,10 +79,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
     builder
         .readRowSettings()
         .setRetrySettings(
-            builder
-                .readRowSettings()
-                .getRetrySettings()
-                .toBuilder()
+            builder.readRowSettings().getRetrySettings().toBuilder()
                 .setMaxAttempts(1)
                 .setJittered(false)
                 .setInitialRpcTimeout(PRIME_REQUEST_TIMEOUT)
@@ -134,8 +131,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
   private void sendPrimeRequests(ManagedChannel managedChannel) throws IOException {
     // Wrap the channel in a temporary stub
     EnhancedBigtableStubSettings primingSettings =
-        settingsTemplate
-            .toBuilder()
+        settingsTemplate.toBuilder()
             .setTransportChannelProvider(
                 FixedTransportChannelProvider.create(GrpcTransportChannel.create(managedChannel)))
             .build();
