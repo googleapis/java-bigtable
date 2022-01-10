@@ -1,5 +1,5 @@
 {
-  "name": "bigtable",
+  "api_shortname": "bigtable",
   "name_pretty": "Cloud Bigtable",
   "product_documentation": "https://cloud.google.com/bigtable",
   "client_documentation": "https://cloud.google.com/java/docs/reference/google-cloud-bigtable/latest/history",
@@ -11,6 +11,7 @@
   "distribution_name": "com.google.cloud:google-cloud-bigtable",
   "codeowner_team": "@googleapis/api-bigtable",
   "api_id": "bigtable.googleapis.com",
+  "library_type": "GAPIC_COMBO",
   "extra_versioned_modules": "google-cloud-bigtable-emulator",
   "excluded_poms": "google-cloud-bigtable-bom"
 }

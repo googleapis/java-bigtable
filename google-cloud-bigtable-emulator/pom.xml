@@ -5,7 +5,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>google-cloud-bigtable-emulator</artifactId>
-  <version>0.140.0</version><!-- {x-version-update:google-cloud-bigtable-emulator:current} -->
+  <version>0.142.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable-emulator:current} -->
   <name>Google Cloud Java - Bigtable Emulator</name>
   <url>https://github.com/googleapis/java-bigtable</url>
   <description>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable-parent</artifactId>
-    <version>2.3.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.5.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <scm>
     <connection>scm:git:git@github.com:googleapis/java-bigtable.git</connection>
@@ -41,7 +41,7 @@
         <!-- https://github.com/googleapis/java-gcloud-maven-plugin -->
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-gcloud-maven-plugin</artifactId>
-        <version>0.1.2</version>
+        <version>0.1.4</version>
 
         <executions>
           <execution>
@@ -52,8 +52,9 @@
             </goals>
             <configuration>
               <componentNames>
-                <componentName>bigtable-darwin-x86</componentName>
+                <componentName>bigtable-darwin-arm</componentName>
                 <componentName>bigtable-darwin-x86_64</componentName>
+                <componentName>bigtable-linux-arm</componentName>
                 <componentName>bigtable-linux-x86</componentName>
                 <componentName>bigtable-linux-x86_64</componentName>
                 <componentName>bigtable-windows-x86</componentName>
@@ -80,14 +81,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-        <version>2.3.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.5.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-bom</artifactId>
-        <version>2.3.0</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.5.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>

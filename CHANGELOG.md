@@ -1,5 +1,53 @@
 # Changelog
 
+### [2.5.1](https://www.github.com/googleapis/java-bigtable/compare/v2.5.0...v2.5.1) (2022-01-07)
+
+
+### Bug Fixes
+
+* Revert "fix: remove stats from javadoc" ([#1118](https://www.github.com/googleapis/java-bigtable/issues/1118)) ([ba8f344](https://www.github.com/googleapis/java-bigtable/commit/ba8f344d19163627553a0a268742af2a1a792db5))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.6.0 ([#1124](https://www.github.com/googleapis/java-bigtable/issues/1124)) ([55ebf69](https://www.github.com/googleapis/java-bigtable/commit/55ebf6932bbe93e8b7635a7550320099eb4fbe93))
+
+## [2.5.0](https://www.github.com/googleapis/java-bigtable/compare/v2.4.0...v2.5.0) (2022-01-05)
+
+
+### Features
+
+* add batch throttled ms metric ([#888](https://www.github.com/googleapis/java-bigtable/issues/888)) ([0d197a5](https://www.github.com/googleapis/java-bigtable/commit/0d197a5ab9b7ccd20091c1c6c4a794586d6a51dc))
+* ARM support for gcloud bigtable emulator ([#1094](https://www.github.com/googleapis/java-bigtable/issues/1094)) ([d3cb4a4](https://www.github.com/googleapis/java-bigtable/commit/d3cb4a4e03ae0f7e065bfee06ac8e3b86b447a4a))
+
+
+### Bug Fixes
+
+* align ip version preference for the wrapped  emulator ([#1052](https://www.github.com/googleapis/java-bigtable/issues/1052)) ([9dc93c5](https://www.github.com/googleapis/java-bigtable/commit/9dc93c5c9372f1501006e2d3a3a7affecd65fb8e))
+* remove stats from javadoc ([#1108](https://www.github.com/googleapis/java-bigtable/issues/1108)) ([33fe7fe](https://www.github.com/googleapis/java-bigtable/commit/33fe7fe162cf84339e1887b052e446ef0aaf19d6))
+* remove tracking latency from channel priming requests ([#1082](https://www.github.com/googleapis/java-bigtable/issues/1082)) ([bd873bc](https://www.github.com/googleapis/java-bigtable/commit/bd873bc82f0b210312fd442678c801758291935e))
+
+## [2.4.0](https://www.github.com/googleapis/java-bigtable/compare/v2.3.1...v2.4.0) (2021-12-07)
+
+
+### Features
+
+* cluster autoscaling ([#1092](https://www.github.com/googleapis/java-bigtable/issues/1092)) ([fa4fe14](https://www.github.com/googleapis/java-bigtable/commit/fa4fe149a6a59600afe75f805f2503d3b45e5032))
+
+### [2.3.1](https://www.github.com/googleapis/java-bigtable/compare/v2.3.0...v2.3.1) (2021-12-03)
+
+
+### Bug Fixes
+
+* add placeholder class for bigtable-stats ([#1075](https://www.github.com/googleapis/java-bigtable/issues/1075)) ([9d9f575](https://www.github.com/googleapis/java-bigtable/commit/9d9f57556216becfeb302bfaf5a4f35a9b73b611))
+* add status label to gfe metrics ([#1077](https://www.github.com/googleapis/java-bigtable/issues/1077)) ([777549e](https://www.github.com/googleapis/java-bigtable/commit/777549e6ac64a03c9bd67d6b5a5cf4819ba8656f))
+* make placeholder class public ([#1085](https://www.github.com/googleapis/java-bigtable/issues/1085)) ([879377a](https://www.github.com/googleapis/java-bigtable/commit/879377a03b86aa9a1f1035245c290ec78501b2cd))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v2.5.1 ([#1087](https://www.github.com/googleapis/java-bigtable/issues/1087)) ([f290ce7](https://www.github.com/googleapis/java-bigtable/commit/f290ce74f6b803b8c5786e8b4c69b9efa6995c59))
+
 ## [2.3.0](https://www.github.com/googleapis/java-bigtable/compare/v2.2.0...v2.3.0) (2021-11-16)
 
 

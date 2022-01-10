@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.stats;
+package com.google.cloud.bigtable.admin.v2.models;
 
-public final class MavenPlaceholderShaded {
-  /**
-   * This class is here to force generation of source javadoc jars so that the maven release process
-   * doesn't complain. The shading plugin generated a shaded jar of bigtable-stats, but it doesn't
-   * generate javadoc or source files; this class is here as a hack and better methods should be
-   * employed.
-   */
-  private MavenPlaceholderShaded() {}
+import com.google.common.truth.Truth;
+import org.junit.Test;
+
+public class StaticClusterSizeTest {
+
+  @Test
+  public void testStaticClusterSize() {
+    StaticClusterSize staticClusterSize = StaticClusterSize.of(4);
+    Truth.assertThat(staticClusterSize.getClusterSize()).isEqualTo(4);
+  }
 }
