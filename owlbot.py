@@ -20,46 +20,27 @@ import synthtool as s
 import synthtool.gcp as gcp
 import synthtool.languages.java as java
 
-data_excludes = [
-    "build.gradle",
-    "pom.xml",
-    "README.md",
-    "src/main/java/com/google/cloud/bigtable/data/v2/package-info.java",
-    "src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java",
-    "src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java",
-    "src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java",
-    "src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java",
-    "src/test/java/com/google/cloud/bigtable/data/v2/MockBigtableImpl.java",
-]
-
 # Paths are relative to the destination, which is the current working directory
 data_internal_only = [
-    "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/BigtableStub.java",
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/BigtableStubSettings.java',
-    "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/GrpcBigtableStub.java",
-    "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/GrpcBigtableCallableFactory.java",
-]
-
-# Excludes are relative to source `gapic-google-cloud-bigtable-v2/src`
-admin_excludes = [
-    "main/java/com/google/cloud/bigtable/admin/v2/package-info.java",
+    "owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/BigtableStub.java",
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/BigtableStubSettings.java',
+    "owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/GrpcBigtableStub.java",
+    "owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/GrpcBigtableCallableFactory.java",
 ]
 
 # Paths are relative to the destination, which is the current working directory
 admin_internal_only = [
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableInstanceAdminCallableFactory.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableInstanceAdminStub.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminSettings.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableTableAdminCallableFactory.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableTableAdminStub.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableTableAdminSettings.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/BigtableInstanceAdminStub.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/BigtableTableAdminStub.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminClient.java',
-    'google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableTableAdminClient.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableInstanceAdminCallableFactory.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableInstanceAdminStub.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminSettings.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableTableAdminCallableFactory.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/GrpcBigtableTableAdminStub.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableTableAdminSettings.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/BigtableInstanceAdminStub.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/stub/BigtableTableAdminStub.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableInstanceAdminClient.java',
+    'owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/BaseBigtableTableAdminClient.java',
 ]
-
-
 
 # TODO: try to move the GAPIC surface hiding to the gapic-generator:
 # https://github.com/googleapis/gapic-generator/issues/2742
@@ -94,32 +75,20 @@ for library in s.get_staging_dirs():
 
   # googleapis-gen copy of bigtable has some files that are not part of the existing library.
   # owlbot copies them over. If you don't want to keep them, uncomment the deletions below.
-  # if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java"):
-  #   os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java")
-  # if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java"):
-  #   os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java")
-  # if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java"):
-  #   os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java")
-  # if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java"):
-  #   os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java")
-  # if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtableImpl.java"):
-  #   os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtableImpl.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingLimits.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingLimits.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingLimitsOrBuilder.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingLimitsOrBuilder.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingTargets.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingTargets.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingTargetsOrBuilder.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/AutoscalingTargetsOrBuilder.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterMetadata.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterMetadata.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterMetadataOrBuilder.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterMetadataOrBuilder.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterRequest.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterRequest.java")
-  # if os.path.exists("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterRequestOrBuilder.java"):
-  #   os.remove("owl-bot-staging/v2/proto-google-cloud-bigtable-admin-v2/src/main/java/com/google/bigtable/admin/v2/PartialUpdateClusterRequestOrBuilder.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtableImpl.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtableImpl.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/package-info.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/package-info.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/package-info.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/admin/v2/package-info.java")
 
   s.move(library)
 
