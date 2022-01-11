@@ -65,6 +65,11 @@
         <version>2.5.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
       </dependency>
       <dependency>
+        <groupId>com.google.cloud</groupId>
+        <artifactId>google-cloud-bigtable-emulator</artifactId>
+        <version>0.142.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable-emulator:current} -->
+      </dependency>
+      <dependency>
         <groupId>com.google.api.grpc</groupId>
         <artifactId>grpc-google-cloud-bigtable-admin-v2</artifactId>
         <version>2.5.2-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-admin-v2:current} -->
