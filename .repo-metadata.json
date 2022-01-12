@@ -13,6 +13,6 @@
   "codeowner_team": "@googleapis/api-bigtable",
   "api_id": "bigtable.googleapis.com",
   "library_type": "GAPIC_COMBO",
-  "extra_versioned_modules": "google-cloud-bigtable-emulator",
+  "extra_versioned_modules": "google-cloud-bigtable-emulator, google-cloud-bigtable-stats",
   "excluded_poms": "google-cloud-bigtable-bom"
 }
