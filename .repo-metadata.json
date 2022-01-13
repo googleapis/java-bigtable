@@ -1,5 +1,4 @@
 {
-  "name": "bigtable",
   "api_shortname": "bigtable",
   "name_pretty": "Cloud Bigtable",
   "product_documentation": "https://cloud.google.com/bigtable",
