@@ -225,7 +225,7 @@ public class CompositeTracerTest {
 
   @Test
   public void testGetAttempt() {
-    ReadRowsRequest request = mock(ReadRowsRequest.class);
+    ReadRowsRequest request = ReadRowsRequest.getDefaultInstance();
     compositeTracer.attemptStarted(request, 2);
     Assert.assertEquals(2, compositeTracer.getAttempt());
   }
