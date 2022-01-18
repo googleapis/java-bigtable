@@ -32,6 +32,11 @@ public class BigtableTracer extends BaseApiTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    attemptStarted(null, attemptNumber);
+  }
+
+  @Override
+  public void attemptStarted(Object request, int attemptNumber) {
     this.attempt = attemptNumber;
   }
 

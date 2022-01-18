@@ -92,9 +92,14 @@ class CompositeTracer extends BigtableTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    attemptStarted(null, attemptNumber);
+  }
+
+  @Override
+  public void attemptStarted(Object request, int attemptNumber) {
     this.attempt = attemptNumber;
     for (ApiTracer child : children) {
-      child.attemptStarted(attemptNumber);
+      child.attemptStarted(request, attemptNumber);
     }
   }
 

@@ -130,6 +130,11 @@ class MetricsTracer extends BigtableTracer {
 
   @Override
   public void attemptStarted(int attemptNumber) {
+    attemptStarted(null, attemptNumber);
+  }
+
+  @Override
+  public void attemptStarted(Object request, int attemptNumber) {
     attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
