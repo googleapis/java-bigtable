@@ -66,8 +66,8 @@ public class NativeImageBigtableTest {
     // Create instance if not present
     BigtableInstanceAdminSettings instanceAdminSettings =
         BigtableInstanceAdminSettings.newBuilder().setProjectId(PROJECT_ID).build();
-    BigtableInstanceAdminClient instanceAdminClient = BigtableInstanceAdminClient.create(
-        instanceAdminSettings);
+    BigtableInstanceAdminClient instanceAdminClient =
+        BigtableInstanceAdminClient.create(instanceAdminSettings);
     if (!instanceAdminClient.exists(INSTANCE_NAME)) {
       instanceAdminClient.createInstance(
           CreateInstanceRequest.of(INSTANCE_NAME)
@@ -76,12 +76,16 @@ public class NativeImageBigtableTest {
               .addLabel("example", "instance_admin"));
     }
 
-    BigtableTableAdminSettings adminClientSettings = BigtableTableAdminSettings.newBuilder()
-        .setInstanceId(INSTANCE_NAME).setProjectId(PROJECT_ID).build();
-    BigtableDataSettings clientSettings = BigtableDataSettings.newBuilder()
-        .setInstanceId(INSTANCE_NAME)
-        .setProjectId(PROJECT_ID)
-        .build();
+    BigtableTableAdminSettings adminClientSettings =
+        BigtableTableAdminSettings.newBuilder()
+            .setInstanceId(INSTANCE_NAME)
+            .setProjectId(PROJECT_ID)
+            .build();
+    BigtableDataSettings clientSettings =
+        BigtableDataSettings.newBuilder()
+            .setInstanceId(INSTANCE_NAME)
+            .setProjectId(PROJECT_ID)
+            .build();
     adminClient = BigtableTableAdminClient.create(adminClientSettings);
     tableName = TABLE_SUFFIX + UUID.randomUUID().toString().replace("-", "");
     NativeImageBigtableSample.createTable(adminClient, tableName);
@@ -98,22 +102,21 @@ public class NativeImageBigtableTest {
   public void testReadData() {
     ImmutableMap<String, Long> dataWithInts = ImmutableMap.of("connection_cell", 1L);
     ImmutableMap<String, String> dataWithStrings = ImmutableMap.of("os_build", "build_value");
-    NativeImageBigtableSample.insertData(dataClient, tableName, TIMESTAMP.getEpochSecond(),
-        dataWithInts, dataWithStrings);
+    NativeImageBigtableSample.insertData(
+        dataClient, tableName, TIMESTAMP.getEpochSecond(), dataWithInts, dataWithStrings);
 
     NativeImageBigtableSample.readData(dataClient, tableName);
 
     String output = bout.toString();
-    assertThat(output).contains(
-        "Successfully wrote row: phone#0\n"
-            + "Reading phone data in table:\n"
-            + "Key: phone#0\n"
-            + "\tconnection_cell: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001 @0\n"
-            + "\tos_build: build_value @0\n\n");
+    assertThat(output)
+        .contains(
+            "Successfully wrote row: phone#0\n"
+                + "Reading phone data in table:\n"
+                + "Key: phone#0\n"
+                + "\tconnection_cell: \u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001 @0\n"
+                + "\tos_build: build_value @0\n\n");
 
     // Clean up
     NativeImageBigtableSample.deleteTable(adminClient, tableName);
   }
-
-
 }

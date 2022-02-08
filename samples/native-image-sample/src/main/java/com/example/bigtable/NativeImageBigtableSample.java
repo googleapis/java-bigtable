@@ -38,9 +38,7 @@ import java.io.IOException;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-/**
- * Sample Cloud BigTable application.
- */
+/** Sample Cloud BigTable application. */
 public class NativeImageBigtableSample {
 
   private static final String INSTANCE_NAME =
@@ -49,9 +47,7 @@ public class NativeImageBigtableSample {
 
   private static final String COLUMN_FAMILY_NAME = "stats_summary";
 
-  /**
-   * Entrypoint to the BigTable sample application.
-   */
+  /** Entrypoint to the BigTable sample application. */
   public static void main(String[] args) throws IOException {
     String projectId = ServiceOptions.getDefaultProjectId();
 
@@ -70,8 +66,8 @@ public class NativeImageBigtableSample {
 
     BigtableTableAdminClient adminClient = BigtableTableAdminClient.create(adminClientSettings);
     BigtableDataClient standardClient = BigtableDataClient.create(clientSettings);
-    BigtableInstanceAdminClient instanceAdminClient = BigtableInstanceAdminClient.create(
-        instanceAdminSettings);
+    BigtableInstanceAdminClient instanceAdminClient =
+        BigtableInstanceAdminClient.create(instanceAdminSettings);
 
     if (!instanceAdminClient.exists(INSTANCE_NAME)) {
       instanceAdminClient.createInstance(
@@ -85,8 +81,8 @@ public class NativeImageBigtableSample {
     createTable(adminClient, tableName);
 
     // Add data into table
-    ImmutableMap<String, Long> dataWithLong = ImmutableMap.of("connected_cell", 1L,
-        "connected_wifi", 1L);
+    ImmutableMap<String, Long> dataWithLong =
+        ImmutableMap.of("connected_cell", 1L, "connected_wifi", 1L);
     ImmutableMap<String, String> dataWithStrings = ImmutableMap.of("os_build", "PQ2A.190405.003");
 
     long timestamp = System.currentTimeMillis() * 1000;
@@ -115,22 +111,25 @@ public class NativeImageBigtableSample {
     }
   }
 
-  public static void insertData(BigtableDataClient client, String tableId, long timestamp,
-      ImmutableMap<String, Long> dataWithLong, ImmutableMap<String, String> dataWithStrings) {
+  public static void insertData(
+      BigtableDataClient client,
+      String tableId,
+      long timestamp,
+      ImmutableMap<String, Long> dataWithLong,
+      ImmutableMap<String, String> dataWithStrings) {
     String rowKey = String.format("phone#%d", timestamp);
-    RowMutation rowMutation =
-        RowMutation.create(tableId, rowKey);
+    RowMutation rowMutation = RowMutation.create(tableId, rowKey);
     for (Entry<String, Long> longEntry : dataWithLong.entrySet()) {
       rowMutation.setCell(
           COLUMN_FAMILY_NAME,
           ByteString.copyFrom(longEntry.getKey().getBytes()),
-          timestamp, longEntry.getValue());
-
+          timestamp,
+          longEntry.getValue());
     }
 
     for (Entry<String, String> stringEntry : dataWithStrings.entrySet()) {
-      rowMutation.setCell(COLUMN_FAMILY_NAME, stringEntry.getKey(), timestamp,
-          stringEntry.getValue());
+      rowMutation.setCell(
+          COLUMN_FAMILY_NAME, stringEntry.getKey(), timestamp, stringEntry.getValue());
     }
 
     client.mutateRow(rowMutation);
