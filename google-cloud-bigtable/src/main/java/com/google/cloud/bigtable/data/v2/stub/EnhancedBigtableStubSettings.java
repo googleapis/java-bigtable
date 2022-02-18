@@ -752,8 +752,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return isRefreshingChannel;
     }
 
-    /** Gets the tables that will be primed during a channel refresh. */
-    @BetaApi("Channel priming is not currently stable and might change in the future")
+    /**
+     * Gets the tables that will be primed during a channel refresh.
+     *
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
+     */
+    @Deprecated
     public List<String> getPrimedTableIds() {
       return primedTableIds;
     }
@@ -831,8 +836,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         // Use shared credentials
         this.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
         channelProviderBuilder.setChannelPrimer(
-            BigtableChannelPrimer.create(
-                credentials, projectId, instanceId, appProfileId, primedTableIds));
+            BigtableChannelPrimer.create(credentials, projectId, instanceId, appProfileId));
         this.setTransportChannelProvider(channelProviderBuilder.build());
       }
       return new EnhancedBigtableStubSettings(this);
