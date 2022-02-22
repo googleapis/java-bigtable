@@ -236,8 +236,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return isRefreshingChannel;
   }
 
-  /** Gets the tables that will be primed during a channel refresh. */
-  @BetaApi("Channel priming is not currently stable and might change in the future")
+  /**
+   * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+   *     requests will be sent to all table ids of the instance.
+   */
+  @Deprecated
   public List<String> getPrimedTableIds() {
     return primedTableIds;
   }
@@ -727,9 +730,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     /**
      * Sets if channels will gracefully refresh connections to Cloud Bigtable service.
      *
-     * <p>When enabled, this will wait for the connection to complete the SSL handshake. The effect
-     * can be enhanced by configuring table ids that can be used warm serverside caches using {@link
-     * #setPrimedTableIds(String...)}.
+     * <p>When enabled, this will wait for the connection to complete the SSL handshake and warm up
+     * serverside caches for all the tables of the instance.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
      */
@@ -739,8 +741,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
-    /** Configures which tables will be primed when a connection is created. */
-    @BetaApi("Channel priming is not currently stable and might change in the future")
+    /**
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
+     */
+    @Deprecated
     public Builder setPrimedTableIds(String... tableIds) {
       this.primedTableIds = ImmutableList.copyOf(tableIds);
       return this;
@@ -753,8 +758,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * Gets the tables that will be primed during a channel refresh.
-     *
      * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
      *     requests will be sent to all table ids of the instance.
      */

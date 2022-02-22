@@ -215,9 +215,6 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Gets the table ids that will be used to send warmup requests when {@link
-   * #isRefreshingChannel()} is enabled.
-   *
    * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
    *     requests will be sent to all table ids of the instance.
    */
@@ -390,9 +387,6 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Gets the table ids that will be used to send warmup requests when {@link
-     * #setRefreshingChannel(boolean)} is enabled.
-     *
      * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
      *     requests will be sent to all table ids of the instance.
      */
