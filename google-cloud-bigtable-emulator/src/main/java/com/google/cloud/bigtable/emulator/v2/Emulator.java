@@ -37,8 +37,12 @@ import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static java.lang.System.getenv;
+
 /**
  * Wraps the Bigtable emulator in a java api.
+ *
+ * Uses port-number from BIGTABLE_EMULATOR_HOST environment variable to create bundled emulator instances
  *
  * <p>This class will use the golang binaries embedded in this jar to launch the emulator as an
  * external process and redirect its output to a {@link Logger}.
@@ -51,6 +55,12 @@ public class Emulator {
   private Process process;
   private boolean isStopped = true;
   private Thread shutdownHook;
+
+  //Set environment variable as <HOST>:<RANDOMPORT>  Eg: 127.0.0.1:8465
+  private static final int PORT = Optional.ofNullable(System.getenv("BIGTABLE_EMULATOR_HOST"))
+                                        .filter(hostPort->hostPort.split(":").length>1)
+                                        .map(hostPort->hostPort.split(":")[1])
+                                        .map(Integer::parseInt).orElse(0);
 
   private int port;
   private ManagedChannel dataChannel;
@@ -262,7 +272,7 @@ public class Emulator {
 
   /** Gets a random open port number. */
   private static int getAvailablePort() {
-    try (ServerSocket serverSocket = new ServerSocket(0)) {
+    try (ServerSocket serverSocket = new ServerSocket(PORT)) {
       return serverSocket.getLocalPort();
     } catch (IOException e) {
       throw new RuntimeException("Failed to find open port");
