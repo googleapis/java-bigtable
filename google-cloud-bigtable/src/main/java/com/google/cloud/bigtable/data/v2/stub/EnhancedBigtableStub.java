@@ -824,7 +824,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<PingAndWarmRequest>() {
                       @Override
                       public Map<String, String> extract(PingAndWarmRequest request) {
-                        return ImmutableMap.of("app_profile_id", request.getAppProfileId());
+                        return ImmutableMap.of(
+                                "name", request.getName(),
+                                "app_profile_id", request.getAppProfileId());
                       }
                     })
                 .build(),
