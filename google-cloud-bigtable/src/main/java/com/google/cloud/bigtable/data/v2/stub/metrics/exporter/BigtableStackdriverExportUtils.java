@@ -17,8 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics.exporter;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
-import com.google.api.LabelDescriptor;
-import com.google.api.LabelDescriptor.ValueType;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
 import com.google.bigtable.veneer.repackaged.io.opencensus.common.Function;
@@ -45,7 +43,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -70,10 +67,6 @@ class BigtableStackdriverExportUtils {
   // TODO: clean up unused other types
   @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
   private static final Logger logger;
-  private static final Map<String, String> GCP_RESOURCE_MAPPING;
-  @VisibleForTesting static final LabelKey PERCENTILE_LABEL_KEY;
-
-  @Nullable private static volatile String cachedProjectIdForExemplar;
 
   private static final com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
           Double, TypedValue>
@@ -111,19 +104,6 @@ class BigtableStackdriverExportUtils {
 
   private static String generateType(String metricName, String domain) {
     return domain + metricName;
-  }
-
-  private static String createDisplayName(String metricName, String displayNamePrefix) {
-    return displayNamePrefix + metricName;
-  }
-
-  @VisibleForTesting
-  static LabelDescriptor createLabelDescriptor(LabelKey labelKey) {
-    com.google.api.LabelDescriptor.Builder builder = LabelDescriptor.newBuilder();
-    builder.setKey(labelKey.getKey());
-    builder.setDescription(labelKey.getDescription());
-    builder.setValueType(ValueType.STRING);
-    return builder.build();
   }
 
   @VisibleForTesting
@@ -164,9 +144,6 @@ class BigtableStackdriverExportUtils {
       MonitoredResource monitoredResource,
       String domain,
       String projectId) {
-    if (!projectId.equals(cachedProjectIdForExemplar)) {
-      cachedProjectIdForExemplar = projectId;
-    }
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
     builder.setMetricKind(createMetricKind(metricType));
@@ -291,12 +268,6 @@ class BigtableStackdriverExportUtils {
       }
     }
 
-    if (spanContext != null && cachedProjectIdForExemplar != null) {
-      com.google.monitoring.v3.SpanContext protoSpanContext =
-          toProtoSpanContext(spanContext, cachedProjectIdForExemplar);
-      builder.addAttachments(toProtoSpanContextAttachment(protoSpanContext));
-    }
-
     return builder.build();
   }
 
@@ -338,14 +309,6 @@ class BigtableStackdriverExportUtils {
             .build();
   }
 
-  private static Map<String, String> getGcpResourceLabelsMappings() {
-    Map<String, String> resourceLabels = new LinkedHashMap();
-    resourceLabels.put("project_id", "project_id");
-    resourceLabels.put("instance_id", "host.id");
-    resourceLabels.put("zone", "cloud.zone");
-    return Collections.unmodifiableMap(resourceLabels);
-  }
-
   private BigtableStackdriverExportUtils() {}
 
   static String getDomain(@Nullable String metricNamePrefix) {
@@ -365,10 +328,6 @@ class BigtableStackdriverExportUtils {
     DEFAULT_CONSTANT_LABELS =
         Collections.singletonMap(OPENCENSUS_TASK_KEY, OPENCENSUS_TASK_VALUE_DEFAULT);
     logger = Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
-    GCP_RESOURCE_MAPPING = getGcpResourceLabelsMappings();
-    PERCENTILE_LABEL_KEY =
-        LabelKey.create("percentile", "the value at a given percentile of a distribution");
-    cachedProjectIdForExemplar = null;
     typedValueDoubleFunction =
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
             Double, TypedValue>() {

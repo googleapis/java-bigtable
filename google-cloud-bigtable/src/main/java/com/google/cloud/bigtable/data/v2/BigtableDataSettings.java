@@ -489,8 +489,8 @@ public final class BigtableDataSettings {
             StackdriverStatsConfiguration.builder()
                 .setProjectId(stubSettings.getProjectId())
                 .setMonitoredResource(
-                    MonitoredResource.newBuilder().setType("bigtable_table").build())
-                .setMetricNamePrefix("bigtable.googleapis.com/internal/client/")
+                    MonitoredResource.newBuilder().setType("bigtable_client_raw").build())
+                .setMetricNamePrefix("bigtable.googleapis.com/client/internal")
                 .setExportInterval(
                     com.google.bigtable.veneer.repackaged.io.opencensus.common.Duration.create(
                         10, 0))

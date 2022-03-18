@@ -116,7 +116,8 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
               .setName(this.projectName.toString())
               .addAllTimeSeries(timeSeriesList)
               .build();
-      this.metricServiceClient.createTimeSeries(request);
+
+      this.metricServiceClient.createServiceTimeSeries(request);
     } catch (ApiException e) {
       logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
     } catch (Throwable e) {
