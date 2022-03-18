@@ -87,7 +87,7 @@ public class BigtableCreateTimeSeriesExporterTest {
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 
     UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
-    when(mockMetricServiceStub.createTimeSeriesCallable()).thenReturn(mockCallable);
+    when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
     when(mockCallable.call(argumentCaptor.capture())).thenReturn(Empty.getDefaultInstance());
 
     double fakeValue = 10.0;
