@@ -114,7 +114,10 @@ class MetricsTracer extends BigtableTracer {
       measures.put(
           RpcMeasureConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY,
           firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
+
+      System.out.println("record op: " + elapsed+ ", first: " + firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
     }
+
 
     TagContextBuilder tagCtx =
         newTagCtxBuilder()
