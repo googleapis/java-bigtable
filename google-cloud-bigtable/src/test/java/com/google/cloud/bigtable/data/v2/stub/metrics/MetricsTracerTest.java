@@ -211,7 +211,7 @@ public class MetricsTracerTest {
   @Test
   public void testReadRowsFirstRow() throws InterruptedException {
     final long beforeSleep = 50;
-    final long afterSleep = 50;
+    final long afterSleep = 100;
 
     ExecutorService executor = Executors.newCachedThreadPool();
     doAnswer(
