@@ -37,6 +37,7 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
@@ -46,6 +47,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -58,6 +60,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -211,7 +214,9 @@ public class MetricsTracerTest {
   @Test
   public void testReadRowsFirstRow() throws InterruptedException {
     final long beforeSleep = 50;
-    final long afterSleep = 100;
+    final long afterSleep = 50;
+
+    SettableFuture<Void> gotFirstRow = SettableFuture.create();
 
     ExecutorService executor = Executors.newCachedThreadPool();
     doAnswer(
@@ -221,6 +226,8 @@ public class MetricsTracerTest {
                   () -> {
                     Thread.sleep(beforeSleep);
                     observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
+                    // wait until the first row is consumed before padding the operation span
+                    gotFirstRow.get();
                     Thread.sleep(afterSleep);
                     observer.onCompleted();
                     return null;
@@ -231,7 +238,15 @@ public class MetricsTracerTest {
         .readRows(any(ReadRowsRequest.class), any());
 
     Stopwatch stopwatch = Stopwatch.createStarted();
-    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+
+    // Get the first row and notify the mock that it can start padding the operation span
+    Iterator<Row> it = stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator();
+    it.next();
+    gotFirstRow.set(null);
+    // finish the stream
+    while (it.hasNext()) {
+      it.next();
+    }
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     // Give OpenCensus a chance to update the views asynchronously.
