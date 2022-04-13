@@ -100,6 +100,7 @@ class MetricsTracer extends BigtableTracer {
       return;
     }
     operationTimer.stop();
+    System.out.println("op finished: " + System.currentTimeMillis());
 
     long elapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
@@ -188,6 +189,7 @@ class MetricsTracer extends BigtableTracer {
 
   @Override
   public void responseReceived() {
+    System.out.println("responseReceived: " + System.currentTimeMillis());
     if (firstResponsePerOpTimer.isRunning()) {
       firstResponsePerOpTimer.stop();
     }

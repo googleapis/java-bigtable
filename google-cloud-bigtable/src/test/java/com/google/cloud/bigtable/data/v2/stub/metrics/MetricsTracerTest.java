@@ -103,7 +103,7 @@ public class MetricsTracerTest {
   @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
 
-  private StatsComponentImpl localStats = new StatsComponentImpl();
+  private final StatsComponentImpl localStats = new StatsComponentImpl();
   private EnhancedBigtableStub stub;
   private BigtableDataSettings settings;
 
