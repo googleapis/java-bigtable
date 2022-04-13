@@ -58,6 +58,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -212,19 +213,19 @@ public class MetricsTracerTest {
     final long beforeSleep = 50;
     final long afterSleep = 50;
 
+    ExecutorService executor = Executors.newCachedThreadPool();
     doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                @SuppressWarnings("unchecked")
-                StreamObserver<ReadRowsResponse> observer =
-                    (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
-                Thread.sleep(beforeSleep);
-                observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
-                Thread.sleep(afterSleep);
-                observer.onCompleted();
-                return null;
-              }
+            invocation -> {
+              StreamObserver<ReadRowsResponse> observer = invocation.getArgument(1);
+              executor.submit(
+                  () -> {
+                    Thread.sleep(beforeSleep);
+                    observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
+                    Thread.sleep(afterSleep);
+                    observer.onCompleted();
+                    return null;
+                  });
+              return null;
             })
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
@@ -235,6 +236,7 @@ public class MetricsTracerTest {
 
     // Give OpenCensus a chance to update the views asynchronously.
     Thread.sleep(100);
+    executor.shutdown();
 
     long firstRowLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -245,9 +247,7 @@ public class MetricsTracerTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
 
-    // adding buffer time to the upper range to allow for a race between the emulator and the client
-    // recording the duration
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep / 2));
+    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
   }
 
   @Test
