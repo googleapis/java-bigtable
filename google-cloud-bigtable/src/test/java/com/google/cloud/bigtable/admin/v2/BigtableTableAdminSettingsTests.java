@@ -31,7 +31,7 @@ import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
-public class BigtableTableAdminSettingsTest {
+public class BigtableTableAdminSettingsTests {
 
   @Test
   public void testInstanceName() throws IOException {

@@ -56,7 +56,7 @@ import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
-public class BigtableDataClientTest {
+public class BigtableDataClientTests {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 

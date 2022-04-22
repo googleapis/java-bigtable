@@ -81,7 +81,7 @@ import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
-public class BigtableInstanceAdminClientTest {
+public class BigtableInstanceAdminClientTests {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
   private static final String PROJECT_ID = "my-project";

@@ -91,7 +91,7 @@ import org.mockito.stubbing.Answer;
 import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
-public class BigtableTableAdminClientTest {
+public class BigtableTableAdminClientTests {
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
   private static final String PROJECT_ID = "my-project";
