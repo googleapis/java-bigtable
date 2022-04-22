@@ -70,7 +70,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
           <!-- grpc-netty-shaded is used at test runtime -->
-          <usedDependencies>io.grpc:grpc-netty-shaded</usedDependencies>
+          <usedDependencies>io.grpc:grpc-netty-shaded,com.google.api:gax-grpc</usedDependencies>
         </configuration>
       </plugin>
     </plugins>
