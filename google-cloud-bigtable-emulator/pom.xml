@@ -154,6 +154,7 @@
       <artifactId>gax-grpc</artifactId>
       <scope>test</scope>
     </dependency>
+    <!-- This is only needed when we're running tests in native image mode-->
 
     <dependency>
       <groupId>com.google.truth</groupId>

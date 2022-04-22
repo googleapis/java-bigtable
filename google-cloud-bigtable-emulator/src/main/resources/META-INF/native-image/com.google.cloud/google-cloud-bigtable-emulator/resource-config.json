@@ -1,0 +1,9 @@
+{
+  "resources":{
+    "includes":[
+      {
+        "pattern":"\\Qgcloud/bigtable-linux-x86_64/platform/bigtable-emulator/cbtemulator\\E"
+      }
+    ]},
+  "bundles":[]
+}
