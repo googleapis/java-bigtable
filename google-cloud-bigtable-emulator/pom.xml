@@ -101,6 +101,7 @@
       <groupId>com.google.api</groupId>
       <artifactId>api-common</artifactId>
     </dependency>
+
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-api</artifactId>
@@ -144,6 +145,13 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  <!-- This is only needed when we're running tests in native image mode-->
+    <dependency>
+      <groupId>com.google.api</groupId>
+      <artifactId>gax-grpc</artifactId>
       <scope>test</scope>
     </dependency>
 
