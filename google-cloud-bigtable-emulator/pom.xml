@@ -70,7 +70,7 @@
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
           <!-- grpc-netty-shaded is used at test runtime -->
-          <usedDependencies>io.grpc:grpc-netty-shaded,com.google.api:gax-grpc</usedDependencies>
+          <usedDependencies>io.grpc:grpc-netty-shaded</usedDependencies>
         </configuration>
       </plugin>
     </plugins>
@@ -148,13 +148,12 @@
       <scope>test</scope>
     </dependency>
 
-  <!-- This is only needed when we're running tests in native image mode-->
+    <!-- This is needed when running the emulator classes with native image compilation -->
     <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>gax-grpc</artifactId>
-      <scope>test</scope>
     </dependency>
-    <!-- This is only needed when we're running tests in native image mode-->
+    <!-- This is needed when running the emulator classes with native image compilation -->
 
     <dependency>
       <groupId>com.google.truth</groupId>
