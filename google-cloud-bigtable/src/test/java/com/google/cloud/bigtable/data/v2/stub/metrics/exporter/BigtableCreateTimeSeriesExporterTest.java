@@ -57,7 +57,6 @@ public class BigtableCreateTimeSeriesExporterTest {
   private static final String tableId = "fake-table";
   private static final String zone = "us-east-1";
   private static final String cluster = "cluster-1";
-  private static final String METRIC_PREFIX = "bigtable.googleapis.com/client/";
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -74,15 +73,14 @@ public class BigtableCreateTimeSeriesExporterTest {
         new BigtableCreateTimeSeriesExporter(
             projectId,
             fakeMetricServiceClient,
-            MonitoredResource.newBuilder().setType("bigtable-table").build(),
-            METRIC_PREFIX);
+            MonitoredResource.newBuilder().setType("bigtable-table").build());
   }
 
   @After
   public void tearDown() {}
 
   @Test
-  public void testTimeSeries() throws Exception {
+  public void testTimeSeries() {
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 

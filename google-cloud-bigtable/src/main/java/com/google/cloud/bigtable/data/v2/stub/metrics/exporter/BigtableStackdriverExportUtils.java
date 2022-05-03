@@ -31,7 +31,6 @@ import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Metric
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Summary;
 import com.google.bigtable.veneer.repackaged.io.opencensus.metrics.export.Value;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
@@ -42,7 +41,6 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -50,22 +48,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 class BigtableStackdriverExportUtils {
-  @VisibleForTesting
-  static final LabelKey OPENCENSUS_TASK_KEY =
-      LabelKey.create("opencensus_task", "Opencensus task identifier");
-
-  @VisibleForTesting
-  static final LabelValue OPENCENSUS_TASK_VALUE_DEFAULT =
-      LabelValue.create(generateDefaultTaskValue());
-
-  static final Map<LabelKey, LabelValue> DEFAULT_CONSTANT_LABELS;
-  @VisibleForTesting static final String CUSTOM_METRIC_DOMAIN = "custom.googleapis.com/";
-
-  @VisibleForTesting
-  static final String CUSTOM_OPENCENSUS_DOMAIN = CUSTOM_METRIC_DOMAIN + "opencensus/";
-
-  // TODO: clean up unused other types
-  @VisibleForTesting static final int MAX_BATCH_EXPORT_SIZE = 200;
   private static final Logger logger;
 
   private static final com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<
@@ -310,23 +292,8 @@ class BigtableStackdriverExportUtils {
   }
 
   private BigtableStackdriverExportUtils() {}
-
-  static String getDomain(@Nullable String metricNamePrefix) {
-    String domain;
-    if (Strings.isNullOrEmpty(metricNamePrefix)) {
-      domain = CUSTOM_OPENCENSUS_DOMAIN;
-    } else if (!metricNamePrefix.endsWith("/")) {
-      domain = metricNamePrefix + '/';
-    } else {
-      domain = metricNamePrefix;
-    }
-
-    return domain;
-  }
-
+  
   static {
-    DEFAULT_CONSTANT_LABELS =
-        Collections.singletonMap(OPENCENSUS_TASK_KEY, OPENCENSUS_TASK_VALUE_DEFAULT);
     logger = Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
     typedValueDoubleFunction =
         new com.google.bigtable.veneer.repackaged.io.opencensus.common.Function<

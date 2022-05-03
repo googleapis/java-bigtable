@@ -58,15 +58,14 @@ public class BigtableStackdriverStatsExporter {
       String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix) {
+      MonitoredResource monitoredResource) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
             new BigtableCreateTimeSeriesExporter(
-                projectId, metricServiceClient, monitoredResource, metricNamePrefix),
+                projectId, metricServiceClient, monitoredResource),
             MetricReader.create(
                 com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util
                     .MetricReader.Options.builder()
@@ -85,7 +84,6 @@ public class BigtableStackdriverStatsExporter {
         configuration.getProjectId(),
         configuration.getExportInterval(),
         configuration.getMonitoredResource(),
-        configuration.getMetricNamePrefix(),
         configuration.getDeadline(),
         configuration.getMetricServiceStub());
   }
@@ -95,7 +93,6 @@ public class BigtableStackdriverStatsExporter {
       String projectId,
       Duration exportInterval,
       MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix,
       Duration deadline,
       @Nullable MetricServiceStub stub)
       throws IOException {
@@ -107,7 +104,7 @@ public class BigtableStackdriverStatsExporter {
               : MetricServiceClient.create(stub);
       instance =
           new BigtableStackdriverStatsExporter(
-              projectId, client, exportInterval, monitoredResource, metricNamePrefix);
+              projectId, client, exportInterval, monitoredResource);
     }
   }
 

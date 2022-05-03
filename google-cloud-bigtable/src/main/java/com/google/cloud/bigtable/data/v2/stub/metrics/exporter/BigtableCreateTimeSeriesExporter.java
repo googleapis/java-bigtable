@@ -44,12 +44,11 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   BigtableCreateTimeSeriesExporter(
       String projectId,
       MetricServiceClient metricServiceClient,
-      MonitoredResource monitoredResource,
-      @Nullable String metricNamePrefix) {
+      MonitoredResource monitoredResource) {
     this.projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
-    this.domain = BigtableStackdriverExportUtils.getDomain(metricNamePrefix);
+    this.domain = "bigtable.googleapis.com/client/";
   }
 
   public void export(Collection<Metric> metrics) {

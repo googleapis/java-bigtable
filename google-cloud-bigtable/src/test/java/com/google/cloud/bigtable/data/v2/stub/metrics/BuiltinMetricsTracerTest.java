@@ -27,6 +27,7 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
+import com.google.bigtable.v2.ResponseParams;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -151,8 +152,12 @@ public class BuiltinMetricsTracerTest {
 
                   @Override
                   public void close(Status status, Metadata trailers) {
-                    trailers.put(Util.ZONE_HEADER_KEY, ZONE);
-                    trailers.put(Util.CLUSTER_HEADER_KEY, CLUSTER);
+                    ResponseParams params = ResponseParams.newBuilder()
+                            .setClusterId(CLUSTER)
+                            .setZoneId(ZONE)
+                            .build();
+                    byte[] byteArray = params.toByteArray();
+                    trailers.put(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER), byteArray);
                     super.close(status, trailers);
                   }
                 },

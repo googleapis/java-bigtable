@@ -21,7 +21,9 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
+import com.google.bigtable.v2.ResponseParams;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
@@ -100,10 +102,12 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, t);
-      Metadata trailers = responseMetadata.getTrailingMetadata();
-      if (trailers != null) {
-        tracer.setLocations(
-            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      try {
+        byte[] trailers = responseMetadata.getTrailingMetadata()
+                .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+        ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+        tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+      } catch (NullPointerException | InvalidProtocolBufferException e) {
       }
 
       outerObserver.onError(t);
@@ -114,10 +118,12 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
-      Metadata trailers = responseMetadata.getTrailingMetadata();
-      if (trailers != null) {
-        tracer.setLocations(
-            trailers.get(Util.ZONE_HEADER_KEY), trailers.get(Util.CLUSTER_HEADER_KEY));
+      try {
+        byte[] trailers = responseMetadata.getTrailingMetadata()
+                .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+          ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+          tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+      }  catch(NullPointerException | InvalidProtocolBufferException e) {
       }
 
       outerObserver.onComplete();
