@@ -64,8 +64,7 @@ public class BigtableStackdriverStatsExporter {
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
-            new BigtableCreateTimeSeriesExporter(
-                projectId, metricServiceClient, monitoredResource),
+            new BigtableCreateTimeSeriesExporter(projectId, metricServiceClient, monitoredResource),
             MetricReader.create(
                 com.google.bigtable.veneer.repackaged.io.opencensus.exporter.metrics.util
                     .MetricReader.Options.builder()

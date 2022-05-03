@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * A Bigtable specific {@link ApiTracer} that includes additional contexts. This class is a base
  * implementation that does nothing.
  */
-@BetaApi("This surface is stable yet it might be removed in the future.")
+@BetaApi("This surface is not stable yet it might be removed in the future.")
 public class BigtableTracer extends BaseApiTracer {
 
   private volatile int attempt = 0;

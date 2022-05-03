@@ -85,11 +85,13 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, throwable);
       try {
-        byte[] trailers = responseMetadata.getTrailingMetadata()
+        byte[] trailers =
+            responseMetadata
+                .getTrailingMetadata()
                 .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-      }  catch(NullPointerException | InvalidProtocolBufferException e) {
+      } catch (NullPointerException | InvalidProtocolBufferException e) {
       }
     }
 
@@ -99,11 +101,13 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       try {
-        byte[] trailers = responseMetadata.getTrailingMetadata()
+        byte[] trailers =
+            responseMetadata
+                .getTrailingMetadata()
                 .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-      }  catch(NullPointerException | InvalidProtocolBufferException e) {
+      } catch (NullPointerException | InvalidProtocolBufferException e) {
       }
     }
   }

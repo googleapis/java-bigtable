@@ -292,7 +292,7 @@ class BigtableStackdriverExportUtils {
   }
 
   private BigtableStackdriverExportUtils() {}
-  
+
   static {
     logger = Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
     typedValueDoubleFunction =

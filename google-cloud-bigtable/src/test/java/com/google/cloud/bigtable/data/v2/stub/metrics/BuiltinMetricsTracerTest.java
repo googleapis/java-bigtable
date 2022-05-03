@@ -152,12 +152,12 @@ public class BuiltinMetricsTracerTest {
 
                   @Override
                   public void close(Status status, Metadata trailers) {
-                    ResponseParams params = ResponseParams.newBuilder()
-                            .setClusterId(CLUSTER)
-                            .setZoneId(ZONE)
-                            .build();
+                    ResponseParams params =
+                        ResponseParams.newBuilder().setClusterId(CLUSTER).setZoneId(ZONE).build();
                     byte[] byteArray = params.toByteArray();
-                    trailers.put(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER), byteArray);
+                    trailers.put(
+                        Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER),
+                        byteArray);
                     super.close(status, trailers);
                   }
                 },
