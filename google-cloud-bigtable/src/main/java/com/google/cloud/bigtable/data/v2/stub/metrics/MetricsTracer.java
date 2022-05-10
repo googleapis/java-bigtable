@@ -228,4 +228,14 @@ class MetricsTracer extends BigtableTracer {
 
     return tagCtx;
   }
+
+  @Override
+  public void setLocations(String zone, String cluster) {
+    // noop
+  }
+
+  @Override
+  public void onRequest() {
+    // noop
+  }
 }
