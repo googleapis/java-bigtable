@@ -212,6 +212,15 @@
     </dependencyManagement>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.4</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- Using maven site plugin only as a hook for javadoc:aggregate, don't need the reports -->
             <plugin>
@@ -343,11 +352,11 @@
 
     <modules>
     <module>google-cloud-bigtable</module>
+    <module>google-cloud-bigtable-stats</module>
     <module>grpc-google-cloud-bigtable-admin-v2</module>
     <module>grpc-google-cloud-bigtable-v2</module>
     <module>proto-google-cloud-bigtable-admin-v2</module>
     <module>proto-google-cloud-bigtable-v2</module>
-    <module>google-cloud-bigtable-stats</module>
     <module>google-cloud-bigtable-emulator-core</module>
     <module>google-cloud-bigtable-emulator</module>
     <module>google-cloud-bigtable-bom</module>
