@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
  * A Bigtable specific {@link ApiTracer} that includes additional contexts. This class is a base
  * implementation that does nothing.
  */
-@BetaApi("This surface is stable yet it might be removed in the future.")
+@BetaApi("This surface is not stable yet it might be removed in the future.")
 public class BigtableTracer extends BaseApiTracer {
 
   private volatile int attempt = 0;
@@ -33,6 +33,11 @@ public class BigtableTracer extends BaseApiTracer {
   @Override
   public void attemptStarted(int attemptNumber) {
     this.attempt = attemptNumber;
+  }
+
+  /** annotate when onRequest is called */
+  public void onRequest() {
+    // noop
   }
 
   /**
@@ -55,6 +60,11 @@ public class BigtableTracer extends BaseApiTracer {
 
   /** Adds an annotation of the total throttled time of a batch. */
   public void batchRequestThrottled(long throttledTimeMs) {
+    // noop
+  }
+
+  /** Set the Bigtable zone and cluster so metrics can be tagged with location information. */
+  public void setLocations(String zone, String cluster) {
     // noop
   }
 }
