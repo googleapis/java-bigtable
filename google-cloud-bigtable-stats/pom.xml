@@ -30,6 +30,15 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>api-common</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-api</artifactId>
         </dependency>
@@ -38,8 +47,30 @@
             <artifactId>opencensus-impl</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.google.truth.extensions</groupId>
+            <artifactId>truth-proto-extension</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-api</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
