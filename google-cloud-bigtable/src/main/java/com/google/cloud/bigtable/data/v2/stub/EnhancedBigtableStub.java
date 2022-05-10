@@ -90,6 +90,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
+import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -377,7 +378,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Upon receiving the response stream, it will merge the {@link
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured by the {@code rowAdapter} parameter.
+<<<<<<< HEAD
    *   <li>Add bigtable tracer for tracking bigtable specific metrics.
+=======
+   *   <li>Add BigtableTracer callable for tracking Bigtable specific metrics
+>>>>>>> ca28be67 (feat: update tracers to use built in metrics)
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
    * </ul>

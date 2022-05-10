@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  * returned null, it probably means that the request has never reached GFE, and it'll increment the
  * gfe_header_missing_counter in this case.
  *
- * <p>-Call {@link BigtableTracer#onRequest()} to record the request events in a stream.
+ * <p>-Call {@link BigtableTracer#onRequest(int)} to record the request events in a stream.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -84,7 +84,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      TracedStreamController tracedController = new TracedStreamController(controller, tracer);
+      final TracedStreamController tracedController = new TracedStreamController(controller, tracer);
       outerObserver.onStart(tracedController);
     }
 
