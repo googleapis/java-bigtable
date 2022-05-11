@@ -125,9 +125,22 @@ public class BuiltinMetricsRecorder {
     operationLevelNoStreaming.put(BuiltinMeasureConstants.RETRY_COUNT, attemptCount);
   }
 
-  public void recordApplicationLatency(long applicationLatency) {
-    operationLevelWithStreaming.put(
-        BuiltinMeasureConstants.APPLICATION_LATENCIES, applicationLatency);
+  public void recordApplicationLatency(
+      long applicationLatency, String tableId, String zone, String cluster) {
+    MeasureMap measures =
+        statsRecorder
+            .newMeasureMap()
+            .put(BuiltinMeasureConstants.APPLICATION_LATENCIES, applicationLatency);
+
+    TagContextBuilder tagCtx = newTagContextBuilder(tableId, zone, cluster);
+    if (operationType == OperationType.ServerStreaming
+        && spanName.getMethodName().equals("ReadRows")) {
+      tagCtx.putLocal(BuiltinMeasureConstants.STREAMING, TagValue.create("true"));
+    } else {
+      tagCtx.putLocal(BuiltinMeasureConstants.STREAMING, TagValue.create("false"));
+    }
+
+    measures.record(tagCtx.build());
   }
 
   public void recordFirstResponseLatency(long firstResponseLatency) {
