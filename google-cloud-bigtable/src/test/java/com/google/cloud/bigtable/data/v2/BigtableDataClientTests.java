@@ -24,6 +24,7 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
@@ -56,6 +57,9 @@ import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
+/**
+ * Tests for {@link BigtableDataClient}. This test class uses Mockito so it has been explicitly excluded from Native Image testing.
+ */
 public class BigtableDataClientTests {
 
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);

@@ -91,6 +91,9 @@ import org.mockito.stubbing.Answer;
 import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
+/**
+ * Tests for {@link BigtableTableAdminClient}. This test class uses Mockito so it has been explicitly excluded from Native Image testing.
+ */
 public class BigtableTableAdminClientTests {
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
