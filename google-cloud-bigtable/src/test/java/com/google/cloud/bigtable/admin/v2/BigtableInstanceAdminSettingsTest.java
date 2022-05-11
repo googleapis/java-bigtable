@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
-public class BigtableInstanceAdminSettingsTests {
+public class BigtableInstanceAdminSettingsTest {
   @Test
   public void testProjectName() throws Exception {
     String projectId = "my-project";
