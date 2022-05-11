@@ -67,7 +67,7 @@ public class BuiltinMetricsRecorderTest {
     tracer.recordOperationLatencies(operationLatency);
     tracer.recordRetryCount(attemptCount);
     tracer.recordAttemptLatency(attemptLatency);
-    tracer.recordApplicationLatency(applicationLatency);
+    tracer.recordApplicationLatency(applicationLatency, TABLE_ID, ZONE, CLUSTER);
     tracer.recordGfeLatencies(serverLatency);
     tracer.recordGfeMissingHeaders(connectivityErrorCount);
     tracer.recordFirstResponseLatency(firstResponseLatency);
@@ -261,7 +261,7 @@ public class BuiltinMetricsRecorderTest {
     tracer.recordOperationLatencies(operationLatency);
     tracer.recordRetryCount(attemptCount);
     tracer.recordAttemptLatency(attemptLatency);
-    tracer.recordApplicationLatency(applicationLatency);
+    tracer.recordApplicationLatency(applicationLatency, TABLE_ID, ZONE, CLUSTER);
     tracer.recordGfeLatencies(serverLatency);
     tracer.recordGfeMissingHeaders(connectivityErrorCount);
     tracer.recordFirstResponseLatency(firstResponseLatency);
