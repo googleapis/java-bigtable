@@ -57,9 +57,9 @@ import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
 /**
- * Tests for {@link BigtableDataClient}. This test class uses Mockito so it has
- * been explicitly excluded from Native Image testing by not following
- * the naming convention of (IT* and *ClientTest).
+ * Tests for {@link BigtableDataClient}. This test class uses Mockito so it has been explicitly
+ * excluded from Native Image testing by not following the naming convention of (IT* and
+ * *ClientTest).
  */
 public class BigtableDataClientTests {
 
