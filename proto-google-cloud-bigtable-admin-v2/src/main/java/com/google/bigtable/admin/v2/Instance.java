@@ -144,6 +144,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       }
     } catch (com.google.protobuf.InvalidProtocolBufferException e) {
       throw e.setUnfinishedMessage(this);
+    } catch (com.google.protobuf.UninitializedMessageException e) {
+      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
     } catch (java.io.IOException e) {
       throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
     } finally {
@@ -376,13 +378,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * The instance is meant for development and testing purposes only; it has
-     * no performance or uptime guarantees and is not covered by SLA.
-     * After a development instance is created, it can be upgraded by
-     * updating the instance to type `PRODUCTION`. An instance created
-     * as a production instance cannot be changed to a development instance.
-     * When creating a development instance, `serve_nodes` on the cluster must
-     * not be set.
+     * DEPRECATED: Prefer PRODUCTION for all use cases, as it no longer enforces
+     * a higher minimum node count than DEVELOPMENT.
      * </pre>
      *
      * <code>DEVELOPMENT = 2;</code>
@@ -418,13 +415,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * The instance is meant for development and testing purposes only; it has
-     * no performance or uptime guarantees and is not covered by SLA.
-     * After a development instance is created, it can be upgraded by
-     * updating the instance to type `PRODUCTION`. An instance created
-     * as a production instance cannot be changed to a development instance.
-     * When creating a development instance, `serve_nodes` on the cluster must
-     * not be set.
+     * DEPRECATED: Prefer PRODUCTION for all use cases, as it no longer enforces
+     * a higher minimum node count than DEVELOPMENT.
      * </pre>
      *
      * <code>DEVELOPMENT = 2;</code>
@@ -524,7 +516,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
    * </pre>
    *
-   * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   * <code>string name = 1;</code>
    *
    * @return The name.
    */
@@ -548,7 +540,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
    * </pre>
    *
-   * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   * <code>string name = 1;</code>
    *
    * @return The bytes for name.
    */
@@ -738,7 +730,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public boolean containsLabels(java.lang.String key) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     return internalGetLabels().getMap().containsKey(key);
   }
@@ -791,7 +783,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public java.lang.String getLabelsOrDefault(java.lang.String key, java.lang.String defaultValue) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     java.util.Map<java.lang.String, java.lang.String> map = internalGetLabels().getMap();
     return map.containsKey(key) ? map.get(key) : defaultValue;
@@ -817,7 +809,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public java.lang.String getLabelsOrThrow(java.lang.String key) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     java.util.Map<java.lang.String, java.lang.String> map = internalGetLabels().getMap();
     if (!map.containsKey(key)) {
@@ -1325,7 +1317,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
      * </pre>
      *
-     * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * <code>string name = 1;</code>
      *
      * @return The name.
      */
@@ -1348,7 +1340,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
      * </pre>
      *
-     * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * <code>string name = 1;</code>
      *
      * @return The bytes for name.
      */
@@ -1371,7 +1363,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
      * </pre>
      *
-     * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * <code>string name = 1;</code>
      *
      * @param value The name to set.
      * @return This builder for chaining.
@@ -1393,7 +1385,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
      * </pre>
      *
-     * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * <code>string name = 1;</code>
      *
      * @return This builder for chaining.
      */
@@ -1411,7 +1403,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * `projects/{project}/instances/[a-z][a-z0-9&#92;&#92;-]+[a-z0-9]`.
      * </pre>
      *
-     * <code>string name = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * <code>string name = 1;</code>
      *
      * @param value The bytes for name to set.
      * @return This builder for chaining.
@@ -1776,7 +1768,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public boolean containsLabels(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       return internalGetLabels().getMap().containsKey(key);
     }
@@ -1830,7 +1822,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     public java.lang.String getLabelsOrDefault(
         java.lang.String key, java.lang.String defaultValue) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       java.util.Map<java.lang.String, java.lang.String> map = internalGetLabels().getMap();
       return map.containsKey(key) ? map.get(key) : defaultValue;
@@ -1856,7 +1848,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public java.lang.String getLabelsOrThrow(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       java.util.Map<java.lang.String, java.lang.String> map = internalGetLabels().getMap();
       if (!map.containsKey(key)) {
@@ -1889,7 +1881,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder removeLabels(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       internalGetMutableLabels().getMutableMap().remove(key);
       return this;
@@ -1919,11 +1911,12 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder putLabels(java.lang.String key, java.lang.String value) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       if (value == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map value");
       }
+
       internalGetMutableLabels().getMutableMap().put(key, value);
       return this;
     }

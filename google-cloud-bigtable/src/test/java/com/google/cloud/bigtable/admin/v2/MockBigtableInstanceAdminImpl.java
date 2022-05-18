@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import com.google.bigtable.admin.v2.ListAppProfilesRequest;
 import com.google.bigtable.admin.v2.ListAppProfilesResponse;
 import com.google.bigtable.admin.v2.ListClustersRequest;
 import com.google.bigtable.admin.v2.ListClustersResponse;
+import com.google.bigtable.admin.v2.ListHotTabletsRequest;
+import com.google.bigtable.admin.v2.ListHotTabletsResponse;
 import com.google.bigtable.admin.v2.ListInstancesRequest;
 import com.google.bigtable.admin.v2.ListInstancesResponse;
 import com.google.bigtable.admin.v2.PartialUpdateClusterRequest;
@@ -496,6 +498,27 @@ public class MockBigtableInstanceAdminImpl extends BigtableInstanceAdminImplBase
                   "Unrecognized response type %s for method TestIamPermissions, expected %s or %s",
                   response == null ? "null" : response.getClass().getName(),
                   TestIamPermissionsResponse.class.getName(),
+                  Exception.class.getName())));
+    }
+  }
+
+  @Override
+  public void listHotTablets(
+      ListHotTabletsRequest request, StreamObserver<ListHotTabletsResponse> responseObserver) {
+    Object response = responses.poll();
+    if (response instanceof ListHotTabletsResponse) {
+      requests.add(request);
+      responseObserver.onNext(((ListHotTabletsResponse) response));
+      responseObserver.onCompleted();
+    } else if (response instanceof Exception) {
+      responseObserver.onError(((Exception) response));
+    } else {
+      responseObserver.onError(
+          new IllegalArgumentException(
+              String.format(
+                  "Unrecognized response type %s for method ListHotTablets, expected %s or %s",
+                  response == null ? "null" : response.getClass().getName(),
+                  ListHotTabletsResponse.class.getName(),
                   Exception.class.getName())));
     }
   }

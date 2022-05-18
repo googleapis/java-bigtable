@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,12 +44,15 @@ import com.google.bigtable.admin.v2.DeleteInstanceRequest;
 import com.google.bigtable.admin.v2.GetAppProfileRequest;
 import com.google.bigtable.admin.v2.GetClusterRequest;
 import com.google.bigtable.admin.v2.GetInstanceRequest;
+import com.google.bigtable.admin.v2.HotTablet;
 import com.google.bigtable.admin.v2.Instance;
 import com.google.bigtable.admin.v2.InstanceName;
 import com.google.bigtable.admin.v2.ListAppProfilesRequest;
 import com.google.bigtable.admin.v2.ListAppProfilesResponse;
 import com.google.bigtable.admin.v2.ListClustersRequest;
 import com.google.bigtable.admin.v2.ListClustersResponse;
+import com.google.bigtable.admin.v2.ListHotTabletsRequest;
+import com.google.bigtable.admin.v2.ListHotTabletsResponse;
 import com.google.bigtable.admin.v2.ListInstancesRequest;
 import com.google.bigtable.admin.v2.ListInstancesResponse;
 import com.google.bigtable.admin.v2.PartialUpdateClusterMetadata;
@@ -159,6 +162,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ProjectName parent = ProjectName.of("[PROJECT]");
@@ -208,6 +213,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = ProjectName.of("[PROJECT]").toString();
@@ -257,6 +264,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateInstanceRequest request =
@@ -290,6 +299,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateInstanceRequest request =
@@ -323,6 +334,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateInstanceRequest request =
@@ -350,6 +363,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -374,6 +389,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -397,6 +414,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetInstanceRequest request =
@@ -421,6 +440,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetInstanceRequest request =
@@ -445,6 +466,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ProjectName parent = ProjectName.of("[PROJECT]");
@@ -471,6 +494,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = ProjectName.of("[PROJECT]").toString();
@@ -494,6 +519,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListInstancesRequest request =
@@ -519,6 +546,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListInstancesRequest request =
@@ -545,6 +574,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Instance request =
@@ -573,6 +604,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Instance request =
@@ -601,6 +634,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Instance instance = Instance.newBuilder().build();
@@ -633,6 +668,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateInstanceRequest request =
@@ -660,6 +697,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateInstanceRequest request =
@@ -689,6 +728,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateInstanceRequest request =
@@ -715,6 +756,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName name = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -739,6 +782,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -762,6 +807,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteInstanceRequest request =
@@ -786,6 +833,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteInstanceRequest request =
@@ -815,6 +864,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -857,6 +908,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -899,6 +952,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateClusterRequest request =
@@ -931,6 +986,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateClusterRequest request =
@@ -963,6 +1020,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateClusterRequest request =
@@ -989,6 +1048,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
@@ -1013,6 +1074,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
@@ -1036,6 +1099,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetClusterRequest request =
@@ -1060,6 +1125,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetClusterRequest request =
@@ -1084,6 +1151,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -1112,6 +1181,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -1137,6 +1208,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListClustersRequest request =
@@ -1162,6 +1235,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListClustersRequest request =
@@ -1190,6 +1265,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Cluster request =
@@ -1221,6 +1298,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Cluster request =
@@ -1253,6 +1332,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Cluster request =
@@ -1291,6 +1372,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   Cluster cluster = Cluster.newBuilder().build();
@@ -1332,6 +1415,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateClusterRequest request =
@@ -1368,6 +1453,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateClusterRequest request =
@@ -1406,6 +1493,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   PartialUpdateClusterRequest request =
@@ -1432,6 +1521,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ClusterName name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
@@ -1456,6 +1547,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
@@ -1479,6 +1572,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteClusterRequest request =
@@ -1503,6 +1598,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteClusterRequest request =
@@ -1527,6 +1624,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -1564,6 +1663,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -1601,6 +1702,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateAppProfileRequest request =
@@ -1628,6 +1731,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   CreateAppProfileRequest request =
@@ -1655,6 +1760,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
@@ -1679,6 +1786,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString();
@@ -1702,6 +1811,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetAppProfileRequest request =
@@ -1726,6 +1837,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetAppProfileRequest request =
@@ -1750,6 +1863,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
@@ -1781,6 +1896,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String parent = InstanceName.of("[PROJECT]", "[INSTANCE]").toString();
@@ -1809,6 +1926,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListAppProfilesRequest request =
@@ -1838,6 +1957,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListAppProfilesRequest request =
@@ -1867,6 +1988,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ListAppProfilesRequest request =
@@ -1903,6 +2026,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   AppProfile appProfile = AppProfile.newBuilder().build();
@@ -1934,6 +2059,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   UpdateAppProfileRequest request =
@@ -1961,6 +2088,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   UpdateAppProfileRequest request =
@@ -1988,6 +2117,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   UpdateAppProfileRequest request =
@@ -2014,6 +2145,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   AppProfileName name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
@@ -2038,6 +2171,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String name = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString();
@@ -2061,6 +2196,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteAppProfileRequest request =
@@ -2086,6 +2223,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   DeleteAppProfileRequest request =
@@ -2112,6 +2251,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
@@ -2139,6 +2280,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString();
@@ -2163,6 +2306,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetIamPolicyRequest request =
@@ -2189,6 +2334,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetIamPolicyRequest request =
@@ -2214,6 +2361,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
@@ -2245,6 +2394,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString();
@@ -2273,12 +2424,15 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   SetIamPolicyRequest request =
    *       SetIamPolicyRequest.newBuilder()
    *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
    *           .setPolicy(Policy.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
    *   Policy response = baseBigtableInstanceAdminClient.setIamPolicy(request);
    * }
@@ -2298,12 +2452,15 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   SetIamPolicyRequest request =
    *       SetIamPolicyRequest.newBuilder()
    *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
    *           .setPolicy(Policy.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
    *   ApiFuture<Policy> future =
    *       baseBigtableInstanceAdminClient.setIamPolicyCallable().futureCall(request);
@@ -2323,6 +2480,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
@@ -2356,6 +2515,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   String resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString();
@@ -2389,6 +2550,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   TestIamPermissionsRequest request =
@@ -2415,6 +2578,8 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * <p>Sample code:
    *
    * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
    *   TestIamPermissionsRequest request =
@@ -2432,6 +2597,176 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
   public final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
       testIamPermissionsCallable() {
     return stub.testIamPermissionsCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Lists hot tablets in a cluster, within the time range provided. Hot tablets are ordered based
+   * on CPU usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
+   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
+   *     BaseBigtableInstanceAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   for (HotTablet element :
+   *       baseBigtableInstanceAdminClient.listHotTablets(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The cluster name to list hot tablets. Value is in the following form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final ListHotTabletsPagedResponse listHotTablets(ClusterName parent) {
+    ListHotTabletsRequest request =
+        ListHotTabletsRequest.newBuilder()
+            .setParent(parent == null ? null : parent.toString())
+            .build();
+    return listHotTablets(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Lists hot tablets in a cluster, within the time range provided. Hot tablets are ordered based
+   * on CPU usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
+   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
+   *     BaseBigtableInstanceAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   for (HotTablet element :
+   *       baseBigtableInstanceAdminClient.listHotTablets(parent).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The cluster name to list hot tablets. Value is in the following form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final ListHotTabletsPagedResponse listHotTablets(String parent) {
+    ListHotTabletsRequest request = ListHotTabletsRequest.newBuilder().setParent(parent).build();
+    return listHotTablets(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Lists hot tablets in a cluster, within the time range provided. Hot tablets are ordered based
+   * on CPU usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
+   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
+   *     BaseBigtableInstanceAdminClient.create()) {
+   *   ListHotTabletsRequest request =
+   *       ListHotTabletsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setStartTime(Timestamp.newBuilder().build())
+   *           .setEndTime(Timestamp.newBuilder().build())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   for (HotTablet element :
+   *       baseBigtableInstanceAdminClient.listHotTablets(request).iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   *
+   * @param request The request object containing all of the parameters for the API call.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final ListHotTabletsPagedResponse listHotTablets(ListHotTabletsRequest request) {
+    return listHotTabletsPagedCallable().call(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Lists hot tablets in a cluster, within the time range provided. Hot tablets are ordered based
+   * on CPU usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
+   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
+   *     BaseBigtableInstanceAdminClient.create()) {
+   *   ListHotTabletsRequest request =
+   *       ListHotTabletsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setStartTime(Timestamp.newBuilder().build())
+   *           .setEndTime(Timestamp.newBuilder().build())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   ApiFuture<HotTablet> future =
+   *       baseBigtableInstanceAdminClient.listHotTabletsPagedCallable().futureCall(request);
+   *   // Do something.
+   *   for (HotTablet element : future.get().iterateAll()) {
+   *     // doThingsWith(element);
+   *   }
+   * }
+   * }</pre>
+   */
+  public final UnaryCallable<ListHotTabletsRequest, ListHotTabletsPagedResponse>
+      listHotTabletsPagedCallable() {
+    return stub.listHotTabletsPagedCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Lists hot tablets in a cluster, within the time range provided. Hot tablets are ordered based
+   * on CPU usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated for illustrative purposes only.
+   * // It may require modifications to work in your environment.
+   * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
+   *     BaseBigtableInstanceAdminClient.create()) {
+   *   ListHotTabletsRequest request =
+   *       ListHotTabletsRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setStartTime(Timestamp.newBuilder().build())
+   *           .setEndTime(Timestamp.newBuilder().build())
+   *           .setPageSize(883849137)
+   *           .setPageToken("pageToken873572522")
+   *           .build();
+   *   while (true) {
+   *     ListHotTabletsResponse response =
+   *         baseBigtableInstanceAdminClient.listHotTabletsCallable().call(request);
+   *     for (HotTablet element : response.getResponsesList()) {
+   *       // doThingsWith(element);
+   *     }
+   *     String nextPageToken = response.getNextPageToken();
+   *     if (!Strings.isNullOrEmpty(nextPageToken)) {
+   *       request = request.toBuilder().setPageToken(nextPageToken).build();
+   *     } else {
+   *       break;
+   *     }
+   *   }
+   * }
+   * }</pre>
+   */
+  public final UnaryCallable<ListHotTabletsRequest, ListHotTabletsResponse>
+      listHotTabletsCallable() {
+    return stub.listHotTabletsCallable();
   }
 
   @Override
@@ -2538,6 +2873,82 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     protected ListAppProfilesFixedSizeCollection createCollection(
         List<ListAppProfilesPage> pages, int collectionSize) {
       return new ListAppProfilesFixedSizeCollection(pages, collectionSize);
+    }
+  }
+
+  public static class ListHotTabletsPagedResponse
+      extends AbstractPagedListResponse<
+          ListHotTabletsRequest,
+          ListHotTabletsResponse,
+          HotTablet,
+          ListHotTabletsPage,
+          ListHotTabletsFixedSizeCollection> {
+
+    public static ApiFuture<ListHotTabletsPagedResponse> createAsync(
+        PageContext<ListHotTabletsRequest, ListHotTabletsResponse, HotTablet> context,
+        ApiFuture<ListHotTabletsResponse> futureResponse) {
+      ApiFuture<ListHotTabletsPage> futurePage =
+          ListHotTabletsPage.createEmptyPage().createPageAsync(context, futureResponse);
+      return ApiFutures.transform(
+          futurePage,
+          input -> new ListHotTabletsPagedResponse(input),
+          MoreExecutors.directExecutor());
+    }
+
+    private ListHotTabletsPagedResponse(ListHotTabletsPage page) {
+      super(page, ListHotTabletsFixedSizeCollection.createEmptyCollection());
+    }
+  }
+
+  public static class ListHotTabletsPage
+      extends AbstractPage<
+          ListHotTabletsRequest, ListHotTabletsResponse, HotTablet, ListHotTabletsPage> {
+
+    private ListHotTabletsPage(
+        PageContext<ListHotTabletsRequest, ListHotTabletsResponse, HotTablet> context,
+        ListHotTabletsResponse response) {
+      super(context, response);
+    }
+
+    private static ListHotTabletsPage createEmptyPage() {
+      return new ListHotTabletsPage(null, null);
+    }
+
+    @Override
+    protected ListHotTabletsPage createPage(
+        PageContext<ListHotTabletsRequest, ListHotTabletsResponse, HotTablet> context,
+        ListHotTabletsResponse response) {
+      return new ListHotTabletsPage(context, response);
+    }
+
+    @Override
+    public ApiFuture<ListHotTabletsPage> createPageAsync(
+        PageContext<ListHotTabletsRequest, ListHotTabletsResponse, HotTablet> context,
+        ApiFuture<ListHotTabletsResponse> futureResponse) {
+      return super.createPageAsync(context, futureResponse);
+    }
+  }
+
+  public static class ListHotTabletsFixedSizeCollection
+      extends AbstractFixedSizeCollection<
+          ListHotTabletsRequest,
+          ListHotTabletsResponse,
+          HotTablet,
+          ListHotTabletsPage,
+          ListHotTabletsFixedSizeCollection> {
+
+    private ListHotTabletsFixedSizeCollection(List<ListHotTabletsPage> pages, int collectionSize) {
+      super(pages, collectionSize);
+    }
+
+    private static ListHotTabletsFixedSizeCollection createEmptyCollection() {
+      return new ListHotTabletsFixedSizeCollection(null, 0);
+    }
+
+    @Override
+    protected ListHotTabletsFixedSizeCollection createCollection(
+        List<ListHotTabletsPage> pages, int collectionSize) {
+      return new ListHotTabletsFixedSizeCollection(pages, collectionSize);
     }
   }
 }
