@@ -1,0 +1,54 @@
+[{
+  "name": "io.grpc.netty.shaded.io.netty.channel.socket.nio.NioSocketChannel",
+  "methods": [
+    { "name": "<init>", "parameterTypes": [] }
+  ]
+},
+  {
+    "name":"com.google.api.FieldBehavior",
+    "queriedMethods":[
+      {"name":"getValueDescriptor","parameterTypes":[] },
+      {"name":"valueOf","parameterTypes":["com.google.protobuf.Descriptors$EnumValueDescriptor"] }
+    ]
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FieldOptions",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FieldOptions$Builder",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FieldOptions$CType",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FieldOptions$JSType",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FileOptions",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FileOptions$Builder",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$FileOptions$OptimizeMode",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$MessageOptions",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$MessageOptions$Builder",
+    "queryAllDeclaredMethods":true
+  },
+  {
+    "name":"com.google.protobuf.DescriptorProtos$UninterpretedOption",
+    "queriedMethods":[{"name":"newBuilder","parameterTypes":[] }]
+  }
+]

@@ -102,15 +102,6 @@
       <artifactId>api-common</artifactId>
     </dependency>
 
-
-    <!-- This is needed when running the emulator classes with native image compilation -->
-    <dependency>
-      <groupId>com.google.api</groupId>
-      <artifactId>gax-grpc</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <!-- This is needed when running the emulator classes with native image compilation -->
-
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-api</artifactId>
