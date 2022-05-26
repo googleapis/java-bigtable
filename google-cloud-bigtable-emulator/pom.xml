@@ -69,13 +69,8 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
-<<<<<<< rename-tests
-          <!-- grpc-netty-shaded is used at test runtime. -->
-          <usedDependencies>io.grpc:grpc-netty-shaded</usedDependencies>
-=======
           <!-- needd gax-grpc for graalvm configs and grpc-netty -->
           <usedDependencies>com.google.api:gax-grpc</usedDependencies>
->>>>>>> main
         </configuration>
       </plugin>
     </plugins>
