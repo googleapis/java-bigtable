@@ -350,14 +350,14 @@
     </profiles>
 
     <modules>
-    <module>google-cloud-bigtable</module>
-    <module>grpc-google-cloud-bigtable-admin-v2</module>
-    <module>grpc-google-cloud-bigtable-v2</module>
-    <module>proto-google-cloud-bigtable-admin-v2</module>
-    <module>proto-google-cloud-bigtable-v2</module>
-    <module>google-cloud-bigtable-emulator</module>
-    <module>google-cloud-bigtable-bom</module>
-    <module>google-cloud-bigtable-deps-bom</module>
-  </modules>
-
+        <module>google-cloud-bigtable</module>
+        <module>grpc-google-cloud-bigtable-admin-v2</module>
+        <module>grpc-google-cloud-bigtable-v2</module>
+        <module>proto-google-cloud-bigtable-admin-v2</module>
+        <module>proto-google-cloud-bigtable-v2</module>
+        <module>google-cloud-bigtable-emulator-core</module>
+        <module>google-cloud-bigtable-emulator</module>
+        <module>google-cloud-bigtable-bom</module>
+        <module>google-cloud-bigtable-deps-bom</module>
+    </modules>
   </project>
