@@ -29,37 +29,52 @@ public final class RestoreTableRequest {
   private final String sourceBackupId;
   private final String sourceClusterId;
   private final String sourceInstanceId;
+  private final String sourceProjectId;
 
   /**
    * Create a {@link RestoreTableRequest} object. It assumes the source backup locates in the same
-   * instance as the destination table. To restore a table from a backup in another instance, use
+   * instance and project as the destination table. To restore a table from a backup in another instance, use
    * {@link #of(String, String, String) of} method.
    */
   public static RestoreTableRequest of(String sourceClusterId, String sourceBackupId) {
-    RestoreTableRequest request = new RestoreTableRequest(null, sourceClusterId, sourceBackupId);
+    RestoreTableRequest request = new RestoreTableRequest(null, sourceClusterId, sourceBackupId, null);
     return request;
   }
 
   /**
-   * Create a {@link RestoreTableRequest} object. The source backup could locate in a the same or a
-   * different instance.
+   * Create a {@link RestoreTableRequest} object. The source backup could locate in the same or a
+   * different instance but the same project as the destination table. To restore a table from a backup in another project, use
+   * {@link #of(String, String, String, String) of} method.
    */
   public static RestoreTableRequest of(
       String sourceInstanceId, String sourceClusterId, String sourceBackupId) {
     RestoreTableRequest request =
-        new RestoreTableRequest(sourceInstanceId, sourceClusterId, sourceBackupId);
+        new RestoreTableRequest(sourceInstanceId, sourceClusterId, sourceBackupId, null);
+    return request;
+  }
+
+  /**
+   * Create a {@link RestoreTableRequest} object. The source backup could locate in the same or a
+   * different instance and/or project.
+   */
+  public static RestoreTableRequest of(
+      String sourceInstanceId, String sourceClusterId, String sourceBackupId, String sourceProjectId) {
+    RestoreTableRequest request =
+        new RestoreTableRequest(sourceInstanceId, sourceClusterId, sourceBackupId, sourceProjectId);
     return request;
   }
 
   private RestoreTableRequest(
       @Nullable String sourceInstanceId,
       @Nonnull String sourceClusterId,
-      @Nonnull String sourceBackupId) {
+      @Nonnull String sourceBackupId, 
+      @Nullable String sourceProjectId) {
     Preconditions.checkNotNull(sourceClusterId);
     Preconditions.checkNotNull(sourceBackupId);
     this.sourceBackupId = sourceBackupId;
     this.sourceInstanceId = sourceInstanceId;
     this.sourceClusterId = sourceClusterId;
+    this.sourceProjectId = sourceProjectId;
   }
 
   public RestoreTableRequest setTableId(String tableId) {
@@ -79,6 +94,7 @@ public final class RestoreTableRequest {
     RestoreTableRequest that = (RestoreTableRequest) o;
     return Objects.equal(requestBuilder.getTableId(), that.requestBuilder.getTableId())
         && Objects.equal(sourceInstanceId, that.sourceInstanceId)
+        && Objects.equal(sourceProjectId, that.sourceProjectId)
         && Objects.equal(sourceClusterId, that.sourceClusterId)
         && Objects.equal(sourceBackupId, that.sourceBackupId);
   }
@@ -86,7 +102,7 @@ public final class RestoreTableRequest {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        requestBuilder.getTableId(), sourceInstanceId, sourceClusterId, sourceBackupId);
+        requestBuilder.getTableId(), sourceProjectId, sourceInstanceId, sourceClusterId, sourceBackupId);
   }
 
   @InternalApi
@@ -99,7 +115,7 @@ public final class RestoreTableRequest {
         .setParent(NameUtil.formatInstanceName(projectId, instanceId))
         .setBackup(
             NameUtil.formatBackupName(
-                projectId,
+                sourceProjectId == null ? projectId : sourceProjectId,
                 sourceInstanceId == null ? instanceId : sourceInstanceId,
                 sourceClusterId,
                 sourceBackupId))
