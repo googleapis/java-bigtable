@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 
+/** For registering built-in metric views */
 @InternalApi("For internal use only")
 public class BuiltinViews {
   private static StatsWrapper statsWrapper;

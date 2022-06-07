@@ -17,25 +17,24 @@ package com.google.cloud.bigtable.stats;
 
 import static io.opencensus.stats.Measure.MeasureLong;
 
-import com.google.api.core.InternalApi;
 import io.opencensus.tags.TagKey;
 
-@InternalApi("For internal use only")
-public class BuiltinMeasureConstants {
+/** Built-in metrics that will be readable under bigtable.googleapis.com/client namespace */
+class BuiltinMeasureConstants {
   // TagKeys
-  public static final TagKey PROJECT_ID = TagKey.create("project_id");
-  public static final TagKey INSTANCE_ID = TagKey.create("instance_id");
-  public static final TagKey APP_PROFILE = TagKey.create("app_profile");
-  public static final TagKey METHOD = TagKey.create("method");
-  public static final TagKey STREAMING = TagKey.create("streaming");
-  public static final TagKey STATUS = TagKey.create("status");
-  public static final TagKey CLIENT_NAME = TagKey.create("client_name");
-  public static final TagKey CLIENT_ID = TagKey.create("client_id");
+  static final TagKey PROJECT_ID = TagKey.create("project_id");
+  static final TagKey INSTANCE_ID = TagKey.create("instance_id");
+  static final TagKey APP_PROFILE = TagKey.create("app_profile");
+  static final TagKey METHOD = TagKey.create("method");
+  static final TagKey STREAMING = TagKey.create("streaming");
+  static final TagKey STATUS = TagKey.create("status");
+  static final TagKey CLIENT_NAME = TagKey.create("client_name");
+  static final TagKey CLIENT_ID = TagKey.create("client_id");
 
   // Monitored resource TagKeys
-  public static final TagKey TABLE = TagKey.create("table");
-  public static final TagKey CLUSTER = TagKey.create("cluster");
-  public static final TagKey ZONE = TagKey.create("zone");
+  static final TagKey TABLE = TagKey.create("table");
+  static final TagKey CLUSTER = TagKey.create("cluster");
+  static final TagKey ZONE = TagKey.create("zone");
 
   // Units
   private static final String COUNT = "1";

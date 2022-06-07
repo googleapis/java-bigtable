@@ -35,14 +35,13 @@ import static com.google.cloud.bigtable.stats.BuiltinMeasureConstants.THROTTLING
 import static com.google.cloud.bigtable.stats.BuiltinMeasureConstants.ZONE;
 import static io.opencensus.stats.Aggregation.Distribution;
 
-import com.google.api.core.InternalApi;
 import com.google.common.collect.ImmutableList;
 import io.opencensus.stats.Aggregation;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
 
-@InternalApi("For internal use only")
-public class BuiltinViewConstants {
+/** Create built-in metrics views under bigtable.googleapis.com/internal/client namespace */
+class BuiltinViewConstants {
   private static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Distribution.create(
           BucketBoundaries.create(
@@ -67,8 +66,7 @@ public class BuiltinViewConstants {
                   100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0,
                   5000.0, 10000.0, 20000.0, 50000.0, 75000.0, 100000.0)));
 
-  // TODO: move project id, instance id to monitored resource
-  public static final View OPERATION_LATENCIES_VIEW =
+  static final View OPERATION_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"),
           "Total time until final operation success or failure, including retries and backoff.",
@@ -86,7 +84,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View ATTEMPT_LATENCIES_VIEW =
+  static final View ATTEMPT_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/attempt_latencies"),
           "Client observed latency per RPC attempt.",
@@ -104,7 +102,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View RETRY_COUNT_VIEW =
+  static final View RETRY_COUNT_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/retry_count"),
           "The number of additional RPCs sent after the initial attempt.",
@@ -121,7 +119,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View FIRST_RESPONSE_LATENCIES_VIEW =
+  static final View FIRST_RESPONSE_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/first_response_latencies"),
           "Latency from operation start until the response headers were received. The publishing of the measurement will be delayed until the attempt response has been received.",
@@ -138,7 +136,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View SERVER_LATENCIES_VIEW =
+  static final View SERVER_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/server_latencies"),
           "The latency measured from the moment that the RPC entered the Google data center until the RPC was completed.",
@@ -156,7 +154,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View CONNECTIVITY_ERROR_COUNT_VIEW =
+  static final View CONNECTIVITY_ERROR_COUNT_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/connectivity_error_count"),
           "Number of requests that failed to reach the Google datacenter. (Requests without google response headers).",
@@ -173,7 +171,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View APPLICATION_LATENCIES_VIEW =
+  static final View APPLICATION_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/application_latencies"),
           "The latency of the client application consuming available response data.",
@@ -190,7 +188,7 @@ public class BuiltinViewConstants {
               ZONE,
               TABLE));
 
-  public static final View THROTTLING_LATENCIES_VIEW =
+  static final View THROTTLING_LATENCIES_VIEW =
       View.create(
           View.Name.create("bigtable.googleapis.com/internal/client/throttling_latencies"),
           "The artificial latency introduced by the client to limit the number of outstanding requests. The publishing of the measurement will be delayed until the attempt trailers have been received.",

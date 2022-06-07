@@ -21,10 +21,19 @@ import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Status;
+import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
+import io.opencensus.tags.TagKey;
+import io.opencensus.tags.TagValue;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 
-public class BuiltinMetricsRecorderTest {
+public class StatsRecorderWrapperTest {
 
   private final String PROJECT_ID = "fake-project";
   private final String INSTANCE_ID = "fake-instance";
@@ -38,15 +47,15 @@ public class BuiltinMetricsRecorderTest {
 
   @Before
   public void setup() {
-    this.wrapper = new StatsWrapper(true);
+    this.wrapper = StatsWrapper.createPrivateInstance();
     BuiltinViews views = new BuiltinViews(wrapper);
     views.registerBigtableBuiltinViews();
   }
 
   @Test
   public void testStreamingOperation() throws InterruptedException {
-    BuiltinMetricsRecorder tracer =
-        new BuiltinMetricsRecorder(
+    StatsRecorderWrapper tracer =
+        new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
             ImmutableMap.of(
@@ -64,25 +73,21 @@ public class BuiltinMetricsRecorderTest {
     long throttlingLatency = 50;
     long firstResponseLatency = 90;
 
-    tracer.recordOperationLatencies(operationLatency);
-    tracer.recordRetryCount(attemptCount);
-    tracer.recordAttemptLatency(attemptLatency);
-    tracer.recordApplicationLatency(applicationLatency, TABLE_ID, ZONE, CLUSTER);
-    tracer.recordGfeLatencies(serverLatency);
-    tracer.recordGfeMissingHeaders(connectivityErrorCount);
-    tracer.recordFirstResponseLatency(firstResponseLatency);
-    tracer.recordBatchRequestThrottled(throttlingLatency, TABLE_ID, ZONE, CLUSTER);
+    tracer.putOperationLatencies(operationLatency);
+    tracer.putRetryCount(attemptCount);
+    tracer.putAttemptLatencies(attemptLatency);
+    tracer.putApplicationLatencies(applicationLatency);
+    tracer.putGfeLatencies(serverLatency);
+    tracer.putGfeMissingHeaders(connectivityErrorCount);
+    tracer.putFirstResponseLatencies(firstResponseLatency);
+    tracer.putBatchRequestThrottled(throttlingLatency);
 
-    tracer.recordAttemptLevelWithoutStreaming(
-        Status.UNAVAILABLE.toString(), TABLE_ID, ZONE, CLUSTER);
-    tracer.recordAttemptLevelWithStreaming(Status.ABORTED.toString(), TABLE_ID, ZONE, CLUSTER);
-    tracer.recordOperationLevelWithoutStreaming("OK", TABLE_ID, ZONE, CLUSTER);
-    tracer.recordOperationLevelWithStreaming("OK", TABLE_ID, ZONE, CLUSTER);
+    tracer.record("OK", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.OPERATION_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD, "Bigtable.ReadRows",
@@ -97,13 +102,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(operationLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.ATTEMPT_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.ReadRows",
                     BuiltinMeasureConstants.STATUS,
-                    Status.ABORTED.toString(),
+                    "OK",
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -119,7 +124,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(attemptLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.RETRY_COUNT_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
@@ -139,13 +144,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(attemptCount);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.SERVER_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.ReadRows",
                     BuiltinMeasureConstants.STATUS,
-                    Status.ABORTED.toString(),
+                    "OK",
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java",
                     BuiltinMeasureConstants.STREAMING,
@@ -161,7 +166,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(serverLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
@@ -183,13 +188,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(applicationLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.CONNECTIVITY_ERROR_COUNT_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.ReadRows",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "OK",
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java",
                     BuiltinMeasureConstants.TABLE,
@@ -203,7 +208,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(connectivityErrorCount);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.THROTTLING_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD, "Bigtable.ReadRows",
@@ -216,7 +221,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(throttlingLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.FIRST_RESPONSE_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
@@ -239,8 +244,8 @@ public class BuiltinMetricsRecorderTest {
 
   @Test
   public void testUnaryOperations() throws InterruptedException {
-    BuiltinMetricsRecorder tracer =
-        new BuiltinMetricsRecorder(
+    StatsRecorderWrapper tracer =
+        new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "MutateRow"),
             ImmutableMap.of(
@@ -258,46 +263,49 @@ public class BuiltinMetricsRecorderTest {
     long throttlingLatency = 50;
     long firstResponseLatency = 90;
 
-    tracer.recordOperationLatencies(operationLatency);
-    tracer.recordRetryCount(attemptCount);
-    tracer.recordAttemptLatency(attemptLatency);
-    tracer.recordApplicationLatency(applicationLatency, TABLE_ID, ZONE, CLUSTER);
-    tracer.recordGfeLatencies(serverLatency);
-    tracer.recordGfeMissingHeaders(connectivityErrorCount);
-    tracer.recordFirstResponseLatency(firstResponseLatency);
-    tracer.recordBatchRequestThrottled(throttlingLatency, TABLE_ID, ZONE, CLUSTER);
+    tracer.putOperationLatencies(operationLatency);
+    tracer.putRetryCount(attemptCount);
+    tracer.putAttemptLatencies(attemptLatency);
+    tracer.putApplicationLatencies(applicationLatency);
+    tracer.putGfeLatencies(serverLatency);
+    tracer.putGfeMissingHeaders(connectivityErrorCount);
+    tracer.putFirstResponseLatencies(firstResponseLatency);
+    tracer.putBatchRequestThrottled(throttlingLatency);
 
-    tracer.recordOperationLevelWithStreaming("OK", TABLE_ID, ZONE, CLUSTER);
-    tracer.recordOperationLevelWithoutStreaming("OK", TABLE_ID, ZONE, CLUSTER);
-    tracer.recordAttemptLevelWithoutStreaming(
-        Status.UNAVAILABLE.toString(), TABLE_ID, ZONE, CLUSTER);
-    tracer.recordAttemptLevelWithStreaming(Status.ABORTED.toString(), TABLE_ID, ZONE, CLUSTER);
+    tracer.record(Status.UNAVAILABLE.toString(), TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.OPERATION_LATENCIES_VIEW,
                 ImmutableMap.of(
-                    BuiltinMeasureConstants.METHOD, "Bigtable.MutateRow",
-                    BuiltinMeasureConstants.STATUS, "OK",
-                    BuiltinMeasureConstants.TABLE, TABLE_ID,
-                    BuiltinMeasureConstants.ZONE, ZONE,
-                    BuiltinMeasureConstants.CLUSTER, CLUSTER,
-                    BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java",
-                    BuiltinMeasureConstants.STREAMING, "false"),
+                    BuiltinMeasureConstants.METHOD,
+                    "Bigtable.MutateRow",
+                    BuiltinMeasureConstants.STATUS,
+                    Status.UNAVAILABLE.toString(),
+                    BuiltinMeasureConstants.TABLE,
+                    TABLE_ID,
+                    BuiltinMeasureConstants.ZONE,
+                    ZONE,
+                    BuiltinMeasureConstants.CLUSTER,
+                    CLUSTER,
+                    BuiltinMeasureConstants.CLIENT_NAME,
+                    "bigtable-java",
+                    BuiltinMeasureConstants.STREAMING,
+                    "false"),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID))
         .isEqualTo(operationLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.ATTEMPT_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.ABORTED.toString(),
+                    Status.UNAVAILABLE.toString(),
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -313,13 +321,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(attemptLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.RETRY_COUNT_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    "OK",
+                    Status.UNAVAILABLE.toString(),
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -333,13 +341,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(attemptCount);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.SERVER_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.ABORTED.toString(),
+                    Status.UNAVAILABLE.toString(),
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java",
                     BuiltinMeasureConstants.STREAMING,
@@ -355,13 +363,13 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(serverLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    "OK",
+                    Status.UNAVAILABLE.toString(),
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -377,7 +385,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(applicationLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.CONNECTIVITY_ERROR_COUNT_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
@@ -397,7 +405,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(connectivityErrorCount);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.THROTTLING_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD, "Bigtable.MutateRow",
@@ -410,7 +418,7 @@ public class BuiltinMetricsRecorderTest {
                 APP_PROFILE_ID))
         .isEqualTo(throttlingLatency);
     assertThat(
-            wrapper.getAggregationValueAsLong(
+            getAggregationValueAsLong(
                 BuiltinViewConstants.FIRST_RESPONSE_LATENCIES_VIEW,
                 ImmutableMap.of(
                     BuiltinMeasureConstants.METHOD,
@@ -422,12 +430,83 @@ public class BuiltinMetricsRecorderTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.STATUS,
-                    "OK",
+                    Status.UNAVAILABLE.toString(),
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID))
         .isEqualTo(firstResponseLatency);
+  }
+
+  long getAggregationValueAsLong(
+      View view,
+      ImmutableMap<TagKey, String> tags,
+      String projectId,
+      String instanceId,
+      String appProfileId) {
+    ViewData viewData = wrapper.getViewManager().getView(view.getName());
+    Map<List<TagValue>, AggregationData> aggregationMap =
+        Objects.requireNonNull(viewData).getAggregationMap();
+
+    List<TagValue> tagValues = new ArrayList<>();
+
+    for (TagKey column : view.getColumns()) {
+      if (BuiltinMeasureConstants.PROJECT_ID == column) {
+        tagValues.add(TagValue.create(projectId));
+      } else if (BuiltinMeasureConstants.INSTANCE_ID == column) {
+        tagValues.add(TagValue.create(instanceId));
+      } else if (BuiltinMeasureConstants.APP_PROFILE == column) {
+        tagValues.add(TagValue.create(appProfileId));
+      } else {
+        tagValues.add(TagValue.create(tags.get(column)));
+      }
+    }
+
+    AggregationData aggregationData = aggregationMap.get(tagValues);
+
+    return aggregationData.match(
+        new io.opencensus.common.Function<AggregationData.SumDataDouble, Long>() {
+          @Override
+          public Long apply(AggregationData.SumDataDouble arg) {
+            return (long) arg.getSum();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData.SumDataLong, Long>() {
+          @Override
+          public Long apply(AggregationData.SumDataLong arg) {
+            return arg.getSum();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData.CountData, Long>() {
+          @Override
+          public Long apply(AggregationData.CountData arg) {
+            return arg.getCount();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData.DistributionData, Long>() {
+          @Override
+          public Long apply(AggregationData.DistributionData arg) {
+            return (long) arg.getMean();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData.LastValueDataDouble, Long>() {
+          @Override
+          public Long apply(AggregationData.LastValueDataDouble arg) {
+            return (long) arg.getLastValue();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData.LastValueDataLong, Long>() {
+          @Override
+          public Long apply(AggregationData.LastValueDataLong arg) {
+            return arg.getLastValue();
+          }
+        },
+        new io.opencensus.common.Function<AggregationData, Long>() {
+          @Override
+          public Long apply(AggregationData arg) {
+            throw new UnsupportedOperationException();
+          }
+        });
   }
 }
