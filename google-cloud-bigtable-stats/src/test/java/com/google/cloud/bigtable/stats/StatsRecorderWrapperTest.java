@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.collect.ImmutableMap;
-import io.grpc.Status;
 import io.opencensus.stats.AggregationData;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
@@ -54,7 +53,7 @@ public class StatsRecorderWrapperTest {
 
   @Test
   public void testStreamingOperation() throws InterruptedException {
-    StatsRecorderWrapper tracer =
+    StatsRecorderWrapper recorderWrapper =
         new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
@@ -73,16 +72,16 @@ public class StatsRecorderWrapperTest {
     long throttlingLatency = 50;
     long firstResponseLatency = 90;
 
-    tracer.putOperationLatencies(operationLatency);
-    tracer.putRetryCount(attemptCount);
-    tracer.putAttemptLatencies(attemptLatency);
-    tracer.putApplicationLatencies(applicationLatency);
-    tracer.putGfeLatencies(serverLatency);
-    tracer.putGfeMissingHeaders(connectivityErrorCount);
-    tracer.putFirstResponseLatencies(firstResponseLatency);
-    tracer.putBatchRequestThrottled(throttlingLatency);
+    recorderWrapper.putOperationLatencies(operationLatency);
+    recorderWrapper.putRetryCount(attemptCount);
+    recorderWrapper.putAttemptLatencies(attemptLatency);
+    recorderWrapper.putApplicationLatencies(applicationLatency);
+    recorderWrapper.putGfeLatencies(serverLatency);
+    recorderWrapper.putGfeMissingHeaders(connectivityErrorCount);
+    recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
+    recorderWrapper.putBatchRequestThrottled(throttlingLatency);
 
-    tracer.record("OK", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.record("OK", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
@@ -244,7 +243,7 @@ public class StatsRecorderWrapperTest {
 
   @Test
   public void testUnaryOperations() throws InterruptedException {
-    StatsRecorderWrapper tracer =
+    StatsRecorderWrapper recorderWrapper =
         new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "MutateRow"),
@@ -263,16 +262,16 @@ public class StatsRecorderWrapperTest {
     long throttlingLatency = 50;
     long firstResponseLatency = 90;
 
-    tracer.putOperationLatencies(operationLatency);
-    tracer.putRetryCount(attemptCount);
-    tracer.putAttemptLatencies(attemptLatency);
-    tracer.putApplicationLatencies(applicationLatency);
-    tracer.putGfeLatencies(serverLatency);
-    tracer.putGfeMissingHeaders(connectivityErrorCount);
-    tracer.putFirstResponseLatencies(firstResponseLatency);
-    tracer.putBatchRequestThrottled(throttlingLatency);
+    recorderWrapper.putOperationLatencies(operationLatency);
+    recorderWrapper.putRetryCount(attemptCount);
+    recorderWrapper.putAttemptLatencies(attemptLatency);
+    recorderWrapper.putApplicationLatencies(applicationLatency);
+    recorderWrapper.putGfeLatencies(serverLatency);
+    recorderWrapper.putGfeMissingHeaders(connectivityErrorCount);
+    recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
+    recorderWrapper.putBatchRequestThrottled(throttlingLatency);
 
-    tracer.record(Status.UNAVAILABLE.toString(), TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.record("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
@@ -283,7 +282,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -305,7 +304,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -327,7 +326,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -347,7 +346,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java",
                     BuiltinMeasureConstants.STREAMING,
@@ -369,7 +368,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -391,7 +390,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.METHOD,
                     "Bigtable.MutateRow",
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java",
                     BuiltinMeasureConstants.TABLE,
@@ -430,7 +429,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.STATUS,
-                    Status.UNAVAILABLE.toString(),
+                    "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
                     "bigtable-java"),
                 PROJECT_ID,

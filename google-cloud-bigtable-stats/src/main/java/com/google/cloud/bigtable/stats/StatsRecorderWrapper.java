@@ -46,10 +46,10 @@ public class StatsRecorderWrapper {
       OperationType operationType,
       SpanName spanName,
       Map<String, String> statsAttributes,
-      StatsWrapper statsRecorderWrapper) {
+      StatsWrapper statsWrapper) {
     this.operationType = operationType;
     this.tagger = Tags.getTagger();
-    this.statsRecorder = statsRecorderWrapper.getStatsRecorder();
+    this.statsRecorder = statsWrapper.getStatsRecorder();
     this.spanName = spanName;
     this.parentContext = tagger.getCurrentTagContext();
     this.statsAttributes = statsAttributes;

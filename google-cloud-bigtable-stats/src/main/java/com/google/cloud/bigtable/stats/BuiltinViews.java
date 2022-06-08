@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.stats;
 
 import com.google.api.core.InternalApi;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
@@ -29,7 +30,8 @@ public class BuiltinViews {
     this.statsWrapper = wrapper;
   }
 
-  private static final ImmutableSet<View> BIGTABLE_BUILTIN_VIEWS =
+  @VisibleForTesting
+  static final ImmutableSet<View> BIGTABLE_BUILTIN_VIEWS =
       ImmutableSet.of(
           BuiltinViewConstants.OPERATION_LATENCIES_VIEW,
           BuiltinViewConstants.ATTEMPT_LATENCIES_VIEW,

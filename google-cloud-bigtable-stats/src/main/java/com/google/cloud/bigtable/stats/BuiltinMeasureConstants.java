@@ -21,20 +21,20 @@ import io.opencensus.tags.TagKey;
 
 /** Built-in metrics that will be readable under bigtable.googleapis.com/client namespace */
 class BuiltinMeasureConstants {
-  // TagKeys
+  // Monitored resource TagKeys
   static final TagKey PROJECT_ID = TagKey.create("project_id");
   static final TagKey INSTANCE_ID = TagKey.create("instance_id");
+  static final TagKey CLUSTER = TagKey.create("cluster");
+  static final TagKey TABLE = TagKey.create("table");
+  static final TagKey ZONE = TagKey.create("zone");
+  static final TagKey CLIENT_ID = TagKey.create("client_id");
+
+  // Metrics TagKeys
   static final TagKey APP_PROFILE = TagKey.create("app_profile");
   static final TagKey METHOD = TagKey.create("method");
   static final TagKey STREAMING = TagKey.create("streaming");
   static final TagKey STATUS = TagKey.create("status");
   static final TagKey CLIENT_NAME = TagKey.create("client_name");
-  static final TagKey CLIENT_ID = TagKey.create("client_id");
-
-  // Monitored resource TagKeys
-  static final TagKey TABLE = TagKey.create("table");
-  static final TagKey CLUSTER = TagKey.create("cluster");
-  static final TagKey ZONE = TagKey.create("zone");
 
   // Units
   private static final String COUNT = "1";

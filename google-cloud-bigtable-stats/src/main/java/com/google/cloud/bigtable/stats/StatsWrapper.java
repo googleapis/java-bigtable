@@ -38,7 +38,7 @@ public class StatsWrapper {
     this.statsRecorder = statsRecorder;
   }
 
-  public static StatsWrapper get() {
+  public static StatsWrapper create() {
     return new StatsWrapper(Stats.getViewManager(), Stats.getStatsRecorder());
   }
 
