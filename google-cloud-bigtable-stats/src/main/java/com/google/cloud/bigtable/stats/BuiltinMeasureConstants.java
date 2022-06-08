@@ -27,6 +27,7 @@ class BuiltinMeasureConstants {
   static final TagKey CLUSTER = TagKey.create("cluster");
   static final TagKey TABLE = TagKey.create("table");
   static final TagKey ZONE = TagKey.create("zone");
+  // Placeholder TagKey to be used in Stackdriver exporter
   static final TagKey CLIENT_ID = TagKey.create("client_id");
 
   // Metrics TagKeys
