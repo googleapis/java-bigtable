@@ -154,7 +154,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
-    StatsWrapper statsWrapper = StatsWrapper.get();
+    StatsWrapper statsWrapper = StatsWrapper.create();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.

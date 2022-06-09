@@ -35,7 +35,7 @@ public class BigtableTracer extends BaseApiTracer {
     this.attempt = attemptNumber;
   }
 
-  /** annotate when onRequest is called */
+  /** annotate when onRequest is called. This will be called in BuiltinMetricsTracer. */
   public void onRequest() {
     // noop
   }
@@ -63,7 +63,10 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
-  /** Set the Bigtable zone and cluster so metrics can be tagged with location information. */
+  /**
+   * Set the Bigtable zone and cluster so metrics can be tagged with location information. This will
+   * be called in BuiltinMetricsTracer.
+   */
   public void setLocations(String zone, String cluster) {
     // noop
   }

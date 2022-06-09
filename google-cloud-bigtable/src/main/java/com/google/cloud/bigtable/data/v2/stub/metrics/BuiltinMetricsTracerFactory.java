@@ -41,21 +41,22 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     return new BuiltinMetricsTracerFactory(statsWrapper, statsAttributes, null);
   }
 
+  // A workaround for test to pass in a mock StatsRecorderWrapper
   @VisibleForTesting
-  static BuiltinMetricsTracerFactory create(
+  static BuiltinMetricsTracerFactory createWithRecorder(
       StatsWrapper statsWrapper,
       ImmutableMap<String, String> statsAttributes,
-      StatsRecorderWrapper recorder) {
-    return new BuiltinMetricsTracerFactory(statsWrapper, statsAttributes, recorder);
+      StatsRecorderWrapper statsRecorderWrapper) {
+    return new BuiltinMetricsTracerFactory(statsWrapper, statsAttributes, statsRecorderWrapper);
   }
 
   private BuiltinMetricsTracerFactory(
       StatsWrapper statsWrapper,
       ImmutableMap<String, String> statsAttributes,
-      StatsRecorderWrapper recorder) {
+      StatsRecorderWrapper statsRecorderWrapper) {
     this.statsAttributes = statsAttributes;
     this.statsWrapper = statsWrapper;
-    this.statsRecorderWrapper = recorder;
+    this.statsRecorderWrapper = statsRecorderWrapper;
   }
 
   @Override

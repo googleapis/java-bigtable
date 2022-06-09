@@ -66,11 +66,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
       SpanName spanName,
       Map<String, String> attributes,
       StatsWrapper statsWrapper,
-      StatsRecorderWrapper recorder) {
+      @Nullable StatsRecorderWrapper statsRecorderWrapper) {
     this.operationType = operationType;
     this.spanName = spanName;
-    if (recorder != null) {
-      this.recorder = recorder;
+    if (statsRecorderWrapper != null) {
+      // A workaround for test to pass in a mock StatsRecorderWrapper
+      this.recorder = statsRecorderWrapper;
     } else {
       this.recorder = new StatsRecorderWrapper(operationType, spanName, attributes, statsWrapper);
     }

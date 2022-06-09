@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.threeten.bp.Duration;
@@ -118,13 +119,14 @@ public class BuiltinMetricsTracerTest {
 
   private EnhancedBigtableStub stub;
 
-  private StatsRecorderWrapper statsRecorderWrapper;
-  private ArgumentCaptor<Long> longValue;
-  private ArgumentCaptor<Integer> intValue;
-  private ArgumentCaptor<String> status;
-  private ArgumentCaptor<String> tableId;
-  private ArgumentCaptor<String> zone;
-  private ArgumentCaptor<String> cluster;
+  @Mock private StatsRecorderWrapper statsRecorderWrapper;
+
+  @Captor private ArgumentCaptor<Long> longValue;
+  @Captor private ArgumentCaptor<Integer> intValue;
+  @Captor private ArgumentCaptor<String> status;
+  @Captor private ArgumentCaptor<String> tableId;
+  @Captor private ArgumentCaptor<String> zone;
+  @Captor private ArgumentCaptor<String> cluster;
 
   private Stopwatch serverRetryDelayStopwatch;
   private AtomicLong serverTotalRetryDelay;
@@ -136,8 +138,7 @@ public class BuiltinMetricsTracerTest {
     serverRetryDelayStopwatch = Stopwatch.createUnstarted();
     serverTotalRetryDelay = new AtomicLong(0);
 
-    // Add an interceptor to send location information in the trailers and add server-timing in
-    // headers
+    // Add an interceptor to add server-timing in headers
     ServerInterceptor trailersInterceptor =
         new ServerInterceptor() {
           private AtomicInteger count = new AtomicInteger(0);
@@ -156,19 +157,12 @@ public class BuiltinMetricsTracerTest {
                         String.format("gfet4t7; dur=%d", FAKE_SERVER_TIMING));
                     super.sendHeaders(headers);
                   }
-
-                  @Override
-                  public void close(Status status, Metadata trailers) {
-                    super.close(status, trailers);
-                  }
                 },
                 metadata);
           }
         };
 
     server = FakeServiceBuilder.create(mockService).intercept(trailersInterceptor).start();
-
-    statsRecorderWrapper = Mockito.mock(StatsRecorderWrapper.class);
 
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
@@ -183,18 +177,11 @@ public class BuiltinMetricsTracerTest {
         .retrySettings()
         .setInitialRetryDelay(Duration.ofMillis(200));
     stubSettingsBuilder.setTracerFactory(
-        BuiltinMetricsTracerFactory.create(
-            StatsWrapper.get(), ImmutableMap.of(), statsRecorderWrapper));
+        BuiltinMetricsTracerFactory.createWithRecorder(
+            StatsWrapper.create(), ImmutableMap.of(), statsRecorderWrapper));
 
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
-
-    longValue = ArgumentCaptor.forClass(long.class);
-    intValue = ArgumentCaptor.forClass(int.class);
-    status = ArgumentCaptor.forClass(String.class);
-    tableId = ArgumentCaptor.forClass(String.class);
-    zone = ArgumentCaptor.forClass(String.class);
-    cluster = ArgumentCaptor.forClass(String.class);
   }
 
   @After
@@ -291,17 +278,13 @@ public class BuiltinMetricsTracerTest {
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
 
+    // record will get called 4 times, 3 times for attempts and 1 for recording operation level
+    // metrics.
     verify(statsRecorderWrapper, times(4))
         .record(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
-    assertThat(zone.getAllValues().get(0)).isEqualTo(UNDEFINED);
-    assertThat(zone.getAllValues().get(1)).isEqualTo(UNDEFINED);
-    assertThat(zone.getAllValues().get(2)).isEqualTo(UNDEFINED);
-    assertThat(cluster.getAllValues().get(0)).isEqualTo(UNDEFINED);
-    assertThat(cluster.getAllValues().get(1)).isEqualTo(UNDEFINED);
-    assertThat(cluster.getAllValues().get(2)).isEqualTo(UNDEFINED);
-    assertThat(status.getAllValues().get(0)).isEqualTo("UNAVAILABLE");
-    assertThat(status.getAllValues().get(1)).isEqualTo("UNAVAILABLE");
-    assertThat(status.getAllValues().get(2)).isEqualTo("OK");
+    assertThat(zone.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
+    assertThat(cluster.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
+    assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "UNAVAILABLE", "OK", "OK");
   }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
