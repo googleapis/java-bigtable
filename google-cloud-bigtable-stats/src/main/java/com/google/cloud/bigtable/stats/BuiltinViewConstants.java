@@ -34,6 +34,7 @@ import static com.google.cloud.bigtable.stats.BuiltinMeasureConstants.TABLE;
 import static com.google.cloud.bigtable.stats.BuiltinMeasureConstants.THROTTLING_LATENCIES;
 import static com.google.cloud.bigtable.stats.BuiltinMeasureConstants.ZONE;
 import static io.opencensus.stats.Aggregation.Distribution;
+import static io.opencensus.stats.Aggregation.Sum;
 
 import com.google.common.collect.ImmutableList;
 import io.opencensus.stats.Aggregation;
@@ -58,13 +59,7 @@ class BuiltinViewConstants {
                   1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0,
                   100.0)));
 
-  private static final Aggregation AGGREGATION_ERROR_COUNT =
-      Distribution.create(
-          BucketBoundaries.create(
-              ImmutableList.of(
-                  1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 15.0, 20.0, 30.0, 40.0, 50.0,
-                  100.0, 150.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0,
-                  5000.0, 10000.0, 20000.0, 50000.0, 75000.0, 100000.0)));
+  private static final Aggregation AGGREGATION_ERROR_COUNT = Sum.create();
 
   static final View OPERATION_LATENCIES_VIEW =
       View.create(
