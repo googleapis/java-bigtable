@@ -82,7 +82,8 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      outerObserver.onStart(controller);
+      final StreamController tracedController = new TracedStreamController(controller, tracer);
+      outerObserver.onStart(tracedController);
     }
 
     @Override
@@ -106,6 +107,32 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       outerObserver.onComplete();
+    }
+  }
+
+  private class TracedStreamController implements StreamController {
+    private final StreamController innerController;
+    private final BigtableTracer tracer;
+
+    TracedStreamController(StreamController innerController, BigtableTracer tracer) {
+      this.innerController = innerController;
+      this.tracer = tracer;
+    }
+
+    @Override
+    public void cancel() {
+      innerController.cancel();
+    }
+
+    @Override
+    public void disableAutoInboundFlowControl() {
+      innerController.disableAutoInboundFlowControl();
+    }
+
+    @Override
+    public void request(int i) {
+      tracer.onRequest();
+      innerController.request(i);
     }
   }
 }

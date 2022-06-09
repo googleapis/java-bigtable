@@ -55,7 +55,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -128,15 +127,9 @@ public class BuiltinMetricsTracerTest {
   @Captor private ArgumentCaptor<String> zone;
   @Captor private ArgumentCaptor<String> cluster;
 
-  private Stopwatch serverRetryDelayStopwatch;
-  private AtomicLong serverTotalRetryDelay;
-
   @Before
   public void setUp() throws Exception {
     mockService = new FakeService();
-
-    serverRetryDelayStopwatch = Stopwatch.createUnstarted();
-    serverTotalRetryDelay = new AtomicLong(0);
 
     // Add an interceptor to add server-timing in headers
     ServerInterceptor trailersInterceptor =
@@ -305,14 +298,9 @@ public class BuiltinMetricsTracerTest {
     @Override
     public void mutateRow(
         MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
-      if (serverRetryDelayStopwatch.isRunning()) {
-        serverTotalRetryDelay.addAndGet(serverRetryDelayStopwatch.elapsed(TimeUnit.MILLISECONDS));
-        serverRetryDelayStopwatch.reset();
-      }
       if (rpcCount.get() < 2) {
         responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE));
         rpcCount.getAndIncrement();
-        serverRetryDelayStopwatch.start();
         return;
       }
       responseObserver.onNext(MutateRowResponse.getDefaultInstance());

@@ -50,8 +50,14 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private volatile int attempt = 0;
 
   // Total application latency
-  private final Stopwatch applicationLatencyTimer = Stopwatch.createUnstarted();
+  // Total application latency needs to be atomic because it's accessed from different threads. E.g.
+  // request() from
+  // user thread and attempt failed from grpc thread.
   private final AtomicLong totalApplicationLatency = new AtomicLong(0);
+  // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
+  // flushed to memory.
+  private final AtomicBoolean applicationLatencyTimerIsRunning = new AtomicBoolean();
+  private final Stopwatch applicationLatencyTimer = Stopwatch.createUnstarted();
 
   // Monitored resource labels
   private String tableId = "undefined";
@@ -113,7 +119,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (request != null) {
       this.tableId = Util.extractTableId(request);
     }
-    if (applicationLatencyTimer.isRunning()) {
+    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
       totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
       applicationLatencyTimer.reset();
     }
@@ -131,7 +137,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void attemptFailed(Throwable error, Duration delay) {
-    if (!applicationLatencyTimer.isRunning()) {
+    if (applicationLatencyTimerIsRunning.compareAndSet(false, true)) {
       applicationLatencyTimer.start();
     }
     recordAttemptCompletion(error);
@@ -159,7 +165,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void onRequest() {
-    if (applicationLatencyTimer.isRunning()) {
+    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
       totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
       applicationLatencyTimer.reset();
     }
@@ -167,7 +173,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void responseReceived() {
-    if (!applicationLatencyTimer.isRunning()) {
+    if (applicationLatencyTimerIsRunning.compareAndSet(false, true)) {
       applicationLatencyTimer.start();
     }
     if (firstResponsePerOpTimer.isRunning()) {
@@ -221,7 +227,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     recorder.putRetryCount(attemptCount);
 
-    if (applicationLatencyTimer.isRunning()) {
+    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
       applicationLatencyTimer.stop();
       totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
     }
