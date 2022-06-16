@@ -22,15 +22,13 @@ import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.auth.Credentials;
-import com.google.bigtable.v2.InstanceName;
 import com.google.bigtable.v2.PingAndWarmRequest;
+import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
-import org.threeten.bp.Duration;
 
 /**
  * A channel warmer that ensures that a Bigtable channel is ready to be used before being added to
@@ -42,9 +40,6 @@ import org.threeten.bp.Duration;
 @BetaApi("Channel priming is not currently stable and might change in the future")
 class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
-
-  static ByteString PRIMING_ROW_KEY = ByteString.copyFromUtf8("nonexistent-priming-row");
-  private static Duration PRIME_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   private final EnhancedBigtableStubSettings settingsTemplate;
 
@@ -94,7 +89,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       PingAndWarmRequest request =
           PingAndWarmRequest.newBuilder()
               .setName(
-                  InstanceName.format(
+                  NameUtil.formatInstanceName(
                       primingSettings.getProjectId(), primingSettings.getInstanceId()))
               .setAppProfileId(primingSettings.getAppProfileId())
               .build();

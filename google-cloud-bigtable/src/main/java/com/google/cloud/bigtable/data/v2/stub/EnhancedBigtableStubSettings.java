@@ -33,6 +33,7 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
@@ -93,6 +94,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
+
+  private static Duration PRIME_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   // Copy of default retrying settings in the yaml
   private static final RetrySettings IDEMPOTENT_RETRY_SETTINGS =
@@ -173,6 +176,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final BigtableBulkReadRowsCallSettings bulkReadRowsSettings;
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
+  private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -208,6 +212,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     bulkReadRowsSettings = builder.bulkReadRowsSettings.build();
     checkAndMutateRowSettings = builder.checkAndMutateRowSettings.build();
     readModifyWriteRowSettings = builder.readModifyWriteRowSettings.build();
+    pingAndWarmSettings = builder.pingAndWarmSettings.build();
   }
 
   /** Create a new builder. */
@@ -494,6 +499,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readModifyWriteRowSettings;
   }
 
+  /**
+   * Returns the object with the settings used for calls to PingAndWarm.
+   *
+   * <p>By default the retries are disabled for PingAndWarm and deadline is set to 30 seconds.
+   */
+  UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings() {
+    return pingAndWarmSettings;
+  }
+
   /** Returns a builder containing all the values of this settings class. */
   public Builder toBuilder() {
     return new Builder(this);
@@ -518,6 +532,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<ConditionalRowMutation, Boolean>
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
+    private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -629,6 +644,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       readModifyWriteRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       copyRetrySettings(baseDefaults.readModifyWriteRowSettings(), readModifyWriteRowSettings);
+
+      pingAndWarmSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      pingAndWarmSettings.setRetrySettings(
+          RetrySettings.newBuilder()
+              .setMaxAttempts(1)
+              .setInitialRpcTimeout(PRIME_REQUEST_TIMEOUT)
+              .setMaxRpcTimeout(PRIME_REQUEST_TIMEOUT)
+              .setTotalTimeout(PRIME_REQUEST_TIMEOUT)
+              .build());
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -649,6 +673,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       bulkReadRowsSettings = settings.bulkReadRowsSettings.toBuilder();
       checkAndMutateRowSettings = settings.checkAndMutateRowSettings.toBuilder();
       readModifyWriteRowSettings = settings.readModifyWriteRowSettings.toBuilder();
+      pingAndWarmSettings = settings.pingAndWarmSettings.toBuilder();
     }
     // <editor-fold desc="Private Helpers">
 
@@ -817,6 +842,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return readModifyWriteRowSettings;
     }
 
+    /** Returns the builder with the settings used for calls to PingAndWarm. */
+    public UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings() {
+      return pingAndWarmSettings;
+    }
+
     @SuppressWarnings("unchecked")
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
@@ -864,6 +894,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("bulkReadRowsSettings", bulkReadRowsSettings)
         .add("checkAndMutateRowSettings", checkAndMutateRowSettings)
         .add("readModifyWriteRowSettings", readModifyWriteRowSettings)
+        .add("pingAndWarmSettings", pingAndWarmSettings)
         .add("parent", super.toString())
         .toString();
   }

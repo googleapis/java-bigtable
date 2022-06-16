@@ -345,13 +345,9 @@ public class BigtableDataClientFactoryTest {
     @Override
     public void pingAndWarm(
         PingAndWarmRequest request, StreamObserver<PingAndWarmResponse> responseObserver) {
-      try {
-        pingAndWarmRequests.add(request);
-        responseObserver.onNext(pingAndWarmCallback.apply(request));
-        responseObserver.onCompleted();
-      } catch (RuntimeException e) {
-        responseObserver.onError(e);
-      }
+      pingAndWarmRequests.add(request);
+      responseObserver.onNext(pingAndWarmCallback.apply(request));
+      responseObserver.onCompleted();
     }
   }
 
