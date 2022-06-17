@@ -95,8 +95,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
 
-  private static Duration PRIME_REQUEST_TIMEOUT = Duration.ofSeconds(30);
-
   // Copy of default retrying settings in the yaml
   private static final RetrySettings IDEMPOTENT_RETRY_SETTINGS =
       RetrySettings.newBuilder()
@@ -115,6 +113,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   // current buffered chunks are consumed.
   private static final Set<Code> READ_ROWS_RETRY_CODES =
       ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
+
+  // Priming request should have a shorter timeout
+  private static Duration PRIME_REQUEST_TIMEOUT = Duration.ofSeconds(30);
 
   private static final RetrySettings READ_ROWS_RETRY_SETTINGS =
       RetrySettings.newBuilder()
