@@ -97,6 +97,8 @@ class BigtableChannelPrimer implements ChannelPrimer {
       try {
         stub.pingAndWarmCallable().call(request);
       } catch (Throwable e) {
+        // TODO: Not sure if we should swallow the error here. We are pre-emptively swapping channels if the new
+        // channel is bad.
         if (e instanceof ExecutionException) {
           e = e.getCause();
         }
