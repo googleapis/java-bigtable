@@ -160,6 +160,7 @@
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-auth</artifactId>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>io.grpc</groupId>
@@ -613,15 +614,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <configuration>
-          <!--
-            grpc-grpclb is used at runtime using reflection
-            grpc-auth is not directly used transitively, but is pulled to align with other grpc parts
-            opencensus-impl-core is brought in transitively through opencensus-impl
-            -->
-          <usedDependencies>io.grpc:grpc-auth,io.grpc:grpc-grpclb</usedDependencies>
-          <ignoredUsedUndeclaredDependencies>
-            <ignoredUsedUndeclaredDependency>io.opencensus:opencensus-impl-core</ignoredUsedUndeclaredDependency>
-          </ignoredUsedUndeclaredDependencies>
+          <ignoreNonCompile>true</ignoreNonCompile>
         </configuration>
       </plugin>
 
