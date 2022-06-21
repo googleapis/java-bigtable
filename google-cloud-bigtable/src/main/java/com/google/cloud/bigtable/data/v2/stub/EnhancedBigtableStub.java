@@ -90,7 +90,6 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
-import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -154,7 +153,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
-    StatsWrapper statsWrapper = StatsWrapper.create();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
@@ -227,7 +225,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(tagger, stats, attributes),
-                BuiltinMetricsTracerFactory.create(statsWrapper, builtinAttributes),
+                BuiltinMetricsTracerFactory.create(builtinAttributes),
                 // Add user configured tracer
                 settings.getTracerFactory())));
     return builder.build();

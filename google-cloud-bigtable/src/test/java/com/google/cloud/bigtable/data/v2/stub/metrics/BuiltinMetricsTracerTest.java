@@ -15,15 +15,19 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.api.client.util.Lists;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
+import com.google.api.gax.tracing.SpanName;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
@@ -37,9 +41,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
-import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
@@ -59,6 +61,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
@@ -66,6 +70,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.threeten.bp.Duration;
 
+@RunWith(JUnit4.class)
 public class BuiltinMetricsTracerTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
@@ -118,6 +123,7 @@ public class BuiltinMetricsTracerTest {
 
   private EnhancedBigtableStub stub;
 
+  @Mock private BuiltinMetricsTracerFactory mockFactory;
   @Mock private StatsRecorderWrapper statsRecorderWrapper;
 
   @Captor private ArgumentCaptor<Long> longValue;
@@ -169,9 +175,7 @@ public class BuiltinMetricsTracerTest {
         .mutateRowSettings()
         .retrySettings()
         .setInitialRetryDelay(Duration.ofMillis(200));
-    stubSettingsBuilder.setTracerFactory(
-        BuiltinMetricsTracerFactory.createWithRecorder(
-            StatsWrapper.create(), ImmutableMap.of(), statsRecorderWrapper));
+    stubSettingsBuilder.setTracerFactory(mockFactory);
 
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
@@ -185,6 +189,12 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testOperationLatencies() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                statsRecorderWrapper));
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator());
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
@@ -196,6 +206,13 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testGfeMetrics() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                statsRecorderWrapper));
+
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
     verify(statsRecorderWrapper).putGfeLatencies(longValue.capture());
@@ -207,6 +224,13 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testReadRowsApplicationLatency() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                statsRecorderWrapper));
+
     final long applicationLatency = 1000;
     final SettableApiFuture future = SettableApiFuture.create();
     final AtomicInteger counter = new AtomicInteger(0);
@@ -258,6 +282,11 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testRetryCount() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRow"), statsRecorderWrapper));
+
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
 
@@ -268,6 +297,11 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testMutateRowAttempts() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRow"), statsRecorderWrapper));
+
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
 

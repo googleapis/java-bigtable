@@ -20,9 +20,7 @@ import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.cloud.bigtable.stats.StatsWrapper;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 
 /**
@@ -33,35 +31,20 @@ import com.google.common.collect.ImmutableMap;
 public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
 
   private final ImmutableMap<String, String> statsAttributes;
-  private final StatsWrapper statsWrapper;
-  private final StatsRecorderWrapper statsRecorderWrapper;
 
-  public static BuiltinMetricsTracerFactory create(
-      StatsWrapper statsWrapper, ImmutableMap<String, String> statsAttributes) {
-    return new BuiltinMetricsTracerFactory(statsWrapper, statsAttributes, null);
+  public static BuiltinMetricsTracerFactory create(ImmutableMap<String, String> statsAttributes) {
+    return new BuiltinMetricsTracerFactory(statsAttributes);
   }
 
-  // A workaround for test to pass in a mock StatsRecorderWrapper
-  @VisibleForTesting
-  static BuiltinMetricsTracerFactory createWithRecorder(
-      StatsWrapper statsWrapper,
-      ImmutableMap<String, String> statsAttributes,
-      StatsRecorderWrapper statsRecorderWrapper) {
-    return new BuiltinMetricsTracerFactory(statsWrapper, statsAttributes, statsRecorderWrapper);
-  }
-
-  private BuiltinMetricsTracerFactory(
-      StatsWrapper statsWrapper,
-      ImmutableMap<String, String> statsAttributes,
-      StatsRecorderWrapper statsRecorderWrapper) {
+  private BuiltinMetricsTracerFactory(ImmutableMap<String, String> statsAttributes) {
     this.statsAttributes = statsAttributes;
-    this.statsWrapper = statsWrapper;
-    this.statsRecorderWrapper = statsRecorderWrapper;
   }
 
   @Override
   public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
     return new BuiltinMetricsTracer(
-        operationType, spanName, statsAttributes, statsWrapper, statsRecorderWrapper);
+        operationType,
+        spanName,
+        StatsWrapper.createRecorder(operationType, spanName, statsAttributes));
   }
 }

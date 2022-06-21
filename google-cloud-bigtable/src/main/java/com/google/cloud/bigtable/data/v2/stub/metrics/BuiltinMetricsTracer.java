@@ -15,12 +15,12 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.api.gax.tracing.ApiTracerFactory;
+import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
+
 import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
-import com.google.cloud.bigtable.stats.StatsWrapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
-import java.util.Map;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +36,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private final StatsRecorderWrapper recorder;
 
-  private final ApiTracerFactory.OperationType operationType;
+  private final OperationType operationType;
   private final SpanName spanName;
 
   // Operation level metrics
@@ -51,8 +51,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   // Total application latency
   // Total application latency needs to be atomic because it's accessed from different threads. E.g.
-  // request() from
-  // user thread and attempt failed from grpc thread.
+  // request() from user thread and attempt failed from grpc thread.
   private final AtomicLong totalApplicationLatency = new AtomicLong(0);
   // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
   // flushed to memory.
@@ -67,20 +66,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
   // gfe stats
   private AtomicLong gfeMissingHeaders = new AtomicLong(0);
 
+  @VisibleForTesting
   BuiltinMetricsTracer(
-      ApiTracerFactory.OperationType operationType,
-      SpanName spanName,
-      Map<String, String> attributes,
-      StatsWrapper statsWrapper,
-      @Nullable StatsRecorderWrapper statsRecorderWrapper) {
+      OperationType operationType, SpanName spanName, StatsRecorderWrapper recorder) {
     this.operationType = operationType;
     this.spanName = spanName;
-    if (statsRecorderWrapper != null) {
-      // A workaround for test to pass in a mock StatsRecorderWrapper
-      this.recorder = statsRecorderWrapper;
-    } else {
-      this.recorder = new StatsRecorderWrapper(operationType, spanName, attributes, statsWrapper);
-    }
+    this.recorder = recorder;
   }
 
   @Override
@@ -144,26 +135,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void attemptFailedRetriesExhausted(Throwable error) {
-    super.attemptFailedRetriesExhausted(error);
-  }
-
-  @Override
-  public void attemptPermanentFailure(Throwable error) {
-    super.attemptPermanentFailure(error);
-  }
-
-  @Override
-  public void lroStartFailed(Throwable error) {
-    super.lroStartFailed(error);
-  }
-
-  @Override
-  public void lroStartSucceeded() {
-    super.lroStartSucceeded();
-  }
-
-  @Override
   public void onRequest() {
     if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
       totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
@@ -179,16 +150,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (firstResponsePerOpTimer.isRunning()) {
       firstResponsePerOpTimer.stop();
     }
-  }
-
-  @Override
-  public void requestSent() {
-    super.requestSent();
-  }
-
-  @Override
-  public void batchRequestSent(long elementCount, long requestSize) {
-    super.batchRequestSent(elementCount, requestSize);
   }
 
   @Override
@@ -235,7 +196,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     recorder.putOperationLatencies(operationTimer.elapsed(TimeUnit.MILLISECONDS));
 
-    if (operationType == ApiTracerFactory.OperationType.ServerStreaming
+    if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
       recorder.putFirstResponseLatencies(firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
     }

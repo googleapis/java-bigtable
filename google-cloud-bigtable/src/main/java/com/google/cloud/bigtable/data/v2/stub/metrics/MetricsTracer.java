@@ -126,11 +126,6 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void connectionSelected(String s) {
-    // noop: cardinality for connection ids is too high to use as tags
-  }
-
-  @Override
   public void attemptStarted(int attemptNumber) {
     attempt = attemptNumber;
     attemptCount++;
@@ -181,32 +176,12 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void lroStartFailed(Throwable throwable) {
-    // noop
-  }
-
-  @Override
-  public void lroStartSucceeded() {
-    // noop
-  }
-
-  @Override
   public void responseReceived() {
     if (firstResponsePerOpTimer.isRunning()) {
       firstResponsePerOpTimer.stop();
     }
     attemptResponseCount++;
     operationResponseCount++;
-  }
-
-  @Override
-  public void requestSent() {
-    // noop: no operations are client streaming
-  }
-
-  @Override
-  public void batchRequestSent(long elementCount, long requestSize) {
-    // noop
   }
 
   @Override
@@ -252,15 +227,5 @@ class MetricsTracer extends BigtableTracer {
     }
 
     return tagCtx;
-  }
-
-  @Override
-  public void setLocations(String zone, String cluster) {
-    // noop
-  }
-
-  @Override
-  public void onRequest() {
-    // noop
   }
 }
