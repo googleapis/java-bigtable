@@ -15,13 +15,14 @@
  */
 package com.google.cloud.bigtable.stats;
 
+import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
+
 import com.google.api.core.InternalApi;
+import com.google.api.gax.tracing.SpanName;
 import com.google.common.annotations.VisibleForTesting;
-import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.Stats;
-import io.opencensus.stats.StatsComponent;
 import io.opencensus.stats.StatsRecorder;
-import io.opencensus.stats.ViewManager;
+import java.util.Map;
 
 /**
  * Wrapper class for accessing opencensus. We use a shaded version of opencensus to avoid polluting
@@ -30,29 +31,18 @@ import io.opencensus.stats.ViewManager;
 @InternalApi("For internal use only")
 public class StatsWrapper {
 
-  private final ViewManager viewManager;
-  private final StatsRecorder statsRecorder;
-
-  private StatsWrapper(ViewManager viewManager, StatsRecorder statsRecorder) {
-    this.viewManager = viewManager;
-    this.statsRecorder = statsRecorder;
-  }
-
-  public static StatsWrapper create() {
-    return new StatsWrapper(Stats.getViewManager(), Stats.getStatsRecorder());
+  public static StatsRecorderWrapper createRecorder(
+      OperationType operationType, SpanName spanName, Map<String, String> statsAttributes) {
+    return new StatsRecorderWrapper(
+        operationType, spanName, statsAttributes, Stats.getStatsRecorder());
   }
 
   @VisibleForTesting
-  static StatsWrapper createPrivateInstance() {
-    StatsComponent component = new StatsComponentImpl();
-    return new StatsWrapper(component.getViewManager(), component.getStatsRecorder());
-  }
-
-  ViewManager getViewManager() {
-    return viewManager;
-  }
-
-  StatsRecorder getStatsRecorder() {
-    return statsRecorder;
+  static StatsRecorderWrapper createPrivateRecorder(
+      OperationType operationType,
+      SpanName spanName,
+      Map<String, String> statsAttributes,
+      StatsRecorder statsRecorder) {
+    return new StatsRecorderWrapper(operationType, spanName, statsAttributes, statsRecorder);
   }
 }

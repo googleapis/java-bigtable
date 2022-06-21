@@ -20,9 +20,12 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.collect.ImmutableMap;
+import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.AggregationData;
+import io.opencensus.stats.StatsComponent;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewData;
+import io.opencensus.stats.ViewManager;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
@@ -42,26 +45,28 @@ public class StatsRecorderWrapperTest {
   private final String ZONE = "fake-zone";
   private final String CLUSTER = "fake-cluster";
 
-  private StatsWrapper wrapper;
+  private final StatsComponent statsComponent = new StatsComponentImpl();
 
   @Before
   public void setup() {
-    this.wrapper = StatsWrapper.createPrivateInstance();
-    BuiltinViews views = new BuiltinViews(wrapper);
-    views.registerBigtableBuiltinViews();
+    BuiltinViews views = new BuiltinViews();
+    views.registerPrivateViews(statsComponent.getViewManager());
   }
 
   @Test
   public void testStreamingOperation() throws InterruptedException {
     StatsRecorderWrapper recorderWrapper =
-        new StatsRecorderWrapper(
+        StatsWrapper.createPrivateRecorder(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
             ImmutableMap.of(
-                BuiltinMeasureConstants.PROJECT_ID.getName(), PROJECT_ID,
-                BuiltinMeasureConstants.INSTANCE_ID.getName(), INSTANCE_ID,
-                BuiltinMeasureConstants.APP_PROFILE.getName(), APP_PROFILE_ID),
-            wrapper);
+                BuiltinMeasureConstants.PROJECT_ID.getName(),
+                PROJECT_ID,
+                BuiltinMeasureConstants.INSTANCE_ID.getName(),
+                INSTANCE_ID,
+                BuiltinMeasureConstants.APP_PROFILE.getName(),
+                APP_PROFILE_ID),
+            statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
     int attemptCount = 2;
@@ -98,7 +103,8 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STREAMING, "true"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(operationLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -120,7 +126,8 @@ public class StatsRecorderWrapperTest {
                     "true"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(attemptLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -140,7 +147,8 @@ public class StatsRecorderWrapperTest {
                     "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(attemptCount);
     assertThat(
             getAggregationValueAsLong(
@@ -162,7 +170,8 @@ public class StatsRecorderWrapperTest {
                     CLUSTER),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(serverLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -184,7 +193,8 @@ public class StatsRecorderWrapperTest {
                     "true"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(applicationLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -204,7 +214,8 @@ public class StatsRecorderWrapperTest {
                     CLUSTER),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(connectivityErrorCount);
     assertThat(
             getAggregationValueAsLong(
@@ -217,7 +228,8 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(throttlingLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -237,21 +249,22 @@ public class StatsRecorderWrapperTest {
                     "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(firstResponseLatency);
   }
 
   @Test
   public void testUnaryOperations() throws InterruptedException {
     StatsRecorderWrapper recorderWrapper =
-        new StatsRecorderWrapper(
-            ApiTracerFactory.OperationType.ServerStreaming,
+        StatsWrapper.createPrivateRecorder(
+            ApiTracerFactory.OperationType.Unary,
             SpanName.of("Bigtable", "MutateRow"),
             ImmutableMap.of(
                 BuiltinMeasureConstants.PROJECT_ID.getName(), PROJECT_ID,
                 BuiltinMeasureConstants.INSTANCE_ID.getName(), INSTANCE_ID,
                 BuiltinMeasureConstants.APP_PROFILE.getName(), APP_PROFILE_ID),
-            wrapper);
+            statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
     int attemptCount = 2;
@@ -295,7 +308,8 @@ public class StatsRecorderWrapperTest {
                     "false"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(operationLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -317,7 +331,8 @@ public class StatsRecorderWrapperTest {
                     "false"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(attemptLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -337,7 +352,8 @@ public class StatsRecorderWrapperTest {
                     "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(attemptCount);
     assertThat(
             getAggregationValueAsLong(
@@ -359,7 +375,8 @@ public class StatsRecorderWrapperTest {
                     CLUSTER),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(serverLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -381,7 +398,8 @@ public class StatsRecorderWrapperTest {
                     "false"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(applicationLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -401,7 +419,8 @@ public class StatsRecorderWrapperTest {
                     CLUSTER),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(connectivityErrorCount);
     assertThat(
             getAggregationValueAsLong(
@@ -414,7 +433,8 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(throttlingLatency);
     assertThat(
             getAggregationValueAsLong(
@@ -434,7 +454,8 @@ public class StatsRecorderWrapperTest {
                     "bigtable-java"),
                 PROJECT_ID,
                 INSTANCE_ID,
-                APP_PROFILE_ID))
+                APP_PROFILE_ID,
+                statsComponent.getViewManager()))
         .isEqualTo(firstResponseLatency);
   }
 
@@ -443,8 +464,9 @@ public class StatsRecorderWrapperTest {
       ImmutableMap<TagKey, String> tags,
       String projectId,
       String instanceId,
-      String appProfileId) {
-    ViewData viewData = wrapper.getViewManager().getView(view.getName());
+      String appProfileId,
+      ViewManager viewManager) {
+    ViewData viewData = viewManager.getView(view.getName());
     Map<List<TagValue>, AggregationData> aggregationMap =
         Objects.requireNonNull(viewData).getAggregationMap();
 
@@ -465,47 +487,14 @@ public class StatsRecorderWrapperTest {
     AggregationData aggregationData = aggregationMap.get(tagValues);
 
     return aggregationData.match(
-        new io.opencensus.common.Function<AggregationData.SumDataDouble, Long>() {
-          @Override
-          public Long apply(AggregationData.SumDataDouble arg) {
-            return (long) arg.getSum();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData.SumDataLong, Long>() {
-          @Override
-          public Long apply(AggregationData.SumDataLong arg) {
-            return arg.getSum();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData.CountData, Long>() {
-          @Override
-          public Long apply(AggregationData.CountData arg) {
-            return arg.getCount();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData.DistributionData, Long>() {
-          @Override
-          public Long apply(AggregationData.DistributionData arg) {
-            return (long) arg.getMean();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData.LastValueDataDouble, Long>() {
-          @Override
-          public Long apply(AggregationData.LastValueDataDouble arg) {
-            return (long) arg.getLastValue();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData.LastValueDataLong, Long>() {
-          @Override
-          public Long apply(AggregationData.LastValueDataLong arg) {
-            return arg.getLastValue();
-          }
-        },
-        new io.opencensus.common.Function<AggregationData, Long>() {
-          @Override
-          public Long apply(AggregationData arg) {
-            throw new UnsupportedOperationException();
-          }
+        arg -> (long) arg.getSum(),
+        AggregationData.SumDataLong::getSum,
+        arg -> arg.getCount(),
+        arg -> (long) arg.getMean(),
+        arg -> (long) arg.getLastValue(),
+        AggregationData.LastValueDataLong::getLastValue,
+        arg -> {
+          throw new UnsupportedOperationException();
         });
   }
 }

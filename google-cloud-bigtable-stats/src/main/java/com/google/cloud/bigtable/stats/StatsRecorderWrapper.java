@@ -46,10 +46,10 @@ public class StatsRecorderWrapper {
       OperationType operationType,
       SpanName spanName,
       Map<String, String> statsAttributes,
-      StatsWrapper statsWrapper) {
+      StatsRecorder statsRecorder) {
     this.operationType = operationType;
     this.tagger = Tags.getTagger();
-    this.statsRecorder = statsWrapper.getStatsRecorder();
+    this.statsRecorder = statsRecorder;
     this.spanName = spanName;
     this.parentContext = tagger.getCurrentTagContext();
     this.statsAttributes = statsAttributes;
@@ -62,12 +62,9 @@ public class StatsRecorderWrapper {
         newTagContextBuilder(tableId, zone, cluster)
             .putLocal(BuiltinMeasureConstants.STATUS, TagValue.create(status));
 
-    if (operationType == OperationType.ServerStreaming
-        && spanName.getMethodName().equals("ReadRows")) {
-      tagCtx.putLocal(BuiltinMeasureConstants.STREAMING, TagValue.create("true"));
-    } else {
-      tagCtx.putLocal(BuiltinMeasureConstants.STREAMING, TagValue.create("false"));
-    }
+    boolean isStreaming = operationType == OperationType.ServerStreaming;
+    tagCtx.putLocal(
+        BuiltinMeasureConstants.STREAMING, TagValue.create(Boolean.toString(isStreaming)));
 
     measureMap.record(tagCtx.build());
   }

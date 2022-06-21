@@ -18,18 +18,13 @@ package com.google.cloud.bigtable.stats;
 import com.google.api.core.InternalApi;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
+import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 
 /** For registering built-in metric views */
 @InternalApi("For internal use only")
 public class BuiltinViews {
-  private static StatsWrapper statsWrapper;
-
-  public BuiltinViews(StatsWrapper wrapper) {
-    this.statsWrapper = wrapper;
-  }
-
   @VisibleForTesting
   static final ImmutableSet<View> BIGTABLE_BUILTIN_VIEWS =
       ImmutableSet.of(
@@ -42,8 +37,15 @@ public class BuiltinViews {
           BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
           BuiltinViewConstants.THROTTLING_LATENCIES_VIEW);
 
+  @VisibleForTesting
+  void registerPrivateViews(ViewManager viewManager) {
+    for (View view : BIGTABLE_BUILTIN_VIEWS) {
+      viewManager.registerView(view);
+    }
+  }
+
   public void registerBigtableBuiltinViews() {
-    ViewManager viewManager = statsWrapper.getViewManager();
+    ViewManager viewManager = Stats.getViewManager();
     for (View view : BIGTABLE_BUILTIN_VIEWS) {
       viewManager.registerView(view);
     }
