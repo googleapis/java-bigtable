@@ -56,7 +56,7 @@ public class StatsRecorderWrapperTest {
   @Test
   public void testStreamingOperation() throws InterruptedException {
     StatsRecorderWrapper recorderWrapper =
-        StatsWrapper.createPrivateRecorder(
+        new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
             ImmutableMap.of(
@@ -257,7 +257,7 @@ public class StatsRecorderWrapperTest {
   @Test
   public void testUnaryOperations() throws InterruptedException {
     StatsRecorderWrapper recorderWrapper =
-        StatsWrapper.createPrivateRecorder(
+        new StatsRecorderWrapper(
             ApiTracerFactory.OperationType.Unary,
             SpanName.of("Bigtable", "MutateRow"),
             ImmutableMap.of(

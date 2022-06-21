@@ -19,9 +19,7 @@ import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.SpanName;
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.stats.Stats;
-import io.opencensus.stats.StatsRecorder;
 import java.util.Map;
 
 /**
@@ -35,14 +33,5 @@ public class StatsWrapper {
       OperationType operationType, SpanName spanName, Map<String, String> statsAttributes) {
     return new StatsRecorderWrapper(
         operationType, spanName, statsAttributes, Stats.getStatsRecorder());
-  }
-
-  @VisibleForTesting
-  static StatsRecorderWrapper createPrivateRecorder(
-      OperationType operationType,
-      SpanName spanName,
-      Map<String, String> statsAttributes,
-      StatsRecorder statsRecorder) {
-    return new StatsRecorderWrapper(operationType, spanName, statsAttributes, statsRecorder);
   }
 }
