@@ -75,6 +75,10 @@
       <artifactId>gax</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.api</groupId>
+      <artifactId>gax-httpjson</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.api.grpc</groupId>
       <artifactId>grpc-google-cloud-bigtable-v2</artifactId>
     </dependency>
@@ -194,10 +198,22 @@
       <classifier>testlib</classifier>
       <scope>test</scope>
     </dependency>
+    <!-- Need testing utility classes for generated gRPC clients tests -->
     <dependency>
-      <!-- Need testing utility classes for generated gRPC clients tests -->
+      <groupId>com.google.api</groupId>
+      <artifactId>gax</artifactId>
+      <classifier>testlib</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.api</groupId>
       <artifactId>gax-grpc</artifactId>
+      <classifier>testlib</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+    <groupId>com.google.api</groupId>
+      <artifactId>gax-httpjson</artifactId>
       <classifier>testlib</classifier>
       <scope>test</scope>
     </dependency>
