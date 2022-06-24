@@ -199,9 +199,23 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
-  public void onRequest() {
+  public void onRequest(int requestCount) {
     for (BigtableTracer tracer : bigtableTracers) {
-      tracer.onRequest();
+      tracer.onRequest(requestCount);
+    }
+  }
+
+  @Override
+  public void disableFlowControl() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.disableFlowControl();
+    }
+  }
+
+  @Override
+  public void afterResponse(long applicationLatency) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.afterResponse(applicationLatency);
     }
   }
 }

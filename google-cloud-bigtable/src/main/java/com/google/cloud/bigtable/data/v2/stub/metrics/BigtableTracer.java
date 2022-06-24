@@ -36,7 +36,19 @@ public class BigtableTracer extends BaseApiTracer {
   }
 
   /** annotate when onRequest is called. This will be called in BuiltinMetricsTracer. */
-  public void onRequest() {
+  public void onRequest(int requestCount) {
+    // noop
+  }
+
+  /**
+   * annotate when automatic flow control is disabled. This will be called in BuiltinMetricsTracer.
+   */
+  public void disableFlowControl() {
+    // noop
+  }
+
+  /** annotate after the callback from onResponse. This will be called in BuiltinMetricsTracer. */
+  public void afterResponse(long applicationLatency) {
     // noop
   }
 

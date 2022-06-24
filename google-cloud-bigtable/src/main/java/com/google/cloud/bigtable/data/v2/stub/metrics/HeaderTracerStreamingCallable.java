@@ -22,7 +22,9 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import io.grpc.Metadata;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
 /**
@@ -55,7 +57,7 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
     final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
     // tracer should always be an instance of bigtable tracer
-    if (RpcViews.isGfeMetricsRegistered() && context.getTracer() instanceof BigtableTracer) {
+    if (context.getTracer() instanceof BigtableTracer) {
       HeaderTracerResponseObserver<ResponseT> innerObserver =
           new HeaderTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
@@ -82,13 +84,15 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      StreamController tracedController = new TracedStreamController(controller, tracer);
+      TracedStreamController tracedController = new TracedStreamController(controller, tracer);
       outerObserver.onStart(tracedController);
     }
 
     @Override
     public void onResponse(ResponseT response) {
+      Stopwatch stopwatch = Stopwatch.createStarted();
       outerObserver.onResponse(response);
+      tracer.afterResponse(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Override
@@ -126,12 +130,13 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void disableAutoInboundFlowControl() {
+      tracer.disableFlowControl();
       innerController.disableAutoInboundFlowControl();
     }
 
     @Override
     public void request(int i) {
-      tracer.onRequest();
+      tracer.onRequest(i);
       innerController.request(i);
     }
   }

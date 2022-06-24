@@ -54,8 +54,14 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
@@ -68,6 +74,7 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+import org.mockito.stubbing.Answer;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
@@ -78,43 +85,9 @@ public class BuiltinMetricsTracerTest {
   private static final String TABLE_ID = "fake-table";
   private static final String UNDEFINED = "undefined";
   private static final long FAKE_SERVER_TIMING = 50;
-  private static final long SERVER_LATENCY = 500;
+  private static final long SERVER_LATENCY = 100;
 
   private final AtomicInteger rpcCount = new AtomicInteger(0);
-
-  private static final ReadRowsResponse READ_ROWS_RESPONSE_1 =
-      ReadRowsResponse.newBuilder()
-          .addChunks(
-              ReadRowsResponse.CellChunk.newBuilder()
-                  .setRowKey(ByteString.copyFromUtf8("fake-key-1"))
-                  .setFamilyName(StringValue.of("cf"))
-                  .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
-                  .setTimestampMicros(1_000)
-                  .setValue(ByteString.copyFromUtf8("value"))
-                  .setCommitRow(true))
-          .build();
-  private static final ReadRowsResponse READ_ROWS_RESPONSE_2 =
-      ReadRowsResponse.newBuilder()
-          .addChunks(
-              ReadRowsResponse.CellChunk.newBuilder()
-                  .setRowKey(ByteString.copyFromUtf8("fake-key-2"))
-                  .setFamilyName(StringValue.of("cf"))
-                  .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
-                  .setTimestampMicros(1_000)
-                  .setValue(ByteString.copyFromUtf8("value"))
-                  .setCommitRow(true))
-          .build();
-  private static final ReadRowsResponse READ_ROWS_RESPONSE_3 =
-      ReadRowsResponse.newBuilder()
-          .addChunks(
-              ReadRowsResponse.CellChunk.newBuilder()
-                  .setRowKey(ByteString.copyFromUtf8("fake-key-3"))
-                  .setFamilyName(StringValue.of("cf"))
-                  .setQualifier(BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
-                  .setTimestampMicros(1_000)
-                  .setValue(ByteString.copyFromUtf8("value"))
-                  .setCommitRow(true))
-          .build();
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -188,13 +161,15 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testOperationLatencies() {
+  public void testOperationLatencies() throws InterruptedException {
     when(mockFactory.newTracer(any(), any(), any()))
-        .thenReturn(
-            new BuiltinMetricsTracer(
-                OperationType.ServerStreaming,
-                SpanName.of("Bigtable", "ReadRows"),
-                statsRecorderWrapper));
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator());
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
@@ -207,44 +182,38 @@ public class BuiltinMetricsTracerTest {
   @Test
   public void testGfeMetrics() {
     when(mockFactory.newTracer(any(), any(), any()))
-        .thenReturn(
-            new BuiltinMetricsTracer(
-                OperationType.ServerStreaming,
-                SpanName.of("Bigtable", "ReadRows"),
-                statsRecorderWrapper));
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
     verify(statsRecorderWrapper).putGfeLatencies(longValue.capture());
     assertThat(longValue.getValue()).isEqualTo(FAKE_SERVER_TIMING);
 
-    verify(statsRecorderWrapper).putGfeMissingHeaders(longValue.capture());
-    assertThat(longValue.getValue()).isEqualTo(0);
+    verify(statsRecorderWrapper, times(2)).putGfeMissingHeaders(longValue.capture());
+    assertThat(longValue.getValue()).isEqualTo(1);
   }
 
   @Test
-  public void testReadRowsApplicationLatency() throws Exception {
+  public void testReadRowsApplicationLatencyWithAutoFlowControl() throws Exception {
     when(mockFactory.newTracer(any(), any(), any()))
-        .thenReturn(
-            new BuiltinMetricsTracer(
-                OperationType.ServerStreaming,
-                SpanName.of("Bigtable", "ReadRows"),
-                statsRecorderWrapper));
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
 
-    final long applicationLatency = 1000;
+    final long applicationLatency = 200;
     final SettableApiFuture future = SettableApiFuture.create();
     final AtomicInteger counter = new AtomicInteger(0);
-    // We want to measure how long application waited before requesting another message after
-    // the previous message is returned from the server. Using ResponseObserver here so that the
-    // flow will be
-    // onResponse() -> sleep -> onRequest() (for the next message) which is exactly what we want to
-    // measure for
-    // application latency.
-    // If we do readRowsCallable().call(Query.create(TABLE_ID)).iterator() and iterate through the
-    // iterator and sleep in
-    // between responses, when the call started, the client will pre-fetch the first response, which
-    // won't be counted
-    // in application latency. So the test will be flaky and hard to debug.
+    // For auto flow control, application latency is the time application spent in onResponse.
     stub.readRowsCallable()
         .call(
             Query.create(TABLE_ID),
@@ -255,7 +224,7 @@ public class BuiltinMetricsTracerTest {
               @Override
               public void onResponse(Row row) {
                 try {
-                  counter.incrementAndGet();
+                  counter.getAndIncrement();
                   Thread.sleep(applicationLatency);
                 } catch (InterruptedException e) {
                 }
@@ -281,11 +250,47 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
+  public void testReadRowsApplicationLatencyWithManualFlowControl() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
+
+    final long applicationLatency = 200;
+    final AtomicInteger counter = new AtomicInteger(0);
+
+    Iterator<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator();
+    while (rows.hasNext()) {
+      counter.getAndIncrement();
+      Thread.sleep(applicationLatency);
+      rows.next();
+    }
+
+    verify(statsRecorderWrapper).putApplicationLatencies(longValue.capture());
+
+    // For manual flow control, the last application latency shouldn't count, because at that point
+    // the server already sent back all the responses.
+    assertThat(counter.get()).isGreaterThan(1);
+    assertThat(longValue.getValue())
+        .isAtLeast(applicationLatency * (counter.get() - 1) - SERVER_LATENCY);
+    assertThat(longValue.getValue())
+        .isAtMost(applicationLatency * (counter.get()) - SERVER_LATENCY);
+  }
+
+  @Test
   public void testRetryCount() {
     when(mockFactory.newTracer(any(), any(), any()))
-        .thenReturn(
-            new BuiltinMetricsTracer(
-                OperationType.Unary, SpanName.of("Bigtable", "MutateRow"), statsRecorderWrapper));
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
 
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
@@ -316,25 +321,77 @@ public class BuiltinMetricsTracerTest {
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
 
+    private final AtomicInteger counter = new AtomicInteger(0);
+    private final Iterator<ReadRowsResponse> source = new ReadRowsGenerator();
+
+    class ReadRowsGenerator implements Iterator<ReadRowsResponse> {
+      private Queue<ReadRowsResponse> queue = new LinkedList<>();
+
+      ReadRowsGenerator() {
+        for (int i = 0; i < 4; i++) {
+          // create responses that are 1 MB which is the default grpc buffer size
+          queue.offer(
+              ReadRowsResponse.newBuilder()
+                  .addChunks(
+                      ReadRowsResponse.CellChunk.newBuilder()
+                          .setRowKey(ByteString.copyFromUtf8("fake-key-" + i))
+                          .setFamilyName(StringValue.of("cf"))
+                          .setQualifier(
+                              BytesValue.newBuilder().setValue(ByteString.copyFromUtf8("q")))
+                          .setTimestampMicros(1_000)
+                          .setValue(
+                              ByteString.copyFromUtf8(
+                                  String.join("", Collections.nCopies(1024 * 1024, "A"))))
+                          .setCommitRow(true))
+                  .build());
+        }
+      }
+
+      @Override
+      public boolean hasNext() {
+        return !queue.isEmpty();
+      }
+
+      @Override
+      public ReadRowsResponse next() {
+        return queue.poll();
+      }
+    }
+
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
+      final AtomicBoolean done = new AtomicBoolean();
+      final ServerCallStreamObserver<ReadRowsResponse> target =
+          (ServerCallStreamObserver<ReadRowsResponse>) responseObserver;
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {
       }
-      responseObserver.onNext(READ_ROWS_RESPONSE_1);
-      responseObserver.onNext(READ_ROWS_RESPONSE_2);
-      responseObserver.onNext(READ_ROWS_RESPONSE_3);
-      responseObserver.onCompleted();
+      if (counter.getAndIncrement() == 0) {
+        target.onError(new StatusRuntimeException(Status.UNAVAILABLE));
+        return;
+      }
+
+      // Only return the next response when the buffer is emptied for testing manual flow control.
+      // The fake service won't keep calling onNext unless it received an onRequest event from
+      // the application thread
+      target.setOnReadyHandler(
+          () -> {
+            while (target.isReady() && source.hasNext()) {
+              target.onNext(source.next());
+            }
+            if (!source.hasNext() && done.compareAndSet(false, true)) {
+              target.onCompleted();
+            }
+          });
     }
 
     @Override
     public void mutateRow(
         MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
-      if (rpcCount.get() < 2) {
+      if (rpcCount.getAndIncrement() < 2) {
         responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE));
-        rpcCount.getAndIncrement();
         return;
       }
       responseObserver.onNext(MutateRowResponse.getDefaultInstance());

@@ -24,6 +24,7 @@ import com.google.common.base.Stopwatch;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
@@ -49,14 +50,18 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Stopwatch attemptTimer;
   private volatile int attempt = 0;
 
-  // Total application latency
-  // Total application latency needs to be atomic because it's accessed from different threads. E.g.
-  // request() from user thread and attempt failed from grpc thread.
-  private final AtomicLong totalApplicationLatency = new AtomicLong(0);
+  // Total server latency needs to be atomic because it's accessed from different threads. E.g.
+  // request() from user thread and attempt failed from grpc thread. We're only measuring the extra
+  // time application spent blocking grpc buffer, which will be operationLatency - serverLatency.
+  private final AtomicLong totalServerLatency = new AtomicLong(0);
   // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
   // flushed to memory.
-  private final AtomicBoolean applicationLatencyTimerIsRunning = new AtomicBoolean();
-  private final Stopwatch applicationLatencyTimer = Stopwatch.createUnstarted();
+  private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
+  private final AtomicBoolean serverLatencyTimerIsRunning = new AtomicBoolean();
+
+  private boolean flowControlIsDisabled = false;
+
+  private AtomicInteger requestLeft = new AtomicInteger(0);
 
   // Monitored resource labels
   private String tableId = "undefined";
@@ -110,9 +115,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (request != null) {
       this.tableId = Util.extractTableId(request);
     }
-    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
-      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      applicationLatencyTimer.reset();
+    if (!flowControlIsDisabled) {
+      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
+        serverLatencyTimer.start();
+      }
     }
   }
 
@@ -128,27 +134,46 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void attemptFailed(Throwable error, Duration delay) {
-    if (applicationLatencyTimerIsRunning.compareAndSet(false, true)) {
-      applicationLatencyTimer.start();
-    }
     recordAttemptCompletion(error);
   }
 
   @Override
-  public void onRequest() {
-    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
-      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      applicationLatencyTimer.reset();
+  public void onRequest(int requestCount) {
+    requestLeft.accumulateAndGet(requestCount, (x, y) -> x + y);
+    if (flowControlIsDisabled) {
+      // On request is only called when auto flow control is disabled. When auto flow control is
+      // disabled, server latency is measured between onRequest and onResponse.
+      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
+        serverLatencyTimer.start();
+      }
     }
   }
 
   @Override
   public void responseReceived() {
-    if (applicationLatencyTimerIsRunning.compareAndSet(false, true)) {
-      applicationLatencyTimer.start();
+    // When auto flow control is enabled, server latency is measured between afterResponse and
+    // responseReceived.
+    // When auto flow control is disabled, server latency is measured between onRequest and
+    // responseReceived.
+    // When auto flow control is disabled and application requested multiple responses, server
+    // latency is measured between afterResponse and responseReceived.
+    // In all the cases, we want to stop the serverLatencyTimer here.
+    if (serverLatencyTimerIsRunning.compareAndSet(true, false)) {
+      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+      serverLatencyTimer.reset();
     }
-    if (firstResponsePerOpTimer.isRunning()) {
-      firstResponsePerOpTimer.stop();
+  }
+
+  @Override
+  public void afterResponse(long applicationLatency) {
+    if (!flowControlIsDisabled || requestLeft.decrementAndGet() > 0) {
+      // When auto flow control is enabled, request will never be called, so server latency is
+      // measured between after the last response is processed and before the next response is
+      // received. If flow control is disabled but requestLeft is greater than 0,
+      // also start the timer to count the time between afterResponse and responseReceived.
+      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
+        serverLatencyTimer.start();
+      }
     }
   }
 
@@ -180,21 +205,26 @@ class BuiltinMetricsTracer extends BigtableTracer {
     recorder.putBatchRequestThrottled(throttledTimeMs);
   }
 
+  @Override
+  public void disableFlowControl() {
+    flowControlIsDisabled = true;
+  }
+
   private void recordOperationCompletion(@Nullable Throwable status) {
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
     operationTimer.stop();
+    long operationLatency = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
     recorder.putRetryCount(attemptCount);
 
-    if (applicationLatencyTimerIsRunning.compareAndSet(true, false)) {
-      applicationLatencyTimer.stop();
-      totalApplicationLatency.addAndGet(applicationLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+    if (serverLatencyTimerIsRunning.compareAndSet(true, false)) {
+      serverLatencyTimer.stop();
+      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
     }
-    recorder.putApplicationLatencies(totalApplicationLatency.get());
-
-    recorder.putOperationLatencies(operationTimer.elapsed(TimeUnit.MILLISECONDS));
+    recorder.putOperationLatencies(operationLatency);
+    recorder.putApplicationLatencies(operationLatency - totalServerLatency.get());
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
@@ -205,8 +235,14 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private void recordAttemptCompletion(@Nullable Throwable status) {
+    // If the attempt failed, the time spent in retry should be counted in application latency.
+    // Stop the stopwatch and decrement requestLeft.
+    if (serverLatencyTimerIsRunning.compareAndSet(true, false)) {
+      requestLeft.decrementAndGet();
+      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+      serverLatencyTimer.reset();
+    }
     recorder.putAttemptLatencies(attemptTimer.elapsed(TimeUnit.MILLISECONDS));
-
     recorder.record(Util.extractStatus(status), tableId, zone, cluster);
   }
 }
