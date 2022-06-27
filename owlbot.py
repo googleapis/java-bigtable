@@ -79,6 +79,8 @@ for library in s.get_staging_dirs():
     os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClient.java")
   if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java"):
     os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataSettings.java")
+  if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientHttpJsonTest.java"):
+    os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientHttpJsonTest.java")   
   if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java"):
     os.remove("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/BaseBigtableDataClientTest.java")
   if os.path.exists("owl-bot-staging/v2/google-cloud-bigtable/src/test/java/com/google/cloud/bigtable/data/v2/MockBigtable.java"):
