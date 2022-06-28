@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -321,9 +322,13 @@ public class BuiltinMetricsTracerTest {
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
 
-    // record will get called 4 times, 3 times for attempts and 1 for recording operation level
-    // metrics.
-    verify(statsRecorderWrapper, times(fakeService.getRetryCounter().get() + 1))
+    // record() will get called 4 times, 3 times for attempts and 1 for recording operation level
+    // metrics. Also set a timeout to reduce flakiness of this test. BasicRetryingFuture will set
+    // attempt succeeded and set the response which will call complete() in AbstractFuture which
+    // calls releaseWaiters(). onOperationComplete() is called in TracerFinisher which will be
+    // called after the mutateRow call is returned. So there's a race between when the call returns
+    // and when the record() is called in onOperationCompletion().
+    verify(statsRecorderWrapper, timeout(10).times(fakeService.getRetryCounter().get() + 1))
         .record(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
     assertThat(zone.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
     assertThat(cluster.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
