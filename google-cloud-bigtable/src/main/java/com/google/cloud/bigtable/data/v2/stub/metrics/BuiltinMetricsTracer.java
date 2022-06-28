@@ -139,7 +139,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void onRequest(int requestCount) {
-    requestLeft.accumulateAndGet(requestCount, (x, y) -> x + y);
+    requestLeft.accumulateAndGet(
+        requestCount, (x, y) -> x + y > Integer.MAX_VALUE ? Integer.MAX_VALUE : x + y);
     if (flowControlIsDisabled) {
       // On request is only called when auto flow control is disabled. When auto flow control is
       // disabled, server latency is measured between onRequest and onResponse.
