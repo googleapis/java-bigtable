@@ -316,7 +316,7 @@ public class BuiltinMetricsTracerTest {
     when(mockFactory.newTracer(any(), any(), any()))
         .thenReturn(
             new BuiltinMetricsTracer(
-                OperationType.Unary, SpanName.of("Bigtable", gi"MutateRow"), statsRecorderWrapper));
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRow"), statsRecorderWrapper));
 
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
