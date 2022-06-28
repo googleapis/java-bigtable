@@ -56,10 +56,10 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -330,13 +330,12 @@ public class BuiltinMetricsTracerTest {
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "UNAVAILABLE", "OK", "OK");
   }
 
-  private class ReadRowsGenerator implements Iterator<ReadRowsResponse> {
-    private Queue<ReadRowsResponse> queue = new LinkedList<>();
+  private static class FakeService extends BigtableGrpc.BigtableImplBase {
 
-    ReadRowsGenerator() {
+    static List<ReadRowsResponse> createFakeResponse() {
+      List<ReadRowsResponse> responses = new ArrayList<>();
       for (int i = 0; i < 4; i++) {
-        // create responses that are 1 MB which is the default grpc buffer size
-        queue.offer(
+        responses.add(
             ReadRowsResponse.newBuilder()
                 .addChunks(
                     ReadRowsResponse.CellChunk.newBuilder()
@@ -351,24 +350,12 @@ public class BuiltinMetricsTracerTest {
                         .setCommitRow(true))
                 .build());
       }
+      return responses;
     }
-
-    @Override
-    public boolean hasNext() {
-      return !queue.isEmpty();
-    }
-
-    @Override
-    public ReadRowsResponse next() {
-      return queue.poll();
-    }
-  }
-
-  private class FakeService extends BigtableGrpc.BigtableImplBase {
 
     private final AtomicInteger retryCounter = new AtomicInteger(0);
     private final AtomicInteger responseCounter = new AtomicInteger(0);
-    private final Iterator<ReadRowsResponse> source = new ReadRowsGenerator();
+    private final Iterator<ReadRowsResponse> source = createFakeResponse().listIterator();
 
     @Override
     public void readRows(

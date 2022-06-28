@@ -21,6 +21,7 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
+import com.google.common.math.IntMath;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -139,8 +140,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void onRequest(int requestCount) {
-    requestLeft.accumulateAndGet(
-        requestCount, (x, y) -> x + y > Integer.MAX_VALUE ? Integer.MAX_VALUE : x + y);
+    requestLeft.accumulateAndGet(requestCount, IntMath::saturatedAdd);
     if (flowControlIsDisabled) {
       // On request is only called when auto flow control is disabled. When auto flow control is
       // disabled, server latency is measured between onRequest and onResponse.
