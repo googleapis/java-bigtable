@@ -218,7 +218,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     operationTimer.stop();
     long operationLatency = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
-    recorder.putRetryCount(attemptCount);
+    recorder.putRetryCount(attemptCount - 1);
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
     recorder.putOperationLatencies(operationLatency);

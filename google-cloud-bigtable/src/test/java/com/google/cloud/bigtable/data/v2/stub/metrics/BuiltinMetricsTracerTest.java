@@ -197,7 +197,7 @@ public class BuiltinMetricsTracerTest {
     assertThat(gfeLatency.getValue()).isEqualTo(FAKE_SERVER_TIMING);
 
     // The first time the request was retried, it'll increment missing header counter
-    verify(statsRecorderWrapper, times(fakeService.getRetryCounter().get()))
+    verify(statsRecorderWrapper, times(fakeService.getAttemptCounter().get()))
         .putGfeMissingHeaders(gfeMissingHeaders.capture());
     assertThat(gfeMissingHeaders.getValue()).isEqualTo(1);
   }
@@ -269,12 +269,12 @@ public class BuiltinMetricsTracerTest {
 
     ArgumentCaptor<Long> applicationLatency = ArgumentCaptor.forClass(Long.class);
     ArgumentCaptor<Long> operationLatency = ArgumentCaptor.forClass(Long.class);
-    final AtomicInteger counter = new AtomicInteger(0);
+    int counter = 0;
 
     Iterator<Row> rows = stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator();
 
     while (rows.hasNext()) {
-      counter.getAndIncrement();
+      counter++;
       Thread.sleep(APPLICATION_LATENCY);
       rows.next();
     }
@@ -284,9 +284,9 @@ public class BuiltinMetricsTracerTest {
 
     // For manual flow control, the last application latency shouldn't count, because at that point
     // the server already sent back all the responses.
-    assertThat(counter.get()).isEqualTo(fakeService.getResponseCounter().get());
+    assertThat(counter).isEqualTo(fakeService.getResponseCounter().get());
     assertThat(applicationLatency.getValue())
-        .isAtLeast(APPLICATION_LATENCY * (counter.get() - 1) - SERVER_LATENCY);
+        .isAtLeast(APPLICATION_LATENCY * (counter - 1) - SERVER_LATENCY);
     assertThat(applicationLatency.getValue())
         .isAtMost(operationLatency.getValue() - SERVER_LATENCY);
   }
@@ -309,7 +309,7 @@ public class BuiltinMetricsTracerTest {
 
     verify(statsRecorderWrapper).putRetryCount(retryCount.capture());
 
-    assertThat(retryCount.getValue()).isEqualTo(fakeService.getRetryCounter().get());
+    assertThat(retryCount.getValue()).isEqualTo(fakeService.getAttemptCounter().get() - 1);
   }
 
   @Test
@@ -328,7 +328,7 @@ public class BuiltinMetricsTracerTest {
     // calls releaseWaiters(). onOperationComplete() is called in TracerFinisher which will be
     // called after the mutateRow call is returned. So there's a race between when the call returns
     // and when the record() is called in onOperationCompletion().
-    verify(statsRecorderWrapper, timeout(10).times(fakeService.getRetryCounter().get() + 1))
+    verify(statsRecorderWrapper, timeout(10).times(fakeService.getAttemptCounter().get() + 1))
         .record(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
     assertThat(zone.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
     assertThat(cluster.getAllValues()).containsExactly(UNDEFINED, UNDEFINED, UNDEFINED, UNDEFINED);
@@ -358,7 +358,7 @@ public class BuiltinMetricsTracerTest {
       return responses;
     }
 
-    private final AtomicInteger retryCounter = new AtomicInteger(0);
+    private final AtomicInteger attemptCounter = new AtomicInteger(0);
     private final AtomicInteger responseCounter = new AtomicInteger(0);
     private final Iterator<ReadRowsResponse> source = createFakeResponse().listIterator();
 
@@ -372,7 +372,7 @@ public class BuiltinMetricsTracerTest {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {
       }
-      if (retryCounter.getAndIncrement() == 0) {
+      if (attemptCounter.getAndIncrement() == 0) {
         target.onError(new StatusRuntimeException(Status.UNAVAILABLE));
         return;
       }
@@ -395,7 +395,7 @@ public class BuiltinMetricsTracerTest {
     @Override
     public void mutateRow(
         MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
-      if (retryCounter.getAndIncrement() < 2) {
+      if (attemptCounter.getAndIncrement() < 2) {
         responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE));
         return;
       }
@@ -403,8 +403,8 @@ public class BuiltinMetricsTracerTest {
       responseObserver.onCompleted();
     }
 
-    public AtomicInteger getRetryCounter() {
-      return retryCounter;
+    public AtomicInteger getAttemptCounter() {
+      return attemptCounter;
     }
 
     public AtomicInteger getResponseCounter() {
