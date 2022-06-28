@@ -719,6 +719,110 @@ public class BaseBigtableTableAdminClientHttpJsonTest {
   }
 
   @Test
+  public void undeleteTableTest() throws Exception {
+    Table expectedResponse =
+        Table.newBuilder()
+            .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+            .putAllClusterStates(new HashMap<String, Table.ClusterState>())
+            .putAllColumnFamilies(new HashMap<String, ColumnFamily>())
+            .setRestoreInfo(RestoreInfo.newBuilder().build())
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("undeleteTableTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockService.addResponse(resultOperation);
+
+    TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+
+    Table actualResponse = client.undeleteTableAsync(name).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<String> actualRequests = mockService.getRequestPaths();
+    Assert.assertEquals(1, actualRequests.size());
+
+    String apiClientHeaderKey =
+        mockService
+            .getRequestHeaders()
+            .get(ApiClientHeaderProvider.getDefaultApiClientHeaderKey())
+            .iterator()
+            .next();
+    Assert.assertTrue(
+        GaxHttpJsonProperties.getDefaultApiClientHeaderPattern()
+            .matcher(apiClientHeaderKey)
+            .matches());
+  }
+
+  @Test
+  public void undeleteTableExceptionTest() throws Exception {
+    ApiException exception =
+        ApiExceptionFactory.createException(
+            new Exception(), FakeStatusCode.of(StatusCode.Code.INVALID_ARGUMENT), false);
+    mockService.addException(exception);
+
+    try {
+      TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      client.undeleteTableAsync(name).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+    }
+  }
+
+  @Test
+  public void undeleteTableTest2() throws Exception {
+    Table expectedResponse =
+        Table.newBuilder()
+            .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+            .putAllClusterStates(new HashMap<String, Table.ClusterState>())
+            .putAllColumnFamilies(new HashMap<String, ColumnFamily>())
+            .setRestoreInfo(RestoreInfo.newBuilder().build())
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("undeleteTableTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockService.addResponse(resultOperation);
+
+    String name = "projects/project-9339/instances/instance-9339/tables/table-9339";
+
+    Table actualResponse = client.undeleteTableAsync(name).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<String> actualRequests = mockService.getRequestPaths();
+    Assert.assertEquals(1, actualRequests.size());
+
+    String apiClientHeaderKey =
+        mockService
+            .getRequestHeaders()
+            .get(ApiClientHeaderProvider.getDefaultApiClientHeaderKey())
+            .iterator()
+            .next();
+    Assert.assertTrue(
+        GaxHttpJsonProperties.getDefaultApiClientHeaderPattern()
+            .matcher(apiClientHeaderKey)
+            .matches());
+  }
+
+  @Test
+  public void undeleteTableExceptionTest2() throws Exception {
+    ApiException exception =
+        ApiExceptionFactory.createException(
+            new Exception(), FakeStatusCode.of(StatusCode.Code.INVALID_ARGUMENT), false);
+    mockService.addException(exception);
+
+    try {
+      String name = "projects/project-9339/instances/instance-9339/tables/table-9339";
+      client.undeleteTableAsync(name).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+    }
+  }
+
+  @Test
   public void modifyColumnFamiliesTest() throws Exception {
     Table expectedResponse =
         Table.newBuilder()

@@ -65,6 +65,8 @@ import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
+import com.google.bigtable.admin.v2.UndeleteTableMetadata;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
@@ -94,6 +96,7 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
   private static final TypeRegistry typeRegistry =
       TypeRegistry.newBuilder()
           .add(Snapshot.getDescriptor())
+          .add(UndeleteTableMetadata.getDescriptor())
           .add(Backup.getDescriptor())
           .add(Table.getDescriptor())
           .add(CreateTableFromSnapshotMetadata.getDescriptor())
@@ -277,6 +280,45 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
                   .setDefaultTypeRegistry(typeRegistry)
                   .build())
           .build();
+
+  private static final ApiMethodDescriptor<UndeleteTableRequest, Operation>
+      undeleteTableMethodDescriptor =
+          ApiMethodDescriptor.<UndeleteTableRequest, Operation>newBuilder()
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UndeleteTable")
+              .setHttpMethod("POST")
+              .setType(ApiMethodDescriptor.MethodType.UNARY)
+              .setRequestFormatter(
+                  ProtoMessageRequestFormatter.<UndeleteTableRequest>newBuilder()
+                      .setPath(
+                          "/v2/{name=projects/*/instances/*/tables/*}:undelete",
+                          request -> {
+                            Map<String, String> fields = new HashMap<>();
+                            ProtoRestSerializer<UndeleteTableRequest> serializer =
+                                ProtoRestSerializer.create();
+                            serializer.putPathParam(fields, "name", request.getName());
+                            return fields;
+                          })
+                      .setQueryParamsExtractor(
+                          request -> {
+                            Map<String, List<String>> fields = new HashMap<>();
+                            ProtoRestSerializer<UndeleteTableRequest> serializer =
+                                ProtoRestSerializer.create();
+                            return fields;
+                          })
+                      .setRequestBodyExtractor(
+                          request ->
+                              ProtoRestSerializer.create()
+                                  .toBody("*", request.toBuilder().clearName().build()))
+                      .build())
+              .setResponseParser(
+                  ProtoMessageResponseParser.<Operation>newBuilder()
+                      .setDefaultInstance(Operation.getDefaultInstance())
+                      .setDefaultTypeRegistry(typeRegistry)
+                      .build())
+              .setOperationSnapshotFactory(
+                  (UndeleteTableRequest request, Operation response) ->
+                      HttpJsonOperationSnapshot.create(response))
+              .build();
 
   private static final ApiMethodDescriptor<ModifyColumnFamiliesRequest, Table>
       modifyColumnFamiliesMethodDescriptor =
@@ -906,6 +948,9 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
   private final UnaryCallable<ListTablesRequest, ListTablesPagedResponse> listTablesPagedCallable;
   private final UnaryCallable<GetTableRequest, Table> getTableCallable;
   private final UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable;
+  private final UnaryCallable<UndeleteTableRequest, Operation> undeleteTableCallable;
+  private final OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationCallable;
   private final UnaryCallable<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesCallable;
   private final UnaryCallable<DropRowRangeRequest, Empty> dropRowRangeCallable;
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
@@ -1008,6 +1053,11 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
     HttpJsonCallSettings<DeleteTableRequest, Empty> deleteTableTransportSettings =
         HttpJsonCallSettings.<DeleteTableRequest, Empty>newBuilder()
             .setMethodDescriptor(deleteTableMethodDescriptor)
+            .setTypeRegistry(typeRegistry)
+            .build();
+    HttpJsonCallSettings<UndeleteTableRequest, Operation> undeleteTableTransportSettings =
+        HttpJsonCallSettings.<UndeleteTableRequest, Operation>newBuilder()
+            .setMethodDescriptor(undeleteTableMethodDescriptor)
             .setTypeRegistry(typeRegistry)
             .build();
     HttpJsonCallSettings<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesTransportSettings =
@@ -1127,6 +1177,15 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
     this.deleteTableCallable =
         callableFactory.createUnaryCallable(
             deleteTableTransportSettings, settings.deleteTableSettings(), clientContext);
+    this.undeleteTableCallable =
+        callableFactory.createUnaryCallable(
+            undeleteTableTransportSettings, settings.undeleteTableSettings(), clientContext);
+    this.undeleteTableOperationCallable =
+        callableFactory.createOperationCallable(
+            undeleteTableTransportSettings,
+            settings.undeleteTableOperationSettings(),
+            clientContext,
+            httpJsonOperationsStub);
     this.modifyColumnFamiliesCallable =
         callableFactory.createUnaryCallable(
             modifyColumnFamiliesTransportSettings,
@@ -1221,6 +1280,7 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
     methodDescriptors.add(listTablesMethodDescriptor);
     methodDescriptors.add(getTableMethodDescriptor);
     methodDescriptors.add(deleteTableMethodDescriptor);
+    methodDescriptors.add(undeleteTableMethodDescriptor);
     methodDescriptors.add(modifyColumnFamiliesMethodDescriptor);
     methodDescriptors.add(dropRowRangeMethodDescriptor);
     methodDescriptors.add(generateConsistencyTokenMethodDescriptor);
@@ -1280,6 +1340,17 @@ public class HttpJsonBigtableTableAdminStub extends BigtableTableAdminStub {
   @Override
   public UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable() {
     return deleteTableCallable;
+  }
+
+  @Override
+  public UnaryCallable<UndeleteTableRequest, Operation> undeleteTableCallable() {
+    return undeleteTableCallable;
+  }
+
+  @Override
+  public OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationCallable() {
+    return undeleteTableOperationCallable;
   }
 
   @Override
