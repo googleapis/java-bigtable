@@ -377,11 +377,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Upon receiving the response stream, it will merge the {@link
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured by the {@code rowAdapter} parameter.
-<<<<<<< HEAD
-   *   <li>Add bigtable tracer for tracking bigtable specific metrics.
-=======
    *   <li>Add BigtableTracer callable for tracking Bigtable specific metrics
->>>>>>> ca28be67 (feat: update tracers to use built in metrics)
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
    * </ul>
