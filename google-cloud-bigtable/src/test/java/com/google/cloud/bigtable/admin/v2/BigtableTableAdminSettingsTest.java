@@ -171,8 +171,10 @@ public class BigtableTableAdminSettingsTest {
       }
     }
     // failure will signal about adding a new settings property
-    List<String> sortedSettingsList = Arrays.stream(SETTINGS_LIST).sorted().collect(Collectors.toList());
-    List<String> sortedNonStaticFields = nonStaticFields.stream().sorted().collect(Collectors.toList());
+    List<String> sortedSettingsList =
+        Arrays.stream(SETTINGS_LIST).sorted().collect(Collectors.toList());
+    List<String> sortedNonStaticFields =
+        nonStaticFields.stream().sorted().collect(Collectors.toList());
     assertThat(sortedSettingsList).isEqualTo(sortedNonStaticFields);
   }
 
