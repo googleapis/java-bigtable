@@ -1,9 +1,5 @@
 /*
-<<<<<<< HEAD
  * Copyright 2022 Google LLC
-=======
- * Copyright 2021 Google LLC
->>>>>>> ca28be67 (feat: update tracers to use built in metrics)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,7 +112,7 @@ public class BuiltinMetricsTracerTest {
   public void setUp() throws Exception {
     fakeService = new FakeService();
 
-    final AtomicInteger count = new AtomicInteger(0);gi
+    final AtomicInteger count = new AtomicInteger(0);
     // Add an interceptor to add server-timing in headers
     ServerInterceptor trailersInterceptor =
         new ServerInterceptor() {
