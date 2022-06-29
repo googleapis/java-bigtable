@@ -149,7 +149,6 @@ public class StatsRecorderWrapperTest {
                 INSTANCE_ID,
                 APP_PROFILE_ID,
                 statsComponent.getViewManager()))
-
         .isEqualTo(attemptCount);
     assertThat(
             getAggregationValueAsLong(
