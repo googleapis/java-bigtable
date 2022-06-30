@@ -32,15 +32,15 @@ import javax.annotation.Nonnull;
 /**
  * This callable will:
  *
- * <p>- Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC
+ * <li>- Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC
  * methods upon completion. The {@link BigtableTracer} will process metrics that were injected in
  * the header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
  * returned null, it probably means that the request has never reached GFE, and it'll increment the
  * gfe_header_missing_counter in this case.
  *
- * <p>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and cluster ids.
+ * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and cluster ids.
  *
- * <p>This class is considered an internal implementation detail and not meant to be used by
+ * <li>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
 @InternalApi
@@ -103,7 +103,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       try {
         byte[] trailers =
             responseMetadata
-                .getTrailingMetadata()
+                .getMetadata()
                 .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());

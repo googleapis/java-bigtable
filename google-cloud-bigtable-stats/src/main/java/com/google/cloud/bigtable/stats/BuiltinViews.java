@@ -44,7 +44,7 @@ public class BuiltinViews {
     }
   }
 
-  public void registerBigtableBuiltinViews() {
+  public static void registerBigtableBuiltinViews() {
     ViewManager viewManager = Stats.getViewManager();
     for (View view : BIGTABLE_BUILTIN_VIEWS) {
       viewManager.registerView(view);
