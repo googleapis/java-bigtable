@@ -212,15 +212,6 @@
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-shade-plugin</artifactId>
-                    <version>3.2.4</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
         <plugins>
             <!-- Using maven site plugin only as a hook for javadoc:aggregate, don't need the reports -->
             <plugin>
@@ -300,6 +291,11 @@
                         <link>https://googleapis.github.io/api-common-java/${google.api-common.version}/apidocs/</link>
                     </links>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0</version>
             </plugin>
         </plugins>
     </build>
