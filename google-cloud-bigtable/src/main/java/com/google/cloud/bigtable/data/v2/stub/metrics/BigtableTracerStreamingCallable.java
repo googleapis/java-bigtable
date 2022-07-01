@@ -31,19 +31,16 @@ import javax.annotation.Nonnull;
 
 /**
  * This callable will
- *
- * <li>-Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC
- * methods upon completion. The {@link BigtableTracer} will process metrics that were injected in
- * the header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
- * returned null, it probably means that the request has never reached GFE, and it'll increment the
- * gfe_header_missing_counter in this case.
- *
- * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and cluster ids.
- *
+ * <li>-Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC methods upon
+ *     completion. The {@link BigtableTracer} will process metrics that were injected in the
+ *     header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
+ *     returned null, it probably means that the request has never reached GFE, and it'll increment
+ *     the gfe_header_missing_counter in this case.
+ * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
+ *     cluster ids.
  * <li>-Call {@link BigtableTracer#onRequest(int)} to record the request events in a stream.
- *
  * <li>This class is considered an internal implementation detail and not meant to be used by
- * applications.
+ *     applications.
  */
 @InternalApi
 public class BigtableTracerStreamingCallable<RequestT, ResponseT>
@@ -108,9 +105,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       tracer.recordGfeMetadata(latency, t);
       try {
         byte[] trailers =
-            responseMetadata
-                .getTrailingMetadata()
-                .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+            metadata.get(Metadata.Key.of(Util.RESPONSE_PRAMS_KEY, Metadata.BINARY_BYTE_MARSHALLER));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
       } catch (NullPointerException | InvalidProtocolBufferException e) {
@@ -126,9 +121,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       tracer.recordGfeMetadata(latency, null);
       try {
         byte[] trailers =
-            responseMetadata
-                .getTrailingMetadata()
-                .get(Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+            metadata.get(Metadata.Key.of(Util.RESPONSE_PRAMS_KEY, Metadata.BINARY_BYTE_MARSHALLER));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
       } catch (NullPointerException | InvalidProtocolBufferException e) {

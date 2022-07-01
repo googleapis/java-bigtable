@@ -85,17 +85,15 @@ public class BuiltinMetricsTracerTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
-  private static final String ZONE_0 = "us-west-1";
-  private static final String CLUSTER_0 = "cluster-0";
-  private static final String ZONE_1 = "us-east-1";
-  private static final String CLUSTER_1 = "cluster-1";
+  private static final String ZONE = "us-west-1";
+  private static final String CLUSTER = "cluster-0";
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private FakeService fakeService;
+  private final FakeService fakeService = new FakeService();
   private Server server;
 
   private EnhancedBigtableStub stub;
@@ -110,9 +108,6 @@ public class BuiltinMetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
-    fakeService = new FakeService();
-
-    final AtomicInteger count = new AtomicInteger(0);
     // Add an interceptor to add server-timing in headers
     ServerInterceptor trailersInterceptor =
         new ServerInterceptor() {
@@ -128,34 +123,15 @@ public class BuiltinMetricsTracerTest {
                     headers.put(
                         Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER),
                         String.format("gfet4t7; dur=%d", FAKE_SERVER_TIMING));
-                    super.sendHeaders(headers);
-                  }
 
-                  @Override
-                  public void close(Status status, Metadata trailers) {
-                    int currentCount = count.getAndIncrement();
-                    if (currentCount == 0) {
-                      ResponseParams params =
-                          ResponseParams.newBuilder()
-                              .setZoneId(ZONE_0)
-                              .setClusterId(CLUSTER_0)
-                              .build();
-                      byte[] byteArray = params.toByteArray();
-                      trailers.put(
-                          Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER),
-                          byteArray);
-                    } else {
-                      ResponseParams params =
-                          ResponseParams.newBuilder()
-                              .setClusterId(CLUSTER_1)
-                              .setZoneId(ZONE_1)
-                              .build();
-                      byte[] byteArray = params.toByteArray();
-                      trailers.put(
-                          Metadata.Key.of(Util.TRAILER_KEY, Metadata.BINARY_BYTE_MARSHALLER),
-                          byteArray);
-                    }
-                    super.close(status, trailers);
+                    ResponseParams params =
+                        ResponseParams.newBuilder().setZoneId(ZONE).setClusterId(CLUSTER).build();
+                    byte[] byteArray = params.toByteArray();
+                    headers.put(
+                        Metadata.Key.of(Util.RESPONSE_PRAMS_KEY, Metadata.BINARY_BYTE_MARSHALLER),
+                        byteArray);
+
+                    super.sendHeaders(headers);
                   }
                 },
                 metadata);
@@ -365,8 +341,8 @@ public class BuiltinMetricsTracerTest {
     // and when the record() is called in onOperationCompletion().
     verify(statsRecorderWrapper, timeout(50).times(fakeService.getAttemptCounter().get() + 1))
         .record(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
-    assertThat(zone.getAllValues()).containsExactly(ZONE_0, ZONE_1, ZONE_1, ZONE_1);
-    assertThat(cluster.getAllValues()).containsExactly(CLUSTER_0, CLUSTER_1, CLUSTER_1, CLUSTER_1);
+    assertThat(zone.getAllValues()).containsExactly("undefined", "undefined", ZONE, ZONE);
+    assertThat(cluster.getAllValues()).containsExactly("undefined", "undefined", CLUSTER, CLUSTER);
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "UNAVAILABLE", "OK", "OK");
   }
 
