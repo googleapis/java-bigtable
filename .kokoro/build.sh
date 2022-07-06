@@ -109,7 +109,7 @@ samples)
     fi
     ;;
 clirr)
-    mvn -B -ntp -Denforcer.skip=true clirr:check
+    mvn -B -ntp -Denforcer.skip=true install clirr:check -DskipTests
     RETURN_CODE=$?
     ;;
 *)
