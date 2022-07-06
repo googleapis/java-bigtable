@@ -4,7 +4,7 @@
     <difference>
         <differenceType>7005</differenceType>
         <className>com/google/cloud/bigtable/stats/StatsRecorderWrapper</className>
-        <method>*</method>
-        <to>*</to>
+        <method>*StatsRecorderWrapper*</method>
+        <to>*StatsRecorder*</to>
     </difference>
 </differences>
