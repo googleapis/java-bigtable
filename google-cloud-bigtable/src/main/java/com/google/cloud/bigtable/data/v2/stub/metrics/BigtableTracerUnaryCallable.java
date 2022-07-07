@@ -34,31 +34,27 @@ import javax.annotation.Nonnull;
  * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
  * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
  *
- * <p>If GFE metrics are not registered in {@link RpcViews}, skip injecting GrpcResponseMetadata.
- * This is for the case where direct path is enabled, all the requests won't go through GFE and
- * therefore won't have the server-timing header.
- *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
 @InternalApi
-public class HeaderTracerUnaryCallable<RequestT, ResponseT>
+public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
 
-  public HeaderTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
+  public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
   }
 
   @Override
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
     // tracer should always be an instance of BigtableTracer
-    if (RpcViews.isGfeMetricsRegistered() && context.getTracer() instanceof BigtableTracer) {
+    if (context.getTracer() instanceof BigtableTracer) {
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
       final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
-      HeaderTracerUnaryCallback callback =
-          new HeaderTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
+      BigtableTracerUnaryCallback callback =
+          new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
       ApiFuture<ResponseT> future = innerCallable.futureCall(request, contextWithResponseMetadata);
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
@@ -67,12 +63,12 @@ public class HeaderTracerUnaryCallable<RequestT, ResponseT>
     }
   }
 
-  class HeaderTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
+  class BigtableTracerUnaryCallback<ResponseT> implements ApiFutureCallback<ResponseT> {
 
     private final BigtableTracer tracer;
     private final GrpcResponseMetadata responseMetadata;
 
-    HeaderTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
+    BigtableTracerUnaryCallback(BigtableTracer tracer, GrpcResponseMetadata responseMetadata) {
       this.tracer = tracer;
       this.responseMetadata = responseMetadata;
     }

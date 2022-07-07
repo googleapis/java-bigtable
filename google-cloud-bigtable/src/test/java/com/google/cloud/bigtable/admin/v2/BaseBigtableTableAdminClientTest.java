@@ -29,7 +29,6 @@ import com.google.api.gax.rpc.ApiClientHeaderProvider;
 import com.google.api.gax.rpc.InvalidArgumentException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.resourcenames.ResourceName;
-import com.google.bigtable.admin.v2.AppProfileName;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.bigtable.admin.v2.BackupName;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
@@ -64,6 +63,7 @@ import com.google.bigtable.admin.v2.SnapshotName;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
 import com.google.common.collect.Lists;
 import com.google.iam.v1.AuditConfig;
@@ -695,6 +695,104 @@ public class BaseBigtableTableAdminClientTest {
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
       // Expected exception.
+    }
+  }
+
+  @Test
+  public void undeleteTableTest() throws Exception {
+    Table expectedResponse =
+        Table.newBuilder()
+            .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+            .putAllClusterStates(new HashMap<String, Table.ClusterState>())
+            .putAllColumnFamilies(new HashMap<String, ColumnFamily>())
+            .setRestoreInfo(RestoreInfo.newBuilder().build())
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("undeleteTableTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+
+    Table actualResponse = client.undeleteTableAsync(name).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    UndeleteTableRequest actualRequest = ((UndeleteTableRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name.toString(), actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void undeleteTableExceptionTest() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      TableName name = TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]");
+      client.undeleteTableAsync(name).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
+    }
+  }
+
+  @Test
+  public void undeleteTableTest2() throws Exception {
+    Table expectedResponse =
+        Table.newBuilder()
+            .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
+            .putAllClusterStates(new HashMap<String, Table.ClusterState>())
+            .putAllColumnFamilies(new HashMap<String, ColumnFamily>())
+            .setRestoreInfo(RestoreInfo.newBuilder().build())
+            .build();
+    Operation resultOperation =
+        Operation.newBuilder()
+            .setName("undeleteTableTest")
+            .setDone(true)
+            .setResponse(Any.pack(expectedResponse))
+            .build();
+    mockBigtableTableAdmin.addResponse(resultOperation);
+
+    String name = "name3373707";
+
+    Table actualResponse = client.undeleteTableAsync(name).get();
+    Assert.assertEquals(expectedResponse, actualResponse);
+
+    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
+    Assert.assertEquals(1, actualRequests.size());
+    UndeleteTableRequest actualRequest = ((UndeleteTableRequest) actualRequests.get(0));
+
+    Assert.assertEquals(name, actualRequest.getName());
+    Assert.assertTrue(
+        channelProvider.isHeaderSent(
+            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
+            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
+  }
+
+  @Test
+  public void undeleteTableExceptionTest2() throws Exception {
+    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
+    mockBigtableTableAdmin.addException(exception);
+
+    try {
+      String name = "name3373707";
+      client.undeleteTableAsync(name).get();
+      Assert.fail("No exception raised");
+    } catch (ExecutionException e) {
+      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
+      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
+      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
     }
   }
 
@@ -1956,7 +2054,7 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
 
     Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -1978,7 +2076,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
       client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -2038,7 +2136,7 @@ public class BaseBigtableTableAdminClientTest {
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
     Policy policy = Policy.newBuilder().build();
 
     Policy actualResponse = client.setIamPolicy(resource, policy);
@@ -2062,7 +2160,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
       Policy policy = Policy.newBuilder().build();
       client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
@@ -2121,7 +2219,7 @@ public class BaseBigtableTableAdminClientTest {
         TestIamPermissionsResponse.newBuilder().addAllPermissions(new ArrayList<String>()).build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
     List<String> permissions = new ArrayList<>();
 
     TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
@@ -2145,7 +2243,7 @@ public class BaseBigtableTableAdminClientTest {
     mockBigtableTableAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");

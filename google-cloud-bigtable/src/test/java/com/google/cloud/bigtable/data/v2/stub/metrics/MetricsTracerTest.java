@@ -34,7 +34,7 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
-import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
+import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -42,7 +42,6 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
-import com.google.cloud.bigtable.misc_utilities.MethodComparator;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -51,6 +50,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -58,8 +58,6 @@ import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -101,7 +99,7 @@ public class MetricsTracerTest {
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  FakeServiceHelper serviceHelper;
+  private Server server;
 
   @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
@@ -112,13 +110,12 @@ public class MetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
-    serviceHelper = new FakeServiceHelper(mockService);
-    serviceHelper.start();
+    server = FakeServiceBuilder.create(mockService).start();
 
     RpcViews.registerBigtableClientViews(localStats.getViewManager());
 
     settings =
-        BigtableDataSettings.newBuilderForEmulator(serviceHelper.getPort())
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -132,7 +129,7 @@ public class MetricsTracerTest {
   @After
   public void tearDown() {
     stub.close();
-    serviceHelper.shutdown();
+    server.shutdown();
   }
 
   @Test
@@ -483,15 +480,6 @@ public class MetricsTracerTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
     assertThat(throttledTimeMetric).isAtLeast(throttled);
-  }
-
-  @Test
-  public void testMethodsOverride() {
-    Method[] baseMethods = BigtableTracer.class.getDeclaredMethods();
-    Method[] metricsTracerMethods = MetricsTracer.class.getDeclaredMethods();
-    assertThat(Arrays.asList(metricsTracerMethods))
-        .comparingElementsUsing(MethodComparator.METHOD_CORRESPONDENCE)
-        .containsAtLeastElementsIn(baseMethods);
   }
 
   @SuppressWarnings("unchecked")

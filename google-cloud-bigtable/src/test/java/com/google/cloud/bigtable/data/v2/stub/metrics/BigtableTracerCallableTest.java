@@ -34,7 +34,7 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
-import com.google.cloud.bigtable.data.v2.FakeServiceHelper;
+import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -47,6 +47,7 @@ import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
+import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
@@ -55,7 +56,6 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.StatsComponent;
-import io.opencensus.stats.ViewData;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -68,9 +68,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class HeaderTracerCallableTest {
-  private FakeServiceHelper serviceHelper;
-  private FakeServiceHelper serviceHelperNoHeader;
+public class BigtableTracerCallableTest {
+  private Server server;
+  private Server serverNoHeader;
 
   private FakeService fakeService = new FakeService();
 
@@ -95,32 +95,32 @@ public class HeaderTracerCallableTest {
     // Create a server that'll inject a server-timing header with a random number and a stub that
     // connects to this server.
     fakeServerTiming = new AtomicInteger(new Random().nextInt(1000) + 1);
-    serviceHelper =
-        new FakeServiceHelper(
-            new ServerInterceptor() {
-              @Override
-              public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-                  ServerCall<ReqT, RespT> serverCall,
-                  Metadata metadata,
-                  ServerCallHandler<ReqT, RespT> serverCallHandler) {
-                return serverCallHandler.startCall(
-                    new SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
-                      @Override
-                      public void sendHeaders(Metadata headers) {
-                        headers.put(
-                            Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER),
-                            String.format("gfet4t7; dur=%d", fakeServerTiming.get()));
-                        super.sendHeaders(headers);
-                      }
-                    },
-                    metadata);
-              }
-            },
-            fakeService);
-    serviceHelper.start();
+    server =
+        FakeServiceBuilder.create(fakeService)
+            .intercept(
+                new ServerInterceptor() {
+                  @Override
+                  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+                      ServerCall<ReqT, RespT> serverCall,
+                      Metadata metadata,
+                      ServerCallHandler<ReqT, RespT> serverCallHandler) {
+                    return serverCallHandler.startCall(
+                        new SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                          @Override
+                          public void sendHeaders(Metadata headers) {
+                            headers.put(
+                                Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER),
+                                String.format("gfet4t7; dur=%d", fakeServerTiming.get()));
+                            super.sendHeaders(headers);
+                          }
+                        },
+                        metadata);
+                  }
+                })
+            .start();
 
     BigtableDataSettings settings =
-        BigtableDataSettings.newBuilderForEmulator(serviceHelper.getPort())
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -133,11 +133,10 @@ public class HeaderTracerCallableTest {
 
     // Create another server without injecting the server-timing header and another stub that
     // connects to it.
-    serviceHelperNoHeader = new FakeServiceHelper(fakeService);
-    serviceHelperNoHeader.start();
+    serverNoHeader = FakeServiceBuilder.create(fakeService).start();
 
     BigtableDataSettings noHeaderSettings =
-        BigtableDataSettings.newBuilderForEmulator(serviceHelperNoHeader.getPort())
+        BigtableDataSettings.newBuilderForEmulator(serverNoHeader.getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -153,8 +152,8 @@ public class HeaderTracerCallableTest {
   public void tearDown() {
     stub.close();
     noHeaderStub.close();
-    serviceHelper.shutdown();
-    serviceHelperNoHeader.shutdown();
+    server.shutdown();
+    serverNoHeader.shutdown();
   }
 
   @Test
@@ -381,24 +380,6 @@ public class HeaderTracerCallableTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
     assertThat(missingCount).isEqualTo(attempts);
-  }
-
-  @Test
-  public void testCallableBypassed() throws InterruptedException {
-    RpcViews.setGfeMetricsRegistered(false);
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    ViewData headerMissingView =
-        localStats
-            .getViewManager()
-            .getView(RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW.getName());
-    ViewData latencyView =
-        localStats.getViewManager().getView(RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW.getName());
-    // Verify that the view is registered by it's not collecting metrics
-    assertThat(headerMissingView).isNotNull();
-    assertThat(latencyView).isNotNull();
-    assertThat(headerMissingView.getAggregationMap()).isEmpty();
-    assertThat(latencyView.getAggregationMap()).isEmpty();
   }
 
   private class FakeService extends BigtableImplBase {

@@ -22,30 +22,32 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import io.grpc.Metadata;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will inject a {@link GrpcResponseMetadata} to access the headers and trailers
- * returned by gRPC methods upon completion. The {@link BigtableTracer} will process metrics that
- * were injected in the header/trailer and publish them to OpenCensus. If {@link
- * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
- * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
+ * This callable will
  *
- * <p>If GFE metrics are not registered in {@link RpcViews}, skip injecting GrpcResponseMetadata.
- * This is for the case where direct path is enabled, all the requests won't go through GFE and
- * therefore won't have the server-timing header.
+ * <p>-inject a {@link GrpcResponseMetadata} to access the headers and trailers returned by gRPC
+ * methods upon completion. The {@link BigtableTracer} will process metrics that were injected in
+ * the header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
+ * returned null, it probably means that the request has never reached GFE, and it'll increment the
+ * gfe_header_missing_counter in this case.
+ *
+ * <p>-Call {@link BigtableTracer#onRequest()} to record the request events in a stream.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
 @InternalApi
-public class HeaderTracerStreamingCallable<RequestT, ResponseT>
+public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public HeaderTracerStreamingCallable(
+  public BigtableTracerStreamingCallable(
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable) {
     this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
   }
@@ -55,9 +57,9 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
     final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
     // tracer should always be an instance of bigtable tracer
-    if (RpcViews.isGfeMetricsRegistered() && context.getTracer() instanceof BigtableTracer) {
-      HeaderTracerResponseObserver<ResponseT> innerObserver =
-          new HeaderTracerResponseObserver<>(
+    if (context.getTracer() instanceof BigtableTracer) {
+      BigtableTracerResponseObserver<ResponseT> innerObserver =
+          new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
       innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
     } else {
@@ -65,13 +67,13 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
     }
   }
 
-  private class HeaderTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
+  private class BigtableTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
 
     private final BigtableTracer tracer;
     private final ResponseObserver<ResponseT> outerObserver;
     private final GrpcResponseMetadata responseMetadata;
 
-    HeaderTracerResponseObserver(
+    BigtableTracerResponseObserver(
         ResponseObserver<ResponseT> observer,
         BigtableTracer tracer,
         GrpcResponseMetadata metadata) {
@@ -82,12 +84,15 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     public void onStart(final StreamController controller) {
-      outerObserver.onStart(controller);
+      TracedStreamController tracedController = new TracedStreamController(controller, tracer);
+      outerObserver.onStart(tracedController);
     }
 
     @Override
     public void onResponse(ResponseT response) {
+      Stopwatch stopwatch = Stopwatch.createStarted();
       outerObserver.onResponse(response);
+      tracer.afterResponse(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Override
@@ -106,6 +111,33 @@ public class HeaderTracerStreamingCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       outerObserver.onComplete();
+    }
+  }
+
+  private class TracedStreamController implements StreamController {
+    private final StreamController innerController;
+    private final BigtableTracer tracer;
+
+    TracedStreamController(StreamController innerController, BigtableTracer tracer) {
+      this.innerController = innerController;
+      this.tracer = tracer;
+    }
+
+    @Override
+    public void cancel() {
+      innerController.cancel();
+    }
+
+    @Override
+    public void disableAutoInboundFlowControl() {
+      tracer.disableFlowControl();
+      innerController.disableAutoInboundFlowControl();
+    }
+
+    @Override
+    public void request(int i) {
+      tracer.onRequest(i);
+      innerController.request(i);
     }
   }
 }

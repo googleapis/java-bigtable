@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.admin.v2;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.longrunning.OperationFuture;
@@ -109,7 +108,6 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * Constructs an instance of BaseBigtableInstanceAdminClient, using the given stub for making
    * calls. This is for advanced usage - prefer using create(BaseBigtableInstanceAdminSettings).
    */
-  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
   public static final BaseBigtableInstanceAdminClient create(BigtableInstanceAdminStub stub) {
     return new BaseBigtableInstanceAdminClient(stub);
   }
@@ -126,7 +124,6 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     this.operationsClient = OperationsClient.create(this.stub.getOperationsStub());
   }
 
-  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
   protected BaseBigtableInstanceAdminClient(BigtableInstanceAdminStub stub) {
     this.settings = null;
     this.stub = stub;
@@ -137,7 +134,6 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
     return settings;
   }
 
-  @BetaApi("A restructuring of stub classes is planned, so this may break in the future")
   public BigtableInstanceAdminStub getStub() {
     return stub;
   }
@@ -2001,7 +1997,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *   while (true) {
    *     ListAppProfilesResponse response =
    *         baseBigtableInstanceAdminClient.listAppProfilesCallable().call(request);
-   *     for (AppProfile element : response.getResponsesList()) {
+   *     for (AppProfile element : response.getAppProfilesList()) {
    *       // doThingsWith(element);
    *     }
    *     String nextPageToken = response.getNextPageToken();
@@ -2255,7 +2251,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+   *   ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
    *   Policy response = baseBigtableInstanceAdminClient.getIamPolicy(resource);
    * }
    * }</pre>
@@ -2312,7 +2308,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetIamPolicyRequest request =
    *       GetIamPolicyRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .setOptions(GetPolicyOptions.newBuilder().build())
    *           .build();
    *   Policy response = baseBigtableInstanceAdminClient.getIamPolicy(request);
@@ -2340,7 +2336,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   GetIamPolicyRequest request =
    *       GetIamPolicyRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .setOptions(GetPolicyOptions.newBuilder().build())
    *           .build();
    *   ApiFuture<Policy> future =
@@ -2365,7 +2361,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+   *   ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
    *   Policy policy = Policy.newBuilder().build();
    *   Policy response = baseBigtableInstanceAdminClient.setIamPolicy(resource, policy);
    * }
@@ -2430,7 +2426,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   SetIamPolicyRequest request =
    *       SetIamPolicyRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .setPolicy(Policy.newBuilder().build())
    *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
@@ -2458,7 +2454,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   SetIamPolicyRequest request =
    *       SetIamPolicyRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .setPolicy(Policy.newBuilder().build())
    *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
@@ -2484,7 +2480,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    * // It may require modifications to work in your environment.
    * try (BaseBigtableInstanceAdminClient baseBigtableInstanceAdminClient =
    *     BaseBigtableInstanceAdminClient.create()) {
-   *   ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+   *   ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
    *   List<String> permissions = new ArrayList<>();
    *   TestIamPermissionsResponse response =
    *       baseBigtableInstanceAdminClient.testIamPermissions(resource, permissions);
@@ -2556,7 +2552,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   TestIamPermissionsRequest request =
    *       TestIamPermissionsRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .addAllPermissions(new ArrayList<String>())
    *           .build();
    *   TestIamPermissionsResponse response =
@@ -2584,7 +2580,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *     BaseBigtableInstanceAdminClient.create()) {
    *   TestIamPermissionsRequest request =
    *       TestIamPermissionsRequest.newBuilder()
-   *           .setResource(AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]").toString())
+   *           .setResource(InstanceName.of("[PROJECT]", "[INSTANCE]").toString())
    *           .addAllPermissions(new ArrayList<String>())
    *           .build();
    *   ApiFuture<TestIamPermissionsResponse> future =
@@ -2751,7 +2747,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *   while (true) {
    *     ListHotTabletsResponse response =
    *         baseBigtableInstanceAdminClient.listHotTabletsCallable().call(request);
-   *     for (HotTablet element : response.getResponsesList()) {
+   *     for (HotTablet element : response.getHotTabletsList()) {
    *       // doThingsWith(element);
    *     }
    *     String nextPageToken = response.getNextPageToken();

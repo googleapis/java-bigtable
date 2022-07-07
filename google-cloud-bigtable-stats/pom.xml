@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-parent</artifactId>
-        <version>2.6.3-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,7 +13,7 @@
         through Stackdriver. Built-in metrics will be implemented with shaded OpenCensus so it won't interfere with
         customer's application metrics. -->
     <artifactId>google-cloud-bigtable-stats</artifactId>
-    <version>2.6.3-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     <description>Experimental project to shade OpenCensus dependencies.</description>
 
     <dependencyManagement>
@@ -21,7 +21,7 @@
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-                <version>2.6.3-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -30,16 +30,37 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>gax</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api</groupId>
+            <artifactId>api-common</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-impl</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
+
         <dependency>
             <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
+            <artifactId>opencensus-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.truth</groupId>
+            <artifactId>truth</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -48,6 +69,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -78,10 +100,14 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.3.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>clirr-maven-plugin</artifactId>
                 <configuration>
-                    <ignoredUnusedDeclaredDependencies>
-                        <ignoredUnusedDeclaredDependency>*</ignoredUnusedDeclaredDependency>
-                    </ignoredUnusedDeclaredDependencies>
+                    <excludes>
+                        <exclude>com/google/bigtable/veneer/repackaged/**</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>
