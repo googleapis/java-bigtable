@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -438,12 +438,9 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * Response metadata proto
-<<<<<<< HEAD
    * This is an experimental feature that will be used to get zone_id and
    * cluster_id from response trailers to tag the metrics. This should not be
    * used by customers directly
-=======
->>>>>>> 880e0a1c (feat: add response protos)
    * </pre>
    *
    * Protobuf type {@code google.bigtable.v2.ResponseParams}
