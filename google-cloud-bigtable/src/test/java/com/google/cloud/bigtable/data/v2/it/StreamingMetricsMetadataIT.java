@@ -66,6 +66,11 @@ public class StreamingMetricsMetadataIT {
     Thread.sleep(100);
 
     ViewManager viewManager = Stats.getViewManager();
+
+    System.out.println("exported views: " + viewManager.getAllExportedViews());
+
+    System.out.println("view data: " + viewManager.getView(View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies")));
+
     ViewData viewData =
         viewManager.getView(
             View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
