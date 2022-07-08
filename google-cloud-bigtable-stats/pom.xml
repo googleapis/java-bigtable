@@ -50,6 +50,7 @@
         <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-impl</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>
@@ -107,6 +108,13 @@
                     <excludes>
                         <exclude>com/google/bigtable/veneer/repackaged/**</exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <ignoreNonCompile>true</ignoreNonCompile>
                 </configuration>
             </plugin>
         </plugins>
