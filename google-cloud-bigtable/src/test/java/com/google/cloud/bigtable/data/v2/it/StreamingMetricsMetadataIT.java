@@ -28,17 +28,10 @@ import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.TagValue;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -63,35 +56,20 @@ public class StreamingMetricsMetadataIT {
     Query query = Query.create(testEnvRule.env().getTableId()).rowKey(uniqueKey);
     ArrayList<Row> rows = Lists.newArrayList(testEnvRule.env().getDataClient().readRows(query));
 
-    // give opencensus some time to populate view data
-    Thread.sleep(100);
-
-    System.out.println("exported views: " + StatsWrapper.getTagValueString());
-
-
-//    ViewData viewData =
-//        viewManager.getView(
-//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
-
-//    List<TagValue> tagValues =
-//        viewData.getAggregationMap().entrySet().stream()
-//            .map(Map.Entry::getKey)
-//            .flatMap(x -> x.stream())
-//            .collect(Collectors.toCollection(ArrayList::new));
-
-//    builtinViews.getTagValueString();
-
     ApiFuture<List<Cluster>> clustersFuture =
         testEnvRule
             .env()
             .getInstanceAdminClient()
             .listClustersAsync(testEnvRule.env().getInstanceId());
+
     List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
 
-//    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getZone()));
-//    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getId()));
-    assertThat(StatsWrapper.getTagValueString()).contains(clusters.get(0).getZone());
-    assertThat(StatsWrapper.getTagValueString()).contains(clusters.get(0).getId());
+    // give opencensus some time to populate view data
+    Thread.sleep(100);
+
+    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
+    assertThat(tagValueStrings).contains(clusters.get(0).getZone());
+    assertThat(tagValueStrings).contains(clusters.get(0).getId());
   }
 
   @Test
@@ -104,19 +82,9 @@ public class StreamingMetricsMetadataIT {
 
     // give opencensus some time to populate view data
     Thread.sleep(100);
-//
-    ViewManager viewManager = Stats.getViewManager();
-    ViewData viewData =
-        viewManager.getView(
-            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
 
-    List<TagValue> tagValues =
-        viewData.getAggregationMap().entrySet().stream()
-            .map(Map.Entry::getKey)
-            .flatMap(x -> x.stream())
-            .collect(Collectors.toCollection(ArrayList::new));
-
-    assertThat(tagValues).contains(TagValue.create("undefined"));
-    assertThat(tagValues).contains(TagValue.create("undefined"));
+    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
+    assertThat(tagValueStrings).contains("undefined");
+    assertThat(tagValueStrings).contains("undefined");
   }
 }

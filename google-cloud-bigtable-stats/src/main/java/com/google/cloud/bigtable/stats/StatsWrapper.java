@@ -21,7 +21,6 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.stats.Stats;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,14 +39,16 @@ public class StatsWrapper {
         operationType, spanName, statsAttributes, Stats.getStatsRecorder());
   }
 
+  // This is used in integration tests to get the tag value strings from view manager because Stats
+  // is relocated to
+  // com.google.bigtable.veneer.repackaged.io.opencensus.
   @VisibleForTesting
-  public static List<String> getTagValueString() {
+  public static List<String> getOperationLatencyViewTagValueStrings() {
     return Stats.getViewManager().getView(BuiltinViewConstants.OPERATION_LATENCIES_VIEW.getName())
-            .getAggregationMap()
-            .entrySet().stream()
-            .map(Map.Entry::getKey)
-            .flatMap(x -> x.stream())
-            .map(x -> x.asString())
-            .collect(Collectors.toCollection(ArrayList::new));
+        .getAggregationMap().entrySet().stream()
+        .map(Map.Entry::getKey)
+        .flatMap(x -> x.stream())
+        .map(x -> x.asString())
+        .collect(Collectors.toCollection(ArrayList::new));
   }
 }

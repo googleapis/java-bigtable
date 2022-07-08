@@ -20,13 +20,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /** For registering built-in metric views */
 @InternalApi("For internal use only")

@@ -23,25 +23,16 @@ import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.stats.BuiltinViews;
+import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
-import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
-import io.opencensus.stats.ViewData;
-import io.opencensus.stats.ViewManager;
-import io.opencensus.tags.TagValue;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
@@ -51,9 +42,7 @@ public class UnaryMetricsMetadataIT {
         .withMessage("UnaryMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-
-    BuiltinViews builtinViews = new BuiltinViews();
-    builtinViews.registerBigtableBuiltinViews();
+    BuiltinViews.registerBigtableBuiltinViews();
   }
 
   @Test
@@ -72,29 +61,19 @@ public class UnaryMetricsMetadataIT {
 
     future.get(1, TimeUnit.MINUTES);
 
+    ApiFuture<List<Cluster>> clustersFuture =
+        testEnvRule
+            .env()
+            .getInstanceAdminClient()
+            .listClustersAsync(testEnvRule.env().getInstanceId());
+    List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
+
     // give opencensus some time to populate view data
     Thread.sleep(100);
 
-//    ViewManager viewManager = Stats.getViewManager();
-//    ViewData viewData =
-//        viewManager.getView(
-//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
-//
-//    List<TagValue> tagValues =
-//        viewData.getAggregationMap().entrySet().stream()
-//            .map(Map.Entry::getKey)
-//            .flatMap(x -> x.stream())
-//            .collect(Collectors.toCollection(ArrayList::new));
-//
-//    ApiFuture<List<Cluster>> clustersFuture =
-//        testEnvRule
-//            .env()
-//            .getInstanceAdminClient()
-//            .listClustersAsync(testEnvRule.env().getInstanceId());
-//    List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
-//
-//    assertThat(tagValues).contains(TagValue.create(clusters.get(0).getZone()));
-//    assertThat(tagValues).contains(TagValue.create(clusters.get(0).getId()));
+    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
+    assertThat(tagValueStrings).contains(clusters.get(0).getZone());
+    assertThat(tagValueStrings).contains(clusters.get(0).getId());
   }
 
   @Test
@@ -111,21 +90,11 @@ public class UnaryMetricsMetadataIT {
     } catch (NotFoundException e) {
     }
 
-//    // give opencensus some time to populate view data
-//    Thread.sleep(100);
-//
-//    ViewManager viewManager = Stats.getViewManager();
-//    ViewData viewData =
-//        viewManager.getView(
-//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
-//
-//    List<TagValue> tagValues =
-//        viewData.getAggregationMap().entrySet().stream()
-//            .map(Map.Entry::getKey)
-//            .flatMap(x -> x.stream())
-//            .collect(Collectors.toCollection(ArrayList::new));
-//
-//    assertThat(tagValues).contains(TagValue.create("undefined"));
-//    assertThat(tagValues).contains(TagValue.create("undefined"));
+    // give opencensus some time to populate view data
+    Thread.sleep(100);
+
+    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
+    assertThat(tagValueStrings).contains("undefined");
+    assertThat(tagValueStrings).contains("undefined");
   }
 }
