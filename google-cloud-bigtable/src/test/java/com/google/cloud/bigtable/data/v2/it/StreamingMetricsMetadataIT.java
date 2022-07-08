@@ -45,13 +45,16 @@ import org.junit.Test;
 public class StreamingMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
+  static BuiltinViews builtinViews = new BuiltinViews();
+
+
   @BeforeClass
   public static void setUpClass() {
     assume()
         .withMessage("StreamingMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-    BuiltinViews.registerBigtableBuiltinViews();
+    builtinViews.registerBigtableBuiltinViews();
   }
 
   @Test
@@ -65,21 +68,21 @@ public class StreamingMetricsMetadataIT {
     // give opencensus some time to populate view data
     Thread.sleep(100);
 
-    ViewManager viewManager = Stats.getViewManager();
+//    ViewManager viewManager = Stats.getViewManager();
+    System.out.println("exported views: " + builtinViews.getTagValueString());
 
-    System.out.println("exported views: " + viewManager.getAllExportedViews());
 
-    System.out.println("view data: " + viewManager.getView(View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies")));
+//    ViewData viewData =
+//        viewManager.getView(
+//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
 
-    ViewData viewData =
-        viewManager.getView(
-            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
+//    List<TagValue> tagValues =
+//        viewData.getAggregationMap().entrySet().stream()
+//            .map(Map.Entry::getKey)
+//            .flatMap(x -> x.stream())
+//            .collect(Collectors.toCollection(ArrayList::new));
 
-    List<TagValue> tagValues =
-        viewData.getAggregationMap().entrySet().stream()
-            .map(Map.Entry::getKey)
-            .flatMap(x -> x.stream())
-            .collect(Collectors.toCollection(ArrayList::new));
+    builtinViews.getTagValueString();
 
     ApiFuture<List<Cluster>> clustersFuture =
         testEnvRule
@@ -88,8 +91,10 @@ public class StreamingMetricsMetadataIT {
             .listClustersAsync(testEnvRule.env().getInstanceId());
     List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
 
-    assertThat(tagValues).contains(TagValue.create(clusters.get(0).getZone()));
-    assertThat(tagValues).contains(TagValue.create(clusters.get(0).getId()));
+//    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getZone()));
+//    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getId()));
+    assertThat(builtinViews.getTagValueString()).contains(clusters.get(0).getZone());
+    assertThat(builtinViews.getTagValueString()).contains(clusters.get(0).getId());
   }
 
   @Test
@@ -102,19 +107,19 @@ public class StreamingMetricsMetadataIT {
 
     // give opencensus some time to populate view data
     Thread.sleep(100);
-
-    ViewManager viewManager = Stats.getViewManager();
-    ViewData viewData =
-        viewManager.getView(
-            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
-
-    List<TagValue> tagValues =
-        viewData.getAggregationMap().entrySet().stream()
-            .map(Map.Entry::getKey)
-            .flatMap(x -> x.stream())
-            .collect(Collectors.toCollection(ArrayList::new));
-
-    assertThat(tagValues).contains(TagValue.create("undefined"));
-    assertThat(tagValues).contains(TagValue.create("undefined"));
+//
+//    ViewManager viewManager = Stats.getViewManager();
+//    ViewData viewData =
+//        viewManager.getView(
+//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
+//
+//    List<TagValue> tagValues =
+//        viewData.getAggregationMap().entrySet().stream()
+//            .map(Map.Entry::getKey)
+//            .flatMap(x -> x.stream())
+//            .collect(Collectors.toCollection(ArrayList::new));
+//
+//    assertThat(tagValues).contains(TagValue.create("undefined"));
+//    assertThat(tagValues).contains(TagValue.create("undefined"));
   }
 }

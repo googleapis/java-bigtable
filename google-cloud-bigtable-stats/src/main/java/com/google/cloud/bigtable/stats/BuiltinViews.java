@@ -20,11 +20,19 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
+import io.opencensus.stats.ViewData;
 import io.opencensus.stats.ViewManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /** For registering built-in metric views */
 @InternalApi("For internal use only")
 public class BuiltinViews {
+  ViewManager viewManager = Stats.getViewManager();
+
   @VisibleForTesting
   static final ImmutableSet<View> BIGTABLE_BUILTIN_VIEWS =
       ImmutableSet.of(
@@ -44,10 +52,20 @@ public class BuiltinViews {
     }
   }
 
-  public static void registerBigtableBuiltinViews() {
-    ViewManager viewManager = Stats.getViewManager();
+  public void registerBigtableBuiltinViews() {
     for (View view : BIGTABLE_BUILTIN_VIEWS) {
       viewManager.registerView(view);
     }
+  }
+
+  @VisibleForTesting
+  public List<String> getTagValueString() {
+    return viewManager.getView(BuiltinViewConstants.OPERATION_LATENCIES_VIEW.getName())
+            .getAggregationMap()
+            .entrySet().stream()
+            .map(Map.Entry::getKey)
+            .flatMap(x -> x.stream())
+            .map(x -> x.toString())
+            .collect(Collectors.toCollection(ArrayList::new));
   }
 }
