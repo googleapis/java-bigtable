@@ -50,7 +50,6 @@
         <dependency>
             <groupId>io.opencensus</groupId>
             <artifactId>opencensus-impl</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.google.truth</groupId>

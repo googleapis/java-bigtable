@@ -24,6 +24,7 @@ import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.stats.BuiltinViews;
+import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
@@ -45,16 +46,13 @@ import org.junit.Test;
 public class StreamingMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  static BuiltinViews builtinViews = new BuiltinViews();
-
-
   @BeforeClass
   public static void setUpClass() {
     assume()
         .withMessage("StreamingMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-    builtinViews.registerBigtableBuiltinViews();
+    BuiltinViews.registerBigtableBuiltinViews();
   }
 
   @Test
@@ -68,8 +66,7 @@ public class StreamingMetricsMetadataIT {
     // give opencensus some time to populate view data
     Thread.sleep(100);
 
-//    ViewManager viewManager = Stats.getViewManager();
-    System.out.println("exported views: " + builtinViews.getTagValueString());
+    System.out.println("exported views: " + StatsWrapper.getTagValueString());
 
 
 //    ViewData viewData =
@@ -82,7 +79,7 @@ public class StreamingMetricsMetadataIT {
 //            .flatMap(x -> x.stream())
 //            .collect(Collectors.toCollection(ArrayList::new));
 
-    builtinViews.getTagValueString();
+//    builtinViews.getTagValueString();
 
     ApiFuture<List<Cluster>> clustersFuture =
         testEnvRule
@@ -93,8 +90,8 @@ public class StreamingMetricsMetadataIT {
 
 //    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getZone()));
 //    assertThat(builtinViews.getTagValueString()).contains(TagValue.create(clusters.get(0).getId()));
-    assertThat(builtinViews.getTagValueString()).contains(clusters.get(0).getZone());
-    assertThat(builtinViews.getTagValueString()).contains(clusters.get(0).getId());
+    assertThat(StatsWrapper.getTagValueString()).contains(clusters.get(0).getZone());
+    assertThat(StatsWrapper.getTagValueString()).contains(clusters.get(0).getId());
   }
 
   @Test
@@ -108,18 +105,18 @@ public class StreamingMetricsMetadataIT {
     // give opencensus some time to populate view data
     Thread.sleep(100);
 //
-//    ViewManager viewManager = Stats.getViewManager();
-//    ViewData viewData =
-//        viewManager.getView(
-//            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
-//
-//    List<TagValue> tagValues =
-//        viewData.getAggregationMap().entrySet().stream()
-//            .map(Map.Entry::getKey)
-//            .flatMap(x -> x.stream())
-//            .collect(Collectors.toCollection(ArrayList::new));
-//
-//    assertThat(tagValues).contains(TagValue.create("undefined"));
-//    assertThat(tagValues).contains(TagValue.create("undefined"));
+    ViewManager viewManager = Stats.getViewManager();
+    ViewData viewData =
+        viewManager.getView(
+            View.Name.create("bigtable.googleapis.com/internal/client/operation_latencies"));
+
+    List<TagValue> tagValues =
+        viewData.getAggregationMap().entrySet().stream()
+            .map(Map.Entry::getKey)
+            .flatMap(x -> x.stream())
+            .collect(Collectors.toCollection(ArrayList::new));
+
+    assertThat(tagValues).contains(TagValue.create("undefined"));
+    assertThat(tagValues).contains(TagValue.create("undefined"));
   }
 }

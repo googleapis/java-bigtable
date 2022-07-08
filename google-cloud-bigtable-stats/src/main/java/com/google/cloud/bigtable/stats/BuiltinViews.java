@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 /** For registering built-in metric views */
 @InternalApi("For internal use only")
 public class BuiltinViews {
-  ViewManager viewManager = Stats.getViewManager();
 
   @VisibleForTesting
   static final ImmutableSet<View> BIGTABLE_BUILTIN_VIEWS =
@@ -52,20 +51,10 @@ public class BuiltinViews {
     }
   }
 
-  public void registerBigtableBuiltinViews() {
+  public static void registerBigtableBuiltinViews() {
+    ViewManager viewManager = Stats.getViewManager();
     for (View view : BIGTABLE_BUILTIN_VIEWS) {
       viewManager.registerView(view);
     }
-  }
-
-  @VisibleForTesting
-  public List<String> getTagValueString() {
-    return viewManager.getView(BuiltinViewConstants.OPERATION_LATENCIES_VIEW.getName())
-            .getAggregationMap()
-            .entrySet().stream()
-            .map(Map.Entry::getKey)
-            .flatMap(x -> x.stream())
-            .map(x -> x.toString())
-            .collect(Collectors.toCollection(ArrayList::new));
   }
 }
