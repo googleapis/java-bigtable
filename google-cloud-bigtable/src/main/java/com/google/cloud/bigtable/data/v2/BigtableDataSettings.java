@@ -20,7 +20,6 @@ import com.google.api.core.BetaApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
@@ -28,11 +27,10 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.stats.exporter.BigtableStackdriverStatsExporter;
+import com.google.cloud.bigtable.stats.BigtableStackdriverStatsExporter;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -250,6 +248,7 @@ public final class BigtableDataSettings {
 
   /**
    * Gets if built in metrics are registered.
+   *
    * @return
    */
   @BetaApi("Built in metrics is not currently stable and may change in the future")
@@ -478,18 +477,17 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
     }
 
-    /** Register built in metrics. **/
+    /** Register built in metrics. * */
     @BetaApi("Built in metric is not currently stable and may change in the future")
     public Builder registerBuiltinMetrics() throws IOException {
       if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
         BigtableStackdriverStatsExporter.register(
-                stubSettings.getCredentialsProvider().getCredentials(),
-                stubSettings.getProjectId());
+            stubSettings.getCredentialsProvider().getCredentials(), stubSettings.getProjectId());
       }
       return this;
     }
 
-    /** Unregister built in metrics. **/
+    /** Unregister built in metrics. * */
     @BetaApi("Built in metrics is not currently stable and may change in the future")
     public Builder unregisterBuiltinMetrics() {
       if (BUILTIN_METRICS_REGISTERED.compareAndSet(true, false)) {

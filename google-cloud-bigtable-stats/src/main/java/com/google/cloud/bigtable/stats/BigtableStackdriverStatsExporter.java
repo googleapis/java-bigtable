@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.stats.exporter;
+package com.google.cloud.bigtable.stats;
 
 import com.google.api.MonitoredResource;
 import com.google.api.core.InternalApi;
@@ -69,11 +69,16 @@ public class BigtableStackdriverStatsExporter {
             intervalMetricReaderOptionsBuilder.build());
   }
 
-  public static void register(@Nullable Credentials credentials, String projectId) throws IOException {
+  public static void register(@Nullable Credentials credentials, String projectId)
+      throws IOException {
     synchronized (monitor) {
       Preconditions.checkState(instance == null, "Stackdriver stats exporter is already created");
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
-      instance = new BigtableStackdriverStatsExporter(projectId, client, Duration.create(600, 0),
+      instance =
+          new BigtableStackdriverStatsExporter(
+              projectId,
+              client,
+              Duration.create(600, 0),
               BigtableStackdriverExportUtils.getDefaultResource());
     }
   }

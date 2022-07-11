@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.stats.exporter;
+package com.google.cloud.bigtable.stats;
 
 import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.ApiException;
-import com.google.cloud.bigtable.stats.BuiltinMeasureConstants;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;

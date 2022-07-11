@@ -92,6 +92,7 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putGfeMissingHeaders(connectivityErrorCount);
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putBatchRequestThrottled(throttlingLatency);
+
     recorderWrapper.record("OK", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.stats.exporter;
+package com.google.cloud.bigtable.stats;
 
 import com.google.api.Distribution.BucketOptions;
 import com.google.api.Distribution.BucketOptions.Explicit;
@@ -29,7 +29,6 @@ import com.google.protobuf.ByteString;
 import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
 import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
-import io.opencensus.contrib.resource.util.ResourceUtils;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.data.AttachmentValue;
@@ -38,8 +37,6 @@ import io.opencensus.metrics.export.Distribution.BucketOptions.ExplicitOptions;
 import io.opencensus.metrics.export.MetricDescriptor.Type;
 import io.opencensus.metrics.export.Summary;
 import io.opencensus.metrics.export.Value;
-import io.opencensus.resource.Resource;
-
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
