@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,14 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @InternalApi
 public class BigtableStackdriverStatsExporter {
-  @VisibleForTesting static final Object monitor = new Object();
+  static final Object monitor = new Object();
 
   @Nullable
   @GuardedBy("monitor")
   private static BigtableStackdriverStatsExporter instance = null;
 
-  private static final String EXPORTER_SPAN_NAME = "ExportMetricsToStackdriver";
-  //  private static final String USER_AGENT_KEY = "user-agent";
-  //  private static final String USER_AGENT = "bigtable-java" + Version.VERSION;
-  //  private static final HeaderProvider OPENCENSUS_USER_AGENT_HEADER_PROVIDER =
-  //      FixedHeaderProvider.create(new String[] {USER_AGENT_KEY, USER_AGENT});
+  private static final String EXPORTER_SPAN_NAME = "BigtableExportMetricsToStackdriver";
+  private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
   private final IntervalMetricReader intervalMetricReader;
 
   private BigtableStackdriverStatsExporter(
@@ -72,13 +69,14 @@ public class BigtableStackdriverStatsExporter {
   public static void register(@Nullable Credentials credentials, String projectId)
       throws IOException {
     synchronized (monitor) {
-      Preconditions.checkState(instance == null, "Stackdriver stats exporter is already created");
+      Preconditions.checkState(
+          instance == null, "Bigtable Stackdriver stats exporter is already created");
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
       instance =
           new BigtableStackdriverStatsExporter(
               projectId,
               client,
-              Duration.create(600, 0),
+              EXPORT_INTERVAL,
               BigtableStackdriverExportUtils.getDefaultResource());
     }
   }
@@ -88,13 +86,8 @@ public class BigtableStackdriverStatsExporter {
   static MetricServiceClient createMetricServiceClient(
       @Nullable Credentials credentials, Duration deadline) throws IOException {
     com.google.cloud.monitoring.v3.MetricServiceSettings.Builder settingsBuilder =
-        (com.google.cloud.monitoring.v3.MetricServiceSettings.Builder)
-            MetricServiceSettings.newBuilder()
-                .setTransportChannelProvider(
-                    InstantiatingGrpcChannelProvider.newBuilder()
-                        //
-                        // .setHeaderProvider(OPENCENSUS_USER_AGENT_HEADER_PROVIDER)
-                        .build());
+        MetricServiceSettings.newBuilder()
+            .setTransportChannelProvider(InstantiatingGrpcChannelProvider.newBuilder().build());
     if (credentials != null) {
       settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
     }

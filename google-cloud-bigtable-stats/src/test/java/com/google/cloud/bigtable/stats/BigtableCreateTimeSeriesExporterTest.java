@@ -21,8 +21,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.cloud.bigtable.stats.BigtableCreateTimeSeriesExporter;
-import com.google.cloud.bigtable.stats.BuiltinMeasureConstants;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;

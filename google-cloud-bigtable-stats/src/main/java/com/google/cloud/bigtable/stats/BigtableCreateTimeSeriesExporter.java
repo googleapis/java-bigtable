@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,12 @@ import java.util.logging.Logger;
 final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
+
+  private static final String DOMAIN = "bigtable.googleapis.com/internal/client/";
+
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
-  private final String domain;
 
   BigtableCreateTimeSeriesExporter(
       String projectId,
@@ -46,7 +48,6 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
     this.projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
-    this.domain = "bigtable.googleapis.com/client/";
   }
 
   public void export(Collection<Metric> metrics) {
@@ -101,8 +102,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
                 updatedValues,
                 timeSeries,
                 monitoredResourceBuilder.build(),
-                this.domain,
-                this.projectName.getProject()));
+                DOMAIN));
       }
     }
 

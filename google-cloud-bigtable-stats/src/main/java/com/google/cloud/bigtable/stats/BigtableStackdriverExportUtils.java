@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,9 +26,7 @@ import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
-import io.opencensus.common.Function;
 import io.opencensus.common.Functions;
-import io.opencensus.contrib.exemplar.util.AttachmentValueSpanContext;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.data.AttachmentValue;
@@ -115,8 +113,7 @@ class BigtableStackdriverExportUtils {
       List<LabelValue> labelValues,
       io.opencensus.metrics.export.TimeSeries timeSeries,
       MonitoredResource monitoredResource,
-      String domain,
-      String projectId) {
+      String domain) {
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
     builder.setMetricKind(createMetricKind(metricType));
@@ -138,9 +135,9 @@ class BigtableStackdriverExportUtils {
     Map<String, String> stringTagMap = Maps.newHashMap();
 
     for (int i = 0; i < labelValues.size(); ++i) {
-      String value = ((LabelValue) labelValues.get(i)).getValue();
+      String value = labelValues.get(i).getValue();
       if (value != null) {
-        stringTagMap.put(((LabelKey) labelKeys.get(i)).getKey(), value);
+        stringTagMap.put(labelKeys.get(i).getKey(), value);
       }
     }
 
@@ -166,13 +163,12 @@ class BigtableStackdriverExportUtils {
 
   @VisibleForTesting
   static TypedValue createTypedValue(Value value) {
-    return (TypedValue)
-        value.match(
-            typedValueDoubleFunction,
-            typedValueLongFunction,
-            typedValueDistributionFunction,
-            typedValueSummaryFunction,
-            Functions.throwIllegalArgumentException());
+    return value.match(
+        typedValueDoubleFunction,
+        typedValueLongFunction,
+        typedValueDistributionFunction,
+        typedValueSummaryFunction,
+        Functions.throwIllegalArgumentException());
   }
 
   @VisibleForTesting
@@ -197,9 +193,8 @@ class BigtableStackdriverExportUtils {
     com.google.api.Distribution.BucketOptions.Builder builder = BucketOptions.newBuilder();
     return bucketOptions == null
         ? builder.build()
-        : (BucketOptions)
-            bucketOptions.match(
-                bucketOptionsExplicitFunction, Functions.throwIllegalArgumentException());
+        : bucketOptions.match(
+            bucketOptionsExplicitFunction, Functions.throwIllegalArgumentException());
   }
 
   static MonitoredResource getDefaultResource() {
@@ -227,16 +222,11 @@ class BigtableStackdriverExportUtils {
         com.google.api.Distribution.Exemplar.newBuilder()
             .setValue(exemplar.getValue())
             .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
-    io.opencensus.trace.SpanContext spanContext = null;
 
     for (Map.Entry<String, AttachmentValue> attachment : exemplar.getAttachments().entrySet()) {
-      String key = (String) attachment.getKey();
-      AttachmentValue value = (AttachmentValue) attachment.getValue();
-      if ("SpanContext".equals(key)) {
-        spanContext = ((AttachmentValueSpanContext) value).getSpanContext();
-      } else {
-        builder.addAttachments(toProtoStringAttachment(value));
-      }
+      String key = attachment.getKey();
+      AttachmentValue value = attachment.getValue();
+      builder.addAttachments(toProtoStringAttachment(value));
     }
 
     return builder.build();
@@ -247,25 +237,6 @@ class BigtableStackdriverExportUtils {
         .setTypeUrl("type.googleapis.com/google.protobuf.StringValue")
         .setValue(ByteString.copyFromUtf8(attachmentValue.getValue()))
         .build();
-  }
-
-  private static Any toProtoSpanContextAttachment(
-      com.google.monitoring.v3.SpanContext protoSpanContext) {
-    return Any.newBuilder()
-        .setTypeUrl("type.googleapis.com/google.monitoring.v3.SpanContext")
-        .setValue(protoSpanContext.toByteString())
-        .build();
-  }
-
-  private static com.google.monitoring.v3.SpanContext toProtoSpanContext(
-      io.opencensus.trace.SpanContext spanContext, String projectId) {
-    String spanName =
-        String.format(
-            "projects/%s/traces/%s/spans/%s",
-            projectId,
-            spanContext.getTraceId().toLowerBase16(),
-            spanContext.getSpanId().toLowerBase16());
-    return com.google.monitoring.v3.SpanContext.newBuilder().setSpanName(spanName).build();
   }
 
   @VisibleForTesting
@@ -284,48 +255,37 @@ class BigtableStackdriverExportUtils {
   static {
     logger = Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
     typedValueDoubleFunction =
-        new io.opencensus.common.Function<Double, TypedValue>() {
-          public TypedValue apply(Double arg) {
-            com.google.monitoring.v3.TypedValue.Builder builder = TypedValue.newBuilder();
-            builder.setDoubleValue(arg);
-            return builder.build();
-          }
+        arg -> {
+          TypedValue.Builder builder = TypedValue.newBuilder();
+          builder.setDoubleValue(arg);
+          return builder.build();
         };
     typedValueLongFunction =
-        new io.opencensus.common.Function<Long, TypedValue>() {
-          public TypedValue apply(Long arg) {
-            com.google.monitoring.v3.TypedValue.Builder builder = TypedValue.newBuilder();
-            builder.setInt64Value(arg);
-            return builder.build();
-          }
+        arg -> {
+          TypedValue.Builder builder = TypedValue.newBuilder();
+          builder.setInt64Value(arg);
+          return builder.build();
         };
     typedValueDistributionFunction =
-        new io.opencensus.common.Function<io.opencensus.metrics.export.Distribution, TypedValue>() {
-          public TypedValue apply(io.opencensus.metrics.export.Distribution arg) {
-            com.google.monitoring.v3.TypedValue.Builder builder = TypedValue.newBuilder();
-            return builder
-                .setDistributionValue(BigtableStackdriverExportUtils.createDistribution(arg))
-                .build();
-          }
+        arg -> {
+          TypedValue.Builder builder = TypedValue.newBuilder();
+          return builder
+              .setDistributionValue(BigtableStackdriverExportUtils.createDistribution(arg))
+              .build();
         };
     typedValueSummaryFunction =
-        new io.opencensus.common.Function<Summary, TypedValue>() {
-          public TypedValue apply(Summary arg) {
-            com.google.monitoring.v3.TypedValue.Builder builder = TypedValue.newBuilder();
-            return builder.build();
-          }
+        arg -> {
+          TypedValue.Builder builder = TypedValue.newBuilder();
+          return builder.build();
         };
     bucketOptionsExplicitFunction =
-        new Function<ExplicitOptions, BucketOptions>() {
-          public BucketOptions apply(ExplicitOptions arg) {
-            com.google.api.Distribution.BucketOptions.Builder builder = BucketOptions.newBuilder();
-            com.google.api.Distribution.BucketOptions.Explicit.Builder explicitBuilder =
-                Explicit.newBuilder();
-            explicitBuilder.addBounds(0.0D);
-            explicitBuilder.addAllBounds(arg.getBucketBoundaries());
-            builder.setExplicitBuckets(explicitBuilder.build());
-            return builder.build();
-          }
+        arg -> {
+          BucketOptions.Builder builder = BucketOptions.newBuilder();
+          Explicit.Builder explicitBuilder = Explicit.newBuilder();
+          explicitBuilder.addBounds(0.0D);
+          explicitBuilder.addAllBounds(arg.getBucketBoundaries());
+          builder.setExplicitBuckets(explicitBuilder.build());
+          return builder.build();
         };
   }
 }

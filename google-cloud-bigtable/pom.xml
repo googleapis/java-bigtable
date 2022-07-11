@@ -60,9 +60,17 @@
   <dependencies>
     <!-- NOTE: Dependencies are organized into two groups, production and test.
          Within a group, dependencies are sorted by (groupId, artifactId) -->
+
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigtable-stats</artifactId>
+      <!-- Exclude all the shaded artifacts -->
+      <exclusions>
+        <exclusion>
+          <groupId>io.opencensus</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <!-- Production dependencies -->
     <dependency>
