@@ -19,7 +19,6 @@ import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.SpanName;
-import com.google.common.annotations.VisibleForTesting;
 import io.opencensus.stats.Stats;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,7 @@ public class StatsWrapper {
 
   // This is used in integration tests to get the tag value strings from view manager because Stats
   // is relocated to com.google.bigtable.veneer.repackaged.io.opencensus.
-  @VisibleForTesting
+  @InternalApi("Visible for testing")
   public static List<String> getOperationLatencyViewTagValueStrings() {
     return Stats.getViewManager().getView(BuiltinViewConstants.OPERATION_LATENCIES_VIEW.getName())
         .getAggregationMap().entrySet().stream()
