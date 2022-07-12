@@ -35,7 +35,7 @@ import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 
-public class StatsRecorderWrapperTest {
+public class ITStatsRecorderWrapperTest {
 
   private final String PROJECT_ID = "fake-project";
   private final String INSTANCE_ID = "fake-instance";

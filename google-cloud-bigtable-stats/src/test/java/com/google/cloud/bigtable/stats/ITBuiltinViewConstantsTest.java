@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import io.opencensus.stats.View;
 import org.junit.Test;
 
-public class BuiltinViewConstantsTest {
+public class ITBuiltinViewConstantsTest {
   @Test
   public void testBasicTagsExistForAllViews() {
     for (View v : BuiltinViews.BIGTABLE_BUILTIN_VIEWS) {
