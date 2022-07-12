@@ -44,6 +44,8 @@ public class BigtableStackdriverStatsExporter {
 
   private static final String EXPORTER_SPAN_NAME = "BigtableExportMetricsToStackdriver";
   private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
+  private static final String RESOURCE_TYPE = "bigtable_client_raw";
+
   private final IntervalMetricReader intervalMetricReader;
 
   private BigtableStackdriverStatsExporter(
@@ -72,12 +74,10 @@ public class BigtableStackdriverStatsExporter {
       Preconditions.checkState(
           instance == null, "Bigtable Stackdriver stats exporter is already created");
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
+      MonitoredResource resourceType =
+          MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build();
       instance =
-          new BigtableStackdriverStatsExporter(
-              projectId,
-              client,
-              EXPORT_INTERVAL,
-              BigtableStackdriverExportUtils.getDefaultResource());
+          new BigtableStackdriverStatsExporter(projectId, client, EXPORT_INTERVAL, resourceType);
     }
   }
 

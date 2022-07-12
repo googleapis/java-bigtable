@@ -57,6 +57,8 @@ class BigtableStackdriverExportUtils {
   private static final io.opencensus.common.Function<ExplicitOptions, BucketOptions>
       bucketOptionsExplicitFunction;
 
+  private static final String DOMAIN = "bigtable.googleapis.com/internal/client/";
+
   static String generateDefaultTaskValue() {
     String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     if (jvmName.indexOf(64) < 1) {
@@ -72,10 +74,6 @@ class BigtableStackdriverExportUtils {
     } else {
       return "java-" + jvmName;
     }
-  }
-
-  private static String generateType(String metricName, String domain) {
-    return domain + metricName;
   }
 
   @VisibleForTesting
@@ -112,14 +110,13 @@ class BigtableStackdriverExportUtils {
       List<LabelKey> labelKeys,
       List<LabelValue> labelValues,
       io.opencensus.metrics.export.TimeSeries timeSeries,
-      MonitoredResource monitoredResource,
-      String domain) {
+      MonitoredResource monitoredResource) {
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
     builder.setMetricKind(createMetricKind(metricType));
     builder.setResource(monitoredResource);
     builder.setValueType(createValueType(metricType));
-    builder.setMetric(createMetric(metricName, labelKeys, labelValues, domain));
+    builder.setMetric(createMetric(metricName, labelKeys, labelValues));
     io.opencensus.common.Timestamp startTimeStamp = timeSeries.getStartTimestamp();
     for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
       builder.addPoints(createPoint(point, startTimeStamp));
@@ -129,9 +126,9 @@ class BigtableStackdriverExportUtils {
 
   @VisibleForTesting
   static com.google.api.Metric createMetric(
-      String metricName, List<LabelKey> labelKeys, List<LabelValue> labelValues, String domain) {
+      String metricName, List<LabelKey> labelKeys, List<LabelValue> labelValues) {
     com.google.api.Metric.Builder builder = com.google.api.Metric.newBuilder();
-    builder.setType(generateType(metricName, domain));
+    builder.setType(DOMAIN + metricName);
     Map<String, String> stringTagMap = Maps.newHashMap();
 
     for (int i = 0; i < labelValues.size(); ++i) {
@@ -197,12 +194,6 @@ class BigtableStackdriverExportUtils {
             bucketOptionsExplicitFunction, Functions.throwIllegalArgumentException());
   }
 
-  static MonitoredResource getDefaultResource() {
-    com.google.api.MonitoredResource.Builder builder = MonitoredResource.newBuilder();
-    builder.setType("bigtable_client_raw");
-    return builder.build();
-  }
-
   private static void setBucketCountsAndExemplars(
       List<Bucket> buckets, com.google.api.Distribution.Builder builder) {
     builder.addBucketCounts(0L);
@@ -224,7 +215,6 @@ class BigtableStackdriverExportUtils {
             .setTimestamp(convertTimestamp(exemplar.getTimestamp()));
 
     for (Map.Entry<String, AttachmentValue> attachment : exemplar.getAttachments().entrySet()) {
-      String key = attachment.getKey();
       AttachmentValue value = attachment.getValue();
       builder.addAttachments(toProtoStringAttachment(value));
     }

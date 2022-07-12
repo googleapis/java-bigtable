@@ -35,8 +35,6 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
 
-  private static final String DOMAIN = "bigtable.googleapis.com/internal/client/";
-
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
@@ -101,8 +99,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
                 updatedKeys,
                 updatedValues,
                 timeSeries,
-                monitoredResourceBuilder.build(),
-                DOMAIN));
+                monitoredResourceBuilder.build()));
       }
     }
 
