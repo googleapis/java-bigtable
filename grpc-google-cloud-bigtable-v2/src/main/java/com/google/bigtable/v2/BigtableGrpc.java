@@ -334,6 +334,100 @@ public final class BigtableGrpc {
     return getReadModifyWriteRowMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ListChangeStreamPartitionsRequest,
+          com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+      getListChangeStreamPartitionsMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "ListChangeStreamPartitions",
+      requestType = com.google.bigtable.v2.ListChangeStreamPartitionsRequest.class,
+      responseType = com.google.bigtable.v2.ListChangeStreamPartitionsResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ListChangeStreamPartitionsRequest,
+          com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+      getListChangeStreamPartitionsMethod() {
+    io.grpc.MethodDescriptor<
+            com.google.bigtable.v2.ListChangeStreamPartitionsRequest,
+            com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+        getListChangeStreamPartitionsMethod;
+    if ((getListChangeStreamPartitionsMethod = BigtableGrpc.getListChangeStreamPartitionsMethod)
+        == null) {
+      synchronized (BigtableGrpc.class) {
+        if ((getListChangeStreamPartitionsMethod = BigtableGrpc.getListChangeStreamPartitionsMethod)
+            == null) {
+          BigtableGrpc.getListChangeStreamPartitionsMethod =
+              getListChangeStreamPartitionsMethod =
+                  io.grpc.MethodDescriptor
+                      .<com.google.bigtable.v2.ListChangeStreamPartitionsRequest,
+                          com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+                          newBuilder()
+                      .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+                      .setFullMethodName(
+                          generateFullMethodName(SERVICE_NAME, "ListChangeStreamPartitions"))
+                      .setSampledToLocalTracing(true)
+                      .setRequestMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ListChangeStreamPartitionsRequest
+                                  .getDefaultInstance()))
+                      .setResponseMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ListChangeStreamPartitionsResponse
+                                  .getDefaultInstance()))
+                      .setSchemaDescriptor(
+                          new BigtableMethodDescriptorSupplier("ListChangeStreamPartitions"))
+                      .build();
+        }
+      }
+    }
+    return getListChangeStreamPartitionsMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ReadChangeStreamRequest,
+          com.google.bigtable.v2.ReadChangeStreamResponse>
+      getReadChangeStreamMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "ReadChangeStream",
+      requestType = com.google.bigtable.v2.ReadChangeStreamRequest.class,
+      responseType = com.google.bigtable.v2.ReadChangeStreamResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ReadChangeStreamRequest,
+          com.google.bigtable.v2.ReadChangeStreamResponse>
+      getReadChangeStreamMethod() {
+    io.grpc.MethodDescriptor<
+            com.google.bigtable.v2.ReadChangeStreamRequest,
+            com.google.bigtable.v2.ReadChangeStreamResponse>
+        getReadChangeStreamMethod;
+    if ((getReadChangeStreamMethod = BigtableGrpc.getReadChangeStreamMethod) == null) {
+      synchronized (BigtableGrpc.class) {
+        if ((getReadChangeStreamMethod = BigtableGrpc.getReadChangeStreamMethod) == null) {
+          BigtableGrpc.getReadChangeStreamMethod =
+              getReadChangeStreamMethod =
+                  io.grpc.MethodDescriptor
+                      .<com.google.bigtable.v2.ReadChangeStreamRequest,
+                          com.google.bigtable.v2.ReadChangeStreamResponse>
+                          newBuilder()
+                      .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ReadChangeStream"))
+                      .setSampledToLocalTracing(true)
+                      .setRequestMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ReadChangeStreamRequest.getDefaultInstance()))
+                      .setResponseMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ReadChangeStreamResponse.getDefaultInstance()))
+                      .setSchemaDescriptor(new BigtableMethodDescriptorSupplier("ReadChangeStream"))
+                      .build();
+        }
+      }
+    }
+    return getReadChangeStreamMethod;
+  }
+
   /** Creates a new async stub that supports all call types for the service */
   public static BigtableStub newStub(io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<BigtableStub> factory =
@@ -496,6 +590,42 @@ public final class BigtableGrpc {
           getReadModifyWriteRowMethod(), responseObserver);
     }
 
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    public void listChangeStreamPartitions(
+        com.google.bigtable.v2.ListChangeStreamPartitionsRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+            responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(
+          getListChangeStreamPartitionsMethod(), responseObserver);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    public void readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>
+            responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(
+          getReadChangeStreamMethod(), responseObserver);
+    }
+
     @java.lang.Override
     public final io.grpc.ServerServiceDefinition bindService() {
       return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
@@ -544,6 +674,20 @@ public final class BigtableGrpc {
                       com.google.bigtable.v2.ReadModifyWriteRowRequest,
                       com.google.bigtable.v2.ReadModifyWriteRowResponse>(
                       this, METHODID_READ_MODIFY_WRITE_ROW)))
+          .addMethod(
+              getListChangeStreamPartitionsMethod(),
+              io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                  new MethodHandlers<
+                      com.google.bigtable.v2.ListChangeStreamPartitionsRequest,
+                      com.google.bigtable.v2.ListChangeStreamPartitionsResponse>(
+                      this, METHODID_LIST_CHANGE_STREAM_PARTITIONS)))
+          .addMethod(
+              getReadChangeStreamMethod(),
+              io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                  new MethodHandlers<
+                      com.google.bigtable.v2.ReadChangeStreamRequest,
+                      com.google.bigtable.v2.ReadChangeStreamResponse>(
+                      this, METHODID_READ_CHANGE_STREAM)))
           .build();
     }
   }
@@ -688,6 +832,46 @@ public final class BigtableGrpc {
           request,
           responseObserver);
     }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    public void listChangeStreamPartitions(
+        com.google.bigtable.v2.ListChangeStreamPartitionsRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+            responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getListChangeStreamPartitionsMethod(), getCallOptions()),
+          request,
+          responseObserver);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    public void readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>
+            responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getReadChangeStreamMethod(), getCallOptions()),
+          request,
+          responseObserver);
+    }
   }
 
   /**
@@ -813,6 +997,39 @@ public final class BigtableGrpc {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getReadModifyWriteRowMethod(), getCallOptions(), request);
     }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    public java.util.Iterator<com.google.bigtable.v2.ListChangeStreamPartitionsResponse>
+        listChangeStreamPartitions(
+            com.google.bigtable.v2.ListChangeStreamPartitionsRequest request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(), getListChangeStreamPartitionsMethod(), getCallOptions(), request);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is not generally available. Users must be allowlisted.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    public java.util.Iterator<com.google.bigtable.v2.ReadChangeStreamResponse> readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(), getReadChangeStreamMethod(), getCallOptions(), request);
+    }
   }
 
   /**
@@ -903,6 +1120,8 @@ public final class BigtableGrpc {
   private static final int METHODID_CHECK_AND_MUTATE_ROW = 4;
   private static final int METHODID_PING_AND_WARM = 5;
   private static final int METHODID_READ_MODIFY_WRITE_ROW = 6;
+  private static final int METHODID_LIST_CHANGE_STREAM_PARTITIONS = 7;
+  private static final int METHODID_READ_CHANGE_STREAM = 8;
 
   private static final class MethodHandlers<Req, Resp>
       implements io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
@@ -961,6 +1180,19 @@ public final class BigtableGrpc {
           serviceImpl.readModifyWriteRow(
               (com.google.bigtable.v2.ReadModifyWriteRowRequest) request,
               (io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadModifyWriteRowResponse>)
+                  responseObserver);
+          break;
+        case METHODID_LIST_CHANGE_STREAM_PARTITIONS:
+          serviceImpl.listChangeStreamPartitions(
+              (com.google.bigtable.v2.ListChangeStreamPartitionsRequest) request,
+              (io.grpc.stub.StreamObserver<
+                      com.google.bigtable.v2.ListChangeStreamPartitionsResponse>)
+                  responseObserver);
+          break;
+        case METHODID_READ_CHANGE_STREAM:
+          serviceImpl.readChangeStream(
+              (com.google.bigtable.v2.ReadChangeStreamRequest) request,
+              (io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>)
                   responseObserver);
           break;
         default:
@@ -1032,6 +1264,8 @@ public final class BigtableGrpc {
                       .addMethod(getCheckAndMutateRowMethod())
                       .addMethod(getPingAndWarmMethod())
                       .addMethod(getReadModifyWriteRowMethod())
+                      .addMethod(getListChangeStreamPartitionsMethod())
+                      .addMethod(getReadChangeStreamMethod())
                       .build();
         }
       }
