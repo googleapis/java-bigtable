@@ -28,6 +28,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.stats.BigtableStackdriverStatsExporter;
+import com.google.cloud.bigtable.stats.BuiltinViews;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
@@ -481,6 +482,7 @@ public final class BigtableDataSettings {
     @BetaApi("Built in metric is not currently stable and may change in the future")
     public Builder registerBuiltinMetrics() throws IOException {
       if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
+        BuiltinViews.registerBigtableBuiltinViews();
         BigtableStackdriverStatsExporter.register(
             stubSettings.getCredentialsProvider().getCredentials(), stubSettings.getProjectId());
       }

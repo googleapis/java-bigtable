@@ -92,7 +92,6 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
-import com.google.cloud.bigtable.stats.BuiltinViews;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -232,7 +231,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 BuiltinMetricsTracerFactory.create(builtinAttributes),
                 // Add user configured tracer
                 settings.getTracerFactory())));
-    BuiltinViews.registerBigtableBuiltinViews();
     return builder.build();
   }
 

@@ -16,14 +16,11 @@
 package com.google.cloud.bigtable.stats;
 
 import com.google.api.MonitoredResource;
-import com.google.api.gax.rpc.ApiException;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.exporter.metrics.util.MetricExporter;
-import io.opencensus.metrics.LabelKey;
-import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +35,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
+  private final String clientId;
 
   BigtableCreateTimeSeriesExporter(
       String projectId,
@@ -46,6 +44,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
     this.projectName = ProjectName.newBuilder().setProject(projectId).build();
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
+    this.clientId = BigtableStackdriverExportUtils.getDefaultTaskValue();
   }
 
   public void export(Collection<Metric> metrics) {
@@ -58,48 +57,14 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
       }
 
       for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
-        MonitoredResource.Builder monitoredResourceBuilder = this.monitoredResource.toBuilder();
-
-        List<LabelKey> keys = metric.getMetricDescriptor().getLabelKeys();
-        List<LabelValue> labelValues = timeSeries.getLabelValues();
-
-        List<LabelKey> updatedKeys = new ArrayList<>();
-        List<LabelValue> updatedValues = new ArrayList<>();
-
-        for (int i = 0; i < labelValues.size(); i++) {
-          if (keys.get(i).getKey().equals(BuiltinMeasureConstants.PROJECT_ID.getName())) {
-            monitoredResourceBuilder.putLabels(
-                BuiltinMeasureConstants.PROJECT_ID.getName(), labelValues.get(i).getValue());
-          } else if (keys.get(i).getKey().equals(BuiltinMeasureConstants.INSTANCE_ID.getName())) {
-            monitoredResourceBuilder.putLabels(
-                BuiltinMeasureConstants.INSTANCE_ID.getName(), labelValues.get(i).getValue());
-          } else if (keys.get(i).getKey().equals(BuiltinMeasureConstants.CLUSTER.getName())) {
-            monitoredResourceBuilder.putLabels(
-                BuiltinMeasureConstants.CLUSTER.getName(), labelValues.get(i).getValue());
-          } else if (keys.get(i).getKey().equals(BuiltinMeasureConstants.ZONE.getName())) {
-            monitoredResourceBuilder.putLabels(
-                BuiltinMeasureConstants.ZONE.getName(), labelValues.get(i).getValue());
-          } else if (keys.get(i).getKey().equals(BuiltinMeasureConstants.TABLE.getName())) {
-            monitoredResourceBuilder.putLabels(
-                BuiltinMeasureConstants.TABLE.getName(), labelValues.get(i).getValue());
-          } else {
-            updatedKeys.add(keys.get(i));
-            updatedValues.add(labelValues.get(i));
-          }
-        }
-
-        updatedKeys.add(LabelKey.create(BuiltinMeasureConstants.CLIENT_ID.getName(), "client id"));
-        updatedValues.add(
-            LabelValue.create(BigtableStackdriverExportUtils.generateDefaultTaskValue()));
-
         timeSeriesList.add(
             BigtableStackdriverExportUtils.convertTimeSeries(
                 metric.getMetricDescriptor().getName(),
                 metric.getMetricDescriptor().getType(),
-                updatedKeys,
-                updatedValues,
+                metric.getMetricDescriptor().getLabelKeys(),
                 timeSeries,
-                monitoredResourceBuilder.build()));
+                clientId,
+                monitoredResource));
       }
     }
 
@@ -111,8 +76,6 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
               .build();
 
       this.metricServiceClient.createServiceTimeSeries(request);
-    } catch (ApiException e) {
-      logger.log(Level.WARNING, "ApiException thrown when exporting TimeSeries.", e);
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
     }

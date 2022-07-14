@@ -31,9 +31,7 @@ import io.opencensus.metrics.Metrics;
 import java.io.IOException;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
 
-@ThreadSafe
 @InternalApi
 public class BigtableStackdriverStatsExporter {
   static final Object monitor = new Object();
@@ -42,7 +40,6 @@ public class BigtableStackdriverStatsExporter {
   @GuardedBy("monitor")
   private static BigtableStackdriverStatsExporter instance = null;
 
-  private static final String EXPORTER_SPAN_NAME = "BigtableExportMetricsToStackdriver";
   private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
@@ -63,7 +60,6 @@ public class BigtableStackdriverStatsExporter {
                 io.opencensus.exporter.metrics.util.MetricReader.Options.builder()
                     .setMetricProducerManager(
                         Metrics.getExportComponent().getMetricProducerManager())
-                    .setSpanName(EXPORTER_SPAN_NAME)
                     .build()),
             intervalMetricReaderOptionsBuilder.build());
   }

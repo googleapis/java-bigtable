@@ -64,7 +64,7 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigtable-stats</artifactId>
-      <!-- Exclude all the shaded artifacts -->
+      <!-- Exclude all the shaded transitive dependencies -->
       <exclusions>
         <exclusion>
           <groupId>io.opencensus</groupId>

@@ -20,6 +20,7 @@ import com.google.api.Distribution.BucketOptions.Explicit;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
@@ -39,8 +40,10 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -59,7 +62,15 @@ class BigtableStackdriverExportUtils {
 
   private static final String DOMAIN = "bigtable.googleapis.com/internal/client/";
 
-  static String generateDefaultTaskValue() {
+  private static final Set<String> PROMOTED_RESOURCE_LABELS =
+      ImmutableSet.of(
+          BuiltinMeasureConstants.PROJECT_ID.getName(),
+          BuiltinMeasureConstants.INSTANCE_ID.getName(),
+          BuiltinMeasureConstants.CLUSTER.getName(),
+          BuiltinMeasureConstants.ZONE.getName(),
+          BuiltinMeasureConstants.TABLE.getName());
+
+  static String getDefaultTaskValue() {
     String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     if (jvmName.indexOf(64) < 1) {
       String hostname = "localhost";
@@ -78,29 +89,33 @@ class BigtableStackdriverExportUtils {
 
   @VisibleForTesting
   static MetricKind createMetricKind(Type type) {
-    if (type != Type.GAUGE_INT64 && type != Type.GAUGE_DOUBLE) {
-      return type != Type.CUMULATIVE_INT64
-              && type != Type.CUMULATIVE_DOUBLE
-              && type != Type.CUMULATIVE_DISTRIBUTION
-          ? MetricKind.UNRECOGNIZED
-          : MetricKind.CUMULATIVE;
-    } else {
-      return MetricKind.GAUGE;
+    switch (type) {
+      case GAUGE_INT64:
+      case GAUGE_DOUBLE:
+        return MetricKind.GAUGE;
+      case CUMULATIVE_DOUBLE:
+      case CUMULATIVE_INT64:
+      case CUMULATIVE_DISTRIBUTION:
+        return MetricKind.CUMULATIVE;
+      default:
+        return MetricKind.UNRECOGNIZED;
     }
   }
 
   @VisibleForTesting
   static com.google.api.MetricDescriptor.ValueType createValueType(Type type) {
-    if (type != Type.CUMULATIVE_DOUBLE && type != Type.GAUGE_DOUBLE) {
-      if (type != Type.GAUGE_INT64 && type != Type.CUMULATIVE_INT64) {
-        return type != Type.GAUGE_DISTRIBUTION && type != Type.CUMULATIVE_DISTRIBUTION
-            ? com.google.api.MetricDescriptor.ValueType.UNRECOGNIZED
-            : com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
-      } else {
+    switch (type) {
+      case GAUGE_DOUBLE:
+      case CUMULATIVE_DOUBLE:
+        return com.google.api.MetricDescriptor.ValueType.DOUBLE;
+      case GAUGE_INT64:
+      case CUMULATIVE_INT64:
         return com.google.api.MetricDescriptor.ValueType.INT64;
-      }
-    } else {
-      return com.google.api.MetricDescriptor.ValueType.DOUBLE;
+      case GAUGE_DISTRIBUTION:
+      case CUMULATIVE_DISTRIBUTION:
+        return com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
+      default:
+        return com.google.api.MetricDescriptor.ValueType.UNRECOGNIZED;
     }
   }
 
@@ -108,15 +123,33 @@ class BigtableStackdriverExportUtils {
       String metricName,
       io.opencensus.metrics.export.MetricDescriptor.Type metricType,
       List<LabelKey> labelKeys,
-      List<LabelValue> labelValues,
       io.opencensus.metrics.export.TimeSeries timeSeries,
+      String clientId,
       MonitoredResource monitoredResource) {
+
+    MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
+
+    List<LabelKey> metricTagKeys = new ArrayList<>();
+    List<LabelValue> metricTagValues = new ArrayList<>();
+
+    List<LabelValue> labelValues = timeSeries.getLabelValues();
+    for (int i = 0; i < labelValues.size(); i++) {
+      if (PROMOTED_RESOURCE_LABELS.contains(labelKeys.get(i).getKey())) {
+        monitoredResourceBuilder.putLabels(
+            labelKeys.get(i).getKey(), labelValues.get(i).getValue());
+      } else {
+        metricTagKeys.add(labelKeys.get(i));
+        metricTagValues.add(labelValues.get(i));
+      }
+    }
+    metricTagKeys.add(LabelKey.create(BuiltinMeasureConstants.CLIENT_ID.getName(), "client id"));
+    metricTagValues.add(LabelValue.create(clientId));
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
     builder.setMetricKind(createMetricKind(metricType));
-    builder.setResource(monitoredResource);
+    builder.setResource(monitoredResourceBuilder.build());
     builder.setValueType(createValueType(metricType));
-    builder.setMetric(createMetric(metricName, labelKeys, labelValues));
+    builder.setMetric(createMetric(metricName, metricTagKeys, metricTagValues));
     io.opencensus.common.Timestamp startTimeStamp = timeSeries.getStartTimestamp();
     for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
       builder.addPoints(createPoint(point, startTimeStamp));
