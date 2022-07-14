@@ -533,3 +533,30 @@ message ReadModifyWriteRule {
     int64 increment_amount = 4;
   }
 }
+
+// NOTE: This API is not generally available. Users must be allowlisted.
+// A partition of a change stream.
+message StreamPartition {
+  // The row range covered by this partition and is specified by
+  // [`start_key_closed`, `end_key_open`).
+  RowRange row_range = 1;
+}
+
+// NOTE: This API is not generally available. Users must be allowlisted.
+// The information required to continue reading the data from multiple
+// `StreamPartitions` from where a previous read left off.
+message StreamContinuationTokens {
+  // List of continuation tokens.
+  repeated StreamContinuationToken tokens = 1;
+}
+
+// NOTE: This API is not generally available. Users must be allowlisted.
+// The information required to continue reading the data from a
+// `StreamPartition` from where a previous read left off.
+message StreamContinuationToken {
+  // The partition that this token applies to.
+  StreamPartition partition = 1;
+
+  // An encoded position in the stream to restart reading from.
+  string token = 2;
+}
