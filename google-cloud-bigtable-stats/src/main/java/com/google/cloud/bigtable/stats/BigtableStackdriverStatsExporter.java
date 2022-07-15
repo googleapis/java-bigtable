@@ -90,7 +90,6 @@ public class BigtableStackdriverStatsExporter {
 
     org.threeten.bp.Duration stackdriverDuration =
         org.threeten.bp.Duration.ofMillis(deadline.toMillis());
-    settingsBuilder.createMetricDescriptorSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
     settingsBuilder.createTimeSeriesSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
     return MetricServiceClient.create(settingsBuilder.build());
   }
