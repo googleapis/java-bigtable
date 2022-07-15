@@ -60,11 +60,11 @@ public class StatsRecorderWrapperTest {
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
             ImmutableMap.of(
-                BuiltinMeasureConstants.PROJECT_ID.getName(),
+                "project_id",
                 PROJECT_ID,
-                BuiltinMeasureConstants.INSTANCE_ID.getName(),
+                "instance_id",
                 INSTANCE_ID,
-                BuiltinMeasureConstants.APP_PROFILE.getName(),
+                "app_profile",
                 APP_PROFILE_ID),
             statsComponent.getStatsRecorder());
 
