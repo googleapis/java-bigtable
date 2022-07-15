@@ -47,6 +47,8 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -65,11 +67,13 @@ import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ListChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -141,6 +145,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
+
+  private final ServerStreamingCallable<String, ByteStringRange> listChangeStreamPartitionsCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -284,6 +290,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
+    listChangeStreamPartitionsCallable = createListChangeStreamPartitionsCallable();
   }
 
   // <editor-fold desc="Callable creators">
@@ -799,6 +806,71 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * Creates a callable chain to handle streaming ListChangeStreamPartitions RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a String format tableId into a {@link
+   *       com.google.bigtable.v2.ReadChangeStreamRequest} and dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will convert the {@link
+   *       com.google.bigtable.v2.ListChangeStreamPartitionsResponse}s into {@link ByteStringRange}.
+   * </ul>
+   */
+  private ServerStreamingCallable<String, ByteStringRange>
+      createListChangeStreamPartitionsCallable() {
+    ServerStreamingCallable<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+        base =
+            GrpcRawCallableFactory.createServerStreamingCallable(
+                GrpcCallSettings
+                    .<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+                        newBuilder()
+                    .setMethodDescriptor(BigtableGrpc.getListChangeStreamPartitionsMethod())
+                    .setParamsExtractor(
+                        new RequestParamsExtractor<ListChangeStreamPartitionsRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              ListChangeStreamPartitionsRequest listChangeStreamPartitionsRequest) {
+                            return ImmutableMap.of(
+                                "table_name",
+                                listChangeStreamPartitionsRequest.getTableName(),
+                                "app_profile_id",
+                                listChangeStreamPartitionsRequest.getAppProfileId());
+                          }
+                        })
+                    .build(),
+                settings.listChangeStreamPartitionsSettings().getRetryableCodes());
+
+    ServerStreamingCallable<String, ByteStringRange> userCallable =
+        new ListChangeStreamPartitionsUserCallable(base, requestContext);
+
+    ServerStreamingCallable<String, ByteStringRange> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(userCallable);
+
+    // Copy settings for the middle String -> ByteStringRange callable (as opposed to the inner
+    // ListChangeStreamPartitionsRequest -> ListChangeStreamPartitionsResponse callable).
+    ServerStreamingCallSettings<String, ByteStringRange> innerSettings =
+        ServerStreamingCallSettings.<String, ByteStringRange>newBuilder()
+            .setRetryableCodes(settings.listChangeStreamPartitionsSettings().getRetryableCodes())
+            .setRetrySettings(settings.listChangeStreamPartitionsSettings().getRetrySettings())
+            .setIdleTimeout(settings.listChangeStreamPartitionsSettings().getIdleTimeout())
+            .build();
+
+    ServerStreamingCallable<String, ByteStringRange> watched =
+        Callables.watched(withStatsHeaders, innerSettings, clientContext);
+
+    ServerStreamingCallable<String, ByteStringRange> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
+
+    ServerStreamingCallable<String, ByteStringRange> retrying =
+        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+
+    SpanName span = getSpanName("ListChangeStreamPartitions");
+    ServerStreamingCallable<String, ByteStringRange> traced =
+        new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
    * Wraps a callable chain in a user presentable callable that will inject the default call context
    * and trace the call.
    */
@@ -853,6 +925,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable() {
     return readModifyWriteRowCallable;
+  }
+
+  /** Returns a streaming list change stream partitions callable */
+  public ServerStreamingCallable<String, ByteStringRange> listChangeStreamPartitionsCallable() {
+    return listChangeStreamPartitionsCallable;
   }
   // </editor-fold>
 

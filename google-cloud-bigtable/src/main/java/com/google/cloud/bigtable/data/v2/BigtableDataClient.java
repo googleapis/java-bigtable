@@ -35,6 +35,7 @@ import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
@@ -1487,6 +1488,141 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable() {
     return stub.readModifyWriteRowCallable();
+  }
+
+  /**
+   * Convenience method for synchronously streaming the partitions of a table. The returned
+   * ServerStream instance is not threadsafe, it can only be used from single thread.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   try {
+   *     ServerStream<ByteStringRange> stream = bigtableDataClient.listChangeStreamPartitions(tableId);
+   *     int count = 0;
+   *
+   *     // Iterator style
+   *     for (ByteStringRange partition : stream) {
+   *       if (++count > 10) {
+   *         stream.cancel();
+   *         break;
+   *       }
+   *       // Do something with partition
+   *     }
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   * }
+   * }</pre>
+   *
+   * @see ServerStreamingCallable For call styles.
+   */
+  public ServerStream<ByteStringRange> listChangeStreamPartitions(String tableId) {
+    return listChangeStreamPartitionsCallable().call(tableId);
+  }
+
+  /**
+   * Convenience method for asynchronously streaming the partitions of a table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   bigtableDataClient.listChangeStreamPartitionsAsync(tableId, new ResponseObserver<ByteStringRange>() {
+   *     StreamController controller;
+   *     int count = 0;
+   *
+   *     public void onStart(StreamController controller) {
+   *       this.controller = controller;
+   *     }
+   *     public void onResponse(ByteStringRange partition) {
+   *       if (++count > 10) {
+   *         controller.cancel();
+   *         return;
+   *       }
+   *       // Do something with partition
+   *     }
+   *     public void onError(Throwable t) {
+   *       if (t instanceof NotFoundException) {
+   *         System.out.println("Tried to read a non-existent table");
+   *       } else {
+   *         t.printStackTrace();
+   *       }
+   *     }
+   *     public void onComplete() {
+   *       // Handle stream completion
+   *     }
+   *   });
+   * }
+   * }</pre>
+   */
+  public void listChangeStreamPartitionsAsync(
+      String tableId, ResponseObserver<ByteStringRange> observer) {
+    listChangeStreamPartitionsCallable().call(tableId, observer);
+  }
+
+  /**
+   * Streams back the results of the query. The returned callable object allows for customization of
+   * api invocation.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   // Iterator style
+   *   try {
+   *     for(ByteStringRange partition : bigtableDataClient.listChangeStreamPartitionsCallable().call(tableId)) {
+   *       // Do something with partition
+   *     }
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // Sync style
+   *   try {
+   *     List<ByteStringRange> partitions = bigtableDataClient.listChangeStreamPartitionsCallable().all().call(tableId);
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // Point look up
+   *   ApiFuture<ByteStringRange> partitionFuture =
+   *     bigtableDataClient.listChangeStreamPartitionsCallable().first().futureCall(tableId);
+   *
+   *   ApiFutures.addCallback(partitionFuture, new ApiFutureCallback<ByteStringRange>() {
+   *     public void onFailure(Throwable t) {
+   *       if (t instanceof NotFoundException) {
+   *         System.out.println("Tried to read a non-existent table");
+   *       } else {
+   *         t.printStackTrace();
+   *       }
+   *     }
+   *     public void onSuccess(ByteStringRange result) {
+   *       System.out.println("Got partition: " + result);
+   *     }
+   *   }, MoreExecutors.directExecutor());
+   *
+   *   // etc
+   * }
+   * }</pre>
+   *
+   * @see ServerStreamingCallable For call styles.
+   */
+  public ServerStreamingCallable<String, ByteStringRange> listChangeStreamPartitionsCallable() {
+    return stub.listChangeStreamPartitionsCallable();
   }
 
   /** Close the clients and releases all associated resources. */
