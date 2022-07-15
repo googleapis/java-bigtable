@@ -34,7 +34,11 @@ import java.util.Map;
 import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+// Can only be run as unit test
+@RunWith(JUnit4.class)
 public class StatsRecorderWrapperTest {
 
   private final String PROJECT_ID = "fake-project";
@@ -60,11 +64,11 @@ public class StatsRecorderWrapperTest {
             ApiTracerFactory.OperationType.ServerStreaming,
             SpanName.of("Bigtable", "ReadRows"),
             ImmutableMap.of(
-                "project_id",
+                BuiltinMeasureConstants.PROJECT_ID.getName(),
                 PROJECT_ID,
-                "instance_id",
+                BuiltinMeasureConstants.INSTANCE_ID.getName(),
                 INSTANCE_ID,
-                "app_profile",
+                BuiltinMeasureConstants.APP_PROFILE.getName(),
                 APP_PROFILE_ID),
             statsComponent.getStatsRecorder());
 
