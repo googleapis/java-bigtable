@@ -52,7 +52,10 @@ public class StatsWrapper {
         .collect(Collectors.toCollection(ArrayList::new));
   }
 
-  // A workaround to run BuiltinViewConstantsTest as integration test
+  // A workaround to run ITBuiltinViewConstantsTest as integration test. Integration test runs after
+  // the packaging step. Opencensus classes will be relocated when they are packaged but the
+  // integration test files will not be. So the integration tests can't reference any transitive
+  // dependencies that have been relocated.
   static Map<String, List<String>> getViewToTagMap() {
     Map<String, List<String>> map = new HashMap<>();
     for (View view : BuiltinViews.BIGTABLE_BUILTIN_VIEWS) {

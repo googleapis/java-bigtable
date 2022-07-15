@@ -29,8 +29,6 @@ public class ITBuiltinViewConstantsTest {
   public void testBasicTagsExistForAllViews() {
     Map<String, List<String>> viewToTagMap = StatsWrapper.getViewToTagMap();
     for (String view : viewToTagMap.keySet()) {
-      System.out.println(view);
-      System.out.println(viewToTagMap.get(view));
       assertWithMessage(view + " should have all basic tags")
           .that(viewToTagMap.get(view))
           .containsAtLeast(
