@@ -19,7 +19,9 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import com.google.bigtable.v2.*;
+import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
+import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 
