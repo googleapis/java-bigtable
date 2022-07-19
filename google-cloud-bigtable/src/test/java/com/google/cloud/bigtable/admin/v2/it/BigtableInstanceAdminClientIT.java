@@ -354,6 +354,7 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
       Cluster updatedCluster =
           client.updateClusterAutoscalingConfig(
