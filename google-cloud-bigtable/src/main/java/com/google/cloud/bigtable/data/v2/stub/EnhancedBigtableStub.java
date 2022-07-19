@@ -44,21 +44,7 @@ import com.google.api.gax.tracing.TracedServerStreamingCallable;
 import com.google.api.gax.tracing.TracedUnaryCallable;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
-import com.google.bigtable.v2.BigtableGrpc;
-import com.google.bigtable.v2.CheckAndMutateRowRequest;
-import com.google.bigtable.v2.CheckAndMutateRowResponse;
-import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
-import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
-import com.google.bigtable.v2.MutateRowRequest;
-import com.google.bigtable.v2.MutateRowResponse;
-import com.google.bigtable.v2.MutateRowsRequest;
-import com.google.bigtable.v2.MutateRowsResponse;
-import com.google.bigtable.v2.ReadModifyWriteRowRequest;
-import com.google.bigtable.v2.ReadModifyWriteRowResponse;
-import com.google.bigtable.v2.ReadRowsRequest;
-import com.google.bigtable.v2.ReadRowsResponse;
-import com.google.bigtable.v2.SampleRowKeysRequest;
-import com.google.bigtable.v2.SampleRowKeysResponse;
+import com.google.bigtable.v2.*;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
@@ -67,7 +53,6 @@ import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
@@ -146,7 +131,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
 
-  private final ServerStreamingCallable<String, ByteStringRange> listChangeStreamPartitionsCallable;
+  private final ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -810,13 +795,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *
    * <ul>
    *   <li>Convert a String format tableId into a {@link
-   *       com.google.bigtable.v2.ReadChangeStreamRequest} and dispatch the RPC.
+   *       com.google.bigtable.v2.ListChangeStreamPartitionsRequest} and dispatch the RPC.
    *   <li>Upon receiving the response stream, it will convert the {@link
-   *       com.google.bigtable.v2.ListChangeStreamPartitionsResponse}s into {@link ByteStringRange}.
+   *       com.google.bigtable.v2.ListChangeStreamPartitionsResponse}s into {@link RowRange}.
    * </ul>
    */
-  private ServerStreamingCallable<String, ByteStringRange>
-      createListChangeStreamPartitionsCallable() {
+  private ServerStreamingCallable<String, RowRange> createListChangeStreamPartitionsCallable() {
     ServerStreamingCallable<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
         base =
             GrpcRawCallableFactory.createServerStreamingCallable(
@@ -839,32 +823,32 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     .build(),
                 settings.listChangeStreamPartitionsSettings().getRetryableCodes());
 
-    ServerStreamingCallable<String, ByteStringRange> userCallable =
+    ServerStreamingCallable<String, RowRange> userCallable =
         new ListChangeStreamPartitionsUserCallable(base, requestContext);
 
-    ServerStreamingCallable<String, ByteStringRange> withStatsHeaders =
+    ServerStreamingCallable<String, RowRange> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(userCallable);
 
     // Copy settings for the middle String -> ByteStringRange callable (as opposed to the inner
     // ListChangeStreamPartitionsRequest -> ListChangeStreamPartitionsResponse callable).
-    ServerStreamingCallSettings<String, ByteStringRange> innerSettings =
-        ServerStreamingCallSettings.<String, ByteStringRange>newBuilder()
+    ServerStreamingCallSettings<String, RowRange> innerSettings =
+        ServerStreamingCallSettings.<String, RowRange>newBuilder()
             .setRetryableCodes(settings.listChangeStreamPartitionsSettings().getRetryableCodes())
             .setRetrySettings(settings.listChangeStreamPartitionsSettings().getRetrySettings())
             .setIdleTimeout(settings.listChangeStreamPartitionsSettings().getIdleTimeout())
             .build();
 
-    ServerStreamingCallable<String, ByteStringRange> watched =
+    ServerStreamingCallable<String, RowRange> watched =
         Callables.watched(withStatsHeaders, innerSettings, clientContext);
 
-    ServerStreamingCallable<String, ByteStringRange> withBigtableTracer =
+    ServerStreamingCallable<String, RowRange> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(watched);
 
-    ServerStreamingCallable<String, ByteStringRange> retrying =
+    ServerStreamingCallable<String, RowRange> retrying =
         Callables.retrying(withBigtableTracer, innerSettings, clientContext);
 
     SpanName span = getSpanName("ListChangeStreamPartitions");
-    ServerStreamingCallable<String, ByteStringRange> traced =
+    ServerStreamingCallable<String, RowRange> traced =
         new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
@@ -928,7 +912,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /** Returns a streaming list change stream partitions callable */
-  public ServerStreamingCallable<String, ByteStringRange> listChangeStreamPartitionsCallable() {
+  public ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable() {
     return listChangeStreamPartitionsCallable;
   }
   // </editor-fold>

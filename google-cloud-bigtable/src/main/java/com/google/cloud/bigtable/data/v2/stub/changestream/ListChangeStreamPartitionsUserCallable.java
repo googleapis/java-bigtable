@@ -22,11 +22,10 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.*;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 
 /** Simple wrapper for ListChangeStreamPartitions to wrap the request and response protobufs. */
 public class ListChangeStreamPartitionsUserCallable
-    extends ServerStreamingCallable<String, ByteStringRange> {
+    extends ServerStreamingCallable<String, RowRange> {
   private final RequestContext requestContext;
   private final ServerStreamingCallable<
           ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
@@ -42,7 +41,7 @@ public class ListChangeStreamPartitionsUserCallable
 
   @Override
   public void call(
-      String tableId, ResponseObserver<ByteStringRange> responseObserver, ApiCallContext context) {
+      String tableId, ResponseObserver<RowRange> responseObserver, ApiCallContext context) {
     String tableName =
         NameUtil.formatTableName(
             requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
@@ -58,9 +57,9 @@ public class ListChangeStreamPartitionsUserCallable
   private class ConvertPartitionToRangeObserver
       implements ResponseObserver<ListChangeStreamPartitionsResponse> {
 
-    private final ResponseObserver<ByteStringRange> outerObserver;
+    private final ResponseObserver<RowRange> outerObserver;
 
-    ConvertPartitionToRangeObserver(ResponseObserver<ByteStringRange> observer) {
+    ConvertPartitionToRangeObserver(ResponseObserver<RowRange> observer) {
       this.outerObserver = observer;
     }
 
@@ -71,12 +70,12 @@ public class ListChangeStreamPartitionsUserCallable
 
     @Override
     public void onResponse(ListChangeStreamPartitionsResponse response) {
-      ByteStringRange range =
-          ByteStringRange.unbounded()
-              .of(
-                  response.getPartition().getRowRange().getStartKeyClosed(),
-                  response.getPartition().getRowRange().getEndKeyOpen());
-      outerObserver.onResponse(range);
+      RowRange rowRange =
+          RowRange.newBuilder()
+              .setStartKeyClosed(response.getPartition().getRowRange().getStartKeyClosed())
+              .setEndKeyOpen(response.getPartition().getRowRange().getEndKeyOpen())
+              .build();
+      outerObserver.onResponse(rowRange);
     }
 
     @Override

@@ -33,11 +33,11 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -148,10 +148,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setMaxRetryDelay(Duration.ofMinutes(1))
           .setMaxAttempts(10)
           .setJittered(true)
-          .setInitialRpcTimeout(Duration.ofMinutes(5))
+          .setInitialRpcTimeout(Duration.ofMinutes(1))
           .setRpcTimeoutMultiplier(2.0)
-          .setMaxRpcTimeout(Duration.ofMinutes(5))
-          .setTotalTimeout(Duration.ofHours(12))
+          .setMaxRpcTimeout(Duration.ofMinutes(10))
+          .setTotalTimeout(Duration.ofMinutes(60))
           .build();
 
   /**
@@ -191,8 +191,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
 
-  private final ServerStreamingCallSettings<String, ByteStringRange>
-      listChangeStreamPartitionsSettings;
+  private final ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -512,7 +511,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readModifyWriteRowSettings;
   }
 
-  public ServerStreamingCallSettings<String, ByteStringRange> listChangeStreamPartitionsSettings() {
+  public ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings() {
     return listChangeStreamPartitionsSettings;
   }
 
@@ -541,7 +540,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
 
-    private final ServerStreamingCallSettings.Builder<String, ByteStringRange>
+    private final ServerStreamingCallSettings.Builder<String, RowRange>
         listChangeStreamPartitionsSettings;
 
     /**

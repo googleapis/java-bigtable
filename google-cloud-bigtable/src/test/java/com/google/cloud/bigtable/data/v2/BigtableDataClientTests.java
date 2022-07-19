@@ -24,13 +24,13 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
@@ -81,7 +81,7 @@ public class BigtableDataClientTests {
   @Mock private Batcher<ByteString, Row> mockBulkReadRowsBatcher;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  private ServerStreamingCallable<String, ByteStringRange> mockListChangeStreamPartitionsCallable;
+  private ServerStreamingCallable<String, RowRange> mockListChangeStreamPartitionsCallable;
 
   private BigtableDataClient bigtableDataClient;
 
@@ -328,7 +328,7 @@ public class BigtableDataClientTests {
         .thenReturn(mockListChangeStreamPartitionsCallable);
 
     @SuppressWarnings("unchecked")
-    ResponseObserver<ByteStringRange> mockObserver = Mockito.mock(ResponseObserver.class);
+    ResponseObserver<RowRange> mockObserver = Mockito.mock(ResponseObserver.class);
     bigtableDataClient.listChangeStreamPartitionsAsync("fake-table", mockObserver);
 
     Mockito.verify(mockListChangeStreamPartitionsCallable).call("fake-table", mockObserver);
