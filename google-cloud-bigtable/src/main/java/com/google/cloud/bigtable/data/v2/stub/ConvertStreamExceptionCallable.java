@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.readrows;
+package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
@@ -27,29 +27,30 @@ import com.google.api.gax.rpc.StreamController;
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
 @InternalApi
-public final class ReadRowsConvertExceptionCallable<ReadRowsRequest, RowT>
-    extends ServerStreamingCallable<ReadRowsRequest, RowT> {
+public final class ConvertStreamExceptionCallable<RequestT, ResponseT>
+    extends ServerStreamingCallable<RequestT, ResponseT> {
 
-  private final ServerStreamingCallable<ReadRowsRequest, RowT> innerCallable;
+  private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public ReadRowsConvertExceptionCallable(
-      ServerStreamingCallable<ReadRowsRequest, RowT> innerCallable) {
+  public ConvertStreamExceptionCallable(
+      ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = innerCallable;
   }
 
   @Override
   public void call(
-      ReadRowsRequest request, ResponseObserver<RowT> responseObserver, ApiCallContext context) {
-    ReadRowsConvertExceptionResponseObserver<RowT> observer =
-        new ReadRowsConvertExceptionResponseObserver<>(responseObserver);
+      RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
+    ConvertStreamExceptionResponseObserver<ResponseT> observer =
+        new ConvertStreamExceptionResponseObserver<>(responseObserver);
     innerCallable.call(request, observer, context);
   }
 
-  private class ReadRowsConvertExceptionResponseObserver<RowT> implements ResponseObserver<RowT> {
+  private class ConvertStreamExceptionResponseObserver<ResponseT>
+      implements ResponseObserver<ResponseT> {
 
-    private final ResponseObserver<RowT> outerObserver;
+    private final ResponseObserver<ResponseT> outerObserver;
 
-    ReadRowsConvertExceptionResponseObserver(ResponseObserver<RowT> outerObserver) {
+    ConvertStreamExceptionResponseObserver(ResponseObserver<ResponseT> outerObserver) {
       this.outerObserver = outerObserver;
     }
 
@@ -59,7 +60,7 @@ public final class ReadRowsConvertExceptionCallable<ReadRowsRequest, RowT>
     }
 
     @Override
-    public void onResponse(RowT response) {
+    public void onResponse(ResponseT response) {
       outerObserver.onResponse(response);
     }
 

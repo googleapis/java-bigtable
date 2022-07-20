@@ -1522,6 +1522,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @see ServerStreamingCallable For call styles.
    */
+  @InternalApi
   public ServerStream<RowRange> listChangeStreamPartitions(String tableId) {
     return listChangeStreamPartitionsCallable().call(tableId);
   }
@@ -1563,6 +1564,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }
    * }</pre>
    */
+  @InternalApi
   public void listChangeStreamPartitionsAsync(String tableId, ResponseObserver<RowRange> observer) {
     listChangeStreamPartitionsCallable().call(tableId, observer);
   }
@@ -1620,6 +1622,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @see ServerStreamingCallable For call styles.
    */
+  @InternalApi
   public ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable() {
     return stub.listChangeStreamPartitionsCallable();
   }
