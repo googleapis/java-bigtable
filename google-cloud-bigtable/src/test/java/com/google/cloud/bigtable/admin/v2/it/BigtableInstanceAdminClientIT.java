@@ -356,12 +356,26 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
       assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
+      Cluster retrievedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedCluster.getId()).contains(clusterId);
+      assertThat(retrievedCluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(retrievedCluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
+      assertThat(retrievedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(retrievedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
+
       Cluster updatedCluster =
           client.updateClusterAutoscalingConfig(
               ClusterAutoscalingConfig.of(newInstanceId, clusterId).setMaxNodes(3));
       assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(1);
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
+
+      Cluster retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
       updatedCluster =
           client.updateClusterAutoscalingConfig(
@@ -369,6 +383,13 @@ public class BigtableInstanceAdminClientIT {
       assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
+
+      retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
       updatedCluster =
           client.updateClusterAutoscalingConfig(
@@ -377,6 +398,13 @@ public class BigtableInstanceAdminClientIT {
       assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(40);
+      assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
+
+      retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(40);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
       updatedCluster =
           client.updateClusterAutoscalingConfig(
@@ -386,6 +414,13 @@ public class BigtableInstanceAdminClientIT {
       assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+      assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
+
+      retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2561);
 
       updatedCluster =
           client.updateClusterAutoscalingConfig(
@@ -395,6 +430,28 @@ public class BigtableInstanceAdminClientIT {
       assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
       assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
       assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2777);
+
+      retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2777);
+
+      updatedCluster =
+          client.updateClusterAutoscalingConfig(
+              ClusterAutoscalingConfig.of(newInstanceId, clusterId)
+                  // testing default case
+                  .setStorageUtilizationGibPerNode(0));
+      assertThat(updatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(updatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
+      assertThat(updatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+      assertThat(updatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2560);
+
+      retrievedUpdatedCluster = client.getCluster(newInstanceId, clusterId);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMinServeNodes()).isEqualTo(2);
+      assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
+      assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
+      assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2560);
     } catch (Exception e) {
       Assert.fail("error in the test: " + e.getMessage());
     } finally {
