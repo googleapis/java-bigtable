@@ -47,6 +47,8 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -55,6 +57,7 @@ import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
+import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
@@ -70,6 +73,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ListChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -84,7 +88,6 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescr
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
-import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsConvertExceptionCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -141,6 +144,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
+
+  private final ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -284,6 +289,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
+    listChangeStreamPartitionsCallable = createListChangeStreamPartitionsCallable();
   }
 
   // <editor-fold desc="Callable creators">
@@ -410,7 +416,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ReadRowsConvertExceptionCallable<>(withStatsHeaders);
+        new ConvertStreamExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
@@ -799,6 +805,76 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * Creates a callable chain to handle streaming ListChangeStreamPartitions RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a String format tableId into a {@link
+   *       com.google.bigtable.v2.ListChangeStreamPartitionsRequest} and dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will convert the {@link
+   *       com.google.bigtable.v2.ListChangeStreamPartitionsResponse}s into {@link RowRange}.
+   * </ul>
+   */
+  private ServerStreamingCallable<String, RowRange> createListChangeStreamPartitionsCallable() {
+    ServerStreamingCallable<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+        base =
+            GrpcRawCallableFactory.createServerStreamingCallable(
+                GrpcCallSettings
+                    .<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+                        newBuilder()
+                    .setMethodDescriptor(BigtableGrpc.getListChangeStreamPartitionsMethod())
+                    .setParamsExtractor(
+                        new RequestParamsExtractor<ListChangeStreamPartitionsRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              ListChangeStreamPartitionsRequest listChangeStreamPartitionsRequest) {
+                            return ImmutableMap.of(
+                                "table_name",
+                                listChangeStreamPartitionsRequest.getTableName(),
+                                "app_profile_id",
+                                listChangeStreamPartitionsRequest.getAppProfileId());
+                          }
+                        })
+                    .build(),
+                settings.listChangeStreamPartitionsSettings().getRetryableCodes());
+
+    ServerStreamingCallable<String, RowRange> userCallable =
+        new ListChangeStreamPartitionsUserCallable(base, requestContext);
+
+    ServerStreamingCallable<String, RowRange> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(userCallable);
+
+    // Sometimes ListChangeStreamPartitions connections are disconnected via an RST frame. This
+    // error is transient and should be treated similar to UNAVAILABLE. However, this exception
+    // has an INTERNAL error code which by default is not retryable. Convert the exception so it
+    // can be retried in the client.
+    ServerStreamingCallable<String, RowRange> convertException =
+        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+
+    // Copy idle timeout settings for watchdog.
+    ServerStreamingCallSettings<String, RowRange> innerSettings =
+        ServerStreamingCallSettings.<String, RowRange>newBuilder()
+            .setRetryableCodes(settings.listChangeStreamPartitionsSettings().getRetryableCodes())
+            .setRetrySettings(settings.listChangeStreamPartitionsSettings().getRetrySettings())
+            .setIdleTimeout(settings.listChangeStreamPartitionsSettings().getIdleTimeout())
+            .build();
+
+    ServerStreamingCallable<String, RowRange> watched =
+        Callables.watched(convertException, innerSettings, clientContext);
+
+    ServerStreamingCallable<String, RowRange> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
+
+    ServerStreamingCallable<String, RowRange> retrying =
+        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+
+    SpanName span = getSpanName("ListChangeStreamPartitions");
+    ServerStreamingCallable<String, RowRange> traced =
+        new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
    * Wraps a callable chain in a user presentable callable that will inject the default call context
    * and trace the call.
    */
@@ -853,6 +929,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable() {
     return readModifyWriteRowCallable;
+  }
+
+  /** Returns a streaming list change stream partitions callable */
+  public ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable() {
+    return listChangeStreamPartitionsCallable;
   }
   // </editor-fold>
 
