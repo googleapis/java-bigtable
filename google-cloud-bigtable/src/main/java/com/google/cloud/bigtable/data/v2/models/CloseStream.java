@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
+import com.google.rpc.Status;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -30,12 +31,11 @@ import javax.annotation.Nonnull;
 
 public final class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
-  private final com.google.rpc.Status status;
+  private final Status status;
   private transient ImmutableList.Builder<ChangeStreamContinuationToken>
       changeStreamContinuationTokens = ImmutableList.builder();
 
-  private CloseStream(
-      com.google.rpc.Status status, List<StreamContinuationToken> continuationTokens) {
+  private CloseStream(Status status, List<StreamContinuationToken> continuationTokens) {
     this.status = status;
     for (StreamContinuationToken streamContinuationToken : continuationTokens) {
       changeStreamContinuationTokens.add(
@@ -44,7 +44,7 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
-  public com.google.rpc.Status getStatus() {
+  public Status getStatus() {
     return this.status;
   }
 
@@ -70,7 +70,7 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
   @InternalApi("Used in Changestream veneer client.")
-  public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
+  static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
   }
 

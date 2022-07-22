@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,12 +59,13 @@ public final class ChangeStreamContinuationToken implements Serializable {
    * to be used by applications.
    */
   @InternalApi("Used in Changestream veneer client.")
-  public StreamContinuationToken toProto() {
+  StreamContinuationToken toProto() {
     return builder.build();
   }
 
   /** Wraps the protobuf {@link StreamContinuationToken}. */
-  public static ChangeStreamContinuationToken fromProto(
+  @InternalApi("Used in Changestream veneer client.")
+  static ChangeStreamContinuationToken fromProto(
       @Nonnull StreamContinuationToken streamContinuationToken) {
     return new ChangeStreamContinuationToken(streamContinuationToken.toBuilder());
   }

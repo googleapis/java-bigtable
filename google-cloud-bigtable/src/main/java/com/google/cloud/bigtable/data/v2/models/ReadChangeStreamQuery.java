@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Duration;
+import com.google.protobuf.Timestamp;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -139,7 +140,7 @@ public final class ReadChangeStreamQuery implements Serializable {
   }
 
   /** Sets the startTime to read the change stream. */
-  public ReadChangeStreamQuery startTime(com.google.protobuf.Timestamp value) {
+  public ReadChangeStreamQuery startTime(Timestamp value) {
     Preconditions.checkArgument(
         !builder.hasContinuationTokens(),
         "startTime and continuationTokens can't be specified together");
@@ -148,7 +149,7 @@ public final class ReadChangeStreamQuery implements Serializable {
   }
 
   /** Sets the endTime to read the change stream. */
-  public ReadChangeStreamQuery endTime(com.google.protobuf.Timestamp value) {
+  public ReadChangeStreamQuery endTime(Timestamp value) {
     builder.setEndTime(value);
     return this;
   }

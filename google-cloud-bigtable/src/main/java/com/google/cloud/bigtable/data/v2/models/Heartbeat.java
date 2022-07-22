@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
+import com.google.protobuf.Timestamp;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 public final class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
-  private final com.google.protobuf.Timestamp lowWatermark;
+  private final Timestamp lowWatermark;
   private final ChangeStreamContinuationToken changeStreamContinuationToken;
 
   private Heartbeat(
-      com.google.protobuf.Timestamp lowWatermark,
-      ChangeStreamContinuationToken changeStreamContinuationToken) {
+      Timestamp lowWatermark, ChangeStreamContinuationToken changeStreamContinuationToken) {
     this.lowWatermark = lowWatermark;
     this.changeStreamContinuationToken = changeStreamContinuationToken;
   }
@@ -40,13 +40,13 @@ public final class Heartbeat implements ChangeStreamRecord, Serializable {
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
-  public com.google.protobuf.Timestamp getLowWatermark() {
+  public Timestamp getLowWatermark() {
     return lowWatermark;
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
   @InternalApi("Used in Changestream veneer client.")
-  public static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
+  static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return new Heartbeat(
         heartbeat.getLowWatermark(),
         ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()));
