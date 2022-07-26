@@ -58,6 +58,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
   // flushed to memory.
   private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
+  private boolean serverLatencyTimerIsRunning = false;
   private final Object timerLock = new Object();
 
   private boolean flowControlIsDisabled = false;
@@ -118,7 +119,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
     if (!flowControlIsDisabled) {
       synchronized (timerLock) {
-        serverLatencyTimer.start();
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -145,7 +149,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
       // On request is only called when auto flow control is disabled. When auto flow control is
       // disabled, server latency is measured between onRequest and onResponse.
       synchronized (timerLock) {
-        serverLatencyTimer.start();
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -160,8 +167,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // latency is measured between afterResponse and responseReceived.
     // In all the cases, we want to stop the serverLatencyTimer here.
     synchronized (timerLock) {
-      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      serverLatencyTimer.reset();
+      if (serverLatencyTimerIsRunning) {
+        totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+        serverLatencyTimer.reset();
+        serverLatencyTimerIsRunning = false;
+      }
     }
   }
 
@@ -173,7 +183,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
       // received. If flow control is disabled but requestLeft is greater than 0,
       // also start the timer to count the time between afterResponse and responseReceived.
       synchronized (timerLock) {
-        serverLatencyTimer.start();
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -236,9 +249,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // If the attempt failed, the time spent in retry should be counted in application latency.
     // Stop the stopwatch and decrement requestLeft.
     synchronized (timerLock) {
-      requestLeft.decrementAndGet();
-      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      serverLatencyTimer.reset();
+      if (serverLatencyTimerIsRunning) {
+        requestLeft.decrementAndGet();
+        totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+        serverLatencyTimer.reset();
+        serverLatencyTimerIsRunning = false;
+      }
     }
     recorder.putAttemptLatencies(attemptTimer.elapsed(TimeUnit.MILLISECONDS));
     recorder.record(Util.extractStatus(status), tableId, zone, cluster);
