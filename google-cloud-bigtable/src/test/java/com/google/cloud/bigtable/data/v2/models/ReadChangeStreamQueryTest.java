@@ -253,8 +253,8 @@ public class ReadChangeStreamQueryTest {
                 StreamPartition.newBuilder()
                     .setRowRange(
                         RowRange.newBuilder()
-                            .setStartKeyClosed(ByteString.copyFromUtf8("start"))
-                            .setEndKeyOpen(ByteString.copyFromUtf8("end"))
+                            .setStartKeyClosed(ByteString.copyFromUtf8(""))
+                            .setEndKeyOpen(ByteString.copyFromUtf8(""))
                             .build())
                     .build())
             .setToken("random-token")

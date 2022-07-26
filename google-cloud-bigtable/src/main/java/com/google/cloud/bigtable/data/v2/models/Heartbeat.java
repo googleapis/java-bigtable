@@ -45,7 +45,6 @@ public final class Heartbeat implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
-  @InternalApi("Used in Changestream veneer client.")
   static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return new Heartbeat(
         heartbeat.getLowWatermark(),

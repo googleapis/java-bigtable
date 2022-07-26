@@ -94,6 +94,7 @@ public class ChangeStreamRecordTest {
     CloseStream actual = (CloseStream) ois.readObject();
     assertThat(actual.getChangeStreamContinuationTokens())
         .isEqualTo(closeStream.getChangeStreamContinuationTokens());
+    assertThat(actual.getStatus()).isEqualTo(closeStream.getStatus());
   }
 
   @Test

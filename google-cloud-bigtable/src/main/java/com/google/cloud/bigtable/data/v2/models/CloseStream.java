@@ -69,7 +69,6 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  @InternalApi("Used in Changestream veneer client.")
   static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
   }
