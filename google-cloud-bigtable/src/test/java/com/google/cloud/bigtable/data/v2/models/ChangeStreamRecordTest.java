@@ -98,6 +98,9 @@ public class ChangeStreamRecordTest {
   }
 
   @Test
+  public void changeStreamMutationSerializationTest() {}
+
+  @Test
   public void heartbeatTest() {
     Timestamp lowWatermark = Timestamp.newBuilder().setSeconds(1000).build();
     RowRange rowRange =
