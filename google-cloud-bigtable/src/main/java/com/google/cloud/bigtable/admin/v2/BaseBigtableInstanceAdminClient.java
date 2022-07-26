@@ -580,6 +580,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *           .setDisplayName("displayName1714148973")
    *           .putAllLabels(new HashMap<String, String>())
    *           .setCreateTime(Timestamp.newBuilder().build())
+   *           .setSatisfiesPzs(true)
    *           .build();
    *   Instance response = baseBigtableInstanceAdminClient.updateInstance(request);
    * }
@@ -610,6 +611,7 @@ public class BaseBigtableInstanceAdminClient implements BackgroundResource {
    *           .setDisplayName("displayName1714148973")
    *           .putAllLabels(new HashMap<String, String>())
    *           .setCreateTime(Timestamp.newBuilder().build())
+   *           .setSatisfiesPzs(true)
    *           .build();
    *   ApiFuture<Instance> future =
    *       baseBigtableInstanceAdminClient.updateInstanceCallable().futureCall(request);
