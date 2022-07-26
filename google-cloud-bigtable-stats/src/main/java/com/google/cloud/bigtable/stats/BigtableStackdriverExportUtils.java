@@ -60,8 +60,6 @@ class BigtableStackdriverExportUtils {
   private static final io.opencensus.common.Function<ExplicitOptions, BucketOptions>
       bucketOptionsExplicitFunction;
 
-  private static final String DOMAIN = "bigtable.googleapis.com/internal/client/";
-
   private static final Set<String> PROMOTED_RESOURCE_LABELS =
       ImmutableSet.of(
           BuiltinMeasureConstants.PROJECT_ID.getName(),
@@ -142,7 +140,7 @@ class BigtableStackdriverExportUtils {
         metricTagValues.add(labelValues.get(i));
       }
     }
-    metricTagKeys.add(LabelKey.create(BuiltinMeasureConstants.CLIENT_ID.getName(), "client id"));
+    metricTagKeys.add(LabelKey.create(BuiltinMeasureConstants.CLIENT_UID.getName(), "client id"));
     metricTagValues.add(LabelValue.create(clientId));
 
     TimeSeries.Builder builder = TimeSeries.newBuilder();
@@ -161,7 +159,7 @@ class BigtableStackdriverExportUtils {
   static com.google.api.Metric createMetric(
       String metricName, List<LabelKey> labelKeys, List<LabelValue> labelValues) {
     com.google.api.Metric.Builder builder = com.google.api.Metric.newBuilder();
-    builder.setType(DOMAIN + metricName);
+    builder.setType(metricName);
     Map<String, String> stringTagMap = Maps.newHashMap();
 
     for (int i = 0; i < labelValues.size(); ++i) {

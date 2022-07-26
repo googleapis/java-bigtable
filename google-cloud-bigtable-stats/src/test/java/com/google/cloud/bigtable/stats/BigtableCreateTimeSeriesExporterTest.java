@@ -134,7 +134,7 @@ public class BigtableCreateTimeSeriesExporterTest {
     assertThat(timeSeries.getMetric().getLabelsMap())
         .containsAtLeast(BuiltinMeasureConstants.APP_PROFILE.getName(), appProfileId);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsKey(BuiltinMeasureConstants.CLIENT_ID.getName());
+        .containsKey(BuiltinMeasureConstants.CLIENT_UID.getName());
 
     assertThat(timeSeries.getPoints(0).getValue().getDoubleValue()).isEqualTo(fakeValue);
   }

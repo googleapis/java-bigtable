@@ -40,7 +40,7 @@ public class BigtableStackdriverStatsExporter {
   @GuardedBy("monitor")
   private static BigtableStackdriverStatsExporter instance = null;
 
-  private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
+  private static final Duration EXPORT_INTERVAL = Duration.create(60, 0);
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
   private final IntervalMetricReader intervalMetricReader;

@@ -201,7 +201,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ImmutableMap<String, String> builtinAttributes =
         ImmutableMap.<String, String>builder()
             .put("project_id", settings.getProjectId())
-            .put("instance_id", settings.getInstanceId())
+            .put("instance", settings.getInstanceId())
             .put("app_profile", settings.getAppProfileId())
             .build();
     // Inject Opencensus instrumentation
@@ -335,10 +335,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
+    ServerStreamingCallable<Query, RowT> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(readRowsUserCallable);
+
     SpanName span = getSpanName("ReadRows");
     ServerStreamingCallable<Query, RowT> traced =
         new TracedServerStreamingCallable<>(
-            readRowsUserCallable, clientContext.getTracerFactory(), span);
+            withBigtableTracer, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -438,13 +441,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched);
-
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
+        new ReadRowsRetryCompletedCallable<>(watched);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
