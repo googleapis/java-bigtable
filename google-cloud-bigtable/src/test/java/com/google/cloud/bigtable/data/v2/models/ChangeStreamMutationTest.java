@@ -24,6 +24,7 @@ import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.primitives.Longs;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,10 +51,8 @@ public class ChangeStreamMutationTest {
   @Test
   public void userInitiatedMutationTest() throws IOException, ClassNotFoundException {
     // Create a user initiated logical mutation.
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -97,10 +96,8 @@ public class ChangeStreamMutationTest {
   @Test
   public void gcMutationTest() throws IOException, ClassNotFoundException {
     // Create a GC mutation.
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -144,10 +141,8 @@ public class ChangeStreamMutationTest {
   @Test(expected = IllegalArgumentException.class)
   public void userInitiatedMutationHasSourceClusterIdTest() {
     // Create a user initiated logical mutation.
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -172,10 +167,8 @@ public class ChangeStreamMutationTest {
   @Test(expected = IllegalArgumentException.class)
   public void gcMutationHasNoSourceClusterIdTest() {
     // Create a GC mutation.
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -201,10 +194,8 @@ public class ChangeStreamMutationTest {
   @Test(expected = IllegalArgumentException.class)
   public void invalidTypeTest() {
     // Create a ChangeStreamMutation with CONTINUATION type.
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -229,10 +220,8 @@ public class ChangeStreamMutationTest {
 
   @Test
   public void toRowMutationTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -273,10 +262,8 @@ public class ChangeStreamMutationTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void toRowMutationWithoutTokenShouldFailTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -294,8 +281,7 @@ public class ChangeStreamMutationTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void toRowMutationWithoutLowWatermarkShouldFailTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -313,10 +299,8 @@ public class ChangeStreamMutationTest {
 
   @Test
   public void toRowMutationEntryTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -354,10 +338,8 @@ public class ChangeStreamMutationTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void toRowMutationEntryWithoutTokenShouldFailTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -368,15 +350,14 @@ public class ChangeStreamMutationTest {
             .deleteFamily("fake-family")
             .setLowWatermark(fakeLowWatermark);
 
-    // Convert it to a rowMutationEntry and construct a MutateRowRequest.
+    // Convert it to a rowMutationEntry.
     RowMutationEntry rowMutationEntry = changeStreamMutation.toRowMutationEntry();
     expect.expect(IllegalArgumentException.class);
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void toRowMutationEntryWithoutLowWatermarkShouldFailTest() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),
@@ -387,17 +368,15 @@ public class ChangeStreamMutationTest {
             .deleteFamily("fake-family")
             .setToken("fake-token");
 
-    // Convert it to a rowMutationEntry and construct a MutateRowRequest.
+    // Convert it to a rowMutationEntry.
     RowMutationEntry rowMutationEntry = changeStreamMutation.toRowMutationEntry();
     expect.expect(IllegalArgumentException.class);
   }
 
   @Test
   public void testWithLongValue() {
-    com.google.protobuf.Timestamp fakeCommitTimestamp =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build();
-    com.google.protobuf.Timestamp fakeLowWatermark =
-        com.google.protobuf.Timestamp.newBuilder().setSeconds(2000).build();
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation changeStreamMutation =
         ChangeStreamMutation.create(
                 ByteString.copyFromUtf8("key"),

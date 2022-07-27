@@ -30,6 +30,7 @@ public final class DeleteFamily implements Entry, Serializable {
     this.familyName = familyName;
   }
 
+  @Nonnull
   public String getFamilyName() {
     return this.familyName;
   }

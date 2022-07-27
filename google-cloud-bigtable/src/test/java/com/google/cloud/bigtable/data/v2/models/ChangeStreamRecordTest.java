@@ -23,6 +23,7 @@ import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import com.google.rpc.Status;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class ChangeStreamRecordTest {
 
   @Test
   public void closeStreamSerializationTest() throws IOException, ClassNotFoundException {
-    com.google.rpc.Status status = com.google.rpc.Status.newBuilder().setCode(0).build();
+    Status status = Status.newBuilder().setCode(0).build();
     RowRange rowRange1 =
         RowRange.newBuilder()
             .setStartKeyClosed(ByteString.copyFromUtf8(""))
@@ -98,9 +99,6 @@ public class ChangeStreamRecordTest {
   }
 
   @Test
-  public void changeStreamMutationSerializationTest() {}
-
-  @Test
   public void heartbeatTest() {
     Timestamp lowWatermark = Timestamp.newBuilder().setSeconds(1000).build();
     RowRange rowRange =
@@ -127,7 +125,7 @@ public class ChangeStreamRecordTest {
 
   @Test
   public void closeStreamTest() {
-    com.google.rpc.Status status = com.google.rpc.Status.newBuilder().setCode(0).build();
+    Status status = Status.newBuilder().setCode(0).build();
     RowRange rowRange1 =
         RowRange.newBuilder()
             .setStartKeyClosed(ByteString.copyFromUtf8(""))

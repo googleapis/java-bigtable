@@ -44,10 +44,12 @@ public final class SetCell implements Entry, Serializable {
     this.value = value;
   }
 
+  @Nonnull
   public String getFamilyName() {
     return this.familyName;
   }
 
+  @Nonnull
   public ByteString getQualifier() {
     return this.qualifier;
   }
@@ -56,6 +58,7 @@ public final class SetCell implements Entry, Serializable {
     return this.timestamp;
   }
 
+  @Nonnull
   public ByteString getValue() {
     return this.value;
   }

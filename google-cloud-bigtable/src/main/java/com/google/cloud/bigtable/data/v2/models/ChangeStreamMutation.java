@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.MoreObjects;
@@ -179,7 +178,6 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     return this;
   }
 
-  @InternalApi("Used in Changestream beam pipeline.")
   public RowMutation toRowMutation(@Nonnull String tableId) {
     Preconditions.checkArgument(
         token != null && lowWatermark != null,
@@ -208,7 +206,6 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     return rowMutation;
   }
 
-  @InternalApi("Used in Changestream beam pipeline.")
   public RowMutationEntry toRowMutationEntry() {
     Preconditions.checkArgument(
         token != null && lowWatermark != null,

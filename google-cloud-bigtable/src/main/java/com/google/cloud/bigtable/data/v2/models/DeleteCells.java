@@ -39,14 +39,17 @@ public final class DeleteCells implements Entry, Serializable {
     this.timestampRange = timestampRange;
   }
 
+  @Nonnull
   public String getFamilyName() {
     return this.familyName;
   }
 
+  @Nonnull
   public ByteString getQualifier() {
     return this.qualifier;
   }
 
+  @Nonnull
   public TimestampRange getTimestampRange() {
     return this.timestampRange;
   }
