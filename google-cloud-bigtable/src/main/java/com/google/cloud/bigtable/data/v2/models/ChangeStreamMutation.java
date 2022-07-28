@@ -65,7 +65,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     this.sourceClusterId = builder.sourceClusterId;
     this.commitTimestamp = builder.commitTimestamp;
     this.tieBreaker = builder.tieBreaker;
-    this.token = builder.token;;
+    this.token = builder.token;
     this.lowWatermark = builder.lowWatermark;
     this.entries = builder.entries;
   }
@@ -81,9 +81,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
 
   /** Creates a new instance of a GC mutation. */
   static Builder createGcMutation(
-      @Nonnull ByteString rowKey,
-      @Nonnull Timestamp commitTimestamp,
-      int tieBreaker) {
+      @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
     return new Builder(rowKey, Type.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
   }
 
@@ -123,9 +121,10 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     return this.commitTimestamp;
   }
 
-  /** Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple mutations
-   *  are applied to different clusters at the same time.
-   * */
+  /**
+   * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
+   * mutations are applied to different clusters at the same time.
+   */
   public int getTieBreaker() {
     return this.tieBreaker;
   }
@@ -164,11 +163,12 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
 
     private Timestamp lowWatermark;
 
-    private Builder(ByteString rowKey,
-            Type type,
-            String sourceClusterId,
-            Timestamp commitTimestamp,
-            int tieBreaker) {
+    private Builder(
+        ByteString rowKey,
+        Type type,
+        String sourceClusterId,
+        Timestamp commitTimestamp,
+        int tieBreaker) {
       this.rowKey = rowKey;
       this.type = type;
       this.sourceClusterId = sourceClusterId;
@@ -177,18 +177,18 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     }
 
     Builder setCell(
-            @Nonnull String familyName,
-            @Nonnull ByteString qualifier,
-            long timestamp,
-            @Nonnull ByteString value) {
+        @Nonnull String familyName,
+        @Nonnull ByteString qualifier,
+        long timestamp,
+        @Nonnull ByteString value) {
       this.entries.add(SetCell.create(familyName, qualifier, timestamp, value));
       return this;
     }
 
     Builder deleteCells(
-            @Nonnull String familyName,
-            @Nonnull ByteString qualifier,
-            @Nonnull TimestampRange timestampRange) {
+        @Nonnull String familyName,
+        @Nonnull ByteString qualifier,
+        @Nonnull TimestampRange timestampRange) {
       this.entries.add(DeleteCells.create(familyName, qualifier, timestampRange));
       return this;
     }
@@ -210,8 +210,8 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
 
     public ChangeStreamMutation build() {
       Preconditions.checkArgument(
-              token != null && lowWatermark != null,
-              "ChangeStreamMutation must have a continuation token and low watermark.");
+          token != null && lowWatermark != null,
+          "ChangeStreamMutation must have a continuation token and low watermark.");
       return new ChangeStreamMutation(this);
     }
   }
