@@ -15,70 +15,40 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** Representation of a DeleteCells mod in a data change. */
-public final class DeleteCells implements Entry, Serializable {
+@AutoValue
+public abstract class DeleteCells implements Entry, Serializable {
   private static final long serialVersionUID = 851772158721462017L;
 
-  private final String familyName;
-  private final ByteString qualifier;
-  private final TimestampRange timestampRange;
-
-  DeleteCells(
+  public static DeleteCells create(
       @Nonnull String familyName,
       @Nonnull ByteString qualifier,
       @Nonnull TimestampRange timestampRange) {
-    this.familyName = familyName;
-    this.qualifier = qualifier;
-    this.timestampRange = timestampRange;
+    return new AutoValue_DeleteCells(familyName, qualifier, timestampRange);
   }
 
   @Nonnull
-  public String getFamilyName() {
-    return this.familyName;
-  }
+  public abstract String getFamilyName();
 
   @Nonnull
-  public ByteString getQualifier() {
-    return this.qualifier;
-  }
+  public abstract ByteString getQualifier();
 
   @Nonnull
-  public TimestampRange getTimestampRange() {
-    return this.timestampRange;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DeleteCells otherDeleteCell = (DeleteCells) o;
-    return Objects.equal(familyName, otherDeleteCell.getFamilyName())
-        && Objects.equal(qualifier, otherDeleteCell.getQualifier())
-        && Objects.equal(timestampRange, otherDeleteCell.getTimestampRange());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(familyName);
-  }
+  public abstract TimestampRange getTimestampRange();
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("familyName", familyName)
-        .add("qualifier", qualifier.toStringUtf8())
-        .add("timestampRange", timestampRange)
+        .add("familyName", getFamilyName())
+        .add("qualifier", getQualifier().toStringUtf8())
+        .add("timestampRange", getTimestampRange())
         .toString();
   }
 }

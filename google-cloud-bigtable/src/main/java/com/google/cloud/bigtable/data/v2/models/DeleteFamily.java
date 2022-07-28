@@ -15,45 +15,25 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** Representation of a DeleteFamily mod in a data change. */
-public final class DeleteFamily implements Entry, Serializable {
+@AutoValue
+public abstract class DeleteFamily implements Entry, Serializable {
   private static final long serialVersionUID = 81806775917145615L;
 
-  private final String familyName;
-
-  DeleteFamily(@Nonnull String familyName) {
-    this.familyName = familyName;
+  public static DeleteFamily create(@Nonnull String familyName) {
+    return new AutoValue_DeleteFamily(familyName);
   }
 
   @Nonnull
-  public String getFamilyName() {
-    return this.familyName;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    DeleteFamily otherDeleteFamily = (DeleteFamily) o;
-    return Objects.equal(familyName, otherDeleteFamily.getFamilyName());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(familyName);
-  }
+  public abstract String getFamilyName();
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this).add("familyName", familyName).toString();
+    return MoreObjects.toStringHelper(this).add("familyName", getFamilyName()).toString();
   }
 }

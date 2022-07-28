@@ -15,8 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -25,71 +25,36 @@ import javax.annotation.Nonnull;
  * Representation of a SetCell mod in a data change, whose value is concatenated by
  * (TODO:ChangeStreamRecordMerger) in case of SetCell value chunking.
  */
-public final class SetCell implements Entry, Serializable {
+@AutoValue
+public abstract class SetCell implements Entry, Serializable {
   private static final long serialVersionUID = 77123872266724154L;
 
-  private final String familyName;
-  private final ByteString qualifier;
-  private final long timestamp;
-  private final ByteString value;
-
-  SetCell(
+  public static SetCell create(
       @Nonnull String familyName,
       @Nonnull ByteString qualifier,
       long timestamp,
       @Nonnull ByteString value) {
-    this.familyName = familyName;
-    this.qualifier = qualifier;
-    this.timestamp = timestamp;
-    this.value = value;
+    return new AutoValue_SetCell(familyName, qualifier, timestamp, value);
   }
 
   @Nonnull
-  public String getFamilyName() {
-    return this.familyName;
-  }
+  public abstract String getFamilyName();
 
   @Nonnull
-  public ByteString getQualifier() {
-    return this.qualifier;
-  }
+  public abstract ByteString getQualifier();
 
-  public long getTimestamp() {
-    return this.timestamp;
-  }
+  public abstract long getTimestamp();
 
   @Nonnull
-  public ByteString getValue() {
-    return this.value;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    SetCell otherSetCell = (SetCell) o;
-    return Objects.equal(familyName, otherSetCell.getFamilyName())
-        && Objects.equal(qualifier, otherSetCell.getQualifier())
-        && Objects.equal(timestamp, otherSetCell.getTimestamp())
-        && Objects.equal(value, otherSetCell.getValue());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(familyName);
-  }
+  public abstract ByteString getValue();
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("familyName", familyName)
-        .add("qualifier", qualifier.toStringUtf8())
-        .add("timestamp", timestamp)
-        .add("value", value.toStringUtf8())
+        .add("familyName", getFamilyName())
+        .add("qualifier", getQualifier().toStringUtf8())
+        .add("timestamp", getTimestamp())
+        .add("value", getValue().toStringUtf8())
         .toString();
   }
 }

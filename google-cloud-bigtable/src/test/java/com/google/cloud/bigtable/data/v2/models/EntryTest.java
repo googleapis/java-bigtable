@@ -43,12 +43,12 @@ public class EntryTest {
   @Test
   public void serializationTest() throws IOException, ClassNotFoundException {
     // DeleteFamily
-    Entry deleteFamilyEntry = new DeleteFamily("fake-family");
+    Entry deleteFamilyEntry = DeleteFamily.create("fake-family");
     validateSerializationRoundTrip(deleteFamilyEntry);
 
     // DeleteCell
     Entry deleteCellsEntry =
-        new DeleteCells(
+        DeleteCells.create(
             "fake-family",
             ByteString.copyFromUtf8("fake-qualifier"),
             Range.TimestampRange.create(1000L, 2000L));
@@ -56,7 +56,7 @@ public class EntryTest {
 
     // SetCell
     Entry setCellEntry =
-        new SetCell(
+        SetCell.create(
             "fake-family",
             ByteString.copyFromUtf8("fake-qualifier"),
             1000,
@@ -66,7 +66,7 @@ public class EntryTest {
 
   @Test
   public void deleteFamilyTest() {
-    Entry deleteFamilyEntry = new DeleteFamily("fake-family");
+    Entry deleteFamilyEntry = DeleteFamily.create("fake-family");
     DeleteFamily deleteFamily = (DeleteFamily) deleteFamilyEntry;
     Assert.assertEquals("fake-family", deleteFamily.getFamilyName());
   }
@@ -74,7 +74,7 @@ public class EntryTest {
   @Test
   public void deleteCellsTest() {
     Entry deleteCellEntry =
-        new DeleteCells(
+        DeleteCells.create(
             "fake-family",
             ByteString.copyFromUtf8("fake-qualifier"),
             Range.TimestampRange.create(1000L, 2000L));
@@ -87,7 +87,7 @@ public class EntryTest {
   @Test
   public void setSellTest() {
     Entry setCellEntry =
-        new SetCell(
+        SetCell.create(
             "fake-family",
             ByteString.copyFromUtf8("fake-qualifier"),
             1000,

@@ -59,42 +59,32 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
 
   private Timestamp lowWatermark;
 
-  private ChangeStreamMutation(
-      ByteString rowKey,
-      Type type,
-      String sourceClusterId,
-      Timestamp commitTimestamp,
-      int tieBreaker) {
-    this.rowKey = rowKey;
-    this.type = type;
-    this.sourceClusterId = sourceClusterId;
-    this.commitTimestamp = commitTimestamp;
-    this.tieBreaker = tieBreaker;
+  private ChangeStreamMutation(Builder builder) {
+    this.rowKey = builder.rowKey;
+    this.type = builder.type;
+    this.sourceClusterId = builder.sourceClusterId;
+    this.commitTimestamp = builder.commitTimestamp;
+    this.tieBreaker = builder.tieBreaker;
+    this.token = builder.token;;
+    this.lowWatermark = builder.lowWatermark;
+    this.entries = builder.entries;
   }
 
   /** Creates a new instance of a user initiated mutation. */
-  static ChangeStreamMutation create(
+  static Builder createUserMutation(
       @Nonnull ByteString rowKey,
-      @Nonnull Type type,
       @Nonnull String sourceClusterId,
       @Nonnull Timestamp commitTimestamp,
       int tieBreaker) {
-    Preconditions.checkArgument(
-        type == Type.USER,
-        "ChangeStreamMutation with a specified source cluster id must be a user initiated mutation.");
-    return new ChangeStreamMutation(rowKey, type, sourceClusterId, commitTimestamp, tieBreaker);
+    return new Builder(rowKey, Type.USER, sourceClusterId, commitTimestamp, tieBreaker);
   }
 
   /** Creates a new instance of a GC mutation. */
-  static ChangeStreamMutation create(
+  static Builder createGcMutation(
       @Nonnull ByteString rowKey,
-      @Nonnull Type type,
       @Nonnull Timestamp commitTimestamp,
       int tieBreaker) {
-    Preconditions.checkArgument(
-        type == Type.GARBAGE_COLLECTION,
-        "ChangeStreamMutation without source cluster id must be a garbage collection mutation.");
-    return new ChangeStreamMutation(rowKey, type, null, commitTimestamp, tieBreaker);
+    return new Builder(rowKey, Type.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
   }
 
   private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
@@ -110,78 +100,123 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     output.writeObject(entries.build());
   }
 
+  /** Get the row key of the current mutation. */
   @Nonnull
   public ByteString getRowKey() {
     return this.rowKey;
   }
 
+  /** Get the type of the current mutation. */
   @Nonnull
   public Type getType() {
     return this.type;
   }
 
+  /** Get the source cluster id of the current mutation. Null for Garbage collection mutation. */
   public String getSourceClusterId() {
     return this.sourceClusterId;
   }
 
+  /** Get the commit timestamp of the current mutation. */
   @Nonnull
   public Timestamp getCommitTimestamp() {
     return this.commitTimestamp;
   }
 
+  /** Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple mutations
+   *  are applied to different clusters at the same time.
+   * */
   public int getTieBreaker() {
     return this.tieBreaker;
   }
 
-  public ChangeStreamMutation setToken(@Nonnull String token) {
-    this.token = token;
-    return this;
-  }
-
+  /** Get the token of the current mutation, which can be used to resume the changestream. */
   public String getToken() {
     return this.token;
   }
 
-  public ChangeStreamMutation setLowWatermark(@Nonnull Timestamp lowWatermark) {
-    this.lowWatermark = lowWatermark;
-    return this;
-  }
-
+  /** Get the low watermark of the current mutation. */
   public Timestamp getLowWatermark() {
     return this.lowWatermark;
   }
 
+  /** Get the list of mods of the current mutation. */
   @Nonnull
   public List<Entry> getEntries() {
     return this.entries.build();
   }
 
-  ChangeStreamMutation setCell(
-      @Nonnull String familyName,
-      @Nonnull ByteString qualifier,
-      long timestamp,
-      @Nonnull ByteString value) {
-    this.entries.add(new SetCell(familyName, qualifier, timestamp, value));
-    return this;
-  }
+  /** Helper class to create a ChangeStreamMutation. */
+  public static class Builder {
+    private final ByteString rowKey;
 
-  ChangeStreamMutation deleteCells(
-      @Nonnull String familyName,
-      @Nonnull ByteString qualifier,
-      @Nonnull TimestampRange timestampRange) {
-    this.entries.add(new DeleteCells(familyName, qualifier, timestampRange));
-    return this;
-  }
+    private final Type type;
 
-  ChangeStreamMutation deleteFamily(@Nonnull String familyName) {
-    this.entries.add(new DeleteFamily(familyName));
-    return this;
+    private final String sourceClusterId;
+
+    private final Timestamp commitTimestamp;
+
+    private final int tieBreaker;
+
+    private transient ImmutableList.Builder<Entry> entries = ImmutableList.builder();
+
+    private String token;
+
+    private Timestamp lowWatermark;
+
+    private Builder(ByteString rowKey,
+            Type type,
+            String sourceClusterId,
+            Timestamp commitTimestamp,
+            int tieBreaker) {
+      this.rowKey = rowKey;
+      this.type = type;
+      this.sourceClusterId = sourceClusterId;
+      this.commitTimestamp = commitTimestamp;
+      this.tieBreaker = tieBreaker;
+    }
+
+    Builder setCell(
+            @Nonnull String familyName,
+            @Nonnull ByteString qualifier,
+            long timestamp,
+            @Nonnull ByteString value) {
+      this.entries.add(SetCell.create(familyName, qualifier, timestamp, value));
+      return this;
+    }
+
+    Builder deleteCells(
+            @Nonnull String familyName,
+            @Nonnull ByteString qualifier,
+            @Nonnull TimestampRange timestampRange) {
+      this.entries.add(DeleteCells.create(familyName, qualifier, timestampRange));
+      return this;
+    }
+
+    Builder deleteFamily(@Nonnull String familyName) {
+      this.entries.add(DeleteFamily.create(familyName));
+      return this;
+    }
+
+    public Builder setToken(@Nonnull String token) {
+      this.token = token;
+      return this;
+    }
+
+    public Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
+      this.lowWatermark = lowWatermark;
+      return this;
+    }
+
+    public ChangeStreamMutation build() {
+      Preconditions.checkArgument(
+              token != null && lowWatermark != null,
+              "ChangeStreamMutation must have a continuation token and low watermark.");
+      return new ChangeStreamMutation(this);
+    }
   }
 
   public RowMutation toRowMutation(@Nonnull String tableId) {
-    Preconditions.checkArgument(
-        token != null && lowWatermark != null,
-        "ChangeStreamMutation must have a continuation token and low watermark.");
     RowMutation rowMutation = RowMutation.create(tableId, rowKey);
     for (Entry entry : this.entries.build()) {
       if (entry instanceof DeleteFamily) {
@@ -207,9 +242,6 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
   }
 
   public RowMutationEntry toRowMutationEntry() {
-    Preconditions.checkArgument(
-        token != null && lowWatermark != null,
-        "ChangeStreamMutation must have a continuation token and low watermark.");
     RowMutationEntry rowMutationEntry = RowMutationEntry.create(rowKey);
     for (Entry entry : this.entries.build()) {
       if (entry instanceof DeleteFamily) {
