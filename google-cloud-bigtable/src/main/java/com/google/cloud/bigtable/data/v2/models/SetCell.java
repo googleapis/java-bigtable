@@ -37,14 +37,18 @@ public abstract class SetCell implements Entry, Serializable {
     return new AutoValue_SetCell(familyName, qualifier, timestamp, value);
   }
 
+  /** Get the column family of the current SetCell. */
   @Nonnull
   public abstract String getFamilyName();
 
+  /** Get the column qualifier of the current SetCell. */
   @Nonnull
   public abstract ByteString getQualifier();
 
+  /** Get the timestamp of the current SetCell. */
   public abstract long getTimestamp();
 
+  /** Get the value of the current SetCell. */
   @Nonnull
   public abstract ByteString getValue();
 

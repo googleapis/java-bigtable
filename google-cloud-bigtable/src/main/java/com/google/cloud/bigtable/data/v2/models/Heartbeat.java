@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.common.base.MoreObjects;
@@ -32,14 +33,16 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
-  public static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
+  static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return create(
         ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()),
         heartbeat.getLowWatermark());
   }
 
+  @InternalApi("Used in Changestream beam pipeline.")
   public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
+  @InternalApi("Used in Changestream beam pipeline.")
   public abstract Timestamp getLowWatermark();
 
   @Override

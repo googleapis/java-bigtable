@@ -34,12 +34,15 @@ public abstract class DeleteCells implements Entry, Serializable {
     return new AutoValue_DeleteCells(familyName, qualifier, timestampRange);
   }
 
+  /** Get the column family of the current DeleteCells. */
   @Nonnull
   public abstract String getFamilyName();
 
+  /** Get the column qualifier of the current DeleteCells. */
   @Nonnull
   public abstract ByteString getQualifier();
 
+  /** Get the timestamp range of the current DeleteCells. */
   @Nonnull
   public abstract TimestampRange getTimestampRange();
 

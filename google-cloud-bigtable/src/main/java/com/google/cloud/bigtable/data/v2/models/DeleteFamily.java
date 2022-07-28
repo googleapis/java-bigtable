@@ -29,6 +29,7 @@ public abstract class DeleteFamily implements Entry, Serializable {
     return new AutoValue_DeleteFamily(familyName);
   }
 
+  /** Get the column family of the current DeleteFamily. */
   @Nonnull
   public abstract String getFamilyName();
 
