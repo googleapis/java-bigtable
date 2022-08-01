@@ -322,7 +322,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       return false;
     }
     ChangeStreamMutation otherChangeStreamMutation = (ChangeStreamMutation) o;
-    return Objects.equal(this.toString(), otherChangeStreamMutation.toString());
+    return Objects.equal(this.hashCode(), otherChangeStreamMutation.hashCode());
   }
 
   @Override
