@@ -33,9 +33,33 @@ import javax.annotation.Nonnull;
 
 /**
  * A ChangeStreamMutation represents a list of mods(represented by List<{@link Entry}>) targeted at
- * a single row, which is concatenated by (TODO:ChangeStreamRecordMerger).
+ * a single row, which is concatenated by (TODO:ChangeStreamRecordMerger). It represents a logical
+ * row mutation and can be converted to the original write request(i.e. {@link RowMutation} or
+ * {@link RowMutationEntry}.
  *
- * <p>It's meant to be used in {@link com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord}.
+ * <p>A ChangeStreamMutation can be constructed in two ways, depending on whether it's a user
+ * initiated mutation or a Garbage Collection mutation. Either way, the caller should explicitly set
+ * `token` and `lowWatermark` before build(), otherwise it'll raise an error.
+ *
+ * <p>Case 1) User initiated mutation.
+ *
+ * <pre>{@code
+ * ChangeStreamMutation.Builder builder = ChangeStreamMutation.createUserMutation(...);
+ * builder.setCell(...);
+ * builder.deleteFamily(...);
+ * builder.deleteCells(...);
+ * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
+ * }</pre>
+ *
+ * Case 2) Garbage Collection mutation.
+ *
+ * <pre>{@code
+ * ChangeStreamMutation.Builder builder = ChangeStreamMutation.createGcMutation(...);
+ * builder.setCell(...);
+ * builder.deleteFamily(...);
+ * builder.deleteCells(...);
+ * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
+ * }</pre>
  */
 public final class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
@@ -54,7 +78,6 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
 
   private transient ImmutableList.Builder<Entry> entries = ImmutableList.builder();
 
-  /** Token and lowWatermark are set when we finish building the logical mutation. */
   private String token;
 
   private Timestamp lowWatermark;
@@ -70,7 +93,11 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     this.entries = builder.entries;
   }
 
-  /** Creates a new instance of a user initiated mutation. */
+  /**
+   * Creates a new instance of a user initiated mutation. It returns a builder instead of a
+   * ChangeStreamMutation because `token` and `loWatermark` must be set later when we finish
+   * building the logical mutation.
+   */
   static Builder createUserMutation(
       @Nonnull ByteString rowKey,
       @Nonnull String sourceClusterId,
@@ -79,7 +106,11 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     return new Builder(rowKey, Type.USER, sourceClusterId, commitTimestamp, tieBreaker);
   }
 
-  /** Creates a new instance of a GC mutation. */
+  /**
+   * Creates a new instance of a GC mutation. It returns a builder instead of a ChangeStreamMutation
+   * because `token` and `loWatermark` must be set later when we finish building the logical
+   * mutation.
+   */
   static Builder createGcMutation(
       @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
     return new Builder(rowKey, Type.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
@@ -145,6 +176,11 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     return this.entries.build();
   }
 
+  /** Returns a builder containing all the values of this ChangeStreamMutation class. */
+  Builder toBuilder() {
+    return new Builder(this);
+  }
+
   /** Helper class to create a ChangeStreamMutation. */
   public static class Builder {
     private final ByteString rowKey;
@@ -174,6 +210,17 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       this.sourceClusterId = sourceClusterId;
       this.commitTimestamp = commitTimestamp;
       this.tieBreaker = tieBreaker;
+    }
+
+    private Builder(ChangeStreamMutation changeStreamMutation) {
+      this.rowKey = changeStreamMutation.rowKey;
+      this.type = changeStreamMutation.type;
+      this.sourceClusterId = changeStreamMutation.sourceClusterId;
+      this.commitTimestamp = changeStreamMutation.commitTimestamp;
+      this.tieBreaker = changeStreamMutation.tieBreaker;
+      this.entries = changeStreamMutation.entries;
+      this.token = changeStreamMutation.token;
+      this.lowWatermark = changeStreamMutation.lowWatermark;
     }
 
     Builder setCell(

@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.MoreObjects;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
@@ -32,9 +31,4 @@ public abstract class DeleteFamily implements Entry, Serializable {
   /** Get the column family of the current DeleteFamily. */
   @Nonnull
   public abstract String getFamilyName();
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this).add("familyName", getFamilyName()).toString();
-  }
 }

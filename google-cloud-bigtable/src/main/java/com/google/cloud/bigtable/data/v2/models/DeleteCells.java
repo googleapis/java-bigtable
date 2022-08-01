@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
-import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -45,13 +44,4 @@ public abstract class DeleteCells implements Entry, Serializable {
   /** Get the timestamp range of the current DeleteCells. */
   @Nonnull
   public abstract TimestampRange getTimestampRange();
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("familyName", getFamilyName())
-        .add("qualifier", getQualifier().toStringUtf8())
-        .add("timestampRange", getTimestampRange())
-        .toString();
-  }
 }

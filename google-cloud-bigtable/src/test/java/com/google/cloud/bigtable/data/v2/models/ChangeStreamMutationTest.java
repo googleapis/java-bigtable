@@ -284,4 +284,31 @@ public class ChangeStreamMutationTest {
     assertThat(mutateRowRequest.getMutations(0).getSetCell().getValue())
         .isEqualTo(ByteString.copyFromUtf8("\000\000\000\000\000\000\000\001"));
   }
+
+  @Test
+  public void toBuilderTest() {
+    // Create a user initiated logical mutation.
+    Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
+    Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
+    ChangeStreamMutation changeStreamMutation =
+        ChangeStreamMutation.createUserMutation(
+                ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0)
+            .setCell(
+                "fake-family",
+                ByteString.copyFromUtf8("fake-qualifier"),
+                1000,
+                ByteString.copyFromUtf8("fake-value"))
+            .deleteFamily("fake-family")
+            .deleteCells(
+                "fake-family",
+                ByteString.copyFromUtf8("fake-qualifier"),
+                Range.TimestampRange.create(1000L, 2000L))
+            .setToken("fake-token")
+            .setLowWatermark(fakeLowWatermark)
+            .build();
+
+    // Test round-trip of a ChangeStreamMutation through `toBuilder().build()`.
+    ChangeStreamMutation otherMutation = changeStreamMutation.toBuilder().build();
+    assertThat(changeStreamMutation).isEqualTo(otherMutation);
+  }
 }

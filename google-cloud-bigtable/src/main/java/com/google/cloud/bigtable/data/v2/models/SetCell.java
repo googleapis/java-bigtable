@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.auto.value.AutoValue;
-import com.google.common.base.MoreObjects;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -51,14 +50,4 @@ public abstract class SetCell implements Entry, Serializable {
   /** Get the value of the current SetCell. */
   @Nonnull
   public abstract ByteString getValue();
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("familyName", getFamilyName())
-        .add("qualifier", getQualifier().toStringUtf8())
-        .add("timestamp", getTimestamp())
-        .add("value", getValue().toStringUtf8())
-        .toString();
-  }
 }

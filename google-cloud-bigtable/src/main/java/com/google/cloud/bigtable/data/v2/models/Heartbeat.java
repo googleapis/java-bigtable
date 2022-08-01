@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
-import com.google.common.base.MoreObjects;
 import com.google.protobuf.Timestamp;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -44,12 +43,4 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
 
   @InternalApi("Used in Changestream beam pipeline.")
   public abstract Timestamp getLowWatermark();
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("lowWatermark", getLowWatermark())
-        .add("changeStreamContinuationToken", getChangeStreamContinuationToken())
-        .toString();
-  }
 }
