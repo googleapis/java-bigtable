@@ -16,64 +16,31 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.protobuf.Timestamp;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
-public final class Heartbeat implements ChangeStreamRecord, Serializable {
+@AutoValue
+public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
-  private final Timestamp lowWatermark;
-  private final ChangeStreamContinuationToken changeStreamContinuationToken;
 
-  private Heartbeat(
-      Timestamp lowWatermark, ChangeStreamContinuationToken changeStreamContinuationToken) {
-    this.lowWatermark = lowWatermark;
-    this.changeStreamContinuationToken = changeStreamContinuationToken;
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
-  public ChangeStreamContinuationToken getChangeStreamContinuationToken() {
-    return changeStreamContinuationToken;
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
-  public Timestamp getLowWatermark() {
-    return lowWatermark;
+  public static Heartbeat create(
+      ChangeStreamContinuationToken changeStreamContinuationToken, Timestamp lowWatermark) {
+    return new AutoValue_Heartbeat(changeStreamContinuationToken, lowWatermark);
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
   static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
-    return new Heartbeat(
-        heartbeat.getLowWatermark(),
-        ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()));
+    return create(
+        ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()),
+        heartbeat.getLowWatermark());
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    Heartbeat record = (Heartbeat) o;
-    return Objects.equal(lowWatermark, record.getLowWatermark())
-        && Objects.equal(changeStreamContinuationToken, record.getChangeStreamContinuationToken());
-  }
+  @InternalApi("Used in Changestream beam pipeline.")
+  public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(lowWatermark, changeStreamContinuationToken);
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("lowWatermark", lowWatermark)
-        .add("changeStreamContinuationToken", changeStreamContinuationToken)
-        .toString();
-  }
+  @InternalApi("Used in Changestream beam pipeline.")
+  public abstract Timestamp getLowWatermark();
 }
