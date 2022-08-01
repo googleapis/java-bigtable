@@ -85,8 +85,8 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacin
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
-import com.google.cloud.bigtable.data.v2.stub.readrows.ReadFirstRowCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsFirstCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -367,14 +367,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             rowAdapter);
 
-    ServerStreamingCallable<Query, RowT> readRowCallable =
+    ReadRowsUserCallable<RowT> readRowCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
     ServerStreamingCallable<Query, RowT> traced =
         new TracedServerStreamingCallable<>(
             readRowCallable, clientContext.getTracerFactory(), getSpanName("ReadRow"));
 
-    ReadFirstRowCallable<RowT> firstRow = new ReadFirstRowCallable<>(traced);
+    ReadRowsFirstCallable<RowT> firstRow = new ReadRowsFirstCallable<>(traced);
 
     return firstRow.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
