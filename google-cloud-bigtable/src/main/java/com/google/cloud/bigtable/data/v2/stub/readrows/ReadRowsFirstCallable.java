@@ -24,7 +24,6 @@ import com.google.api.gax.rpc.StateCheckingResponseObserver;
 import com.google.api.gax.rpc.StreamController;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Enhancement for `readRowsCallable().first()` to gracefully limit the row count instead of
@@ -48,7 +47,7 @@ public class ReadRowsFirstCallable<RowT> extends UnaryCallable<Query, RowT> {
 
   private class ReadRowsFirstResponseObserver<RowT> extends StateCheckingResponseObserver<RowT> {
     private StreamController innerController;
-    private AtomicReference<RowT> newItem = new AtomicReference<>();
+    private RowT firstRow;
     private SettableApiFuture<RowT> settableFuture = SettableApiFuture.create();
 
     @Override
@@ -58,7 +57,9 @@ public class ReadRowsFirstCallable<RowT> extends UnaryCallable<Query, RowT> {
 
     @Override
     protected void onResponseImpl(RowT response) {
-      newItem.compareAndSet(null, response);
+      if (firstRow == null) {
+        this.firstRow = response;
+      }
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ReadRowsFirstCallable<RowT> extends UnaryCallable<Query, RowT> {
 
     @Override
     protected void onCompleteImpl() {
-      settableFuture.set(newItem.get());
+      settableFuture.set(firstRow);
     }
 
     protected ApiFuture<RowT> getFuture() {
