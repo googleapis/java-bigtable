@@ -23,6 +23,7 @@ import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.ResponseParams;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -83,8 +84,11 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, throwable);
       try {
+        Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
         byte[] trailers =
-            metadata.get(Metadata.Key.of(Util.RESPONSE_PRAMS_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+            (byte[])
+                MoreObjects.firstNonNull(
+                    metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
       } catch (NullPointerException | InvalidProtocolBufferException e) {
@@ -97,8 +101,11 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
       try {
+        Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
         byte[] trailers =
-            metadata.get(Metadata.Key.of(Util.RESPONSE_PRAMS_KEY, Metadata.BINARY_BYTE_MARSHALLER));
+            (byte[])
+                MoreObjects.firstNonNull(
+                    metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
         ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
         tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
       } catch (NullPointerException | InvalidProtocolBufferException e) {
