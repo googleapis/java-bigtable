@@ -23,7 +23,6 @@ import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.ResponseParams;
-import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -85,9 +84,12 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       tracer.recordGfeMetadata(latency, throwable);
       try {
         Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
-        byte[] trailers =
-            MoreObjects.firstNonNull(
-                metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
+        // Check both headers and trailers because in different environments the metadata
+        // could be returned in headers or trailers
+        byte[] trailers = metadata.get(Util.METADATA_KEY);
+        if (trailers == null) {
+          trailers = trailingMetadata.get(Util.METADATA_KEY);
+        }
         // If the response is terminated abnormally and we didn't get location information in
         // trailers or headers, skip setting the locations
         if (trailers != null) {
@@ -105,9 +107,12 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       tracer.recordGfeMetadata(latency, null);
       try {
         Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
-        byte[] trailers =
-            MoreObjects.firstNonNull(
-                metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
+        // Check both headers and trailers because in different environments the metadata
+        // could be returned in headers or trailers
+        byte[] trailers = metadata.get(Util.METADATA_KEY);
+        if (trailers == null) {
+          trailers = trailingMetadata.get(Util.METADATA_KEY);
+        }
         // If the response is terminated abnormally and we didn't get location information in
         // trailers or headers, skip setting the locations
         if (trailers != null) {
