@@ -48,8 +48,9 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
 
   /**
    * Get the token from the given ChangeStreamMutation record. If the given record is not a
-   * Heartbeat, it will throw an Exception.
+   * ChangeStreamMutation, it will throw an Exception.
    */
+  @InternalApi("Used in Changestream beam pipeline.")
   String getTokenFromChangeStreamMutation(ChangeStreamRecordT record);
 
   /**
@@ -69,19 +70,28 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
    * </ol>
    *
    * <ol>
-   *   Case 3: ChangeStreamMutation. A change stream mutation consists of one or more {@link
-   *   com.google.bigtable.v2.Mutation}s, where the SetCells might be chunked. There are 4 different
-   *   types of mods that a ReadChangeStream response can have: 1) DeleteFamily -> {@code
-   *   deleteFamily}. 2) DeleteCell -> {@code deleteCell}. 3) non-chunked SetCell 4) chunked SetCell
-   *   Mod 3) and 4) are supposed to be handled by a sequence of: a) Exactly 1 {@code startCell} b)
-   *   Exactly 1 {@code CellValue} for non-chunked SetCell, or at least 2 {@code CellValue} for
-   *   chunked SetCell c) Exactly 1 {@code finishCell}. Note: DeleteRow won't appear in the data
-   *   change since it'll be converted to multiple DeleteFamily's.
-   *   <p>The whole flow of constructing a ChangeStreamMutation is:
-   *   <li>Exactly 1 {@code startChangeStreamMutation}.
-   *   <li>At least 1 1)/2)/3)/4) mod.
-   *   <li>Exactly 1 {@code finishChangeStreamRecord}.
+   *   Case 3: ChangeStreamMutation. A change stream mutation consists of one or more mods, where
+   *   the SetCells might be chunked. There are 3 different types of mods that a ReadChangeStream
+   *   response can have:
+   *   <li>DeleteFamily -> Exactly 1 {@code deleteFamily}
+   *   <li>DeleteCell -> Exactly 1 {@code deleteCell}
+   *   <li>SetCell -> Exactly 1 {@code startCell}, At least 1 {@code CellValue}, Exactly 1 {@code
+   *       finishCell}.
    * </ol>
+   *
+   * <p>The whole flow of constructing a ChangeStreamMutation is:
+   *
+   * <ol>
+   *   <li>Exactly 1 {@code startUserMutation} or {@code startGcMutation}.
+   *   <li>At least 1 DeleteFamily/DeleteCell/SetCell mods.
+   *   <li>Exactly 1 {@code finishChangeStreamMutation}.
+   * </ol>
+   *
+   * <p>Note: For a non-chunked SetCell, only 1 {@code CellValue} will be called. For a chunked
+   * SetCell, more than 1 {@code CellValue}s will be called.
+   *
+   * <p>Note: DeleteRow's won't appear in data changes since they'll be converted to multiple
+   * DeleteFamily's.
    */
   interface ChangeStreamRecordBuilder<ChangeStreamRecordT> {
     /**
@@ -125,10 +135,21 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
         @Nonnull TimestampRange timestampRange);
 
     /**
-     * Called to start a SetCell. In case of a non-chunked cell, the following order is guaranteed:
-     * 1) Exactly 1 {@code startCell}. 2) Exactly 1 {@code cellValue}. 3) Exactly 1 {@code
-     * finishCell}. In case of a chunked cell, the following order is guaranteed: 1) Exactly 1
-     * {@code startCell}. 2) At least 2 {@code cellValue}. 3) Exactly 1 {@code finishCell}.
+     * Called to start a SetCell.
+     *
+     * <ol>
+     *   In case of a non-chunked cell, the following order is guaranteed:
+     *   <li>Exactly 1 {@code startCell}.
+     *   <li>Exactly 1 {@code cellValue}.
+     *   <li>Exactly 1 {@code finishCell}.
+     * </ol>
+     *
+     * <ol>
+     *   In case of a chunked cell, the following order is guaranteed:
+     *   <li>Exactly 1 {@code startCell}.
+     *   <li>At least 2 {@code cellValue}.
+     *   <li>Exactly 1 {@code finishCell}.
+     * </ol>
      */
     void startCell(String family, ByteString qualifier, long timestampMicros);
 

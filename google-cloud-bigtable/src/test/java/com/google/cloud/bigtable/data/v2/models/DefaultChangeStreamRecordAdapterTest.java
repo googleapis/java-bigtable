@@ -25,8 +25,11 @@ import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter.Change
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.rpc.Status;
+import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -36,9 +39,86 @@ public class DefaultChangeStreamRecordAdapterTest {
   private final DefaultChangeStreamRecordAdapter adapter = new DefaultChangeStreamRecordAdapter();
   private ChangeStreamRecordBuilder<ChangeStreamRecord> changeStreamRecordBuilder;
 
+  @Rule public ExpectedException expect = ExpectedException.none();
+
   @Before
   public void setUp() {
     changeStreamRecordBuilder = adapter.createChangeStreamRecordBuilder();
+  }
+
+  @Test
+  public void isHeartbeatTest() {
+    ChangeStreamRecord heartbeatRecord =
+        Heartbeat.fromProto(ReadChangeStreamResponse.Heartbeat.getDefaultInstance());
+    ChangeStreamRecord closeStreamRecord =
+        CloseStream.fromProto(ReadChangeStreamResponse.CloseStream.getDefaultInstance());
+    ChangeStreamRecord changeStreamMutationRecord =
+        ChangeStreamMutation.createGcMutation(
+                ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0)
+            .setToken("token")
+            .setLowWatermark(Timestamp.getDefaultInstance())
+            .build();
+    Assert.assertTrue(adapter.isHeartbeat(heartbeatRecord));
+    Assert.assertFalse(adapter.isHeartbeat(closeStreamRecord));
+    Assert.assertFalse(adapter.isHeartbeat(changeStreamMutationRecord));
+  }
+
+  @Test
+  public void getTokenFromHeartbeatTest() {
+    ChangeStreamRecord heartbeatRecord =
+        Heartbeat.fromProto(
+            ReadChangeStreamResponse.Heartbeat.newBuilder()
+                .setLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
+                .setContinuationToken(
+                    StreamContinuationToken.newBuilder().setToken("heartbeat-token").build())
+                .build());
+    Assert.assertEquals(adapter.getTokenFromHeartbeat(heartbeatRecord), "heartbeat-token");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getTokenFromHeartbeatInvalidTypeTest() {
+    ChangeStreamRecord closeStreamRecord =
+        CloseStream.fromProto(ReadChangeStreamResponse.CloseStream.getDefaultInstance());
+    adapter.getTokenFromHeartbeat(closeStreamRecord);
+    expect.expectMessage("record is not a Heartbeat.");
+  }
+
+  @Test
+  public void isChangeStreamMutationTest() {
+    ChangeStreamRecord heartbeatRecord =
+        Heartbeat.fromProto(ReadChangeStreamResponse.Heartbeat.getDefaultInstance());
+    ChangeStreamRecord closeStreamRecord =
+        CloseStream.fromProto(ReadChangeStreamResponse.CloseStream.getDefaultInstance());
+    ChangeStreamRecord changeStreamMutationRecord =
+        ChangeStreamMutation.createGcMutation(
+                ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0)
+            .setToken("token")
+            .setLowWatermark(Timestamp.getDefaultInstance())
+            .build();
+    Assert.assertFalse(adapter.isChangeStreamMutation(heartbeatRecord));
+    Assert.assertFalse(adapter.isChangeStreamMutation(closeStreamRecord));
+    Assert.assertTrue(adapter.isChangeStreamMutation(changeStreamMutationRecord));
+  }
+
+  @Test
+  public void getTokenFromChangeStreamMutationTest() {
+    ChangeStreamRecord changeStreamMutationRecord =
+        ChangeStreamMutation.createGcMutation(
+                ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0)
+            .setToken("change-stream-mutation-token")
+            .setLowWatermark(Timestamp.getDefaultInstance())
+            .build();
+    Assert.assertEquals(
+        adapter.getTokenFromChangeStreamMutation(changeStreamMutationRecord),
+        "change-stream-mutation-token");
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void getTokenFromChangeStreamMutationInvalidTypeTest() {
+    ChangeStreamRecord closeStreamRecord =
+        CloseStream.fromProto(ReadChangeStreamResponse.CloseStream.getDefaultInstance());
+    adapter.getTokenFromChangeStreamMutation(closeStreamRecord);
+    expect.expectMessage("record is not a ChangeStreamMutation.");
   }
 
   @Test
@@ -71,15 +151,30 @@ public class DefaultChangeStreamRecordAdapterTest {
         .isEqualTo(CloseStream.fromProto(expectedCloseStream));
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void createHeartbeatWithExistingMutationShouldFailTest() {
+    changeStreamRecordBuilder.startGcMutation(
+        ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0);
+    changeStreamRecordBuilder.onHeartbeat(ReadChangeStreamResponse.Heartbeat.getDefaultInstance());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void createCloseStreamWithExistingMutationShouldFailTest() {
+    changeStreamRecordBuilder.startGcMutation(
+        ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0);
+    changeStreamRecordBuilder.onCloseStream(
+        ReadChangeStreamResponse.CloseStream.getDefaultInstance());
+  }
+
   @Test
   public void singleDeleteFamilyTest() {
-    // This is the mod we get from the ReadChangeStreamResponse.
+    // Suppose this is the mod we get from the ReadChangeStreamResponse.
     Mutation.DeleteFromFamily deleteFromFamily =
         Mutation.DeleteFromFamily.newBuilder().setFamilyName("fake-family").build();
-
-    // This is the expected logical mutation in the change stream record.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
+
+    // Expected logical mutation in the change stream record.
     ChangeStreamMutation expectedChangeStreamMutation =
         ChangeStreamMutation.createUserMutation(
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0)
@@ -88,7 +183,7 @@ public class DefaultChangeStreamRecordAdapterTest {
             .setLowWatermark(fakeLowWatermark)
             .build();
 
-    // This is the actual change stream record built from the changeStreamRecordBuilder.
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     changeStreamRecordBuilder.deleteFamily(deleteFromFamily.getFamilyName());
@@ -101,7 +196,7 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test
   public void singleDeleteCellTest() {
-    // This is the mod we get from the ReadChangeStreamResponse.
+    // Suppose this is the mod we get from the ReadChangeStreamResponse.
     Mutation.DeleteFromColumn deleteFromColumn =
         Mutation.DeleteFromColumn.newBuilder()
             .setFamilyName("fake-family")
@@ -112,10 +207,10 @@ public class DefaultChangeStreamRecordAdapterTest {
                     .setEndTimestampMicros(2000L)
                     .build())
             .build();
-
-    // This is the expected logical mutation in the change stream record.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
+
+    // Expected logical mutation in the change stream record.
     ChangeStreamMutation expectedChangeStreamMutation =
         ChangeStreamMutation.createUserMutation(
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0)
@@ -127,7 +222,7 @@ public class DefaultChangeStreamRecordAdapterTest {
             .setLowWatermark(fakeLowWatermark)
             .build();
 
-    // This is the actual change stream record built from the changeStreamRecordBuilder.
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     changeStreamRecordBuilder.deleteCells(
@@ -145,7 +240,7 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test
   public void singleNonChunkedCellTest() {
-    // This is the expected logical mutation in the change stream record.
+    // Expected logical mutation in the change stream record.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation expectedChangeStreamMutation =
@@ -160,7 +255,8 @@ public class DefaultChangeStreamRecordAdapterTest {
             .setLowWatermark(fakeLowWatermark)
             .build();
 
-    // This is the actual change stream record built from the changeStreamRecordBuilder.
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
+    // Suppose the SetCell is not chunked and the state machine calls `cellValue()` once.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     changeStreamRecordBuilder.startCell(
@@ -176,6 +272,7 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test
   public void singleChunkedCellTest() {
+    // Expected logical mutation in the change stream record.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation expectedChangeStreamMutation =
@@ -190,6 +287,9 @@ public class DefaultChangeStreamRecordAdapterTest {
             .setLowWatermark(fakeLowWatermark)
             .build();
 
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
+    // Suppose the SetCell is chunked into two pieces and the state machine calls `cellValue()`
+    // twice.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     changeStreamRecordBuilder.startCell(
@@ -206,6 +306,7 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test
   public void multipleChunkedCellsTest() {
+    // Expected logical mutation in the change stream record.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
     ChangeStreamMutation.Builder expectedChangeStreamMutationBuilder =
@@ -220,6 +321,7 @@ public class DefaultChangeStreamRecordAdapterTest {
     }
     expectedChangeStreamMutationBuilder.setToken("fake-token").setLowWatermark(fakeLowWatermark);
 
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     for (int i = 0; i < 10; ++i) {
@@ -230,6 +332,7 @@ public class DefaultChangeStreamRecordAdapterTest {
       changeStreamRecordBuilder.cellValue(ByteString.copyFromUtf8("-value3"));
       changeStreamRecordBuilder.finishCell();
     }
+    // Check that they're the same.
     assertThat(changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", fakeLowWatermark))
         .isEqualTo(expectedChangeStreamMutationBuilder.build());
     // Call again.
@@ -239,8 +342,7 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test
   public void multipleDifferentModsTest() {
-    // This is the expected logical mutation in the change stream record, which contains one
-    // DeleteFromFamily,
+    // Expected logical mutation in the change stream record, which contains one DeleteFromFamily,
     // one non-chunked cell, and one chunked cell.
     Timestamp fakeCommitTimestamp = Timestamp.newBuilder().setSeconds(1000).build();
     Timestamp fakeLowWatermark = Timestamp.newBuilder().setSeconds(2000).build();
@@ -261,7 +363,7 @@ public class DefaultChangeStreamRecordAdapterTest {
             .setToken("fake-token")
             .setLowWatermark(fakeLowWatermark);
 
-    // This is the actual change stream record built from the changeStreamRecordBuilder.
+    // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", fakeCommitTimestamp, 0);
     changeStreamRecordBuilder.deleteFamily("fake-family");
@@ -284,22 +386,14 @@ public class DefaultChangeStreamRecordAdapterTest {
   public void resetTest() {
     // Build a Heartbeat.
     ReadChangeStreamResponse.Heartbeat expectedHeartbeat =
-        ReadChangeStreamResponse.Heartbeat.newBuilder()
-            .setLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
-            .setContinuationToken(
-                StreamContinuationToken.newBuilder().setToken("random-token").build())
-            .build();
+        ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
     assertThat(changeStreamRecordBuilder.onHeartbeat(expectedHeartbeat))
         .isEqualTo(Heartbeat.fromProto(expectedHeartbeat));
 
     // Reset and build a CloseStream.
     changeStreamRecordBuilder.reset();
     ReadChangeStreamResponse.CloseStream expectedCloseStream =
-        ReadChangeStreamResponse.CloseStream.newBuilder()
-            .addContinuationTokens(
-                StreamContinuationToken.newBuilder().setToken("random-token").build())
-            .setStatus(Status.newBuilder().setCode(0).build())
-            .build();
+        ReadChangeStreamResponse.CloseStream.getDefaultInstance();
     assertThat(changeStreamRecordBuilder.onCloseStream(expectedCloseStream))
         .isEqualTo(CloseStream.fromProto(expectedCloseStream));
 

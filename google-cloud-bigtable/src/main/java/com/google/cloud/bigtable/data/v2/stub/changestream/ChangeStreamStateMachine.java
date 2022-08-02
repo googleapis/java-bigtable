@@ -23,25 +23,25 @@ import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
 
 /**
- * A state machine to produce {@link ChangeStreamRecordT}s from a stream of {@link
- * ReadChangeStreamResponse}. 1) Produces a {@link
- * com.google.cloud.bigtable.data.v2.models.Heartbeat} from a {@link
- * ReadChangeStreamResponse.Heartbeat}. 2) Produces a {@link
- * com.google.cloud.bigtable.data.v2.models.CloseStream} from a {@link
- * ReadChangeStreamResponse.CloseStream}. 3) Produces a {@link
- * com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation} from a sequence of {@link
- * ReadChangeStreamResponse.DataChange}s. Note that there can be two types of chunking: 3_1) {@link
- * ReadChangeStreamResponse.DataChange}s are chunked into multiple {@link
- * ReadChangeStreamResponse}s. For example, a logical mutation has two mods, where the first mod is
- * sent by the first {@link ReadChangeStreamResponse.DataChange} and the second mod is sent by the
- * second {@link ReadChangeStreamResponse.DataChange}. 3_2) {@link
- * com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk} has a chunked {@link
- * com.google.bigtable.v2.Mutation.SetCell} mutation. For example, a logical mutation has one big
- * {@link com.google.bigtable.v2.Mutation.SetCell} mutation which is chunked into two {@link
- * ReadChangeStreamResponse}s. The first {@link ReadChangeStreamResponse.DataChange} has the first
- * half of the cell value, and the second {@link ReadChangeStreamResponse.DataChange} has the second
- * half. For both types of chunking, this state machine will merge all mods into a logical mutation,
- * represented by a {@link com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation}.
+ * A state machine to produce change stream records from a stream of {@link
+ * ReadChangeStreamResponse}. A change stream record can be a heartbeat, a close stream message or a
+ * logical mutation.
+ *
+ * <p>Note that there can be two types of chunking for a logical mutation:
+ *
+ * <ul>
+ *   <li>Non-SetCell chunking. For example, a logical mutation has two mods, where the first mod is
+ *       sent by the first {@link ReadChangeStreamResponse} and the second mod is sent by the second
+ *       {@link ReadChangeStreamResponse}.
+ *   <li>{@link ReadChangeStreamResponse.MutationChunk} has a chunked {@link
+ *       com.google.bigtable.v2.Mutation.SetCell} mutation. For example, a logical mutation has one
+ *       big {@link Mutation.SetCell} mutation which is chunked into two {@link
+ *       ReadChangeStreamResponse}s. The first {@link ReadChangeStreamResponse.DataChange} has the
+ *       first half of the cell value, and the second {@link ReadChangeStreamResponse.DataChange}
+ *       has the second half.
+ * </ul>
+ *
+ * This state machine handles both types of chunking.
  *
  * <p>Building of the actual change stream record object is delegated to a {@link
  * ChangeStreamRecordBuilder}. This class is not thread safe.
@@ -49,10 +49,10 @@ import com.google.common.base.Preconditions;
  * <p>The inputs are:
  *
  * <ul>
- *   <li>Heartbeats represented by {@link ReadChangeStreamResponse.Heartbeat}.
- *   <li>CloseStreams represented by {@link ReadChangeStreamResponse.CloseStream}.
- *   <li>DataChanges, represented by {@link ReadChangeStreamResponse.DataChange}, that must be
- *       merged to form logical mutations.
+ *   <li>{@link ReadChangeStreamResponse.Heartbeat}s.
+ *   <li>{@link ReadChangeStreamResponse.CloseStream}s.
+ *   <li>{@link ReadChangeStreamResponse.DataChange}s, that must be merged to form logical
+ *       mutations.
  *   <li>ChangeStreamRecord consumption events that reset the state machine for the next change
  *       stream record.
  * </ul>
@@ -60,12 +60,9 @@ import com.google.common.base.Preconditions;
  * <p>The outputs are:
  *
  * <ul>
- *   <li>Heartbeat records represented by {@link
- *       com.google.cloud.bigtable.data.v2.models.Heartbeat}.
- *   <li>CloseStream records represented by {@link
- *       com.google.cloud.bigtable.data.v2.models.CloseStream}.
- *   <li>Logical mutation records represented by {@link
- *       com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation}.
+ *   <li>Heartbeat records.
+ *   <li>CloseStream records.
+ *   <li>Logical mutation records.
  * </ul>
  *
  * <p>Expected Usage:
@@ -185,10 +182,10 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
   }
 
   /**
-   * Returns the last completed change stream record and transitions to awaiting a new change stream
+   * Returns the completed change stream record and transitions to awaiting a new change stream
    * record.
    *
-   * @return The last completed change stream record.
+   * @return The completed change stream record.
    * @throws IllegalStateException If the last dataChange did not complete a change stream record.
    */
   ChangeStreamRecordT consumeChangeStreamRecord() {
@@ -231,9 +228,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
   /**
    * Base class for all the state machine's internal states.
    *
-   * <p>Each state can consume 3 events: Heartbeat, CloseStream and a DataChange. By default, the
-   * default implementation will just throw an IllegalStateException unless the subclass adds
-   * explicit handling for these events.
+   * <p>Each state can consume 3 events: Heartbeat, CloseStream and a Mod. By default, the default
+   * implementation will just throw an IllegalStateException unless the subclass adds explicit
+   * handling for these events.
    */
   abstract static class State {
     /**
@@ -522,12 +519,12 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
    *
    * <ul>
    *   <li>1) index < dataChange.getChunksCount() -> continue to handle the next mod.
-   *   <li>2) index == dataChange.getChunksCount() 2_1) dataChange.done == true -> current change
+   *   <li>2_1) index == dataChange.getChunksCount() && dataChange.done == true -> current change
    *       stream mutation is complete. Wrap it up and return {@link
-   *       ChangeStreamStateMachine#AWAITING_STREAM_RECORD_CONSUME}. 2_2) dataChange.done != true ->
-   *       current change stream mutation isn't complete. Return {@link
-   *       ChangeStreamStateMachine#AWAITING_NEW_MOD} to wait for more mods in the next
-   *       ReadChangeStreamResponse.
+   *       ChangeStreamStateMachine#AWAITING_STREAM_RECORD_CONSUME}.
+   *   <li>2_2) index == dataChange.getChunksCount() && dataChange.done != true -> current change
+   *       stream mutation isn't complete. Return {@link ChangeStreamStateMachine#AWAITING_NEW_MOD}
+   *       to wait for more mods in the next ReadChangeStreamResponse.
    * </ul>
    */
   private State checkAndFinishMutationIfNeeded(
