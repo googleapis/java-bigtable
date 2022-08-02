@@ -107,12 +107,15 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       try {
         Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
         byte[] trailers =
-            (byte[])
-                MoreObjects.firstNonNull(
-                    metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
-        ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
-        tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-      } catch (NullPointerException | InvalidProtocolBufferException e) {
+            MoreObjects.firstNonNull(
+                metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
+        // If the response is terminated abnormally and we didn't get location information in
+        // trailers or headers, skip setting the locations
+        if (trailers != null) {
+          ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+          tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+        }
+      } catch (InvalidProtocolBufferException e) {
       }
 
       outerObserver.onError(t);
@@ -126,12 +129,15 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       try {
         Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
         byte[] trailers =
-            (byte[])
-                MoreObjects.firstNonNull(
-                    metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
-        ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
-        tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-      } catch (NullPointerException | InvalidProtocolBufferException e) {
+            MoreObjects.firstNonNull(
+                metadata.get(Util.METADATA_KEY), trailingMetadata.get(Util.METADATA_KEY));
+        // If the response is terminated abnormally and we didn't get location information in
+        // trailers or headers, skip setting the locations
+        if (trailers != null) {
+          ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+          tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+        }
+      } catch (InvalidProtocolBufferException e) {
       }
 
       outerObserver.onComplete();
