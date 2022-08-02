@@ -133,22 +133,21 @@ class BigtableStackdriverExportUtils {
     List<LabelValue> labelValues = timeSeries.getLabelValues();
     for (int i = 0; i < labelValues.size(); i++) {
       if (PROMOTED_RESOURCE_LABELS.contains(labelKeys.get(i).getKey())) {
-        if (labelKeys.get(i).getKey().equals(BuiltinMeasureConstants.CLUSTER.getName()) && labelValues.get(i).getValue().equals("undefined")) {
-          monitoredResourceBuilder.putLabels(
-                  labelKeys.get(i).getKey(), "global");
-        } else if (labelKeys.get(i).getKey().equals(BuiltinMeasureConstants.ZONE.getName()) && labelValues.get(i).getValue().equals("undefined")) {
-          monitoredResourceBuilder.putLabels(
-                  labelKeys.get(i).getKey(), "global");
+        if (labelKeys.get(i).getKey().equals(BuiltinMeasureConstants.CLUSTER.getName())
+            && labelValues.get(i).getValue().equals("undefined")) {
+          monitoredResourceBuilder.putLabels(labelKeys.get(i).getKey(), "global");
+        } else if (labelKeys.get(i).getKey().equals(BuiltinMeasureConstants.ZONE.getName())
+            && labelValues.get(i).getValue().equals("undefined")) {
+          monitoredResourceBuilder.putLabels(labelKeys.get(i).getKey(), "global");
         } else {
           monitoredResourceBuilder.putLabels(
-                  labelKeys.get(i).getKey(), labelValues.get(i).getValue());
+              labelKeys.get(i).getKey(), labelValues.get(i).getValue());
         }
       } else {
         metricTagKeys.add(labelKeys.get(i));
         metricTagValues.add(labelValues.get(i));
       }
     }
-    labelKeys.add(LabelKey.create("uid"));
     metricTagKeys.add(LabelKey.create(BuiltinMeasureConstants.CLIENT_UID.getName(), "client id"));
     metricTagValues.add(LabelValue.create(clientId));
 
