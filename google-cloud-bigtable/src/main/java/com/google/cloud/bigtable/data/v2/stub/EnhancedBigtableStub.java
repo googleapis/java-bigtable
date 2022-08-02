@@ -439,7 +439,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Callables.watched(merging, innerSettings, clientContext);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-            new BigtableTracerStreamingCallable<>(watched);
+        new BigtableTracerStreamingCallable<>(watched);
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
