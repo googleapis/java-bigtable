@@ -454,7 +454,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
           // Case 1: Current SetCell is chunked.
           if (chunk.hasChunkInfo()) {
             validate(
-                chunk.getChunkInfo().getChunkedValueSize() != 0,
+                chunk.getChunkInfo().getChunkedValueSize() > 0,
                 "AWAITING_CELL_VALUE: Chunked value size must be positive.");
             actualTotalSizeOfChunkedSetCell += setCell.getValue().size();
             // If it's the last chunk of the chunked SetCell, finish the cell.
@@ -536,7 +536,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
     if (index < dataChange.getChunksCount()) {
       return AWAITING_NEW_MOD.handleMod(dataChange, index);
     }
-    // We have finished handling all the mods in this DataChange.
+    // If we reach here, it means that all the mods in this DataChange have been handled. We should
+    // finish up the logical mutation or wait for more mods in the next ReadChangeStreamResponse,
+    // depending on whether the current response is the last response for the logical mutation.
     if (dataChange.getDone()) {
       // Case 2_1): Current change stream mutation is complete.
       validate(!dataChange.getToken().isEmpty(), "Last data change missing token");
