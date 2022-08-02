@@ -335,13 +335,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
-    ServerStreamingCallable<Query, RowT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(readRowsUserCallable);
-
     SpanName span = getSpanName("ReadRows");
     ServerStreamingCallable<Query, RowT> traced =
         new TracedServerStreamingCallable<>(
-            withBigtableTracer, clientContext.getTracerFactory(), span);
+            readRowsUserCallable, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -441,10 +438,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
 
+    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
+            new BigtableTracerStreamingCallable<>(watched);
+
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(watched);
+        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
