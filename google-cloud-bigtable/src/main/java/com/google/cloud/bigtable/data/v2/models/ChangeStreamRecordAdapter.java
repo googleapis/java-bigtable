@@ -25,8 +25,8 @@ import javax.annotation.Nonnull;
 /**
  * An extension point that allows end users to plug in a custom implementation of logical change
  * stream records. This is useful in cases where the user would like to apply advanced client side
- * filtering(for example, only keep DeleteFamily's in the mutations). This adapter acts like a
- * factory for a SAX style change stream record builder.
+ * filtering(for example, only keep DeleteFamily in the mutations). This adapter acts like a factory
+ * for a SAX style change stream record builder.
  */
 public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
   /** Creates a new instance of a {@link ChangeStreamRecordBuilder}. */

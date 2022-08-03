@@ -24,15 +24,15 @@ import com.google.common.base.Preconditions;
 
 /**
  * A state machine to produce change stream records from a stream of {@link
- * ReadChangeStreamResponse}. A change stream record can be a heartbeat, a close stream message or a
- * logical mutation.
+ * ReadChangeStreamResponse}. A change stream record can be a Heartbeat, a CloseStream or a
+ * ChangeStreamMutation.
  *
- * <p>Note that there can be two types of chunking for a logical mutation:
+ * <p>There could be two types of chunking for a ChangeStreamMutation:
  *
  * <ul>
- *   <li>Non-SetCell chunking. For example, a logical mutation has two mods, where the first mod is
- *       sent by the first {@link ReadChangeStreamResponse} and the second mod is sent by the second
- *       {@link ReadChangeStreamResponse}.
+ *   <li>Non-SetCell chunking. For example, a ChangeStreamMutation has two mods, DeleteFamily and
+ *       DeleteColumn. DeleteFamily is sent in the first {@link ReadChangeStreamResponse} and
+ *       DeleteColumn is sent in the second {@link ReadChangeStreamResponse}.
  *   <li>{@link ReadChangeStreamResponse.MutationChunk} has a chunked {@link
  *       com.google.bigtable.v2.Mutation.SetCell} mutation. For example, a logical mutation has one
  *       big {@link Mutation.SetCell} mutation which is chunked into two {@link
@@ -51,8 +51,8 @@ import com.google.common.base.Preconditions;
  * <ul>
  *   <li>{@link ReadChangeStreamResponse.Heartbeat}s.
  *   <li>{@link ReadChangeStreamResponse.CloseStream}s.
- *   <li>{@link ReadChangeStreamResponse.DataChange}s, that must be merged to form logical
- *       mutations.
+ *   <li>{@link ReadChangeStreamResponse.DataChange}s, that must be merged to a
+ *       ChangeStreamMutation.
  *   <li>ChangeStreamRecord consumption events that reset the state machine for the next change
  *       stream record.
  * </ul>
@@ -62,7 +62,7 @@ import com.google.common.base.Preconditions;
  * <ul>
  *   <li>Heartbeat records.
  *   <li>CloseStream records.
- *   <li>Logical mutation records.
+ *   <li>ChangeStreamMutation records.
  * </ul>
  *
  * <p>Expected Usage:
@@ -182,8 +182,8 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
   }
 
   /**
-   * Returns the completed change stream record and transitions to awaiting a new change stream
-   * record.
+   * Returns the completed change stream record and transitions to {@link
+   * ChangeStreamStateMachine#AWAITING_NEW_STREAM_RECORD}.
    *
    * @return The completed change stream record.
    * @throws IllegalStateException If the last dataChange did not complete a change stream record.
@@ -193,7 +193,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
         completeChangeStreamRecord != null, "No change stream record to consume.");
     Preconditions.checkState(
         currentState == AWAITING_STREAM_RECORD_CONSUME,
-        "Change stream record not ready to consume: " + currentState);
+        "Change stream record is not ready to consume: " + currentState);
     ChangeStreamRecordT changeStreamRecord = completeChangeStreamRecord;
     reset();
     return changeStreamRecord;
@@ -201,7 +201,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
 
   /** Checks if there is a complete change stream record to be consumed. */
   boolean hasCompleteChangeStreamRecord() {
-    return currentState == AWAITING_STREAM_RECORD_CONSUME;
+    return completeChangeStreamRecord != null && currentState == AWAITING_STREAM_RECORD_CONSUME;
   }
   /**
    * Checks if the state machine is in the middle of processing a change stream record.
@@ -253,7 +253,8 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
     }
 
     /**
-     * Accepts a new mod and transitions to the next state.
+     * Accepts a new mod and transitions to the next state. A mod could be a DeleteFamily, a
+     * DeleteColumn, or a SetCell.
      *
      * @param dataChange The DataChange that holds the new mod to process.
      * @param index The index of the mod in the DataChange.
@@ -451,7 +452,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
           Mutation.SetCell setCell = chunk.getMutation().getSetCell();
           numCellChunks++;
           builder.cellValue(setCell.getValue());
-          // Case 1: Current SetCell is chunked.
+          // Case 1: Current SetCell is chunked. For example: [ReadChangeStreamResponse1:
+          // {DeleteColumn, DeleteFamily, SetCell_1}, ReadChangeStreamResponse2: {SetCell_2,
+          // DeleteFamily}].
           if (chunk.hasChunkInfo()) {
             validate(
                 chunk.getChunkInfo().getChunkedValueSize() > 0,
@@ -468,14 +471,16 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
                       + "; actual total size: "
                       + actualTotalSizeOfChunkedSetCell);
               return checkAndFinishMutationIfNeeded(dataChange, index + 1);
+            } else {
+              // If this is not the last chunk of a chunked SetCell, then this must be the last mod
+              // of the current response, and we're expecting the rest of the chunked cells in the
+              // following ReadChangeStream response.
+              validate(
+                  index == dataChange.getChunksCount() - 1,
+                  "AWAITING_CELL_VALUE: Current mod is a chunked SetCell "
+                      + "but not the last chunk, but it's not the last mod of the current response.");
+              return AWAITING_CELL_VALUE;
             }
-            // If this is not the last chunk of a chunked SetCell, then this must be the last mod of
-            // the current response, and we're expecting the rest of the chunked cells in the
-            // following ReadChangeStream response.
-            validate(
-                index == dataChange.getChunksCount() - 1,
-                "AWAITING_CELL_VALUE: Current SetCell is not chunked.");
-            return AWAITING_CELL_VALUE;
           }
           // Case 2: Current SetCell is not chunked.
           builder.finishCell();
@@ -485,12 +490,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
 
   /**
    * A state that represents a completed change stream record. It prevents new change stream records
-   * from being read until the current one has been consumed.
-   *
-   * <dl>
-   *   <dt>Valid exit states:
-   *   <dd>{@link ChangeStreamStateMachine#AWAITING_NEW_STREAM_RECORD}.
-   * </dl>
+   * from being read until the current one has been consumed. The caller is supposed to consume the
+   * change stream record by calling {@link ChangeStreamStateMachine#consumeChangeStreamRecord()}
+   * which will reset the state to {@link ChangeStreamStateMachine#AWAITING_NEW_STREAM_RECORD}.
    */
   private final State AWAITING_STREAM_RECORD_CONSUME =
       new State() {
