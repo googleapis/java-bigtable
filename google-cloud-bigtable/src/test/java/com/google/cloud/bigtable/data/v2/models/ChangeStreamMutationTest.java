@@ -87,15 +87,7 @@ public class ChangeStreamMutationTest {
     oos.close();
     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
     ChangeStreamMutation actual = (ChangeStreamMutation) ois.readObject();
-    Assert.assertEquals(actual.getRowKey(), changeStreamMutation.getRowKey());
-    Assert.assertEquals(actual.getType(), changeStreamMutation.getType());
-    Assert.assertEquals(actual.getSourceClusterId(), changeStreamMutation.getSourceClusterId());
-    Assert.assertEquals(actual.getCommitTimestamp(), changeStreamMutation.getCommitTimestamp());
-    Assert.assertEquals(actual.getTieBreaker(), changeStreamMutation.getTieBreaker());
-    Assert.assertEquals(actual.getToken(), changeStreamMutation.getToken());
-    Assert.assertEquals(actual.getLowWatermark(), changeStreamMutation.getLowWatermark());
-    assertThat(actual.toRowMutation(TABLE_ID).toProto(REQUEST_CONTEXT))
-        .isEqualTo(changeStreamMutation.toRowMutation(TABLE_ID).toProto(REQUEST_CONTEXT));
+    Assert.assertEquals(actual, changeStreamMutation);
   }
 
   @Test
@@ -138,15 +130,7 @@ public class ChangeStreamMutationTest {
     oos.close();
     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
     ChangeStreamMutation actual = (ChangeStreamMutation) ois.readObject();
-    Assert.assertEquals(actual.getRowKey(), changeStreamMutation.getRowKey());
-    Assert.assertEquals(actual.getType(), changeStreamMutation.getType());
-    Assert.assertEquals(actual.getSourceClusterId(), changeStreamMutation.getSourceClusterId());
-    Assert.assertEquals(actual.getCommitTimestamp(), changeStreamMutation.getCommitTimestamp());
-    Assert.assertEquals(actual.getTieBreaker(), changeStreamMutation.getTieBreaker());
-    Assert.assertEquals(actual.getToken(), changeStreamMutation.getToken());
-    Assert.assertEquals(actual.getLowWatermark(), changeStreamMutation.getLowWatermark());
-    assertThat(actual.toRowMutation(TABLE_ID).toProto(REQUEST_CONTEXT))
-        .isEqualTo(changeStreamMutation.toRowMutation(TABLE_ID).toProto(REQUEST_CONTEXT));
+    Assert.assertEquals(actual, changeStreamMutation);
   }
 
   @Test

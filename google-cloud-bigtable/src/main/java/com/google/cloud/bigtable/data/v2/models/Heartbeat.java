@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
 
-  public static Heartbeat create(
+  private static Heartbeat create(
       ChangeStreamContinuationToken changeStreamContinuationToken, Timestamp lowWatermark) {
     return new AutoValue_Heartbeat(changeStreamContinuationToken, lowWatermark);
   }
