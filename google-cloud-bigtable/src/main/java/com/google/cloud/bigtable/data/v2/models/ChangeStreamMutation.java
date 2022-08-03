@@ -321,14 +321,28 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ChangeStreamMutation otherChangeStreamMutation = (ChangeStreamMutation) o;
-    return Objects.equal(this.hashCode(), otherChangeStreamMutation.hashCode());
+    ChangeStreamMutation other = (ChangeStreamMutation) o;
+    return Objects.equal(this.rowKey, other.rowKey)
+        && Objects.equal(this.type, other.type)
+        && Objects.equal(this.sourceClusterId, other.sourceClusterId)
+        && Objects.equal(this.commitTimestamp, other.commitTimestamp)
+        && Objects.equal(this.tieBreaker, other.tieBreaker)
+        && Objects.equal(this.token, other.token)
+        && Objects.equal(this.lowWatermark, other.lowWatermark)
+        && Objects.equal(this.entries.build(), other.entries.build());
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        rowKey, type, sourceClusterId, commitTimestamp, tieBreaker, token, lowWatermark, entries);
+        rowKey,
+        type,
+        sourceClusterId,
+        commitTimestamp,
+        tieBreaker,
+        token,
+        lowWatermark,
+        entries.build());
   }
 
   @Override
