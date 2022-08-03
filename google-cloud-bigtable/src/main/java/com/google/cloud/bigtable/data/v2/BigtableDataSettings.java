@@ -478,7 +478,11 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
     }
 
-    /** Register built in metrics. * */
+    /**
+     * Register built in metrics. This is an experimental feature. Please fill up this form
+     * to have your project allow listed for the private preview:
+     * https://forms.gle/xuhu6vCunn2MjV2m9
+     */
     @BetaApi("Built in metric is not currently stable and may change in the future")
     public Builder registerBuiltinMetrics() throws IOException {
       if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
