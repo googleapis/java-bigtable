@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.changestream;
 
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -22,7 +23,11 @@ import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 
-/** A ServerStreamingCallable that reads a change stream given the {@link ReadChangeStreamQuery}. */
+/**
+ * A ServerStreamingCallable that converts a {@link ReadChangeStreamQuery} to a {@link
+ * ReadChangeStreamRequest}.
+ */
+@InternalApi("Used in Changestream beam pipeline.")
 public class ReadChangeStreamUserCallable<ChangeStreamRecordT>
     extends ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> {
   private final ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> inner;

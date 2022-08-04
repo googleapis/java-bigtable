@@ -895,8 +895,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       dispatch the RPC.
    *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
    *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
-   *       logical mutations. The actual change stream record implementation can be configured by
-   *       the {@code changeStreamRecordAdapter} parameter.
+   *       {@link com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation}. The actual change
+   *       stream record implementation can be configured by the {@code changeStreamRecordAdapter}
+   *       parameter.
    *   <li>TODO: Retry/resume on failure.
    *   <li>Add tracing & metrics.
    * </ul>
@@ -904,42 +905,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public <ChangeStreamRecordT>
       ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
           createReadChangeStreamCallable(
-              ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
-    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
-        createReadChangeStreamBaseCallable(
-            settings.readChangeStreamSettings(), changeStreamRecordAdapter);
-
-    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
-        readChangeStreamUserCallable =
-            new ReadChangeStreamUserCallable<>(readChangeStreamCallable, requestContext);
-
-    SpanName span = getSpanName("ReadChangeStream");
-    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> traced =
-        new TracedServerStreamingCallable<>(
-            readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
-
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
-  }
-
-  /**
-   * Creates a callable chain to handle ReadRows RPCs. The chain will:
-   *
-   * <ul>
-   *   <li>Dispatch the RPC with {@link ReadChangeStreamRequest}.
-   *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
-   *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
-   *       logical mutations. The actual change stream record implementation can be configured by
-   *       the {@code changeStreamRecordAdapter} parameter.
-   *   <li>Add header tracer for tracking GFE metrics.
-   *   <li>TODO: Retry/resume on failure.
-   * </ul>
-   *
-   * <p>NOTE: the caller is responsible for adding tracing & metrics.
-   */
-  private <ReqT, ChangeStreamRecordT>
-      ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT>
-          createReadChangeStreamBaseCallable(
-              ServerStreamingCallSettings<ReqT, ChangeStreamRecord> readChangeStreamSettings,
               ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
     ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -956,7 +921,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       }
                     })
                 .build(),
-            readChangeStreamSettings.getRetryableCodes());
+            settings.readChangeStreamSettings().getRetryableCodes());
 
     ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
@@ -975,9 +940,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallSettings<ReadChangeStreamRequest, ChangeStreamRecordT> innerSettings =
         ServerStreamingCallSettings.<ReadChangeStreamRequest, ChangeStreamRecordT>newBuilder()
             // TODO: setResumptionStrategy.
-            .setRetryableCodes(readChangeStreamSettings.getRetryableCodes())
-            .setRetrySettings(readChangeStreamSettings.getRetrySettings())
-            .setIdleTimeout(readChangeStreamSettings.getIdleTimeout())
+            .setRetryableCodes(settings.readChangeStreamSettings().getRetryableCodes())
+            .setRetrySettings(settings.readChangeStreamSettings().getRetrySettings())
+            .setIdleTimeout(settings.readChangeStreamSettings().getIdleTimeout())
             .build();
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> watched =
@@ -988,7 +953,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // TODO: Add ReadChangeStreamRetryCompletedCallable.
 
-    return Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
+        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
+        readChangeStreamUserCallable =
+            new ReadChangeStreamUserCallable<>(readChangeStreamCallable, requestContext);
+
+    SpanName span = getSpanName("ReadChangeStream");
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> traced =
+        new TracedServerStreamingCallable<>(
+            readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
