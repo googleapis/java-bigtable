@@ -18,7 +18,7 @@
 
     <properties>
         <opencensus.version>0.31.1</opencensus.version>
-        <cloud.monitoring.version>3.3.1</cloud.monitoring.version>
+        <cloud.monitoring.version>3.3.6</cloud.monitoring.version>
     </properties>
 
     <dependencyManagement>
@@ -68,6 +68,17 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-monitoring</artifactId>
+            <!-- exclude these dependencies since they are not used and are causing conflict in google-cloud-bigtable -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.http-client</groupId>
+                    <artifactId>google-http-client</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.http-client</groupId>
+                    <artifactId>google-http-client-gson</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.api.grpc</groupId>
