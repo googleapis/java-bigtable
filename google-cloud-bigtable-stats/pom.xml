@@ -132,6 +132,12 @@
             <artifactId>jsr305</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- test dependencies -->
         <dependency>
             <groupId>com.google.truth</groupId>
