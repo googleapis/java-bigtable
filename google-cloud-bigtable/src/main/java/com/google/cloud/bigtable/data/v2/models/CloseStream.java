@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.StreamContinuationToken;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
@@ -70,20 +69,8 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  @InternalApi("Used in java veneer client.")
-  @VisibleForTesting
-  public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
+  static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
-  }
-
-  @VisibleForTesting
-  public ReadChangeStreamResponse.CloseStream toProto() {
-    ReadChangeStreamResponse.CloseStream.Builder builder =
-        ReadChangeStreamResponse.CloseStream.newBuilder().setStatus(getStatus());
-    for (ChangeStreamContinuationToken token : getChangeStreamContinuationTokens()) {
-      builder.addContinuationTokens(token.toProto());
-    }
-    return builder.build();
   }
 
   @Override

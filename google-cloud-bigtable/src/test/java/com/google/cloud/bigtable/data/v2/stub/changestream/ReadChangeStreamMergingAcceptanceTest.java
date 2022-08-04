@@ -21,19 +21,9 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import com.google.api.client.util.Lists;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.bigtable.v2.*;
 import com.google.bigtable.v2.Mutation;
-import com.google.bigtable.v2.ReadChangeStreamRequest;
-import com.google.bigtable.v2.ReadChangeStreamResponse;
-import com.google.bigtable.v2.TimestampRange;
-import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
-import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
-import com.google.cloud.bigtable.data.v2.models.CloseStream;
-import com.google.cloud.bigtable.data.v2.models.DefaultChangeStreamRecordAdapter;
-import com.google.cloud.bigtable.data.v2.models.DeleteCells;
-import com.google.cloud.bigtable.data.v2.models.DeleteFamily;
-import com.google.cloud.bigtable.data.v2.models.Entry;
-import com.google.cloud.bigtable.data.v2.models.Heartbeat;
-import com.google.cloud.bigtable.data.v2.models.SetCell;
+import com.google.cloud.bigtable.data.v2.models.*;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ChangeStreamTestFile;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ReadChangeStreamTest;
@@ -95,7 +85,6 @@ public class ReadChangeStreamMergingAcceptanceTest {
   @Test
   public void test() throws Exception {
     List<ReadChangeStreamResponse> responses = testCase.getApiResponsesList();
-    System.out.println("testCase: " + responses);
 
     // Wrap the responses in a callable.
     ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> source =
@@ -113,19 +102,46 @@ public class ReadChangeStreamMergingAcceptanceTest {
     try {
       for (ChangeStreamRecord record : stream) {
         if (record instanceof Heartbeat) {
+          Heartbeat heartbeat = (Heartbeat) record;
+          ReadChangeStreamResponse.Heartbeat heartbeatProto =
+              ReadChangeStreamResponse.Heartbeat.newBuilder()
+                  .setContinuationToken(
+                      StreamContinuationToken.newBuilder()
+                          .setPartition(
+                              StreamPartition.newBuilder()
+                                  .setRowRange(
+                                      heartbeat.getChangeStreamContinuationToken().getRowRange())
+                                  .build())
+                          .setToken(heartbeat.getChangeStreamContinuationToken().getToken())
+                          .build())
+                  .setLowWatermark(heartbeat.getLowWatermark())
+                  .build();
           actualResults.add(
               ReadChangeStreamTest.Result.newBuilder()
                   .setRecord(
                       ReadChangeStreamTest.TestChangeStreamRecord.newBuilder()
-                          .setHeartbeat(((Heartbeat) record).toProto())
+                          .setHeartbeat(heartbeatProto)
                           .build())
                   .build());
         } else if (record instanceof CloseStream) {
+          CloseStream closeStream = (CloseStream) record;
+          ReadChangeStreamResponse.CloseStream.Builder builder =
+              ReadChangeStreamResponse.CloseStream.newBuilder().setStatus(closeStream.getStatus());
+          for (ChangeStreamContinuationToken token :
+              closeStream.getChangeStreamContinuationTokens()) {
+            builder.addContinuationTokens(
+                StreamContinuationToken.newBuilder()
+                    .setPartition(
+                        StreamPartition.newBuilder().setRowRange(token.getRowRange()).build())
+                    .setToken(token.getToken())
+                    .build());
+          }
+          ReadChangeStreamResponse.CloseStream closeStreamProto = builder.build();
           actualResults.add(
               ReadChangeStreamTest.Result.newBuilder()
                   .setRecord(
                       ReadChangeStreamTest.TestChangeStreamRecord.newBuilder()
-                          .setCloseStream(((CloseStream) record).toProto())
+                          .setCloseStream(closeStreamProto)
                           .build())
                   .build());
         } else if (record instanceof ChangeStreamMutation) {

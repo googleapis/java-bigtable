@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.Timestamp;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
@@ -33,20 +32,10 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
-  @InternalApi("Used in java veneer client.")
-  @VisibleForTesting
-  public static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
+  static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return create(
         ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()),
         heartbeat.getLowWatermark());
-  }
-
-  @VisibleForTesting
-  public ReadChangeStreamResponse.Heartbeat toProto() {
-    return ReadChangeStreamResponse.Heartbeat.newBuilder()
-        .setContinuationToken(getChangeStreamContinuationToken().toProto())
-        .setLowWatermark(getLowWatermark())
-        .build();
   }
 
   @InternalApi("Used in Changestream beam pipeline.")

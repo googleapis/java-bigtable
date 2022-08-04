@@ -184,7 +184,7 @@
       ]
     },
     {
-      "description": "1 logical mutation no chunking",
+      "description": "1 logical mutation no chunking([{DF,DC,SC}]->ChangeStreamMutation{DF,DC,SC})",
       "api_responses": [
         {
           "data_change": {
@@ -200,6 +200,28 @@
                 "mutation": {
                   "delete_from_family": {
                     "family_name": "family"
+                  }
+                }
+              },
+              {
+                "mutation": {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
+                }
+              },
+              {
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
                   }
                 }
               }
@@ -223,6 +245,24 @@
                 {
                   "delete_from_family": {
                     "family_name": "family"
+                  }
+                },
+                {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
+                },
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
                   }
                 }
               ]
@@ -309,7 +349,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell",
+      "description": "1 chunked SetCell([{SC_chunk1}, {SC_chunk2}]->ChangeStreamMutation{SC})",
       "api_responses": [
         {
           "data_change": {
@@ -386,7 +426,7 @@
       ]
     },
     {
-      "description": "2 chunked SetCells",
+      "description": "2 chunked SetCells([{SC1_chunk1}, {SC1_chunk2, SC2_chunk1}, {SC2_chunk2}]->ChangeStreamMutation{SC1,SC2})",
       "api_responses": [
         {
           "data_change": {
@@ -425,6 +465,196 @@
                 "mutation": {
                   "set_cell": {
                     "value": ""
+                  }
+                }
+              },
+              {
+                "chunk_info": {
+                  "chunked_value_size": 1
+                },
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 1,
+                  "chunked_value_size": 1,
+                  "last_chunk": true
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": ""
+                  }
+                }
+              }
+            ],
+            "done": true
+          }
+        }
+      ],
+      "results": [
+        {
+          "record": {
+            "change_stream_mutation": {
+              "row_key": "0000000000000000",
+              "type": "USER",
+              "source_cluster_id": "source-cluster-id",
+              "commit_timestamp": "2022-07-01T00:00:00Z",
+              "tiebreaker": 100,
+              "token": "data-change-token",
+              "low_watermark": "2022-07-01T00:00:00Z",
+              "mutations": [
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                },
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              ]
+            }
+          },
+          "error": false
+        }
+      ]
+    },
+    {
+      "description": "1 chunked SetCell + 1 unchunked SetCell([{SC1_chunk1}, {SC1_chunk2, SC2}]->ChangeStreamMutation{SC1,SC2})",
+      "api_responses": [
+        {
+          "data_change": {
+            "row_key": "0000000000000000",
+            "type": "USER",
+            "source_cluster_id": "source-cluster-id",
+            "commit_timestamp": "2022-07-01T00:00:00Z",
+            "tiebreaker": 100,
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_size": 1
+                },
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 1,
+                  "chunked_value_size": 1,
+                  "last_chunk": true
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": ""
+                  }
+                }
+              },
+              {
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ],
+            "done": true
+          }
+        }
+      ],
+      "results": [
+        {
+          "record": {
+            "change_stream_mutation": {
+              "row_key": "0000000000000000",
+              "type": "USER",
+              "source_cluster_id": "source-cluster-id",
+              "commit_timestamp": "2022-07-01T00:00:00Z",
+              "tiebreaker": 100,
+              "token": "data-change-token",
+              "low_watermark": "2022-07-01T00:00:00Z",
+              "mutations": [
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                },
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              ]
+            }
+          },
+          "error": false
+        }
+      ]
+    },
+    {
+      "description": "1 unchunked SetCell + 1 chunked SetCell([{SC1, SC2_chunk1}, {SC2_chunk2}]->ChangeStreamMutation{SC1,SC2})",
+      "api_responses": [
+        {
+          "data_change": {
+            "row_key": "0000000000000000",
+            "type": "USER",
+            "source_cluster_id": "source-cluster-id",
+            "commit_timestamp": "2022-07-01T00:00:00Z",
+            "tiebreaker": 100,
+            "chunks": [
+              {
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
                   }
                 }
               },
@@ -503,197 +733,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell + 1 unchunked SetCell",
-      "api_responses": [
-        {
-          "data_change": {
-            "row_key": "0000000000000000",
-            "type": "USER",
-            "source_cluster_id": "source-cluster-id",
-            "commit_timestamp": "2022-07-01T00:00:00Z",
-            "tiebreaker": 100,
-            "chunks": [
-              {
-                "chunk_info": {
-                  "chunked_value_size": 1
-                },
-                "mutation": {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "data_change": {
-            "type": "CONTINUATION",
-            "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
-            "chunks": [
-              {
-                "chunk_info": {
-                  "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
-                  "last_chunk": true
-                },
-                "mutation": {
-                  "set_cell": {
-                    "value": ""
-                  }
-                }
-              },
-              {
-                "mutation": {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              }
-            ],
-            "done": true
-          }
-        }
-      ],
-      "results": [
-        {
-          "record": {
-            "change_stream_mutation": {
-              "row_key": "0000000000000000",
-              "type": "USER",
-              "source_cluster_id": "source-cluster-id",
-              "commit_timestamp": "2022-07-01T00:00:00Z",
-              "tiebreaker": 100,
-              "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
-              "mutations": [
-                {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                },
-                {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              ]
-            }
-          },
-          "error": false
-        }
-      ]
-    },
-    {
-      "description": "1 unchunked SetCell + 1 chunked SetCell",
-      "api_responses": [
-        {
-          "data_change": {
-            "row_key": "0000000000000000",
-            "type": "USER",
-            "source_cluster_id": "source-cluster-id",
-            "commit_timestamp": "2022-07-01T00:00:00Z",
-            "tiebreaker": 100,
-            "chunks": [
-              {
-                "mutation": {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              },
-              {
-                "chunk_info": {
-                  "chunked_value_size": 1
-                },
-                "mutation": {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              }
-            ]
-          }
-        },
-        {
-          "data_change": {
-            "type": "CONTINUATION",
-            "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
-            "chunks": [
-              {
-                "chunk_info": {
-                  "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
-                  "last_chunk": true
-                },
-                "mutation": {
-                  "set_cell": {
-                    "value": ""
-                  }
-                }
-              }
-            ],
-            "done": true
-          }
-        }
-      ],
-      "results": [
-        {
-          "record": {
-            "change_stream_mutation": {
-              "row_key": "0000000000000000",
-              "type": "USER",
-              "source_cluster_id": "source-cluster-id",
-              "commit_timestamp": "2022-07-01T00:00:00Z",
-              "tiebreaker": 100,
-              "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
-              "mutations": [
-                {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                },
-                {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
-                  }
-                }
-              ]
-            }
-          },
-          "error": false
-        }
-      ]
-    },
-    {
-      "description": "1 mod + 1 chunked SetCell + 1 mod",
+      "description": "1 mod + 1 chunked SetCell + 1 mod([{DF1,SC_chunk1}, {SC_chunk2, DF2}]->ChangeStreamMutation{DF1,SC,DF2})",
       "api_responses": [
         {
           "data_change": {
@@ -794,7 +834,124 @@
       ]
     },
     {
-      "description": "non SetCell chunking",
+      "description": "1 chunked SetCell + many nonchunked mods([{SC_chunk1}, {SC_chunk2,DF,DC}]->ChangeStreamMutation{SC,DF,DC})",
+      "api_responses": [
+        {
+          "data_change": {
+            "row_key": "0000000000000000",
+            "type": "USER",
+            "source_cluster_id": "source-cluster-id",
+            "commit_timestamp": "2022-07-01T00:00:00Z",
+            "tiebreaker": 100,
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_size": 1
+                },
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 1,
+                  "chunked_value_size": 1,
+                  "last_chunk": true
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": ""
+                  }
+                }
+              },
+              {
+                "mutation": {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
+                }
+              },
+              {
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ],
+            "done": true
+          }
+        }
+      ],
+      "results": [
+        {
+          "record": {
+            "change_stream_mutation": {
+              "row_key": "0000000000000000",
+              "type": "USER",
+              "source_cluster_id": "source-cluster-id",
+              "commit_timestamp": "2022-07-01T00:00:00Z",
+              "tiebreaker": 100,
+              "token": "data-change-token",
+              "low_watermark": "2022-07-01T00:00:00Z",
+              "mutations": [
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                },
+                {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
+                },
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              ]
+            }
+          },
+          "error": false
+        }
+      ]
+    },
+    {
+      "description": "non SetCell chunking([{DF1},{DF2,DC}]->ChangeStreamMutation{DF1,DF2,DC})",
       "api_responses": [
         {
           "data_change": {
@@ -826,6 +983,18 @@
                     "family_name": "family"
                   }
                 }
+              },
+              {
+                "mutation": {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
+                }
               }
             ],
             "done": true
@@ -853,6 +1022,16 @@
                   "delete_from_family": {
                     "family_name": "family"
                   }
+                },
+                {
+                  "delete_from_column" : {
+                    "family_name": "family",
+                    "column_qualifier": "dg==",
+                    "time_range": {
+                      "start_timestamp_micros": 5000,
+                      "end_timestamp_micros": 15000
+                    }
+                  }
                 }
               ]
             }
@@ -862,7 +1041,7 @@
       ]
     },
     {
-      "description": "2 logical mutations with non SetCell chunking + CloseStream",
+      "description": "2 logical mutations with non SetCell chunking + CloseStream([{Change1_DF1}, {Change1_DF2}, {Change2_DF3}, {Change2_DF4}, {CloseStream}]->[ChangeStreamMutation1{DF1,DF2}),ChangeStreamMutation2{DF3,DF4}),CloseStream]",
       "api_responses": [
         {
           "data_change": {
