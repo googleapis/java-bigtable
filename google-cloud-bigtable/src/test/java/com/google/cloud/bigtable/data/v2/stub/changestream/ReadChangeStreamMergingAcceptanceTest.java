@@ -25,7 +25,15 @@ import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.TimestampRange;
-import com.google.cloud.bigtable.data.v2.models.*;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
+import com.google.cloud.bigtable.data.v2.models.CloseStream;
+import com.google.cloud.bigtable.data.v2.models.DefaultChangeStreamRecordAdapter;
+import com.google.cloud.bigtable.data.v2.models.DeleteCells;
+import com.google.cloud.bigtable.data.v2.models.DeleteFamily;
+import com.google.cloud.bigtable.data.v2.models.Entry;
+import com.google.cloud.bigtable.data.v2.models.Heartbeat;
+import com.google.cloud.bigtable.data.v2.models.SetCell;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ChangeStreamTestFile;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ReadChangeStreamTest;
@@ -102,7 +110,6 @@ public class ReadChangeStreamMergingAcceptanceTest {
     // Transform the change stream records into ReadChangeStreamTest.Result's.
     List<ReadChangeStreamTest.Result> actualResults = Lists.newArrayList();
     Exception error = null;
-
     try {
       for (ChangeStreamRecord record : stream) {
         if (record instanceof Heartbeat) {
