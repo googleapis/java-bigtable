@@ -16,13 +16,14 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.auto.value.AutoValue;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /**
- * Representation of a SetCell mod in a data change, whose value is concatenated by
- * (TODO:ChangeStreamRecordMerger) in case of SetCell value chunking.
+ * Representation of a SetCell mod in a data change, whose value is concatenated by {@link
+ * ChangeStreamRecordMerger} in case of SetCell value chunking.
  */
 @AutoValue
 public abstract class SetCell implements Entry, Serializable {

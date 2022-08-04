@@ -121,6 +121,8 @@ public class ChangeStreamRecordTest {
     Assert.assertEquals(actualHeartbeat.getLowWatermark(), lowWatermark);
     Assert.assertEquals(actualHeartbeat.getChangeStreamContinuationToken().getRowRange(), rowRange);
     Assert.assertEquals(actualHeartbeat.getChangeStreamContinuationToken().getToken(), token);
+
+    Assert.assertEquals(actualHeartbeat.toProto(), heartbeatProto);
   }
 
   @Test
@@ -163,5 +165,7 @@ public class ChangeStreamRecordTest {
         rowRange2, actualCloseStream.getChangeStreamContinuationTokens().get(1).getRowRange());
     Assert.assertEquals(
         token2, actualCloseStream.getChangeStreamContinuationTokens().get(1).getToken());
+
+    Assert.assertEquals(actualCloseStream.toProto(), closeStreamProto);
   }
 }

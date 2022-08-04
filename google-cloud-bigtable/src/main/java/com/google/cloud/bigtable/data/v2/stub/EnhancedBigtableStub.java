@@ -53,6 +53,8 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
+import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
@@ -64,16 +66,22 @@ import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.DefaultChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ListChangeStreamPartitionsUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -146,6 +154,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
 
   private final ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable;
+
+  private final ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -290,6 +301,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
     listChangeStreamPartitionsCallable = createListChangeStreamPartitionsCallable();
+    readChangeStreamCallable =
+        createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
   }
 
   // <editor-fold desc="Callable creators">
@@ -875,6 +888,110 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * Creates a callable chain to handle streaming ReadChangeStream RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a {@link ReadChangeStreamQuery} into a {@link ReadChangeStreamRequest} and
+   *       dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
+   *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
+   *       logical mutations. The actual change stream record implementation can be configured by
+   *       the {@code changeStreamRecordAdapter} parameter.
+   *   <li>TODO: Retry/resume on failure.
+   *   <li>Add tracing & metrics.
+   * </ul>
+   */
+  public <ChangeStreamRecordT>
+      ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
+          createReadChangeStreamCallable(
+              ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
+        createReadChangeStreamBaseCallable(
+            settings.readChangeStreamSettings(), changeStreamRecordAdapter);
+
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
+        readChangeStreamUserCallable =
+            new ReadChangeStreamUserCallable<>(readChangeStreamCallable, requestContext);
+
+    SpanName span = getSpanName("ReadChangeStream");
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> traced =
+        new TracedServerStreamingCallable<>(
+            readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
+   * Creates a callable chain to handle ReadRows RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Dispatch the RPC with {@link ReadChangeStreamRequest}.
+   *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
+   *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
+   *       logical mutations. The actual change stream record implementation can be configured by
+   *       the {@code changeStreamRecordAdapter} parameter.
+   *   <li>Add header tracer for tracking GFE metrics.
+   *   <li>TODO: Retry/resume on failure.
+   * </ul>
+   *
+   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   */
+  private <ReqT, ChangeStreamRecordT>
+      ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT>
+          createReadChangeStreamBaseCallable(
+              ServerStreamingCallSettings<ReqT, ChangeStreamRecord> readChangeStreamSettings,
+              ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> base =
+        GrpcRawCallableFactory.createServerStreamingCallable(
+            GrpcCallSettings.<ReadChangeStreamRequest, ReadChangeStreamResponse>newBuilder()
+                .setMethodDescriptor(BigtableGrpc.getReadChangeStreamMethod())
+                .setParamsExtractor(
+                    new RequestParamsExtractor<ReadChangeStreamRequest>() {
+                      @Override
+                      public Map<String, String> extract(
+                          ReadChangeStreamRequest readChangeStreamRequest) {
+                        return ImmutableMap.of(
+                            "table_name", readChangeStreamRequest.getTableName(),
+                            "app_profile_id", readChangeStreamRequest.getAppProfileId());
+                      }
+                    })
+                .build(),
+            readChangeStreamSettings.getRetryableCodes());
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(base);
+
+    // Sometimes ReadChangeStream connections are disconnected via an RST frame. This error is
+    // transient and should be treated similar to UNAVAILABLE. However, this exception has an
+    // INTERNAL error code which by default is not retryable. Convert the exception it can be
+    // retried in the client.
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> convertException =
+        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> merging =
+        new ChangeStreamRecordMergingCallable<>(convertException, changeStreamRecordAdapter);
+
+    // Copy idle timeout settings for watchdog.
+    ServerStreamingCallSettings<ReadChangeStreamRequest, ChangeStreamRecordT> innerSettings =
+        ServerStreamingCallSettings.<ReadChangeStreamRequest, ChangeStreamRecordT>newBuilder()
+            // TODO: setResumptionStrategy.
+            .setRetryableCodes(readChangeStreamSettings.getRetryableCodes())
+            .setRetrySettings(readChangeStreamSettings.getRetrySettings())
+            .setIdleTimeout(readChangeStreamSettings.getIdleTimeout())
+            .build();
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> watched =
+        Callables.watched(merging, innerSettings, clientContext);
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
+
+    // TODO: Add ReadChangeStreamRetryCompletedCallable.
+
+    return Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+  }
+
+  /**
    * Wraps a callable chain in a user presentable callable that will inject the default call context
    * and trace the call.
    */
@@ -934,6 +1051,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /** Returns a streaming list change stream partitions callable */
   public ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable() {
     return listChangeStreamPartitionsCallable;
+  }
+
+  /** Returns a streaming read change stream callable. */
+  public ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamCallable() {
+    return readChangeStreamCallable;
   }
   // </editor-fold>
 
