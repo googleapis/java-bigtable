@@ -146,6 +146,16 @@
       <artifactId>grpc-alts</artifactId>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.http-client</groupId>
+      <artifactId>google-http-client-gson</artifactId>
+      <scope>runtime</scope>
+    </dependency>
     <!--
       grpc-stub is needed directly by our tests and transitively by grpc-alts at runtime.
       So it has to be declared as a direct dependency and to avoid overriding grpc-alts'
@@ -267,16 +277,6 @@
     <dependency>
       <groupId>io.opencensus</groupId>
       <artifactId>opencensus-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.http-client</groupId>
-      <artifactId>google-http-client</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.google.http-client</groupId>
-      <artifactId>google-http-client-gson</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

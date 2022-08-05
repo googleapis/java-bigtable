@@ -68,15 +68,14 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-monitoring</artifactId>
-            <!-- exclude these dependencies since they are not used and are causing conflict in google-cloud-bigtable -->
             <exclusions>
                 <exclusion>
                     <groupId>com.google.http-client</groupId>
-                    <artifactId>google-http-client</artifactId>
+                    <artifactId>google-http-client-gson</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.google.http-client</groupId>
-                    <artifactId>google-http-client-gson</artifactId>
+                    <artifactId>google-http-client</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -132,6 +131,7 @@
             <artifactId>jsr305</artifactId>
         </dependency>
 
+        <!-- runtime dependency for native image integration test -->
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>

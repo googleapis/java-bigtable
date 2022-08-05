@@ -67,8 +67,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   // Monitored resource labels
   private String tableId = "undefined";
-  private String zone = "undefined";
-  private String cluster = "undefined";
+  private String zone = "global";
+  private String cluster = "global";
 
   // gfe stats
   private AtomicLong gfeMissingHeaders = new AtomicLong(0);
