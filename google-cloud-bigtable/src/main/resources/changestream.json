@@ -384,12 +384,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               }
@@ -415,7 +415,104 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
+                    "value": "dmFsdWUtVkFM"
+                  }
+                }
+              ]
+            }
+          },
+          "error": false
+        }
+      ]
+    },
+    {
+      "description": "1 chunked SetCell([{SC_chunk1}, {SC_chunk2}, {SC_chunk3}]->ChangeStreamMutation{SC})",
+      "api_responses": [
+        {
+          "data_change": {
+            "row_key": "0000000000000000",
+            "type": "USER",
+            "source_cluster_id": "source-cluster-id",
+            "commit_timestamp": "2022-07-01T00:00:00Z",
+            "tiebreaker": 100,
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_size": 1
+                },
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
                     "value": "dg=="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 1,
+                  "chunked_value_size": 13
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": "YWx1ZS1WQUw="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 9,
+                  "chunked_value_size": 13,
+                  "last_chunk": true
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": "LVZBTA=="
+                  }
+                }
+              }
+            ],
+            "done": true
+          }
+        }
+      ],
+      "results": [
+        {
+          "record": {
+            "change_stream_mutation": {
+              "row_key": "0000000000000000",
+              "type": "USER",
+              "source_cluster_id": "source-cluster-id",
+              "commit_timestamp": "2022-07-01T00:00:00Z",
+              "tiebreaker": 100,
+              "token": "data-change-token",
+              "low_watermark": "2022-07-01T00:00:00Z",
+              "mutations": [
+                {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dmFsdWUtVkFMLVZBTA=="
                   }
                 }
               ]
@@ -459,12 +556,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               },
@@ -493,12 +590,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               }
@@ -524,7 +621,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 },
                 {
@@ -532,7 +629,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 }
               ]
@@ -578,12 +675,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               },
@@ -593,7 +690,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 }
               }
@@ -619,7 +716,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 },
                 {
@@ -627,7 +724,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 }
               ]
@@ -683,12 +780,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               }
@@ -722,7 +819,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 }
               ]
@@ -775,12 +872,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               },
@@ -818,7 +915,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 },
                 {
@@ -869,12 +966,12 @@
               {
                 "chunk_info": {
                   "chunked_value_offset": 1,
-                  "chunked_value_size": 1,
+                  "chunked_value_size": 9,
                   "last_chunk": true
                 },
                 "mutation": {
                   "set_cell": {
-                    "value": ""
+                    "value": "YWx1ZS1WQUw="
                   }
                 }
               },
@@ -892,11 +989,8 @@
               },
               {
                 "mutation": {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
+                  "delete_from_family": {
+                    "family_name": "family"
                   }
                 }
               }
@@ -922,7 +1016,7 @@
                     "family_name": "family",
                     "column_qualifier": "0000000000000000",
                     "timestamp_micros": 1000,
-                    "value": "dg=="
+                    "value": "dmFsdWUtVkFM"
                   }
                 },
                 {
@@ -936,11 +1030,8 @@
                   }
                 },
                 {
-                  "set_cell": {
-                    "family_name": "family",
-                    "column_qualifier": "0000000000000000",
-                    "timestamp_micros": 1000,
-                    "value": "dg=="
+                  "delete_from_family": {
+                    "family_name": "family"
                   }
                 }
               ]
