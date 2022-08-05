@@ -66,6 +66,7 @@ import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -895,9 +896,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       dispatch the RPC.
    *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
    *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
-   *       {@link com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation}. The actual change
-   *       stream record implementation can be configured by the {@code changeStreamRecordAdapter}
-   *       parameter.
+   *       {@link ChangeStreamMutation}. The actual change stream record implementation can be
+   *       configured by the {@code changeStreamRecordAdapter} parameter.
    *   <li>TODO: Retry/resume on failure.
    *   <li>Add tracing & metrics.
    * </ul>

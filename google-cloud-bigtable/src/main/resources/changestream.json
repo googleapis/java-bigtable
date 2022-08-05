@@ -273,7 +273,7 @@
       ]
     },
     {
-      "description": "1 incomplete logical mutation",
+      "description": "1 incomplete logical mutation(missing `done: true`)",
       "api_responses": [
         {
           "data_change": {

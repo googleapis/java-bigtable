@@ -36,7 +36,7 @@ import java.util.Queue;
  *
  * <pre>{@code
  * ChangeStreamRecordMerger<ChangeStreamRecord> changeStreamRecordMerger =
- *     new ChangeStreamRecordMerger<>(myChangeStreamRecordBuilder);
+ *     new ChangeStreamRecordMerger<>(myChangeStreamRecordAdaptor);
  *
  * while(responseIterator.hasNext()) {
  *   ReadChangeStreamResponse response = responseIterator.next();
