@@ -349,7 +349,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell([{SC_chunk1}, {SC_chunk2}]->ChangeStreamMutation{SC})",
+      "description": "1 chunked SetCell([{SC_chunk1(v)}, {SC_chunk2(alue-VAL)}]->ChangeStreamMutation{SC(value-VAL)})",
       "api_responses": [
         {
           "data_change": {
@@ -361,7 +361,7 @@
             "chunks": [
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
@@ -426,7 +426,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell([{SC_chunk1}, {SC_chunk2}, {SC_chunk3}]->ChangeStreamMutation{SC})",
+      "description": "1 chunked SetCell([{SC_chunk1(v)}, {SC_chunk2(alue-VAL)}, {SC_chunk3(-VAL)}]->ChangeStreamMutation{SC(value-VAL-VAL)})",
       "api_responses": [
         {
           "data_change": {
@@ -438,7 +438,7 @@
             "chunks": [
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 13
                 },
                 "mutation": {
                   "set_cell": {
@@ -523,7 +523,7 @@
       ]
     },
     {
-      "description": "2 chunked SetCells([{SC1_chunk1}, {SC1_chunk2, SC2_chunk1}, {SC2_chunk2}]->ChangeStreamMutation{SC1,SC2})",
+      "description": "2 chunked SetCells([{SC1_chunk1(v)}, {SC1_chunk2(alue-VAL), SC2_chunk1(v)}, {SC2_chunk2(alue-VAL)}]->ChangeStreamMutation{SC1(value-VAL),SC2(value-VAL)})",
       "api_responses": [
         {
           "data_change": {
@@ -640,7 +640,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell + 1 unchunked SetCell([{SC1_chunk1}, {SC1_chunk2, SC2}]->ChangeStreamMutation{SC1,SC2})",
+      "description": "1 chunked SetCell + 1 unchunked SetCell([{SC1_chunk1(v)}, {SC1_chunk2(alue-VAL), SC2(value-VAL)}]->ChangeStreamMutation{SC1(value-VAL),SC2(value-VAL)})",
       "api_responses": [
         {
           "data_change": {
@@ -652,7 +652,7 @@
             "chunks": [
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
@@ -735,7 +735,7 @@
       ]
     },
     {
-      "description": "1 unchunked SetCell + 1 chunked SetCell([{SC1, SC2_chunk1}, {SC2_chunk2}]->ChangeStreamMutation{SC1,SC2})",
+      "description": "1 unchunked SetCell + 1 chunked SetCell([{SC1(v), SC2_chunk1(v)}, {SC2_chunk2(alue-VAL)}]->ChangeStreamMutation{SC1(v),SC2(value-VAL)})",
       "api_responses": [
         {
           "data_change": {
@@ -757,7 +757,7 @@
               },
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
@@ -830,7 +830,7 @@
       ]
     },
     {
-      "description": "1 mod + 1 chunked SetCell + 1 mod([{DF1,SC_chunk1}, {SC_chunk2, DF2}]->ChangeStreamMutation{DF1,SC,DF2})",
+      "description": "1 mod + 1 chunked SetCell + 1 mod([{DF1,SC_chunk1(v)}, {SC_chunk2(alue-VAL), DF2}]->ChangeStreamMutation{DF1,SC(value-VAL),DF2})",
       "api_responses": [
         {
           "data_change": {
@@ -849,7 +849,7 @@
               },
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
@@ -931,7 +931,7 @@
       ]
     },
     {
-      "description": "1 chunked SetCell + many nonchunked mods([{SC_chunk1}, {SC_chunk2,DF,DC}]->ChangeStreamMutation{SC,DF,DC})",
+      "description": "1 chunked SetCell + many nonchunked mods([{SC_chunk1(v)}, {SC_chunk2(alue-VAL),DF,DC}]->ChangeStreamMutation{SC(value-VAL),DF,DC})",
       "api_responses": [
         {
           "data_change": {
@@ -943,7 +943,7 @@
             "chunks": [
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
