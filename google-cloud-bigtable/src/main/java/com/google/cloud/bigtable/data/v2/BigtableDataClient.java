@@ -1640,7 +1640,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   String tableId = "[TABLE]";
    *
    *   ReadChangeStreamQuery query = ReadChangeStreamQuery.create(tableId)
-   *          .streamPartition("[START KEY]", "[END KEY]")
+   *          .streamPartition("START_KEY", "END_KEY")
    *          .startTime(Timestamp.newBuilder().setSeconds(100).build());
    *
    *   try {
@@ -1681,7 +1681,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   String tableId = "[TABLE]";
    *
    *   ReadChangeStreamQuery query = ReadChangeStreamQuery.create(tableId)
-   *          .streamPartition("[START KEY]", "[END KEY]")
+   *          .streamPartition("START_KEY", "END_KEY")
    *          .startTime(Timestamp.newBuilder().setSeconds(100).build());
    *
    *   bigtableDataClient.readChangeStreamAsync(query, new ResponseObserver<ChangeStreamRecord>() {
@@ -1729,7 +1729,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   String tableId = "[TABLE]";
    *
    *   ReadChangeStreamQuery query = ReadChangeStreamQuery.create(tableId)
-   *          .streamPartition("[START KEY]", "[END KEY]")
+   *          .streamPartition("START_KEY", "END_KEY")
    *          .startTime(Timestamp.newBuilder().setSeconds(100).build());
    *
    *   // Iterator style
