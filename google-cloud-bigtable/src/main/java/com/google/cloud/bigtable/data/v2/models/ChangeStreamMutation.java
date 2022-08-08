@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -33,7 +34,7 @@ import javax.annotation.Nonnull;
 
 /**
  * A ChangeStreamMutation represents a list of mods(represented by List<{@link Entry}>) targeted at
- * a single row, which is concatenated by (TODO:ChangeStreamRecordMerger). It represents a logical
+ * a single row, which is concatenated by {@link ChangeStreamRecordMerger}. It represents a logical
  * row mutation and can be converted to the original write request(i.e. {@link RowMutation} or
  * {@link RowMutationEntry}.
  *
@@ -245,17 +246,17 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       return this;
     }
 
-    public Builder setToken(@Nonnull String token) {
+    Builder setToken(@Nonnull String token) {
       this.token = token;
       return this;
     }
 
-    public Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
+    Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
       this.lowWatermark = lowWatermark;
       return this;
     }
 
-    public ChangeStreamMutation build() {
+    ChangeStreamMutation build() {
       Preconditions.checkArgument(
           token != null && lowWatermark != null,
           "ChangeStreamMutation must have a continuation token and low watermark.");
