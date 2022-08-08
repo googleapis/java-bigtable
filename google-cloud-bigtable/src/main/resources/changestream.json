@@ -426,6 +426,62 @@
       ]
     },
     {
+      "description": "ChunkedValueSize mismatch for a chunked SetCell([{SC_chunk1(v)}, {SC_chunk2(alue-VAL)}]->error)",
+      "api_responses": [
+        {
+          "data_change": {
+            "row_key": "0000000000000000",
+            "type": "USER",
+            "source_cluster_id": "source-cluster-id",
+            "commit_timestamp": "2022-07-01T00:00:00Z",
+            "tiebreaker": 100,
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_size": 1
+                },
+                "mutation": {
+                  "set_cell": {
+                    "family_name": "family",
+                    "column_qualifier": "0000000000000000",
+                    "timestamp_micros": 1000,
+                    "value": "dg=="
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "data_change": {
+            "type": "CONTINUATION",
+            "token": "data-change-token",
+            "low_watermark": "2022-07-01T00:00:00Z",
+            "chunks": [
+              {
+                "chunk_info": {
+                  "chunked_value_offset": 1,
+                  "chunked_value_size": 9,
+                  "last_chunk": true
+                },
+                "mutation": {
+                  "set_cell": {
+                    "value": "YWx1ZS1WQUw="
+                  }
+                }
+              }
+            ],
+            "done": true
+          }
+        }
+      ],
+      "results": [
+        {
+          "error": true
+        }
+      ]
+    },
+    {
       "description": "1 chunked SetCell([{SC_chunk1(v)}, {SC_chunk2(alue-VAL)}, {SC_chunk3(-VAL)}]->ChangeStreamMutation{SC(value-VAL-VAL)})",
       "api_responses": [
         {
@@ -535,7 +591,7 @@
             "chunks": [
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {
@@ -567,7 +623,7 @@
               },
               {
                 "chunk_info": {
-                  "chunked_value_size": 1
+                  "chunked_value_size": 9
                 },
                 "mutation": {
                   "set_cell": {

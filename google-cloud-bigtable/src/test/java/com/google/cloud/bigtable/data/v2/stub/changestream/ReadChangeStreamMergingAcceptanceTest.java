@@ -52,7 +52,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/** Parses and runs the acceptance tests for read rows */
+/**
+ * Parses and runs the acceptance tests for read rows. Currently, this test is only used by the JAVA
+ * library. If in the future we need cross-language support, we should move the test proto to <a
+ * href="https://github.com/googleapis/conformance-tests/tree/main/bigtable/v2/proto/google/cloud/conformance/bigtable/v2">https://github.com/googleapis/conformance-tests/tree/main/bigtable/v2/proto/google/cloud/conformance/bigtable/v2</a>
+ * and the test data to <a
+ * href="https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/readrows.json">https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/readrows.json</a>
+ */
 @RunWith(Parameterized.class)
 public class ReadChangeStreamMergingAcceptanceTest {
   // Location: `google-cloud-bigtable/src/main/resources/changestream.json`
