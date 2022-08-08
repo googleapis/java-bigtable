@@ -98,6 +98,13 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
   private int numDataChanges = 0;
   private int numNonCellMods = 0;
   private int numCellChunks = 0; // 1 for non-chunked cell.
+  /**
+   * Expected total size of a chunked SetCell value, given by the {@link
+   * ReadChangeStreamResponse.MutationChunk.ChunkInfo}. This value should be the same for all chunks
+   * of a SetCell.
+   */
+  private int expectedTotalSizeOfChunkedSetCell = 0;
+
   private int actualTotalSizeOfChunkedSetCell = 0;
   private ChangeStreamRecordT completeChangeStreamRecord;
 
@@ -219,6 +226,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
     numDataChanges = 0;
     numNonCellMods = 0;
     numCellChunks = 0;
+    expectedTotalSizeOfChunkedSetCell = 0;
     actualTotalSizeOfChunkedSetCell = 0;
     completeChangeStreamRecord = null;
 
@@ -383,7 +391,11 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
               // If it has chunk info, it must be the first chunk of a chunked SetCell.
               validate(
                   chunk.getChunkInfo().getChunkedValueOffset() == 0,
-                  "First chunk of a chunked cell must start with offset==0.");
+                  "AWAITING_NEW_MOD: First chunk of a chunked cell must start with offset==0.");
+              validate(
+                  chunk.getChunkInfo().getChunkedValueSize() > 0,
+                  "AWAITING_NEW_MOD: First chunk of a chunked cell must have a positive chunked value size.");
+              expectedTotalSizeOfChunkedSetCell = chunk.getChunkInfo().getChunkedValueSize();
               actualTotalSizeOfChunkedSetCell = 0;
             }
             builder.startCell(
@@ -459,15 +471,18 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             validate(
                 chunk.getChunkInfo().getChunkedValueSize() > 0,
                 "AWAITING_CELL_VALUE: Chunked value size must be positive.");
+            validate(
+                chunk.getChunkInfo().getChunkedValueSize() == expectedTotalSizeOfChunkedSetCell,
+                "AWAITING_CELL_VALUE: Chunked value size must be the same for all chunks.");
             actualTotalSizeOfChunkedSetCell += setCell.getValue().size();
             // If it's the last chunk of the chunked SetCell, finish the cell.
             if (chunk.getChunkInfo().getLastChunk()) {
               builder.finishCell();
               validate(
-                  actualTotalSizeOfChunkedSetCell == chunk.getChunkInfo().getChunkedValueSize(),
+                  actualTotalSizeOfChunkedSetCell == expectedTotalSizeOfChunkedSetCell,
                   "Chunked value size in ChunkInfo doesn't match the actual total size. "
-                      + "ChunkInfo: "
-                      + chunk.getChunkInfo().getChunkedValueSize()
+                      + "Expected total size: "
+                      + expectedTotalSizeOfChunkedSetCell
                       + "; actual total size: "
                       + actualTotalSizeOfChunkedSetCell);
               return checkAndFinishMutationIfNeeded(dataChange, index + 1);
@@ -569,6 +584,8 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
               + numNonCellMods
               + ", numCellChunks: "
               + numCellChunks
+              + ", expectedTotalSizeOfChunkedSetCell: "
+              + expectedTotalSizeOfChunkedSetCell
               + ", actualTotalSizeOfChunkedSetCell: "
               + actualTotalSizeOfChunkedSetCell);
     }
