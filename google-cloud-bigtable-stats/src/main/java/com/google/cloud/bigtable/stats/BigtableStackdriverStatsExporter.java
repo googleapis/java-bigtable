@@ -37,11 +37,11 @@ public class BigtableStackdriverStatsExporter {
   static final Object lock = new Object();
 
   @Nullable
-  @GuardedBy("monitor")
+  @GuardedBy("lock")
   private static BigtableStackdriverStatsExporter instance = null;
 
-  // Default export interval is 10 minutes
-  private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
+  // Default export interval is 5 minutes
+  private static final Duration EXPORT_INTERVAL = Duration.create(60 * 5, 0);
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
   private final IntervalMetricReader intervalMetricReader;
@@ -65,8 +65,7 @@ public class BigtableStackdriverStatsExporter {
             intervalMetricReaderOptionsBuilder.build());
   }
 
-  public static void register(@Nullable Credentials credentials, String projectId)
-      throws IOException {
+  public static void register(Credentials credentials, String projectId) throws IOException {
     synchronized (lock) {
       Preconditions.checkState(
           instance == null, "Bigtable Stackdriver stats exporter is already created");
@@ -79,16 +78,14 @@ public class BigtableStackdriverStatsExporter {
     }
   }
 
-  @GuardedBy("monitor")
+  @GuardedBy("lock")
   @VisibleForTesting
-  static MetricServiceClient createMetricServiceClient(
-      @Nullable Credentials credentials, Duration deadline) throws IOException {
+  static MetricServiceClient createMetricServiceClient(Credentials credentials, Duration deadline)
+      throws IOException {
     MetricServiceSettings.Builder settingsBuilder =
         MetricServiceSettings.newBuilder()
             .setTransportChannelProvider(InstantiatingGrpcChannelProvider.newBuilder().build());
-    if (credentials != null) {
-      settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-    }
+    settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
     org.threeten.bp.Duration stackdriverDuration =
         org.threeten.bp.Duration.ofMillis(deadline.toMillis());
