@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.common.base.MoreObjects;
@@ -57,12 +58,14 @@ public final class ChangeStreamContinuationToken implements Serializable {
    * Creates the protobuf. This method is considered an internal implementation detail and not meant
    * to be used by applications.
    */
-  StreamContinuationToken toProto() {
+  @InternalApi("Used in Changestream beam pipeline.")
+  public StreamContinuationToken toProto() {
     return builder.build();
   }
 
   /** Wraps the protobuf {@link StreamContinuationToken}. */
-  static ChangeStreamContinuationToken fromProto(
+  @InternalApi("Used in Changestream beam pipeline.")
+  public static ChangeStreamContinuationToken fromProto(
       @Nonnull StreamContinuationToken streamContinuationToken) {
     return new ChangeStreamContinuationToken(streamContinuationToken.toBuilder());
   }

@@ -69,7 +69,8 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
+  @InternalApi("Used in Changestream beam pipeline.")
+  public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
   }
 
