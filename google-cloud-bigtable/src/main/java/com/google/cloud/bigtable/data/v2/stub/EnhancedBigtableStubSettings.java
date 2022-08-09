@@ -140,10 +140,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setTotalTimeout(Duration.ofMinutes(10))
           .build();
 
-  private static final Set<Code> LIST_CHANGE_STREAM_PARTITIONS_RETRY_CODES =
+  private static final Set<Code> GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES =
       ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
 
-  private static final RetrySettings LIST_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS =
+  private static final RetrySettings GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS =
       RetrySettings.newBuilder()
           .setInitialRetryDelay(Duration.ofMillis(10))
           .setRetryDelayMultiplier(2.0)
@@ -212,7 +212,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final BigtableBulkReadRowsCallSettings bulkReadRowsSettings;
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
-  private final ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings;
+  private final ServerStreamingCallSettings<String, RowRange>
+      generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamSettings;
 
@@ -250,7 +251,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     bulkReadRowsSettings = builder.bulkReadRowsSettings.build();
     checkAndMutateRowSettings = builder.checkAndMutateRowSettings.build();
     readModifyWriteRowSettings = builder.readModifyWriteRowSettings.build();
-    listChangeStreamPartitionsSettings = builder.listChangeStreamPartitionsSettings.build();
+    generateInitialChangeStreamPartitionsSettings =
+        builder.generateInitialChangeStreamPartitionsSettings.build();
     readChangeStreamSettings = builder.readChangeStreamSettings.build();
   }
 
@@ -535,8 +537,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readModifyWriteRowSettings;
   }
 
-  public ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings() {
-    return listChangeStreamPartitionsSettings;
+  public ServerStreamingCallSettings<String, RowRange>
+      generateInitialChangeStreamPartitionsSettings() {
+    return generateInitialChangeStreamPartitionsSettings;
   }
 
   public ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
@@ -569,7 +572,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
     private final ServerStreamingCallSettings.Builder<String, RowRange>
-        listChangeStreamPartitionsSettings;
+        generateInitialChangeStreamPartitionsSettings;
     private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
         readChangeStreamSettings;
 
@@ -684,10 +687,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       readModifyWriteRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       copyRetrySettings(baseDefaults.readModifyWriteRowSettings(), readModifyWriteRowSettings);
 
-      listChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
-      listChangeStreamPartitionsSettings
-          .setRetryableCodes(LIST_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
-          .setRetrySettings(LIST_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
+      generateInitialChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
+      generateInitialChangeStreamPartitionsSettings
+          .setRetryableCodes(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
+          .setRetrySettings(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
           .setIdleTimeout(Duration.ofMinutes(5));
 
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
@@ -715,7 +718,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       bulkReadRowsSettings = settings.bulkReadRowsSettings.toBuilder();
       checkAndMutateRowSettings = settings.checkAndMutateRowSettings.toBuilder();
       readModifyWriteRowSettings = settings.readModifyWriteRowSettings.toBuilder();
-      listChangeStreamPartitionsSettings = settings.listChangeStreamPartitionsSettings.toBuilder();
+      generateInitialChangeStreamPartitionsSettings =
+          settings.generateInitialChangeStreamPartitionsSettings.toBuilder();
       readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
     }
     // <editor-fold desc="Private Helpers">
@@ -928,7 +932,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("bulkReadRowsSettings", bulkReadRowsSettings)
         .add("checkAndMutateRowSettings", checkAndMutateRowSettings)
         .add("readModifyWriteRowSettings", readModifyWriteRowSettings)
-        .add("listChangeStreamPartitionsSettings", listChangeStreamPartitionsSettings)
+        .add(
+            "generateInitialChangeStreamPartitionsSettings",
+            generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("parent", super.toString())
         .toString();

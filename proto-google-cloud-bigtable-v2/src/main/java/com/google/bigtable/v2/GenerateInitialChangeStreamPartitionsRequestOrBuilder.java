@@ -18,17 +18,17 @@
 
 package com.google.bigtable.v2;
 
-public interface ListChangeStreamPartitionsRequestOrBuilder
+public interface GenerateInitialChangeStreamPartitionsRequestOrBuilder
     extends
-    // @@protoc_insertion_point(interface_extends:google.bigtable.v2.ListChangeStreamPartitionsRequest)
+    // @@protoc_insertion_point(interface_extends:google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**
    *
    *
    * <pre>
-   * Required. The unique name of the table from which to get change stream
-   * partitions. Values are of the form
+   * Required. The unique name of the table from which to get change stream partitions.
+   * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * Change streaming must be enabled on the table.
    * </pre>
@@ -39,13 +39,13 @@ public interface ListChangeStreamPartitionsRequestOrBuilder
    *
    * @return The tableName.
    */
-  String getTableName();
+  java.lang.String getTableName();
   /**
    *
    *
    * <pre>
-   * Required. The unique name of the table from which to get change stream
-   * partitions. Values are of the form
+   * Required. The unique name of the table from which to get change stream partitions.
+   * Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * Change streaming must be enabled on the table.
    * </pre>
@@ -71,7 +71,7 @@ public interface ListChangeStreamPartitionsRequestOrBuilder
    *
    * @return The appProfileId.
    */
-  String getAppProfileId();
+  java.lang.String getAppProfileId();
   /**
    *
    *

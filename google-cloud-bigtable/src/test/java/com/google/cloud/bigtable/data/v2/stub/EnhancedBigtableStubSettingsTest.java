@@ -701,7 +701,7 @@ public class EnhancedBigtableStubSettingsTest {
     "bulkReadRowsSettings",
     "checkAndMutateRowSettings",
     "readModifyWriteRowSettings",
-    "listChangeStreamPartitionsSettings",
+    "generateInitialChangeStreamPartitionsSettings",
     "readChangeStreamSettings",
   };
 
