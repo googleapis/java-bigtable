@@ -23,6 +23,8 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
@@ -198,6 +200,42 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
+  /**
+   * Register built in metrics. This is an experimental feature. Please fill up this form to have
+   * your project allow listed for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
+   */
+  @BetaApi("Built in metric is not currently stable and may change in the future")
+  public static void registerBuiltinMetrics(String projectId) throws IOException {
+    GoogleCredentials.getApplicationDefault();
+    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
+      BuiltinViews.registerBigtableBuiltinViews();
+      BigtableStackdriverStatsExporter.register(
+          GoogleCredentials.getApplicationDefault(), projectId);
+    }
+  }
+
+  /**
+   * Register built in metrics with credentials. This is an experimental feature. Please fill up
+   * this form to have your project allow listed for the private preview:
+   * https://forms.gle/xuhu6vCunn2MjV2m9
+   */
+  @BetaApi("Built in metric is not currently stable and may change in the future")
+  public static void registerBuiltinMetrics(Credentials credentials, String projectId)
+      throws IOException {
+    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
+      BuiltinViews.registerBigtableBuiltinViews();
+      BigtableStackdriverStatsExporter.register(credentials, projectId);
+    }
+  }
+
+  /** Unregister built in metrics. * */
+  @BetaApi("Built in metrics is not currently stable and may change in the future")
+  public static void unregisterBuiltinMetrics() {
+    if (BUILTIN_METRICS_REGISTERED.compareAndSet(true, false)) {
+      BigtableStackdriverStatsExporter.unregister();
+    }
+  }
+
   /** Returns the target project id. */
   public String getProjectId() {
     return stubSettings.getProjectId();
@@ -253,7 +291,7 @@ public final class BigtableDataSettings {
    * @return
    */
   @BetaApi("Built in metrics is not currently stable and may change in the future")
-  public boolean isBuiltinMetricsRegistered() {
+  public static boolean isBuiltinMetricsRegistered() {
     return BUILTIN_METRICS_REGISTERED.get();
   }
 
@@ -476,35 +514,6 @@ public final class BigtableDataSettings {
     @Nullable
     public Long getTargetRpcLatencyMsForBatchMutation() {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
-    }
-
-    /**
-     * Register built in metrics. This is an experimental feature. Please fill up this form to have
-     * your project allow listed for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
-     */
-    @BetaApi("Built in metric is not currently stable and may change in the future")
-    public Builder registerBuiltinMetrics() throws IOException {
-      if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
-        BuiltinViews.registerBigtableBuiltinViews();
-        BigtableStackdriverStatsExporter.register(
-            stubSettings.getCredentialsProvider().getCredentials(), stubSettings.getProjectId());
-      }
-      return this;
-    }
-
-    /** Unregister built in metrics. * */
-    @BetaApi("Built in metrics is not currently stable and may change in the future")
-    public Builder unregisterBuiltinMetrics() {
-      if (BUILTIN_METRICS_REGISTERED.compareAndSet(true, false)) {
-        BigtableStackdriverStatsExporter.unregister();
-      }
-      return this;
-    }
-
-    /** Gets if built in metrics are registered */
-    @BetaApi("Built in metric is not currently stable and may change in the future")
-    public boolean isBuiltinMetricsRegistered() {
-      return BUILTIN_METRICS_REGISTERED.get();
     }
 
     /**

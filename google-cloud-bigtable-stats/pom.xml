@@ -17,7 +17,6 @@
     <description>Experimental project to shade OpenCensus dependencies.</description>
 
     <properties>
-        <opencensus.version>0.31.1</opencensus.version>
         <cloud.monitoring.version>3.3.6</cloud.monitoring.version>
     </properties>
 
@@ -31,19 +30,11 @@
                 <scope>import</scope>
             </dependency>
             <dependency>
-                <groupId>io.opencensus</groupId>
-                <artifactId>opencensus-exporter-metrics-util</artifactId>
-                <version>${opencensus.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>com.google.cloud</groupId>
-                <artifactId>google-cloud-monitoring</artifactId>
+                <artifactId>google-cloud-monitoring-bom</artifactId>
                 <version>${cloud.monitoring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.api.grpc</groupId>
-                <artifactId>proto-google-cloud-monitoring-v3</artifactId>
-                <version>${cloud.monitoring.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -56,7 +47,7 @@
         </dependency>
         <dependency>
             <groupId>io.opencensus</groupId>
-            <artifactId>opencensus-exporter-metrics-util</artifactId>
+            <artifactId>opencensus-exporter-stats-stackdriver</artifactId>
         </dependency>
         <dependency>
             <groupId>io.opencensus</groupId>
@@ -68,6 +59,7 @@
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-monitoring</artifactId>
+            <!-- Excluding http dependencies since they're not used and are causing conflict in google-cloud-bigtable -->
             <exclusions>
                 <exclusion>
                     <groupId>com.google.http-client</groupId>
@@ -192,6 +184,17 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.3.0</version>
+                <!-- Ignore opencensus-exporter-metrics-util and opencensus-exporter-stats-stackdriver from -->
+                <!-- dependency analyze. opencensus-exporter-metrics-util is a transitive dependency from  -->
+                <!-- opencensus-exporter-stats-stackdriver but it's not defined in java-shared-dependencies. -->
+                <!-- To make the opencensus version consistent, only include opencensus-exporter-stats-stackdriver -->
+                <!-- until opencensus-exporter-metrics-util is added to java-shared-dependencies. -->
+                <configuration>
+                    <ignoredDependencies>
+                        <ignoredDependency>io.opencensus:opencensus-exporter-metrics-util:*</ignoredDependency>
+                        <ignoredDependency>io.opencensus:opencensus-exporter-stats-stackdriver:*</ignoredDependency>
+                    </ignoredDependencies>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -218,7 +221,7 @@
                                         <!-- gax-grpc transitvely brings in opencensus-proto, which the latest version is 0.2.0-->
                                         <!-- Only allow 0.2.0 for opencensus-proto and then the latest version (currently 0.31.1) for all other modules-->
                                         <!-- this will need to be updated whenever the opencensus version gets updated -->
-                                        <dependency>io.opencensus:*:[${opencensus.version}]</dependency>
+                                        <dependency>io.opencensus:*:[0.31.1]</dependency>
                                         <dependency>io.opencensus:opencensus-proto:[0.2.0]</dependency>
                                     </includes>
                                 </bannedDependencies>

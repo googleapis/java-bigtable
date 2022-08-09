@@ -34,12 +34,13 @@ import javax.annotation.concurrent.GuardedBy;
 
 @InternalApi
 public class BigtableStackdriverStatsExporter {
-  static final Object monitor = new Object();
+  static final Object lock = new Object();
 
   @Nullable
   @GuardedBy("monitor")
   private static BigtableStackdriverStatsExporter instance = null;
 
+  // Default export interval is 10 minutes
   private static final Duration EXPORT_INTERVAL = Duration.create(600, 0);
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
@@ -57,7 +58,7 @@ public class BigtableStackdriverStatsExporter {
         IntervalMetricReader.create(
             new BigtableCreateTimeSeriesExporter(projectId, metricServiceClient, monitoredResource),
             MetricReader.create(
-                io.opencensus.exporter.metrics.util.MetricReader.Options.builder()
+                MetricReader.Options.builder()
                     .setMetricProducerManager(
                         Metrics.getExportComponent().getMetricProducerManager())
                     .build()),
@@ -66,9 +67,10 @@ public class BigtableStackdriverStatsExporter {
 
   public static void register(@Nullable Credentials credentials, String projectId)
       throws IOException {
-    synchronized (monitor) {
+    synchronized (lock) {
       Preconditions.checkState(
           instance == null, "Bigtable Stackdriver stats exporter is already created");
+      // Default timeout for creating a client is 1 minute
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
       MonitoredResource resourceType =
           MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build();
@@ -81,7 +83,7 @@ public class BigtableStackdriverStatsExporter {
   @VisibleForTesting
   static MetricServiceClient createMetricServiceClient(
       @Nullable Credentials credentials, Duration deadline) throws IOException {
-    com.google.cloud.monitoring.v3.MetricServiceSettings.Builder settingsBuilder =
+    MetricServiceSettings.Builder settingsBuilder =
         MetricServiceSettings.newBuilder()
             .setTransportChannelProvider(InstantiatingGrpcChannelProvider.newBuilder().build());
     if (credentials != null) {
@@ -95,7 +97,7 @@ public class BigtableStackdriverStatsExporter {
   }
 
   public static void unregister() {
-    synchronized (monitor) {
+    synchronized (lock) {
       if (instance != null) {
         instance.intervalMetricReader.stop();
       }

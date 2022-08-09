@@ -19,9 +19,9 @@ import com.google.api.MonitoredResource;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
-import com.google.monitoring.v3.TimeSeries;
 import io.opencensus.exporter.metrics.util.MetricExporter;
 import io.opencensus.metrics.export.Metric;
+import io.opencensus.metrics.export.TimeSeries;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,7 +48,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   }
 
   public void export(Collection<Metric> metrics) {
-    List<TimeSeries> timeSeriesList = new ArrayList(metrics.size());
+    List<com.google.monitoring.v3.TimeSeries> timeSeriesList = new ArrayList(metrics.size());
 
     for (Metric metric : metrics) {
       // only export bigtable metrics
@@ -56,15 +56,10 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
         continue;
       }
 
-      for (io.opencensus.metrics.export.TimeSeries timeSeries : metric.getTimeSeriesList()) {
+      for (TimeSeries timeSeries : metric.getTimeSeriesList()) {
         timeSeriesList.add(
             BigtableStackdriverExportUtils.convertTimeSeries(
-                metric.getMetricDescriptor().getName(),
-                metric.getMetricDescriptor().getType(),
-                metric.getMetricDescriptor().getLabelKeys(),
-                timeSeries,
-                clientId,
-                monitoredResource));
+                metric.getMetricDescriptor(), timeSeries, clientId, monitoredResource));
       }
     }
 
