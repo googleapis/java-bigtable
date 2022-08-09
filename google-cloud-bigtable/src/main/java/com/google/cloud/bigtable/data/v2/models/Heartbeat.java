@@ -32,7 +32,8 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
-  static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
+  @InternalApi("Used in Changestream beam pipeline.")
+  public static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return create(
         ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()),
         heartbeat.getLowWatermark());
