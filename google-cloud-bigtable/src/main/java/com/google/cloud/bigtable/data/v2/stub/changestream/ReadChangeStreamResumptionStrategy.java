@@ -57,7 +57,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
   public ChangeStreamRecordT processResponse(ChangeStreamRecordT response) {
     // Update the token from a Heartbeat or a ChangeStreamMutation.
     // If we get a CloseStream, disable resumption and don't re-enable it, since
-    // the stream is supposed to be closed upon CloseStream.
+    // the server will return an OK status after sending a CloseStream.
     if (changeStreamRecordAdapter.isHeartbeat(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromHeartbeat(response);
     }
@@ -85,10 +85,10 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     }
 
     Builder builder = originalRequest.toBuilder();
-    // We need to clear both start_time and continuation_tokens.
-    // And just use the StreamPartition and the token to resume the request.
+    // We need to clear the start_from and use the updated continuation_tokens
+    // to resume the request.
     // The partition should always be the same as the one from the original request,
-    // because otherwise we would have received a CloseStream with different
+    // otherwise we would receive a CloseStream with different
     // partitions(which indicates tablet split/merge events).
     builder.clearStartFrom();
     builder.setContinuationTokens(

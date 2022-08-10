@@ -275,6 +275,9 @@ public class ReadChangeStreamRetryTest {
   }
 
   // [{ReadChangeStreamResponse.CloseStream}, {UNAVAILABLE}] -> Request not resumed.
+  // This scenario should be very rare because the server will return an OK status
+  // right after sending a CloseStream. But in case the server fails after sending a
+  // CloseStream and before returning an OK, it should not resume the request.
   @Test(expected = UnavailableException.class)
   public void errorAfterSingleCloseStreamShouldNotResumeTest() {
     // CloseStream.
