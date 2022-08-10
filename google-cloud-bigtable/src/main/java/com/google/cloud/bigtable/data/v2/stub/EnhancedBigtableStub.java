@@ -84,6 +84,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ListChangeStreamPartitionsUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
@@ -916,7 +917,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
    *       {@link ChangeStreamMutation}. The actual change stream record implementation can be
    *       configured by the {@code changeStreamRecordAdapter} parameter.
-   *   <li>TODO: Retry/resume on failure.
+   *   <li>Retry/resume on failure.
    *   <li>Add tracing & metrics.
    * </ul>
    */
@@ -957,7 +958,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // Copy idle timeout settings for watchdog.
     ServerStreamingCallSettings<ReadChangeStreamRequest, ChangeStreamRecordT> innerSettings =
         ServerStreamingCallSettings.<ReadChangeStreamRequest, ChangeStreamRecordT>newBuilder()
-            // TODO: setResumptionStrategy.
+            .setResumptionStrategy(
+                new ReadChangeStreamResumptionStrategy<>(changeStreamRecordAdapter))
             .setRetryableCodes(settings.readChangeStreamSettings().getRetryableCodes())
             .setRetrySettings(settings.readChangeStreamSettings().getRetrySettings())
             .setIdleTimeout(settings.readChangeStreamSettings().getIdleTimeout())
@@ -968,8 +970,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(watched);
-
-    // TODO: Add ReadChangeStreamRetryCompletedCallable.
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
         Callables.retrying(withBigtableTracer, innerSettings, clientContext);
