@@ -40,8 +40,8 @@ public class BigtableStackdriverStatsExporter {
   @GuardedBy("lock")
   private static BigtableStackdriverStatsExporter instance = null;
 
-  // Default export interval is 5 minutes
-  private static final Duration EXPORT_INTERVAL = Duration.create(60 * 5, 0);
+  // Default export interval is 1 minute
+  private static final Duration EXPORT_INTERVAL = Duration.create(60, 0);
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
   private final IntervalMetricReader intervalMetricReader;

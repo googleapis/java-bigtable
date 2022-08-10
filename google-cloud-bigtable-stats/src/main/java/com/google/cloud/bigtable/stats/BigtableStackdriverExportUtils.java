@@ -98,8 +98,8 @@ class BigtableStackdriverExportUtils {
           BuiltinMeasureConstants.ZONE.getName(),
           BuiltinMeasureConstants.TABLE.getName());
 
-  private static final LabelKey clientIdLabelKey =
-      LabelKey.create(BuiltinMeasureConstants.CLIENT_UID.getName(), "client id");
+  private static final LabelKey CLIENT_UID_LABEL_KEY =
+      LabelKey.create(BuiltinMeasureConstants.CLIENT_UID.getName(), "client uid");
 
   static com.google.monitoring.v3.TimeSeries convertTimeSeries(
       MetricDescriptor metricDescriptor,
@@ -127,7 +127,7 @@ class BigtableStackdriverExportUtils {
         metricTagValues.add(labelValues.get(i));
       }
     }
-    metricTagKeys.add(clientIdLabelKey);
+    metricTagKeys.add(CLIENT_UID_LABEL_KEY);
     metricTagValues.add(LabelValue.create(clientId));
 
     com.google.monitoring.v3.TimeSeries.Builder builder =
@@ -162,9 +162,6 @@ class BigtableStackdriverExportUtils {
 
   private static MetricKind createMetricKind(Type type) {
     switch (type) {
-      case GAUGE_INT64:
-      case GAUGE_DOUBLE:
-        return MetricKind.GAUGE;
       case CUMULATIVE_DOUBLE:
       case CUMULATIVE_INT64:
       case CUMULATIVE_DISTRIBUTION:
@@ -176,13 +173,10 @@ class BigtableStackdriverExportUtils {
 
   private static com.google.api.MetricDescriptor.ValueType createValueType(Type type) {
     switch (type) {
-      case GAUGE_DOUBLE:
       case CUMULATIVE_DOUBLE:
         return com.google.api.MetricDescriptor.ValueType.DOUBLE;
-      case GAUGE_INT64:
       case CUMULATIVE_INT64:
         return com.google.api.MetricDescriptor.ValueType.INT64;
-      case GAUGE_DISTRIBUTION:
       case CUMULATIVE_DISTRIBUTION:
         return com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
       default:
