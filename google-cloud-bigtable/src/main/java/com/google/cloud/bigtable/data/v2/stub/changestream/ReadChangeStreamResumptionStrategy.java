@@ -36,7 +36,6 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     implements StreamResumptionStrategy<ReadChangeStreamRequest, ChangeStreamRecordT> {
   private final ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter;
   private String token = null;
-  private boolean canResume = true;
 
   public ReadChangeStreamResumptionStrategy(
       ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
@@ -45,7 +44,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
 
   @Override
   public boolean canResume() {
-    return canResume;
+    return true;
   }
 
   @Override
@@ -56,13 +55,10 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
   @Override
   public ChangeStreamRecordT processResponse(ChangeStreamRecordT response) {
     // Update the token from a Heartbeat or a ChangeStreamMutation.
-    // If we get a CloseStream, disable resumption and don't re-enable it, since
-    // the server will return an OK status after sending a CloseStream.
+    // We don't worry about resumption after CloseStream, since the server
+    // will return an OK status right after sending a CloseStream.
     if (changeStreamRecordAdapter.isHeartbeat(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromHeartbeat(response);
-    }
-    if (changeStreamRecordAdapter.isCloseStream(response)) {
-      canResume = false;
     }
     if (changeStreamRecordAdapter.isChangeStreamMutation(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromChangeStreamMutation(response);

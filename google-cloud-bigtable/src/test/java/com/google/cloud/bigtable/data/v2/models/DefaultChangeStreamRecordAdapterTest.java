@@ -75,23 +75,6 @@ public class DefaultChangeStreamRecordAdapterTest {
     Assert.assertEquals(adapter.getTokenFromHeartbeat(heartbeatRecord), "heartbeat-token");
   }
 
-  @Test
-  public void isCloseStreamTest() {
-    ChangeStreamRecord heartbeatRecord =
-        Heartbeat.fromProto(ReadChangeStreamResponse.Heartbeat.getDefaultInstance());
-    ChangeStreamRecord closeStreamRecord =
-        CloseStream.fromProto(ReadChangeStreamResponse.CloseStream.getDefaultInstance());
-    ChangeStreamRecord changeStreamMutationRecord =
-        ChangeStreamMutation.createGcMutation(
-                ByteString.copyFromUtf8("key"), Timestamp.getDefaultInstance(), 0)
-            .setToken("token")
-            .setLowWatermark(Timestamp.getDefaultInstance())
-            .build();
-    Assert.assertFalse(adapter.isCloseStream(heartbeatRecord));
-    Assert.assertTrue(adapter.isCloseStream(closeStreamRecord));
-    Assert.assertFalse(adapter.isCloseStream(changeStreamMutationRecord));
-  }
-
   @Test(expected = IllegalArgumentException.class)
   public void getTokenFromHeartbeatInvalidTypeTest() {
     ChangeStreamRecord closeStreamRecord =

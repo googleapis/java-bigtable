@@ -22,7 +22,6 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ServerStream;
-import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
@@ -59,7 +58,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -78,7 +76,6 @@ public class ReadChangeStreamRetryTest {
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
   private TestBigtableService service;
   private BigtableDataClient client;
-  @Rule public ExpectedException expect = ExpectedException.none();
 
   @Before
   public void setUp() throws IOException {
@@ -272,28 +269,6 @@ public class ReadChangeStreamRetryTest {
     // This is the Heartbeat we get before UNAVAILABLE.
     Assert.assertEquals(actualResults.size(), 1);
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
-  }
-
-  // [{ReadChangeStreamResponse.CloseStream}, {UNAVAILABLE}] -> Request not resumed.
-  // This scenario should be very rare because the server will return an OK status
-  // right after sending a CloseStream. But in case the server fails after sending a
-  // CloseStream and before returning an OK, it should not resume the request.
-  @Test(expected = UnavailableException.class)
-  public void errorAfterSingleCloseStreamShouldNotResumeTest() {
-    // CloseStream.
-    ReadChangeStreamResponse closeStreamResponse =
-        ReadChangeStreamResponse.newBuilder().setCloseStream(createCloseStream()).build();
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectInitialRequest()
-            .respondWith(closeStreamResponse)
-            .respondWithStatus(Code.UNAVAILABLE));
-    // Request is not resumed. We'll get a CloseStream and then an UNAVAILABLE error.
-    List<ChangeStreamRecord> actualResults = getResults();
-    expect.expect(UnavailableException.class);
-    // This is the CloseStream we get before UNAVAILABLE.
-    Assert.assertEquals(actualResults.size(), 1);
-    Assert.assertTrue(actualResults.get(0) instanceof CloseStream);
   }
 
   // [{DataChange with done==true}, {UNAVAILABLE}] -> Resume with token from DataChange.

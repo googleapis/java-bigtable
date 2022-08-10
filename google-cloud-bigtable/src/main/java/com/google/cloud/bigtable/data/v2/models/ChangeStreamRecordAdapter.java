@@ -36,10 +36,6 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
   @InternalApi("Used in Changestream beam pipeline.")
   boolean isHeartbeat(ChangeStreamRecordT record);
 
-  /** Checks if the given change stream record is a CloseStream. */
-  @InternalApi("Used in Changestream beam pipeline.")
-  boolean isCloseStream(ChangeStreamRecordT record);
-
   /**
    * Get the token from the given Heartbeat record. If the given record is not a Heartbeat, it will
    * throw an Exception.
