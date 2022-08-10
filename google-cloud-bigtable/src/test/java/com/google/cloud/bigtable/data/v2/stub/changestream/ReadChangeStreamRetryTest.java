@@ -276,7 +276,7 @@ public class ReadChangeStreamRetryTest {
 
   // [{ReadChangeStreamResponse.CloseStream}, {UNAVAILABLE}] -> Request not resumed.
   @Test(expected = UnavailableException.class)
-  public void errorAfterSingleCloseStreamShouldResumeWithOriginalRequestTest() {
+  public void errorAfterSingleCloseStreamShouldNotResumeTest() {
     // CloseStream.
     ReadChangeStreamResponse closeStreamResponse =
         ReadChangeStreamResponse.newBuilder().setCloseStream(createCloseStream()).build();

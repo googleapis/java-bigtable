@@ -87,7 +87,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     Builder builder = originalRequest.toBuilder();
     // We need to clear both start_time and continuation_tokens.
     // And just use the StreamPartition and the token to resume the request.
-    // The partition should is always the same as the one from the original request,
+    // The partition should always be the same as the one from the original request,
     // because otherwise we would have received a CloseStream with different
     // partitions(which indicates tablet split/merge events).
     builder.clearStartFrom();
