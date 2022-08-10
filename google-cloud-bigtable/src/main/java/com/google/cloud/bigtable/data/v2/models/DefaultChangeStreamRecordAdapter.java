@@ -50,6 +50,12 @@ public class DefaultChangeStreamRecordAdapter
 
   /** {@inheritDoc} */
   @Override
+  public boolean isCloseStream(ChangeStreamRecord record) {
+    return record instanceof CloseStream;
+  }
+
+  /** {@inheritDoc} */
+  @Override
   public boolean isChangeStreamMutation(ChangeStreamRecord record) {
     return record instanceof ChangeStreamMutation;
   }

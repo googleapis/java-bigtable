@@ -36,6 +36,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     implements StreamResumptionStrategy<ReadChangeStreamRequest, ChangeStreamRecordT> {
   private final ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter;
   private String token = null;
+  private boolean canResume = true;
 
   public ReadChangeStreamResumptionStrategy(
       ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
@@ -44,7 +45,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
 
   @Override
   public boolean canResume() {
-    return true;
+    return canResume;
   }
 
   @Override
@@ -55,8 +56,13 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
   @Override
   public ChangeStreamRecordT processResponse(ChangeStreamRecordT response) {
     // Update the token from a Heartbeat or a ChangeStreamMutation.
+    // If we get a CloseStream, disable resumption and don't re-enable it, since
+    // the stream is supposed to be closed upon CloseStream.
     if (changeStreamRecordAdapter.isHeartbeat(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromHeartbeat(response);
+    }
+    if (changeStreamRecordAdapter.isCloseStream(response)) {
+      canResume = false;
     }
     if (changeStreamRecordAdapter.isChangeStreamMutation(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromChangeStreamMutation(response);
@@ -79,8 +85,11 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     }
 
     Builder builder = originalRequest.toBuilder();
-    // We need to clear either start_time or continuation_tokens.
+    // We need to clear both start_time and continuation_tokens.
     // And just use the StreamPartition and the token to resume the request.
+    // The partition should is always the same as the one from the original request,
+    // because otherwise we would have received a CloseStream with different
+    // partitions(which indicates tablet split/merge events).
     builder.clearStartFrom();
     builder.setContinuationTokens(
         StreamContinuationTokens.newBuilder()

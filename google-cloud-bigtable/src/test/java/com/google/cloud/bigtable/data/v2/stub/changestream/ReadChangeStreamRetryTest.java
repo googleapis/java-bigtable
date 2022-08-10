@@ -22,6 +22,7 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ServerStream;
+import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
@@ -58,6 +59,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -76,6 +78,7 @@ public class ReadChangeStreamRetryTest {
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
   private TestBigtableService service;
   private BigtableDataClient client;
+  @Rule public ExpectedException expect = ExpectedException.none();
 
   @Before
   public void setUp() throws IOException {
@@ -271,8 +274,8 @@ public class ReadChangeStreamRetryTest {
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
   }
 
-  // [{ReadChangeStreamResponse.CloseStream}, {UNAVAILABLE}] -> Resume with original request.
-  @Test
+  // [{ReadChangeStreamResponse.CloseStream}, {UNAVAILABLE}] -> Request not resumed.
+  @Test(expected = UnavailableException.class)
   public void errorAfterSingleCloseStreamShouldResumeWithOriginalRequestTest() {
     // CloseStream.
     ReadChangeStreamResponse closeStreamResponse =
@@ -282,10 +285,10 @@ public class ReadChangeStreamRetryTest {
             .expectInitialRequest()
             .respondWith(closeStreamResponse)
             .respondWithStatus(Code.UNAVAILABLE));
-    // Resume the request with the original request.
-    // We don't care about the response here so just do expectRequest.
-    service.expectations.add(RpcExpectation.create().expectInitialRequest());
+    // Request is not resumed. We'll get a CloseStream and then an UNAVAILABLE error.
     List<ChangeStreamRecord> actualResults = getResults();
+    expect.expect(UnavailableException.class);
+    // This is the CloseStream we get before UNAVAILABLE.
     Assert.assertEquals(actualResults.size(), 1);
     Assert.assertTrue(actualResults.get(0) instanceof CloseStream);
   }
