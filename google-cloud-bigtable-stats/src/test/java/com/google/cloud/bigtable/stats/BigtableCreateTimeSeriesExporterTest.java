@@ -31,6 +31,7 @@ import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.MetricDescriptor;
 import io.opencensus.metrics.export.Point;
+import io.opencensus.metrics.export.TimeSeries;
 import io.opencensus.metrics.export.Value;
 import java.util.Arrays;
 import org.junit.After;
@@ -99,7 +100,7 @@ public class BigtableCreateTimeSeriesExporterTest {
                     LabelKey.create(BuiltinMeasureConstants.ZONE.getName(), ""),
                     LabelKey.create(BuiltinMeasureConstants.APP_PROFILE.getName(), ""))),
             Arrays.asList(
-                io.opencensus.metrics.export.TimeSeries.create(
+                TimeSeries.create(
                     Arrays.asList(
                         LabelValue.create(projectId),
                         LabelValue.create(instanceId),
