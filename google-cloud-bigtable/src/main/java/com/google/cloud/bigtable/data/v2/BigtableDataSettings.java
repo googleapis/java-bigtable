@@ -201,12 +201,13 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Register built in metrics. This is an experimental feature. Please fill up this form to have
-   * your project allow listed for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
+   * Register built in metrics.
+   *
+   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
+   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
    */
   @BetaApi("Built in metric is not currently stable and may change in the future")
   public static void registerBuiltinMetrics() throws IOException {
-    GoogleCredentials.getApplicationDefault();
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
       BigtableStackdriverStatsExporter.register(GoogleCredentials.getApplicationDefault());
@@ -214,23 +215,17 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Register built in metrics with credentials. This is an experimental feature. Please fill up
-   * this form to have your project allow listed for the private preview:
-   * https://forms.gle/xuhu6vCunn2MjV2m9
+   * Register built in metrics with credentials. The credentials need to have metric write access
+   * for all the projects you're publishing to.
+   *
+   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
+   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
    */
   @BetaApi("Built in metric is not currently stable and may change in the future")
   public static void registerBuiltinMetrics(Credentials credentials) throws IOException {
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
       BigtableStackdriverStatsExporter.register(credentials);
-    }
-  }
-
-  /** Unregister built in metrics. * */
-  @BetaApi("Built in metrics is not currently stable and may change in the future")
-  public static void unregisterBuiltinMetrics() {
-    if (BUILTIN_METRICS_REGISTERED.compareAndSet(true, false)) {
-      BigtableStackdriverStatsExporter.unregister();
     }
   }
 
@@ -281,16 +276,6 @@ public final class BigtableDataSettings {
   @Nullable
   public Long getBatchMutationsTargetRpcLatencyMs() {
     return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
-  }
-
-  /**
-   * Gets if built in metrics are registered.
-   *
-   * @return
-   */
-  @BetaApi("Built in metrics is not currently stable and may change in the future")
-  public static boolean isBuiltinMetricsRegistered() {
-    return BUILTIN_METRICS_REGISTERED.get();
   }
 
   /** Returns the underlying RPC settings. */

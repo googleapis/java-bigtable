@@ -90,14 +90,4 @@ public class BigtableStackdriverStatsExporter {
     settingsBuilder.createTimeSeriesSettings().setSimpleTimeoutNoRetries(stackdriverDuration);
     return MetricServiceClient.create(settingsBuilder.build());
   }
-
-  public static void unregister() {
-    synchronized (lock) {
-      if (instance != null) {
-        instance.intervalMetricReader.stop();
-      }
-
-      instance = null;
-    }
-  }
 }

@@ -21,14 +21,13 @@ import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
 import io.opencensus.exporter.metrics.util.MetricExporter;
 import io.opencensus.metrics.export.Metric;
-import io.opencensus.metrics.export.TimeSeries;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
@@ -54,24 +53,29 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
       }
 
       try {
-        for (TimeSeries timeSeries : metric.getTimeSeriesList()) {
-          // Get the project id from the metrics so we could publish with multiple project ids
-          String projectId =
-              BigtableStackdriverExportUtils.getProjectId(metric.getMetricDescriptor(), timeSeries);
-          List<com.google.monitoring.v3.TimeSeries> timeSeriesList =
-              projectToTimeSeries.getOrDefault(projectId, new ArrayList<>());
-          timeSeriesList.add(
-              BigtableStackdriverExportUtils.convertTimeSeries(
-                  metric.getMetricDescriptor(), timeSeries, clientId, monitoredResource));
-          projectToTimeSeries.put(projectId, timeSeriesList);
-        }
+        projectToTimeSeries =
+            metric.getTimeSeriesList().stream()
+                .collect(
+                    Collectors.groupingBy(
+                        timeSeries ->
+                            BigtableStackdriverExportUtils.getProjectId(
+                                metric.getMetricDescriptor(), timeSeries),
+                        Collectors.mapping(
+                            timeSeries ->
+                                BigtableStackdriverExportUtils.convertTimeSeries(
+                                    metric.getMetricDescriptor(),
+                                    timeSeries,
+                                    clientId,
+                                    monitoredResource),
+                            Collectors.toList())));
 
-        for (String projectId : projectToTimeSeries.keySet()) {
-          ProjectName projectName = ProjectName.of(projectId);
+        for (Map.Entry<String, List<com.google.monitoring.v3.TimeSeries>> entry :
+            projectToTimeSeries.entrySet()) {
+          ProjectName projectName = ProjectName.of(entry.getKey());
           CreateTimeSeriesRequest request =
               CreateTimeSeriesRequest.newBuilder()
                   .setName(projectName.toString())
-                  .addAllTimeSeries(projectToTimeSeries.get(projectId))
+                  .addAllTimeSeries(entry.getValue())
                   .build();
           this.metricServiceClient.createServiceTimeSeries(request);
         }

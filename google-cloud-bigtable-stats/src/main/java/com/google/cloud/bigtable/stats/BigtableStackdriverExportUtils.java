@@ -143,8 +143,7 @@ class BigtableStackdriverExportUtils {
     return builder.build();
   }
 
-  static String getProjectId(MetricDescriptor metricDescriptor, TimeSeries timeSeries)
-      throws Exception {
+  static String getProjectId(MetricDescriptor metricDescriptor, TimeSeries timeSeries) {
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
     List<LabelValue> labelValues = timeSeries.getLabelValues();
     for (int i = 0; i < labelKeys.size(); i++) {
@@ -152,7 +151,7 @@ class BigtableStackdriverExportUtils {
         return labelValues.get(i).getValue();
       }
     }
-    throw new Exception("Can't find project id for the current timeseries");
+    throw new IllegalStateException("Can't find project id for the current timeseries");
   }
 
   static String getDefaultTaskValue() {
