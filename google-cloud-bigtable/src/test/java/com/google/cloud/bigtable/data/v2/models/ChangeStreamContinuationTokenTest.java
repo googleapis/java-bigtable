@@ -67,7 +67,7 @@ public class ChangeStreamContinuationTokenTest {
   }
 
   @Test
-  public void toProtoTest() {
+  public void fromProtoTest() {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     RowRange fakeRowRange = rowRangeFromByteStringRange(byteStringRange);
     StreamContinuationToken proto =

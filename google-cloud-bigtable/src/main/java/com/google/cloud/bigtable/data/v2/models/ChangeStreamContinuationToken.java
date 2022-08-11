@@ -31,16 +31,16 @@ import javax.annotation.Nonnull;
 public final class ChangeStreamContinuationToken implements Serializable {
   private static final long serialVersionUID = 524679926247095L;
 
-  private final StreamContinuationToken proto;
+  private final StreamContinuationToken tokenProto;
 
-  private ChangeStreamContinuationToken(@Nonnull StreamContinuationToken proto) {
-    this.proto = proto;
+  private ChangeStreamContinuationToken(@Nonnull StreamContinuationToken tokenProto) {
+    this.tokenProto = tokenProto;
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
   public ChangeStreamContinuationToken(
       @Nonnull ByteStringRange byteStringRange, @Nonnull String token) {
-    this.proto =
+    this.tokenProto =
         StreamContinuationToken.newBuilder()
             .setPartition(
                 StreamPartition.newBuilder()
@@ -56,19 +56,16 @@ public final class ChangeStreamContinuationToken implements Serializable {
 
   // TODO: Change this to return ByteStringRange.
   public RowRange getRowRange() {
-    return this.proto.getPartition().getRowRange();
+    return this.tokenProto.getPartition().getRowRange();
   }
 
   public String getToken() {
-    return this.proto.getToken();
+    return this.tokenProto.getToken();
   }
 
-  /**
-   * Creates the protobuf. This method is considered an internal implementation detail and not meant
-   * to be used by applications.
-   */
+  // Creates the protobuf.
   StreamContinuationToken toProto() {
-    return proto;
+    return tokenProto;
   }
 
   /** Wraps the protobuf {@link StreamContinuationToken}. */
@@ -79,7 +76,7 @@ public final class ChangeStreamContinuationToken implements Serializable {
 
   @InternalApi("Used in Changestream beam pipeline.")
   public ByteString toByteString() {
-    return proto.toByteString();
+    return tokenProto.toByteString();
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
