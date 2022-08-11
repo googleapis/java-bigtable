@@ -18,11 +18,11 @@ package com.google.cloud.bigtable.data.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
+import com.google.bigtable.v2.StreamPartition;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
@@ -30,48 +30,62 @@ import javax.annotation.Nonnull;
 public final class ChangeStreamContinuationToken implements Serializable {
   private static final long serialVersionUID = 524679926247095L;
 
-  private transient StreamContinuationToken.Builder builder;
+  private final StreamContinuationToken proto;
 
-  private ChangeStreamContinuationToken(@Nonnull StreamContinuationToken.Builder builder) {
-    this.builder = builder;
+  private ChangeStreamContinuationToken(@Nonnull StreamContinuationToken proto) {
+    this.proto = proto;
   }
 
-  private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
-    input.defaultReadObject();
-    builder = StreamContinuationToken.newBuilder().mergeFrom(input);
+  @InternalApi("Used in Changestream beam pipeline.")
+  public ChangeStreamContinuationToken(
+      @Nonnull ByteStringRange byteStringRange, @Nonnull String token) {
+    this.proto =
+        StreamContinuationToken.newBuilder()
+            .setPartition(
+                StreamPartition.newBuilder()
+                    .setRowRange(
+                        RowRange.newBuilder()
+                            .setStartKeyClosed(byteStringRange.getStart())
+                            .setEndKeyOpen(byteStringRange.getEnd())
+                            .build())
+                    .build())
+            .setToken(token)
+            .build();
   }
 
-  private void writeObject(ObjectOutputStream output) throws IOException {
-    output.defaultWriteObject();
-    builder.build().writeTo(output);
-  }
-
+  // TODO: Change this to return ByteStringRange.
   public RowRange getRowRange() {
-    return this.builder.getPartition().getRowRange();
+    return this.proto.getPartition().getRowRange();
   }
 
   public String getToken() {
-    return this.builder.getToken();
+    return this.proto.getToken();
   }
 
   /**
    * Creates the protobuf. This method is considered an internal implementation detail and not meant
    * to be used by applications.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
-  public StreamContinuationToken toProto() {
-    return builder.build();
+  StreamContinuationToken toProto() {
+    return proto;
   }
 
   /** Wraps the protobuf {@link StreamContinuationToken}. */
-  @InternalApi("Used in Changestream beam pipeline.")
-  public static ChangeStreamContinuationToken fromProto(
+  static ChangeStreamContinuationToken fromProto(
       @Nonnull StreamContinuationToken streamContinuationToken) {
-    return new ChangeStreamContinuationToken(streamContinuationToken.toBuilder());
+    return new ChangeStreamContinuationToken(streamContinuationToken);
   }
 
-  public ChangeStreamContinuationToken clone() {
-    return new ChangeStreamContinuationToken(this.builder.clone());
+  @InternalApi("Used in Changestream beam pipeline.")
+  public ByteString toByteString() {
+    return proto.toByteString();
+  }
+
+  @InternalApi("Used in Changestream beam pipeline.")
+  public static ChangeStreamContinuationToken fromByteString(ByteString byteString)
+      throws Exception {
+    return new ChangeStreamContinuationToken(
+        StreamContinuationToken.newBuilder().mergeFrom(byteString).build());
   }
 
   @Override

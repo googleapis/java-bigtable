@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
@@ -63,7 +62,7 @@ import javax.annotation.Nonnull;
  * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
  * }</pre>
  */
-public final class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
+public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
 
   private final ByteString rowKey;
@@ -100,8 +99,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
    * ChangeStreamMutation because `token` and `loWatermark` must be set later when we finish
    * building the logical mutation.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
-  public static Builder createUserMutation(
+  static Builder createUserMutation(
       @Nonnull ByteString rowKey,
       @Nonnull String sourceClusterId,
       @Nonnull Timestamp commitTimestamp,
@@ -114,8 +112,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
    * because `token` and `loWatermark` must be set later when we finish building the logical
    * mutation.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
-  public static Builder createGcMutation(
+  static Builder createGcMutation(
       @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
     return new Builder(rowKey, Type.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
   }
@@ -227,8 +224,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       this.lowWatermark = changeStreamMutation.lowWatermark;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public Builder setCell(
+    Builder setCell(
         @Nonnull String familyName,
         @Nonnull ByteString qualifier,
         long timestamp,
@@ -237,8 +233,7 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       return this;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public Builder deleteCells(
+    Builder deleteCells(
         @Nonnull String familyName,
         @Nonnull ByteString qualifier,
         @Nonnull TimestampRange timestampRange) {
@@ -246,26 +241,22 @@ public final class ChangeStreamMutation implements ChangeStreamRecord, Serializa
       return this;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public Builder deleteFamily(@Nonnull String familyName) {
+    Builder deleteFamily(@Nonnull String familyName) {
       this.entries.add(DeleteFamily.create(familyName));
       return this;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public Builder setToken(@Nonnull String token) {
+    Builder setToken(@Nonnull String token) {
       this.token = token;
       return this;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
+    Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
       this.lowWatermark = lowWatermark;
       return this;
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public ChangeStreamMutation build() {
+    ChangeStreamMutation build() {
       Preconditions.checkArgument(
           token != null && lowWatermark != null,
           "ChangeStreamMutation must have a continuation token and low watermark.");
