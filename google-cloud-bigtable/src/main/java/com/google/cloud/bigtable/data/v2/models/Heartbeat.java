@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.api.core.InternalExtensionOnly;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.protobuf.Timestamp;
@@ -23,6 +24,7 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** A simple wrapper for {@link ReadChangeStreamResponse.Heartbeat}. */
+@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
 @AutoValue
 public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;

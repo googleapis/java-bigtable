@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
@@ -64,6 +65,7 @@ import javax.annotation.Nonnull;
  *
  * Make this class non-final so that we can create a subclass to mock it.
  */
+@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
 public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
 
