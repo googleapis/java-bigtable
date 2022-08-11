@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.common.base.MoreObjects;
@@ -29,7 +30,12 @@ import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nonnull;
 
-public final class CloseStream implements ChangeStreamRecord, Serializable {
+/**
+ * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. Make this class non-final so
+ * that we can create a subclass to mock it.
+ */
+@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
+public class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
   private final Status status;
   private transient ImmutableList.Builder<ChangeStreamContinuationToken>
@@ -69,8 +75,7 @@ public final class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  @InternalApi("Used in Changestream beam pipeline.")
-  public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
+  static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
   }
 
