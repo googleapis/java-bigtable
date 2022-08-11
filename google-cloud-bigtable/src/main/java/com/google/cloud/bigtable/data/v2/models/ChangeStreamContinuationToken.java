@@ -23,6 +23,7 @@ import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
@@ -83,7 +84,7 @@ public final class ChangeStreamContinuationToken implements Serializable {
 
   @InternalApi("Used in Changestream beam pipeline.")
   public static ChangeStreamContinuationToken fromByteString(ByteString byteString)
-      throws Exception {
+      throws InvalidProtocolBufferException {
     return new ChangeStreamContinuationToken(
         StreamContinuationToken.newBuilder().mergeFrom(byteString).build());
   }

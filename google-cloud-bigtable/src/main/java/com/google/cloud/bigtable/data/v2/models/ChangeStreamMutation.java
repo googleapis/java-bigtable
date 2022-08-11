@@ -61,6 +61,8 @@ import javax.annotation.Nonnull;
  * builder.deleteCells(...);
  * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
  * }</pre>
+ *
+ * Make this class non-final so that we can create a subclass to mock it.
  */
 public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;

@@ -29,6 +29,10 @@ import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nonnull;
 
+/**
+ * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. Make this class non-final so
+ * that we can create a subclass to mock it.
+ */
 public class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
   private final Status status;
