@@ -47,7 +47,6 @@ public class BigtableStackdriverStatsExporter {
   private final IntervalMetricReader intervalMetricReader;
 
   private BigtableStackdriverStatsExporter(
-      String projectId,
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
       MonitoredResource monitoredResource) {
@@ -56,7 +55,7 @@ public class BigtableStackdriverStatsExporter {
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
-            new BigtableCreateTimeSeriesExporter(projectId, metricServiceClient, monitoredResource),
+            new BigtableCreateTimeSeriesExporter(metricServiceClient, monitoredResource),
             MetricReader.create(
                 MetricReader.Options.builder()
                     .setMetricProducerManager(
@@ -65,7 +64,7 @@ public class BigtableStackdriverStatsExporter {
             intervalMetricReaderOptionsBuilder.build());
   }
 
-  public static void register(Credentials credentials, String projectId) throws IOException {
+  public static void register(Credentials credentials) throws IOException {
     synchronized (lock) {
       Preconditions.checkState(
           instance == null, "Bigtable Stackdriver stats exporter is already created");
@@ -73,8 +72,7 @@ public class BigtableStackdriverStatsExporter {
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
       MonitoredResource resourceType =
           MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build();
-      instance =
-          new BigtableStackdriverStatsExporter(projectId, client, EXPORT_INTERVAL, resourceType);
+      instance = new BigtableStackdriverStatsExporter(client, EXPORT_INTERVAL, resourceType);
     }
   }
 

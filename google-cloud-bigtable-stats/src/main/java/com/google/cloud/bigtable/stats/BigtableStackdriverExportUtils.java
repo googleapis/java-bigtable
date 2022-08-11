@@ -137,27 +137,39 @@ class BigtableStackdriverExportUtils {
     builder.setMetricKind(createMetricKind(metricType));
     builder.setValueType(createValueType(metricType));
     Timestamp startTimeStamp = timeSeries.getStartTimestamp();
-    for (io.opencensus.metrics.export.Point point : timeSeries.getPoints()) {
+    for (Point point : timeSeries.getPoints()) {
       builder.addPoints(createPoint(point, startTimeStamp));
     }
     return builder.build();
   }
 
-  static String getDefaultTaskValue() {
-    String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-    if (jvmName.indexOf(64) < 1) {
-      String hostname = "localhost";
+  static String getProjectId(MetricDescriptor metricDescriptor, TimeSeries timeSeries)
+      throws Exception {
+    List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
+    List<LabelValue> labelValues = timeSeries.getLabelValues();
+    for (int i = 0; i < labelKeys.size(); i++) {
+      if (labelKeys.get(i).getKey().equals(BuiltinMeasureConstants.PROJECT_ID.getName())) {
+        return labelValues.get(i).getValue();
+      }
+    }
+    throw new Exception("Can't find project id for the current timeseries");
+  }
 
+  static String getDefaultTaskValue() {
+    // Something like '<pid>@<hostname>'
+    final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
+    // If not the expected format then generate a random number.
+    if (jvmName.indexOf('@') < 1) {
+      String hostname = "localhost";
       try {
         hostname = InetAddress.getLocalHost().getHostName();
       } catch (UnknownHostException e) {
         logger.log(Level.INFO, "Unable to get the hostname.", e);
       }
-
-      return "java-" + (new SecureRandom()).nextInt() + "@" + hostname;
-    } else {
-      return "java-" + jvmName;
+      // Generate a random number and use the same format "random_number@hostname".
+      return "java-" + new SecureRandom().nextInt() + "@" + hostname;
     }
+    return "java-" + jvmName;
   }
 
   private static MetricKind createMetricKind(Type type) {

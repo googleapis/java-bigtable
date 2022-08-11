@@ -67,7 +67,6 @@ public class BigtableCreateTimeSeriesExporterTest {
 
     exporter =
         new BigtableCreateTimeSeriesExporter(
-            projectId,
             fakeMetricServiceClient,
             MonitoredResource.newBuilder().setType("bigtable-table").build());
   }

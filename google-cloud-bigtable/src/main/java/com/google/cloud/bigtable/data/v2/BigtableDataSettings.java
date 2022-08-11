@@ -205,12 +205,11 @@ public final class BigtableDataSettings {
    * your project allow listed for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
    */
   @BetaApi("Built in metric is not currently stable and may change in the future")
-  public static void registerBuiltinMetrics(String projectId) throws IOException {
+  public static void registerBuiltinMetrics() throws IOException {
     GoogleCredentials.getApplicationDefault();
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
-      BigtableStackdriverStatsExporter.register(
-          GoogleCredentials.getApplicationDefault(), projectId);
+      BigtableStackdriverStatsExporter.register(GoogleCredentials.getApplicationDefault());
     }
   }
 
@@ -220,11 +219,10 @@ public final class BigtableDataSettings {
    * https://forms.gle/xuhu6vCunn2MjV2m9
    */
   @BetaApi("Built in metric is not currently stable and may change in the future")
-  public static void registerBuiltinMetrics(Credentials credentials, String projectId)
-      throws IOException {
+  public static void registerBuiltinMetrics(Credentials credentials) throws IOException {
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
-      BigtableStackdriverStatsExporter.register(credentials, projectId);
+      BigtableStackdriverStatsExporter.register(credentials);
     }
   }
 

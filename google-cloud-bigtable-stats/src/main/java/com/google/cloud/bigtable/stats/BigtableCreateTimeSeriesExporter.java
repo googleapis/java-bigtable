@@ -24,31 +24,28 @@ import io.opencensus.metrics.export.Metric;
 import io.opencensus.metrics.export.TimeSeries;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
-
-  private final ProjectName projectName;
   private final MetricServiceClient metricServiceClient;
   private final MonitoredResource monitoredResource;
   private final String clientId;
 
   BigtableCreateTimeSeriesExporter(
-      String projectId,
-      MetricServiceClient metricServiceClient,
-      MonitoredResource monitoredResource) {
-    this.projectName = ProjectName.newBuilder().setProject(projectId).build();
+      MetricServiceClient metricServiceClient, MonitoredResource monitoredResource) {
     this.metricServiceClient = metricServiceClient;
     this.monitoredResource = monitoredResource;
     this.clientId = BigtableStackdriverExportUtils.getDefaultTaskValue();
   }
 
   public void export(Collection<Metric> metrics) {
-    List<com.google.monitoring.v3.TimeSeries> timeSeriesList = new ArrayList(metrics.size());
+    Map<String, List<com.google.monitoring.v3.TimeSeries>> projectToTimeSeries = new HashMap<>();
 
     for (Metric metric : metrics) {
       // only export bigtable metrics
@@ -56,23 +53,31 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
         continue;
       }
 
-      for (TimeSeries timeSeries : metric.getTimeSeriesList()) {
-        timeSeriesList.add(
-            BigtableStackdriverExportUtils.convertTimeSeries(
-                metric.getMetricDescriptor(), timeSeries, clientId, monitoredResource));
+      try {
+        for (TimeSeries timeSeries : metric.getTimeSeriesList()) {
+          // Get the project id from the metrics so we could publish with multiple project ids
+          String projectId =
+              BigtableStackdriverExportUtils.getProjectId(metric.getMetricDescriptor(), timeSeries);
+          List<com.google.monitoring.v3.TimeSeries> timeSeriesList =
+              projectToTimeSeries.getOrDefault(projectId, new ArrayList<>());
+          timeSeriesList.add(
+              BigtableStackdriverExportUtils.convertTimeSeries(
+                  metric.getMetricDescriptor(), timeSeries, clientId, monitoredResource));
+          projectToTimeSeries.put(projectId, timeSeriesList);
+        }
+
+        for (String projectId : projectToTimeSeries.keySet()) {
+          ProjectName projectName = ProjectName.of(projectId);
+          CreateTimeSeriesRequest request =
+              CreateTimeSeriesRequest.newBuilder()
+                  .setName(projectName.toString())
+                  .addAllTimeSeries(projectToTimeSeries.get(projectId))
+                  .build();
+          this.metricServiceClient.createServiceTimeSeries(request);
+        }
+      } catch (Throwable e) {
+        logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
       }
-    }
-
-    try {
-      CreateTimeSeriesRequest request =
-          CreateTimeSeriesRequest.newBuilder()
-              .setName(this.projectName.toString())
-              .addAllTimeSeries(timeSeriesList)
-              .build();
-
-      this.metricServiceClient.createServiceTimeSeries(request);
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
     }
   }
 }
