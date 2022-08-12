@@ -47,8 +47,8 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
-import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
-import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -83,7 +83,7 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
-import com.google.cloud.bigtable.data.v2.stub.changestream.ListChangeStreamPartitionsUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
@@ -160,7 +160,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
   private final UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable;
 
-  private final ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable;
+  private final ServerStreamingCallable<String, RowRange>
+      generateInitialChangeStreamPartitionsCallable;
 
   private final ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamCallable;
@@ -307,7 +308,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
     pingAndWarmCallable = createPingAndWarmCallable();
-    listChangeStreamPartitionsCallable = createListChangeStreamPartitionsCallable();
+    generateInitialChangeStreamPartitionsCallable =
+        createGenerateInitialChangeStreamPartitionsCallable();
     readChangeStreamCallable =
         createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
   }
@@ -838,57 +840,68 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * Creates a callable chain to handle streaming ListChangeStreamPartitions RPCs. The chain will:
+   * Creates a callable chain to handle streaming GenerateInitialChangeStreamPartitions RPCs. The
+   * chain will:
    *
    * <ul>
    *   <li>Convert a String format tableId into a {@link
-   *       com.google.bigtable.v2.ListChangeStreamPartitionsRequest} and dispatch the RPC.
+   *       GenerateInitialChangeStreamPartitionsRequest} and dispatch the RPC.
    *   <li>Upon receiving the response stream, it will convert the {@link
-   *       com.google.bigtable.v2.ListChangeStreamPartitionsResponse}s into {@link RowRange}.
+   *       com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse}s into {@link
+   *       RowRange}.
    * </ul>
    */
-  private ServerStreamingCallable<String, RowRange> createListChangeStreamPartitionsCallable() {
-    ServerStreamingCallable<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+  private ServerStreamingCallable<String, RowRange>
+      createGenerateInitialChangeStreamPartitionsCallable() {
+    ServerStreamingCallable<
+            GenerateInitialChangeStreamPartitionsRequest,
+            GenerateInitialChangeStreamPartitionsResponse>
         base =
             GrpcRawCallableFactory.createServerStreamingCallable(
                 GrpcCallSettings
-                    .<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+                    .<GenerateInitialChangeStreamPartitionsRequest,
+                        GenerateInitialChangeStreamPartitionsResponse>
                         newBuilder()
-                    .setMethodDescriptor(BigtableGrpc.getListChangeStreamPartitionsMethod())
+                    .setMethodDescriptor(
+                        BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod())
                     .setParamsExtractor(
-                        new RequestParamsExtractor<ListChangeStreamPartitionsRequest>() {
+                        new RequestParamsExtractor<GenerateInitialChangeStreamPartitionsRequest>() {
                           @Override
                           public Map<String, String> extract(
-                              ListChangeStreamPartitionsRequest listChangeStreamPartitionsRequest) {
+                              GenerateInitialChangeStreamPartitionsRequest
+                                  generateInitialChangeStreamPartitionsRequest) {
                             return ImmutableMap.of(
                                 "table_name",
-                                listChangeStreamPartitionsRequest.getTableName(),
+                                generateInitialChangeStreamPartitionsRequest.getTableName(),
                                 "app_profile_id",
-                                listChangeStreamPartitionsRequest.getAppProfileId());
+                                generateInitialChangeStreamPartitionsRequest.getAppProfileId());
                           }
                         })
                     .build(),
-                settings.listChangeStreamPartitionsSettings().getRetryableCodes());
+                settings.generateInitialChangeStreamPartitionsSettings().getRetryableCodes());
 
     ServerStreamingCallable<String, RowRange> userCallable =
-        new ListChangeStreamPartitionsUserCallable(base, requestContext);
+        new GenerateInitialChangeStreamPartitionsUserCallable(base, requestContext);
 
     ServerStreamingCallable<String, RowRange> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(userCallable);
 
-    // Sometimes ListChangeStreamPartitions connections are disconnected via an RST frame. This
-    // error is transient and should be treated similar to UNAVAILABLE. However, this exception
-    // has an INTERNAL error code which by default is not retryable. Convert the exception so it
-    // can be retried in the client.
+    // Sometimes GenerateInitialChangeStreamPartitions connections are disconnected via an RST
+    // frame. This error is transient and should be treated similar to UNAVAILABLE. However, this
+    // exception has an INTERNAL error code which by default is not retryable. Convert the exception
+    // so it can be retried in the client.
     ServerStreamingCallable<String, RowRange> convertException =
         new ConvertStreamExceptionCallable<>(withStatsHeaders);
 
     // Copy idle timeout settings for watchdog.
     ServerStreamingCallSettings<String, RowRange> innerSettings =
         ServerStreamingCallSettings.<String, RowRange>newBuilder()
-            .setRetryableCodes(settings.listChangeStreamPartitionsSettings().getRetryableCodes())
-            .setRetrySettings(settings.listChangeStreamPartitionsSettings().getRetrySettings())
-            .setIdleTimeout(settings.listChangeStreamPartitionsSettings().getIdleTimeout())
+            .setRetryableCodes(
+                settings.generateInitialChangeStreamPartitionsSettings().getRetryableCodes())
+            .setRetrySettings(
+                settings.generateInitialChangeStreamPartitionsSettings().getRetrySettings())
+            .setIdleTimeout(
+                settings.generateInitialChangeStreamPartitionsSettings().getIdleTimeout())
             .build();
 
     ServerStreamingCallable<String, RowRange> watched =
@@ -900,7 +913,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<String, RowRange> retrying =
         Callables.retrying(withBigtableTracer, innerSettings, clientContext);
 
-    SpanName span = getSpanName("ListChangeStreamPartitions");
+    SpanName span = getSpanName("GenerateInitialChangeStreamPartitions");
     ServerStreamingCallable<String, RowRange> traced =
         new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
 
@@ -1066,9 +1079,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return pingAndWarmCallable;
   }
 
-  /** Returns a streaming list change stream partitions callable */
-  public ServerStreamingCallable<String, RowRange> listChangeStreamPartitionsCallable() {
-    return listChangeStreamPartitionsCallable;
+  /** Returns a streaming generate initial change stream partitions callable */
+  public ServerStreamingCallable<String, RowRange> generateInitialChangeStreamPartitionsCallable() {
+    return generateInitialChangeStreamPartitionsCallable;
   }
 
   /** Returns a streaming read change stream callable. */

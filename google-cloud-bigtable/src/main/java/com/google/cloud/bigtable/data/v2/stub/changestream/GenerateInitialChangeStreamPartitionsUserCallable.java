@@ -19,22 +19,28 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
-import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 
-/** Simple wrapper for ListChangeStreamPartitions to wrap the request and response protobufs. */
-public class ListChangeStreamPartitionsUserCallable
+/**
+ * Simple wrapper for GenerateInitialChangeStreamPartitions to wrap the request and response
+ * protobufs.
+ */
+public class GenerateInitialChangeStreamPartitionsUserCallable
     extends ServerStreamingCallable<String, RowRange> {
   private final RequestContext requestContext;
   private final ServerStreamingCallable<
-          ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+          GenerateInitialChangeStreamPartitionsRequest,
+          GenerateInitialChangeStreamPartitionsResponse>
       inner;
 
-  public ListChangeStreamPartitionsUserCallable(
-      ServerStreamingCallable<ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
+  public GenerateInitialChangeStreamPartitionsUserCallable(
+      ServerStreamingCallable<
+              GenerateInitialChangeStreamPartitionsRequest,
+              GenerateInitialChangeStreamPartitionsResponse>
           inner,
       RequestContext requestContext) {
     this.requestContext = requestContext;
@@ -47,8 +53,8 @@ public class ListChangeStreamPartitionsUserCallable
     String tableName =
         NameUtil.formatTableName(
             requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
-    ListChangeStreamPartitionsRequest request =
-        ListChangeStreamPartitionsRequest.newBuilder()
+    GenerateInitialChangeStreamPartitionsRequest request =
+        GenerateInitialChangeStreamPartitionsRequest.newBuilder()
             .setTableName(tableName)
             .setAppProfileId(requestContext.getAppProfileId())
             .build();
@@ -57,7 +63,7 @@ public class ListChangeStreamPartitionsUserCallable
   }
 
   private class ConvertPartitionToRangeObserver
-      implements ResponseObserver<ListChangeStreamPartitionsResponse> {
+      implements ResponseObserver<GenerateInitialChangeStreamPartitionsResponse> {
 
     private final ResponseObserver<RowRange> outerObserver;
 
@@ -71,7 +77,7 @@ public class ListChangeStreamPartitionsUserCallable
     }
 
     @Override
-    public void onResponse(ListChangeStreamPartitionsResponse response) {
+    public void onResponse(GenerateInitialChangeStreamPartitionsResponse response) {
       RowRange rowRange =
           RowRange.newBuilder()
               .setStartKeyClosed(response.getPartition().getRowRange().getStartKeyClosed())

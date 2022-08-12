@@ -712,7 +712,7 @@ public class EnhancedBigtableStubSettingsTest {
     "checkAndMutateRowSettings",
     "readModifyWriteRowSettings",
     "pingAndWarmSettings",
-    "listChangeStreamPartitionsSettings",
+    "generateInitialChangeStreamPartitionsSettings",
     "readChangeStreamSettings",
   };
 

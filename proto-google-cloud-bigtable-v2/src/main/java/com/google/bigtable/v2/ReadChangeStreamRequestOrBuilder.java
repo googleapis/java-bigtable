@@ -39,7 +39,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * @return The tableName.
    */
-  String getTableName();
+  java.lang.String getTableName();
   /**
    *
    *
@@ -71,7 +71,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * @return The appProfileId.
    */
-  String getAppProfileId();
+  java.lang.String getAppProfileId();
   /**
    *
    *
@@ -110,7 +110,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * @return The partition.
    */
-  StreamPartition getPartition();
+  com.google.bigtable.v2.StreamPartition getPartition();
   /**
    *
    *
@@ -120,7 +120,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * <code>.google.bigtable.v2.StreamPartition partition = 3;</code>
    */
-  StreamPartitionOrBuilder getPartitionOrBuilder();
+  com.google.bigtable.v2.StreamPartitionOrBuilder getPartitionOrBuilder();
 
   /**
    *
@@ -205,7 +205,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * @return The continuationTokens.
    */
-  StreamContinuationTokens getContinuationTokens();
+  com.google.bigtable.v2.StreamContinuationTokens getContinuationTokens();
   /**
    *
    *
@@ -223,7 +223,7 @@ public interface ReadChangeStreamRequestOrBuilder
    *
    * <code>.google.bigtable.v2.StreamContinuationTokens continuation_tokens = 6;</code>
    */
-  StreamContinuationTokensOrBuilder getContinuationTokensOrBuilder();
+  com.google.bigtable.v2.StreamContinuationTokensOrBuilder getContinuationTokensOrBuilder();
 
   /**
    *
@@ -304,5 +304,5 @@ public interface ReadChangeStreamRequestOrBuilder
    */
   com.google.protobuf.DurationOrBuilder getHeartbeatDurationOrBuilder();
 
-  public ReadChangeStreamRequest.StartFromCase getStartFromCase();
+  public com.google.bigtable.v2.ReadChangeStreamRequest.StartFromCase getStartFromCase();
 }

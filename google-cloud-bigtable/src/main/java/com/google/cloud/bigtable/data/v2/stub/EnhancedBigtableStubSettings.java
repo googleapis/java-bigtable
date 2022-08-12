@@ -144,10 +144,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setTotalTimeout(Duration.ofMinutes(10))
           .build();
 
-  private static final Set<Code> LIST_CHANGE_STREAM_PARTITIONS_RETRY_CODES =
+  private static final Set<Code> GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES =
       ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
 
-  private static final RetrySettings LIST_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS =
+  private static final RetrySettings GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS =
       RetrySettings.newBuilder()
           .setInitialRetryDelay(Duration.ofMillis(10))
           .setRetryDelayMultiplier(2.0)
@@ -218,7 +218,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
   private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
 
-  private final ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings;
+  private final ServerStreamingCallSettings<String, RowRange>
+      generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamSettings;
 
@@ -257,7 +258,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     checkAndMutateRowSettings = builder.checkAndMutateRowSettings.build();
     readModifyWriteRowSettings = builder.readModifyWriteRowSettings.build();
     pingAndWarmSettings = builder.pingAndWarmSettings.build();
-    listChangeStreamPartitionsSettings = builder.listChangeStreamPartitionsSettings.build();
+    generateInitialChangeStreamPartitionsSettings =
+        builder.generateInitialChangeStreamPartitionsSettings.build();
     readChangeStreamSettings = builder.readChangeStreamSettings.build();
   }
 
@@ -554,8 +556,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return pingAndWarmSettings;
   }
 
-  public ServerStreamingCallSettings<String, RowRange> listChangeStreamPartitionsSettings() {
-    return listChangeStreamPartitionsSettings;
+  public ServerStreamingCallSettings<String, RowRange>
+      generateInitialChangeStreamPartitionsSettings() {
+    return generateInitialChangeStreamPartitionsSettings;
   }
 
   public ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
@@ -590,7 +593,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
 
     private final ServerStreamingCallSettings.Builder<String, RowRange>
-        listChangeStreamPartitionsSettings;
+        generateInitialChangeStreamPartitionsSettings;
     private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
         readChangeStreamSettings;
 
@@ -714,10 +717,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .setTotalTimeout(PRIME_REQUEST_TIMEOUT)
               .build());
 
-      listChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
-      listChangeStreamPartitionsSettings
-          .setRetryableCodes(LIST_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
-          .setRetrySettings(LIST_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
+      generateInitialChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
+      generateInitialChangeStreamPartitionsSettings
+          .setRetryableCodes(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
+          .setRetrySettings(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
           .setIdleTimeout(Duration.ofMinutes(5));
 
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
@@ -746,7 +749,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       checkAndMutateRowSettings = settings.checkAndMutateRowSettings.toBuilder();
       readModifyWriteRowSettings = settings.readModifyWriteRowSettings.toBuilder();
       pingAndWarmSettings = settings.pingAndWarmSettings.toBuilder();
-      listChangeStreamPartitionsSettings = settings.listChangeStreamPartitionsSettings.toBuilder();
+      generateInitialChangeStreamPartitionsSettings =
+          settings.generateInitialChangeStreamPartitionsSettings.toBuilder();
       readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
     }
     // <editor-fold desc="Private Helpers">
@@ -969,7 +973,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("checkAndMutateRowSettings", checkAndMutateRowSettings)
         .add("readModifyWriteRowSettings", readModifyWriteRowSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
-        .add("listChangeStreamPartitionsSettings", listChangeStreamPartitionsSettings)
+        .add(
+            "generateInitialChangeStreamPartitionsSettings",
+            generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("parent", super.toString())
         .toString();
