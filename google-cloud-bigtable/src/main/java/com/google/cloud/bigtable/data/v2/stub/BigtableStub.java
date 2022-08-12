@@ -22,8 +22,8 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
-import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
-import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -78,10 +78,11 @@ public abstract class BigtableStub implements BackgroundResource {
   }
 
   public ServerStreamingCallable<
-          ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
-      listChangeStreamPartitionsCallable() {
+          GenerateInitialChangeStreamPartitionsRequest,
+          GenerateInitialChangeStreamPartitionsResponse>
+      generateInitialChangeStreamPartitionsCallable() {
     throw new UnsupportedOperationException(
-        "Not implemented: listChangeStreamPartitionsCallable()");
+        "Not implemented: generateInitialChangeStreamPartitionsCallable()");
   }
 
   public ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse>

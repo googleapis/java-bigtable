@@ -83,7 +83,8 @@ public class BigtableDataClientTests {
   @Mock private Batcher<ByteString, Row> mockBulkReadRowsBatcher;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-  private ServerStreamingCallable<String, RowRange> mockListChangeStreamPartitionsCallable;
+  private ServerStreamingCallable<String, RowRange>
+      mockGenerateInitialChangeStreamPartitionsCallable;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
@@ -164,11 +165,11 @@ public class BigtableDataClientTests {
   }
 
   @Test
-  public void proxyListChangeStreamPartitionsCallableTest() {
-    Mockito.when(mockStub.listChangeStreamPartitionsCallable())
-        .thenReturn(mockListChangeStreamPartitionsCallable);
-    assertThat(bigtableDataClient.listChangeStreamPartitionsCallable())
-        .isSameInstanceAs(mockListChangeStreamPartitionsCallable);
+  public void proxyGenerateInitialChangeStreamPartitionsCallableTest() {
+    Mockito.when(mockStub.generateInitialChangeStreamPartitionsCallable())
+        .thenReturn(mockGenerateInitialChangeStreamPartitionsCallable);
+    assertThat(bigtableDataClient.generateInitialChangeStreamPartitionsCallable())
+        .isSameInstanceAs(mockGenerateInitialChangeStreamPartitionsCallable);
   }
 
   @Test
@@ -326,25 +327,26 @@ public class BigtableDataClientTests {
   }
 
   @Test
-  public void proxyListChangeStreamPartitionsSyncTest() {
-    Mockito.when(mockStub.listChangeStreamPartitionsCallable())
-        .thenReturn(mockListChangeStreamPartitionsCallable);
+  public void proxyGenerateInitialChangeStreamPartitionsSyncTest() {
+    Mockito.when(mockStub.generateInitialChangeStreamPartitionsCallable())
+        .thenReturn(mockGenerateInitialChangeStreamPartitionsCallable);
 
-    bigtableDataClient.listChangeStreamPartitions("fake-table");
+    bigtableDataClient.generateInitialChangeStreamPartitions("fake-table");
 
-    Mockito.verify(mockListChangeStreamPartitionsCallable).call("fake-table");
+    Mockito.verify(mockGenerateInitialChangeStreamPartitionsCallable).call("fake-table");
   }
 
   @Test
-  public void proxyListChangeStreamPartitionsAsyncTest() {
-    Mockito.when(mockStub.listChangeStreamPartitionsCallable())
-        .thenReturn(mockListChangeStreamPartitionsCallable);
+  public void proxyGenerateInitialChangeStreamPartitionsAsyncTest() {
+    Mockito.when(mockStub.generateInitialChangeStreamPartitionsCallable())
+        .thenReturn(mockGenerateInitialChangeStreamPartitionsCallable);
 
     @SuppressWarnings("unchecked")
     ResponseObserver<RowRange> mockObserver = Mockito.mock(ResponseObserver.class);
-    bigtableDataClient.listChangeStreamPartitionsAsync("fake-table", mockObserver);
+    bigtableDataClient.generateInitialChangeStreamPartitionsAsync("fake-table", mockObserver);
 
-    Mockito.verify(mockListChangeStreamPartitionsCallable).call("fake-table", mockObserver);
+    Mockito.verify(mockGenerateInitialChangeStreamPartitionsCallable)
+        .call("fake-table", mockObserver);
   }
 
   @Test

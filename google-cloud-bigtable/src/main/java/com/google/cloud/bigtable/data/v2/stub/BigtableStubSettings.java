@@ -35,8 +35,8 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
-import com.google.bigtable.v2.ListChangeStreamPartitionsRequest;
-import com.google.bigtable.v2.ListChangeStreamPartitionsResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -88,8 +88,9 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
   private final UnaryCallSettings<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse>
       readModifyWriteRowSettings;
   private final ServerStreamingCallSettings<
-          ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
-      listChangeStreamPartitionsSettings;
+          GenerateInitialChangeStreamPartitionsRequest,
+          GenerateInitialChangeStreamPartitionsResponse>
+      generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamRequest, ReadChangeStreamResponse>
       readChangeStreamSettings;
 
@@ -131,11 +132,14 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     return readModifyWriteRowSettings;
   }
 
-  /** Returns the object with the settings used for calls to listChangeStreamPartitions. */
+  /**
+   * Returns the object with the settings used for calls to generateInitialChangeStreamPartitions.
+   */
   public ServerStreamingCallSettings<
-          ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
-      listChangeStreamPartitionsSettings() {
-    return listChangeStreamPartitionsSettings;
+          GenerateInitialChangeStreamPartitionsRequest,
+          GenerateInitialChangeStreamPartitionsResponse>
+      generateInitialChangeStreamPartitionsSettings() {
+    return generateInitialChangeStreamPartitionsSettings;
   }
 
   /** Returns the object with the settings used for calls to readChangeStream. */
@@ -225,8 +229,8 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     checkAndMutateRowSettings = settingsBuilder.checkAndMutateRowSettings().build();
     pingAndWarmSettings = settingsBuilder.pingAndWarmSettings().build();
     readModifyWriteRowSettings = settingsBuilder.readModifyWriteRowSettings().build();
-    listChangeStreamPartitionsSettings =
-        settingsBuilder.listChangeStreamPartitionsSettings().build();
+    generateInitialChangeStreamPartitionsSettings =
+        settingsBuilder.generateInitialChangeStreamPartitionsSettings().build();
     readChangeStreamSettings = settingsBuilder.readChangeStreamSettings().build();
   }
 
@@ -247,8 +251,9 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     private final UnaryCallSettings.Builder<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse>
         readModifyWriteRowSettings;
     private final ServerStreamingCallSettings.Builder<
-            ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
-        listChangeStreamPartitionsSettings;
+            GenerateInitialChangeStreamPartitionsRequest,
+            GenerateInitialChangeStreamPartitionsResponse>
+        generateInitialChangeStreamPartitionsSettings;
     private final ServerStreamingCallSettings.Builder<
             ReadChangeStreamRequest, ReadChangeStreamResponse>
         readChangeStreamSettings;
@@ -362,7 +367,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       checkAndMutateRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       pingAndWarmSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       readModifyWriteRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
-      listChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
+      generateInitialChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
 
       unaryMethodSettingsBuilders =
@@ -384,7 +389,8 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       checkAndMutateRowSettings = settings.checkAndMutateRowSettings.toBuilder();
       pingAndWarmSettings = settings.pingAndWarmSettings.toBuilder();
       readModifyWriteRowSettings = settings.readModifyWriteRowSettings.toBuilder();
-      listChangeStreamPartitionsSettings = settings.listChangeStreamPartitionsSettings.toBuilder();
+      generateInitialChangeStreamPartitionsSettings =
+          settings.generateInitialChangeStreamPartitionsSettings.toBuilder();
       readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
 
       unaryMethodSettingsBuilders =
@@ -445,7 +451,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_0_params"));
 
       builder
-          .listChangeStreamPartitionsSettings()
+          .generateInitialChangeStreamPartitionsSettings()
           .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_5_codes"))
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_5_params"));
 
@@ -513,11 +519,14 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       return readModifyWriteRowSettings;
     }
 
-    /** Returns the builder for the settings used for calls to listChangeStreamPartitions. */
+    /**
+     * Returns the builder for the settings used for calls to generateInitialChangeStreamPartitions.
+     */
     public ServerStreamingCallSettings.Builder<
-            ListChangeStreamPartitionsRequest, ListChangeStreamPartitionsResponse>
-        listChangeStreamPartitionsSettings() {
-      return listChangeStreamPartitionsSettings;
+            GenerateInitialChangeStreamPartitionsRequest,
+            GenerateInitialChangeStreamPartitionsResponse>
+        generateInitialChangeStreamPartitionsSettings() {
+      return generateInitialChangeStreamPartitionsSettings;
     }
 
     /** Returns the builder for the settings used for calls to readChangeStream. */

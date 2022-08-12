@@ -46,7 +46,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * @return The dataChange.
    */
-  ReadChangeStreamResponse.DataChange getDataChange();
+  com.google.bigtable.v2.ReadChangeStreamResponse.DataChange getDataChange();
   /**
    *
    *
@@ -56,7 +56,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
    */
-  ReadChangeStreamResponse.DataChangeOrBuilder getDataChangeOrBuilder();
+  com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder getDataChangeOrBuilder();
 
   /**
    *
@@ -81,7 +81,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * @return The heartbeat.
    */
-  ReadChangeStreamResponse.Heartbeat getHeartbeat();
+  com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getHeartbeat();
   /**
    *
    *
@@ -91,7 +91,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
    */
-  ReadChangeStreamResponse.HeartbeatOrBuilder getHeartbeatOrBuilder();
+  com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder getHeartbeatOrBuilder();
 
   /**
    *
@@ -116,7 +116,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * @return The closeStream.
    */
-  ReadChangeStreamResponse.CloseStream getCloseStream();
+  com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream getCloseStream();
   /**
    *
    *
@@ -126,7 +126,7 @@ public interface ReadChangeStreamResponseOrBuilder
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
    */
-  ReadChangeStreamResponse.CloseStreamOrBuilder getCloseStreamOrBuilder();
+  com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder getCloseStreamOrBuilder();
 
-  public ReadChangeStreamResponse.StreamRecordCase getStreamRecordCase();
+  public com.google.bigtable.v2.ReadChangeStreamResponse.StreamRecordCase getStreamRecordCase();
 }

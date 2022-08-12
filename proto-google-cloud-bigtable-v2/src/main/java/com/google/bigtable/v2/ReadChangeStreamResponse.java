@@ -40,13 +40,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
   private ReadChangeStreamResponse() {}
 
-  @Override
+  @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new ReadChangeStreamResponse();
   }
 
-  @Override
+  @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
   }
@@ -57,7 +57,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       throws com.google.protobuf.InvalidProtocolBufferException {
     this();
     if (extensionRegistry == null) {
-      throw new NullPointerException();
+      throw new java.lang.NullPointerException();
     }
     com.google.protobuf.UnknownFieldSet.Builder unknownFields =
         com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -71,13 +71,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             break;
           case 10:
             {
-              DataChange.Builder subBuilder = null;
+              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder subBuilder = null;
               if (streamRecordCase_ == 1) {
-                subBuilder = ((DataChange) streamRecord_).toBuilder();
+                subBuilder =
+                    ((com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_)
+                        .toBuilder();
               }
-              streamRecord_ = input.readMessage(DataChange.parser(), extensionRegistry);
+              streamRecord_ =
+                  input.readMessage(
+                      com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.parser(),
+                      extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom((DataChange) streamRecord_);
+                subBuilder.mergeFrom(
+                    (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_);
                 streamRecord_ = subBuilder.buildPartial();
               }
               streamRecordCase_ = 1;
@@ -85,13 +91,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             }
           case 18:
             {
-              Heartbeat.Builder subBuilder = null;
+              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder subBuilder = null;
               if (streamRecordCase_ == 2) {
-                subBuilder = ((Heartbeat) streamRecord_).toBuilder();
+                subBuilder =
+                    ((com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_)
+                        .toBuilder();
               }
-              streamRecord_ = input.readMessage(Heartbeat.parser(), extensionRegistry);
+              streamRecord_ =
+                  input.readMessage(
+                      com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.parser(),
+                      extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom((Heartbeat) streamRecord_);
+                subBuilder.mergeFrom(
+                    (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_);
                 streamRecord_ = subBuilder.buildPartial();
               }
               streamRecordCase_ = 2;
@@ -99,13 +111,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             }
           case 26:
             {
-              CloseStream.Builder subBuilder = null;
+              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder subBuilder = null;
               if (streamRecordCase_ == 3) {
-                subBuilder = ((CloseStream) streamRecord_).toBuilder();
+                subBuilder =
+                    ((com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_)
+                        .toBuilder();
               }
-              streamRecord_ = input.readMessage(CloseStream.parser(), extensionRegistry);
+              streamRecord_ =
+                  input.readMessage(
+                      com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.parser(),
+                      extensionRegistry);
               if (subBuilder != null) {
-                subBuilder.mergeFrom((CloseStream) streamRecord_);
+                subBuilder.mergeFrom(
+                    (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
                 streamRecord_ = subBuilder.buildPartial();
               }
               streamRecordCase_ = 3;
@@ -133,14 +151,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-    return BigtableProto.internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
+    return com.google.bigtable.v2.BigtableProto
+        .internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
   }
 
-  @Override
-  protected FieldAccessorTable internalGetFieldAccessorTable() {
-    return BigtableProto
+  @java.lang.Override
+  protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+      internalGetFieldAccessorTable() {
+    return com.google.bigtable.v2.BigtableProto
         .internal_static_google_bigtable_v2_ReadChangeStreamResponse_fieldAccessorTable
-        .ensureFieldAccessorsInitialized(ReadChangeStreamResponse.class, Builder.class);
+        .ensureFieldAccessorsInitialized(
+            com.google.bigtable.v2.ReadChangeStreamResponse.class,
+            com.google.bigtable.v2.ReadChangeStreamResponse.Builder.class);
   }
 
   public interface MutationChunkOrBuilder
@@ -175,7 +197,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The chunkInfo.
      */
-    MutationChunk.ChunkInfo getChunkInfo();
+    com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo getChunkInfo();
     /**
      *
      *
@@ -187,7 +209,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
      * </code>
      */
-    MutationChunk.ChunkInfoOrBuilder getChunkInfoOrBuilder();
+    com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder
+        getChunkInfoOrBuilder();
 
     /**
      *
@@ -216,7 +239,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The mutation.
      */
-    Mutation getMutation();
+    com.google.bigtable.v2.Mutation getMutation();
     /**
      *
      *
@@ -228,7 +251,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
      */
-    MutationOrBuilder getMutationOrBuilder();
+    com.google.bigtable.v2.MutationOrBuilder getMutationOrBuilder();
   }
   /**
    *
@@ -251,13 +274,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
     private MutationChunk() {}
 
-    @Override
+    @java.lang.Override
     @SuppressWarnings({"unused"})
-    protected Object newInstance(UnusedPrivateParameter unused) {
+    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new MutationChunk();
     }
 
-    @Override
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
     }
@@ -268,7 +291,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
-        throw new NullPointerException();
+        throw new java.lang.NullPointerException();
       }
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -282,11 +305,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               break;
             case 10:
               {
-                ChunkInfo.Builder subBuilder = null;
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
+                    subBuilder = null;
                 if (chunkInfo_ != null) {
                   subBuilder = chunkInfo_.toBuilder();
                 }
-                chunkInfo_ = input.readMessage(ChunkInfo.parser(), extensionRegistry);
+                chunkInfo_ =
+                    input.readMessage(
+                        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+                            .parser(),
+                        extensionRegistry);
                 if (subBuilder != null) {
                   subBuilder.mergeFrom(chunkInfo_);
                   chunkInfo_ = subBuilder.buildPartial();
@@ -296,11 +324,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               }
             case 18:
               {
-                Mutation.Builder subBuilder = null;
+                com.google.bigtable.v2.Mutation.Builder subBuilder = null;
                 if (mutation_ != null) {
                   subBuilder = mutation_.toBuilder();
                 }
-                mutation_ = input.readMessage(Mutation.parser(), extensionRegistry);
+                mutation_ =
+                    input.readMessage(com.google.bigtable.v2.Mutation.parser(), extensionRegistry);
                 if (subBuilder != null) {
                   subBuilder.mergeFrom(mutation_);
                   mutation_ = subBuilder.buildPartial();
@@ -330,15 +359,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return BigtableProto
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_descriptor;
     }
 
-    @Override
-    protected FieldAccessorTable internalGetFieldAccessorTable() {
-      return BigtableProto
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(MutationChunk.class, Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.class,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder.class);
     }
 
     public interface ChunkInfoOrBuilder
@@ -409,13 +441,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
       private ChunkInfo() {}
 
-      @Override
+      @java.lang.Override
       @SuppressWarnings({"unused"})
-      protected Object newInstance(UnusedPrivateParameter unused) {
+      protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
         return new ChunkInfo();
       }
 
-      @Override
+      @java.lang.Override
       public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
         return this.unknownFields;
       }
@@ -426,7 +458,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           throws com.google.protobuf.InvalidProtocolBufferException {
         this();
         if (extensionRegistry == null) {
-          throw new NullPointerException();
+          throw new java.lang.NullPointerException();
         }
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
             com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -476,15 +508,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_descriptor;
       }
 
-      @Override
-      protected FieldAccessorTable internalGetFieldAccessorTable() {
-        return BigtableProto
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(ChunkInfo.class, Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.class,
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
+                    .class);
       }
 
       public static final int CHUNKED_VALUE_SIZE_FIELD_NUMBER = 1;
@@ -500,7 +536,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The chunkedValueSize.
        */
-      @Override
+      @java.lang.Override
       public int getChunkedValueSize() {
         return chunkedValueSize_;
       }
@@ -519,7 +555,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The chunkedValueOffset.
        */
-      @Override
+      @java.lang.Override
       public int getChunkedValueOffset() {
         return chunkedValueOffset_;
       }
@@ -537,14 +573,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The lastChunk.
        */
-      @Override
+      @java.lang.Override
       public boolean getLastChunk() {
         return lastChunk_;
       }
 
       private byte memoizedIsInitialized = -1;
 
-      @Override
+      @java.lang.Override
       public final boolean isInitialized() {
         byte isInitialized = memoizedIsInitialized;
         if (isInitialized == 1) return true;
@@ -554,7 +590,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
         if (chunkedValueSize_ != 0) {
           output.writeInt32(1, chunkedValueSize_);
@@ -568,7 +604,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         unknownFields.writeTo(output);
       }
 
-      @Override
+      @java.lang.Override
       public int getSerializedSize() {
         int size = memoizedSize;
         if (size != -1) return size;
@@ -588,15 +624,17 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return size;
       }
 
-      @Override
-      public boolean equals(final Object obj) {
+      @java.lang.Override
+      public boolean equals(final java.lang.Object obj) {
         if (obj == this) {
           return true;
         }
-        if (!(obj instanceof ChunkInfo)) {
+        if (!(obj
+            instanceof com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo)) {
           return super.equals(obj);
         }
-        ChunkInfo other = (ChunkInfo) obj;
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo other =
+            (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo) obj;
 
         if (getChunkedValueSize() != other.getChunkedValueSize()) return false;
         if (getChunkedValueOffset() != other.getChunkedValueOffset()) return false;
@@ -605,7 +643,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public int hashCode() {
         if (memoizedHashCode != 0) {
           return memoizedHashCode;
@@ -623,77 +661,87 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return hash;
       }
 
-      public static ChunkInfo parseFrom(java.nio.ByteBuffer data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(java.nio.ByteBuffer data)
+              throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
 
-      public static ChunkInfo parseFrom(
-          java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(
+              java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
 
-      public static ChunkInfo parseFrom(com.google.protobuf.ByteString data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(com.google.protobuf.ByteString data)
+              throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
 
-      public static ChunkInfo parseFrom(
-          com.google.protobuf.ByteString data,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(
+              com.google.protobuf.ByteString data,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
 
-      public static ChunkInfo parseFrom(byte[] data)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data);
       }
 
-      public static ChunkInfo parseFrom(
-          byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws com.google.protobuf.InvalidProtocolBufferException {
         return PARSER.parseFrom(data, extensionRegistry);
       }
 
-      public static ChunkInfo parseFrom(java.io.InputStream input) throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(java.io.InputStream input) throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
       }
 
-      public static ChunkInfo parseFrom(
-          java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(
+              java.io.InputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
             PARSER, input, extensionRegistry);
       }
 
-      public static ChunkInfo parseDelimitedFrom(java.io.InputStream input)
-          throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseDelimitedFrom(java.io.InputStream input) throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
       }
 
-      public static ChunkInfo parseDelimitedFrom(
-          java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseDelimitedFrom(
+              java.io.InputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
             PARSER, input, extensionRegistry);
       }
 
-      public static ChunkInfo parseFrom(com.google.protobuf.CodedInputStream input)
-          throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(com.google.protobuf.CodedInputStream input) throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
       }
 
-      public static ChunkInfo parseFrom(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws java.io.IOException {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          parseFrom(
+              com.google.protobuf.CodedInputStream input,
+              com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+              throws java.io.IOException {
         return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
             PARSER, input, extensionRegistry);
       }
 
-      @Override
+      @java.lang.Override
       public Builder newBuilderForType() {
         return newBuilder();
       }
@@ -702,17 +750,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return DEFAULT_INSTANCE.toBuilder();
       }
 
-      public static Builder newBuilder(ChunkInfo prototype) {
+      public static Builder newBuilder(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo prototype) {
         return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
       }
 
-      @Override
+      @java.lang.Override
       public Builder toBuilder() {
         return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
       }
 
-      @Override
-      protected Builder newBuilderForType(BuilderParent parent) {
+      @java.lang.Override
+      protected Builder newBuilderForType(
+          com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         Builder builder = new Builder(parent);
         return builder;
       }
@@ -731,17 +781,21 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
           implements
           // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo)
-          ChunkInfoOrBuilder {
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder {
         public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-          return BigtableProto
+          return com.google.bigtable.v2.BigtableProto
               .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_descriptor;
         }
 
-        @Override
-        protected FieldAccessorTable internalGetFieldAccessorTable() {
-          return BigtableProto
+        @java.lang.Override
+        protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+            internalGetFieldAccessorTable() {
+          return com.google.bigtable.v2.BigtableProto
               .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_fieldAccessorTable
-              .ensureFieldAccessorsInitialized(ChunkInfo.class, Builder.class);
+              .ensureFieldAccessorsInitialized(
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.class,
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
+                      .class);
         }
 
         // Construct using
@@ -750,7 +804,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           maybeForceBuilderInitialization();
         }
 
-        private Builder(BuilderParent parent) {
+        private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
           super(parent);
           maybeForceBuilderInitialization();
         }
@@ -759,7 +813,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
         }
 
-        @Override
+        @java.lang.Override
         public Builder clear() {
           super.clear();
           chunkedValueSize_ = 0;
@@ -771,29 +825,34 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           return this;
         }
 
-        @Override
+        @java.lang.Override
         public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-          return BigtableProto
+          return com.google.bigtable.v2.BigtableProto
               .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_descriptor;
         }
 
-        @Override
-        public ChunkInfo getDefaultInstanceForType() {
-          return ChunkInfo.getDefaultInstance();
+        @java.lang.Override
+        public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+            getDefaultInstanceForType() {
+          return com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+              .getDefaultInstance();
         }
 
-        @Override
-        public ChunkInfo build() {
-          ChunkInfo result = buildPartial();
+        @java.lang.Override
+        public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo build() {
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo result =
+              buildPartial();
           if (!result.isInitialized()) {
             throw newUninitializedMessageException(result);
           }
           return result;
         }
 
-        @Override
-        public ChunkInfo buildPartial() {
-          ChunkInfo result = new ChunkInfo(this);
+        @java.lang.Override
+        public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+            buildPartial() {
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo result =
+              new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo(this);
           result.chunkedValueSize_ = chunkedValueSize_;
           result.chunkedValueOffset_ = chunkedValueOffset_;
           result.lastChunk_ = lastChunk_;
@@ -801,51 +860,58 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           return result;
         }
 
-        @Override
+        @java.lang.Override
         public Builder clone() {
           return super.clone();
         }
 
-        @Override
+        @java.lang.Override
         public Builder setField(
-            com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
           return super.setField(field, value);
         }
 
-        @Override
+        @java.lang.Override
         public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
           return super.clearField(field);
         }
 
-        @Override
+        @java.lang.Override
         public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
           return super.clearOneof(oneof);
         }
 
-        @Override
+        @java.lang.Override
         public Builder setRepeatedField(
-            com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+            com.google.protobuf.Descriptors.FieldDescriptor field,
+            int index,
+            java.lang.Object value) {
           return super.setRepeatedField(field, index, value);
         }
 
-        @Override
+        @java.lang.Override
         public Builder addRepeatedField(
-            com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+            com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
           return super.addRepeatedField(field, value);
         }
 
-        @Override
+        @java.lang.Override
         public Builder mergeFrom(com.google.protobuf.Message other) {
-          if (other instanceof ChunkInfo) {
-            return mergeFrom((ChunkInfo) other);
+          if (other
+              instanceof com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo) {
+            return mergeFrom(
+                (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo) other);
           } else {
             super.mergeFrom(other);
             return this;
           }
         }
 
-        public Builder mergeFrom(ChunkInfo other) {
-          if (other == ChunkInfo.getDefaultInstance()) return this;
+        public Builder mergeFrom(
+            com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo other) {
+          if (other
+              == com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+                  .getDefaultInstance()) return this;
           if (other.getChunkedValueSize() != 0) {
             setChunkedValueSize(other.getChunkedValueSize());
           }
@@ -860,21 +926,24 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           return this;
         }
 
-        @Override
+        @java.lang.Override
         public final boolean isInitialized() {
           return true;
         }
 
-        @Override
+        @java.lang.Override
         public Builder mergeFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws java.io.IOException {
-          ChunkInfo parsedMessage = null;
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo parsedMessage =
+              null;
           try {
             parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage = (ChunkInfo) e.getUnfinishedMessage();
+            parsedMessage =
+                (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo)
+                    e.getUnfinishedMessage();
             throw e.unwrapIOException();
           } finally {
             if (parsedMessage != null) {
@@ -896,7 +965,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          *
          * @return The chunkedValueSize.
          */
-        @Override
+        @java.lang.Override
         public int getChunkedValueSize() {
           return chunkedValueSize_;
         }
@@ -949,7 +1018,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          *
          * @return The chunkedValueOffset.
          */
-        @Override
+        @java.lang.Override
         public int getChunkedValueOffset() {
           return chunkedValueOffset_;
         }
@@ -1003,7 +1072,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          *
          * @return The lastChunk.
          */
-        @Override
+        @java.lang.Override
         public boolean getLastChunk() {
           return lastChunk_;
         }
@@ -1043,13 +1112,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           return this;
         }
 
-        @Override
+        @java.lang.Override
         public final Builder setUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
           return super.setUnknownFields(unknownFields);
         }
 
-        @Override
+        @java.lang.Override
         public final Builder mergeUnknownFields(
             final com.google.protobuf.UnknownFieldSet unknownFields) {
           return super.mergeUnknownFields(unknownFields);
@@ -1059,19 +1128,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo)
-      private static final ChunkInfo DEFAULT_INSTANCE;
+      private static final com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          DEFAULT_INSTANCE;
 
       static {
-        DEFAULT_INSTANCE = new ChunkInfo();
+        DEFAULT_INSTANCE =
+            new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo();
       }
 
-      public static ChunkInfo getDefaultInstance() {
+      public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          getDefaultInstance() {
         return DEFAULT_INSTANCE;
       }
 
       private static final com.google.protobuf.Parser<ChunkInfo> PARSER =
           new com.google.protobuf.AbstractParser<ChunkInfo>() {
-            @Override
+            @java.lang.Override
             public ChunkInfo parsePartialFrom(
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1084,19 +1156,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return PARSER;
       }
 
-      @Override
+      @java.lang.Override
       public com.google.protobuf.Parser<ChunkInfo> getParserForType() {
         return PARSER;
       }
 
-      @Override
-      public ChunkInfo getDefaultInstanceForType() {
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          getDefaultInstanceForType() {
         return DEFAULT_INSTANCE;
       }
     }
 
     public static final int CHUNK_INFO_FIELD_NUMBER = 1;
-    private ChunkInfo chunkInfo_;
+    private com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunkInfo_;
     /**
      *
      *
@@ -1110,7 +1183,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the chunkInfo field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasChunkInfo() {
       return chunkInfo_ != null;
     }
@@ -1127,9 +1200,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The chunkInfo.
      */
-    @Override
-    public ChunkInfo getChunkInfo() {
-      return chunkInfo_ == null ? ChunkInfo.getDefaultInstance() : chunkInfo_;
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo getChunkInfo() {
+      return chunkInfo_ == null
+          ? com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+              .getDefaultInstance()
+          : chunkInfo_;
     }
     /**
      *
@@ -1142,13 +1218,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
      * </code>
      */
-    @Override
-    public ChunkInfoOrBuilder getChunkInfoOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder
+        getChunkInfoOrBuilder() {
       return getChunkInfo();
     }
 
     public static final int MUTATION_FIELD_NUMBER = 2;
-    private Mutation mutation_;
+    private com.google.bigtable.v2.Mutation mutation_;
     /**
      *
      *
@@ -1162,7 +1239,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the mutation field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasMutation() {
       return mutation_ != null;
     }
@@ -1179,9 +1256,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The mutation.
      */
-    @Override
-    public Mutation getMutation() {
-      return mutation_ == null ? Mutation.getDefaultInstance() : mutation_;
+    @java.lang.Override
+    public com.google.bigtable.v2.Mutation getMutation() {
+      return mutation_ == null ? com.google.bigtable.v2.Mutation.getDefaultInstance() : mutation_;
     }
     /**
      *
@@ -1194,14 +1271,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
      */
-    @Override
-    public MutationOrBuilder getMutationOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.MutationOrBuilder getMutationOrBuilder() {
       return getMutation();
     }
 
     private byte memoizedIsInitialized = -1;
 
-    @Override
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -1211,7 +1288,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
       if (chunkInfo_ != null) {
         output.writeMessage(1, getChunkInfo());
@@ -1222,7 +1299,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       unknownFields.writeTo(output);
     }
 
-    @Override
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
@@ -1239,15 +1316,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return size;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof MutationChunk)) {
+      if (!(obj instanceof com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk)) {
         return super.equals(obj);
       }
-      MutationChunk other = (MutationChunk) obj;
+      com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk other =
+          (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk) obj;
 
       if (hasChunkInfo() != other.hasChunkInfo()) return false;
       if (hasChunkInfo()) {
@@ -1261,7 +1339,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public int hashCode() {
       if (memoizedHashCode != 0) {
         return memoizedHashCode;
@@ -1281,69 +1359,71 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return hash;
     }
 
-    public static MutationChunk parseFrom(java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
+        java.nio.ByteBuffer data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static MutationChunk parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
         java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static MutationChunk parseFrom(com.google.protobuf.ByteString data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static MutationChunk parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static MutationChunk parseFrom(byte[] data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
+        byte[] data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static MutationChunk parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
         byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static MutationChunk parseFrom(java.io.InputStream input) throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static MutationChunk parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static MutationChunk parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseDelimitedFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static MutationChunk parseDelimitedFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseDelimitedFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static MutationChunk parseFrom(com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
+        com.google.protobuf.CodedInputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static MutationChunk parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -1351,7 +1431,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           PARSER, input, extensionRegistry);
     }
 
-    @Override
+    @java.lang.Override
     public Builder newBuilderForType() {
       return newBuilder();
     }
@@ -1360,17 +1440,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return DEFAULT_INSTANCE.toBuilder();
     }
 
-    public static Builder newBuilder(MutationChunk prototype) {
+    public static Builder newBuilder(
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
-    @Override
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
     }
 
-    @Override
-    protected Builder newBuilderForType(BuilderParent parent) {
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -1387,17 +1469,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse.MutationChunk)
-        MutationChunkOrBuilder {
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_descriptor;
       }
 
-      @Override
-      protected FieldAccessorTable internalGetFieldAccessorTable() {
-        return BigtableProto
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(MutationChunk.class, Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.class,
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder.class);
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.newBuilder()
@@ -1405,7 +1490,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         maybeForceBuilderInitialization();
       }
 
-      private Builder(BuilderParent parent) {
+      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
@@ -1414,7 +1499,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
-      @Override
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         if (chunkInfoBuilder_ == null) {
@@ -1432,29 +1517,31 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_descriptor;
       }
 
-      @Override
-      public MutationChunk getDefaultInstanceForType() {
-        return MutationChunk.getDefaultInstance();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk
+          getDefaultInstanceForType() {
+        return com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.getDefaultInstance();
       }
 
-      @Override
-      public MutationChunk build() {
-        MutationChunk result = buildPartial();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk build() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      @Override
-      public MutationChunk buildPartial() {
-        MutationChunk result = new MutationChunk(this);
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk buildPartial() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk result =
+            new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk(this);
         if (chunkInfoBuilder_ == null) {
           result.chunkInfo_ = chunkInfo_;
         } else {
@@ -1469,50 +1556,56 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return result;
       }
 
-      @Override
+      @java.lang.Override
       public Builder clone() {
         return super.clone();
       }
 
-      @Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.setField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
 
-      @Override
+      @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index,
+          java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof MutationChunk) {
-          return mergeFrom((MutationChunk) other);
+        if (other instanceof com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk) {
+          return mergeFrom((com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk) other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(MutationChunk other) {
-        if (other == MutationChunk.getDefaultInstance()) return this;
+      public Builder mergeFrom(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk other) {
+        if (other
+            == com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.getDefaultInstance())
+          return this;
         if (other.hasChunkInfo()) {
           mergeChunkInfo(other.getChunkInfo());
         }
@@ -1524,21 +1617,23 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        MutationChunk parsedMessage = null;
+        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (MutationChunk) e.getUnfinishedMessage();
+          parsedMessage =
+              (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk)
+                  e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -1548,9 +1643,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      private ChunkInfo chunkInfo_;
+      private com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunkInfo_;
       private com.google.protobuf.SingleFieldBuilderV3<
-              ChunkInfo, ChunkInfo.Builder, ChunkInfoOrBuilder>
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder>
           chunkInfoBuilder_;
       /**
        *
@@ -1581,9 +1678,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The chunkInfo.
        */
-      public ChunkInfo getChunkInfo() {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+          getChunkInfo() {
         if (chunkInfoBuilder_ == null) {
-          return chunkInfo_ == null ? ChunkInfo.getDefaultInstance() : chunkInfo_;
+          return chunkInfo_ == null
+              ? com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+                  .getDefaultInstance()
+              : chunkInfo_;
         } else {
           return chunkInfoBuilder_.getMessage();
         }
@@ -1599,7 +1700,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
        * </code>
        */
-      public Builder setChunkInfo(ChunkInfo value) {
+      public Builder setChunkInfo(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo value) {
         if (chunkInfoBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -1623,7 +1725,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
        * </code>
        */
-      public Builder setChunkInfo(ChunkInfo.Builder builderForValue) {
+      public Builder setChunkInfo(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
+              builderForValue) {
         if (chunkInfoBuilder_ == null) {
           chunkInfo_ = builderForValue.build();
           onChanged();
@@ -1644,10 +1748,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
        * </code>
        */
-      public Builder mergeChunkInfo(ChunkInfo value) {
+      public Builder mergeChunkInfo(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo value) {
         if (chunkInfoBuilder_ == null) {
           if (chunkInfo_ != null) {
-            chunkInfo_ = ChunkInfo.newBuilder(chunkInfo_).mergeFrom(value).buildPartial();
+            chunkInfo_ =
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.newBuilder(
+                        chunkInfo_)
+                    .mergeFrom(value)
+                    .buildPartial();
           } else {
             chunkInfo_ = value;
           }
@@ -1691,7 +1800,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
        * </code>
        */
-      public ChunkInfo.Builder getChunkInfoBuilder() {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
+          getChunkInfoBuilder() {
 
         onChanged();
         return getChunkInfoFieldBuilder().getBuilder();
@@ -1707,11 +1817,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunk_info = 1;
        * </code>
        */
-      public ChunkInfoOrBuilder getChunkInfoOrBuilder() {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder
+          getChunkInfoOrBuilder() {
         if (chunkInfoBuilder_ != null) {
           return chunkInfoBuilder_.getMessageOrBuilder();
         } else {
-          return chunkInfo_ == null ? ChunkInfo.getDefaultInstance() : chunkInfo_;
+          return chunkInfo_ == null
+              ? com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+                  .getDefaultInstance()
+              : chunkInfo_;
         }
       }
       /**
@@ -1726,21 +1840,27 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * </code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-              ChunkInfo, ChunkInfo.Builder, ChunkInfoOrBuilder>
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder>
           getChunkInfoFieldBuilder() {
         if (chunkInfoBuilder_ == null) {
           chunkInfoBuilder_ =
               new com.google.protobuf.SingleFieldBuilderV3<
-                  ChunkInfo, ChunkInfo.Builder, ChunkInfoOrBuilder>(
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo,
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder,
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder>(
                   getChunkInfo(), getParentForChildren(), isClean());
           chunkInfo_ = null;
         }
         return chunkInfoBuilder_;
       }
 
-      private Mutation mutation_;
+      private com.google.bigtable.v2.Mutation mutation_;
       private com.google.protobuf.SingleFieldBuilderV3<
-              Mutation, Mutation.Builder, MutationOrBuilder>
+              com.google.bigtable.v2.Mutation,
+              com.google.bigtable.v2.Mutation.Builder,
+              com.google.bigtable.v2.MutationOrBuilder>
           mutationBuilder_;
       /**
        *
@@ -1771,9 +1891,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The mutation.
        */
-      public Mutation getMutation() {
+      public com.google.bigtable.v2.Mutation getMutation() {
         if (mutationBuilder_ == null) {
-          return mutation_ == null ? Mutation.getDefaultInstance() : mutation_;
+          return mutation_ == null
+              ? com.google.bigtable.v2.Mutation.getDefaultInstance()
+              : mutation_;
         } else {
           return mutationBuilder_.getMessage();
         }
@@ -1789,7 +1911,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
-      public Builder setMutation(Mutation value) {
+      public Builder setMutation(com.google.bigtable.v2.Mutation value) {
         if (mutationBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -1813,7 +1935,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
-      public Builder setMutation(Mutation.Builder builderForValue) {
+      public Builder setMutation(com.google.bigtable.v2.Mutation.Builder builderForValue) {
         if (mutationBuilder_ == null) {
           mutation_ = builderForValue.build();
           onChanged();
@@ -1834,10 +1956,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
-      public Builder mergeMutation(Mutation value) {
+      public Builder mergeMutation(com.google.bigtable.v2.Mutation value) {
         if (mutationBuilder_ == null) {
           if (mutation_ != null) {
-            mutation_ = Mutation.newBuilder(mutation_).mergeFrom(value).buildPartial();
+            mutation_ =
+                com.google.bigtable.v2.Mutation.newBuilder(mutation_)
+                    .mergeFrom(value)
+                    .buildPartial();
           } else {
             mutation_ = value;
           }
@@ -1881,7 +2006,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
-      public Mutation.Builder getMutationBuilder() {
+      public com.google.bigtable.v2.Mutation.Builder getMutationBuilder() {
 
         onChanged();
         return getMutationFieldBuilder().getBuilder();
@@ -1897,11 +2022,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
-      public MutationOrBuilder getMutationOrBuilder() {
+      public com.google.bigtable.v2.MutationOrBuilder getMutationOrBuilder() {
         if (mutationBuilder_ != null) {
           return mutationBuilder_.getMessageOrBuilder();
         } else {
-          return mutation_ == null ? Mutation.getDefaultInstance() : mutation_;
+          return mutation_ == null
+              ? com.google.bigtable.v2.Mutation.getDefaultInstance()
+              : mutation_;
         }
       }
       /**
@@ -1916,25 +2043,29 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-              Mutation, Mutation.Builder, MutationOrBuilder>
+              com.google.bigtable.v2.Mutation,
+              com.google.bigtable.v2.Mutation.Builder,
+              com.google.bigtable.v2.MutationOrBuilder>
           getMutationFieldBuilder() {
         if (mutationBuilder_ == null) {
           mutationBuilder_ =
               new com.google.protobuf.SingleFieldBuilderV3<
-                  Mutation, Mutation.Builder, MutationOrBuilder>(
+                  com.google.bigtable.v2.Mutation,
+                  com.google.bigtable.v2.Mutation.Builder,
+                  com.google.bigtable.v2.MutationOrBuilder>(
                   getMutation(), getParentForChildren(), isClean());
           mutation_ = null;
         }
         return mutationBuilder_;
       }
 
-      @Override
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
-      @Override
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -1944,19 +2075,21 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse.MutationChunk)
-    private static final MutationChunk DEFAULT_INSTANCE;
+    private static final com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk
+        DEFAULT_INSTANCE;
 
     static {
-      DEFAULT_INSTANCE = new MutationChunk();
+      DEFAULT_INSTANCE = new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk();
     }
 
-    public static MutationChunk getDefaultInstance() {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk
+        getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
     private static final com.google.protobuf.Parser<MutationChunk> PARSER =
         new com.google.protobuf.AbstractParser<MutationChunk>() {
-          @Override
+          @java.lang.Override
           public MutationChunk parsePartialFrom(
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -1969,13 +2102,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return PARSER;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Parser<MutationChunk> getParserForType() {
       return PARSER;
     }
 
-    @Override
-    public MutationChunk getDefaultInstanceForType() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk
+        getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
   }
@@ -2008,7 +2142,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The type.
      */
-    DataChange.Type getType();
+    com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type getType();
 
     /**
      *
@@ -2022,7 +2156,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The sourceClusterId.
      */
-    String getSourceClusterId();
+    java.lang.String getSourceClusterId();
     /**
      *
      *
@@ -2117,7 +2251,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    java.util.List<MutationChunk> getChunksList();
+    java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk> getChunksList();
     /**
      *
      *
@@ -2129,7 +2263,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    MutationChunk getChunks(int index);
+    com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk getChunks(int index);
     /**
      *
      *
@@ -2153,7 +2287,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    java.util.List<? extends MutationChunkOrBuilder> getChunksOrBuilderList();
+    java.util.List<? extends com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>
+        getChunksOrBuilderList();
     /**
      *
      *
@@ -2165,7 +2300,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    MutationChunkOrBuilder getChunksOrBuilder(int index);
+    com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder getChunksOrBuilder(
+        int index);
 
     /**
      *
@@ -2193,7 +2329,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The token.
      */
-    String getToken();
+    java.lang.String getToken();
     /**
      *
      *
@@ -2281,13 +2417,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       token_ = "";
     }
 
-    @Override
+    @java.lang.Override
     @SuppressWarnings({"unused"})
-    protected Object newInstance(UnusedPrivateParameter unused) {
+    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new DataChange();
     }
 
-    @Override
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
     }
@@ -2298,7 +2434,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
-        throw new NullPointerException();
+        throw new java.lang.NullPointerException();
       }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
@@ -2320,7 +2456,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               }
             case 18:
               {
-                String s = input.readStringRequireUtf8();
+                java.lang.String s = input.readStringRequireUtf8();
 
                 sourceClusterId_ = s;
                 break;
@@ -2353,10 +2489,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             case 50:
               {
                 if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  chunks_ = new java.util.ArrayList<MutationChunk>();
+                  chunks_ =
+                      new java.util.ArrayList<
+                          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>();
                   mutable_bitField0_ |= 0x00000001;
                 }
-                chunks_.add(input.readMessage(MutationChunk.parser(), extensionRegistry));
+                chunks_.add(
+                    input.readMessage(
+                        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.parser(),
+                        extensionRegistry));
                 break;
               }
             case 64:
@@ -2366,7 +2507,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               }
             case 74:
               {
-                String s = input.readStringRequireUtf8();
+                java.lang.String s = input.readStringRequireUtf8();
 
                 token_ = s;
                 break;
@@ -2411,15 +2552,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return BigtableProto
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_DataChange_descriptor;
     }
 
-    @Override
-    protected FieldAccessorTable internalGetFieldAccessorTable() {
-      return BigtableProto
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_DataChange_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(DataChange.class, Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.class,
+              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder.class);
     }
 
     /**
@@ -2520,7 +2664,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
       public final int getNumber() {
         if (this == UNRECOGNIZED) {
-          throw new IllegalArgumentException("Can't get the number of an unknown enum value.");
+          throw new java.lang.IllegalArgumentException(
+              "Can't get the number of an unknown enum value.");
         }
         return value;
       }
@@ -2530,7 +2675,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return The enum associated with the given numeric wire value.
        * @deprecated Use {@link #forNumber(int)} instead.
        */
-      @Deprecated
+      @java.lang.Deprecated
       public static Type valueOf(int value) {
         return forNumber(value);
       }
@@ -2567,7 +2712,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
       public final com.google.protobuf.Descriptors.EnumValueDescriptor getValueDescriptor() {
         if (this == UNRECOGNIZED) {
-          throw new IllegalStateException(
+          throw new java.lang.IllegalStateException(
               "Can't get the descriptor of an unrecognized enum value.");
         }
         return getDescriptor().getValues().get(ordinal());
@@ -2578,14 +2723,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       public static final com.google.protobuf.Descriptors.EnumDescriptor getDescriptor() {
-        return DataChange.getDescriptor().getEnumTypes().get(0);
+        return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDescriptor()
+            .getEnumTypes()
+            .get(0);
       }
 
       private static final Type[] VALUES = values();
 
       public static Type valueOf(com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
         if (desc.getType() != getDescriptor()) {
-          throw new IllegalArgumentException("EnumValueDescriptor is not for this type.");
+          throw new java.lang.IllegalArgumentException("EnumValueDescriptor is not for this type.");
         }
         if (desc.getIndex() == -1) {
           return UNRECOGNIZED;
@@ -2615,7 +2762,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The enum numeric value on the wire for type.
      */
-    @Override
+    @java.lang.Override
     public int getTypeValue() {
       return type_;
     }
@@ -2630,15 +2777,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The type.
      */
-    @Override
-    public Type getType() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type getType() {
       @SuppressWarnings("deprecation")
-      Type result = Type.valueOf(type_);
-      return result == null ? Type.UNRECOGNIZED : result;
+      com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type result =
+          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.valueOf(type_);
+      return result == null
+          ? com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.UNRECOGNIZED
+          : result;
     }
 
     public static final int SOURCE_CLUSTER_ID_FIELD_NUMBER = 2;
-    private volatile Object sourceClusterId_;
+    private volatile java.lang.Object sourceClusterId_;
     /**
      *
      *
@@ -2651,14 +2801,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The sourceClusterId.
      */
-    @Override
-    public String getSourceClusterId() {
-      Object ref = sourceClusterId_;
-      if (ref instanceof String) {
-        return (String) ref;
+    @java.lang.Override
+    public java.lang.String getSourceClusterId() {
+      java.lang.Object ref = sourceClusterId_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
+        java.lang.String s = bs.toStringUtf8();
         sourceClusterId_ = s;
         return s;
       }
@@ -2675,12 +2825,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The bytes for sourceClusterId.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.ByteString getSourceClusterIdBytes() {
-      Object ref = sourceClusterId_;
-      if (ref instanceof String) {
+      java.lang.Object ref = sourceClusterId_;
+      if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
         sourceClusterId_ = b;
         return b;
       } else {
@@ -2703,7 +2853,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The rowKey.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.ByteString getRowKey() {
       return rowKey_;
     }
@@ -2721,7 +2871,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the commitTimestamp field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasCommitTimestamp() {
       return commitTimestamp_ != null;
     }
@@ -2736,7 +2886,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The commitTimestamp.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Timestamp getCommitTimestamp() {
       return commitTimestamp_ == null
           ? com.google.protobuf.Timestamp.getDefaultInstance()
@@ -2751,7 +2901,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.protobuf.Timestamp commit_timestamp = 4;</code>
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.TimestampOrBuilder getCommitTimestampOrBuilder() {
       return getCommitTimestamp();
     }
@@ -2775,13 +2925,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The tiebreaker.
      */
-    @Override
+    @java.lang.Override
     public int getTiebreaker() {
       return tiebreaker_;
     }
 
     public static final int CHUNKS_FIELD_NUMBER = 6;
-    private java.util.List<MutationChunk> chunks_;
+    private java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk> chunks_;
     /**
      *
      *
@@ -2793,8 +2943,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    @Override
-    public java.util.List<MutationChunk> getChunksList() {
+    @java.lang.Override
+    public java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>
+        getChunksList() {
       return chunks_;
     }
     /**
@@ -2808,8 +2959,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    @Override
-    public java.util.List<? extends MutationChunkOrBuilder> getChunksOrBuilderList() {
+    @java.lang.Override
+    public java.util.List<
+            ? extends com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>
+        getChunksOrBuilderList() {
       return chunks_;
     }
     /**
@@ -2823,7 +2976,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    @Override
+    @java.lang.Override
     public int getChunksCount() {
       return chunks_.size();
     }
@@ -2838,8 +2991,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    @Override
-    public MutationChunk getChunks(int index) {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk getChunks(int index) {
       return chunks_.get(index);
     }
     /**
@@ -2853,8 +3006,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;</code>
      */
-    @Override
-    public MutationChunkOrBuilder getChunksOrBuilder(int index) {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder
+        getChunksOrBuilder(int index) {
       return chunks_.get(index);
     }
 
@@ -2872,13 +3026,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The done.
      */
-    @Override
+    @java.lang.Override
     public boolean getDone() {
       return done_;
     }
 
     public static final int TOKEN_FIELD_NUMBER = 9;
-    private volatile Object token_;
+    private volatile java.lang.Object token_;
     /**
      *
      *
@@ -2891,14 +3045,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The token.
      */
-    @Override
-    public String getToken() {
-      Object ref = token_;
-      if (ref instanceof String) {
-        return (String) ref;
+    @java.lang.Override
+    public java.lang.String getToken() {
+      java.lang.Object ref = token_;
+      if (ref instanceof java.lang.String) {
+        return (java.lang.String) ref;
       } else {
         com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-        String s = bs.toStringUtf8();
+        java.lang.String s = bs.toStringUtf8();
         token_ = s;
         return s;
       }
@@ -2915,12 +3069,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The bytes for token.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.ByteString getTokenBytes() {
-      Object ref = token_;
-      if (ref instanceof String) {
+      java.lang.Object ref = token_;
+      if (ref instanceof java.lang.String) {
         com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
         token_ = b;
         return b;
       } else {
@@ -2943,7 +3097,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the lowWatermark field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasLowWatermark() {
       return lowWatermark_ != null;
     }
@@ -2960,7 +3114,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The lowWatermark.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Timestamp getLowWatermark() {
       return lowWatermark_ == null
           ? com.google.protobuf.Timestamp.getDefaultInstance()
@@ -2977,14 +3131,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
       return getLowWatermark();
     }
 
     private byte memoizedIsInitialized = -1;
 
-    @Override
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -2994,9 +3148,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
-      if (type_ != Type.TYPE_UNSPECIFIED.getNumber()) {
+      if (type_
+          != com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.TYPE_UNSPECIFIED
+              .getNumber()) {
         output.writeEnum(1, type_);
       }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceClusterId_)) {
@@ -3026,13 +3182,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       unknownFields.writeTo(output);
     }
 
-    @Override
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
 
       size = 0;
-      if (type_ != Type.TYPE_UNSPECIFIED.getNumber()) {
+      if (type_
+          != com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.TYPE_UNSPECIFIED
+              .getNumber()) {
         size += com.google.protobuf.CodedOutputStream.computeEnumSize(1, type_);
       }
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceClusterId_)) {
@@ -3064,15 +3222,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return size;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof DataChange)) {
+      if (!(obj instanceof com.google.bigtable.v2.ReadChangeStreamResponse.DataChange)) {
         return super.equals(obj);
       }
-      DataChange other = (DataChange) obj;
+      com.google.bigtable.v2.ReadChangeStreamResponse.DataChange other =
+          (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) obj;
 
       if (type_ != other.type_) return false;
       if (!getSourceClusterId().equals(other.getSourceClusterId())) return false;
@@ -3093,7 +3252,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public int hashCode() {
       if (memoizedHashCode != 0) {
         return memoizedHashCode;
@@ -3129,69 +3288,71 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return hash;
     }
 
-    public static DataChange parseFrom(java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
+        java.nio.ByteBuffer data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static DataChange parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
         java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static DataChange parseFrom(com.google.protobuf.ByteString data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static DataChange parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static DataChange parseFrom(byte[] data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static DataChange parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
         byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static DataChange parseFrom(java.io.InputStream input) throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static DataChange parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static DataChange parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseDelimitedFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static DataChange parseDelimitedFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseDelimitedFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static DataChange parseFrom(com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
+        com.google.protobuf.CodedInputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static DataChange parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -3199,7 +3360,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           PARSER, input, extensionRegistry);
     }
 
-    @Override
+    @java.lang.Override
     public Builder newBuilderForType() {
       return newBuilder();
     }
@@ -3208,17 +3369,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return DEFAULT_INSTANCE.toBuilder();
     }
 
-    public static Builder newBuilder(DataChange prototype) {
+    public static Builder newBuilder(
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
-    @Override
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
     }
 
-    @Override
-    protected Builder newBuilderForType(BuilderParent parent) {
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -3240,17 +3403,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse.DataChange)
-        DataChangeOrBuilder {
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_DataChange_descriptor;
       }
 
-      @Override
-      protected FieldAccessorTable internalGetFieldAccessorTable() {
-        return BigtableProto
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_DataChange_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(DataChange.class, Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.class,
+                com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder.class);
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.newBuilder()
@@ -3258,7 +3424,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         maybeForceBuilderInitialization();
       }
 
-      private Builder(BuilderParent parent) {
+      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
@@ -3269,7 +3435,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         }
       }
 
-      @Override
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         type_ = 0;
@@ -3305,29 +3471,31 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_DataChange_descriptor;
       }
 
-      @Override
-      public DataChange getDefaultInstanceForType() {
-        return DataChange.getDefaultInstance();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange
+          getDefaultInstanceForType() {
+        return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
       }
 
-      @Override
-      public DataChange build() {
-        DataChange result = buildPartial();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange build() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      @Override
-      public DataChange buildPartial() {
-        DataChange result = new DataChange(this);
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange buildPartial() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange result =
+            new com.google.bigtable.v2.ReadChangeStreamResponse.DataChange(this);
         int from_bitField0_ = bitField0_;
         result.type_ = type_;
         result.sourceClusterId_ = sourceClusterId_;
@@ -3358,50 +3526,55 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return result;
       }
 
-      @Override
+      @java.lang.Override
       public Builder clone() {
         return super.clone();
       }
 
-      @Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.setField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
 
-      @Override
+      @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index,
+          java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof DataChange) {
-          return mergeFrom((DataChange) other);
+        if (other instanceof com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) {
+          return mergeFrom((com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(DataChange other) {
-        if (other == DataChange.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.google.bigtable.v2.ReadChangeStreamResponse.DataChange other) {
+        if (other
+            == com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance())
+          return this;
         if (other.type_ != 0) {
           setTypeValue(other.getTypeValue());
         }
@@ -3460,21 +3633,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        DataChange parsedMessage = null;
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (DataChange) e.getUnfinishedMessage();
+          parsedMessage =
+              (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -3498,7 +3672,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The enum numeric value on the wire for type.
        */
-      @Override
+      @java.lang.Override
       public int getTypeValue() {
         return type_;
       }
@@ -3531,11 +3705,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The type.
        */
-      @Override
-      public Type getType() {
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type getType() {
         @SuppressWarnings("deprecation")
-        Type result = Type.valueOf(type_);
-        return result == null ? Type.UNRECOGNIZED : result;
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type result =
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.valueOf(type_);
+        return result == null
+            ? com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.UNRECOGNIZED
+            : result;
       }
       /**
        *
@@ -3549,7 +3726,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @param value The type to set.
        * @return This builder for chaining.
        */
-      public Builder setType(Type value) {
+      public Builder setType(
+          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -3576,7 +3754,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      private Object sourceClusterId_ = "";
+      private java.lang.Object sourceClusterId_ = "";
       /**
        *
        *
@@ -3589,15 +3767,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The sourceClusterId.
        */
-      public String getSourceClusterId() {
-        Object ref = sourceClusterId_;
-        if (!(ref instanceof String)) {
+      public java.lang.String getSourceClusterId() {
+        java.lang.Object ref = sourceClusterId_;
+        if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-          String s = bs.toStringUtf8();
+          java.lang.String s = bs.toStringUtf8();
           sourceClusterId_ = s;
           return s;
         } else {
-          return (String) ref;
+          return (java.lang.String) ref;
         }
       }
       /**
@@ -3613,10 +3791,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return The bytes for sourceClusterId.
        */
       public com.google.protobuf.ByteString getSourceClusterIdBytes() {
-        Object ref = sourceClusterId_;
+        java.lang.Object ref = sourceClusterId_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b =
-              com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+              com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
           sourceClusterId_ = b;
           return b;
         } else {
@@ -3636,7 +3814,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @param value The sourceClusterId to set.
        * @return This builder for chaining.
        */
-      public Builder setSourceClusterId(String value) {
+      public Builder setSourceClusterId(java.lang.String value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -3701,7 +3879,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The rowKey.
        */
-      @Override
+      @java.lang.Override
       public com.google.protobuf.ByteString getRowKey() {
         return rowKey_;
       }
@@ -3951,7 +4129,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The tiebreaker.
        */
-      @Override
+      @java.lang.Override
       public int getTiebreaker() {
         return tiebreaker_;
       }
@@ -4003,17 +4181,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      private java.util.List<MutationChunk> chunks_ = java.util.Collections.emptyList();
+      private java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>
+          chunks_ = java.util.Collections.emptyList();
 
       private void ensureChunksIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
-          chunks_ = new java.util.ArrayList<MutationChunk>(chunks_);
+          chunks_ =
+              new java.util.ArrayList<
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>(chunks_);
           bitField0_ |= 0x00000001;
         }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-              MutationChunk, MutationChunk.Builder, MutationChunkOrBuilder>
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>
           chunksBuilder_;
 
       /**
@@ -4028,7 +4211,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public java.util.List<MutationChunk> getChunksList() {
+      public java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>
+          getChunksList() {
         if (chunksBuilder_ == null) {
           return java.util.Collections.unmodifiableList(chunks_);
         } else {
@@ -4066,7 +4250,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public MutationChunk getChunks(int index) {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk getChunks(int index) {
         if (chunksBuilder_ == null) {
           return chunks_.get(index);
         } else {
@@ -4085,7 +4269,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder setChunks(int index, MutationChunk value) {
+      public Builder setChunks(
+          int index, com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk value) {
         if (chunksBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4110,7 +4295,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder setChunks(int index, MutationChunk.Builder builderForValue) {
+      public Builder setChunks(
+          int index,
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder builderForValue) {
         if (chunksBuilder_ == null) {
           ensureChunksIsMutable();
           chunks_.set(index, builderForValue.build());
@@ -4132,7 +4319,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder addChunks(MutationChunk value) {
+      public Builder addChunks(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk value) {
         if (chunksBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4157,7 +4345,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder addChunks(int index, MutationChunk value) {
+      public Builder addChunks(
+          int index, com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk value) {
         if (chunksBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4182,7 +4371,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder addChunks(MutationChunk.Builder builderForValue) {
+      public Builder addChunks(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder builderForValue) {
         if (chunksBuilder_ == null) {
           ensureChunksIsMutable();
           chunks_.add(builderForValue.build());
@@ -4204,7 +4394,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder addChunks(int index, MutationChunk.Builder builderForValue) {
+      public Builder addChunks(
+          int index,
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder builderForValue) {
         if (chunksBuilder_ == null) {
           ensureChunksIsMutable();
           chunks_.add(index, builderForValue.build());
@@ -4226,7 +4418,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public Builder addAllChunks(Iterable<? extends MutationChunk> values) {
+      public Builder addAllChunks(
+          java.lang.Iterable<
+                  ? extends com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>
+              values) {
         if (chunksBuilder_ == null) {
           ensureChunksIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(values, chunks_);
@@ -4292,7 +4487,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public MutationChunk.Builder getChunksBuilder(int index) {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder getChunksBuilder(
+          int index) {
         return getChunksFieldBuilder().getBuilder(index);
       }
       /**
@@ -4307,7 +4503,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public MutationChunkOrBuilder getChunksOrBuilder(int index) {
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder
+          getChunksOrBuilder(int index) {
         if (chunksBuilder_ == null) {
           return chunks_.get(index);
         } else {
@@ -4326,7 +4523,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public java.util.List<? extends MutationChunkOrBuilder> getChunksOrBuilderList() {
+      public java.util.List<
+              ? extends com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>
+          getChunksOrBuilderList() {
         if (chunksBuilder_ != null) {
           return chunksBuilder_.getMessageOrBuilderList();
         } else {
@@ -4345,8 +4544,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public MutationChunk.Builder addChunksBuilder() {
-        return getChunksFieldBuilder().addBuilder(MutationChunk.getDefaultInstance());
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder
+          addChunksBuilder() {
+        return getChunksFieldBuilder()
+            .addBuilder(
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.getDefaultInstance());
       }
       /**
        *
@@ -4360,8 +4562,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public MutationChunk.Builder addChunksBuilder(int index) {
-        return getChunksFieldBuilder().addBuilder(index, MutationChunk.getDefaultInstance());
+      public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder addChunksBuilder(
+          int index) {
+        return getChunksFieldBuilder()
+            .addBuilder(
+                index,
+                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.getDefaultInstance());
       }
       /**
        *
@@ -4375,17 +4581,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.ReadChangeStreamResponse.MutationChunk chunks = 6;
        * </code>
        */
-      public java.util.List<MutationChunk.Builder> getChunksBuilderList() {
+      public java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder>
+          getChunksBuilderList() {
         return getChunksFieldBuilder().getBuilderList();
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-              MutationChunk, MutationChunk.Builder, MutationChunkOrBuilder>
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder,
+              com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>
           getChunksFieldBuilder() {
         if (chunksBuilder_ == null) {
           chunksBuilder_ =
               new com.google.protobuf.RepeatedFieldBuilderV3<
-                  MutationChunk, MutationChunk.Builder, MutationChunkOrBuilder>(
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk,
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder,
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>(
                   chunks_, ((bitField0_ & 0x00000001) != 0), getParentForChildren(), isClean());
           chunks_ = null;
         }
@@ -4405,7 +4616,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The done.
        */
-      @Override
+      @java.lang.Override
       public boolean getDone() {
         return done_;
       }
@@ -4447,7 +4658,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      private Object token_ = "";
+      private java.lang.Object token_ = "";
       /**
        *
        *
@@ -4460,15 +4671,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The token.
        */
-      public String getToken() {
-        Object ref = token_;
-        if (!(ref instanceof String)) {
+      public java.lang.String getToken() {
+        java.lang.Object ref = token_;
+        if (!(ref instanceof java.lang.String)) {
           com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-          String s = bs.toStringUtf8();
+          java.lang.String s = bs.toStringUtf8();
           token_ = s;
           return s;
         } else {
-          return (String) ref;
+          return (java.lang.String) ref;
         }
       }
       /**
@@ -4484,10 +4695,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return The bytes for token.
        */
       public com.google.protobuf.ByteString getTokenBytes() {
-        Object ref = token_;
+        java.lang.Object ref = token_;
         if (ref instanceof String) {
           com.google.protobuf.ByteString b =
-              com.google.protobuf.ByteString.copyFromUtf8((String) ref);
+              com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
           token_ = b;
           return b;
         } else {
@@ -4507,7 +4718,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @param value The token to set.
        * @return This builder for chaining.
        */
-      public Builder setToken(String value) {
+      public Builder setToken(java.lang.String value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -4761,13 +4972,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return lowWatermarkBuilder_;
       }
 
-      @Override
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
-      @Override
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -4777,19 +4988,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse.DataChange)
-    private static final DataChange DEFAULT_INSTANCE;
+    private static final com.google.bigtable.v2.ReadChangeStreamResponse.DataChange
+        DEFAULT_INSTANCE;
 
     static {
-      DEFAULT_INSTANCE = new DataChange();
+      DEFAULT_INSTANCE = new com.google.bigtable.v2.ReadChangeStreamResponse.DataChange();
     }
 
-    public static DataChange getDefaultInstance() {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.DataChange getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
     private static final com.google.protobuf.Parser<DataChange> PARSER =
         new com.google.protobuf.AbstractParser<DataChange>() {
-          @Override
+          @java.lang.Override
           public DataChange parsePartialFrom(
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -4802,13 +5014,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return PARSER;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Parser<DataChange> getParserForType() {
       return PARSER;
     }
 
-    @Override
-    public DataChange getDefaultInstanceForType() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
   }
@@ -4843,7 +5055,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The continuationToken.
      */
-    StreamContinuationToken getContinuationToken();
+    com.google.bigtable.v2.StreamContinuationToken getContinuationToken();
     /**
      *
      *
@@ -4854,7 +5066,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
      */
-    StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder();
+    com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder();
 
     /**
      *
@@ -4919,13 +5131,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
     private Heartbeat() {}
 
-    @Override
+    @java.lang.Override
     @SuppressWarnings({"unused"})
-    protected Object newInstance(UnusedPrivateParameter unused) {
+    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new Heartbeat();
     }
 
-    @Override
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
     }
@@ -4936,7 +5148,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
-        throw new NullPointerException();
+        throw new java.lang.NullPointerException();
       }
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder();
@@ -4950,12 +5162,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               break;
             case 10:
               {
-                StreamContinuationToken.Builder subBuilder = null;
+                com.google.bigtable.v2.StreamContinuationToken.Builder subBuilder = null;
                 if (continuationToken_ != null) {
                   subBuilder = continuationToken_.toBuilder();
                 }
                 continuationToken_ =
-                    input.readMessage(StreamContinuationToken.parser(), extensionRegistry);
+                    input.readMessage(
+                        com.google.bigtable.v2.StreamContinuationToken.parser(), extensionRegistry);
                 if (subBuilder != null) {
                   subBuilder.mergeFrom(continuationToken_);
                   continuationToken_ = subBuilder.buildPartial();
@@ -5000,19 +5213,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return BigtableProto
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_Heartbeat_descriptor;
     }
 
-    @Override
-    protected FieldAccessorTable internalGetFieldAccessorTable() {
-      return BigtableProto
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_Heartbeat_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(Heartbeat.class, Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.class,
+              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder.class);
     }
 
     public static final int CONTINUATION_TOKEN_FIELD_NUMBER = 1;
-    private StreamContinuationToken continuationToken_;
+    private com.google.bigtable.v2.StreamContinuationToken continuationToken_;
     /**
      *
      *
@@ -5025,7 +5241,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the continuationToken field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasContinuationToken() {
       return continuationToken_ != null;
     }
@@ -5041,10 +5257,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The continuationToken.
      */
-    @Override
-    public StreamContinuationToken getContinuationToken() {
+    @java.lang.Override
+    public com.google.bigtable.v2.StreamContinuationToken getContinuationToken() {
       return continuationToken_ == null
-          ? StreamContinuationToken.getDefaultInstance()
+          ? com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance()
           : continuationToken_;
     }
     /**
@@ -5057,8 +5273,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
      */
-    @Override
-    public StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder() {
       return getContinuationToken();
     }
 
@@ -5077,7 +5293,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the lowWatermark field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasLowWatermark() {
       return lowWatermark_ != null;
     }
@@ -5094,7 +5310,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The lowWatermark.
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Timestamp getLowWatermark() {
       return lowWatermark_ == null
           ? com.google.protobuf.Timestamp.getDefaultInstance()
@@ -5111,14 +5327,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
      */
-    @Override
+    @java.lang.Override
     public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
       return getLowWatermark();
     }
 
     private byte memoizedIsInitialized = -1;
 
-    @Override
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -5128,7 +5344,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
       if (continuationToken_ != null) {
         output.writeMessage(1, getContinuationToken());
@@ -5139,7 +5355,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       unknownFields.writeTo(output);
     }
 
-    @Override
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
@@ -5156,15 +5372,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return size;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof Heartbeat)) {
+      if (!(obj instanceof com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat)) {
         return super.equals(obj);
       }
-      Heartbeat other = (Heartbeat) obj;
+      com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat other =
+          (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) obj;
 
       if (hasContinuationToken() != other.hasContinuationToken()) return false;
       if (hasContinuationToken()) {
@@ -5178,7 +5395,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public int hashCode() {
       if (memoizedHashCode != 0) {
         return memoizedHashCode;
@@ -5198,69 +5415,71 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return hash;
     }
 
-    public static Heartbeat parseFrom(java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
+        java.nio.ByteBuffer data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static Heartbeat parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
         java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static Heartbeat parseFrom(com.google.protobuf.ByteString data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static Heartbeat parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static Heartbeat parseFrom(byte[] data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static Heartbeat parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
         byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static Heartbeat parseFrom(java.io.InputStream input) throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static Heartbeat parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static Heartbeat parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseDelimitedFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static Heartbeat parseDelimitedFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseDelimitedFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static Heartbeat parseFrom(com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
+        com.google.protobuf.CodedInputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static Heartbeat parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -5268,7 +5487,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           PARSER, input, extensionRegistry);
     }
 
-    @Override
+    @java.lang.Override
     public Builder newBuilderForType() {
       return newBuilder();
     }
@@ -5277,17 +5496,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return DEFAULT_INSTANCE.toBuilder();
     }
 
-    public static Builder newBuilder(Heartbeat prototype) {
+    public static Builder newBuilder(
+        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
-    @Override
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
     }
 
-    @Override
-    protected Builder newBuilderForType(BuilderParent parent) {
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -5305,17 +5526,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse.Heartbeat)
-        HeartbeatOrBuilder {
+        com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_Heartbeat_descriptor;
       }
 
-      @Override
-      protected FieldAccessorTable internalGetFieldAccessorTable() {
-        return BigtableProto
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_Heartbeat_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(Heartbeat.class, Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.class,
+                com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder.class);
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.newBuilder()
@@ -5323,7 +5547,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         maybeForceBuilderInitialization();
       }
 
-      private Builder(BuilderParent parent) {
+      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
@@ -5332,7 +5556,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
-      @Override
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         if (continuationTokenBuilder_ == null) {
@@ -5350,29 +5574,30 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_Heartbeat_descriptor;
       }
 
-      @Override
-      public Heartbeat getDefaultInstanceForType() {
-        return Heartbeat.getDefaultInstance();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getDefaultInstanceForType() {
+        return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
       }
 
-      @Override
-      public Heartbeat build() {
-        Heartbeat result = buildPartial();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat build() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      @Override
-      public Heartbeat buildPartial() {
-        Heartbeat result = new Heartbeat(this);
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat buildPartial() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat result =
+            new com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat(this);
         if (continuationTokenBuilder_ == null) {
           result.continuationToken_ = continuationToken_;
         } else {
@@ -5387,50 +5612,54 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return result;
       }
 
-      @Override
+      @java.lang.Override
       public Builder clone() {
         return super.clone();
       }
 
-      @Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.setField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
 
-      @Override
+      @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index,
+          java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof Heartbeat) {
-          return mergeFrom((Heartbeat) other);
+        if (other instanceof com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) {
+          return mergeFrom((com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(Heartbeat other) {
-        if (other == Heartbeat.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat other) {
+        if (other == com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance())
+          return this;
         if (other.hasContinuationToken()) {
           mergeContinuationToken(other.getContinuationToken());
         }
@@ -5442,21 +5671,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        Heartbeat parsedMessage = null;
+        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (Heartbeat) e.getUnfinishedMessage();
+          parsedMessage =
+              (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -5466,11 +5696,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      private StreamContinuationToken continuationToken_;
+      private com.google.bigtable.v2.StreamContinuationToken continuationToken_;
       private com.google.protobuf.SingleFieldBuilderV3<
-              StreamContinuationToken,
-              StreamContinuationToken.Builder,
-              StreamContinuationTokenOrBuilder>
+              com.google.bigtable.v2.StreamContinuationToken,
+              com.google.bigtable.v2.StreamContinuationToken.Builder,
+              com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
           continuationTokenBuilder_;
       /**
        *
@@ -5499,10 +5729,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * @return The continuationToken.
        */
-      public StreamContinuationToken getContinuationToken() {
+      public com.google.bigtable.v2.StreamContinuationToken getContinuationToken() {
         if (continuationTokenBuilder_ == null) {
           return continuationToken_ == null
-              ? StreamContinuationToken.getDefaultInstance()
+              ? com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance()
               : continuationToken_;
         } else {
           return continuationTokenBuilder_.getMessage();
@@ -5518,7 +5748,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
-      public Builder setContinuationToken(StreamContinuationToken value) {
+      public Builder setContinuationToken(com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokenBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -5541,7 +5771,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
-      public Builder setContinuationToken(StreamContinuationToken.Builder builderForValue) {
+      public Builder setContinuationToken(
+          com.google.bigtable.v2.StreamContinuationToken.Builder builderForValue) {
         if (continuationTokenBuilder_ == null) {
           continuationToken_ = builderForValue.build();
           onChanged();
@@ -5561,11 +5792,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
-      public Builder mergeContinuationToken(StreamContinuationToken value) {
+      public Builder mergeContinuationToken(com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokenBuilder_ == null) {
           if (continuationToken_ != null) {
             continuationToken_ =
-                StreamContinuationToken.newBuilder(continuationToken_)
+                com.google.bigtable.v2.StreamContinuationToken.newBuilder(continuationToken_)
                     .mergeFrom(value)
                     .buildPartial();
           } else {
@@ -5609,7 +5840,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
-      public StreamContinuationToken.Builder getContinuationTokenBuilder() {
+      public com.google.bigtable.v2.StreamContinuationToken.Builder getContinuationTokenBuilder() {
 
         onChanged();
         return getContinuationTokenFieldBuilder().getBuilder();
@@ -5624,12 +5855,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
-      public StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder() {
+      public com.google.bigtable.v2.StreamContinuationTokenOrBuilder
+          getContinuationTokenOrBuilder() {
         if (continuationTokenBuilder_ != null) {
           return continuationTokenBuilder_.getMessageOrBuilder();
         } else {
           return continuationToken_ == null
-              ? StreamContinuationToken.getDefaultInstance()
+              ? com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance()
               : continuationToken_;
         }
       }
@@ -5644,16 +5876,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
-              StreamContinuationToken,
-              StreamContinuationToken.Builder,
-              StreamContinuationTokenOrBuilder>
+              com.google.bigtable.v2.StreamContinuationToken,
+              com.google.bigtable.v2.StreamContinuationToken.Builder,
+              com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
           getContinuationTokenFieldBuilder() {
         if (continuationTokenBuilder_ == null) {
           continuationTokenBuilder_ =
               new com.google.protobuf.SingleFieldBuilderV3<
-                  StreamContinuationToken,
-                  StreamContinuationToken.Builder,
-                  StreamContinuationTokenOrBuilder>(
+                  com.google.bigtable.v2.StreamContinuationToken,
+                  com.google.bigtable.v2.StreamContinuationToken.Builder,
+                  com.google.bigtable.v2.StreamContinuationTokenOrBuilder>(
                   getContinuationToken(), getParentForChildren(), isClean());
           continuationToken_ = null;
         }
@@ -5863,13 +6095,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return lowWatermarkBuilder_;
       }
 
-      @Override
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
-      @Override
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -5879,19 +6111,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse.Heartbeat)
-    private static final Heartbeat DEFAULT_INSTANCE;
+    private static final com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat DEFAULT_INSTANCE;
 
     static {
-      DEFAULT_INSTANCE = new Heartbeat();
+      DEFAULT_INSTANCE = new com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat();
     }
 
-    public static Heartbeat getDefaultInstance() {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
     private static final com.google.protobuf.Parser<Heartbeat> PARSER =
         new com.google.protobuf.AbstractParser<Heartbeat>() {
-          @Override
+          @java.lang.Override
           public Heartbeat parsePartialFrom(
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -5904,13 +6136,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return PARSER;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Parser<Heartbeat> getParserForType() {
       return PARSER;
     }
 
-    @Override
-    public Heartbeat getDefaultInstanceForType() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
   }
@@ -5965,7 +6197,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    java.util.List<StreamContinuationToken> getContinuationTokensList();
+    java.util.List<com.google.bigtable.v2.StreamContinuationToken> getContinuationTokensList();
     /**
      *
      *
@@ -5976,7 +6208,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    StreamContinuationToken getContinuationTokens(int index);
+    com.google.bigtable.v2.StreamContinuationToken getContinuationTokens(int index);
     /**
      *
      *
@@ -5998,7 +6230,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    java.util.List<? extends StreamContinuationTokenOrBuilder> getContinuationTokensOrBuilderList();
+    java.util.List<? extends com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
+        getContinuationTokensOrBuilderList();
     /**
      *
      *
@@ -6009,7 +6242,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(int index);
+    com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(
+        int index);
   }
   /**
    *
@@ -6038,13 +6272,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       continuationTokens_ = java.util.Collections.emptyList();
     }
 
-    @Override
+    @java.lang.Override
     @SuppressWarnings({"unused"})
-    protected Object newInstance(UnusedPrivateParameter unused) {
+    protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new CloseStream();
     }
 
-    @Override
+    @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
     }
@@ -6055,7 +6289,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         throws com.google.protobuf.InvalidProtocolBufferException {
       this();
       if (extensionRegistry == null) {
-        throw new NullPointerException();
+        throw new java.lang.NullPointerException();
       }
       int mutable_bitField0_ = 0;
       com.google.protobuf.UnknownFieldSet.Builder unknownFields =
@@ -6085,11 +6319,14 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             case 18:
               {
                 if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  continuationTokens_ = new java.util.ArrayList<StreamContinuationToken>();
+                  continuationTokens_ =
+                      new java.util.ArrayList<com.google.bigtable.v2.StreamContinuationToken>();
                   mutable_bitField0_ |= 0x00000001;
                 }
                 continuationTokens_.add(
-                    input.readMessage(StreamContinuationToken.parser(), extensionRegistry));
+                    input.readMessage(
+                        com.google.bigtable.v2.StreamContinuationToken.parser(),
+                        extensionRegistry));
                 break;
               }
             default:
@@ -6117,15 +6354,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return BigtableProto
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_descriptor;
     }
 
-    @Override
-    protected FieldAccessorTable internalGetFieldAccessorTable() {
-      return BigtableProto
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(CloseStream.class, Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.class,
+              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder.class);
     }
 
     public static final int STATUS_FIELD_NUMBER = 1;
@@ -6141,7 +6381,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the status field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasStatus() {
       return status_ != null;
     }
@@ -6156,7 +6396,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The status.
      */
-    @Override
+    @java.lang.Override
     public com.google.rpc.Status getStatus() {
       return status_ == null ? com.google.rpc.Status.getDefaultInstance() : status_;
     }
@@ -6169,13 +6409,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.rpc.Status status = 1;</code>
      */
-    @Override
+    @java.lang.Override
     public com.google.rpc.StatusOrBuilder getStatusOrBuilder() {
       return getStatus();
     }
 
     public static final int CONTINUATION_TOKENS_FIELD_NUMBER = 2;
-    private java.util.List<StreamContinuationToken> continuationTokens_;
+    private java.util.List<com.google.bigtable.v2.StreamContinuationToken> continuationTokens_;
     /**
      *
      *
@@ -6186,8 +6426,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    @Override
-    public java.util.List<StreamContinuationToken> getContinuationTokensList() {
+    @java.lang.Override
+    public java.util.List<com.google.bigtable.v2.StreamContinuationToken>
+        getContinuationTokensList() {
       return continuationTokens_;
     }
     /**
@@ -6200,8 +6441,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    @Override
-    public java.util.List<? extends StreamContinuationTokenOrBuilder>
+    @java.lang.Override
+    public java.util.List<? extends com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
         getContinuationTokensOrBuilderList() {
       return continuationTokens_;
     }
@@ -6215,7 +6456,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    @Override
+    @java.lang.Override
     public int getContinuationTokensCount() {
       return continuationTokens_.size();
     }
@@ -6229,8 +6470,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    @Override
-    public StreamContinuationToken getContinuationTokens(int index) {
+    @java.lang.Override
+    public com.google.bigtable.v2.StreamContinuationToken getContinuationTokens(int index) {
       return continuationTokens_.get(index);
     }
     /**
@@ -6243,14 +6484,15 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
      */
-    @Override
-    public StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(int index) {
+    @java.lang.Override
+    public com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(
+        int index) {
       return continuationTokens_.get(index);
     }
 
     private byte memoizedIsInitialized = -1;
 
-    @Override
+    @java.lang.Override
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized == 1) return true;
@@ -6260,7 +6502,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
       if (status_ != null) {
         output.writeMessage(1, getStatus());
@@ -6271,7 +6513,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       unknownFields.writeTo(output);
     }
 
-    @Override
+    @java.lang.Override
     public int getSerializedSize() {
       int size = memoizedSize;
       if (size != -1) return size;
@@ -6289,15 +6531,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return size;
     }
 
-    @Override
-    public boolean equals(final Object obj) {
+    @java.lang.Override
+    public boolean equals(final java.lang.Object obj) {
       if (obj == this) {
         return true;
       }
-      if (!(obj instanceof CloseStream)) {
+      if (!(obj instanceof com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream)) {
         return super.equals(obj);
       }
-      CloseStream other = (CloseStream) obj;
+      com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream other =
+          (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) obj;
 
       if (hasStatus() != other.hasStatus()) return false;
       if (hasStatus()) {
@@ -6308,7 +6551,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public int hashCode() {
       if (memoizedHashCode != 0) {
         return memoizedHashCode;
@@ -6328,69 +6571,71 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return hash;
     }
 
-    public static CloseStream parseFrom(java.nio.ByteBuffer data)
-        throws com.google.protobuf.InvalidProtocolBufferException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
+        java.nio.ByteBuffer data) throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static CloseStream parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
         java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static CloseStream parseFrom(com.google.protobuf.ByteString data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
+        com.google.protobuf.ByteString data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static CloseStream parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
         com.google.protobuf.ByteString data,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static CloseStream parseFrom(byte[] data)
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(byte[] data)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data);
     }
 
-    public static CloseStream parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
         byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws com.google.protobuf.InvalidProtocolBufferException {
       return PARSER.parseFrom(data, extensionRegistry);
     }
 
-    public static CloseStream parseFrom(java.io.InputStream input) throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static CloseStream parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static CloseStream parseDelimitedFrom(java.io.InputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseDelimitedFrom(
+        java.io.InputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
     }
 
-    public static CloseStream parseDelimitedFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseDelimitedFrom(
         java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
           PARSER, input, extensionRegistry);
     }
 
-    public static CloseStream parseFrom(com.google.protobuf.CodedInputStream input)
-        throws java.io.IOException {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
+        com.google.protobuf.CodedInputStream input) throws java.io.IOException {
       return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
     }
 
-    public static CloseStream parseFrom(
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parseFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
@@ -6398,7 +6643,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           PARSER, input, extensionRegistry);
     }
 
-    @Override
+    @java.lang.Override
     public Builder newBuilderForType() {
       return newBuilder();
     }
@@ -6407,17 +6652,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return DEFAULT_INSTANCE.toBuilder();
     }
 
-    public static Builder newBuilder(CloseStream prototype) {
+    public static Builder newBuilder(
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream prototype) {
       return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
     }
 
-    @Override
+    @java.lang.Override
     public Builder toBuilder() {
       return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
     }
 
-    @Override
-    protected Builder newBuilderForType(BuilderParent parent) {
+    @java.lang.Override
+    protected Builder newBuilderForType(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
@@ -6438,17 +6685,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
         implements
         // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse.CloseStream)
-        CloseStreamOrBuilder {
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_descriptor;
       }
 
-      @Override
-      protected FieldAccessorTable internalGetFieldAccessorTable() {
-        return BigtableProto
+      @java.lang.Override
+      protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+          internalGetFieldAccessorTable() {
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_fieldAccessorTable
-            .ensureFieldAccessorsInitialized(CloseStream.class, Builder.class);
+            .ensureFieldAccessorsInitialized(
+                com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.class,
+                com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder.class);
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.newBuilder()
@@ -6456,7 +6706,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         maybeForceBuilderInitialization();
       }
 
-      private Builder(BuilderParent parent) {
+      private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
@@ -6467,7 +6717,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         }
       }
 
-      @Override
+      @java.lang.Override
       public Builder clear() {
         super.clear();
         if (statusBuilder_ == null) {
@@ -6485,29 +6735,31 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-        return BigtableProto
+        return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_descriptor;
       }
 
-      @Override
-      public CloseStream getDefaultInstanceForType() {
-        return CloseStream.getDefaultInstance();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream
+          getDefaultInstanceForType() {
+        return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
       }
 
-      @Override
-      public CloseStream build() {
-        CloseStream result = buildPartial();
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream build() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
 
-      @Override
-      public CloseStream buildPartial() {
-        CloseStream result = new CloseStream(this);
+      @java.lang.Override
+      public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream buildPartial() {
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream result =
+            new com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream(this);
         int from_bitField0_ = bitField0_;
         if (statusBuilder_ == null) {
           result.status_ = status_;
@@ -6527,50 +6779,55 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return result;
       }
 
-      @Override
+      @java.lang.Override
       public Builder clone() {
         return super.clone();
       }
 
-      @Override
-      public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+      @java.lang.Override
+      public Builder setField(
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.setField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
         return super.clearField(field);
       }
 
-      @Override
+      @java.lang.Override
       public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
         return super.clearOneof(oneof);
       }
 
-      @Override
+      @java.lang.Override
       public Builder setRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field,
+          int index,
+          java.lang.Object value) {
         return super.setRepeatedField(field, index, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder addRepeatedField(
-          com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+          com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
         return super.addRepeatedField(field, value);
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof CloseStream) {
-          return mergeFrom((CloseStream) other);
+        if (other instanceof com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) {
+          return mergeFrom((com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
 
-      public Builder mergeFrom(CloseStream other) {
-        if (other == CloseStream.getDefaultInstance()) return this;
+      public Builder mergeFrom(com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream other) {
+        if (other
+            == com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance())
+          return this;
         if (other.hasStatus()) {
           mergeStatus(other.getStatus());
         }
@@ -6606,21 +6863,23 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this;
       }
 
-      @Override
+      @java.lang.Override
       public final boolean isInitialized() {
         return true;
       }
 
-      @Override
+      @java.lang.Override
       public Builder mergeFrom(
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        CloseStream parsedMessage = null;
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parsedMessage = null;
         try {
           parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (CloseStream) e.getUnfinishedMessage();
+          parsedMessage =
+              (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream)
+                  e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
           if (parsedMessage != null) {
@@ -6805,21 +7064,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return statusBuilder_;
       }
 
-      private java.util.List<StreamContinuationToken> continuationTokens_ =
+      private java.util.List<com.google.bigtable.v2.StreamContinuationToken> continuationTokens_ =
           java.util.Collections.emptyList();
 
       private void ensureContinuationTokensIsMutable() {
         if (!((bitField0_ & 0x00000001) != 0)) {
           continuationTokens_ =
-              new java.util.ArrayList<StreamContinuationToken>(continuationTokens_);
+              new java.util.ArrayList<com.google.bigtable.v2.StreamContinuationToken>(
+                  continuationTokens_);
           bitField0_ |= 0x00000001;
         }
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-              StreamContinuationToken,
-              StreamContinuationToken.Builder,
-              StreamContinuationTokenOrBuilder>
+              com.google.bigtable.v2.StreamContinuationToken,
+              com.google.bigtable.v2.StreamContinuationToken.Builder,
+              com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
           continuationTokensBuilder_;
 
       /**
@@ -6832,7 +7092,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public java.util.List<StreamContinuationToken> getContinuationTokensList() {
+      public java.util.List<com.google.bigtable.v2.StreamContinuationToken>
+          getContinuationTokensList() {
         if (continuationTokensBuilder_ == null) {
           return java.util.Collections.unmodifiableList(continuationTokens_);
         } else {
@@ -6866,7 +7127,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public StreamContinuationToken getContinuationTokens(int index) {
+      public com.google.bigtable.v2.StreamContinuationToken getContinuationTokens(int index) {
         if (continuationTokensBuilder_ == null) {
           return continuationTokens_.get(index);
         } else {
@@ -6883,7 +7144,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public Builder setContinuationTokens(int index, StreamContinuationToken value) {
+      public Builder setContinuationTokens(
+          int index, com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokensBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6907,7 +7169,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
       public Builder setContinuationTokens(
-          int index, StreamContinuationToken.Builder builderForValue) {
+          int index, com.google.bigtable.v2.StreamContinuationToken.Builder builderForValue) {
         if (continuationTokensBuilder_ == null) {
           ensureContinuationTokensIsMutable();
           continuationTokens_.set(index, builderForValue.build());
@@ -6927,7 +7189,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public Builder addContinuationTokens(StreamContinuationToken value) {
+      public Builder addContinuationTokens(com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokensBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6950,7 +7212,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public Builder addContinuationTokens(int index, StreamContinuationToken value) {
+      public Builder addContinuationTokens(
+          int index, com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokensBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -6973,7 +7236,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public Builder addContinuationTokens(StreamContinuationToken.Builder builderForValue) {
+      public Builder addContinuationTokens(
+          com.google.bigtable.v2.StreamContinuationToken.Builder builderForValue) {
         if (continuationTokensBuilder_ == null) {
           ensureContinuationTokensIsMutable();
           continuationTokens_.add(builderForValue.build());
@@ -6994,7 +7258,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
       public Builder addContinuationTokens(
-          int index, StreamContinuationToken.Builder builderForValue) {
+          int index, com.google.bigtable.v2.StreamContinuationToken.Builder builderForValue) {
         if (continuationTokensBuilder_ == null) {
           ensureContinuationTokensIsMutable();
           continuationTokens_.add(index, builderForValue.build());
@@ -7014,7 +7278,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public Builder addAllContinuationTokens(Iterable<? extends StreamContinuationToken> values) {
+      public Builder addAllContinuationTokens(
+          java.lang.Iterable<? extends com.google.bigtable.v2.StreamContinuationToken> values) {
         if (continuationTokensBuilder_ == null) {
           ensureContinuationTokensIsMutable();
           com.google.protobuf.AbstractMessageLite.Builder.addAll(values, continuationTokens_);
@@ -7074,7 +7339,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public StreamContinuationToken.Builder getContinuationTokensBuilder(int index) {
+      public com.google.bigtable.v2.StreamContinuationToken.Builder getContinuationTokensBuilder(
+          int index) {
         return getContinuationTokensFieldBuilder().getBuilder(index);
       }
       /**
@@ -7087,7 +7353,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(int index) {
+      public com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokensOrBuilder(
+          int index) {
         if (continuationTokensBuilder_ == null) {
           return continuationTokens_.get(index);
         } else {
@@ -7104,7 +7371,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public java.util.List<? extends StreamContinuationTokenOrBuilder>
+      public java.util.List<? extends com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
           getContinuationTokensOrBuilderList() {
         if (continuationTokensBuilder_ != null) {
           return continuationTokensBuilder_.getMessageOrBuilderList();
@@ -7122,9 +7389,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public StreamContinuationToken.Builder addContinuationTokensBuilder() {
+      public com.google.bigtable.v2.StreamContinuationToken.Builder addContinuationTokensBuilder() {
         return getContinuationTokensFieldBuilder()
-            .addBuilder(StreamContinuationToken.getDefaultInstance());
+            .addBuilder(com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance());
       }
       /**
        *
@@ -7136,9 +7403,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public StreamContinuationToken.Builder addContinuationTokensBuilder(int index) {
+      public com.google.bigtable.v2.StreamContinuationToken.Builder addContinuationTokensBuilder(
+          int index) {
         return getContinuationTokensFieldBuilder()
-            .addBuilder(index, StreamContinuationToken.getDefaultInstance());
+            .addBuilder(index, com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance());
       }
       /**
        *
@@ -7150,21 +7418,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        *
        * <code>repeated .google.bigtable.v2.StreamContinuationToken continuation_tokens = 2;</code>
        */
-      public java.util.List<StreamContinuationToken.Builder> getContinuationTokensBuilderList() {
+      public java.util.List<com.google.bigtable.v2.StreamContinuationToken.Builder>
+          getContinuationTokensBuilderList() {
         return getContinuationTokensFieldBuilder().getBuilderList();
       }
 
       private com.google.protobuf.RepeatedFieldBuilderV3<
-              StreamContinuationToken,
-              StreamContinuationToken.Builder,
-              StreamContinuationTokenOrBuilder>
+              com.google.bigtable.v2.StreamContinuationToken,
+              com.google.bigtable.v2.StreamContinuationToken.Builder,
+              com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
           getContinuationTokensFieldBuilder() {
         if (continuationTokensBuilder_ == null) {
           continuationTokensBuilder_ =
               new com.google.protobuf.RepeatedFieldBuilderV3<
-                  StreamContinuationToken,
-                  StreamContinuationToken.Builder,
-                  StreamContinuationTokenOrBuilder>(
+                  com.google.bigtable.v2.StreamContinuationToken,
+                  com.google.bigtable.v2.StreamContinuationToken.Builder,
+                  com.google.bigtable.v2.StreamContinuationTokenOrBuilder>(
                   continuationTokens_,
                   ((bitField0_ & 0x00000001) != 0),
                   getParentForChildren(),
@@ -7174,13 +7443,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return continuationTokensBuilder_;
       }
 
-      @Override
+      @java.lang.Override
       public final Builder setUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.setUnknownFields(unknownFields);
       }
 
-      @Override
+      @java.lang.Override
       public final Builder mergeUnknownFields(
           final com.google.protobuf.UnknownFieldSet unknownFields) {
         return super.mergeUnknownFields(unknownFields);
@@ -7190,19 +7459,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse.CloseStream)
-    private static final CloseStream DEFAULT_INSTANCE;
+    private static final com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream
+        DEFAULT_INSTANCE;
 
     static {
-      DEFAULT_INSTANCE = new CloseStream();
+      DEFAULT_INSTANCE = new com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream();
     }
 
-    public static CloseStream getDefaultInstance() {
+    public static com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream getDefaultInstance() {
       return DEFAULT_INSTANCE;
     }
 
     private static final com.google.protobuf.Parser<CloseStream> PARSER =
         new com.google.protobuf.AbstractParser<CloseStream>() {
-          @Override
+          @java.lang.Override
           public CloseStream parsePartialFrom(
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -7215,21 +7485,24 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return PARSER;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Parser<CloseStream> getParserForType() {
       return PARSER;
     }
 
-    @Override
-    public CloseStream getDefaultInstanceForType() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream getDefaultInstanceForType() {
       return DEFAULT_INSTANCE;
     }
   }
 
   private int streamRecordCase_ = 0;
-  private Object streamRecord_;
+  private java.lang.Object streamRecord_;
 
-  public enum StreamRecordCase implements com.google.protobuf.Internal.EnumLite, InternalOneOfEnum {
+  public enum StreamRecordCase
+      implements
+          com.google.protobuf.Internal.EnumLite,
+          com.google.protobuf.AbstractMessage.InternalOneOfEnum {
     DATA_CHANGE(1),
     HEARTBEAT(2),
     CLOSE_STREAM(3),
@@ -7244,7 +7517,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * @return The enum associated with the given number.
      * @deprecated Use {@link #forNumber(int)} instead.
      */
-    @Deprecated
+    @java.lang.Deprecated
     public static StreamRecordCase valueOf(int value) {
       return forNumber(value);
     }
@@ -7285,7 +7558,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return Whether the dataChange field is set.
    */
-  @Override
+  @java.lang.Override
   public boolean hasDataChange() {
     return streamRecordCase_ == 1;
   }
@@ -7300,12 +7573,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return The dataChange.
    */
-  @Override
-  public DataChange getDataChange() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange getDataChange() {
     if (streamRecordCase_ == 1) {
-      return (DataChange) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_;
     }
-    return DataChange.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
   }
   /**
    *
@@ -7316,12 +7589,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
    */
-  @Override
-  public DataChangeOrBuilder getDataChangeOrBuilder() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder
+      getDataChangeOrBuilder() {
     if (streamRecordCase_ == 1) {
-      return (DataChange) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_;
     }
-    return DataChange.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
   }
 
   public static final int HEARTBEAT_FIELD_NUMBER = 2;
@@ -7336,7 +7610,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return Whether the heartbeat field is set.
    */
-  @Override
+  @java.lang.Override
   public boolean hasHeartbeat() {
     return streamRecordCase_ == 2;
   }
@@ -7351,12 +7625,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return The heartbeat.
    */
-  @Override
-  public Heartbeat getHeartbeat() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getHeartbeat() {
     if (streamRecordCase_ == 2) {
-      return (Heartbeat) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_;
     }
-    return Heartbeat.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
   }
   /**
    *
@@ -7367,12 +7641,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
    */
-  @Override
-  public HeartbeatOrBuilder getHeartbeatOrBuilder() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder
+      getHeartbeatOrBuilder() {
     if (streamRecordCase_ == 2) {
-      return (Heartbeat) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_;
     }
-    return Heartbeat.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
   }
 
   public static final int CLOSE_STREAM_FIELD_NUMBER = 3;
@@ -7387,7 +7662,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return Whether the closeStream field is set.
    */
-  @Override
+  @java.lang.Override
   public boolean hasCloseStream() {
     return streamRecordCase_ == 3;
   }
@@ -7402,12 +7677,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * @return The closeStream.
    */
-  @Override
-  public CloseStream getCloseStream() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream getCloseStream() {
     if (streamRecordCase_ == 3) {
-      return (CloseStream) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_;
     }
-    return CloseStream.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
   }
   /**
    *
@@ -7418,17 +7693,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
    */
-  @Override
-  public CloseStreamOrBuilder getCloseStreamOrBuilder() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder
+      getCloseStreamOrBuilder() {
     if (streamRecordCase_ == 3) {
-      return (CloseStream) streamRecord_;
+      return (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_;
     }
-    return CloseStream.getDefaultInstance();
+    return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
   }
 
   private byte memoizedIsInitialized = -1;
 
-  @Override
+  @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
     if (isInitialized == 1) return true;
@@ -7438,21 +7714,24 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
     if (streamRecordCase_ == 1) {
-      output.writeMessage(1, (DataChange) streamRecord_);
+      output.writeMessage(
+          1, (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_);
     }
     if (streamRecordCase_ == 2) {
-      output.writeMessage(2, (Heartbeat) streamRecord_);
+      output.writeMessage(
+          2, (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_);
     }
     if (streamRecordCase_ == 3) {
-      output.writeMessage(3, (CloseStream) streamRecord_);
+      output.writeMessage(
+          3, (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
     }
     unknownFields.writeTo(output);
   }
 
-  @Override
+  @java.lang.Override
   public int getSerializedSize() {
     int size = memoizedSize;
     if (size != -1) return size;
@@ -7460,30 +7739,34 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     size = 0;
     if (streamRecordCase_ == 1) {
       size +=
-          com.google.protobuf.CodedOutputStream.computeMessageSize(1, (DataChange) streamRecord_);
+          com.google.protobuf.CodedOutputStream.computeMessageSize(
+              1, (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_);
     }
     if (streamRecordCase_ == 2) {
       size +=
-          com.google.protobuf.CodedOutputStream.computeMessageSize(2, (Heartbeat) streamRecord_);
+          com.google.protobuf.CodedOutputStream.computeMessageSize(
+              2, (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_);
     }
     if (streamRecordCase_ == 3) {
       size +=
-          com.google.protobuf.CodedOutputStream.computeMessageSize(3, (CloseStream) streamRecord_);
+          com.google.protobuf.CodedOutputStream.computeMessageSize(
+              3, (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
     return size;
   }
 
-  @Override
-  public boolean equals(final Object obj) {
+  @java.lang.Override
+  public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
       return true;
     }
-    if (!(obj instanceof ReadChangeStreamResponse)) {
+    if (!(obj instanceof com.google.bigtable.v2.ReadChangeStreamResponse)) {
       return super.equals(obj);
     }
-    ReadChangeStreamResponse other = (ReadChangeStreamResponse) obj;
+    com.google.bigtable.v2.ReadChangeStreamResponse other =
+        (com.google.bigtable.v2.ReadChangeStreamResponse) obj;
 
     if (!getStreamRecordCase().equals(other.getStreamRecordCase())) return false;
     switch (streamRecordCase_) {
@@ -7503,7 +7786,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     return true;
   }
 
-  @Override
+  @java.lang.Override
   public int hashCode() {
     if (memoizedHashCode != 0) {
       return memoizedHashCode;
@@ -7531,70 +7814,71 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     return hash;
   }
 
-  public static ReadChangeStreamResponse parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
 
-  public static ReadChangeStreamResponse parseFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
       java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
 
-  public static ReadChangeStreamResponse parseFrom(com.google.protobuf.ByteString data)
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
+      com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
 
-  public static ReadChangeStreamResponse parseFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
 
-  public static ReadChangeStreamResponse parseFrom(byte[] data)
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
 
-  public static ReadChangeStreamResponse parseFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
       byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
 
-  public static ReadChangeStreamResponse parseFrom(java.io.InputStream input)
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(java.io.InputStream input)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
   }
 
-  public static ReadChangeStreamResponse parseFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
       java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
         PARSER, input, extensionRegistry);
   }
 
-  public static ReadChangeStreamResponse parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseDelimitedFrom(
+      java.io.InputStream input) throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
   }
 
-  public static ReadChangeStreamResponse parseDelimitedFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseDelimitedFrom(
       java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
         PARSER, input, extensionRegistry);
   }
 
-  public static ReadChangeStreamResponse parseFrom(com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
+      com.google.protobuf.CodedInputStream input) throws java.io.IOException {
     return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
   }
 
-  public static ReadChangeStreamResponse parseFrom(
+  public static com.google.bigtable.v2.ReadChangeStreamResponse parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
@@ -7602,7 +7886,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         PARSER, input, extensionRegistry);
   }
 
-  @Override
+  @java.lang.Override
   public Builder newBuilderForType() {
     return newBuilder();
   }
@@ -7611,17 +7895,17 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     return DEFAULT_INSTANCE.toBuilder();
   }
 
-  public static Builder newBuilder(ReadChangeStreamResponse prototype) {
+  public static Builder newBuilder(com.google.bigtable.v2.ReadChangeStreamResponse prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
 
-  @Override
+  @java.lang.Override
   public Builder toBuilder() {
     return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
   }
 
-  @Override
-  protected Builder newBuilderForType(BuilderParent parent) {
+  @java.lang.Override
+  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
@@ -7638,16 +7922,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
   public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
       implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ReadChangeStreamResponse)
-      ReadChangeStreamResponseOrBuilder {
+      com.google.bigtable.v2.ReadChangeStreamResponseOrBuilder {
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return BigtableProto.internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
+      return com.google.bigtable.v2.BigtableProto
+          .internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
     }
 
-    @Override
-    protected FieldAccessorTable internalGetFieldAccessorTable() {
-      return BigtableProto
+    @java.lang.Override
+    protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
+        internalGetFieldAccessorTable() {
+      return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_fieldAccessorTable
-          .ensureFieldAccessorsInitialized(ReadChangeStreamResponse.class, Builder.class);
+          .ensureFieldAccessorsInitialized(
+              com.google.bigtable.v2.ReadChangeStreamResponse.class,
+              com.google.bigtable.v2.ReadChangeStreamResponse.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.newBuilder()
@@ -7655,7 +7943,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       maybeForceBuilderInitialization();
     }
 
-    private Builder(BuilderParent parent) {
+    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
       maybeForceBuilderInitialization();
     }
@@ -7664,7 +7952,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
-    @Override
+    @java.lang.Override
     public Builder clear() {
       super.clear();
       streamRecordCase_ = 0;
@@ -7672,28 +7960,30 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return this;
     }
 
-    @Override
+    @java.lang.Override
     public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return BigtableProto.internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
+      return com.google.bigtable.v2.BigtableProto
+          .internal_static_google_bigtable_v2_ReadChangeStreamResponse_descriptor;
     }
 
-    @Override
-    public ReadChangeStreamResponse getDefaultInstanceForType() {
-      return ReadChangeStreamResponse.getDefaultInstance();
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse getDefaultInstanceForType() {
+      return com.google.bigtable.v2.ReadChangeStreamResponse.getDefaultInstance();
     }
 
-    @Override
-    public ReadChangeStreamResponse build() {
-      ReadChangeStreamResponse result = buildPartial();
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse build() {
+      com.google.bigtable.v2.ReadChangeStreamResponse result = buildPartial();
       if (!result.isInitialized()) {
         throw newUninitializedMessageException(result);
       }
       return result;
     }
 
-    @Override
-    public ReadChangeStreamResponse buildPartial() {
-      ReadChangeStreamResponse result = new ReadChangeStreamResponse(this);
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse buildPartial() {
+      com.google.bigtable.v2.ReadChangeStreamResponse result =
+          new com.google.bigtable.v2.ReadChangeStreamResponse(this);
       if (streamRecordCase_ == 1) {
         if (dataChangeBuilder_ == null) {
           result.streamRecord_ = streamRecord_;
@@ -7720,50 +8010,52 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return result;
     }
 
-    @Override
+    @java.lang.Override
     public Builder clone() {
       return super.clone();
     }
 
-    @Override
-    public Builder setField(com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+    @java.lang.Override
+    public Builder setField(
+        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
       return super.setField(field, value);
     }
 
-    @Override
+    @java.lang.Override
     public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
 
-    @Override
+    @java.lang.Override
     public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
 
-    @Override
+    @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
 
-    @Override
+    @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
 
-    @Override
+    @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
-      if (other instanceof ReadChangeStreamResponse) {
-        return mergeFrom((ReadChangeStreamResponse) other);
+      if (other instanceof com.google.bigtable.v2.ReadChangeStreamResponse) {
+        return mergeFrom((com.google.bigtable.v2.ReadChangeStreamResponse) other);
       } else {
         super.mergeFrom(other);
         return this;
       }
     }
 
-    public Builder mergeFrom(ReadChangeStreamResponse other) {
-      if (other == ReadChangeStreamResponse.getDefaultInstance()) return this;
+    public Builder mergeFrom(com.google.bigtable.v2.ReadChangeStreamResponse other) {
+      if (other == com.google.bigtable.v2.ReadChangeStreamResponse.getDefaultInstance())
+        return this;
       switch (other.getStreamRecordCase()) {
         case DATA_CHANGE:
           {
@@ -7790,21 +8082,21 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return this;
     }
 
-    @Override
+    @java.lang.Override
     public final boolean isInitialized() {
       return true;
     }
 
-    @Override
+    @java.lang.Override
     public Builder mergeFrom(
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      ReadChangeStreamResponse parsedMessage = null;
+      com.google.bigtable.v2.ReadChangeStreamResponse parsedMessage = null;
       try {
         parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (ReadChangeStreamResponse) e.getUnfinishedMessage();
+        parsedMessage = (com.google.bigtable.v2.ReadChangeStreamResponse) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
         if (parsedMessage != null) {
@@ -7815,7 +8107,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     private int streamRecordCase_ = 0;
-    private Object streamRecord_;
+    private java.lang.Object streamRecord_;
 
     public StreamRecordCase getStreamRecordCase() {
       return StreamRecordCase.forNumber(streamRecordCase_);
@@ -7829,7 +8121,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     private com.google.protobuf.SingleFieldBuilderV3<
-            DataChange, DataChange.Builder, DataChangeOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange,
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder>
         dataChangeBuilder_;
     /**
      *
@@ -7842,7 +8136,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the dataChange field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasDataChange() {
       return streamRecordCase_ == 1;
     }
@@ -7857,18 +8151,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The dataChange.
      */
-    @Override
-    public DataChange getDataChange() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange getDataChange() {
       if (dataChangeBuilder_ == null) {
         if (streamRecordCase_ == 1) {
-          return (DataChange) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_;
         }
-        return DataChange.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
       } else {
         if (streamRecordCase_ == 1) {
           return dataChangeBuilder_.getMessage();
         }
-        return DataChange.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
       }
     }
     /**
@@ -7880,7 +8174,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
-    public Builder setDataChange(DataChange value) {
+    public Builder setDataChange(com.google.bigtable.v2.ReadChangeStreamResponse.DataChange value) {
       if (dataChangeBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -7902,7 +8196,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
-    public Builder setDataChange(DataChange.Builder builderForValue) {
+    public Builder setDataChange(
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder builderForValue) {
       if (dataChangeBuilder_ == null) {
         streamRecord_ = builderForValue.build();
         onChanged();
@@ -7921,11 +8216,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
-    public Builder mergeDataChange(DataChange value) {
+    public Builder mergeDataChange(
+        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange value) {
       if (dataChangeBuilder_ == null) {
-        if (streamRecordCase_ == 1 && streamRecord_ != DataChange.getDefaultInstance()) {
+        if (streamRecordCase_ == 1
+            && streamRecord_
+                != com.google.bigtable.v2.ReadChangeStreamResponse.DataChange
+                    .getDefaultInstance()) {
           streamRecord_ =
-              DataChange.newBuilder((DataChange) streamRecord_).mergeFrom(value).buildPartial();
+              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.newBuilder(
+                      (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_)
+                  .mergeFrom(value)
+                  .buildPartial();
         } else {
           streamRecord_ = value;
         }
@@ -7974,7 +8276,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
-    public DataChange.Builder getDataChangeBuilder() {
+    public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder
+        getDataChangeBuilder() {
       return getDataChangeFieldBuilder().getBuilder();
     }
     /**
@@ -7986,15 +8289,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
-    @Override
-    public DataChangeOrBuilder getDataChangeOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder
+        getDataChangeOrBuilder() {
       if ((streamRecordCase_ == 1) && (dataChangeBuilder_ != null)) {
         return dataChangeBuilder_.getMessageOrBuilder();
       } else {
         if (streamRecordCase_ == 1) {
-          return (DataChange) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_;
         }
-        return DataChange.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
       }
     }
     /**
@@ -8007,16 +8311,23 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.DataChange data_change = 1;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            DataChange, DataChange.Builder, DataChangeOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange,
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder>
         getDataChangeFieldBuilder() {
       if (dataChangeBuilder_ == null) {
         if (!(streamRecordCase_ == 1)) {
-          streamRecord_ = DataChange.getDefaultInstance();
+          streamRecord_ =
+              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.getDefaultInstance();
         }
         dataChangeBuilder_ =
             new com.google.protobuf.SingleFieldBuilderV3<
-                DataChange, DataChange.Builder, DataChangeOrBuilder>(
-                (DataChange) streamRecord_, getParentForChildren(), isClean());
+                com.google.bigtable.v2.ReadChangeStreamResponse.DataChange,
+                com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder,
+                com.google.bigtable.v2.ReadChangeStreamResponse.DataChangeOrBuilder>(
+                (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_,
+                getParentForChildren(),
+                isClean());
         streamRecord_ = null;
       }
       streamRecordCase_ = 1;
@@ -8026,7 +8337,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     private com.google.protobuf.SingleFieldBuilderV3<
-            Heartbeat, Heartbeat.Builder, HeartbeatOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat,
+            com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder>
         heartbeatBuilder_;
     /**
      *
@@ -8039,7 +8352,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the heartbeat field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasHeartbeat() {
       return streamRecordCase_ == 2;
     }
@@ -8054,18 +8367,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The heartbeat.
      */
-    @Override
-    public Heartbeat getHeartbeat() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat getHeartbeat() {
       if (heartbeatBuilder_ == null) {
         if (streamRecordCase_ == 2) {
-          return (Heartbeat) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_;
         }
-        return Heartbeat.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
       } else {
         if (streamRecordCase_ == 2) {
           return heartbeatBuilder_.getMessage();
         }
-        return Heartbeat.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
       }
     }
     /**
@@ -8077,7 +8390,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
-    public Builder setHeartbeat(Heartbeat value) {
+    public Builder setHeartbeat(com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat value) {
       if (heartbeatBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -8099,7 +8412,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
-    public Builder setHeartbeat(Heartbeat.Builder builderForValue) {
+    public Builder setHeartbeat(
+        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder builderForValue) {
       if (heartbeatBuilder_ == null) {
         streamRecord_ = builderForValue.build();
         onChanged();
@@ -8118,11 +8432,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
-    public Builder mergeHeartbeat(Heartbeat value) {
+    public Builder mergeHeartbeat(com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat value) {
       if (heartbeatBuilder_ == null) {
-        if (streamRecordCase_ == 2 && streamRecord_ != Heartbeat.getDefaultInstance()) {
+        if (streamRecordCase_ == 2
+            && streamRecord_
+                != com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance()) {
           streamRecord_ =
-              Heartbeat.newBuilder((Heartbeat) streamRecord_).mergeFrom(value).buildPartial();
+              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.newBuilder(
+                      (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_)
+                  .mergeFrom(value)
+                  .buildPartial();
         } else {
           streamRecord_ = value;
         }
@@ -8171,7 +8490,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
-    public Heartbeat.Builder getHeartbeatBuilder() {
+    public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder getHeartbeatBuilder() {
       return getHeartbeatFieldBuilder().getBuilder();
     }
     /**
@@ -8183,15 +8502,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
-    @Override
-    public HeartbeatOrBuilder getHeartbeatOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder
+        getHeartbeatOrBuilder() {
       if ((streamRecordCase_ == 2) && (heartbeatBuilder_ != null)) {
         return heartbeatBuilder_.getMessageOrBuilder();
       } else {
         if (streamRecordCase_ == 2) {
-          return (Heartbeat) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_;
         }
-        return Heartbeat.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
       }
     }
     /**
@@ -8204,16 +8524,23 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat heartbeat = 2;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            Heartbeat, Heartbeat.Builder, HeartbeatOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat,
+            com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder>
         getHeartbeatFieldBuilder() {
       if (heartbeatBuilder_ == null) {
         if (!(streamRecordCase_ == 2)) {
-          streamRecord_ = Heartbeat.getDefaultInstance();
+          streamRecord_ =
+              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.getDefaultInstance();
         }
         heartbeatBuilder_ =
             new com.google.protobuf.SingleFieldBuilderV3<
-                Heartbeat, Heartbeat.Builder, HeartbeatOrBuilder>(
-                (Heartbeat) streamRecord_, getParentForChildren(), isClean());
+                com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat,
+                com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder,
+                com.google.bigtable.v2.ReadChangeStreamResponse.HeartbeatOrBuilder>(
+                (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_,
+                getParentForChildren(),
+                isClean());
         streamRecord_ = null;
       }
       streamRecordCase_ = 2;
@@ -8223,7 +8550,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     private com.google.protobuf.SingleFieldBuilderV3<
-            CloseStream, CloseStream.Builder, CloseStreamOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream,
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder>
         closeStreamBuilder_;
     /**
      *
@@ -8236,7 +8565,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return Whether the closeStream field is set.
      */
-    @Override
+    @java.lang.Override
     public boolean hasCloseStream() {
       return streamRecordCase_ == 3;
     }
@@ -8251,18 +8580,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * @return The closeStream.
      */
-    @Override
-    public CloseStream getCloseStream() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream getCloseStream() {
       if (closeStreamBuilder_ == null) {
         if (streamRecordCase_ == 3) {
-          return (CloseStream) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_;
         }
-        return CloseStream.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
       } else {
         if (streamRecordCase_ == 3) {
           return closeStreamBuilder_.getMessage();
         }
-        return CloseStream.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
       }
     }
     /**
@@ -8274,7 +8603,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
-    public Builder setCloseStream(CloseStream value) {
+    public Builder setCloseStream(
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream value) {
       if (closeStreamBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -8296,7 +8626,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
-    public Builder setCloseStream(CloseStream.Builder builderForValue) {
+    public Builder setCloseStream(
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder builderForValue) {
       if (closeStreamBuilder_ == null) {
         streamRecord_ = builderForValue.build();
         onChanged();
@@ -8315,11 +8646,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
-    public Builder mergeCloseStream(CloseStream value) {
+    public Builder mergeCloseStream(
+        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream value) {
       if (closeStreamBuilder_ == null) {
-        if (streamRecordCase_ == 3 && streamRecord_ != CloseStream.getDefaultInstance()) {
+        if (streamRecordCase_ == 3
+            && streamRecord_
+                != com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream
+                    .getDefaultInstance()) {
           streamRecord_ =
-              CloseStream.newBuilder((CloseStream) streamRecord_).mergeFrom(value).buildPartial();
+              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.newBuilder(
+                      (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_)
+                  .mergeFrom(value)
+                  .buildPartial();
         } else {
           streamRecord_ = value;
         }
@@ -8368,7 +8706,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
-    public CloseStream.Builder getCloseStreamBuilder() {
+    public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder
+        getCloseStreamBuilder() {
       return getCloseStreamFieldBuilder().getBuilder();
     }
     /**
@@ -8380,15 +8719,16 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
-    @Override
-    public CloseStreamOrBuilder getCloseStreamOrBuilder() {
+    @java.lang.Override
+    public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder
+        getCloseStreamOrBuilder() {
       if ((streamRecordCase_ == 3) && (closeStreamBuilder_ != null)) {
         return closeStreamBuilder_.getMessageOrBuilder();
       } else {
         if (streamRecordCase_ == 3) {
-          return (CloseStream) streamRecord_;
+          return (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_;
         }
-        return CloseStream.getDefaultInstance();
+        return com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
       }
     }
     /**
@@ -8401,16 +8741,23 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      * <code>.google.bigtable.v2.ReadChangeStreamResponse.CloseStream close_stream = 3;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            CloseStream, CloseStream.Builder, CloseStreamOrBuilder>
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream,
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder,
+            com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder>
         getCloseStreamFieldBuilder() {
       if (closeStreamBuilder_ == null) {
         if (!(streamRecordCase_ == 3)) {
-          streamRecord_ = CloseStream.getDefaultInstance();
+          streamRecord_ =
+              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.getDefaultInstance();
         }
         closeStreamBuilder_ =
             new com.google.protobuf.SingleFieldBuilderV3<
-                CloseStream, CloseStream.Builder, CloseStreamOrBuilder>(
-                (CloseStream) streamRecord_, getParentForChildren(), isClean());
+                com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream,
+                com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder,
+                com.google.bigtable.v2.ReadChangeStreamResponse.CloseStreamOrBuilder>(
+                (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_,
+                getParentForChildren(),
+                isClean());
         streamRecord_ = null;
       }
       streamRecordCase_ = 3;
@@ -8419,12 +8766,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return closeStreamBuilder_;
     }
 
-    @Override
+    @java.lang.Override
     public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
-    @Override
+    @java.lang.Override
     public final Builder mergeUnknownFields(
         final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.mergeUnknownFields(unknownFields);
@@ -8434,19 +8781,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.ReadChangeStreamResponse)
-  private static final ReadChangeStreamResponse DEFAULT_INSTANCE;
+  private static final com.google.bigtable.v2.ReadChangeStreamResponse DEFAULT_INSTANCE;
 
   static {
-    DEFAULT_INSTANCE = new ReadChangeStreamResponse();
+    DEFAULT_INSTANCE = new com.google.bigtable.v2.ReadChangeStreamResponse();
   }
 
-  public static ReadChangeStreamResponse getDefaultInstance() {
+  public static com.google.bigtable.v2.ReadChangeStreamResponse getDefaultInstance() {
     return DEFAULT_INSTANCE;
   }
 
   private static final com.google.protobuf.Parser<ReadChangeStreamResponse> PARSER =
       new com.google.protobuf.AbstractParser<ReadChangeStreamResponse>() {
-        @Override
+        @java.lang.Override
         public ReadChangeStreamResponse parsePartialFrom(
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
@@ -8459,13 +8806,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     return PARSER;
   }
 
-  @Override
+  @java.lang.Override
   public com.google.protobuf.Parser<ReadChangeStreamResponse> getParserForType() {
     return PARSER;
   }
 
-  @Override
-  public ReadChangeStreamResponse getDefaultInstanceForType() {
+  @java.lang.Override
+  public com.google.bigtable.v2.ReadChangeStreamResponse getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
 }

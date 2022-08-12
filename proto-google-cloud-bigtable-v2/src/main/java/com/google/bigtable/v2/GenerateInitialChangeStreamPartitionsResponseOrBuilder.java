@@ -18,9 +18,9 @@
 
 package com.google.bigtable.v2;
 
-public interface ListChangeStreamPartitionsResponseOrBuilder
+public interface GenerateInitialChangeStreamPartitionsResponseOrBuilder
     extends
-    // @@protoc_insertion_point(interface_extends:google.bigtable.v2.ListChangeStreamPartitionsResponse)
+    // @@protoc_insertion_point(interface_extends:google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
