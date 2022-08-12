@@ -37,7 +37,6 @@ import com.google.cloud.bigtable.data.v2.models.DeleteCells;
 import com.google.cloud.bigtable.data.v2.models.DeleteFamily;
 import com.google.cloud.bigtable.data.v2.models.Entry;
 import com.google.cloud.bigtable.data.v2.models.Heartbeat;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.SetCell;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ChangeStreamTestFile;
@@ -125,6 +124,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
       for (ChangeStreamRecord record : stream) {
         if (record instanceof Heartbeat) {
           Heartbeat heartbeat = (Heartbeat) record;
+          ChangeStreamContinuationToken token = heartbeat.getChangeStreamContinuationToken();
           ReadChangeStreamResponse.Heartbeat heartbeatProto =
               ReadChangeStreamResponse.Heartbeat.newBuilder()
                   .setContinuationToken(
@@ -132,10 +132,10 @@ public class ReadChangeStreamMergingAcceptanceTest {
                           .setPartition(
                               StreamPartition.newBuilder()
                                   .setRowRange(
-                                      toRowRange(
-                                          heartbeat
-                                              .getChangeStreamContinuationToken()
-                                              .getRowRange()))
+                                      RowRange.newBuilder()
+                                          .setStartKeyClosed(token.getPartition().getStart())
+                                          .setEndKeyOpen(token.getPartition().getEnd())
+                                          .build())
                                   .build())
                           .setToken(heartbeat.getChangeStreamContinuationToken().getToken())
                           .build())
@@ -158,8 +158,11 @@ public class ReadChangeStreamMergingAcceptanceTest {
                 StreamContinuationToken.newBuilder()
                     .setPartition(
                         StreamPartition.newBuilder()
-                            .setRowRange(toRowRange(token.getRowRange()))
-                            .build())
+                            .setRowRange(
+                                RowRange.newBuilder()
+                                    .setStartKeyClosed(token.getPartition().getStart())
+                                    .setEndKeyOpen(token.getPartition().getEnd())
+                                    .build()))
                     .setToken(token.getToken())
                     .build());
           }
@@ -266,12 +269,5 @@ public class ReadChangeStreamMergingAcceptanceTest {
       }
     }
     return response;
-  }
-
-  private static RowRange toRowRange(ByteStringRange byteStringRange) {
-    return RowRange.newBuilder()
-        .setStartKeyClosed(byteStringRange.getStart())
-        .setEndKeyOpen(byteStringRange.getEnd())
-        .build();
   }
 }

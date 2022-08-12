@@ -27,7 +27,6 @@ import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.common.collect.Lists;
 import com.google.common.truth.Truth;
-import com.google.protobuf.ByteString;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,11 +69,7 @@ public class GenerateInitialChangeStreamPartitionsUserCallableTest {
                     GenerateInitialChangeStreamPartitionsResponse.newBuilder()
                         .setPartition(
                             StreamPartition.newBuilder()
-                                .setRowRange(
-                                    RowRange.newBuilder()
-                                        .setStartKeyClosed(ByteString.copyFromUtf8("apple"))
-                                        .setEndKeyOpen(ByteString.copyFromUtf8("banana"))
-                                        .build())
+                                .setRowRange(RowRange.newBuilder().getDefaultInstanceForType())
                                 .build())
                         .build()));
     GenerateInitialChangeStreamPartitionsUserCallable
@@ -83,6 +78,6 @@ public class GenerateInitialChangeStreamPartitionsUserCallableTest {
 
     List<ByteStringRange> results =
         generateInitialChangeStreamPartitionsUserCallable.all().call("my-table");
-    Truth.assertThat(results).containsExactly(ByteStringRange.create("apple", "banana"));
+    Truth.assertThat(results).containsExactly(ByteStringRange.create("", ""));
   }
 }
