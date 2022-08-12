@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
+import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
 import com.google.bigtable.v2.TimestampRange;
@@ -36,6 +37,7 @@ import com.google.cloud.bigtable.data.v2.models.DeleteCells;
 import com.google.cloud.bigtable.data.v2.models.DeleteFamily;
 import com.google.cloud.bigtable.data.v2.models.Entry;
 import com.google.cloud.bigtable.data.v2.models.Heartbeat;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.SetCell;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ChangeStreamTestFile;
@@ -130,7 +132,10 @@ public class ReadChangeStreamMergingAcceptanceTest {
                           .setPartition(
                               StreamPartition.newBuilder()
                                   .setRowRange(
-                                      heartbeat.getChangeStreamContinuationToken().getRowRange())
+                                      toRowRange(
+                                          heartbeat
+                                              .getChangeStreamContinuationToken()
+                                              .getRowRange()))
                                   .build())
                           .setToken(heartbeat.getChangeStreamContinuationToken().getToken())
                           .build())
@@ -152,7 +157,9 @@ public class ReadChangeStreamMergingAcceptanceTest {
             builder.addContinuationTokens(
                 StreamContinuationToken.newBuilder()
                     .setPartition(
-                        StreamPartition.newBuilder().setRowRange(token.getRowRange()).build())
+                        StreamPartition.newBuilder()
+                            .setRowRange(toRowRange(token.getRowRange()))
+                            .build())
                     .setToken(token.getToken())
                     .build());
           }
@@ -259,5 +266,12 @@ public class ReadChangeStreamMergingAcceptanceTest {
       }
     }
     return response;
+  }
+
+  private static RowRange toRowRange(ByteStringRange byteStringRange) {
+    return RowRange.newBuilder()
+        .setStartKeyClosed(byteStringRange.getStart())
+        .setEndKeyOpen(byteStringRange.getEnd())
+        .build();
   }
 }

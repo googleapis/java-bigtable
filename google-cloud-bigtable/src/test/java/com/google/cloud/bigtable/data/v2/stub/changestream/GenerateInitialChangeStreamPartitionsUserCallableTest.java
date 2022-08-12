@@ -23,6 +23,7 @@ import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamPartition;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.common.collect.Lists;
 import com.google.common.truth.Truth;
@@ -80,13 +81,8 @@ public class GenerateInitialChangeStreamPartitionsUserCallableTest {
         generateInitialChangeStreamPartitionsUserCallable =
             new GenerateInitialChangeStreamPartitionsUserCallable(inner, requestContext);
 
-    List<RowRange> results =
+    List<ByteStringRange> results =
         generateInitialChangeStreamPartitionsUserCallable.all().call("my-table");
-    Truth.assertThat(results)
-        .containsExactly(
-            RowRange.newBuilder()
-                .setStartKeyClosed(ByteString.copyFromUtf8("apple"))
-                .setEndKeyOpen(ByteString.copyFromUtf8("banana"))
-                .build());
+    Truth.assertThat(results).containsExactly(ByteStringRange.create("apple", "banana"));
   }
 }

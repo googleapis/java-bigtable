@@ -21,16 +21,16 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
-import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 
 /**
  * Simple wrapper for GenerateInitialChangeStreamPartitions to wrap the request and response
  * protobufs.
  */
 public class GenerateInitialChangeStreamPartitionsUserCallable
-    extends ServerStreamingCallable<String, RowRange> {
+    extends ServerStreamingCallable<String, ByteStringRange> {
   private final RequestContext requestContext;
   private final ServerStreamingCallable<
           GenerateInitialChangeStreamPartitionsRequest,
@@ -49,7 +49,7 @@ public class GenerateInitialChangeStreamPartitionsUserCallable
 
   @Override
   public void call(
-      String tableId, ResponseObserver<RowRange> responseObserver, ApiCallContext context) {
+      String tableId, ResponseObserver<ByteStringRange> responseObserver, ApiCallContext context) {
     String tableName =
         NameUtil.formatTableName(
             requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
@@ -62,12 +62,12 @@ public class GenerateInitialChangeStreamPartitionsUserCallable
     inner.call(request, new ConvertPartitionToRangeObserver(responseObserver), context);
   }
 
-  private class ConvertPartitionToRangeObserver
+  private static class ConvertPartitionToRangeObserver
       implements ResponseObserver<GenerateInitialChangeStreamPartitionsResponse> {
 
-    private final ResponseObserver<RowRange> outerObserver;
+    private final ResponseObserver<ByteStringRange> outerObserver;
 
-    ConvertPartitionToRangeObserver(ResponseObserver<RowRange> observer) {
+    ConvertPartitionToRangeObserver(ResponseObserver<ByteStringRange> observer) {
       this.outerObserver = observer;
     }
 
@@ -78,12 +78,11 @@ public class GenerateInitialChangeStreamPartitionsUserCallable
 
     @Override
     public void onResponse(GenerateInitialChangeStreamPartitionsResponse response) {
-      RowRange rowRange =
-          RowRange.newBuilder()
-              .setStartKeyClosed(response.getPartition().getRowRange().getStartKeyClosed())
-              .setEndKeyOpen(response.getPartition().getRowRange().getEndKeyOpen())
-              .build();
-      outerObserver.onResponse(rowRange);
+      ByteStringRange byteStringRange =
+          ByteStringRange.create(
+              response.getPartition().getRowRange().getStartKeyClosed(),
+              response.getPartition().getRowRange().getEndKeyOpen());
+      outerObserver.onResponse(byteStringRange);
     }
 
     @Override

@@ -54,9 +54,10 @@ public final class ChangeStreamContinuationToken implements Serializable {
             .build();
   }
 
-  // TODO: Change this to return ByteStringRange.
-  public RowRange getRowRange() {
-    return this.tokenProto.getPartition().getRowRange();
+  public ByteStringRange getRowRange() {
+    return ByteStringRange.create(
+        this.tokenProto.getPartition().getRowRange().getStartKeyClosed(),
+        this.tokenProto.getPartition().getRowRange().getEndKeyOpen());
   }
 
   public String getToken() {
