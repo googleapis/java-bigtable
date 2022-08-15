@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalExtensionOnly;
-import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
 import com.google.common.base.MoreObjects;
@@ -69,10 +68,14 @@ import javax.annotation.Nonnull;
 public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
 
+  public enum MutationType {
+    USER,
+    GARBAGE_COLLECTION
+  }
+
   private final ByteString rowKey;
 
-  /** Possible values: USER/GARBAGE_COLLECTION. */
-  private final Type type;
+  private final MutationType type;
 
   /** This should only be set when type==USER. */
   private final String sourceClusterId;
@@ -108,7 +111,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
       @Nonnull String sourceClusterId,
       @Nonnull Timestamp commitTimestamp,
       int tieBreaker) {
-    return new Builder(rowKey, Type.USER, sourceClusterId, commitTimestamp, tieBreaker);
+    return new Builder(rowKey, MutationType.USER, sourceClusterId, commitTimestamp, tieBreaker);
   }
 
   /**
@@ -118,7 +121,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
    */
   static Builder createGcMutation(
       @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
-    return new Builder(rowKey, Type.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
+    return new Builder(rowKey, MutationType.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
   }
 
   private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
@@ -142,7 +145,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
 
   /** Get the type of the current mutation. */
   @Nonnull
-  public Type getType() {
+  public MutationType getType() {
     return this.type;
   }
 
@@ -190,7 +193,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   public static class Builder {
     private final ByteString rowKey;
 
-    private final Type type;
+    private final MutationType type;
 
     private final String sourceClusterId;
 
@@ -206,7 +209,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
 
     private Builder(
         ByteString rowKey,
-        Type type,
+        MutationType type,
         String sourceClusterId,
         Timestamp commitTimestamp,
         int tieBreaker) {

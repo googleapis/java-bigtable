@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
+import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
@@ -151,7 +152,8 @@ public class ReadChangeStreamMergingAcceptanceTest {
         } else if (record instanceof CloseStream) {
           CloseStream closeStream = (CloseStream) record;
           ReadChangeStreamResponse.CloseStream.Builder builder =
-              ReadChangeStreamResponse.CloseStream.newBuilder().setStatus(closeStream.getStatus());
+              ReadChangeStreamResponse.CloseStream.newBuilder()
+                  .setStatus(closeStream.getStatus().toProto());
           for (ChangeStreamContinuationToken token :
               closeStream.getChangeStreamContinuationTokens()) {
             builder.addContinuationTokens(
@@ -179,7 +181,14 @@ public class ReadChangeStreamMergingAcceptanceTest {
           ReadChangeStreamTest.TestChangeStreamMutation.Builder builder =
               ReadChangeStreamTest.TestChangeStreamMutation.newBuilder();
           builder.setRowKey(changeStreamMutation.getRowKey());
-          builder.setType(changeStreamMutation.getType());
+          Type type = Type.UNRECOGNIZED;
+          if (changeStreamMutation.getType() == ChangeStreamMutation.MutationType.USER) {
+            type = Type.USER;
+          } else if (changeStreamMutation.getType()
+              == ChangeStreamMutation.MutationType.GARBAGE_COLLECTION) {
+            type = Type.GARBAGE_COLLECTION;
+          }
+          builder.setType(type);
           if (changeStreamMutation.getSourceClusterId() != null) {
             builder.setSourceClusterId(changeStreamMutation.getSourceClusterId());
           }
