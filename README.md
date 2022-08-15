@@ -49,7 +49,7 @@ If you are using Maven without BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.0.0')
+implementation platform('com.google.cloud:libraries-bom:26.1.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
@@ -212,19 +212,6 @@ try {
 ```
 
 TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
-
-## Enabling client side metrics
-
-Cloud Bigtable client supports publishing client side metrics to 
-[Cloud Monitoring](https://cloud.google.com/monitoring/docs/monitoring-overview) under the 
-`bigtable.googleapis.com/client` namespace. 
-
-Please fill out this [Google Form](https://forms.gle/xuhu6vCunn2MjV2m9) to sign up for the private preview of this
-feature. And enable it by setting:
-
-```java
-BigtableDataSettings.enableBuiltinMetrics();
-```
 
 ## Client request tracing: OpenCensus Tracing
 
