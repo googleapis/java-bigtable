@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.Mutation;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
+import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
 import com.google.bigtable.v2.TimestampRange;
@@ -123,6 +124,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
       for (ChangeStreamRecord record : stream) {
         if (record instanceof Heartbeat) {
           Heartbeat heartbeat = (Heartbeat) record;
+          ChangeStreamContinuationToken token = heartbeat.getChangeStreamContinuationToken();
           ReadChangeStreamResponse.Heartbeat heartbeatProto =
               ReadChangeStreamResponse.Heartbeat.newBuilder()
                   .setContinuationToken(
@@ -130,7 +132,10 @@ public class ReadChangeStreamMergingAcceptanceTest {
                           .setPartition(
                               StreamPartition.newBuilder()
                                   .setRowRange(
-                                      heartbeat.getChangeStreamContinuationToken().getRowRange())
+                                      RowRange.newBuilder()
+                                          .setStartKeyClosed(token.getPartition().getStart())
+                                          .setEndKeyOpen(token.getPartition().getEnd())
+                                          .build())
                                   .build())
                           .setToken(heartbeat.getChangeStreamContinuationToken().getToken())
                           .build())
@@ -152,7 +157,12 @@ public class ReadChangeStreamMergingAcceptanceTest {
             builder.addContinuationTokens(
                 StreamContinuationToken.newBuilder()
                     .setPartition(
-                        StreamPartition.newBuilder().setRowRange(token.getRowRange()).build())
+                        StreamPartition.newBuilder()
+                            .setRowRange(
+                                RowRange.newBuilder()
+                                    .setStartKeyClosed(token.getPartition().getStart())
+                                    .setEndKeyOpen(token.getPartition().getEnd())
+                                    .build()))
                     .setToken(token.getToken())
                     .build());
           }

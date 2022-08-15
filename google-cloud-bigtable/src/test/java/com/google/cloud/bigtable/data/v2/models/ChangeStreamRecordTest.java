@@ -21,6 +21,7 @@ import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.rpc.Status;
@@ -119,7 +120,9 @@ public class ChangeStreamRecordTest {
     Heartbeat actualHeartbeat = Heartbeat.fromProto(heartbeatProto);
 
     Assert.assertEquals(actualHeartbeat.getLowWatermark(), lowWatermark);
-    Assert.assertEquals(actualHeartbeat.getChangeStreamContinuationToken().getRowRange(), rowRange);
+    Assert.assertEquals(
+        actualHeartbeat.getChangeStreamContinuationToken().getPartition(),
+        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
     Assert.assertEquals(actualHeartbeat.getChangeStreamContinuationToken().getToken(), token);
   }
 
@@ -156,11 +159,13 @@ public class ChangeStreamRecordTest {
 
     Assert.assertEquals(status, actualCloseStream.getStatus());
     Assert.assertEquals(
-        rowRange1, actualCloseStream.getChangeStreamContinuationTokens().get(0).getRowRange());
+        actualCloseStream.getChangeStreamContinuationTokens().get(0).getPartition(),
+        ByteStringRange.create(rowRange1.getStartKeyClosed(), rowRange1.getEndKeyOpen()));
     Assert.assertEquals(
         token1, actualCloseStream.getChangeStreamContinuationTokens().get(0).getToken());
     Assert.assertEquals(
-        rowRange2, actualCloseStream.getChangeStreamContinuationTokens().get(1).getRowRange());
+        actualCloseStream.getChangeStreamContinuationTokens().get(1).getPartition(),
+        ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
     Assert.assertEquals(
         token2, actualCloseStream.getChangeStreamContinuationTokens().get(1).getToken());
   }

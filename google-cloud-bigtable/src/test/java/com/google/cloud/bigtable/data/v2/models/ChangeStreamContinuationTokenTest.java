@@ -39,12 +39,10 @@ public class ChangeStreamContinuationTokenTest {
     return ByteStringRange.create("a", "b");
   }
 
-  // TODO: Get rid of this once we change ChangeStreamContinuationToken::getRowRange()
-  // to ChangeStreamContinuationToken::getByteStringRange().
-  private RowRange rowRangeFromByteStringRange(ByteStringRange byteStringRange) {
+  private RowRange rowRangeFromPartition(ByteStringRange partition) {
     return RowRange.newBuilder()
-        .setStartKeyClosed(byteStringRange.getStart())
-        .setEndKeyOpen(byteStringRange.getEnd())
+        .setStartKeyClosed(partition.getStart())
+        .setEndKeyOpen(partition.getEnd())
         .build();
   }
 
@@ -53,8 +51,7 @@ public class ChangeStreamContinuationTokenTest {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         new ChangeStreamContinuationToken(byteStringRange, TOKEN);
-    Assert.assertEquals(
-        changeStreamContinuationToken.getRowRange(), rowRangeFromByteStringRange(byteStringRange));
+    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -69,15 +66,17 @@ public class ChangeStreamContinuationTokenTest {
   @Test
   public void fromProtoTest() {
     ByteStringRange byteStringRange = createFakeByteStringRange();
-    RowRange fakeRowRange = rowRangeFromByteStringRange(byteStringRange);
     StreamContinuationToken proto =
         StreamContinuationToken.newBuilder()
-            .setPartition(StreamPartition.newBuilder().setRowRange(fakeRowRange).build())
+            .setPartition(
+                StreamPartition.newBuilder()
+                    .setRowRange(rowRangeFromPartition(byteStringRange))
+                    .build())
             .setToken(TOKEN)
             .build();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         ChangeStreamContinuationToken.fromProto(proto);
-    Assert.assertEquals(changeStreamContinuationToken.getRowRange(), fakeRowRange);
+    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
     Assert.assertEquals(
         changeStreamContinuationToken,
@@ -89,8 +88,7 @@ public class ChangeStreamContinuationTokenTest {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         new ChangeStreamContinuationToken(byteStringRange, TOKEN);
-    Assert.assertEquals(
-        changeStreamContinuationToken.getRowRange(), rowRangeFromByteStringRange(byteStringRange));
+    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
     Assert.assertEquals(
         changeStreamContinuationToken,
