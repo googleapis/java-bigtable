@@ -614,6 +614,40 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
+  public void testRestoreTableWithProjectId() throws ExecutionException, InterruptedException {
+    // Setup
+    Mockito.when(mockStub.restoreTableOperationCallable())
+        .thenReturn(mockRestoreTableOperationCallable);
+
+    Timestamp startTime = Timestamp.newBuilder().setSeconds(1234).build();
+    Timestamp endTime = Timestamp.newBuilder().setSeconds(5678).build();
+    String operationName = "my-operation";
+    RestoreTableRequest req =
+        RestoreTableRequest.of(INSTANCE_ID, CLUSTER_ID, BACKUP_ID, PROJECT_ID).setTableId(TABLE_ID);
+    mockOperationResult(
+        mockRestoreTableOperationCallable,
+        req.toProto(PROJECT_ID, INSTANCE_ID),
+        com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build(),
+        RestoreTableMetadata.newBuilder()
+            .setName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
+            .setOptimizeTableOperationName(operationName)
+            .setSourceType(RestoreSourceType.BACKUP)
+            .setBackupInfo(
+                BackupInfo.newBuilder()
+                    .setBackup(BACKUP_ID)
+                    .setSourceTable(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
+                    .setStartTime(startTime)
+                    .setEndTime(endTime)
+                    .build())
+            .build());
+    // Execute
+    RestoredTableResult actualResult = adminClient.restoreTable(req);
+
+    // Verify
+    assertThat(actualResult.getTable().getId()).isEqualTo(TABLE_ID);
+  }
+
+  @Test
   public void testDeleteBackup() {
     // Setup
     Mockito.when(mockStub.deleteBackupCallable()).thenReturn(mockDeleteBackupCallable);
