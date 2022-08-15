@@ -399,7 +399,7 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
     }
 
     @InternalApi("Used in Changestream beam pipeline.")
-    static ByteString serializeByteStringRange(ByteStringRange byteStringRange) {
+    public static ByteString toByteString(ByteStringRange byteStringRange) {
       return RowRange.newBuilder()
           .setStartKeyClosed(byteStringRange.getStart())
           .setEndKeyOpen(byteStringRange.getEnd())
@@ -408,7 +408,7 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
     }
 
     @InternalApi("Used in Changestream beam pipeline.")
-    static ByteStringRange deserializeByteStringRange(ByteString byteString)
+    public static ByteStringRange toByteStringRange(ByteString byteString)
         throws InvalidProtocolBufferException {
       RowRange rowRange = RowRange.newBuilder().mergeFrom(byteString).build();
       return ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen());
