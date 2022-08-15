@@ -223,7 +223,7 @@ Please fill out this [Google Form](https://forms.gle/xuhu6vCunn2MjV2m9) to sign 
 feature. And enable it by setting:
 
 ```java
-BigtableDataSettings.registerBuiltinMetrics();
+BigtableDataSettings.enableBuiltinMetrics();
 ```
 
 ## Client request tracing: OpenCensus Tracing
