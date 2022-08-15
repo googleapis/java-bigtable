@@ -25,6 +25,7 @@ import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.CloseStream;
 import com.google.cloud.bigtable.data.v2.models.DefaultChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.Heartbeat;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.protobuf.ByteString;
@@ -47,11 +48,15 @@ public class ChangeStreamRecordMergingCallableTest {
 
   @Test
   public void heartbeatTest() {
+    RowRange rowRange = RowRange.newBuilder().getDefaultInstanceForType();
     ReadChangeStreamResponse.Heartbeat heartbeatProto =
         ReadChangeStreamResponse.Heartbeat.newBuilder()
             .setLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
             .setContinuationToken(
-                StreamContinuationToken.newBuilder().setToken("random-token").build())
+                StreamContinuationToken.newBuilder()
+                    .setPartition(StreamPartition.newBuilder().setRowRange(rowRange))
+                    .setToken("random-token")
+                    .build())
             .build();
     ReadChangeStreamResponse response =
         ReadChangeStreamResponse.newBuilder().setHeartbeat(heartbeatProto).build();
@@ -69,8 +74,8 @@ public class ChangeStreamRecordMergingCallableTest {
     Assert.assertTrue(record instanceof Heartbeat);
     Heartbeat heartbeat = (Heartbeat) record;
     Assert.assertEquals(
-        heartbeat.getChangeStreamContinuationToken().getRowRange(),
-        heartbeatProto.getContinuationToken().getPartition().getRowRange());
+        heartbeat.getChangeStreamContinuationToken().getPartition(),
+        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
     Assert.assertEquals(
         heartbeat.getChangeStreamContinuationToken().getToken(),
         heartbeatProto.getContinuationToken().getToken());
@@ -79,16 +84,14 @@ public class ChangeStreamRecordMergingCallableTest {
 
   @Test
   public void closeStreamTest() {
+    RowRange rowRange =
+        RowRange.newBuilder()
+            .setStartKeyClosed(ByteString.copyFromUtf8(""))
+            .setEndKeyOpen(ByteString.copyFromUtf8(""))
+            .build();
     StreamContinuationToken streamContinuationToken =
         StreamContinuationToken.newBuilder()
-            .setPartition(
-                StreamPartition.newBuilder()
-                    .setRowRange(
-                        RowRange.newBuilder()
-                            .setStartKeyClosed(ByteString.copyFromUtf8(""))
-                            .setEndKeyOpen(ByteString.copyFromUtf8(""))
-                            .build())
-                    .build())
+            .setPartition(StreamPartition.newBuilder().setRowRange(rowRange).build())
             .setToken("random-token")
             .build();
     ReadChangeStreamResponse.CloseStream closeStreamProto =
@@ -116,8 +119,8 @@ public class ChangeStreamRecordMergingCallableTest {
     ChangeStreamContinuationToken changeStreamContinuationToken =
         closeStream.getChangeStreamContinuationTokens().get(0);
     Assert.assertEquals(
-        changeStreamContinuationToken.getRowRange(),
-        streamContinuationToken.getPartition().getRowRange());
+        changeStreamContinuationToken.getPartition(),
+        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
     Assert.assertEquals(
         changeStreamContinuationToken.getToken(), streamContinuationToken.getToken());
   }

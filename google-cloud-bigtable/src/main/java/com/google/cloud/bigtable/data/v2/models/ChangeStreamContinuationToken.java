@@ -54,9 +54,13 @@ public final class ChangeStreamContinuationToken implements Serializable {
             .build();
   }
 
-  // TODO: Change this to return ByteStringRange.
-  public RowRange getRowRange() {
-    return this.tokenProto.getPartition().getRowRange();
+  /**
+   * Get the partition of the current continuation token, represented by a {@link ByteStringRange}.
+   */
+  public ByteStringRange getPartition() {
+    return ByteStringRange.create(
+        this.tokenProto.getPartition().getRowRange().getStartKeyClosed(),
+        this.tokenProto.getPartition().getRowRange().getEndKeyOpen());
   }
 
   public String getToken() {
@@ -95,19 +99,19 @@ public final class ChangeStreamContinuationToken implements Serializable {
       return false;
     }
     ChangeStreamContinuationToken otherToken = (ChangeStreamContinuationToken) o;
-    return Objects.equal(getRowRange(), otherToken.getRowRange())
+    return Objects.equal(getPartition(), otherToken.getPartition())
         && Objects.equal(getToken(), otherToken.getToken());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(getRowRange(), getToken());
+    return Objects.hashCode(getPartition(), getToken());
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("rowRange", getRowRange())
+        .add("partition", getPartition())
         .add("token", getToken())
         .toString();
   }

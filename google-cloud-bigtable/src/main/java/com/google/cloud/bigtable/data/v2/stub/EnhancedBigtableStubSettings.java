@@ -33,12 +33,12 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
-import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -212,7 +212,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final BigtableBulkReadRowsCallSettings bulkReadRowsSettings;
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
-  private final ServerStreamingCallSettings<String, RowRange>
+  private final ServerStreamingCallSettings<String, ByteStringRange>
       generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamSettings;
@@ -537,7 +537,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readModifyWriteRowSettings;
   }
 
-  public ServerStreamingCallSettings<String, RowRange>
+  public ServerStreamingCallSettings<String, ByteStringRange>
       generateInitialChangeStreamPartitionsSettings() {
     return generateInitialChangeStreamPartitionsSettings;
   }
@@ -571,7 +571,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<ConditionalRowMutation, Boolean>
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
-    private final ServerStreamingCallSettings.Builder<String, RowRange>
+    private final ServerStreamingCallSettings.Builder<String, ByteStringRange>
         generateInitialChangeStreamPartitionsSettings;
     private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
         readChangeStreamSettings;

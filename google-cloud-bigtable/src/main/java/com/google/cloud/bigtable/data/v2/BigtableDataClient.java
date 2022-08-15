@@ -29,7 +29,6 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.v2.RowRange;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -37,6 +36,7 @@ import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -1503,11 +1503,11 @@ public class BigtableDataClient implements AutoCloseable {
    *   String tableId = "[TABLE]";
    *
    *   try {
-   *     ServerStream<RowRange> stream = bigtableDataClient.generateInitialChangeStreamPartitions(tableId);
+   *     ServerStream<ByteStringRange> stream = bigtableDataClient.generateInitialChangeStreamPartitions(tableId);
    *     int count = 0;
    *
    *     // Iterator style
-   *     for (RowRange partition : stream) {
+   *     for (ByteStringRange partition : stream) {
    *       if (++count > 10) {
    *         stream.cancel();
    *         break;
@@ -1525,7 +1525,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @see ServerStreamingCallable For call styles.
    */
   @InternalApi("Used in Changestream beam pipeline.")
-  public ServerStream<RowRange> generateInitialChangeStreamPartitions(String tableId) {
+  public ServerStream<ByteStringRange> generateInitialChangeStreamPartitions(String tableId) {
     return generateInitialChangeStreamPartitionsCallable().call(tableId);
   }
 
@@ -1545,7 +1545,7 @@ public class BigtableDataClient implements AutoCloseable {
    *     public void onStart(StreamController controller) {
    *       this.controller = controller;
    *     }
-   *     public void onResponse(RowRange partition) {
+   *     public void onResponse(ByteStringRange partition) {
    *       if (++count > 10) {
    *         controller.cancel();
    *         return;
@@ -1568,7 +1568,7 @@ public class BigtableDataClient implements AutoCloseable {
    */
   @InternalApi("Used in Changestream beam pipeline.")
   public void generateInitialChangeStreamPartitionsAsync(
-      String tableId, ResponseObserver<RowRange> observer) {
+      String tableId, ResponseObserver<ByteStringRange> observer) {
     generateInitialChangeStreamPartitionsCallable().call(tableId, observer);
   }
 
@@ -1584,7 +1584,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    *   // Iterator style
    *   try {
-   *     for(RowRange partition : bigtableDataClient.generateInitialChangeStreamPartitionsCallable().call(tableId)) {
+   *     for(ByteStringRange partition : bigtableDataClient.generateInitialChangeStreamPartitionsCallable().call(tableId)) {
    *       // Do something with partition
    *     }
    *   } catch (NotFoundException e) {
@@ -1595,7 +1595,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    *   // Sync style
    *   try {
-   *     List<RowRange> partitions = bigtableDataClient.generateInitialChangeStreamPartitionsCallable().all().call(tableId);
+   *     List<ByteStringRange> partitions = bigtableDataClient.generateInitialChangeStreamPartitionsCallable().all().call(tableId);
    *   } catch (NotFoundException e) {
    *     System.out.println("Tried to read a non-existent table");
    *   } catch (RuntimeException e) {
@@ -1603,10 +1603,10 @@ public class BigtableDataClient implements AutoCloseable {
    *   }
    *
    *   // Point look up
-   *   ApiFuture<RowRange> partitionFuture =
+   *   ApiFuture<ByteStringRange> partitionFuture =
    *     bigtableDataClient.generateInitialChangeStreamPartitionsCallable().first().futureCall(tableId);
    *
-   *   ApiFutures.addCallback(partitionFuture, new ApiFutureCallback<RowRange>() {
+   *   ApiFutures.addCallback(partitionFuture, new ApiFutureCallback<ByteStringRange>() {
    *     public void onFailure(Throwable t) {
    *       if (t instanceof NotFoundException) {
    *         System.out.println("Tried to read a non-existent table");
@@ -1626,7 +1626,8 @@ public class BigtableDataClient implements AutoCloseable {
    * @see ServerStreamingCallable For call styles.
    */
   @InternalApi("Used in Changestream beam pipeline.")
-  public ServerStreamingCallable<String, RowRange> generateInitialChangeStreamPartitionsCallable() {
+  public ServerStreamingCallable<String, ByteStringRange>
+      generateInitialChangeStreamPartitionsCallable() {
     return stub.generateInitialChangeStreamPartitionsCallable();
   }
 
