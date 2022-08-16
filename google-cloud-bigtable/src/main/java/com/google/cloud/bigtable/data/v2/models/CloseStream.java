@@ -50,8 +50,8 @@ public class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
-  public Status getStatus() {
-    return this.status;
+  public com.google.cloud.bigtable.common.Status getStatus() {
+    return com.google.cloud.bigtable.common.Status.fromProto(this.status);
   }
 
   @InternalApi("Used in Changestream beam pipeline.")
@@ -88,21 +88,21 @@ public class CloseStream implements ChangeStreamRecord, Serializable {
       return false;
     }
     CloseStream record = (CloseStream) o;
-    return Objects.equal(status, record.getStatus())
+    return Objects.equal(getStatus(), record.getStatus())
         && Objects.equal(
-            changeStreamContinuationTokens.build(), record.getChangeStreamContinuationTokens());
+            getChangeStreamContinuationTokens(), record.getChangeStreamContinuationTokens());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(status, changeStreamContinuationTokens);
+    return Objects.hashCode(getStatus(), getChangeStreamContinuationTokens());
   }
 
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
-        .add("status", status)
-        .add("changeStreamContinuationTokens", changeStreamContinuationTokens)
+        .add("status", getStatus())
+        .add("changeStreamContinuationTokens", getChangeStreamContinuationTokens())
         .toString();
   }
 }
