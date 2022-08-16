@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
-import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.primitives.Longs;
@@ -72,8 +71,7 @@ public class ChangeStreamMutationTest {
 
     // Test the getters.
     Assert.assertEquals(changeStreamMutation.getRowKey(), ByteString.copyFromUtf8("key"));
-    Assert.assertEquals(
-        changeStreamMutation.getType(), ReadChangeStreamResponse.DataChange.Type.USER);
+    Assert.assertEquals(changeStreamMutation.getType(), ChangeStreamMutation.MutationType.USER);
     Assert.assertEquals(changeStreamMutation.getSourceClusterId(), "fake-source-cluster-id");
     Assert.assertEquals(changeStreamMutation.getCommitTimestamp(), fakeCommitTimestamp);
     Assert.assertEquals(changeStreamMutation.getTieBreaker(), 0);
@@ -115,8 +113,7 @@ public class ChangeStreamMutationTest {
     // Test the getters.
     Assert.assertEquals(changeStreamMutation.getRowKey(), ByteString.copyFromUtf8("key"));
     Assert.assertEquals(
-        changeStreamMutation.getType(),
-        ReadChangeStreamResponse.DataChange.Type.GARBAGE_COLLECTION);
+        changeStreamMutation.getType(), ChangeStreamMutation.MutationType.GARBAGE_COLLECTION);
     Assert.assertNull(changeStreamMutation.getSourceClusterId());
     Assert.assertEquals(changeStreamMutation.getCommitTimestamp(), fakeCommitTimestamp);
     Assert.assertEquals(changeStreamMutation.getTieBreaker(), 0);
