@@ -60,11 +60,11 @@
   <dependencies>
     <!-- NOTE: Dependencies are organized into two groups, production and test.
          Within a group, dependencies are sorted by (groupId, artifactId) -->
-
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigtable-stats</artifactId>
-      <!-- Exclude all the shaded transitive dependencies -->
+      <!-- Exclude all the shaded transitive dependencies. After mvn clean install is run,
+           we don't need to depend on io.opencensus anymore since this package is relocated. -->
       <exclusions>
         <exclusion>
           <groupId>io.opencensus</groupId>
