@@ -61,7 +61,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
 
@@ -664,16 +663,7 @@
           <usedDependencies>io.grpc:grpc-auth,io.grpc:grpc-grpclb</usedDependencies>
           <ignoredUsedUndeclaredDependencies>
             <ignoredUsedUndeclaredDependency>io.opencensus:opencensus-impl-core</ignoredUsedUndeclaredDependency>
-<!--            <ignoredUsedUndeclaredDependency>com.google.cloud:google-cloud-monitoring</ignoredUsedUndeclaredDependency>-->
-<!--            <ignoredUsedUndeclaredDependency>com.google.api.grpc:proto-google-cloud-monitoring-v3</ignoredUsedUndeclaredDependency>-->
           </ignoredUsedUndeclaredDependencies>
-<!--          <ignoredNonTestScopedDependencies>-->
-<!--            <ignoredNonTestScopedDependency>com.google.cloud:google-cloud-monitoring</ignoredNonTestScopedDependency>-->
-<!--            <ignoredNonTestScopedDependency>com.google.api.grpc:proto-google-cloud-monitoring-v3</ignoredNonTestScopedDependency>-->
-<!--            <ignoredNonTestScopedDependency>io.grpc:grpc-netty-shaded</ignoredNonTestScopedDependency>-->
-<!--            <ignoredNonTestScopedDependency>io.grpc:grpc-context</ignoredNonTestScopedDependency>-->
-<!--            <ignoredNonTestScopedDependency>io.grpc:grpc-core</ignoredNonTestScopedDependency>-->
-<!--          </ignoredNonTestScopedDependencies>-->
         </configuration>
       </plugin>
 

@@ -69,6 +69,11 @@
                     <groupId>com.google.http-client</groupId>
                     <artifactId>google-http-client</artifactId>
                 </exclusion>
+                <!-- opencensus-proto is not used, excluding it to avoid conflicts in google-cloud-bigtable -->
+                <exclusion>
+                    <groupId>io.opencensus</groupId>
+                    <artifactId>opencensus-proto</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
