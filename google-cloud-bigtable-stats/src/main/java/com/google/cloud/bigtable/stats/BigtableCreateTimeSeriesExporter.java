@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.stats;
 
 import com.google.api.MonitoredResource;
-import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -73,16 +72,12 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
         for (Map.Entry<String, List<com.google.monitoring.v3.TimeSeries>> entry :
             projectToTimeSeries.entrySet()) {
           ProjectName projectName = ProjectName.of(entry.getKey());
-          GrpcResponseMetadata metadata = new GrpcResponseMetadata();
           CreateTimeSeriesRequest request =
               CreateTimeSeriesRequest.newBuilder()
                   .setName(projectName.toString())
                   .addAllTimeSeries(entry.getValue())
                   .build();
-          this.metricServiceClient
-              .createTimeSeriesCallable()
-              .call(request, metadata.createContextWithHandlers());
-          //          this.metricServiceClient.createServiceTimeSeries(request);
+          this.metricServiceClient.createServiceTimeSeries(request);
         }
       } catch (Throwable e) {
         logger.log(Level.WARNING, "Exception thrown when exporting TimeSeries.", e);
