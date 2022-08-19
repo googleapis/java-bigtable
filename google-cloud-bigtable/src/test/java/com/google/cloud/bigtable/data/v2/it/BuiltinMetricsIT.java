@@ -25,6 +25,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
+import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.truth.Truth;
 import com.google.monitoring.v3.ListTimeSeriesRequest;
 import com.google.monitoring.v3.ListTimeSeriesResponse;
@@ -61,8 +62,12 @@ public class BuiltinMetricsIT {
     // Enable built in metrics
     BigtableDataSettings.enableBuiltinMetrics();
 
+    MetricServiceSettings settings =
+        MetricServiceSettings.newBuilder()
+            .setEndpoint("staging-monitoring.sandbox.googleapis.com:443")
+            .build();
     // Create a cloud monitoring client
-    metricClient = MetricServiceClient.create();
+    metricClient = MetricServiceClient.create(settings);
   }
 
   @Test
