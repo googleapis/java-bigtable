@@ -15,8 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.it;
 
-import static com.google.common.truth.TruthJUnit.assume;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.client.util.Lists;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -26,7 +26,6 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
-import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.monitoring.v3.ListTimeSeriesRequest;
 import com.google.monitoring.v3.ListTimeSeriesResponse;
 import com.google.monitoring.v3.ProjectName;
@@ -35,8 +34,6 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -68,12 +65,8 @@ public class BuiltinMetricsIT {
     // Enable built in metrics
     BigtableDataSettings.enableBuiltinMetrics();
 
-    MetricServiceSettings settings =
-        MetricServiceSettings.newBuilder()
-            .setEndpoint("staging-monitoring.sandbox.googleapis.com:443")
-            .build();
     // Create a cloud monitoring client
-    metricClient = MetricServiceClient.create(settings);
+    metricClient = MetricServiceClient.create();
   }
 
   @AfterClass
@@ -103,7 +96,7 @@ public class BuiltinMetricsIT {
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
     // Restrict time to last 10 minutes
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes (10).toMillis();
+    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(10).toMillis();
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(startMillis))
