@@ -614,7 +614,7 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testRestoreTableWithProjectId() throws ExecutionException, InterruptedException {
+  public void testRestoreTableCrossProject() throws ExecutionException, InterruptedException {
     // Setup
     Mockito.when(mockStub.restoreTableOperationCallable())
         .thenReturn(mockRestoreTableOperationCallable);
@@ -622,29 +622,43 @@ public class BigtableTableAdminClientTests {
     Timestamp startTime = Timestamp.newBuilder().setSeconds(1234).build();
     Timestamp endTime = Timestamp.newBuilder().setSeconds(5678).build();
     String operationName = "my-operation";
+
+    // Use existing adminClient as destination project:
+    String dstProjectId = PROJECT_ID;
+    String dstInstanceId = INSTANCE_ID;
+    String dstTableName = TABLE_NAME;
+
+    // Create RestoreTableRequest from different source project:
+    String srcProjectId = "src-project";
+    String srcInstanceId = "src-instance";
+    String srcClusterId = "src-cluster";
+
     RestoreTableRequest req =
-        RestoreTableRequest.of(INSTANCE_ID, CLUSTER_ID, BACKUP_ID, PROJECT_ID).setTableId(TABLE_ID);
+        RestoreTableRequest.of(srcInstanceId, srcClusterId, BACKUP_ID, srcProjectId)
+            .setTableId(TABLE_ID);
     mockOperationResult(
         mockRestoreTableOperationCallable,
-        req.toProto(PROJECT_ID, INSTANCE_ID),
-        com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build(),
+        req.toProto(dstProjectId, dstInstanceId),
+        com.google.bigtable.admin.v2.Table.newBuilder().setName(dstTableName).build(),
         RestoreTableMetadata.newBuilder()
-            .setName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
+            .setName(dstTableName)
             .setOptimizeTableOperationName(operationName)
             .setSourceType(RestoreSourceType.BACKUP)
             .setBackupInfo(
                 BackupInfo.newBuilder()
                     .setBackup(BACKUP_ID)
-                    .setSourceTable(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
+                    .setSourceTable(NameUtil.formatTableName(srcProjectId, srcInstanceId, TABLE_ID))
                     .setStartTime(startTime)
                     .setEndTime(endTime)
                     .build())
             .build());
+
     // Execute
     RestoredTableResult actualResult = adminClient.restoreTable(req);
 
     // Verify
     assertThat(actualResult.getTable().getId()).isEqualTo(TABLE_ID);
+    assertThat(actualResult.getTable().getInstanceId()).isEqualTo(dstInstanceId);
   }
 
   @Test
