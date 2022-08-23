@@ -99,19 +99,19 @@ public final class RestoreTableRequest {
     RestoreTableRequest that = (RestoreTableRequest) o;
     return Objects.equal(requestBuilder.getTableId(), that.requestBuilder.getTableId())
         && Objects.equal(sourceInstanceId, that.sourceInstanceId)
-        && Objects.equal(sourceProjectId, that.sourceProjectId)
         && Objects.equal(sourceClusterId, that.sourceClusterId)
-        && Objects.equal(sourceBackupId, that.sourceBackupId);
+        && Objects.equal(sourceBackupId, that.sourceBackupId)
+        && Objects.equal(sourceProjectId, that.sourceProjectId);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
         requestBuilder.getTableId(),
-        sourceProjectId,
         sourceInstanceId,
         sourceClusterId,
-        sourceBackupId);
+        sourceBackupId,
+        sourceProjectId);
   }
 
   @InternalApi
