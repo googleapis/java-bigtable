@@ -69,10 +69,6 @@
                     <groupId>com.google.http-client</groupId>
                     <artifactId>google-http-client</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>io.opencensus</groupId>
-                    <artifactId>opencensus-proto</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
