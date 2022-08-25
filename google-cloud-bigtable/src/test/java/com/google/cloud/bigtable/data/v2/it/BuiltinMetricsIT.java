@@ -71,7 +71,9 @@ public class BuiltinMetricsIT {
 
   @AfterClass
   public static void tearDown() {
-    metricClient.close();
+    if (metricClient != null) {
+      metricClient.close();
+    }
   }
 
   @Test
