@@ -273,12 +273,12 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-monitoring</artifactId>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>com.google.api.grpc</groupId>
       <artifactId>proto-google-cloud-monitoring-v3</artifactId>
-      <scope>test</scope>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>com.google.truth</groupId>
