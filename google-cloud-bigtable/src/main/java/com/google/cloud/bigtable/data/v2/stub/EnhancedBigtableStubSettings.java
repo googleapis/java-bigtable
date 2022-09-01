@@ -925,6 +925,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return pingAndWarmSettings;
     }
 
+    /** Returns the builder for the settings used for calls to ReadChangeStream. */
+    public ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
+        readChangeStreamSettings() {
+      return readChangeStreamSettings;
+    }
+
+    /**
+     * Returns the builder for the settings used for calls to GenerateInitialChangeStreamPartitions.
+     */
+    public ServerStreamingCallSettings.Builder<String, ByteStringRange>
+        generateInitialChangeStreamPartitionsSettings() {
+      return generateInitialChangeStreamPartitionsSettings;
+    }
+
     @SuppressWarnings("unchecked")
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
