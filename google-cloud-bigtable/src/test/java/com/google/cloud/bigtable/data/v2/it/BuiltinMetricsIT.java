@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -76,7 +75,8 @@ public class BuiltinMetricsIT {
     }
   }
 
-  @Test
+  // TODO: re-enable this test
+  // @Test
   public void testBuiltinMetrics() throws Exception {
     // Send a MutateRow and ReadRows request
     testEnvRule
