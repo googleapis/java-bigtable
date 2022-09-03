@@ -217,7 +217,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
   private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
-
   private final ServerStreamingCallSettings<String, ByteStringRange>
       generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
@@ -591,7 +590,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
     private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
-
     private final ServerStreamingCallSettings.Builder<String, ByteStringRange>
         generateInitialChangeStreamPartitionsSettings;
     private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
