@@ -4,7 +4,7 @@
 
     <artifactId>google-cloud-bigtable-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     <name>Google Cloud Bigtable Parent</name>
     <url>https://github.com/googleapis/java-bigtable</url>
     <description>
@@ -14,7 +14,8 @@
     <parent>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-shared-config</artifactId>
-        <version>1.5.1</version>
+        <version>1.5.3</version>
+        <relativePath/>
     </parent>
 
     <developers>
@@ -152,33 +153,33 @@
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-v2</artifactId>
-                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-v2:current} -->
+                <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-admin-v2</artifactId>
-                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-admin-v2:current} -->
+                <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-admin-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>grpc-google-cloud-bigtable-v2</artifactId>
-                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-v2:current} -->
+                <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>grpc-google-cloud-bigtable-admin-v2</artifactId>
-                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-admin-v2:current} -->
+                <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-admin-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-bigtable</artifactId>
-                <version>2.9.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+                <version>2.11.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
             </dependency>
             <!-- Test Deps in alphabetical order -->
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-conformance-tests</artifactId>
-                <version>0.3.0</version>
+                <version>0.3.4</version>
             </dependency>
             <dependency>
                 <groupId>com.google.truth</groupId>
@@ -206,7 +207,7 @@
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>4.6.1</version>
+                <version>4.7.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -225,7 +226,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>aggregate</id>
@@ -315,7 +316,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>3.4.1</version>
                         <configuration>
                             <doclet>com.microsoft.doclet.DocFxDoclet</doclet>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -339,6 +340,22 @@
                 </plugins>
             </build>
         </profile>
+
+        <profile>
+            <!-- Shading workaround for IDEs: This project relocates some of its internal dependencies. Since IDEs can't
+             resolve the relocated symbols on their own, a workaround is added: first mvn install the shaded module,
+             then disable the with-shaded profile to force IDEs to resolve the relocated dependencies from the local
+             repository -->
+            <id>with-shaded</id>
+            <activation>
+                <property>
+                    <name>!skip-shaded</name>
+                </property>
+            </activation>
+            <modules>
+                <module>google-cloud-bigtable-stats</module>
+            </modules>
+        </profile>
     </profiles>
 
     <modules>
@@ -347,7 +364,6 @@
     <module>grpc-google-cloud-bigtable-v2</module>
     <module>proto-google-cloud-bigtable-admin-v2</module>
     <module>proto-google-cloud-bigtable-v2</module>
-    <module>google-cloud-bigtable-stats</module>
     <module>google-cloud-bigtable-emulator-core</module>
     <module>google-cloud-bigtable-emulator</module>
     <module>google-cloud-bigtable-bom</module>

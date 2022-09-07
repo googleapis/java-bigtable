@@ -28,6 +28,7 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.WatchdogProvider;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -720,6 +721,15 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.getRetryableCodes()).isEmpty();
   }
 
+  @Test
+  public void pingAndWarmRetriesAreDisabled() {
+    UnaryCallSettings.Builder<PingAndWarmRequest, Void> builder =
+        EnhancedBigtableStubSettings.newBuilder().pingAndWarmSettings();
+
+    assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isAtMost(Duration.ofSeconds(30));
+  }
+
   private void verifyRetrySettingAreSane(Set<Code> retryCodes, RetrySettings retrySettings) {
     assertThat(retryCodes).containsAtLeast(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
 
@@ -778,6 +788,7 @@ public class EnhancedBigtableStubSettingsTest {
     "readModifyWriteRowSettings",
     "generateInitialChangeStreamPartitionsSettings",
     "readChangeStreamSettings",
+    "pingAndWarmSettings",
   };
 
   @Test

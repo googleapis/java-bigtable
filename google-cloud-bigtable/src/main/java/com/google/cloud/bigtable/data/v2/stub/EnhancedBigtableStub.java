@@ -53,6 +53,8 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.PingAndWarmRequest;
+import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
@@ -99,6 +101,7 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescr
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsFirstCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -118,6 +121,7 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -155,6 +159,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
+  private final UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable;
 
   private final ServerStreamingCallable<String, ByteStringRange>
       generateInitialChangeStreamPartitionsCallable;
@@ -201,8 +206,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       credentials,
                       settings.getProjectId(),
                       settings.getInstanceId(),
-                      settings.getAppProfileId(),
-                      settings.getPrimedTableIds()))
+                      settings.getAppProfileId()))
               .build());
     }
 
@@ -218,7 +222,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ImmutableMap<String, String> builtinAttributes =
         ImmutableMap.<String, String>builder()
             .put("project_id", settings.getProjectId())
-            .put("instance_id", settings.getInstanceId())
+            .put("instance", settings.getInstanceId())
             .put("app_profile", settings.getAppProfileId())
             .build();
     // Inject Opencensus instrumentation
@@ -308,6 +312,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         createGenerateInitialChangeStreamPartitionsCallable();
     readChangeStreamCallable =
         createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
+    pingAndWarmCallable = createPingAndWarmCallable();
   }
 
   // <editor-fold desc="Callable creators">
@@ -387,10 +392,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             rowAdapter);
 
-    UnaryCallable<Query, RowT> readRowCallable =
-        new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
+    ReadRowsUserCallable<RowT> readRowCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
-    return createUserFacingUnaryCallable("ReadRow", readRowCallable);
+    ServerStreamingCallable<Query, RowT> traced =
+        new TracedServerStreamingCallable<>(
+            readRowCallable, clientContext.getTracerFactory(), getSpanName("ReadRow"));
+
+    ReadRowsFirstCallable<RowT> firstRow = new ReadRowsFirstCallable<>(traced);
+
+    return firstRow.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -724,6 +735,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
+    // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
+    // and
+    // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
+    // which by default is not retryable. Convert the exception so it can be retried in the client.
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
+        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
             new ApiResultRetryAlgorithm<Void>(),
@@ -734,7 +752,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return new MutateRowsRetryingCallable(
         clientContext.getDefaultCallContext(),
-        withStatsHeaders,
+        convertException,
         retryingExecutor,
         settings.bulkMutateRowsSettings().getRetryableCodes());
   }
@@ -994,6 +1012,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
+
+  private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
+    UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarm =
+        GrpcRawCallableFactory.createUnaryCallable(
+            GrpcCallSettings.<PingAndWarmRequest, PingAndWarmResponse>newBuilder()
+                .setMethodDescriptor(BigtableGrpc.getPingAndWarmMethod())
+                .setParamsExtractor(
+                    new RequestParamsExtractor<PingAndWarmRequest>() {
+                      @Override
+                      public Map<String, String> extract(PingAndWarmRequest request) {
+                        return ImmutableMap.of(
+                            "name", request.getName(),
+                            "app_profile_id", request.getAppProfileId());
+                      }
+                    })
+                .build(),
+            Collections.emptySet());
+    return pingAndWarm.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
   // </editor-fold>
 
   // <editor-fold desc="Callable accessors">
@@ -1049,6 +1086,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamCallable() {
     return readChangeStreamCallable;
+  }
+
+  UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable() {
+    return pingAndWarmCallable;
   }
   // </editor-fold>
 

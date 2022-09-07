@@ -11,7 +11,7 @@ Java idiomatic client for [Cloud Bigtable][product-docs].
 
 ## Quickstart
 
-If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
+If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
 
 ```xml
 <dependencyManagement>
@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>25.4.0</version>
+      <version>26.1.1</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -41,28 +41,28 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.9.0</version>
+  <version>2.11.1</version>
 </dependency>
 
 ```
 
-If you are using Gradle 5.x or later, add this to your dependencies
+If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.0.0')
+implementation platform('com.google.cloud:libraries-bom:26.1.1')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
-If you are using Gradle without BOM, add this to your dependencies
+If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.9.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.11.1'
 ```
 
-If you are using SBT, add this to your dependencies
+If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.9.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.11.1"
 ```
 
 ## Authentication
@@ -213,6 +213,19 @@ try {
 
 TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
 
+## Enabling client side metrics
+
+Cloud Bigtable client supports publishing client side metrics to
+[Cloud Monitoring](https://cloud.google.com/monitoring/docs/monitoring-overview) under the
+`bigtable.googleapis.com/client` namespace.
+
+Please fill out this [Google Form](https://forms.gle/xuhu6vCunn2MjV2m9) to sign up for the private preview of this
+feature. And enable it by setting:
+
+```java
+BigtableDataSettings.enableBuiltinMetrics();
+```
+  
 ## Client request tracing: OpenCensus Tracing
 
 Cloud Bigtable client supports [OpenCensus Tracing](https://opencensus.io/tracing/),
