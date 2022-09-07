@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.InternalException;
@@ -26,8 +25,7 @@ import com.google.api.gax.rpc.StreamController;
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-@InternalApi
-public final class ConvertStreamExceptionCallable<RequestT, ResponseT>
+final class ConvertStreamExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;

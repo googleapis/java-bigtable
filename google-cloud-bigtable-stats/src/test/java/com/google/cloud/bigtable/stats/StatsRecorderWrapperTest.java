@@ -34,7 +34,14 @@ import java.util.Map;
 import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+// Can only be run as a unit test. Opencensus classes will be relocated when they are packaged but
+// the integration test files will not be. So the integration tests can't reference any transitive
+// dependencies that have been relocated. To work around this, we'll have to move all the reference
+// to opencensus to StatsWrapper.
+@RunWith(JUnit4.class)
 public class StatsRecorderWrapperTest {
 
   private final String PROJECT_ID = "fake-project";
@@ -86,7 +93,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putBatchRequestThrottled(throttlingLatency);
 
-    recorderWrapper.record("OK", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordOperation("OK", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordAttempt("OK", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
@@ -284,7 +292,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putBatchRequestThrottled(throttlingLatency);
 
-    recorderWrapper.record("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordOperation("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordAttempt("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
