@@ -58,16 +58,17 @@ class BuiltinMetricsTracer extends BigtableTracer {
   // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
   // flushed to memory.
   private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
-  private final AtomicBoolean serverLatencyTimerIsRunning = new AtomicBoolean();
+  private boolean serverLatencyTimerIsRunning = false;
+  private final Object timerLock = new Object();
 
   private boolean flowControlIsDisabled = false;
 
   private AtomicInteger requestLeft = new AtomicInteger(0);
 
   // Monitored resource labels
-  private String tableId = "undefined";
-  private String zone = "undefined";
-  private String cluster = "undefined";
+  private String tableId = "unspecified";
+  private String zone = "global";
+  private String cluster = "unspecified";
 
   // gfe stats
   private AtomicLong gfeMissingHeaders = new AtomicLong(0);
@@ -117,8 +118,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
       this.tableId = Util.extractTableId(request);
     }
     if (!flowControlIsDisabled) {
-      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
-        serverLatencyTimer.start();
+      synchronized (timerLock) {
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -144,8 +148,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (flowControlIsDisabled) {
       // On request is only called when auto flow control is disabled. When auto flow control is
       // disabled, server latency is measured between onRequest and onResponse.
-      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
-        serverLatencyTimer.start();
+      synchronized (timerLock) {
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -159,9 +166,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // When auto flow control is disabled and application requested multiple responses, server
     // latency is measured between afterResponse and responseReceived.
     // In all the cases, we want to stop the serverLatencyTimer here.
-    if (serverLatencyTimerIsRunning.compareAndSet(true, false)) {
-      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      serverLatencyTimer.reset();
+    synchronized (timerLock) {
+      if (serverLatencyTimerIsRunning) {
+        totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+        serverLatencyTimer.reset();
+        serverLatencyTimerIsRunning = false;
+      }
     }
   }
 
@@ -172,8 +182,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
       // measured between after the last response is processed and before the next response is
       // received. If flow control is disabled but requestLeft is greater than 0,
       // also start the timer to count the time between afterResponse and responseReceived.
-      if (serverLatencyTimerIsRunning.compareAndSet(false, true)) {
-        serverLatencyTimer.start();
+      synchronized (timerLock) {
+        if (!serverLatencyTimerIsRunning) {
+          serverLatencyTimer.start();
+          serverLatencyTimerIsRunning = true;
+        }
       }
     }
   }
@@ -229,18 +242,21 @@ class BuiltinMetricsTracer extends BigtableTracer {
       recorder.putFirstResponseLatencies(firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    recorder.record(Util.extractStatus(status), tableId, zone, cluster);
+    recorder.recordOperation(Util.extractStatus(status), tableId, zone, cluster);
   }
 
   private void recordAttemptCompletion(@Nullable Throwable status) {
     // If the attempt failed, the time spent in retry should be counted in application latency.
     // Stop the stopwatch and decrement requestLeft.
-    if (serverLatencyTimerIsRunning.compareAndSet(true, false)) {
-      requestLeft.decrementAndGet();
-      totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
-      serverLatencyTimer.reset();
+    synchronized (timerLock) {
+      if (serverLatencyTimerIsRunning) {
+        requestLeft.decrementAndGet();
+        totalServerLatency.addAndGet(serverLatencyTimer.elapsed(TimeUnit.MILLISECONDS));
+        serverLatencyTimer.reset();
+        serverLatencyTimerIsRunning = false;
+      }
     }
     recorder.putAttemptLatencies(attemptTimer.elapsed(TimeUnit.MILLISECONDS));
-    recorder.record(Util.extractStatus(status), tableId, zone, cluster);
+    recorder.recordAttempt(Util.extractStatus(status), tableId, zone, cluster);
   }
 }

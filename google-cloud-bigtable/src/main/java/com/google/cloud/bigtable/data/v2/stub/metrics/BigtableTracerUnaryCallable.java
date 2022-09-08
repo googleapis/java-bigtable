@@ -22,20 +22,24 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.bigtable.v2.ResponseParams;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will inject a {@link GrpcResponseMetadata} to access the headers and trailers
- * returned by gRPC methods upon completion. The {@link BigtableTracer} will process metrics that
- * were injected in the header/trailer and publish them to OpenCensus. If {@link
- * GrpcResponseMetadata#getMetadata()} returned null, it probably means that the request has never
- * reached GFE, and it'll increment the gfe_header_missing_counter in this case.
- *
- * <p>This class is considered an internal implementation detail and not meant to be used by
- * applications.
+ * This callable will:
+ * <li>- Inject a {@link GrpcResponseMetadata} to access the headers returned by gRPC methods upon
+ *     completion. The {@link BigtableTracer} will process metrics that were injected in the
+ *     header/trailer and publish them to OpenCensus. If {@link GrpcResponseMetadata#getMetadata()}
+ *     returned null, it probably means that the request has never reached GFE, and it'll increment
+ *     the gfe_header_missing_counter in this case.
+ * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
+ *     cluster ids.
+ * <li>This class is considered an internal implementation detail and not meant to be used by
+ *     applications.
  */
 @InternalApi
 public class BigtableTracerUnaryCallable<RequestT, ResponseT>
@@ -78,6 +82,26 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, throwable);
+      try {
+        // Check both headers and trailers because in different environments the metadata
+        // could be returned in headers or trailers
+        if (metadata != null) {
+          byte[] trailers = metadata.get(Util.METADATA_KEY);
+          if (trailers == null) {
+            Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
+            if (trailingMetadata != null) {
+              trailers = trailingMetadata.get(Util.METADATA_KEY);
+            }
+          }
+          // If the response is terminated abnormally and we didn't get location information in
+          // trailers or headers, skip setting the locations
+          if (trailers != null) {
+            ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+            tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+          }
+        }
+      } catch (InvalidProtocolBufferException e) {
+      }
     }
 
     @Override
@@ -85,6 +109,26 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);
+      try {
+        // Check both headers and trailers because in different environments the metadata
+        // could be returned in headers or trailers
+        if (metadata != null) {
+          byte[] trailers = metadata.get(Util.METADATA_KEY);
+          if (trailers == null) {
+            Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
+            if (trailingMetadata != null) {
+              trailers = trailingMetadata.get(Util.METADATA_KEY);
+            }
+          }
+          // If the response is terminated abnormally and we didn't get location information in
+          // trailers or headers, skip setting the locations
+          if (trailers != null) {
+            ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+            tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+          }
+        }
+      } catch (InvalidProtocolBufferException e) {
+      }
     }
   }
 }

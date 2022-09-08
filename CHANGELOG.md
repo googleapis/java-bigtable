@@ -1,5 +1,93 @@
 # Changelog
 
+## [2.11.2](https://github.com/googleapis/java-bigtable/compare/v2.11.1...v2.11.2) (2022-09-07)
+
+
+### Bug Fixes
+
+* Make cloud-monitoring a runtime dependency ([#1371](https://github.com/googleapis/java-bigtable/issues/1371)) ([930d043](https://github.com/googleapis/java-bigtable/commit/930d0439086d2b43735f9583175adf0626952c9b))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:google-cloud-monitoring-bom to v3.4.2 ([#1373](https://github.com/googleapis/java-bigtable/issues/1373)) ([43b8052](https://github.com/googleapis/java-bigtable/commit/43b80523cc00932a414702ad96cfd86984c0f649))
+* Update dependency com.google.cloud:google-cloud-monitoring-bom to v3.4.2 ([#1374](https://github.com/googleapis/java-bigtable/issues/1374)) ([4174f0d](https://github.com/googleapis/java-bigtable/commit/4174f0dc1b61f954ccd1c2fcf88066179a4d430b))
+
+## [2.11.1](https://github.com/googleapis/java-bigtable/compare/v2.11.0...v2.11.1) (2022-08-26)
+
+
+### Bug Fixes
+
+* reset a measure map everytime the stats are recorded ([#1364](https://github.com/googleapis/java-bigtable/issues/1364)) ([1683365](https://github.com/googleapis/java-bigtable/commit/1683365938178bb61b1e9c871f1971449ee942c2))
+
+## [2.11.0](https://github.com/googleapis/java-bigtable/compare/v2.10.3...v2.11.0) (2022-08-17)
+
+
+### Features
+
+* add stackdriver exporter ([#1247](https://github.com/googleapis/java-bigtable/issues/1247)) ([7ce915e](https://github.com/googleapis/java-bigtable/commit/7ce915e34c1ccce30bee78bda9e024a620cde737))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-monitoring-bom to v3.4.1 ([#1352](https://github.com/googleapis/java-bigtable/issues/1352)) ([f8d97e5](https://github.com/googleapis/java-bigtable/commit/f8d97e557318eab214f3d916c029bfa153cf7455))
+
+## [2.10.3](https://github.com/googleapis/java-bigtable/compare/v2.10.2...v2.10.3) (2022-08-08)
+
+
+### Bug Fixes
+
+* declaring 2 http libraries as runtime ([#1341](https://github.com/googleapis/java-bigtable/issues/1341)) ([8071de6](https://github.com/googleapis/java-bigtable/commit/8071de6235a6c1aa5873902ca55beaa2a8d64276))
+
+## [2.10.2](https://github.com/googleapis/java-bigtable/compare/v2.10.1...v2.10.2) (2022-08-03)
+
+
+### Bug Fixes
+
+* add a ReadFirstRow callable to set future in onComplete ([#1326](https://github.com/googleapis/java-bigtable/issues/1326)) ([cb539b5](https://github.com/googleapis/java-bigtable/commit/cb539b50d98ec2a8538ce4691b2639426ca95464))
+* The metadata could be returned in trailer or header depends on i… ([#1337](https://github.com/googleapis/java-bigtable/issues/1337)) ([c4b8c03](https://github.com/googleapis/java-bigtable/commit/c4b8c03ece7b3f6ec2cea42ff0ca5ac617528060))
+
+
+### Dependencies
+
+* update dependency com.google.cloud:google-cloud-shared-dependencies to v3 ([#1328](https://github.com/googleapis/java-bigtable/issues/1328)) ([bee0ca0](https://github.com/googleapis/java-bigtable/commit/bee0ca036ab6e711f6069159364f6d3b691e6bfd))
+* upgrade shared config to 1.5.3, exclude google-http-client and google-http-client-gson from gax in google-cloud-bigtable-stats ([#1336](https://github.com/googleapis/java-bigtable/issues/1336)) ([98b3349](https://github.com/googleapis/java-bigtable/commit/98b33498d85325d22737fb4bd66826519e96755a))
+
+## [2.10.1](https://github.com/googleapis/java-bigtable/compare/v2.10.0...v2.10.1) (2022-08-01)
+
+
+### Bug Fixes
+
+* retry rst stream in mutations ([#1327](https://github.com/googleapis/java-bigtable/issues/1327)) ([1a5b3a2](https://github.com/googleapis/java-bigtable/commit/1a5b3a215b5388678241cadec26a962a512157ac))
+
+
+### Dependencies
+
+* update dependency org.junit.vintage:junit-vintage-engine to v5.9.0 ([#1323](https://github.com/googleapis/java-bigtable/issues/1323)) ([7655747](https://github.com/googleapis/java-bigtable/commit/76557476744a6404b9df30c97c59f0a7e38a1ed8))
+
+## [2.10.0](https://github.com/googleapis/java-bigtable/compare/v2.9.0...v2.10.0) (2022-07-26)
+
+
+### Features
+
+* add response protos ([#1246](https://github.com/googleapis/java-bigtable/issues/1246)) ([52d59ce](https://github.com/googleapis/java-bigtable/commit/52d59ce18fb5536a17a5cb59da39e563e4afede4))
+* add response_params proto to clients ([#1303](https://github.com/googleapis/java-bigtable/issues/1303)) ([93edfe1](https://github.com/googleapis/java-bigtable/commit/93edfe1e43dcfefda6bba3e9ee53ed80eaf2e5c2))
+* add storage utilization gib per node for autoscaling ([#1317](https://github.com/googleapis/java-bigtable/issues/1317)) ([5282589](https://github.com/googleapis/java-bigtable/commit/52825891af0e4ec2dd76c0c6fa1379a98a77a08f))
+* use PingAndWarm request for channel priming ([#1179](https://github.com/googleapis/java-bigtable/issues/1179)) ([6629821](https://github.com/googleapis/java-bigtable/commit/6629821ea3200d3a5b93c9d45aab6d57485fcebf))
+
+
+### Bug Fixes
+
+* enable integration test for google-cloud-bigtable-stats ([#1311](https://github.com/googleapis/java-bigtable/issues/1311)) ([7c77879](https://github.com/googleapis/java-bigtable/commit/7c7787998b164ceb55472c0d06c083a835e5d000))
+* fix race condition in BuiltinMetricsTracer ([#1320](https://github.com/googleapis/java-bigtable/issues/1320)) ([644454a](https://github.com/googleapis/java-bigtable/commit/644454a9723da359677052b7a4b9201e91e9a78a))
+* ignore repackaged files to fix clirr ([#1300](https://github.com/googleapis/java-bigtable/issues/1300)) ([99b67ba](https://github.com/googleapis/java-bigtable/commit/99b67ba5b1625686ac7802a6e40dafc2edceade0))
+
+
+### Dependencies
+
+* update dependency org.graalvm.buildtools:junit-platform-native to v0.9.13 ([#1306](https://github.com/googleapis/java-bigtable/issues/1306)) ([ddae354](https://github.com/googleapis/java-bigtable/commit/ddae3540fd68e8f79d94d49c96c5685e1bad2f66))
+* update dependency org.graalvm.buildtools:native-maven-plugin to v0.9.13 ([#1307](https://github.com/googleapis/java-bigtable/issues/1307)) ([c0740fe](https://github.com/googleapis/java-bigtable/commit/c0740fe30c5cd2bdf6dedf901e2fdb9a84ce64a1))
+
 ## [2.9.0](https://github.com/googleapis/java-bigtable/compare/v2.8.0...v2.9.0) (2022-06-30)
 
 
