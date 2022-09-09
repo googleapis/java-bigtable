@@ -144,6 +144,7 @@
         <github.global.server>github</github.global.server>
         <site.installationModule>google-cloud-bigtable-parent</site.installationModule>
         <project.javadoc.protobufBaseURL>https://googleapis.dev/java/google-api-grpc/latest</project.javadoc.protobufBaseURL>
+        <cloud.monitoring.version>3.4.2</cloud.monitoring.version>
     </properties>
 
     <dependencyManagement>

@@ -16,10 +16,6 @@
     <version>2.11.3-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     <description>Experimental project to shade OpenCensus dependencies.</description>
 
-    <properties>
-        <cloud.monitoring.version>3.4.2</cloud.monitoring.version>
-    </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
