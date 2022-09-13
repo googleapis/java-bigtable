@@ -79,6 +79,8 @@ import com.google.bigtable.admin.v2.Table;
 import com.google.bigtable.admin.v2.UndeleteTableMetadata;
 import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -155,6 +157,9 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
   private final PagedCallSettings<ListTablesRequest, ListTablesResponse, ListTablesPagedResponse>
       listTablesSettings;
   private final UnaryCallSettings<GetTableRequest, Table> getTableSettings;
+  private final UnaryCallSettings<UpdateTableRequest, Operation> updateTableSettings;
+  private final OperationCallSettings<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationSettings;
   private final UnaryCallSettings<DeleteTableRequest, Empty> deleteTableSettings;
   private final UnaryCallSettings<UndeleteTableRequest, Operation> undeleteTableSettings;
   private final OperationCallSettings<UndeleteTableRequest, Table, UndeleteTableMetadata>
@@ -377,6 +382,17 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     return getTableSettings;
   }
 
+  /** Returns the object with the settings used for calls to updateTable. */
+  public UnaryCallSettings<UpdateTableRequest, Operation> updateTableSettings() {
+    return updateTableSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateTable. */
+  public OperationCallSettings<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationSettings() {
+    return updateTableOperationSettings;
+  }
+
   /** Returns the object with the settings used for calls to deleteTable. */
   public UnaryCallSettings<DeleteTableRequest, Empty> deleteTableSettings() {
     return deleteTableSettings;
@@ -582,6 +598,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
         settingsBuilder.createTableFromSnapshotOperationSettings().build();
     listTablesSettings = settingsBuilder.listTablesSettings().build();
     getTableSettings = settingsBuilder.getTableSettings().build();
+    updateTableSettings = settingsBuilder.updateTableSettings().build();
+    updateTableOperationSettings = settingsBuilder.updateTableOperationSettings().build();
     deleteTableSettings = settingsBuilder.deleteTableSettings().build();
     undeleteTableSettings = settingsBuilder.undeleteTableSettings().build();
     undeleteTableOperationSettings = settingsBuilder.undeleteTableOperationSettings().build();
@@ -621,6 +639,9 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
             ListTablesRequest, ListTablesResponse, ListTablesPagedResponse>
         listTablesSettings;
     private final UnaryCallSettings.Builder<GetTableRequest, Table> getTableSettings;
+    private final UnaryCallSettings.Builder<UpdateTableRequest, Operation> updateTableSettings;
+    private final OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
+        updateTableOperationSettings;
     private final UnaryCallSettings.Builder<DeleteTableRequest, Empty> deleteTableSettings;
     private final UnaryCallSettings.Builder<UndeleteTableRequest, Operation> undeleteTableSettings;
     private final OperationCallSettings.Builder<UndeleteTableRequest, Table, UndeleteTableMetadata>
@@ -752,6 +773,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       createTableFromSnapshotOperationSettings = OperationCallSettings.newBuilder();
       listTablesSettings = PagedCallSettings.newBuilder(LIST_TABLES_PAGE_STR_FACT);
       getTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateTableOperationSettings = OperationCallSettings.newBuilder();
       deleteTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       undeleteTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       undeleteTableOperationSettings = OperationCallSettings.newBuilder();
@@ -782,6 +805,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               createTableFromSnapshotSettings,
               listTablesSettings,
               getTableSettings,
+              updateTableSettings,
               deleteTableSettings,
               undeleteTableSettings,
               modifyColumnFamiliesSettings,
@@ -813,6 +837,8 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           settings.createTableFromSnapshotOperationSettings.toBuilder();
       listTablesSettings = settings.listTablesSettings.toBuilder();
       getTableSettings = settings.getTableSettings.toBuilder();
+      updateTableSettings = settings.updateTableSettings.toBuilder();
+      updateTableOperationSettings = settings.updateTableOperationSettings.toBuilder();
       deleteTableSettings = settings.deleteTableSettings.toBuilder();
       undeleteTableSettings = settings.undeleteTableSettings.toBuilder();
       undeleteTableOperationSettings = settings.undeleteTableOperationSettings.toBuilder();
@@ -843,6 +869,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               createTableFromSnapshotSettings,
               listTablesSettings,
               getTableSettings,
+              updateTableSettings,
               deleteTableSettings,
               undeleteTableSettings,
               modifyColumnFamiliesSettings,
@@ -897,6 +924,11 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .getTableSettings()
           .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("retry_policy_2_codes"))
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
+
+      builder
+          .updateTableSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       builder
           .deleteTableSettings()
@@ -1016,6 +1048,29 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
                       .setRpcTimeoutMultiplier(1.0)
                       .setMaxRpcTimeout(Duration.ZERO)
                       .setTotalTimeout(Duration.ofMillis(3600000L))
+                      .build()));
+
+      builder
+          .updateTableOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings.<UpdateTableRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(Table.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(UpdateTableMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelay(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeout(Duration.ZERO)
+                      .setTotalTimeout(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1161,6 +1216,19 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     /** Returns the builder for the settings used for calls to getTable. */
     public UnaryCallSettings.Builder<GetTableRequest, Table> getTableSettings() {
       return getTableSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateTable. */
+    public UnaryCallSettings.Builder<UpdateTableRequest, Operation> updateTableSettings() {
+      return updateTableSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateTable. */
+    @BetaApi(
+        "The surface for use by generated code is not stable yet and may change in the future.")
+    public OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
+        updateTableOperationSettings() {
+      return updateTableOperationSettings;
     }
 
     /** Returns the builder for the settings used for calls to deleteTable. */

@@ -66,6 +66,8 @@ import com.google.bigtable.admin.v2.TableName;
 import com.google.bigtable.admin.v2.UndeleteTableMetadata;
 import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStub;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -897,6 +899,136 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    */
   public final UnaryCallable<GetTableRequest, Table> getTableCallable() {
     return stub.getTableCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates a specified table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   Table table = Table.newBuilder().build();
+   *   FieldMask updateMask = FieldMask.newBuilder().build();
+   *   Table response = baseBigtableTableAdminClient.updateTableAsync(table, updateMask).get();
+   * }
+   * }</pre>
+   *
+   * @param table Required. The table to update. The table's `name` field is used to identify the
+   *     table to update. Format:
+   *     `projects/{project}/instances/{instance}/tables/[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;`
+   * @param updateMask Required. The list of fields to update. A mask specifying which fields (e.g.
+   *     `deletion_protection`) in the `table` field should be updated. This mask is relative to the
+   *     `table` field, not to the request message. The wildcard (&#42;) path is currently not
+   *     supported. Currently UpdateTable is only supported for the following field: &#42;
+   *     `deletion_protection` If `column_families` is set in `update_mask`, it will return an
+   *     UNIMPLEMENTED error.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Table, UpdateTableMetadata> updateTableAsync(
+      Table table, FieldMask updateMask) {
+    UpdateTableRequest request =
+        UpdateTableRequest.newBuilder().setTable(table).setUpdateMask(updateMask).build();
+    return updateTableAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates a specified table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   UpdateTableRequest request =
+   *       UpdateTableRequest.newBuilder()
+   *           .setTable(Table.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
+   *           .build();
+   *   Table response = baseBigtableTableAdminClient.updateTableAsync(request).get();
+   * }
+   * }</pre>
+   *
+   * @param request The request object containing all of the parameters for the API call.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Table, UpdateTableMetadata> updateTableAsync(
+      UpdateTableRequest request) {
+    return updateTableOperationCallable().futureCall(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates a specified table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   UpdateTableRequest request =
+   *       UpdateTableRequest.newBuilder()
+   *           .setTable(Table.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
+   *           .build();
+   *   OperationFuture<Table, UpdateTableMetadata> future =
+   *       baseBigtableTableAdminClient.updateTableOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Table response = future.get();
+   * }
+   * }</pre>
+   */
+  public final OperationCallable<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationCallable() {
+    return stub.updateTableOperationCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Updates a specified table.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   UpdateTableRequest request =
+   *       UpdateTableRequest.newBuilder()
+   *           .setTable(Table.newBuilder().build())
+   *           .setUpdateMask(FieldMask.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.updateTableCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
+   */
+  public final UnaryCallable<UpdateTableRequest, Operation> updateTableCallable() {
+    return stub.updateTableCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
