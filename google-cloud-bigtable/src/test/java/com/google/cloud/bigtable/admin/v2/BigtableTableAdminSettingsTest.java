@@ -134,7 +134,9 @@ public class BigtableTableAdminSettingsTest {
     "restoreTableSettings",
     "restoreTableOperationSettings",
     "undeleteTableSettings",
-    "undeleteTableOperationSettings"
+    "undeleteTableOperationSettings",
+    "updateTableSettings",
+    "updateTableOperationSettings"
   };
 
   @Test
