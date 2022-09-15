@@ -34,7 +34,6 @@ option (google.api.resource_definition) = {
   pattern: "projects/{project}/locations/{location}/keyRings/{key_ring}/cryptoKeys/{crypto_key}/cryptoKeyVersions/{crypto_key_version}"
 };
 
-
 // Information about a table restore.
 message RestoreInfo {
   // The type of the restore source.
@@ -278,32 +277,31 @@ message Snapshot {
     CREATING = 2;
   }
 
-  // Output only. The unique name of the snapshot.
+  // The unique name of the snapshot.
   // Values are of the form
   // `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
   string name = 1;
 
   // Output only. The source table at the time the snapshot was taken.
-  Table source_table = 2;
+  Table source_table = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. The size of the data in the source table at the time the
-  // snapshot was taken. In some cases, this value may be computed
-  // asynchronously via a background process and a placeholder of 0 will be used
-  // in the meantime.
-  int64 data_size_bytes = 3;
+  // Output only. The size of the data in the source table at the time the snapshot was
+  // taken. In some cases, this value may be computed asynchronously via a
+  // background process and a placeholder of 0 will be used in the meantime.
+  int64 data_size_bytes = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
 
   // Output only. The time when the snapshot is created.
-  google.protobuf.Timestamp create_time = 4;
+  google.protobuf.Timestamp create_time = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. The time when the snapshot will be deleted. The maximum amount
-  // of time a snapshot can stay active is 365 days. If 'ttl' is not specified,
+  // The time when the snapshot will be deleted. The maximum amount of time a
+  // snapshot can stay active is 365 days. If 'ttl' is not specified,
   // the default maximum of 365 days will be used.
   google.protobuf.Timestamp delete_time = 5;
 
   // Output only. The current state of the snapshot.
-  State state = 6;
+  State state = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 
-  // Output only. Description of the snapshot.
+  // Description of the snapshot.
   string description = 7;
 }
 
@@ -347,6 +345,12 @@ message Backup {
     (google.api.field_behavior) = REQUIRED
   ];
 
+  // Output only. Name of the backup from which this backup was copied. If a backup is
+  // not created by copying a backup, this field will be empty.
+  // Values are of the form:
+  // projects/<project>/instances/<instance>/backups/<backup>.
+  string source_backup = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
+
   // Required. The expiration time of the backup, with microseconds
   // granularity that must be at least 6 hours and at most 30 days
   // from the time the request is received. Once the `expire_time`
@@ -389,6 +393,12 @@ message BackupInfo {
 
   // Output only. Name of the table the backup was created from.
   string source_table = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+
+  // Output only. Name of the backup from which this backup was copied. If a backup is
+  // not created by copying a backup, this field will be empty.
+  // Values are of the form:
+  // projects/<project>/instances/<instance>/backups/<backup>.
+  string source_backup = 10 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 // Indicates the type of the restore source.

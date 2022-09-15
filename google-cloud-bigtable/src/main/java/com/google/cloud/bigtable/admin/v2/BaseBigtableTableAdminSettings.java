@@ -36,6 +36,8 @@ import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
+import com.google.bigtable.admin.v2.CopyBackupMetadata;
+import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
@@ -81,7 +83,43 @@ import java.util.List;
 import javax.annotation.Generated;
 
 // AUTO-GENERATED DOCUMENTATION AND CLASS.
-/** For internal use only. */
+/**
+ * Settings class to configure an instance of {@link BaseBigtableTableAdminClient}.
+ *
+ * <p>The default instance has everything set to sensible defaults:
+ *
+ * <ul>
+ *   <li>The default service address (bigtableadmin.googleapis.com) and default port (443) are used.
+ *   <li>Credentials are acquired automatically through Application Default Credentials.
+ *   <li>Retries are configured for idempotent methods but not for non-idempotent methods.
+ * </ul>
+ *
+ * <p>The builder of this class is recursive, so contained classes are themselves builders. When
+ * build() is called, the tree of builders is called to create the complete settings object.
+ *
+ * <p>For example, to set the total timeout of createTable to 30 seconds:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * BaseBigtableTableAdminSettings.Builder baseBigtableTableAdminSettingsBuilder =
+ *     BaseBigtableTableAdminSettings.newBuilder();
+ * baseBigtableTableAdminSettingsBuilder
+ *     .createTableSettings()
+ *     .setRetrySettings(
+ *         baseBigtableTableAdminSettingsBuilder
+ *             .createTableSettings()
+ *             .getRetrySettings()
+ *             .toBuilder()
+ *             .setTotalTimeout(Duration.ofSeconds(30))
+ *             .build());
+ * BaseBigtableTableAdminSettings baseBigtableTableAdminSettings =
+ *     baseBigtableTableAdminSettingsBuilder.build();
+ * }</pre>
+ */
 @Generated("by gapic-generator")
 @InternalApi
 public class BaseBigtableTableAdminSettings extends ClientSettings<BaseBigtableTableAdminSettings> {
@@ -233,6 +271,17 @@ public class BaseBigtableTableAdminSettings extends ClientSettings<BaseBigtableT
   public OperationCallSettings<RestoreTableRequest, Table, RestoreTableMetadata>
       restoreTableOperationSettings() {
     return ((BigtableTableAdminStubSettings) getStubSettings()).restoreTableOperationSettings();
+  }
+
+  /** Returns the object with the settings used for calls to copyBackup. */
+  public UnaryCallSettings<CopyBackupRequest, Operation> copyBackupSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).copyBackupSettings();
+  }
+
+  /** Returns the object with the settings used for calls to copyBackup. */
+  public OperationCallSettings<CopyBackupRequest, Backup, CopyBackupMetadata>
+      copyBackupOperationSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).copyBackupOperationSettings();
   }
 
   /** Returns the object with the settings used for calls to getIamPolicy. */
@@ -499,6 +548,17 @@ public class BaseBigtableTableAdminSettings extends ClientSettings<BaseBigtableT
     public OperationCallSettings.Builder<RestoreTableRequest, Table, RestoreTableMetadata>
         restoreTableOperationSettings() {
       return getStubSettingsBuilder().restoreTableOperationSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to copyBackup. */
+    public UnaryCallSettings.Builder<CopyBackupRequest, Operation> copyBackupSettings() {
+      return getStubSettingsBuilder().copyBackupSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to copyBackup. */
+    public OperationCallSettings.Builder<CopyBackupRequest, Backup, CopyBackupMetadata>
+        copyBackupOperationSettings() {
+      return getStubSettingsBuilder().copyBackupOperationSettings();
     }
 
     /** Returns the builder for the settings used for calls to getIamPolicy. */

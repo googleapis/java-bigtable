@@ -27,6 +27,7 @@ import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
+import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
@@ -299,6 +300,63 @@ public class BigtableBackupIT {
       } finally {
         tableAdmin.deleteBackup(targetCluster, backupId);
         instanceAdmin.deleteInstance(targetInstance);
+      }
+    }
+  }
+
+  @Test
+  public void crossInstanceCopyBackupTest()
+      throws InterruptedException, IOException, ExecutionException, TimeoutException {
+    String backupId = prefixGenerator.newPrefix();
+    String copiedBackupId = prefixGenerator.newPrefix();
+    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+
+    // Create the backup
+    tableAdmin.createBackup(
+        CreateBackupRequest.of(targetCluster, backupId)
+            .setSourceTableId(testTable.getId())
+            .setExpireTime(expireTime));
+
+    // Set up a new instance to test cross-instance copy. The backup will be copied here
+    String destInstance = prefixGenerator.newPrefix();
+    String destCluster = prefixGenerator.newPrefix();
+    instanceAdmin.createInstance(
+        CreateInstanceRequest.of(destInstance)
+            .addCluster(destCluster, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
+            .setDisplayName("backups-dest-test-instance")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
+
+    try (BigtableTableAdminClient destTableAdmin =
+        testEnvRule.env().getTableAdminClientForInstance(destInstance)) {
+
+      try {
+        CopyBackupRequest req =
+            CopyBackupRequest.of(testEnvRule.env().getInstanceId(), targetCluster, backupId)
+                .setBackupId(copiedBackupId)
+                .setClusterId(destCluster)
+                .setExpireTime(expireTime);
+        Backup result = destTableAdmin.copyBackup(req);
+        assertWithMessage("Got wrong copied backup id in CopyBackup API")
+            .that(result.getId())
+            .isEqualTo(copiedBackupId);
+        assertWithMessage("Got wrong source backup id in CopyBackup API")
+            .that(result.getSourceBackupId())
+            .isEqualTo(backupId);
+        assertWithMessage("Got wrong expire time in CopyBackup API")
+            .that(result.getExpireTime())
+            .isEqualTo(expireTime);
+        assertWithMessage("Got empty start time in CopyBackup API")
+            .that(result.getStartTime())
+            .isNotNull();
+        assertWithMessage("Got wrong state in CopyBackup API")
+            .that(result.getState())
+            .isAnyOf(Backup.State.CREATING, Backup.State.READY);
+
+      } finally {
+        destTableAdmin.deleteBackup(destCluster, copiedBackupId);
+        tableAdmin.deleteBackup(targetCluster, backupId);
+        instanceAdmin.deleteInstance(destInstance);
       }
     }
   }
