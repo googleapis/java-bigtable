@@ -122,6 +122,9 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
           }
         }
       } catch (InvalidProtocolBufferException e) {
+        t.addSuppressed(e);
+      } catch (Throwable e) {
+        t.addSuppressed(e);
       }
 
       outerObserver.onError(t);
@@ -151,6 +154,12 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
           }
         }
       } catch (InvalidProtocolBufferException e) {
+        // InvalidProtocolBufferException will only throw if something changed on
+        // the server side. Location info won't be populated as a result. Ignore
+        // this error and don't bubble it up to user.
+      } catch (Throwable e) {
+        outerObserver.onError(e);
+        return;
       }
 
       outerObserver.onComplete();
