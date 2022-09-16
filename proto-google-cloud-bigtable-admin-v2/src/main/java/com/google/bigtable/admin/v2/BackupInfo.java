@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,7 +40,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   private BackupInfo() {
     backup_ = "";
     sourceTable_ = "";
-    sourceBackup_ = "";
   }
 
   @java.lang.Override
@@ -114,13 +113,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
               java.lang.String s = input.readStringRequireUtf8();
 
               sourceTable_ = s;
-              break;
-            }
-          case 82:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              sourceBackup_ = s;
               break;
             }
           default:
@@ -361,61 +353,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
   }
 
-  public static final int SOURCE_BACKUP_FIELD_NUMBER = 10;
-  private volatile java.lang.Object sourceBackup_;
-  /**
-   *
-   *
-   * <pre>
-   * Output only. Name of the backup from which this backup was copied. If a backup is
-   * not created by copying a backup, this field will be empty.
-   * Values are of the form:
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-   * </pre>
-   *
-   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
-   * @return The sourceBackup.
-   */
-  @java.lang.Override
-  public java.lang.String getSourceBackup() {
-    java.lang.Object ref = sourceBackup_;
-    if (ref instanceof java.lang.String) {
-      return (java.lang.String) ref;
-    } else {
-      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-      java.lang.String s = bs.toStringUtf8();
-      sourceBackup_ = s;
-      return s;
-    }
-  }
-  /**
-   *
-   *
-   * <pre>
-   * Output only. Name of the backup from which this backup was copied. If a backup is
-   * not created by copying a backup, this field will be empty.
-   * Values are of the form:
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-   * </pre>
-   *
-   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
-   * @return The bytes for sourceBackup.
-   */
-  @java.lang.Override
-  public com.google.protobuf.ByteString getSourceBackupBytes() {
-    java.lang.Object ref = sourceBackup_;
-    if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
-          com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
-      sourceBackup_ = b;
-      return b;
-    } else {
-      return (com.google.protobuf.ByteString) ref;
-    }
-  }
-
   private byte memoizedIsInitialized = -1;
 
   @java.lang.Override
@@ -442,9 +379,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceTable_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 4, sourceTable_);
     }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
-      com.google.protobuf.GeneratedMessageV3.writeString(output, 10, sourceBackup_);
-    }
     unknownFields.writeTo(output);
   }
 
@@ -465,9 +399,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceTable_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, sourceTable_);
-    }
-    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
-      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, sourceBackup_);
     }
     size += unknownFields.getSerializedSize();
     memoizedSize = size;
@@ -494,7 +425,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       if (!getEndTime().equals(other.getEndTime())) return false;
     }
     if (!getSourceTable().equals(other.getSourceTable())) return false;
-    if (!getSourceBackup().equals(other.getSourceBackup())) return false;
     if (!unknownFields.equals(other.unknownFields)) return false;
     return true;
   }
@@ -518,8 +448,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
     hash = (37 * hash) + SOURCE_TABLE_FIELD_NUMBER;
     hash = (53 * hash) + getSourceTable().hashCode();
-    hash = (37 * hash) + SOURCE_BACKUP_FIELD_NUMBER;
-    hash = (53 * hash) + getSourceBackup().hashCode();
     hash = (29 * hash) + unknownFields.hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -681,8 +609,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
       sourceTable_ = "";
 
-      sourceBackup_ = "";
-
       return this;
     }
 
@@ -722,7 +648,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
         result.endTime_ = endTimeBuilder_.build();
       }
       result.sourceTable_ = sourceTable_;
-      result.sourceBackup_ = sourceBackup_;
       onBuilt();
       return result;
     }
@@ -784,10 +709,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
       if (!other.getSourceTable().isEmpty()) {
         sourceTable_ = other.sourceTable_;
-        onChanged();
-      }
-      if (!other.getSourceBackup().isEmpty()) {
-        sourceBackup_ = other.sourceBackup_;
         onChanged();
       }
       this.mergeUnknownFields(other.unknownFields);
@@ -1421,127 +1342,6 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       checkByteStringIsUtf8(value);
 
       sourceTable_ = value;
-      onChanged();
-      return this;
-    }
-
-    private java.lang.Object sourceBackup_ = "";
-    /**
-     *
-     *
-     * <pre>
-     * Output only. Name of the backup from which this backup was copied. If a backup is
-     * not created by copying a backup, this field will be empty.
-     * Values are of the form:
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-     * </pre>
-     *
-     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
-     * @return The sourceBackup.
-     */
-    public java.lang.String getSourceBackup() {
-      java.lang.Object ref = sourceBackup_;
-      if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
-        java.lang.String s = bs.toStringUtf8();
-        sourceBackup_ = s;
-        return s;
-      } else {
-        return (java.lang.String) ref;
-      }
-    }
-    /**
-     *
-     *
-     * <pre>
-     * Output only. Name of the backup from which this backup was copied. If a backup is
-     * not created by copying a backup, this field will be empty.
-     * Values are of the form:
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-     * </pre>
-     *
-     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
-     * @return The bytes for sourceBackup.
-     */
-    public com.google.protobuf.ByteString getSourceBackupBytes() {
-      java.lang.Object ref = sourceBackup_;
-      if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
-        sourceBackup_ = b;
-        return b;
-      } else {
-        return (com.google.protobuf.ByteString) ref;
-      }
-    }
-    /**
-     *
-     *
-     * <pre>
-     * Output only. Name of the backup from which this backup was copied. If a backup is
-     * not created by copying a backup, this field will be empty.
-     * Values are of the form:
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-     * </pre>
-     *
-     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
-     * @param value The sourceBackup to set.
-     * @return This builder for chaining.
-     */
-    public Builder setSourceBackup(java.lang.String value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-
-      sourceBackup_ = value;
-      onChanged();
-      return this;
-    }
-    /**
-     *
-     *
-     * <pre>
-     * Output only. Name of the backup from which this backup was copied. If a backup is
-     * not created by copying a backup, this field will be empty.
-     * Values are of the form:
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-     * </pre>
-     *
-     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
-     * @return This builder for chaining.
-     */
-    public Builder clearSourceBackup() {
-
-      sourceBackup_ = getDefaultInstance().getSourceBackup();
-      onChanged();
-      return this;
-    }
-    /**
-     *
-     *
-     * <pre>
-     * Output only. Name of the backup from which this backup was copied. If a backup is
-     * not created by copying a backup, this field will be empty.
-     * Values are of the form:
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-     * </pre>
-     *
-     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
-     * @param value The bytes for sourceBackup to set.
-     * @return This builder for chaining.
-     */
-    public Builder setSourceBackupBytes(com.google.protobuf.ByteString value) {
-      if (value == null) {
-        throw new NullPointerException();
-      }
-      checkByteStringIsUtf8(value);
-
-      sourceBackup_ = value;
       onChanged();
       return this;
     }

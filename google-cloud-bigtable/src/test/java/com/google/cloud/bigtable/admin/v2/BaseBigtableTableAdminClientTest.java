@@ -35,7 +35,6 @@ import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.ClusterName;
 import com.google.bigtable.admin.v2.ColumnFamily;
-import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotRequest;
 import com.google.bigtable.admin.v2.CreateTableRequest;
@@ -68,6 +67,7 @@ import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
 import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.Lists;
+import com.google.iam.v1.AuditConfig;
 import com.google.iam.v1.Binding;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
@@ -1649,7 +1649,6 @@ public class BaseBigtableTableAdminClientTest {
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
             .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1708,7 +1707,6 @@ public class BaseBigtableTableAdminClientTest {
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
             .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1767,7 +1765,6 @@ public class BaseBigtableTableAdminClientTest {
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
             .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1812,7 +1809,6 @@ public class BaseBigtableTableAdminClientTest {
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
             .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -1857,7 +1853,6 @@ public class BaseBigtableTableAdminClientTest {
         Backup.newBuilder()
             .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
             .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
             .setExpireTime(Timestamp.newBuilder().build())
             .setStartTime(Timestamp.newBuilder().build())
             .setEndTime(Timestamp.newBuilder().build())
@@ -2116,263 +2111,12 @@ public class BaseBigtableTableAdminClientTest {
   }
 
   @Test
-  public void copyBackupTest() throws Exception {
-    Backup expectedResponse =
-        Backup.newBuilder()
-            .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
-            .setExpireTime(Timestamp.newBuilder().build())
-            .setStartTime(Timestamp.newBuilder().build())
-            .setEndTime(Timestamp.newBuilder().build())
-            .setSizeBytes(-1796325715)
-            .setEncryptionInfo(EncryptionInfo.newBuilder().build())
-            .build();
-    Operation resultOperation =
-        Operation.newBuilder()
-            .setName("copyBackupTest")
-            .setDone(true)
-            .setResponse(Any.pack(expectedResponse))
-            .build();
-    mockBigtableTableAdmin.addResponse(resultOperation);
-
-    ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    String backupId = "backupId2121930365";
-    BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
-    Timestamp expireTime = Timestamp.newBuilder().build();
-
-    Backup actualResponse =
-        client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-    Assert.assertEquals(expectedResponse, actualResponse);
-
-    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
-    Assert.assertEquals(1, actualRequests.size());
-    CopyBackupRequest actualRequest = ((CopyBackupRequest) actualRequests.get(0));
-
-    Assert.assertEquals(parent.toString(), actualRequest.getParent());
-    Assert.assertEquals(backupId, actualRequest.getBackupId());
-    Assert.assertEquals(sourceBackup.toString(), actualRequest.getSourceBackup());
-    Assert.assertEquals(expireTime, actualRequest.getExpireTime());
-    Assert.assertTrue(
-        channelProvider.isHeaderSent(
-            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
-            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
-  }
-
-  @Test
-  public void copyBackupExceptionTest() throws Exception {
-    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
-    mockBigtableTableAdmin.addException(exception);
-
-    try {
-      ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      String backupId = "backupId2121930365";
-      BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
-      Timestamp expireTime = Timestamp.newBuilder().build();
-      client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-      Assert.fail("No exception raised");
-    } catch (ExecutionException e) {
-      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
-      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
-      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
-    }
-  }
-
-  @Test
-  public void copyBackupTest2() throws Exception {
-    Backup expectedResponse =
-        Backup.newBuilder()
-            .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
-            .setExpireTime(Timestamp.newBuilder().build())
-            .setStartTime(Timestamp.newBuilder().build())
-            .setEndTime(Timestamp.newBuilder().build())
-            .setSizeBytes(-1796325715)
-            .setEncryptionInfo(EncryptionInfo.newBuilder().build())
-            .build();
-    Operation resultOperation =
-        Operation.newBuilder()
-            .setName("copyBackupTest")
-            .setDone(true)
-            .setResponse(Any.pack(expectedResponse))
-            .build();
-    mockBigtableTableAdmin.addResponse(resultOperation);
-
-    ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-    String backupId = "backupId2121930365";
-    String sourceBackup = "sourceBackup823134653";
-    Timestamp expireTime = Timestamp.newBuilder().build();
-
-    Backup actualResponse =
-        client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-    Assert.assertEquals(expectedResponse, actualResponse);
-
-    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
-    Assert.assertEquals(1, actualRequests.size());
-    CopyBackupRequest actualRequest = ((CopyBackupRequest) actualRequests.get(0));
-
-    Assert.assertEquals(parent.toString(), actualRequest.getParent());
-    Assert.assertEquals(backupId, actualRequest.getBackupId());
-    Assert.assertEquals(sourceBackup, actualRequest.getSourceBackup());
-    Assert.assertEquals(expireTime, actualRequest.getExpireTime());
-    Assert.assertTrue(
-        channelProvider.isHeaderSent(
-            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
-            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
-  }
-
-  @Test
-  public void copyBackupExceptionTest2() throws Exception {
-    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
-    mockBigtableTableAdmin.addException(exception);
-
-    try {
-      ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
-      String backupId = "backupId2121930365";
-      String sourceBackup = "sourceBackup823134653";
-      Timestamp expireTime = Timestamp.newBuilder().build();
-      client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-      Assert.fail("No exception raised");
-    } catch (ExecutionException e) {
-      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
-      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
-      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
-    }
-  }
-
-  @Test
-  public void copyBackupTest3() throws Exception {
-    Backup expectedResponse =
-        Backup.newBuilder()
-            .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
-            .setExpireTime(Timestamp.newBuilder().build())
-            .setStartTime(Timestamp.newBuilder().build())
-            .setEndTime(Timestamp.newBuilder().build())
-            .setSizeBytes(-1796325715)
-            .setEncryptionInfo(EncryptionInfo.newBuilder().build())
-            .build();
-    Operation resultOperation =
-        Operation.newBuilder()
-            .setName("copyBackupTest")
-            .setDone(true)
-            .setResponse(Any.pack(expectedResponse))
-            .build();
-    mockBigtableTableAdmin.addResponse(resultOperation);
-
-    String parent = "parent-995424086";
-    String backupId = "backupId2121930365";
-    BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
-    Timestamp expireTime = Timestamp.newBuilder().build();
-
-    Backup actualResponse =
-        client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-    Assert.assertEquals(expectedResponse, actualResponse);
-
-    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
-    Assert.assertEquals(1, actualRequests.size());
-    CopyBackupRequest actualRequest = ((CopyBackupRequest) actualRequests.get(0));
-
-    Assert.assertEquals(parent, actualRequest.getParent());
-    Assert.assertEquals(backupId, actualRequest.getBackupId());
-    Assert.assertEquals(sourceBackup.toString(), actualRequest.getSourceBackup());
-    Assert.assertEquals(expireTime, actualRequest.getExpireTime());
-    Assert.assertTrue(
-        channelProvider.isHeaderSent(
-            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
-            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
-  }
-
-  @Test
-  public void copyBackupExceptionTest3() throws Exception {
-    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
-    mockBigtableTableAdmin.addException(exception);
-
-    try {
-      String parent = "parent-995424086";
-      String backupId = "backupId2121930365";
-      BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
-      Timestamp expireTime = Timestamp.newBuilder().build();
-      client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-      Assert.fail("No exception raised");
-    } catch (ExecutionException e) {
-      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
-      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
-      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
-    }
-  }
-
-  @Test
-  public void copyBackupTest4() throws Exception {
-    Backup expectedResponse =
-        Backup.newBuilder()
-            .setName(BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
-            .setSourceTable("sourceTable-95372173")
-            .setSourceBackup("sourceBackup823134653")
-            .setExpireTime(Timestamp.newBuilder().build())
-            .setStartTime(Timestamp.newBuilder().build())
-            .setEndTime(Timestamp.newBuilder().build())
-            .setSizeBytes(-1796325715)
-            .setEncryptionInfo(EncryptionInfo.newBuilder().build())
-            .build();
-    Operation resultOperation =
-        Operation.newBuilder()
-            .setName("copyBackupTest")
-            .setDone(true)
-            .setResponse(Any.pack(expectedResponse))
-            .build();
-    mockBigtableTableAdmin.addResponse(resultOperation);
-
-    String parent = "parent-995424086";
-    String backupId = "backupId2121930365";
-    String sourceBackup = "sourceBackup823134653";
-    Timestamp expireTime = Timestamp.newBuilder().build();
-
-    Backup actualResponse =
-        client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-    Assert.assertEquals(expectedResponse, actualResponse);
-
-    List<AbstractMessage> actualRequests = mockBigtableTableAdmin.getRequests();
-    Assert.assertEquals(1, actualRequests.size());
-    CopyBackupRequest actualRequest = ((CopyBackupRequest) actualRequests.get(0));
-
-    Assert.assertEquals(parent, actualRequest.getParent());
-    Assert.assertEquals(backupId, actualRequest.getBackupId());
-    Assert.assertEquals(sourceBackup, actualRequest.getSourceBackup());
-    Assert.assertEquals(expireTime, actualRequest.getExpireTime());
-    Assert.assertTrue(
-        channelProvider.isHeaderSent(
-            ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
-            GaxGrpcProperties.getDefaultApiClientHeaderPattern()));
-  }
-
-  @Test
-  public void copyBackupExceptionTest4() throws Exception {
-    StatusRuntimeException exception = new StatusRuntimeException(io.grpc.Status.INVALID_ARGUMENT);
-    mockBigtableTableAdmin.addException(exception);
-
-    try {
-      String parent = "parent-995424086";
-      String backupId = "backupId2121930365";
-      String sourceBackup = "sourceBackup823134653";
-      Timestamp expireTime = Timestamp.newBuilder().build();
-      client.copyBackupAsync(parent, backupId, sourceBackup, expireTime).get();
-      Assert.fail("No exception raised");
-    } catch (ExecutionException e) {
-      Assert.assertEquals(InvalidArgumentException.class, e.getCause().getClass());
-      InvalidArgumentException apiException = ((InvalidArgumentException) e.getCause());
-      Assert.assertEquals(StatusCode.Code.INVALID_ARGUMENT, apiException.getStatusCode().getCode());
-    }
-  }
-
-  @Test
   public void getIamPolicyTest() throws Exception {
     Policy expectedResponse =
         Policy.newBuilder()
             .setVersion(351608024)
             .addAllBindings(new ArrayList<Binding>())
+            .addAllAuditConfigs(new ArrayList<AuditConfig>())
             .setEtag(ByteString.EMPTY)
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
@@ -2413,6 +2157,7 @@ public class BaseBigtableTableAdminClientTest {
         Policy.newBuilder()
             .setVersion(351608024)
             .addAllBindings(new ArrayList<Binding>())
+            .addAllAuditConfigs(new ArrayList<AuditConfig>())
             .setEtag(ByteString.EMPTY)
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
@@ -2453,6 +2198,7 @@ public class BaseBigtableTableAdminClientTest {
         Policy.newBuilder()
             .setVersion(351608024)
             .addAllBindings(new ArrayList<Binding>())
+            .addAllAuditConfigs(new ArrayList<AuditConfig>())
             .setEtag(ByteString.EMPTY)
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
@@ -2496,6 +2242,7 @@ public class BaseBigtableTableAdminClientTest {
         Policy.newBuilder()
             .setVersion(351608024)
             .addAllBindings(new ArrayList<Binding>())
+            .addAllAuditConfigs(new ArrayList<AuditConfig>())
             .setEtag(ByteString.EMPTY)
             .build();
     mockBigtableTableAdmin.addResponse(expectedResponse);
