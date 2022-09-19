@@ -610,6 +610,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BulkMutateRowsUserFacingCallable(
             flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
 
+    // Testing 
+
     SpanName spanName = getSpanName("MutateRows");
 
     UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
