@@ -20,6 +20,7 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.StateCheckingResponseObserver;
 import com.google.api.gax.rpc.StreamController;
 
 /**
@@ -42,7 +43,7 @@ final class ConvertExceptionCallable<ReadRowsRequest, RowT>
     innerCallable.call(request, observer, context);
   }
 
-  private class ReadRowsConvertExceptionResponseObserver<RowT> implements ResponseObserver<RowT> {
+  private class ReadRowsConvertExceptionResponseObserver<RowT> extends StateCheckingResponseObserver<RowT> {
 
     private final ResponseObserver<RowT> outerObserver;
 
@@ -51,22 +52,22 @@ final class ConvertExceptionCallable<ReadRowsRequest, RowT>
     }
 
     @Override
-    public void onStart(StreamController controller) {
+    public void onStartImpl(StreamController controller) {
       outerObserver.onStart(controller);
     }
 
     @Override
-    public void onResponse(RowT response) {
+    public void onResponseImpl(RowT response) {
       outerObserver.onResponse(response);
     }
 
     @Override
-    public void onError(Throwable t) {
+    public void onErrorImpl(Throwable t) {
       outerObserver.onError(convertException(t));
     }
 
     @Override
-    public void onComplete() {
+    public void onCompleteImpl() {
       outerObserver.onComplete();
     }
   }
