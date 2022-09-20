@@ -21,6 +21,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -55,18 +57,26 @@ public class KeySaltingTest extends MobileTimeSeriesBaseTest {
   }
 
   @Test
-  public void testScans() throws IOException {
+  public void testScans() throws IOException, ExecutionException, InterruptedException {
     String prefix = "abc-";
-    for (int i = 0; i < 16; i++) {
+    for (int i = 0; i < 8; i++) {
       KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, prefix + i);
     }
+    bout.reset();
 
-    //        KeySalting.scanSaltedRows(projectId, instanceId, TABLE_ID, prefix);
+    KeySalting.scanSaltedRows(projectId, instanceId, TABLE_ID, prefix);
 
     String output = bout.toString();
     assertEquals(
-        "Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n"
-            + "Successfully read row 0-phone#4c410523#20190501\n",
+        "Successfully fetched 8 rows\n"
+            + "Successfully read row 0-abc-3\n"
+            + "Successfully read row 0-abc-7\n"
+            + "Successfully read row 1-abc-0\n"
+            + "Successfully read row 1-abc-4\n"
+            + "Successfully read row 2-abc-1\n"
+            + "Successfully read row 2-abc-5\n"
+            + "Successfully read row 3-abc-2\n"
+            + "Successfully read row 3-abc-6\n",
         output);
   }
 

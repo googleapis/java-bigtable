@@ -16,10 +16,15 @@
 
 package com.example.bigtable;
 
+import com.google.api.core.ApiFuture;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
+import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class KeySalting {
   private static final String COLUMN_FAMILY_NAME = "stats_summary";
@@ -35,6 +40,8 @@ public class KeySalting {
 
     dataClient.mutateRow(rowMutation);
     System.out.printf("Successfully wrote row %s as %s\n", rowKey, saltedRowKey);
+
+    dataClient.close();
   }
 
   public static void readSaltedRow(
@@ -44,45 +51,31 @@ public class KeySalting {
     System.out.printf("Successfully read row %s\n", row.getKey().toStringUtf8());
   }
 
-  //    public static void scanSaltedRows(String projectId, String instanceId, String tableId,
-  // String prefix) throws IOException {
-  //        AccumulatingObserver observer = new AccumulatingObserver();
-  //
-  //        BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
-  //        Query query = Query.create(tableId).prefix(prefix);
-  //        ServerStream<Row> rows = dataClient.readRowsAsync(query, );
-  //
-  //        bigtableDataClient.readRowsAsync(query, new ResponseObserver<Row>() {
-  //            StreamController controller;
-  //            int count = 0;
-  //            public void onStart(StreamController controller) {
-  //                this.controller = controller;
-  //            }
-  //            public void onResponse(Row row) {
-  //                if (++count > 10) {
-  //                    controller.cancel();
-  //                    return;
-  //                }
-  //                // Do something with Row
-  //            }
-  //            public void onError(Throwable t) {
-  //                if (t instanceof NotFoundException) {
-  //                    System.out.println("Tried to read a non-existent table");
-  //                } else {
-  //                    t.printStackTrace();
-  //                }
-  //            }
-  //
-  //            public void onComplete() {
-  //                // Handle stream completion
-  //            }
-  //        });
-  //
-  //
-  //        for (Row row : rows) {
-  //            System.out.printf("Successfully read row %s\n", row.getKey().toStringUtf8());
-  //        }
-  //    }
+  public static void scanSaltedRows(
+      String projectId, String instanceId, String tableId, String prefix)
+      throws IOException, ExecutionException, InterruptedException {
+    BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
+
+    List<Query> queries = new ArrayList<>();
+    for (int i = 0; i < SALT_RANGE; i++) {
+      queries.add(Query.create(tableId).prefix(i + "-" + prefix));
+    }
+
+    List<ApiFuture<List<Row>>> futures = new ArrayList<>();
+    for (Query q : queries) {
+      futures.add(dataClient.readRowsCallable().all().futureCall(q));
+    }
+
+    List<Row> rows = new ArrayList<>();
+    for (ApiFuture<List<Row>> future : futures) {
+      rows.addAll(future.get());
+    }
+
+    System.out.printf("Successfully fetched %s rows\n", rows.size());
+    for (Row row : rows) {
+      System.out.printf("Successfully read row %s\n", row.getKey().toStringUtf8());
+    }
+  }
 
   public static String getSaltedRowKey(String rowKey, int saltRange) {
     int prefix = rowKey.hashCode() % saltRange;
