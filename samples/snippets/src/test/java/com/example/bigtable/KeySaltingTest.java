@@ -26,55 +26,55 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KeySaltingTest extends MobileTimeSeriesBaseTest {
-    public static final String ROW_KEY = "phone#4c410523#20190501";
+  public static final String ROW_KEY = "phone#4c410523#20190501";
 
-    @BeforeClass
-    public static void beforeClass() throws IOException {
-        initializeVariables();
-        createTable();
+  @BeforeClass
+  public static void beforeClass() throws IOException {
+    initializeVariables();
+    createTable();
+  }
+
+  @AfterClass
+  public static void afterClass() throws IOException {
+    cleanupTable();
+  }
+
+  @Test
+  public void testWriteAndRead() throws IOException {
+    KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, ROW_KEY);
+    KeySalting.readSaltedRow(projectId, instanceId, TABLE_ID, ROW_KEY);
+
+    String output = bout.toString();
+    assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
+        "Successfully read row 0-phone#4c410523#20190501\n", output);
+  }
+
+  @Test
+  public void testScans() throws IOException {
+    String prefix = "abc-";
+    for (int i = 0; i < 16; i++) {
+      KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, prefix + i);
     }
-
-    @AfterClass
-    public static void afterClass() throws IOException {
-        cleanupTable();
-    }
-
-    @Test
-    public void testWriteAndRead() throws IOException {
-        KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, ROW_KEY);
-        KeySalting.readSaltedRow(projectId, instanceId, TABLE_ID, ROW_KEY);
-
-        String output = bout.toString();
-        assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
-                "Successfully read row 0-phone#4c410523#20190501\n", output);
-    }
-
-    @Test
-    public void testScans() throws IOException {
-            String prefix = "abc-";
-        for (int i = 0; i < 16; i++) {
-            KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, prefix + i);
-        }
 
 //        KeySalting.scanSaltedRows(projectId, instanceId, TABLE_ID, prefix);
 
-        String output = bout.toString();
-        assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
-                "Successfully read row 0-phone#4c410523#20190501\n", output);
-    }
+    String output = bout.toString();
+    assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
+        "Successfully read row 0-phone#4c410523#20190501\n", output);
+  }
 
-    @Test
-    public void testKeySalting() {
-        Map<String, String> exampleKeys = new HashMap<String, String>();
-        exampleKeys.put("abc-1", "2-abc-1");
-        exampleKeys.put("abc-2", "3-abc-2");
-        exampleKeys.put("abc-3", "0-abc-3");
-        exampleKeys.put("abc-4", "1-abc-4");
+  @Test
+  public void testKeySalting() {
+    Map<String, String> exampleKeys = new HashMap<String, String>();
+    exampleKeys.put("abc-1", "2-abc-1");
+    exampleKeys.put("abc-2", "3-abc-2");
+    exampleKeys.put("abc-3", "0-abc-3");
+    exampleKeys.put("abc-4", "1-abc-4");
 
-        exampleKeys.forEach((k, v) -> assertEquals(v, KeySalting.getSaltedRowKey(k, 4)));
-    }
+    exampleKeys.forEach((k, v) -> assertEquals(v, KeySalting.getSaltedRowKey(k, 4)));
+  }
 }

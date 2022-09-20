@@ -16,35 +16,30 @@
 
 package com.example.bigtable;
 
-import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-import com.google.protobuf.ByteString;
 
 import java.io.IOException;
 
 public class KeySalting {
-    private static final String COLUMN_FAMILY_NAME = "stats_summary";
-    public static final int SALT_RANGE = 4;
+  private static final String COLUMN_FAMILY_NAME = "stats_summary";
+  public static final int SALT_RANGE = 4;
 
-    public static void writeSaltedRow(String projectId, String instanceId, String tableId, String rowKey) throws IOException {
-        BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
-        String saltedRowKey = getSaltedRowKey(rowKey, SALT_RANGE);
-        RowMutation rowMutation =
-                RowMutation.create(tableId, saltedRowKey)
-                        .setCell(COLUMN_FAMILY_NAME, "os_build", "PQ2A.190405.003");
+  public static void writeSaltedRow(String projectId, String instanceId, String tableId, String rowKey) throws IOException {
+    BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
+    String saltedRowKey = getSaltedRowKey(rowKey, SALT_RANGE);
+    RowMutation rowMutation = RowMutation.create(tableId, saltedRowKey).setCell(COLUMN_FAMILY_NAME, "os_build", "PQ2A.190405.003");
 
-        dataClient.mutateRow(rowMutation);
-        System.out.printf("Successfully wrote row %s as %s\n", rowKey, saltedRowKey);
-    }
+    dataClient.mutateRow(rowMutation);
+    System.out.printf("Successfully wrote row %s as %s\n", rowKey, saltedRowKey);
+  }
 
-    public static void readSaltedRow(String projectId, String instanceId, String tableId, String rowKey) throws IOException {
-        BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
-        Row row = dataClient.readRow(tableId, getSaltedRowKey(rowKey, SALT_RANGE));
-        System.out.printf("Successfully read row %s\n", row.getKey().toStringUtf8());
-    }
+  public static void readSaltedRow(String projectId, String instanceId, String tableId, String rowKey) throws IOException {
+    BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId);
+    Row row = dataClient.readRow(tableId, getSaltedRowKey(rowKey, SALT_RANGE));
+    System.out.printf("Successfully read row %s\n", row.getKey().toStringUtf8());
+  }
 
 //    public static void scanSaltedRows(String projectId, String instanceId, String tableId, String prefix) throws IOException {
 //        AccumulatingObserver observer = new AccumulatingObserver();
@@ -85,8 +80,8 @@ public class KeySalting {
 //        }
 //    }
 
-    public static String getSaltedRowKey(String rowKey, int saltRange) {
-        int prefix = rowKey.hashCode() % saltRange;
-        return prefix + "-" + rowKey;
-    }
+  public static String getSaltedRowKey(String rowKey, int saltRange) {
+    int prefix = rowKey.hashCode() % saltRange;
+    return prefix + "-" + rowKey;
+  }
 }
