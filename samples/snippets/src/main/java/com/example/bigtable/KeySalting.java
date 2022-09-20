@@ -19,7 +19,6 @@ package com.example.bigtable;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-
 import java.io.IOException;
 
 public class KeySalting {

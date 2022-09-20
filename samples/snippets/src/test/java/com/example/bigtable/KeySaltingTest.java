@@ -16,17 +16,16 @@
 
 package com.example.bigtable;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class KeySaltingTest extends MobileTimeSeriesBaseTest {
@@ -49,8 +48,10 @@ public class KeySaltingTest extends MobileTimeSeriesBaseTest {
     KeySalting.readSaltedRow(projectId, instanceId, TABLE_ID, ROW_KEY);
 
     String output = bout.toString();
-    assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
-        "Successfully read row 0-phone#4c410523#20190501\n", output);
+    assertEquals(
+        "Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n"
+            + "Successfully read row 0-phone#4c410523#20190501\n",
+        output);
   }
 
   @Test
@@ -60,11 +61,13 @@ public class KeySaltingTest extends MobileTimeSeriesBaseTest {
       KeySalting.writeSaltedRow(projectId, instanceId, TABLE_ID, prefix + i);
     }
 
-//        KeySalting.scanSaltedRows(projectId, instanceId, TABLE_ID, prefix);
+    //        KeySalting.scanSaltedRows(projectId, instanceId, TABLE_ID, prefix);
 
     String output = bout.toString();
-    assertEquals("Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n" +
-        "Successfully read row 0-phone#4c410523#20190501\n", output);
+    assertEquals(
+        "Successfully wrote row phone#4c410523#20190501 as 0-phone#4c410523#20190501\n"
+            + "Successfully read row 0-phone#4c410523#20190501\n",
+        output);
   }
 
   @Test
