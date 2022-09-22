@@ -70,26 +70,26 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
             break;
           case 10:
             {
-              startValueCase_ = 1;
               startValue_ = input.readBytes();
+              startValueCase_ = 1;
               break;
             }
           case 18:
             {
-              startValueCase_ = 2;
               startValue_ = input.readBytes();
+              startValueCase_ = 2;
               break;
             }
           case 26:
             {
-              endValueCase_ = 3;
               endValue_ = input.readBytes();
+              endValueCase_ = 3;
               break;
             }
           case 34:
             {
-              endValueCase_ = 4;
               endValue_ = input.readBytes();
+              endValueCase_ = 4;
               break;
             }
           default:

@@ -145,8 +145,8 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
             }
           case 34:
             {
-              filterCase_ = 4;
               filter_ = input.readBytes();
+              filterCase_ = 4;
               break;
             }
           case 42:
@@ -158,8 +158,8 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
             }
           case 50:
             {
-              filterCase_ = 6;
               filter_ = input.readBytes();
+              filterCase_ = 6;
               break;
             }
           case 58:
@@ -195,38 +195,38 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
             }
           case 74:
             {
-              filterCase_ = 9;
               filter_ = input.readBytes();
+              filterCase_ = 9;
               break;
             }
           case 80:
             {
-              filterCase_ = 10;
               filter_ = input.readInt32();
+              filterCase_ = 10;
               break;
             }
           case 88:
             {
-              filterCase_ = 11;
               filter_ = input.readInt32();
+              filterCase_ = 11;
               break;
             }
           case 96:
             {
-              filterCase_ = 12;
               filter_ = input.readInt32();
+              filterCase_ = 12;
               break;
             }
           case 104:
             {
-              filterCase_ = 13;
               filter_ = input.readBool();
+              filterCase_ = 13;
               break;
             }
           case 113:
             {
-              filterCase_ = 14;
               filter_ = input.readDouble();
+              filterCase_ = 14;
               break;
             }
           case 122:
@@ -246,20 +246,20 @@ public final class RowFilter extends com.google.protobuf.GeneratedMessageV3
             }
           case 128:
             {
-              filterCase_ = 16;
               filter_ = input.readBool();
+              filterCase_ = 16;
               break;
             }
           case 136:
             {
-              filterCase_ = 17;
               filter_ = input.readBool();
+              filterCase_ = 17;
               break;
             }
           case 144:
             {
-              filterCase_ = 18;
               filter_ = input.readBool();
+              filterCase_ = 18;
               break;
             }
           case 154:

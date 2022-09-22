@@ -82,26 +82,26 @@ public final class ColumnRange extends com.google.protobuf.GeneratedMessageV3
             }
           case 18:
             {
-              startQualifierCase_ = 2;
               startQualifier_ = input.readBytes();
+              startQualifierCase_ = 2;
               break;
             }
           case 26:
             {
-              startQualifierCase_ = 3;
               startQualifier_ = input.readBytes();
+              startQualifierCase_ = 3;
               break;
             }
           case 34:
             {
-              endQualifierCase_ = 4;
               endQualifier_ = input.readBytes();
+              endQualifierCase_ = 4;
               break;
             }
           case 42:
             {
-              endQualifierCase_ = 5;
               endQualifier_ = input.readBytes();
+              endQualifierCase_ = 5;
               break;
             }
           default:
@@ -435,7 +435,7 @@ public final class ColumnRange extends com.google.protobuf.GeneratedMessageV3
 
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
-    if (!getFamilyNameBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(familyName_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, familyName_);
     }
     if (startQualifierCase_ == 2) {
@@ -459,7 +459,7 @@ public final class ColumnRange extends com.google.protobuf.GeneratedMessageV3
     if (size != -1) return size;
 
     size = 0;
-    if (!getFamilyNameBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(familyName_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, familyName_);
     }
     if (startQualifierCase_ == 2) {

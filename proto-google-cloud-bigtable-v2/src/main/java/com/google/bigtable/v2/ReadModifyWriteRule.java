@@ -86,14 +86,14 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
             }
           case 26:
             {
-              ruleCase_ = 3;
               rule_ = input.readBytes();
+              ruleCase_ = 3;
               break;
             }
           case 32:
             {
-              ruleCase_ = 4;
               rule_ = input.readInt64();
+              ruleCase_ = 4;
               break;
             }
           default:
@@ -342,7 +342,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
 
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
-    if (!getFamilyNameBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(familyName_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, familyName_);
     }
     if (!columnQualifier_.isEmpty()) {
@@ -363,7 +363,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
     if (size != -1) return size;
 
     size = 0;
-    if (!getFamilyNameBytes().isEmpty()) {
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(familyName_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, familyName_);
     }
     if (!columnQualifier_.isEmpty()) {
