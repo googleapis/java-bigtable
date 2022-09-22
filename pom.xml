@@ -155,7 +155,14 @@
     </properties>
 
     <dependencyManagement>
-        <dependencies>
+            <dependencies>
+              <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-bom</artifactId>
+                <version>3.19.5</version>
+                <type>pom</type>
+              <scope>import</scope>
+            </dependency>
             <!-- Production Deps have been moved to google-cloud-bigtable-deps-bom -->
 
             <!-- Test Deps in alphabetical order -->
