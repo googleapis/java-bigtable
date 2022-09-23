@@ -88,11 +88,11 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
     }
   }
 
-  public abstract void onStartImpl(StreamController streamController);
+  protected abstract void onStartImpl(StreamController streamController);
 
-  public abstract void onResponseImpl(ResponseT response);
+  protected abstract void onResponseImpl(ResponseT response);
 
-  public abstract void onErrorImpl(Throwable throwable);
+  protected abstract void onErrorImpl(Throwable throwable);
 
-  public abstract void onCompleteImpl();
+  protected abstract void onCompleteImpl();
 }

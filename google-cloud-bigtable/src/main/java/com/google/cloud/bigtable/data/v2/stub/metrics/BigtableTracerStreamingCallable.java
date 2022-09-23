@@ -87,20 +87,20 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     }
 
     @Override
-    public void onStartImpl(final StreamController controller) {
+    protected void onStartImpl(final StreamController controller) {
       TracedStreamController tracedController = new TracedStreamController(controller, tracer);
       outerObserver.onStart(tracedController);
     }
 
     @Override
-    public void onResponseImpl(ResponseT response) {
+    protected void onResponseImpl(ResponseT response) {
       Stopwatch stopwatch = Stopwatch.createStarted();
       outerObserver.onResponse(response);
       tracer.afterResponse(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Override
-    public void onErrorImpl(Throwable t) {
+    protected void onErrorImpl(Throwable t) {
       // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
       // so it's not checking trailing metadata here.
       Metadata metadata = responseMetadata.getMetadata();
@@ -132,7 +132,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     }
 
     @Override
-    public void onCompleteImpl() {
+    protected void onCompleteImpl() {
       Metadata metadata = responseMetadata.getMetadata();
       Long latency = Util.getGfeLatency(metadata);
       tracer.recordGfeMetadata(latency, null);

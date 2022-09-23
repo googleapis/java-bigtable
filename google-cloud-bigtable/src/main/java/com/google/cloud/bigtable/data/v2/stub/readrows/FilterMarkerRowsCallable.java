@@ -59,7 +59,7 @@ public class FilterMarkerRowsCallable<RowT> extends ServerStreamingCallable<Read
     }
 
     @Override
-    public void onStartImpl(final StreamController controller) {
+    protected void onStartImpl(final StreamController controller) {
       innerController = controller;
 
       outerObserver.onStart(
@@ -83,7 +83,7 @@ public class FilterMarkerRowsCallable<RowT> extends ServerStreamingCallable<Read
     }
 
     @Override
-    public void onResponseImpl(RowT response) {
+    protected void onResponseImpl(RowT response) {
       if (rowAdapter.isScanMarkerRow(response)) {
         if (!autoFlowControl) {
           innerController.request(1);
@@ -94,12 +94,12 @@ public class FilterMarkerRowsCallable<RowT> extends ServerStreamingCallable<Read
     }
 
     @Override
-    public void onErrorImpl(Throwable t) {
+    protected void onErrorImpl(Throwable t) {
       outerObserver.onError(t);
     }
 
     @Override
-    public void onCompleteImpl() {
+    protected void onCompleteImpl() {
       outerObserver.onComplete();
     }
   }
