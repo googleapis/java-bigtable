@@ -43,7 +43,8 @@ final class ConvertExceptionCallable<ReadRowsRequest, RowT>
     innerCallable.call(request, observer, context);
   }
 
-  private class ReadRowsConvertExceptionResponseObserver<RowT> extends StateCheckingResponseObserver<RowT> {
+  private class ReadRowsConvertExceptionResponseObserver<RowT>
+      extends StateCheckingResponseObserver<RowT> {
 
     private final ResponseObserver<RowT> outerObserver;
 
