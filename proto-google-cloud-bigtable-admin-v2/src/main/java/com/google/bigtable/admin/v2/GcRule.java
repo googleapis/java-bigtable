@@ -70,8 +70,8 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
             break;
           case 8:
             {
-              ruleCase_ = 1;
               rule_ = input.readInt32();
+              ruleCase_ = 1;
               break;
             }
           case 18:

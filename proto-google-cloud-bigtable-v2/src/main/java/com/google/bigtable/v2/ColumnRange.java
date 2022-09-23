@@ -82,26 +82,26 @@ public final class ColumnRange extends com.google.protobuf.GeneratedMessageV3
             }
           case 18:
             {
-              startQualifierCase_ = 2;
               startQualifier_ = input.readBytes();
+              startQualifierCase_ = 2;
               break;
             }
           case 26:
             {
-              startQualifierCase_ = 3;
               startQualifier_ = input.readBytes();
+              startQualifierCase_ = 3;
               break;
             }
           case 34:
             {
-              endQualifierCase_ = 4;
               endQualifier_ = input.readBytes();
+              endQualifierCase_ = 4;
               break;
             }
           case 42:
             {
-              endQualifierCase_ = 5;
               endQualifier_ = input.readBytes();
+              endQualifierCase_ = 5;
               break;
             }
           default:

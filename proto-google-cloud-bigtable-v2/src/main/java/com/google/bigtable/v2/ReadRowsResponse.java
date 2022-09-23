@@ -531,14 +531,14 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               }
             case 64:
               {
-                rowStatusCase_ = 8;
                 rowStatus_ = input.readBool();
+                rowStatusCase_ = 8;
                 break;
               }
             case 72:
               {
-                rowStatusCase_ = 9;
                 rowStatus_ = input.readBool();
+                rowStatusCase_ = 9;
                 break;
               }
             default:

@@ -361,8 +361,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
               }
             case 32:
               {
-                modCase_ = 4;
                 mod_ = input.readBool();
+                modCase_ = 4;
                 break;
               }
             default:

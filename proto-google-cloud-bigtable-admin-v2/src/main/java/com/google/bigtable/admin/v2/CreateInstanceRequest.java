@@ -376,7 +376,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
   @java.lang.Override
   public boolean containsClusters(java.lang.String key) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     return internalGetClusters().getMap().containsKey(key);
   }
@@ -424,7 +424,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
   public com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
       java.lang.String key, com.google.bigtable.admin.v2.Cluster defaultValue) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster> map =
         internalGetClusters().getMap();
@@ -448,7 +448,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
   @java.lang.Override
   public com.google.bigtable.admin.v2.Cluster getClustersOrThrow(java.lang.String key) {
     if (key == null) {
-      throw new java.lang.NullPointerException();
+      throw new NullPointerException("map key");
     }
     java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster> map =
         internalGetClusters().getMap();
@@ -1360,7 +1360,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     @java.lang.Override
     public boolean containsClusters(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       return internalGetClusters().getMap().containsKey(key);
     }
@@ -1408,7 +1408,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     public com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
         java.lang.String key, com.google.bigtable.admin.v2.Cluster defaultValue) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster> map =
           internalGetClusters().getMap();
@@ -1432,7 +1432,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     @java.lang.Override
     public com.google.bigtable.admin.v2.Cluster getClustersOrThrow(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster> map =
           internalGetClusters().getMap();
@@ -1463,7 +1463,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      */
     public Builder removeClusters(java.lang.String key) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       internalGetMutableClusters().getMutableMap().remove(key);
       return this;
@@ -1491,11 +1491,12 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      */
     public Builder putClusters(java.lang.String key, com.google.bigtable.admin.v2.Cluster value) {
       if (key == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map key");
       }
       if (value == null) {
-        throw new java.lang.NullPointerException();
+        throw new NullPointerException("map value");
       }
+
       internalGetMutableClusters().getMutableMap().put(key, value);
       return this;
     }
