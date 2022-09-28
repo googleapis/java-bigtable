@@ -28,6 +28,7 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   private boolean isStarted;
   private boolean isClosed;
 
+  private boolean isCancelled;
   private StreamController streamController;
   private ResponseObserver outerObserver;
 
@@ -52,12 +53,18 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   @Override
   public final void onResponse(ResponseT response) {
     Preconditions.checkState(!isClosed, getClass() + " received a response after being closed.");
-
+    Preconditions.checkState(
+        !isCancelled, getClass() + " received a response after being cancelled.");
     try {
       onResponseImpl(response);
-    } catch (Throwable t) {
-      streamController.cancel();
-      outerObserver.onError(t);
+    } catch (Throwable t1) {
+      try {
+        streamController.cancel();
+        isCancelled = true;
+      } catch (Throwable t2) {
+        t1.addSuppressed(t2);
+      }
+      outerObserver.onError(t1);
     }
   }
 
@@ -65,6 +72,8 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   public final void onError(Throwable throwable) {
     Preconditions.checkState(
         !isClosed, getClass() + " received error after being closed", throwable);
+    Preconditions.checkState(
+        !isCancelled, getClass() + " received error after being cancelled", throwable);
     isClosed = true;
 
     try {
@@ -78,13 +87,19 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   @Override
   public final void onComplete() {
     Preconditions.checkState(!isClosed, getClass() + " tried to double close.");
+    Preconditions.checkState(!isCancelled, getClass() + " tried to close after cancel");
     isClosed = true;
 
     try {
       onCompleteImpl();
-    } catch (Throwable t) {
-      streamController.cancel();
-      outerObserver.onError(t);
+    } catch (Throwable t1) {
+      try {
+        streamController.cancel();
+        isCancelled = true;
+      } catch (Throwable t2) {
+        t1.addSuppressed(t2);
+      }
+      outerObserver.onError(t1);
     }
   }
 
