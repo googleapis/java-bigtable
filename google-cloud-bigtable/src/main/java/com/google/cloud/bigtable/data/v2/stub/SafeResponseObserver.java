@@ -15,20 +15,23 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
-import com.google.common.base.Preconditions;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base implementation of {@link ResponseObserver} that checks the state and catches all the
  * throwables.
  */
+@InternalApi
 public abstract class SafeResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
 
-  private boolean isStarted;
-  private boolean isClosed;
-
-  private boolean isCancelled;
+  private static final Logger LOGGER = Logger.getLogger(SafeResponseObserver.class.getName());
+  private AtomicBoolean isStarted = new AtomicBoolean(false);
+  private AtomicBoolean isClosed = new AtomicBoolean(false);
   private StreamController streamController;
   private ResponseObserver outerObserver;
 
@@ -38,13 +41,19 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
 
   @Override
   public final void onStart(StreamController streamController) {
-    Preconditions.checkState(!isStarted, getClass() + " is already started.");
-    isStarted = true;
+    if (!isStarted.compareAndSet(false, true)) {
+      logException("A stream is already started");
+      return;
+    }
 
     this.streamController = streamController;
     try {
       onStartImpl(streamController);
     } catch (Throwable t) {
+      if (!isClosed.compareAndSet(false, true)) {
+        logException("Tried to cancel a closed stream");
+        return;
+      }
       streamController.cancel();
       outerObserver.onError(t);
     }
@@ -52,15 +61,19 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
 
   @Override
   public final void onResponse(ResponseT response) {
-    Preconditions.checkState(!isClosed, getClass() + " received a response after being closed.");
-    Preconditions.checkState(
-        !isCancelled, getClass() + " received a response after being cancelled.");
+    if (isClosed.get()) {
+      logException("Received a response after the stream is closed");
+      return;
+    }
     try {
       onResponseImpl(response);
     } catch (Throwable t1) {
       try {
+        if (!isClosed.compareAndSet(false, true)) {
+          logException("Tried to cancel a closed stream");
+          return;
+        }
         streamController.cancel();
-        isCancelled = true;
       } catch (Throwable t2) {
         t1.addSuppressed(t2);
       }
@@ -70,11 +83,10 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
 
   @Override
   public final void onError(Throwable throwable) {
-    Preconditions.checkState(
-        !isClosed, getClass() + " received error after being closed", throwable);
-    Preconditions.checkState(
-        !isCancelled, getClass() + " received error after being cancelled", throwable);
-    isClosed = true;
+    if (!isClosed.compareAndSet(false, true)) {
+      logException("Received error after the stream is closed");
+      return;
+    }
 
     try {
       onErrorImpl(throwable);
@@ -86,21 +98,21 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
 
   @Override
   public final void onComplete() {
-    Preconditions.checkState(!isClosed, getClass() + " tried to double close.");
-    Preconditions.checkState(!isCancelled, getClass() + " tried to close after cancel");
-    isClosed = true;
+    if (!isClosed.compareAndSet(false, true)) {
+      logException("Tried to double close the stream");
+      return;
+    }
 
     try {
       onCompleteImpl();
-    } catch (Throwable t1) {
-      try {
-        streamController.cancel();
-        isCancelled = true;
-      } catch (Throwable t2) {
-        t1.addSuppressed(t2);
-      }
-      outerObserver.onError(t1);
+    } catch (Throwable t) {
+      outerObserver.onError(t);
     }
+  }
+
+  private void logException(String message) {
+    Exception exception = new IllegalStateException(message);
+    LOGGER.log(Level.WARNING, exception.getMessage(), exception);
   }
 
   protected abstract void onStartImpl(StreamController streamController);
