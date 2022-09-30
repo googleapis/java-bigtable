@@ -111,8 +111,7 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   }
 
   private void logException(String message) {
-    Exception exception = new IllegalStateException(message);
-    LOGGER.log(Level.WARNING, exception.getMessage(), exception);
+    LOGGER.log(Level.WARNING, message, new IllegalStateException(message));
   }
 
   protected abstract void onStartImpl(StreamController streamController);
