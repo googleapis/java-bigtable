@@ -49,20 +49,20 @@ If you are using Maven without BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.1.1')
+implementation platform('com.google.cloud:libraries-bom:26.1.2')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.12.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.13.0'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.12.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.13.0"
 ```
 
 ## Authentication
@@ -490,6 +490,7 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
 | Hello World | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) |
 | Instance Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) |
+| Key Salting | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) |
 | Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
 | Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) |
