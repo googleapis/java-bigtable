@@ -77,6 +77,17 @@ public class KeySalting {
     }
   }
 
+  /**
+   * Generates a salted version of the row key.
+   *
+   * <p>Some Bigtable schema designs will always have hot spots, and a salted row key breaks up
+   * individual rows and groups of rows that are hot. Row keys are stored in sorted order, so
+   * prepending a numeric prefix allows those hot rows to be stored in different locations.
+   *
+   * <p>The salted row key is created by hashing the existing row key and taking a modulo of how
+   * large a prefix range you want to create; then prepending the existing row key with that result.
+   * This produces a deterministic output, so each row key will always produce the same salted key.
+   */
   public static String getSaltedRowKey(String rowKey, int saltRange) {
     int prefix = rowKey.hashCode() % saltRange;
     return prefix + "-" + rowKey;
