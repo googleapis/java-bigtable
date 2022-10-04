@@ -42,8 +42,7 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   @Override
   public final void onStart(StreamController streamController) {
     if (!isStarted.compareAndSet(false, true)) {
-      logException("A stream is already started");
-      return;
+      throw new IllegalStateException("A stream is already started");
     }
 
     this.streamController = streamController;
