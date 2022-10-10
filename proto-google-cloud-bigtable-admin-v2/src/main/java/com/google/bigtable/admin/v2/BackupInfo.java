@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,16 +19,14 @@
 package com.google.bigtable.admin.v2;
 
 /**
- *
- *
  * <pre>
  * Information about a backup.
  * </pre>
  *
  * Protobuf type {@code google.bigtable.admin.v2.BackupInfo}
  */
-public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class BackupInfo extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.admin.v2.BackupInfo)
     BackupInfoOrBuilder {
   private static final long serialVersionUID = 0L;
@@ -36,49 +34,45 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   private BackupInfo(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
   private BackupInfo() {
     backup_ = "";
     sourceTable_ = "";
+    sourceBackup_ = "";
   }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new BackupInfo();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-    return com.google.bigtable.admin.v2.TableProto
-        .internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
+  public static final com.google.protobuf.Descriptors.Descriptor
+  getDescriptor() {
+    return com.google.bigtable.admin.v2.TableProto.internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-    return com.google.bigtable.admin.v2.TableProto
-        .internal_static_google_bigtable_admin_v2_BackupInfo_fieldAccessorTable
+  internalGetFieldAccessorTable() {
+    return com.google.bigtable.admin.v2.TableProto.internal_static_google_bigtable_admin_v2_BackupInfo_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.google.bigtable.admin.v2.BackupInfo.class,
-            com.google.bigtable.admin.v2.BackupInfo.Builder.class);
+            com.google.bigtable.admin.v2.BackupInfo.class, com.google.bigtable.admin.v2.BackupInfo.Builder.class);
   }
 
   public static final int BACKUP_FIELD_NUMBER = 1;
   private volatile java.lang.Object backup_;
   /**
-   *
-   *
    * <pre>
    * Output only. Name of the backup.
    * </pre>
    *
    * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
    * @return The backup.
    */
   @java.lang.Override
@@ -87,29 +81,29 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+      com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       backup_ = s;
       return s;
     }
   }
   /**
-   *
-   *
    * <pre>
    * Output only. Name of the backup.
    * </pre>
    *
    * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
    * @return The bytes for backup.
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString getBackupBytes() {
+  public com.google.protobuf.ByteString
+  getBackupBytes() {
     java.lang.Object ref = backup_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b =
-          com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
       backup_ = b;
       return b;
     } else {
@@ -120,16 +114,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   public static final int START_TIME_FIELD_NUMBER = 2;
   private com.google.protobuf.Timestamp startTime_;
   /**
-   *
-   *
    * <pre>
    * Output only. The time that the backup was started. Row data in the backup
    * will be no older than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
-   *
+   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    * @return Whether the startTime field is set.
    */
   @java.lang.Override
@@ -137,16 +127,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     return startTime_ != null;
   }
   /**
-   *
-   *
    * <pre>
    * Output only. The time that the backup was started. Row data in the backup
    * will be no older than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
-   *
+   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    * @return The startTime.
    */
   @java.lang.Override
@@ -154,15 +140,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
   }
   /**
-   *
-   *
    * <pre>
    * Output only. The time that the backup was started. Row data in the backup
    * will be no older than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
+   * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getStartTimeOrBuilder() {
@@ -172,16 +155,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   public static final int END_TIME_FIELD_NUMBER = 3;
   private com.google.protobuf.Timestamp endTime_;
   /**
-   *
-   *
    * <pre>
    * Output only. This time that the backup was finished. Row data in the
    * backup will be no newer than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
-   *
+   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    * @return Whether the endTime field is set.
    */
   @java.lang.Override
@@ -189,16 +168,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     return endTime_ != null;
   }
   /**
-   *
-   *
    * <pre>
    * Output only. This time that the backup was finished. Row data in the
    * backup will be no newer than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
-   *
+   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    * @return The endTime.
    */
   @java.lang.Override
@@ -206,15 +181,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
   }
   /**
-   *
-   *
    * <pre>
    * Output only. This time that the backup was finished. Row data in the
    * backup will be no newer than this timestamp.
    * </pre>
    *
-   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-   * </code>
+   * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
@@ -224,14 +196,11 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   public static final int SOURCE_TABLE_FIELD_NUMBER = 4;
   private volatile java.lang.Object sourceTable_;
   /**
-   *
-   *
    * <pre>
    * Output only. Name of the table the backup was created from.
    * </pre>
    *
    * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
    * @return The sourceTable.
    */
   @java.lang.Override
@@ -240,29 +209,29 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+      com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       sourceTable_ = s;
       return s;
     }
   }
   /**
-   *
-   *
    * <pre>
    * Output only. Name of the table the backup was created from.
    * </pre>
    *
    * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
    * @return The bytes for sourceTable.
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString getSourceTableBytes() {
+  public com.google.protobuf.ByteString
+  getSourceTableBytes() {
     java.lang.Object ref = sourceTable_;
     if (ref instanceof java.lang.String) {
       com.google.protobuf.ByteString b =
-          com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
       sourceTable_ = b;
       return b;
     } else {
@@ -270,8 +239,59 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
   }
 
-  private byte memoizedIsInitialized = -1;
+  public static final int SOURCE_BACKUP_FIELD_NUMBER = 10;
+  private volatile java.lang.Object sourceBackup_;
+  /**
+   * <pre>
+   * Output only. Name of the backup from which this backup was copied. If a backup is
+   * not created by copying a backup, this field will be empty.
+   * Values are of the form:
+   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+   * </pre>
+   *
+   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   * @return The sourceBackup.
+   */
+  @java.lang.Override
+  public java.lang.String getSourceBackup() {
+    java.lang.Object ref = sourceBackup_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs =
+          (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      sourceBackup_ = s;
+      return s;
+    }
+  }
+  /**
+   * <pre>
+   * Output only. Name of the backup from which this backup was copied. If a backup is
+   * not created by copying a backup, this field will be empty.
+   * Values are of the form:
+   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+   * </pre>
+   *
+   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   * @return The bytes for sourceBackup.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString
+  getSourceBackupBytes() {
+    java.lang.Object ref = sourceBackup_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
+      sourceBackup_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
 
+  private byte memoizedIsInitialized = -1;
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -283,7 +303,8 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+      throws java.io.IOException {
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(backup_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, backup_);
     }
@@ -295,6 +316,9 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceTable_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 4, sourceTable_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 10, sourceBackup_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -309,13 +333,18 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, backup_);
     }
     if (startTime_ != null) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getStartTime());
+      size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(2, getStartTime());
     }
     if (endTime_ != null) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(3, getEndTime());
+      size += com.google.protobuf.CodedOutputStream
+          .computeMessageSize(3, getEndTime());
     }
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceTable_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(4, sourceTable_);
+    }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, sourceBackup_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -332,16 +361,22 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
     com.google.bigtable.admin.v2.BackupInfo other = (com.google.bigtable.admin.v2.BackupInfo) obj;
 
-    if (!getBackup().equals(other.getBackup())) return false;
+    if (!getBackup()
+        .equals(other.getBackup())) return false;
     if (hasStartTime() != other.hasStartTime()) return false;
     if (hasStartTime()) {
-      if (!getStartTime().equals(other.getStartTime())) return false;
+      if (!getStartTime()
+          .equals(other.getStartTime())) return false;
     }
     if (hasEndTime() != other.hasEndTime()) return false;
     if (hasEndTime()) {
-      if (!getEndTime().equals(other.getEndTime())) return false;
+      if (!getEndTime()
+          .equals(other.getEndTime())) return false;
     }
-    if (!getSourceTable().equals(other.getSourceTable())) return false;
+    if (!getSourceTable()
+        .equals(other.getSourceTable())) return false;
+    if (!getSourceBackup()
+        .equals(other.getSourceBackup())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -365,141 +400,137 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     }
     hash = (37 * hash) + SOURCE_TABLE_FIELD_NUMBER;
     hash = (53 * hash) + getSourceTable().hashCode();
+    hash = (37 * hash) + SOURCE_BACKUP_FIELD_NUMBER;
+    hash = (53 * hash) + getSourceBackup().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static com.google.bigtable.admin.v2.BackupInfo parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
-  public static com.google.bigtable.admin.v2.BackupInfo parseDelimitedFrom(
-      java.io.InputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
-  }
-
-  public static com.google.bigtable.admin.v2.BackupInfo parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+  public static com.google.bigtable.admin.v2.BackupInfo parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
+  public static com.google.bigtable.admin.v2.BackupInfo parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+  }
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
-      com.google.protobuf.CodedInputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.admin.v2.BackupInfo parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.admin.v2.BackupInfo prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * Information about a backup.
    * </pre>
    *
    * Protobuf type {@code google.bigtable.admin.v2.BackupInfo}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.admin.v2.BackupInfo)
       com.google.bigtable.admin.v2.BackupInfoOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return com.google.bigtable.admin.v2.TableProto
-          .internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
+    public static final com.google.protobuf.Descriptors.Descriptor
+    getDescriptor() {
+      return com.google.bigtable.admin.v2.TableProto.internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
-        internalGetFieldAccessorTable() {
-      return com.google.bigtable.admin.v2.TableProto
-          .internal_static_google_bigtable_admin_v2_BackupInfo_fieldAccessorTable
+    internalGetFieldAccessorTable() {
+      return com.google.bigtable.admin.v2.TableProto.internal_static_google_bigtable_admin_v2_BackupInfo_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.google.bigtable.admin.v2.BackupInfo.class,
-              com.google.bigtable.admin.v2.BackupInfo.Builder.class);
+              com.google.bigtable.admin.v2.BackupInfo.class, com.google.bigtable.admin.v2.BackupInfo.Builder.class);
     }
 
     // Construct using com.google.bigtable.admin.v2.BackupInfo.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
@@ -519,13 +550,15 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
       sourceTable_ = "";
 
+      sourceBackup_ = "";
+
       return this;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return com.google.bigtable.admin.v2.TableProto
-          .internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
+    public com.google.protobuf.Descriptors.Descriptor
+    getDescriptorForType() {
+      return com.google.bigtable.admin.v2.TableProto.internal_static_google_bigtable_admin_v2_BackupInfo_descriptor;
     }
 
     @java.lang.Override
@@ -544,8 +577,7 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
 
     @java.lang.Override
     public com.google.bigtable.admin.v2.BackupInfo buildPartial() {
-      com.google.bigtable.admin.v2.BackupInfo result =
-          new com.google.bigtable.admin.v2.BackupInfo(this);
+      com.google.bigtable.admin.v2.BackupInfo result = new com.google.bigtable.admin.v2.BackupInfo(this);
       result.backup_ = backup_;
       if (startTimeBuilder_ == null) {
         result.startTime_ = startTime_;
@@ -558,6 +590,7 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
         result.endTime_ = endTimeBuilder_.build();
       }
       result.sourceTable_ = sourceTable_;
+      result.sourceBackup_ = sourceBackup_;
       onBuilt();
       return result;
     }
@@ -566,39 +599,38 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.admin.v2.BackupInfo) {
-        return mergeFrom((com.google.bigtable.admin.v2.BackupInfo) other);
+        return mergeFrom((com.google.bigtable.admin.v2.BackupInfo)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -619,6 +651,10 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
       if (!other.getSourceTable().isEmpty()) {
         sourceTable_ = other.sourceTable_;
+        onChanged();
+      }
+      if (!other.getSourceBackup().isEmpty()) {
+        sourceBackup_ = other.sourceBackup_;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -647,37 +683,41 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
             case 0:
               done = true;
               break;
-            case 10:
-              {
-                backup_ = input.readStringRequireUtf8();
+            case 10: {
+              backup_ = input.readStringRequireUtf8();
 
-                break;
-              } // case 10
-            case 18:
-              {
-                input.readMessage(getStartTimeFieldBuilder().getBuilder(), extensionRegistry);
+              break;
+            } // case 10
+            case 18: {
+              input.readMessage(
+                  getStartTimeFieldBuilder().getBuilder(),
+                  extensionRegistry);
 
-                break;
-              } // case 18
-            case 26:
-              {
-                input.readMessage(getEndTimeFieldBuilder().getBuilder(), extensionRegistry);
+              break;
+            } // case 18
+            case 26: {
+              input.readMessage(
+                  getEndTimeFieldBuilder().getBuilder(),
+                  extensionRegistry);
 
-                break;
-              } // case 26
-            case 34:
-              {
-                sourceTable_ = input.readStringRequireUtf8();
+              break;
+            } // case 26
+            case 34: {
+              sourceTable_ = input.readStringRequireUtf8();
 
-                break;
-              } // case 34
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+              break;
+            } // case 34
+            case 82: {
+              sourceBackup_ = input.readStringRequireUtf8();
+
+              break;
+            } // case 82
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -690,20 +730,18 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
 
     private java.lang.Object backup_ = "";
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the backup.
      * </pre>
      *
      * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return The backup.
      */
     public java.lang.String getBackup() {
       java.lang.Object ref = backup_;
       if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         backup_ = s;
         return s;
@@ -712,21 +750,20 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the backup.
      * </pre>
      *
      * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return The bytes for backup.
      */
-    public com.google.protobuf.ByteString getBackupBytes() {
+    public com.google.protobuf.ByteString
+    getBackupBytes() {
       java.lang.Object ref = backup_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
         backup_ = b;
         return b;
       } else {
@@ -734,18 +771,16 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the backup.
      * </pre>
      *
      * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @param value The backup to set.
      * @return This builder for chaining.
      */
-    public Builder setBackup(java.lang.String value) {
+    public Builder setBackup(
+        java.lang.String value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -755,14 +790,11 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the backup.
      * </pre>
      *
      * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearBackup() {
@@ -772,18 +804,16 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the backup.
      * </pre>
      *
      * <code>string backup = 1 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @param value The bytes for backup to set.
      * @return This builder for chaining.
      */
-    public Builder setBackupBytes(com.google.protobuf.ByteString value) {
+    public Builder setBackupBytes(
+        com.google.protobuf.ByteString value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -796,37 +826,26 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
 
     private com.google.protobuf.Timestamp startTime_;
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp,
-            com.google.protobuf.Timestamp.Builder,
-            com.google.protobuf.TimestampOrBuilder>
-        startTimeBuilder_;
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> startTimeBuilder_;
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
-     *
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      * @return Whether the startTime field is set.
      */
     public boolean hasStartTime() {
       return startTimeBuilder_ != null || startTime_ != null;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
-     *
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      * @return The startTime.
      */
     public com.google.protobuf.Timestamp getStartTime() {
@@ -837,15 +856,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder setStartTime(com.google.protobuf.Timestamp value) {
       if (startTimeBuilder_ == null) {
@@ -861,17 +877,15 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
-    public Builder setStartTime(com.google.protobuf.Timestamp.Builder builderForValue) {
+    public Builder setStartTime(
+        com.google.protobuf.Timestamp.Builder builderForValue) {
       if (startTimeBuilder_ == null) {
         startTime_ = builderForValue.build();
         onChanged();
@@ -882,15 +896,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder mergeStartTime(com.google.protobuf.Timestamp value) {
       if (startTimeBuilder_ == null) {
@@ -908,15 +919,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder clearStartTime() {
       if (startTimeBuilder_ == null) {
@@ -930,15 +938,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public com.google.protobuf.Timestamp.Builder getStartTimeBuilder() {
 
@@ -946,46 +951,38 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return getStartTimeFieldBuilder().getBuilder();
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public com.google.protobuf.TimestampOrBuilder getStartTimeOrBuilder() {
       if (startTimeBuilder_ != null) {
         return startTimeBuilder_.getMessageOrBuilder();
       } else {
-        return startTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
+        return startTime_ == null ?
+            com.google.protobuf.Timestamp.getDefaultInstance() : startTime_;
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. The time that the backup was started. Row data in the backup
      * will be no older than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp start_time = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp,
-            com.google.protobuf.Timestamp.Builder,
-            com.google.protobuf.TimestampOrBuilder>
-        getStartTimeFieldBuilder() {
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>
+    getStartTimeFieldBuilder() {
       if (startTimeBuilder_ == null) {
-        startTimeBuilder_ =
-            new com.google.protobuf.SingleFieldBuilderV3<
-                com.google.protobuf.Timestamp,
-                com.google.protobuf.Timestamp.Builder,
-                com.google.protobuf.TimestampOrBuilder>(
-                getStartTime(), getParentForChildren(), isClean());
+        startTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+            getStartTime(),
+            getParentForChildren(),
+            isClean());
         startTime_ = null;
       }
       return startTimeBuilder_;
@@ -993,37 +990,26 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
 
     private com.google.protobuf.Timestamp endTime_;
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp,
-            com.google.protobuf.Timestamp.Builder,
-            com.google.protobuf.TimestampOrBuilder>
-        endTimeBuilder_;
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder> endTimeBuilder_;
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
-     *
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      * @return Whether the endTime field is set.
      */
     public boolean hasEndTime() {
       return endTimeBuilder_ != null || endTime_ != null;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
-     *
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      * @return The endTime.
      */
     public com.google.protobuf.Timestamp getEndTime() {
@@ -1034,15 +1020,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder setEndTime(com.google.protobuf.Timestamp value) {
       if (endTimeBuilder_ == null) {
@@ -1058,17 +1041,15 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
-    public Builder setEndTime(com.google.protobuf.Timestamp.Builder builderForValue) {
+    public Builder setEndTime(
+        com.google.protobuf.Timestamp.Builder builderForValue) {
       if (endTimeBuilder_ == null) {
         endTime_ = builderForValue.build();
         onChanged();
@@ -1079,15 +1060,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder mergeEndTime(com.google.protobuf.Timestamp value) {
       if (endTimeBuilder_ == null) {
@@ -1105,15 +1083,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public Builder clearEndTime() {
       if (endTimeBuilder_ == null) {
@@ -1127,15 +1102,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public com.google.protobuf.Timestamp.Builder getEndTimeBuilder() {
 
@@ -1143,46 +1115,38 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return getEndTimeFieldBuilder().getBuilder();
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
       if (endTimeBuilder_ != null) {
         return endTimeBuilder_.getMessageOrBuilder();
       } else {
-        return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
+        return endTime_ == null ?
+            com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. This time that the backup was finished. Row data in the
      * backup will be no newer than this timestamp.
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];
-     * </code>
+     * <code>.google.protobuf.Timestamp end_time = 3 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.protobuf.Timestamp,
-            com.google.protobuf.Timestamp.Builder,
-            com.google.protobuf.TimestampOrBuilder>
-        getEndTimeFieldBuilder() {
+        com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>
+    getEndTimeFieldBuilder() {
       if (endTimeBuilder_ == null) {
-        endTimeBuilder_ =
-            new com.google.protobuf.SingleFieldBuilderV3<
-                com.google.protobuf.Timestamp,
-                com.google.protobuf.Timestamp.Builder,
-                com.google.protobuf.TimestampOrBuilder>(
-                getEndTime(), getParentForChildren(), isClean());
+        endTimeBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            com.google.protobuf.Timestamp, com.google.protobuf.Timestamp.Builder, com.google.protobuf.TimestampOrBuilder>(
+            getEndTime(),
+            getParentForChildren(),
+            isClean());
         endTime_ = null;
       }
       return endTimeBuilder_;
@@ -1190,20 +1154,18 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
 
     private java.lang.Object sourceTable_ = "";
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the table the backup was created from.
      * </pre>
      *
      * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return The sourceTable.
      */
     public java.lang.String getSourceTable() {
       java.lang.Object ref = sourceTable_;
       if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         sourceTable_ = s;
         return s;
@@ -1212,21 +1174,20 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the table the backup was created from.
      * </pre>
      *
      * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return The bytes for sourceTable.
      */
-    public com.google.protobuf.ByteString getSourceTableBytes() {
+    public com.google.protobuf.ByteString
+    getSourceTableBytes() {
       java.lang.Object ref = sourceTable_;
       if (ref instanceof String) {
         com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
         sourceTable_ = b;
         return b;
       } else {
@@ -1234,18 +1195,16 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the table the backup was created from.
      * </pre>
      *
      * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @param value The sourceTable to set.
      * @return This builder for chaining.
      */
-    public Builder setSourceTable(java.lang.String value) {
+    public Builder setSourceTable(
+        java.lang.String value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -1255,14 +1214,11 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the table the backup was created from.
      * </pre>
      *
      * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearSourceTable() {
@@ -1272,18 +1228,16 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Output only. Name of the table the backup was created from.
      * </pre>
      *
      * <code>string source_table = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-     *
      * @param value The bytes for sourceTable to set.
      * @return This builder for chaining.
      */
-    public Builder setSourceTableBytes(com.google.protobuf.ByteString value) {
+    public Builder setSourceTableBytes(
+        com.google.protobuf.ByteString value) {
       if (value == null) {
         throw new NullPointerException();
       }
@@ -1294,8 +1248,119 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
 
+    private java.lang.Object sourceBackup_ = "";
+    /**
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a backup is
+     * not created by copying a backup, this field will be empty.
+     * Values are of the form:
+     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * @return The sourceBackup.
+     */
+    public java.lang.String getSourceBackup() {
+      java.lang.Object ref = sourceBackup_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        sourceBackup_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a backup is
+     * not created by copying a backup, this field will be empty.
+     * Values are of the form:
+     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * @return The bytes for sourceBackup.
+     */
+    public com.google.protobuf.ByteString
+    getSourceBackupBytes() {
+      java.lang.Object ref = sourceBackup_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
+        sourceBackup_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a backup is
+     * not created by copying a backup, this field will be empty.
+     * Values are of the form:
+     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * @param value The sourceBackup to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSourceBackup(
+        java.lang.String value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+
+      sourceBackup_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a backup is
+     * not created by copying a backup, this field will be empty.
+     * Values are of the form:
+     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearSourceBackup() {
+
+      sourceBackup_ = getDefaultInstance().getSourceBackup();
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a backup is
+     * not created by copying a backup, this field will be empty.
+     * Values are of the form:
+     * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     * @param value The bytes for sourceBackup to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSourceBackupBytes(
+        com.google.protobuf.ByteString value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      checkByteStringIsUtf8(value);
+
+      sourceBackup_ = value;
+      onChanged();
+      return this;
+    }
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -1305,12 +1370,12 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.admin.v2.BackupInfo)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.admin.v2.BackupInfo)
   private static final com.google.bigtable.admin.v2.BackupInfo DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.admin.v2.BackupInfo();
   }
@@ -1319,27 +1384,27 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<BackupInfo> PARSER =
-      new com.google.protobuf.AbstractParser<BackupInfo>() {
-        @java.lang.Override
-        public BackupInfo parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<BackupInfo>
+      PARSER = new com.google.protobuf.AbstractParser<BackupInfo>() {
+    @java.lang.Override
+    public BackupInfo parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<BackupInfo> parser() {
     return PARSER;
@@ -1354,4 +1419,5 @@ public final class BackupInfo extends com.google.protobuf.GeneratedMessageV3
   public com.google.bigtable.admin.v2.BackupInfo getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }

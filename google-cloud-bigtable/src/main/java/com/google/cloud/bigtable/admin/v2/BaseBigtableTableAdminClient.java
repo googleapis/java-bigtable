@@ -33,6 +33,8 @@ import com.google.bigtable.admin.v2.BackupName;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.ClusterName;
+import com.google.bigtable.admin.v2.CopyBackupMetadata;
+import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
@@ -80,13 +82,95 @@ import com.google.longrunning.Operation;
 import com.google.longrunning.OperationsClient;
 import com.google.protobuf.Empty;
 import com.google.protobuf.FieldMask;
+import com.google.protobuf.Timestamp;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Generated;
 
 // AUTO-GENERATED DOCUMENTATION AND CLASS.
-/** For internal use only. */
+/**
+ * Service Description: Service for creating, configuring, and deleting Cloud Bigtable tables.
+ *
+ * <p>Provides access to the table schemas only, not the data stored within the tables.
+ *
+ * <p>This class provides the ability to make remote calls to the backing service through method
+ * calls that map to API methods. Sample code to get started:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+ *     BaseBigtableTableAdminClient.create()) {
+ *   InstanceName parent = InstanceName.of("[PROJECT]", "[INSTANCE]");
+ *   String tableId = "tableId-1552905847";
+ *   Table table = Table.newBuilder().build();
+ *   Table response = baseBigtableTableAdminClient.createTable(parent, tableId, table);
+ * }
+ * }</pre>
+ *
+ * <p>Note: close() needs to be called on the BaseBigtableTableAdminClient object to clean up
+ * resources such as threads. In the example above, try-with-resources is used, which automatically
+ * calls close().
+ *
+ * <p>The surface of this class includes several types of Java methods for each of the API's
+ * methods:
+ *
+ * <ol>
+ *   <li>A "flattened" method. With this type of method, the fields of the request type have been
+ *       converted into function parameters. It may be the case that not all fields are available as
+ *       parameters, and not every API method will have a flattened method entry point.
+ *   <li>A "request object" method. This type of method only takes one parameter, a request object,
+ *       which must be constructed before the call. Not every API method will have a request object
+ *       method.
+ *   <li>A "callable" method. This type of method takes no parameters and returns an immutable API
+ *       callable object, which can be used to initiate calls to the service.
+ * </ol>
+ *
+ * <p>See the individual methods for example code.
+ *
+ * <p>Many parameters require resource names to be formatted in a particular way. To assist with
+ * these names, this class includes a format method for each type of name, and additionally a parse
+ * method to extract the individual identifiers contained within names that are returned.
+ *
+ * <p>This class can be customized by passing in a custom instance of BaseBigtableTableAdminSettings
+ * to create(). For example:
+ *
+ * <p>To customize credentials:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * BaseBigtableTableAdminSettings baseBigtableTableAdminSettings =
+ *     BaseBigtableTableAdminSettings.newBuilder()
+ *         .setCredentialsProvider(FixedCredentialsProvider.create(myCredentials))
+ *         .build();
+ * BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+ *     BaseBigtableTableAdminClient.create(baseBigtableTableAdminSettings);
+ * }</pre>
+ *
+ * <p>To customize the endpoint:
+ *
+ * <pre>{@code
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+ * BaseBigtableTableAdminSettings baseBigtableTableAdminSettings =
+ *     BaseBigtableTableAdminSettings.newBuilder().setEndpoint(myEndpoint).build();
+ * BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+ *     BaseBigtableTableAdminClient.create(baseBigtableTableAdminSettings);
+ * }</pre>
+ *
+ * <p>Please refer to the GitHub repository's samples for more quickstart code snippets.
+ */
 @Generated("by gapic-generator")
 @InternalApi
 public class BaseBigtableTableAdminClient implements BackgroundResource {
@@ -576,8 +660,8 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<
-          CreateTableFromSnapshotRequest, Table, CreateTableFromSnapshotMetadata>
-      createTableFromSnapshotOperationCallable() {
+      CreateTableFromSnapshotRequest, Table, CreateTableFromSnapshotMetadata>
+  createTableFromSnapshotOperationCallable() {
     return stub.createTableFromSnapshotOperationCallable();
   }
 
@@ -616,7 +700,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<CreateTableFromSnapshotRequest, Operation>
-      createTableFromSnapshotCallable() {
+  createTableFromSnapshotCallable() {
     return stub.createTableFromSnapshotCallable();
   }
 
@@ -996,7 +1080,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<UpdateTableRequest, Table, UpdateTableMetadata>
-      updateTableOperationCallable() {
+  updateTableOperationCallable() {
     return stub.updateTableOperationCallable();
   }
 
@@ -1258,7 +1342,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
-      undeleteTableOperationCallable() {
+  undeleteTableOperationCallable() {
     return stub.undeleteTableOperationCallable();
   }
 
@@ -1620,7 +1704,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
-      generateConsistencyTokenCallable() {
+  generateConsistencyTokenCallable() {
     return stub.generateConsistencyTokenCallable();
   }
 
@@ -1757,7 +1841,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse>
-      checkConsistencyCallable() {
+  checkConsistencyCallable() {
     return stub.checkConsistencyCallable();
   }
 
@@ -2049,7 +2133,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<SnapshotTableRequest, Snapshot, SnapshotTableMetadata>
-      snapshotTableOperationCallable() {
+  snapshotTableOperationCallable() {
     return stub.snapshotTableOperationCallable();
   }
 
@@ -2380,7 +2464,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<ListSnapshotsRequest, ListSnapshotsPagedResponse>
-      listSnapshotsPagedCallable() {
+  listSnapshotsPagedCallable() {
     return stub.listSnapshotsPagedCallable();
   }
 
@@ -2741,7 +2825,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<CreateBackupRequest, Backup, CreateBackupMetadata>
-      createBackupOperationCallable() {
+  createBackupOperationCallable() {
     return stub.createBackupOperationCallable();
   }
 
@@ -3241,7 +3325,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<ListBackupsRequest, ListBackupsPagedResponse>
-      listBackupsPagedCallable() {
+  listBackupsPagedCallable() {
     return stub.listBackupsPagedCallable();
   }
 
@@ -3357,7 +3441,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final OperationCallable<RestoreTableRequest, Table, RestoreTableMetadata>
-      restoreTableOperationCallable() {
+  restoreTableOperationCallable() {
     return stub.restoreTableOperationCallable();
   }
 
@@ -3399,8 +3483,342 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
-   * resource exists but does not have a policy set.
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String backupId = "backupId2121930365";
+   *   BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exist. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as `{parent}/backups/{backup_id}` to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;`.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      ClusterName parent, String backupId, BackupName sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent == null ? null : parent.toString())
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup == null ? null : sourceBackup.toString())
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String backupId = "backupId2121930365";
+   *   String sourceBackup =
+   *       BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exist. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as `{parent}/backups/{backup_id}` to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;`.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      ClusterName parent, String backupId, String sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent == null ? null : parent.toString())
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup)
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String backupId = "backupId2121930365";
+   *   BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exist. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as `{parent}/backups/{backup_id}` to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;`.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      String parent, String backupId, BackupName sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent)
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup == null ? null : sourceBackup.toString())
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String backupId = "backupId2121930365";
+   *   String sourceBackup =
+   *       BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exist. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as `{parent}/backups/{backup_id}` to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     `[_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;`.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      String parent, String backupId, String sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent)
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup)
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   Backup response = baseBigtableTableAdminClient.copyBackupAsync(request).get();
+   * }
+   * }</pre>
+   *
+   * @param request The request object containing all of the parameters for the API call.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      CopyBackupRequest request) {
+    return copyBackupOperationCallable().futureCall(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   OperationFuture<Backup, CopyBackupMetadata> future =
+   *       baseBigtableTableAdminClient.copyBackupOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Backup response = future.get();
+   * }
+   * }</pre>
+   */
+  public final OperationCallable<CopyBackupRequest, Backup, CopyBackupMetadata>
+  copyBackupOperationCallable() {
+    return stub.copyBackupOperationCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.copyBackupCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
+   */
+  public final UnaryCallable<CopyBackupRequest, Operation> copyBackupCallable() {
+    return stub.copyBackupCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Gets the access control policy for a Table resource. Returns an empty policy if the resource
+   * exists but does not have a policy set.
    *
    * <p>Sample code:
    *
@@ -3431,8 +3849,8 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
-   * resource exists but does not have a policy set.
+   * Gets the access control policy for a Table resource. Returns an empty policy if the resource
+   * exists but does not have a policy set.
    *
    * <p>Sample code:
    *
@@ -3460,8 +3878,8 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
-   * resource exists but does not have a policy set.
+   * Gets the access control policy for a Table resource. Returns an empty policy if the resource
+   * exists but does not have a policy set.
    *
    * <p>Sample code:
    *
@@ -3492,8 +3910,8 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Gets the access control policy for a Table or Backup resource. Returns an empty policy if the
-   * resource exists but does not have a policy set.
+   * Gets the access control policy for a Table resource. Returns an empty policy if the resource
+   * exists but does not have a policy set.
    *
    * <p>Sample code:
    *
@@ -3524,7 +3942,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
+   * Sets the access control policy on a Table resource. Replaces any existing policy.
    *
    * <p>Sample code:
    *
@@ -3560,7 +3978,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
+   * Sets the access control policy on a Table resource. Replaces any existing policy.
    *
    * <p>Sample code:
    *
@@ -3593,7 +4011,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
+   * Sets the access control policy on a Table resource. Replaces any existing policy.
    *
    * <p>Sample code:
    *
@@ -3610,7 +4028,6 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *           .setResource(
    *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
    *           .setPolicy(Policy.newBuilder().build())
-   *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
    *   Policy response = baseBigtableTableAdminClient.setIamPolicy(request);
    * }
@@ -3625,7 +4042,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Sets the access control policy on a Table or Backup resource. Replaces any existing policy.
+   * Sets the access control policy on a Table resource. Replaces any existing policy.
    *
    * <p>Sample code:
    *
@@ -3642,7 +4059,6 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *           .setResource(
    *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
    *           .setPolicy(Policy.newBuilder().build())
-   *           .setUpdateMask(FieldMask.newBuilder().build())
    *           .build();
    *   ApiFuture<Policy> future =
    *       baseBigtableTableAdminClient.setIamPolicyCallable().futureCall(request);
@@ -3657,7 +4073,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Returns permissions that the caller has on the specified Table or Backup resource.
+   * Returns permissions that the caller has on the specified table resource.
    *
    * <p>Sample code:
    *
@@ -3695,7 +4111,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Returns permissions that the caller has on the specified Table or Backup resource.
+   * Returns permissions that the caller has on the specified table resource.
    *
    * <p>Sample code:
    *
@@ -3733,7 +4149,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Returns permissions that the caller has on the specified Table or Backup resource.
+   * Returns permissions that the caller has on the specified table resource.
    *
    * <p>Sample code:
    *
@@ -3765,7 +4181,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Returns permissions that the caller has on the specified Table or Backup resource.
+   * Returns permissions that the caller has on the specified table resource.
    *
    * <p>Sample code:
    *
@@ -3791,7 +4207,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * }</pre>
    */
   public final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
-      testIamPermissionsCallable() {
+  testIamPermissionsCallable() {
     return stub.testIamPermissionsCallable();
   }
 
@@ -3827,11 +4243,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListTablesPagedResponse
       extends AbstractPagedListResponse<
-          ListTablesRequest,
-          ListTablesResponse,
-          Table,
-          ListTablesPage,
-          ListTablesFixedSizeCollection> {
+      ListTablesRequest,
+      ListTablesResponse,
+      Table,
+      ListTablesPage,
+      ListTablesFixedSizeCollection> {
 
     public static ApiFuture<ListTablesPagedResponse> createAsync(
         PageContext<ListTablesRequest, ListTablesResponse, Table> context,
@@ -3877,11 +4293,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListTablesFixedSizeCollection
       extends AbstractFixedSizeCollection<
-          ListTablesRequest,
-          ListTablesResponse,
-          Table,
-          ListTablesPage,
-          ListTablesFixedSizeCollection> {
+      ListTablesRequest,
+      ListTablesResponse,
+      Table,
+      ListTablesPage,
+      ListTablesFixedSizeCollection> {
 
     private ListTablesFixedSizeCollection(List<ListTablesPage> pages, int collectionSize) {
       super(pages, collectionSize);
@@ -3900,11 +4316,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListSnapshotsPagedResponse
       extends AbstractPagedListResponse<
-          ListSnapshotsRequest,
-          ListSnapshotsResponse,
-          Snapshot,
-          ListSnapshotsPage,
-          ListSnapshotsFixedSizeCollection> {
+      ListSnapshotsRequest,
+      ListSnapshotsResponse,
+      Snapshot,
+      ListSnapshotsPage,
+      ListSnapshotsFixedSizeCollection> {
 
     public static ApiFuture<ListSnapshotsPagedResponse> createAsync(
         PageContext<ListSnapshotsRequest, ListSnapshotsResponse, Snapshot> context,
@@ -3924,7 +4340,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListSnapshotsPage
       extends AbstractPage<
-          ListSnapshotsRequest, ListSnapshotsResponse, Snapshot, ListSnapshotsPage> {
+      ListSnapshotsRequest, ListSnapshotsResponse, Snapshot, ListSnapshotsPage> {
 
     private ListSnapshotsPage(
         PageContext<ListSnapshotsRequest, ListSnapshotsResponse, Snapshot> context,
@@ -3953,11 +4369,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListSnapshotsFixedSizeCollection
       extends AbstractFixedSizeCollection<
-          ListSnapshotsRequest,
-          ListSnapshotsResponse,
-          Snapshot,
-          ListSnapshotsPage,
-          ListSnapshotsFixedSizeCollection> {
+      ListSnapshotsRequest,
+      ListSnapshotsResponse,
+      Snapshot,
+      ListSnapshotsPage,
+      ListSnapshotsFixedSizeCollection> {
 
     private ListSnapshotsFixedSizeCollection(List<ListSnapshotsPage> pages, int collectionSize) {
       super(pages, collectionSize);
@@ -3976,11 +4392,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListBackupsPagedResponse
       extends AbstractPagedListResponse<
-          ListBackupsRequest,
-          ListBackupsResponse,
-          Backup,
-          ListBackupsPage,
-          ListBackupsFixedSizeCollection> {
+      ListBackupsRequest,
+      ListBackupsResponse,
+      Backup,
+      ListBackupsPage,
+      ListBackupsFixedSizeCollection> {
 
     public static ApiFuture<ListBackupsPagedResponse> createAsync(
         PageContext<ListBackupsRequest, ListBackupsResponse, Backup> context,
@@ -4026,11 +4442,11 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   public static class ListBackupsFixedSizeCollection
       extends AbstractFixedSizeCollection<
-          ListBackupsRequest,
-          ListBackupsResponse,
-          Backup,
-          ListBackupsPage,
-          ListBackupsFixedSizeCollection> {
+      ListBackupsRequest,
+      ListBackupsResponse,
+      Backup,
+      ListBackupsPage,
+      ListBackupsFixedSizeCollection> {
 
     private ListBackupsFixedSizeCollection(List<ListBackupsPage> pages, int collectionSize) {
       super(pages, collectionSize);
