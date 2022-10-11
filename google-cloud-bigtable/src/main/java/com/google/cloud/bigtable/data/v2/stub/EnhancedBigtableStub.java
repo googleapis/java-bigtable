@@ -483,11 +483,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<Query, List<RowT>> tracedBatcher =
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
-    UnaryCallable<Query, List<RowT>> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcher);
-
     UnaryCallable<Query, List<RowT>> traced =
-        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), span);
+        new TracedUnaryCallable<>(tracedBatcher, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -615,10 +612,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
         new TracedBatcherUnaryCallable<>(userFacing);
 
-    UnaryCallable<BulkMutation, Void> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcherUnaryCallable);
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
+        new TracedUnaryCallable<>(
+            tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -717,6 +713,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
         new ConvertExceptionCallable<>(withStatsHeaders);
 
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(convertException);
+
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
             new ApiResultRetryAlgorithm<Void>(),
@@ -727,7 +726,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return new MutateRowsRetryingCallable(
         clientContext.getDefaultCallContext(),
-        convertException,
+        withBigtableTracer,
         retryingExecutor,
         settings.bulkMutateRowsSettings().getRetryableCodes());
   }
