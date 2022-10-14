@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.3](https://github.com/googleapis/java-bigtable/compare/v2.6.2...v2.6.3) (2022-10-14)
+
+
+### Dependencies
+
+* Regenerating with new Protobuf (v2.6.x) ([#1459](https://github.com/googleapis/java-bigtable/issues/1459)) ([3d330ca](https://github.com/googleapis/java-bigtable/commit/3d330ca33cc807437bd3e1f8de15ba5e4b053c28))
+
 ### [2.6.2](https://github.com/googleapis/java-bigtable/compare/v2.6.1...v2.6.2) (2022-04-15)
 
 
