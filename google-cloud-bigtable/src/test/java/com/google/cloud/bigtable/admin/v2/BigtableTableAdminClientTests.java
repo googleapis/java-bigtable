@@ -702,10 +702,6 @@ public class BigtableTableAdminClientTests {
     Timestamp startTime = Timestamp.newBuilder().setSeconds(1234).build();
     Timestamp endTime = Timestamp.newBuilder().setSeconds(5678).build();
 
-    // Use existing adminClient as destination project:
-    String dstProjectId = PROJECT_ID;
-    String dstInstanceId = INSTANCE_ID;
-
     // Create CopyBackupRequest from different source project:
     String srcProjectId = "src-project";
     String srcInstanceId = "src-instance";
@@ -723,13 +719,13 @@ public class BigtableTableAdminClientTests {
         NameUtil.formatTableName(srcProjectId, srcInstanceId, srcTableId);
 
     CopyBackupRequest req =
-        CopyBackupRequest.of(srcProjectId, srcInstanceId, srcClusterId, srcBackupId)
+        CopyBackupRequest.of(srcClusterId, srcBackupId, srcInstanceId, srcProjectId)
             .setBackupId(BACKUP_ID)
             .setClusterId(CLUSTER_ID)
             .setExpireTime(expireTime);
     mockOperationResult(
         mockCopyBackupOperationCallable,
-        req.toProto(dstProjectId, dstInstanceId),
+        req.toProto(PROJECT_ID, INSTANCE_ID),
         com.google.bigtable.admin.v2.Backup.newBuilder()
             .setName(dstBackupName)
             .setSourceTable(srcTableName)

@@ -37,7 +37,7 @@ public final class CopyBackupRequest {
   private String destClusterId;
 
   /**
-   * Create a {@link CopyBackupRequest} object. It assumes the source backup locates in the same
+   * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
    * instance as the destination backup. To copy from a backup in another instance, use {@link
    * #of(String, String, String) of} method. To copy from a backup in another instance, use {@link
    * #of(String, String, String, String) of} method
@@ -48,21 +48,21 @@ public final class CopyBackupRequest {
   }
 
   /**
-   * Create a {@link CopyBackupRequest} object. It assumes the source backup locates in the same
+   * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
    * project as the destination backup. To copy from a backup in another instance, use {@link
    * #of(String, String, String, String) of} method
    */
-  public static CopyBackupRequest of(String instanceId, String clusterId, String backupId) {
+  public static CopyBackupRequest of(String clusterId, String backupId, String instanceId) {
     CopyBackupRequest request = new CopyBackupRequest(null, instanceId, clusterId, backupId);
     return request;
   }
 
   /**
-   * Create a {@link CopyBackupRequest} object. The source backup could locate in the same or
-   * different culster and/or instance and/or project.
+   * Create a {@link CopyBackupRequest} object. The source backup could be located in the same or
+   * different cluster and/or instance and/or project.
    */
   public static CopyBackupRequest of(
-      String projectId, String instanceId, String clusterId, String backupId) {
+      String clusterId, String backupId, String instanceId,  String projectId) {
     CopyBackupRequest request = new CopyBackupRequest(projectId, instanceId, clusterId, backupId);
     return request;
   }

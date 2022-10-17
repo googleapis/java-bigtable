@@ -305,6 +305,48 @@ public class BigtableBackupIT {
   }
 
   @Test
+  public void copyBackupTest()
+      throws InterruptedException, IOException, ExecutionException, TimeoutException {
+    String backupId = prefixGenerator.newPrefix();
+    String copiedBackupId = prefixGenerator.newPrefix();
+    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+
+    // Create the backup
+    tableAdmin.createBackup(
+        CreateBackupRequest.of(targetCluster, backupId)
+            .setSourceTableId(testTable.getId())
+            .setExpireTime(expireTime));
+
+    try {
+      CopyBackupRequest req =
+          CopyBackupRequest.of(targetCluster, backupId)
+              .setBackupId(copiedBackupId)
+              .setClusterId(targetCluster)
+              .setExpireTime(expireTime);
+      Backup result = tableAdmin.copyBackup(req);
+      assertWithMessage("Got wrong copied backup id in CopyBackup API")
+          .that(result.getId())
+          .isEqualTo(copiedBackupId);
+      assertWithMessage("Got wrong source backup id in CopyBackup API")
+          .that(result.getSourceBackupId())
+          .isEqualTo(backupId);
+      assertWithMessage("Got wrong expire time in CopyBackup API")
+          .that(result.getExpireTime())
+          .isEqualTo(expireTime);
+      assertWithMessage("Got empty start time in CopyBackup API")
+          .that(result.getStartTime())
+          .isNotNull();
+      assertWithMessage("Got wrong state in CopyBackup API")
+          .that(result.getState())
+          .isAnyOf(Backup.State.CREATING, Backup.State.READY);
+
+    } finally {
+      tableAdmin.deleteBackup(targetCluster, copiedBackupId);
+      tableAdmin.deleteBackup(targetCluster, backupId);
+    }
+  }
+
+  @Test
   public void crossInstanceCopyBackupTest()
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
@@ -332,7 +374,7 @@ public class BigtableBackupIT {
 
       try {
         CopyBackupRequest req =
-            CopyBackupRequest.of(testEnvRule.env().getInstanceId(), targetCluster, backupId)
+            CopyBackupRequest.of(targetCluster, backupId, testEnvRule.env().getInstanceId())
                 .setBackupId(copiedBackupId)
                 .setClusterId(destCluster)
                 .setExpireTime(expireTime);

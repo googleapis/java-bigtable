@@ -1269,7 +1269,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates a copy of backup from an existing backup in a Cloud Bigtable cluster with the specified
+   * Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the specified
    * configuration.
    *
    * <p>Sample code
