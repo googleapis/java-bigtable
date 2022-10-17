@@ -31,8 +31,6 @@ import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
-import com.google.bigtable.admin.v2.CopyBackupMetadata;
-import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
@@ -81,11 +79,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.Generated;
 
 // AUTO-GENERATED DOCUMENTATION AND CLASS.
-/**
- * gRPC stub implementation for the BigtableTableAdmin service API.
- *
- * <p>This class is for advanced usage and reflects the underlying API directly.
- */
+/** For internal use only. */
 @Generated("by gapic-generator")
 @InternalApi
 public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
@@ -285,14 +279,6 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
               .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
               .build();
 
-  private static final MethodDescriptor<CopyBackupRequest, Operation> copyBackupMethodDescriptor =
-      MethodDescriptor.<CopyBackupRequest, Operation>newBuilder()
-          .setType(MethodDescriptor.MethodType.UNARY)
-          .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/CopyBackup")
-          .setRequestMarshaller(ProtoUtils.marshaller(CopyBackupRequest.getDefaultInstance()))
-          .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
-          .build();
-
   private static final MethodDescriptor<GetIamPolicyRequest, Policy> getIamPolicyMethodDescriptor =
       MethodDescriptor.<GetIamPolicyRequest, Policy>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -362,9 +348,6 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   private final UnaryCallable<RestoreTableRequest, Operation> restoreTableCallable;
   private final OperationCallable<RestoreTableRequest, Table, RestoreTableMetadata>
       restoreTableOperationCallable;
-  private final UnaryCallable<CopyBackupRequest, Operation> copyBackupCallable;
-  private final OperationCallable<CopyBackupRequest, Backup, CopyBackupMetadata>
-      copyBackupOperationCallable;
   private final UnaryCallable<GetIamPolicyRequest, Policy> getIamPolicyCallable;
   private final UnaryCallable<SetIamPolicyRequest, Policy> setIamPolicyCallable;
   private final UnaryCallable<TestIamPermissionsRequest, TestIamPermissionsResponse>
@@ -628,16 +611,6 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   return params.build();
                 })
             .build();
-    GrpcCallSettings<CopyBackupRequest, Operation> copyBackupTransportSettings =
-        GrpcCallSettings.<CopyBackupRequest, Operation>newBuilder()
-            .setMethodDescriptor(copyBackupMethodDescriptor)
-            .setParamsExtractor(
-                request -> {
-                  ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
-                  params.put("parent", String.valueOf(request.getParent()));
-                  return params.build();
-                })
-            .build();
     GrpcCallSettings<GetIamPolicyRequest, Policy> getIamPolicyTransportSettings =
         GrpcCallSettings.<GetIamPolicyRequest, Policy>newBuilder()
             .setMethodDescriptor(getIamPolicyMethodDescriptor)
@@ -782,15 +755,6 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
         callableFactory.createOperationCallable(
             restoreTableTransportSettings,
             settings.restoreTableOperationSettings(),
-            clientContext,
-            operationsStub);
-    this.copyBackupCallable =
-        callableFactory.createUnaryCallable(
-            copyBackupTransportSettings, settings.copyBackupSettings(), clientContext);
-    this.copyBackupOperationCallable =
-        callableFactory.createOperationCallable(
-            copyBackupTransportSettings,
-            settings.copyBackupOperationSettings(),
             clientContext,
             operationsStub);
     this.getIamPolicyCallable =
@@ -971,17 +935,6 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   public OperationCallable<RestoreTableRequest, Table, RestoreTableMetadata>
       restoreTableOperationCallable() {
     return restoreTableOperationCallable;
-  }
-
-  @Override
-  public UnaryCallable<CopyBackupRequest, Operation> copyBackupCallable() {
-    return copyBackupCallable;
-  }
-
-  @Override
-  public OperationCallable<CopyBackupRequest, Backup, CopyBackupMetadata>
-      copyBackupOperationCallable() {
-    return copyBackupOperationCallable;
   }
 
   @Override

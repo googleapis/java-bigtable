@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,37 +96,6 @@ public interface BackupOrBuilder
    * @return The bytes for sourceTable.
    */
   com.google.protobuf.ByteString getSourceTableBytes();
-
-  /**
-   *
-   *
-   * <pre>
-   * Output only. Name of the backup from which this backup was copied. If a backup is
-   * not created by copying a backup, this field will be empty.
-   * Values are of the form:
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-   * </pre>
-   *
-   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
-   * @return The sourceBackup.
-   */
-  java.lang.String getSourceBackup();
-  /**
-   *
-   *
-   * <pre>
-   * Output only. Name of the backup from which this backup was copied. If a backup is
-   * not created by copying a backup, this field will be empty.
-   * Values are of the form:
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
-   * </pre>
-   *
-   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
-   *
-   * @return The bytes for sourceBackup.
-   */
-  com.google.protobuf.ByteString getSourceBackupBytes();
 
   /**
    *
