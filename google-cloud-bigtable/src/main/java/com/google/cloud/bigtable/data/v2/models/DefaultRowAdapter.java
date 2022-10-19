@@ -76,7 +76,7 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
   }
 
   /** {@inheritDoc} */
-  public class DefaultRowBuilder implements RowBuilder<Row> {
+  public static class DefaultRowBuilder implements RowBuilder<Row> {
     private ByteString currentKey;
     private TreeMap<String, ImmutableList.Builder<RowCell>> cellsByFamily;
     private ImmutableList.Builder<RowCell> currentFamilyCells;
