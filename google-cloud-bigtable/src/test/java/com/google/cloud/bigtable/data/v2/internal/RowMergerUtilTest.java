@@ -37,8 +37,11 @@ public class RowMergerUtilTest extends TestCase {
 
   @Test
   public void testEmpty() {
-    List<Row> rows = RowMergerUtil.parseReadRowsResponses(ImmutableList.of());
-    assertThat(rows).isEmpty();
+    try (RowMergerUtil util = new RowMergerUtil()) {}
+
+    try (RowMergerUtil util = new RowMergerUtil()) {
+      util.parseReadRowsResponses(ImmutableList.of());
+    }
   }
 
   @Test
@@ -56,18 +59,20 @@ public class RowMergerUtilTest extends TestCase {
                         .setValue(ByteString.copyFromUtf8("value"))
                         .setCommitRow(true))
                 .build());
-    List<Row> rows = RowMergerUtil.parseReadRowsResponses(responses);
-    assertThat(rows)
-        .containsExactly(
-            Row.create(
-                ByteString.copyFromUtf8("key"),
-                ImmutableList.of(
-                    RowCell.create(
-                        "family",
-                        ByteString.copyFromUtf8("qualifier"),
-                        1000,
-                        ImmutableList.of(),
-                        ByteString.copyFromUtf8("value")))));
+    try (RowMergerUtil util = new RowMergerUtil()) {
+      List<Row> rows = util.parseReadRowsResponses(responses);
+      assertThat(rows)
+          .containsExactly(
+              Row.create(
+                  ByteString.copyFromUtf8("key"),
+                  ImmutableList.of(
+                      RowCell.create(
+                          "family",
+                          ByteString.copyFromUtf8("qualifier"),
+                          1000,
+                          ImmutableList.of(),
+                          ByteString.copyFromUtf8("value")))));
+    }
   }
 
   @Test
@@ -96,27 +101,28 @@ public class RowMergerUtilTest extends TestCase {
                         .setValue(ByteString.copyFromUtf8("value"))
                         .setCommitRow(true))
                 .build());
-    List<Row> rows = RowMergerUtil.parseReadRowsResponses(responses);
-    assertThat(rows)
-        .containsExactly(
-            Row.create(
-                ByteString.copyFromUtf8("key"),
-                ImmutableList.of(
-                    RowCell.create(
-                        "family",
-                        ByteString.copyFromUtf8("qualifier"),
-                        1000,
-                        ImmutableList.of(),
-                        ByteString.copyFromUtf8("value")))),
-            Row.create(
-                ByteString.copyFromUtf8("key2"),
-                ImmutableList.of(
-                    RowCell.create(
-                        "family",
-                        ByteString.copyFromUtf8("qualifier"),
-                        1000,
-                        ImmutableList.of(),
-                        ByteString.copyFromUtf8("value")))));
+    try (RowMergerUtil util = new RowMergerUtil()) {
+      assertThat(util.parseReadRowsResponses(responses))
+          .containsExactly(
+              Row.create(
+                  ByteString.copyFromUtf8("key"),
+                  ImmutableList.of(
+                      RowCell.create(
+                          "family",
+                          ByteString.copyFromUtf8("qualifier"),
+                          1000,
+                          ImmutableList.of(),
+                          ByteString.copyFromUtf8("value")))),
+              Row.create(
+                  ByteString.copyFromUtf8("key2"),
+                  ImmutableList.of(
+                      RowCell.create(
+                          "family",
+                          ByteString.copyFromUtf8("qualifier"),
+                          1000,
+                          ImmutableList.of(),
+                          ByteString.copyFromUtf8("value")))));
+    }
   }
 
   @Test
@@ -135,7 +141,9 @@ public class RowMergerUtilTest extends TestCase {
                         .setCommitRow(false))
                 .build());
 
-    Assert.assertThrows(
-        IllegalStateException.class, () -> RowMergerUtil.parseReadRowsResponses(responses));
+    try (RowMergerUtil util = new RowMergerUtil()) {
+      Assert.assertThrows(
+          IllegalStateException.class, () -> util.parseReadRowsResponses(responses));
+    }
   }
 }

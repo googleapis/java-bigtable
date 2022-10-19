@@ -24,9 +24,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 @InternalApi("For internal google use only")
-public class RowMergerUtil {
-  public static List<Row> parseReadRowsResponses(Iterable<ReadRowsResponse> responses) {
-    RowMerger<Row> merger = new RowMerger<>(new DefaultRowBuilder());
+public class RowMergerUtil implements AutoCloseable {
+  private final RowMerger<Row> merger;
+
+  public RowMergerUtil() {
+    merger = new RowMerger<>(new DefaultRowBuilder());
+  }
+
+  @Override
+  public void close() {
+    if (merger.hasPartialFrame()) {
+      throw new IllegalStateException("Tried to close merger with unmerged partial data");
+    }
+  }
+
+  public List<Row> parseReadRowsResponses(Iterable<ReadRowsResponse> responses) {
     List<Row> rows = new ArrayList<>();
 
     for (ReadRowsResponse response : responses) {
@@ -36,9 +48,6 @@ public class RowMergerUtil {
       }
     }
 
-    if (merger.hasPartialFrame()) {
-      throw new IllegalStateException("Incomplete response stream, merger has partial data");
-    }
     return rows;
   }
 }
