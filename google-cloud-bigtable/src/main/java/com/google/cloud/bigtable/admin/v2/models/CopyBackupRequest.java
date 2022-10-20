@@ -39,21 +39,21 @@ public final class CopyBackupRequest {
   /**
    * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
    * instance as the destination backup. To copy from a backup in another instance, use {@link
-   * #of(String, String, String) of} method. To copy from a backup in another instance, use {@link
+   * #of(String, String, String) of} method. To copy from a backup in another project, use {@link
    * #of(String, String, String, String) of} method
    */
   public static CopyBackupRequest of(String clusterId, String backupId) {
-    CopyBackupRequest request = new CopyBackupRequest(null, null, clusterId, backupId);
+    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, null, null);
     return request;
   }
 
   /**
    * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
-   * project as the destination backup. To copy from a backup in another instance, use {@link
+   * project as the destination backup. To copy from a backup in another project, use {@link
    * #of(String, String, String, String) of} method
    */
   public static CopyBackupRequest of(String clusterId, String backupId, String instanceId) {
-    CopyBackupRequest request = new CopyBackupRequest(null, instanceId, clusterId, backupId);
+    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, instanceId, null);
     return request;
   }
 
@@ -63,20 +63,20 @@ public final class CopyBackupRequest {
    */
   public static CopyBackupRequest of(
       String clusterId, String backupId, String instanceId,  String projectId) {
-    CopyBackupRequest request = new CopyBackupRequest(projectId, instanceId, clusterId, backupId);
+    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, instanceId, projectId);
     return request;
   }
 
   private CopyBackupRequest(
-      @Nullable String sourceProjectId,
-      @Nullable String sourceInstanceId,
       @Nonnull String sourceClusterId,
-      @Nonnull String sourceBackupId) {
+      @Nonnull String sourceBackupId,
+      @Nullable String sourceInstanceId,
+      @Nullable String sourceProjectId) {
     Preconditions.checkNotNull(sourceBackupId);
     Preconditions.checkNotNull(sourceClusterId);
+    this.sourceClusterId = sourceClusterId;
     this.sourceBackupId = sourceBackupId;
     this.sourceInstanceId = sourceInstanceId;
-    this.sourceClusterId = sourceClusterId;
     this.sourceProjectId = sourceProjectId;
   }
 
