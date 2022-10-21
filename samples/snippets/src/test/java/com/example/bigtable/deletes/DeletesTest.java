@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.bigtable.deletes;
 
 import com.example.bigtable.MobileTimeSeriesBaseTest;
@@ -32,7 +33,8 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /*
- * These tests are order dependent because they delete rows and cells from a table. They are prefixed with `testN_` to signal the order in which they should run.
+ * These tests are order dependent because they delete rows and cells from a table.
+ * They are prefixed with `testN_` to signal the order in which they should run.
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DeletesTest extends MobileTimeSeriesBaseTest {
