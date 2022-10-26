@@ -314,11 +314,10 @@ public class BuiltinMetricsTracerTest {
         .call(RowMutation.create(TABLE_ID, "random-row").setCell("cf", "q", "value"));
 
     // In TracedUnaryCallable, we create a future and add a TraceFinisher to the callback. Main
-    // thread
-    // is blocked on waiting for the future to be completed. When onComplete is called on
+    // thread is blocked on waiting for the future to be completed. When onComplete is called on
     // the grpc thread, the future is completed, however we might not have enough time for
-    // TraceFinisher
-    // to run. Add a 1 second time out to wait for the callback.
+    // TraceFinisher to run. Add a 1 second time out to wait for the callback. This shouldn't have
+    // any impact on production code.
     verify(statsRecorderWrapper, timeout(1000)).putRetryCount(retryCount.capture());
 
     assertThat(retryCount.getValue()).isEqualTo(fakeService.getAttemptCounter().get() - 1);
