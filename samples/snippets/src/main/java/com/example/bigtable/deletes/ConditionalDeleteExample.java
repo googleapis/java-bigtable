@@ -16,20 +16,28 @@
 
 package com.example.bigtable.deletes;
 
-// [START bigtable_delete_from_row]
+// [START bigtable_delete_check_and_mutate]
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
+import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
-import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import java.io.IOException;
 
-public class DeleteFromRowExample {
-  public void deleteFromRow(String projectId, String instanceId, String tableId, String rowKey) {
+public class ConditionalDeleteExample {
+  public void conditionalDelete(
+      String projectId,
+      String instanceId,
+      String tableId,
+      String rowKey,
+      String family,
+      String qualifier)
+      throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      Mutation mutation = Mutation.create().deleteRow();
-      dataClient.mutateRow(RowMutation.create(tableId, rowKey, mutation));
-    } catch (IOException e) {
-      System.err.println("An exception has occurred: " + e.getMessage());
+      Filters.Filter condition = Filters.FILTERS.qualifier().exactMatch(qualifier);
+      Mutation mutation = Mutation.create().deleteCells(family, qualifier);
+      dataClient.checkAndMutateRow(
+          ConditionalRowMutation.create(tableId, rowKey).condition(condition).then(mutation));
     }
   }
 }
-// [END bigtable_delete_from_row]
+// [END bigtable_delete_check_and_mutate]

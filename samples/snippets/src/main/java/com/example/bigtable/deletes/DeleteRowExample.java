@@ -16,26 +16,20 @@
 
 package com.example.bigtable.deletes;
 
-// [START bigtable_delete_from_column]
+// [START bigtable_delete_from_row]
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import java.io.IOException;
 
-public class DeleteFromColumnExample {
-  public void deleteFromColumn(
-      String projectId,
-      String instanceId,
-      String tableId,
-      String rowKey,
-      String familyName,
-      String qualifier) {
+public class DeleteRowExample {
+  public void deleteRow(String projectId, String instanceId, String tableId, String rowKey) {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      Mutation mutation = Mutation.create().deleteCells(familyName, qualifier);
+      Mutation mutation = Mutation.create().deleteRow();
       dataClient.mutateRow(RowMutation.create(tableId, rowKey, mutation));
     } catch (IOException e) {
       System.err.println("An exception has occurred: " + e.getMessage());
     }
   }
 }
-// [END bigtable_delete_from_column]
+// [END bigtable_delete_from_row]

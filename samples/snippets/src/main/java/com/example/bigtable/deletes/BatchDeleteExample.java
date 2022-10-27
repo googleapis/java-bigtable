@@ -20,29 +20,24 @@ package com.example.bigtable.deletes;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import java.io.IOException;
 
-public class DeleteStreamingAndBatchingExample {
-  public void streamingAndBatching(
-      String projectId, String instanceId, String tableId, String familyName, String qualifier) {
+public class BatchDeleteExample {
+  public void batchDelete(
+      String projectId, String instanceId, String tableId, String familyName, String qualifier)
+      throws InterruptedException, IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       try (Batcher<RowMutationEntry, Void> batcher = dataClient.newBulkMutationBatcher(tableId)) {
-        ServerStream<Row> rows =
-            dataClient.readRows(Query.create(tableId).filter(Filters.FILTERS.pass()));
+        ServerStream<Row> rows = dataClient.readRows(Query.create(tableId));
         for (Row row : rows) {
           batcher.add(RowMutationEntry.create(row.getKey()).deleteCells(familyName, qualifier));
         }
         // Blocks until mutations are applied on all submitted row entries.
         batcher.flush();
-      } catch (InterruptedException e) {
-        e.printStackTrace();
       }
-    } catch (IOException e) {
-      System.err.println("An exception has occurred: " + e.getMessage());
     }
   }
 }
