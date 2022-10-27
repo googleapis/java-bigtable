@@ -26,14 +26,14 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import java.io.IOException;
 
 public class BatchDeleteExample {
-  public void batchDelete(
-      String projectId, String instanceId, String tableId, String familyName, String qualifier)
+  public void batchDelete(String projectId, String instanceId, String tableId)
       throws InterruptedException, IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       try (Batcher<RowMutationEntry, Void> batcher = dataClient.newBulkMutationBatcher(tableId)) {
         ServerStream<Row> rows = dataClient.readRows(Query.create(tableId));
         for (Row row : rows) {
-          batcher.add(RowMutationEntry.create(row.getKey()).deleteCells(familyName, qualifier));
+          batcher.add(
+              RowMutationEntry.create(row.getKey()).deleteCells("cell_plan", "data_plan_05gb"));
         }
         // Blocks until mutations are applied on all submitted row entries.
         batcher.flush();

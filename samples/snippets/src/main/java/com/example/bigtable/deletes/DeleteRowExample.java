@@ -23,10 +23,10 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import java.io.IOException;
 
 public class DeleteRowExample {
-  public void deleteRow(String projectId, String instanceId, String tableId, String rowKey) {
+  public void deleteRow(String projectId, String instanceId, String tableId) {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       Mutation mutation = Mutation.create().deleteRow();
-      dataClient.mutateRow(RowMutation.create(tableId, rowKey, mutation));
+      dataClient.mutateRow(RowMutation.create(tableId, "phone#4c410523#20190501", mutation));
     } catch (IOException e) {
       System.err.println("An exception has occurred: " + e.getMessage());
     }

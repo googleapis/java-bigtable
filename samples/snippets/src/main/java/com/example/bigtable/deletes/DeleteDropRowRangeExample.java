@@ -21,10 +21,10 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import java.io.IOException;
 
 public class DeleteDropRowRangeExample {
-  public void dropRowRange(String projectId, String instanceId, String tableId, String rowPrefix) {
+  public void dropRowRange(String projectId, String instanceId, String tableId) {
     try (BigtableTableAdminClient tableAdminClient =
         BigtableTableAdminClient.create(projectId, instanceId)) {
-      tableAdminClient.dropRowRange(tableId, rowPrefix);
+      tableAdminClient.dropRowRange(tableId, "phone#4c410523");
     } catch (IOException e) {
       System.err.println("An exception has occurred: " + e.getMessage());
     }

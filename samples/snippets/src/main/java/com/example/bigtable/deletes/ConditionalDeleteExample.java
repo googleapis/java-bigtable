@@ -24,19 +24,15 @@ import com.google.cloud.bigtable.data.v2.models.Mutation;
 import java.io.IOException;
 
 public class ConditionalDeleteExample {
-  public void conditionalDelete(
-      String projectId,
-      String instanceId,
-      String tableId,
-      String rowKey,
-      String family,
-      String qualifier)
+  public void conditionalDelete(String projectId, String instanceId, String tableId)
       throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      Filters.Filter condition = Filters.FILTERS.qualifier().exactMatch(qualifier);
-      Mutation mutation = Mutation.create().deleteCells(family, qualifier);
+      Filters.Filter condition = Filters.FILTERS.qualifier().exactMatch("data_plan_10gb");
+      Mutation mutation = Mutation.create().deleteCells("cell_plan", "data_plan_10gb");
       dataClient.checkAndMutateRow(
-          ConditionalRowMutation.create(tableId, rowKey).condition(condition).then(mutation));
+          ConditionalRowMutation.create(tableId, "phone#5c10102#20190502")
+              .condition(condition)
+              .then(mutation));
     }
   }
 }
