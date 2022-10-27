@@ -55,7 +55,7 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
   }
 
   @Test
-  public void test1_testDeleteFromColumn() {
+  public void test1_testDeleteFromColumn() throws IOException {
     String rowKey = "phone#4c410523#20190501";
     Row row = bigtableDataClient.readRow(TABLE_ID, rowKey);
     String familyName = "cell_plan";
@@ -73,7 +73,7 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
   }
 
   @Test
-  public void test2_testDeleteFromRow() {
+  public void test2_testDeleteFromRow() throws IOException {
     String rowKey = "phone#4c410523#20190501";
     Row row = bigtableDataClient.readRow(TABLE_ID, rowKey);
 
@@ -123,7 +123,7 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
   }
 
   @Test
-  public void test5_testDropRowRange() {
+  public void test5_testDropRowRange() throws IOException {
     String rowPrefix = "phone#4c410523";
     Query query = Query.create(TABLE_ID).prefix(rowPrefix);
     ServerStream<Row> rows = bigtableDataClient.readRows(query);
@@ -146,7 +146,7 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
   }
 
   @Test
-  public void test6_testDeleteColumnFamily() {
+  public void test6_testDeleteColumnFamily() throws IOException {
     String rowKey = "phone#5c10102#20190501";
     Row row = bigtableDataClient.readRow(TABLE_ID, rowKey);
     String familyName = "stats_summary";

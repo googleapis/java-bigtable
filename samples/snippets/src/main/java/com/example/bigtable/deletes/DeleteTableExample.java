@@ -21,12 +21,10 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import java.io.IOException;
 
 public class DeleteTableExample {
-  public void deleteTable(String projectId, String instanceId, String tableId) {
+  public void deleteTable(String projectId, String instanceId, String tableId) throws IOException {
     try (BigtableTableAdminClient tableAdminClient =
         BigtableTableAdminClient.create(projectId, instanceId)) {
       tableAdminClient.deleteTable(tableId);
-    } catch (IOException e) {
-      System.err.println("An exception has occurred: " + e.getMessage());
     }
   }
 }

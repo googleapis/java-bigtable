@@ -23,12 +23,11 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import java.io.IOException;
 
 public class DeleteColumnCellsExample {
-  public void deleteColumnCells(String projectId, String instanceId, String tableId) {
+  public void deleteColumnCells(String projectId, String instanceId, String tableId)
+      throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       Mutation mutation = Mutation.create().deleteCells("cell_plan", "data_plan_01gb");
       dataClient.mutateRow(RowMutation.create(tableId, "phone#4c410523#20190501", mutation));
-    } catch (IOException e) {
-      System.err.println("An exception has occurred: " + e.getMessage());
     }
   }
 }
