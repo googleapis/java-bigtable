@@ -129,6 +129,11 @@ public class EmulatorEnv extends AbstractTestEnv {
   }
 
   @Override
+  public String getSecondaryProjectId() {
+    throw new UnsupportedOperationException("unsupported");
+  }
+
+  @Override
   public BigtableTableAdminClient getTableAdminClientForInstance(String instanceId)
       throws IOException {
     throw new UnsupportedOperationException("Could not create a table admin for another instance.");
