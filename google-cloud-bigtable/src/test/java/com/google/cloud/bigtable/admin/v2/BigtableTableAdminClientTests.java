@@ -720,8 +720,8 @@ public class BigtableTableAdminClientTests {
 
     CopyBackupRequest req =
         CopyBackupRequest.of(srcClusterId, srcBackupId, srcInstanceId, srcProjectId)
-            .setBackupId(BACKUP_ID)
-            .setClusterId(CLUSTER_ID)
+            .setDestinationBackupId(BACKUP_ID)
+            .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(expireTime);
     mockOperationResult(
         mockCopyBackupOperationCallable,

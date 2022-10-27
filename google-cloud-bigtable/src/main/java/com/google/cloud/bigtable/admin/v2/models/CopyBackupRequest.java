@@ -42,8 +42,8 @@ public final class CopyBackupRequest {
    * #of(String, String, String) of} method. To copy from a backup in another project, use {@link
    * #of(String, String, String, String) of} method
    */
-  public static CopyBackupRequest of(String clusterId, String backupId) {
-    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, null, null);
+  public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId) {
+    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, null, null);
     return request;
   }
 
@@ -52,8 +52,9 @@ public final class CopyBackupRequest {
    * project as the destination backup. To copy from a backup in another project, use {@link
    * #of(String, String, String, String) of} method
    */
-  public static CopyBackupRequest of(String clusterId, String backupId, String instanceId) {
-    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, instanceId, null);
+  public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId, String sourceInstanceId) {
+    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, sourceInstanceId, null) {
+, null);
     return request;
   }
 
@@ -62,8 +63,8 @@ public final class CopyBackupRequest {
    * different cluster and/or instance and/or project.
    */
   public static CopyBackupRequest of(
-      String clusterId, String backupId, String instanceId,  String projectId) {
-    CopyBackupRequest request = new CopyBackupRequest(clusterId, backupId, instanceId, projectId);
+      String sourceClusterId, String sourceBackupId, String sourceInstanceId, String sourceProjectId) {
+    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, sourceInstanceId, sourceProjectId);
     return request;
   }
 
@@ -80,13 +81,13 @@ public final class CopyBackupRequest {
     this.sourceProjectId = sourceProjectId;
   }
 
-  public CopyBackupRequest setBackupId(String backupId) {
+  public CopyBackupRequest setDestinationBackupId(String backupId) {
     Preconditions.checkNotNull(backupId);
     requestBuilder.setBackupId(backupId);
     return this;
   }
 
-  public CopyBackupRequest setClusterId(String clusterId) {
+  public CopyBackupRequest setDestinationClusterId(String clusterId) {
     Preconditions.checkNotNull(clusterId);
     this.destClusterId = clusterId;
     return this;
