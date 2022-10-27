@@ -68,6 +68,8 @@ public abstract class AbstractTestEnv {
 
   public abstract String getProjectId();
 
+  public abstract String getSecondaryProjectId();
+
   public abstract String getInstanceId();
 
   /** Try to guess the primary cluster id */

@@ -80,11 +80,13 @@ class CloudEnv extends AbstractTestEnv {
   private static final String ADMIN_ENDPOINT_PROPERTY_NAME = "bigtable.admin-endpoint";
 
   private static final String PROJECT_PROPERTY_NAME = "bigtable.project";
+  private static final String PROJECT2_PROPERTY_NAME = "bigtable.project.2";
   private static final String INSTANCE_PROPERTY_NAME = "bigtable.instance";
   private static final String TABLE_PROPERTY_NAME = "bigtable.table";
   private static final String CMEK_KMS_KEY_PROPERTY_NAME = "bigtable.kms_key_name";
 
   private final String projectId;
+  private final String secondaryProjectId;
   private final String instanceId;
   private final String tableId;
   private final String kmsKeyName;
@@ -102,6 +104,7 @@ class CloudEnv extends AbstractTestEnv {
         getOptionalProperty(DATA_ENDPOINT_PROPERTY_NAME, ""),
         getOptionalProperty(ADMIN_ENDPOINT_PROPERTY_NAME, ""),
         getOptionalProperty(CMEK_KMS_KEY_PROPERTY_NAME, ""),
+        getOptionalProperty(PROJECT2_PROPERTY_NAME, ""),
         getRequiredProperty(PROJECT_PROPERTY_NAME),
         getRequiredProperty(INSTANCE_PROPERTY_NAME),
         getRequiredProperty(TABLE_PROPERTY_NAME));
@@ -111,6 +114,7 @@ class CloudEnv extends AbstractTestEnv {
       @Nullable String dataEndpoint,
       @Nullable String adminEndpoint,
       @Nullable String kmsKeyName,
+      @Nullable String secondaryProjectId,
       String projectId,
       String instanceId,
       String tableId) {
@@ -118,6 +122,7 @@ class CloudEnv extends AbstractTestEnv {
     this.instanceId = instanceId;
     this.tableId = tableId;
     this.kmsKeyName = kmsKeyName;
+    this.secondaryProjectId = secondaryProjectId;
 
     this.dataSettings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
@@ -345,6 +350,11 @@ class CloudEnv extends AbstractTestEnv {
   @Override
   public String getProjectId() {
     return projectId;
+  }
+
+  @Override
+  public String getSecondaryProjectId() {
+    return secondaryProjectId;
   }
 
   @Override
