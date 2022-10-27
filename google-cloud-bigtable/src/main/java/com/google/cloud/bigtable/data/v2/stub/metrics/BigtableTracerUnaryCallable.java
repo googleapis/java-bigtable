@@ -23,6 +23,7 @@ import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.ResponseParams;
+import com.google.cloud.bigtable.data.v2.stub.CpuThrottlingStats;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -55,7 +56,10 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
-      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+      if (context.getOption(Util.CPU_METADATA) == null) {
+        context = context.withOption(Util.CPU_METADATA, new GrpcResponseMetadata());
+      }
+      final GrpcResponseMetadata responseMetadata = context.getOption(Util.CPU_METADATA);
       final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
       BigtableTracerUnaryCallback callback =
           new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);

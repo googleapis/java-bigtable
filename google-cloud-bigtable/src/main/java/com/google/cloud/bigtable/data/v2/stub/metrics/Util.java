@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
@@ -27,6 +28,7 @@ import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
+import com.google.cloud.bigtable.data.v2.stub.CpuThrottlingStats;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.Metadata;
@@ -37,13 +39,18 @@ import io.opencensus.tags.TagValue;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /** Utilities to help integrating with OpenCensus. */
@@ -54,11 +61,18 @@ public class Util {
   static final Metadata.Key<String> ATTEMPT_EPOCH_KEY =
       Metadata.Key.of("bigtable-client-attempt-epoch-usec", Metadata.ASCII_STRING_MARSHALLER);
 
+  static final Metadata.Key<String> CPU_THROTTLE_HEADER_KEY =
+      Metadata.Key.of("bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER);
+  static final ApiCallContext.Key<GrpcResponseMetadata> CPU_METADATA =
+      ApiCallContext.Key.create("cpu_metadata");
+
   private static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
       Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
   static final Metadata.Key<byte[]> METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
+
+  static final double PERCENT_CHANGE_LIMIT = .15;
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -148,4 +162,57 @@ public class Util {
     }
     return null;
   }
+
+  // This function is to calculate the number of QPS from the returned value
+  static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
+    // Calculating target difference
+    // Currently an avg() and max() function needs to be made to weigh the CPUs values down to 1
+    if (tsCpus.length == 0) {
+      return currentRate;
+    }
+
+    double cpuDelta = DoubleStream.of(tsCpus).average().getAsDouble() - target;
+
+    if (cpuDelta > 0) {
+      long newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);// Delta * current_QPS * Range_percentage
+      return newRate;
+    }
+    return currentRate;
+
+    //double cpuAverage = DoubleStream.of(tsCpus).average().getAsDouble();
+    //double cpuMax = DoubleStream.of(tsCpus).max().getAsDouble();
+
+    // Should there be a wait for how much to increase the QPS?
+  }
+
+  // This function is to grab the unsorted metadata and return the CPU values in some array or list
+  static double[] getCpuList(Metadata metadata) {
+    if (metadata != null && metadata.get(CPU_THROTTLE_HEADER_KEY) != null) {
+      String throttleHeader = metadata.get(CPU_THROTTLE_HEADER_KEY);
+
+      double[] cpus = Stream.of(throttleHeader.split(","))
+          .mapToDouble(Double::parseDouble)
+          .toArray();
+
+      return cpus;
+    }
+    return new double[]{};
+  }
+
+  // Adding a static getOrCreateMetadata requires returning two values, metadata and context
 }
+
+
+
+/*
+if (metadata != null && metadata.get(CPU_THROTTLE_HEADER_KEY) != null) {
+      String serverTiming = metadata.get(CPU_THROTTLE_HEADER_KEY);
+      // How to get information from Metadata
+      // this should always be true
+      /*
+      if (matcher.find()) {
+        long latency = Long.valueOf(matcher.group("cpu"));
+        return latency;
+      }
+    }
+    */

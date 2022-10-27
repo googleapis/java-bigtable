@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.common.util.concurrent.Futures;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.opencensus.tags.TagValue;
 import org.junit.Test;
@@ -28,6 +29,11 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class UtilTest {
+  private final double lowCPU = 10.0;
+  private final double targetCPU = 70.0;
+  private final double highCPU = 90.0;
+  private final double mockQPS = 1000;
+
   @Test
   public void testOk() {
     TagValue tagValue = TagValue.create(Util.extractStatus((Throwable) null));
@@ -62,5 +68,35 @@ public class UtilTest {
   public void testCancelledFuture() {
     TagValue tagValue = Util.extractStatusFromFuture(Futures.immediateCancelledFuture());
     assertThat(tagValue.asString()).isEqualTo("CANCELLED");
+  }
+
+  @Test
+  public void testCpusFromMetadata() {
+    Metadata metadata = new Metadata();
+    metadata.put(Util.CPU_THROTTLE_HEADER_KEY, lowCPU+","+targetCPU+","+highCPU);
+
+    double[] cpus = Util.getCpuList(metadata);
+    assertThat(cpus[2] == highCPU).isTrue();
+  }
+
+  @Test
+  public void testNoClientDelayWithLowCPU() {
+    double[] cpuFromResponse = new double[]{lowCPU};
+    double newQPS = Util.calculateQpsChange(cpuFromResponse, targetCPU, mockQPS);
+
+    assertThat(newQPS == mockQPS).isTrue();
+  }
+
+  @Test
+  public void testHighClientDelayWithHighCPU() {
+    double[] cpuFromResponse = new double[]{highCPU};
+    double newQPS = Util.calculateQpsChange(cpuFromResponse, targetCPU, mockQPS);
+
+    assertThat(newQPS < mockQPS).isTrue();
+  }
+
+  @Test
+  public void testIncreaseQPSWhenLowCPU() { // This test may change depending on how this increase should work
+
   }
 }

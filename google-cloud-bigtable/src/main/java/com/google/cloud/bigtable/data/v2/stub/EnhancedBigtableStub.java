@@ -76,6 +76,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCal
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CpuThrottlingUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
@@ -135,6 +136,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final RequestContext requestContext;
   private final FlowController bulkMutationFlowController;
   private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
+  private final CpuThrottlingStats bulkMutationCpuThrottlingStats;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
@@ -278,6 +280,30 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.bulkMutationFlowController =
         new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
+    this.bulkMutationCpuThrottlingStats = new CpuThrottlingStats();
+
+    readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
+    readRowCallable = createReadRowCallable(new DefaultRowAdapter());
+    bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
+    sampleRowKeysCallable = createSampleRowKeysCallable();
+    mutateRowCallable = createMutateRowCallable();
+    bulkMutateRowsCallable = createBulkMutateRowsCallable();
+    checkAndMutateRowCallable = createCheckAndMutateRowCallable();
+    readModifyWriteRowCallable = createReadModifyWriteRowCallable();
+    pingAndWarmCallable = createPingAndWarmCallable();
+  }
+
+  public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext,
+      CpuThrottlingStats cpuStats) {
+    this.settings = settings;
+    this.clientContext = clientContext;
+    this.requestContext =
+        RequestContext.create(
+            settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
+    this.bulkMutationFlowController =
+        new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
+    this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
+    this.bulkMutationCpuThrottlingStats = cpuStats;
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
@@ -610,15 +636,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BulkMutateRowsUserFacingCallable(
             flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
 
-    // Testing 
-
     SpanName spanName = getSpanName("MutateRows");
 
     UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
         new TracedBatcherUnaryCallable<>(userFacing);
 
+    UnaryCallable<BulkMutation, Void> cpuThrottlingUnaryCallable = null;
+    if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
+      cpuThrottlingUnaryCallable = new CpuThrottlingUnaryCallable<>(tracedBatcherUnaryCallable, bulkMutationCpuThrottlingStats);
+    }
+
     UnaryCallable<BulkMutation, Void> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcherUnaryCallable);
+        new BigtableTracerUnaryCallable<>(cpuThrottlingUnaryCallable != null ?
+            cpuThrottlingUnaryCallable : tracedBatcherUnaryCallable);
     UnaryCallable<BulkMutation, Void> traced =
         new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
 
@@ -901,7 +931,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private SpanName getSpanName(String methodName) {
     return SpanName.of(CLIENT_NAME, methodName);
   }
-
   @Override
   public void close() {
     for (BackgroundResource backgroundResource : clientContext.getBackgroundResources()) {
