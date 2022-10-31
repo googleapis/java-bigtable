@@ -141,9 +141,8 @@ public class RowMergerUtilTest extends TestCase {
                         .setCommitRow(false))
                 .build());
 
-    try (RowMergerUtil util = new RowMergerUtil()) {
-      Assert.assertThrows(
-          IllegalStateException.class, () -> util.parseReadRowsResponses(responses));
-    }
+    RowMergerUtil util = new RowMergerUtil();
+    util.parseReadRowsResponses(responses);
+    Assert.assertThrows(IllegalStateException.class, util::close);
   }
 }
