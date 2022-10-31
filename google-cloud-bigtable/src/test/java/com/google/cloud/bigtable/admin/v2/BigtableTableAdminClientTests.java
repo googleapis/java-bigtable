@@ -45,6 +45,7 @@ import com.google.bigtable.admin.v2.RestoreTableMetadata;
 import com.google.bigtable.admin.v2.Table.ClusterState;
 import com.google.bigtable.admin.v2.Table.View;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
@@ -140,6 +141,13 @@ public class BigtableTableAdminClientTests {
       mockCreateBackupOperationCallable;
 
   @Mock
+  private OperationCallable<
+          com.google.bigtable.admin.v2.UpdateTableRequest,
+          com.google.bigtable.admin.v2.Table,
+          UpdateTableMetadata>
+      mockUpdateTableOperationCallable;
+
+  @Mock
   private UnaryCallable<GetBackupRequest, com.google.bigtable.admin.v2.Backup>
       mockGetBackupCallable;
 
@@ -202,6 +210,55 @@ public class BigtableTableAdminClientTests {
 
     // Verify
     assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testCreateTableWithDeletionProtection() {
+    // Setup
+    Mockito.when(mockStub.createTableCallable()).thenReturn(mockCreateTableCallable);
+
+    com.google.bigtable.admin.v2.CreateTableRequest expectedRequest =
+        com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
+            .setParent(INSTANCE_NAME)
+            .setTableId(TABLE_ID)
+            .build();
+
+    com.google.bigtable.admin.v2.Table expectedResponse =
+        com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build();
+
+    Mockito.when(mockCreateTableCallable.futureCall(expectedRequest))
+        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    Table result = adminClient.createTable(CreateTableRequest.of(TABLE_ID));
+
+    // Verify
+    assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testUpdateTable() {
+    Mockito.when(mockStub.updateTableOperationCallable())
+        .thenReturn(mockUpdateTableOperationCallable);
+
+    com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest updateTableRequest =
+        com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest.of(
+                PROJECT_ID, INSTANCE_ID, TABLE_ID)
+            .setDeletionProtection(true);
+
+    mockOperationResult(
+        mockUpdateTableOperationCallable,
+        updateTableRequest.toProto(),
+        com.google.bigtable.admin.v2.Table.newBuilder()
+            .setName(TABLE_NAME)
+            .setDeletionProtection(true)
+            .build(),
+        UpdateTableMetadata.newBuilder().setName(TABLE_NAME).build());
+
+    Table table = adminClient.updateTable(updateTableRequest);
+
+    assertThat(table.getId()).isEqualTo(TABLE_ID);
+    assertThat(table.isProtected()).isTrue();
   }
 
   @Test

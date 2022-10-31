@@ -76,6 +76,11 @@ public final class CreateTableRequest {
     return this;
   }
 
+  public CreateTableRequest setDeletionProtection(boolean deletionProtection) {
+    requestBuilder.getTableBuilder().setDeletionProtection(deletionProtection);
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

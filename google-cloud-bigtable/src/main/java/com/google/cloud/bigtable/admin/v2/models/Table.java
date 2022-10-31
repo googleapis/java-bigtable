@@ -102,6 +102,8 @@ public final class Table {
   private final String instanceId;
   private final Map<String, ReplicationState> replicationStatesByClusterId;
   private final List<ColumnFamily> columnFamilies;
+  private final boolean deletionProtection;
+  private final String projectId;
 
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
@@ -121,17 +123,23 @@ public final class Table {
     }
 
     return new Table(
-        TableName.parse(proto.getName()), replicationStates.build(), columnFamilies.build());
+        TableName.parse(proto.getName()),
+        replicationStates.build(),
+        columnFamilies.build(),
+        proto.getDeletionProtection());
   }
 
   private Table(
       TableName tableName,
       Map<String, ReplicationState> replicationStatesByClusterId,
-      List<ColumnFamily> columnFamilies) {
+      List<ColumnFamily> columnFamilies,
+      boolean deletionProtection) {
     this.instanceId = tableName.getInstance();
+    this.projectId = tableName.getProject();
     this.id = tableName.getTable();
     this.replicationStatesByClusterId = replicationStatesByClusterId;
     this.columnFamilies = columnFamilies;
+    this.deletionProtection = deletionProtection;
   }
 
   /** Gets the table's id. */
@@ -144,12 +152,20 @@ public final class Table {
     return instanceId;
   }
 
+  public String getProjectId() {
+    return this.projectId;
+  }
+
   public Map<String, ReplicationState> getReplicationStatesByClusterId() {
     return replicationStatesByClusterId;
   }
 
   public List<ColumnFamily> getColumnFamilies() {
     return columnFamilies;
+  }
+
+  public boolean isProtected() {
+    return deletionProtection;
   }
 
   @Override
@@ -164,11 +180,13 @@ public final class Table {
     return Objects.equal(id, table.id)
         && Objects.equal(instanceId, table.instanceId)
         && Objects.equal(replicationStatesByClusterId, table.replicationStatesByClusterId)
-        && Objects.equal(columnFamilies, table.columnFamilies);
+        && Objects.equal(columnFamilies, table.columnFamilies)
+        && Objects.equal(deletionProtection, table.deletionProtection);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(id, instanceId, replicationStatesByClusterId, columnFamilies);
+    return Objects.hashCode(
+        id, instanceId, replicationStatesByClusterId, columnFamilies, deletionProtection);
   }
 }

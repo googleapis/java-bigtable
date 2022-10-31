@@ -34,6 +34,7 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.UnionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
+import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -67,6 +68,12 @@ public class BigtableTableAdminClientIT {
   @After
   public void tearDown() {
     try {
+      testEnvRule
+          .env()
+          .getTableAdminClient()
+          .updateTable(
+              UpdateTableRequest.of(tableAdmin.getProjectId(), tableAdmin.getInstanceId(), tableId)
+                  .setDeletionProtection(false));
       testEnvRule.env().getTableAdminClient().deleteTable(tableId);
     } catch (NotFoundException e) {
       // table was deleted in test or was never created. Carry on
@@ -168,6 +175,34 @@ public class BigtableTableAdminClientIT {
     List<String> tables = tableAdmin.listTables();
     assertNotNull(tables);
     assertFalse("List tables did not return any tables", tables.isEmpty());
+  }
+
+  @Test
+  public void createTableWithDeletionProtection() {
+    tableAdmin.createTable(CreateTableRequest.of(tableId).setDeletionProtection(true));
+    Table table = tableAdmin.getTable(tableId);
+    assertThat(table.isProtected()).isTrue();
+  }
+
+  @Test
+  public void updateTableWithDeletionProtection() {
+    tableAdmin.createTable(CreateTableRequest.of(tableId));
+    Table table = tableAdmin.getTable(tableId);
+    assertThat(table.isProtected()).isFalse();
+
+    UpdateTableRequest request =
+        UpdateTableRequest.of(table.getProjectId(), table.getInstanceId(), tableId)
+            .setDeletionProtection(true);
+    Table updatedTable = tableAdmin.updateTable(request);
+    assertThat(updatedTable.getId()).isEqualTo(tableId);
+    assertThat(updatedTable.isProtected()).isTrue();
+
+    UpdateTableRequest request2 =
+        UpdateTableRequest.of(table.getProjectId(), table.getInstanceId(), tableId)
+            .setDeletionProtection(false);
+    Table updatedTable2 = tableAdmin.updateTable(request2);
+    assertThat(updatedTable2.getId()).isEqualTo(tableId);
+    assertThat(updatedTable2.isProtected()).isFalse();
   }
 
   @Test

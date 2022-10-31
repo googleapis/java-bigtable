@@ -50,6 +50,7 @@ import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -1095,6 +1096,17 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     return transformToVoid(this.stub.deleteBackupCallable().futureCall(request));
   }
 
+  public Table updateTable(UpdateTableRequest request) {
+    return ApiExceptions.callAndTranslateApiException(updateTableAsync(request));
+  }
+
+  public ApiFuture<Table> updateTableAsync(UpdateTableRequest request) {
+    return ApiFutures.transform(
+        stub.updateTableOperationCallable().futureCall(request.toProto()),
+        Table::fromProto,
+        MoreExecutors.directExecutor());
+  }
+
   /**
    * Updates a backup with the specified configuration.
    *
@@ -1297,15 +1309,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   private static ApiFuture<Table> transformToTableResponse(
       ApiFuture<com.google.bigtable.admin.v2.Table> future) {
-    return ApiFutures.transform(
-        future,
-        new ApiFunction<com.google.bigtable.admin.v2.Table, Table>() {
-          @Override
-          public Table apply(com.google.bigtable.admin.v2.Table table) {
-            return Table.fromProto(table);
-          }
-        },
-        MoreExecutors.directExecutor());
+    return ApiFutures.transform(future, Table::fromProto, MoreExecutors.directExecutor());
   }
 
   /** Helper method to transform ApiFuture<Empty> to ApiFuture<Void> */
