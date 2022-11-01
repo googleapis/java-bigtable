@@ -1096,13 +1096,50 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     return transformToVoid(this.stub.deleteBackupCallable().futureCall(request));
   }
 
+  /**
+   * Updates a table with the specified configuration.
+   *
+   * <p>Sample code
+   *
+   * <pre>{@code
+   * UpdateTableRequest request =
+   *         UpdateTableRequest.of("my-table-id")
+   *             .setDeletionProtection(true);
+   * Table updatedTable = tableAdmin.updateTable(request);
+   * }</pre>
+   */
   public Table updateTable(UpdateTableRequest request) {
     return ApiExceptions.callAndTranslateApiException(updateTableAsync(request));
   }
 
+  /**
+   * Updates a table with the specified configuration asynchronously.
+   *
+   * <p>Sample code
+   *
+   * <pre>{@code
+   * UpdateTableRequest request = UpdateTableRequest.of("my-table-id")
+   *                                  .setDeletionProtection(true);
+   * ApiFuture<Table> future = client.updateTableAsync(request);
+   *
+   * ApiFutures.addCallback(
+   *   future,
+   *   new ApiFutureCallback<Table>() {
+   *     public void onSuccess(Table table) {
+   *       System.out.println("Successfully updated the table " + table.getId());
+   *     }
+   *
+   *     public void onFailure(Throwable t) {
+   *       t.printStackTrace();
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor()
+   * );
+   * }</pre>
+   */
   public ApiFuture<Table> updateTableAsync(UpdateTableRequest request) {
     return ApiFutures.transform(
-        stub.updateTableOperationCallable().futureCall(request.toProto()),
+        stub.updateTableOperationCallable().futureCall(request.toProto(projectId, instanceId)),
         Table::fromProto,
         MoreExecutors.directExecutor());
   }

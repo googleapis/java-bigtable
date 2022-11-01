@@ -242,13 +242,12 @@ public class BigtableTableAdminClientTests {
         .thenReturn(mockUpdateTableOperationCallable);
 
     com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest updateTableRequest =
-        com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest.of(
-                PROJECT_ID, INSTANCE_ID, TABLE_ID)
+        com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest.of(TABLE_ID)
             .setDeletionProtection(true);
 
     mockOperationResult(
         mockUpdateTableOperationCallable,
-        updateTableRequest.toProto(),
+        updateTableRequest.toProto(PROJECT_ID, INSTANCE_ID),
         com.google.bigtable.admin.v2.Table.newBuilder()
             .setName(TABLE_NAME)
             .setDeletionProtection(true)

@@ -26,21 +26,18 @@ public final class UpdateTableRequest {
       com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder();
   private final com.google.bigtable.admin.v2.Table.Builder tableBuilder =
       com.google.bigtable.admin.v2.Table.newBuilder();
-  private final String projectId;
-  private final String instanceId;
   private final String tableId;
 
-  public static UpdateTableRequest of(String projectId, String instanceId, String tableId) {
-    return new UpdateTableRequest(projectId, instanceId, tableId);
+  public static UpdateTableRequest of(String tableId) {
+    return new UpdateTableRequest(tableId);
   }
 
   /** Configures update table request with specified project, instance, and table id */
-  private UpdateTableRequest(String projectId, String instanceId, String tableId) {
-    this.projectId = projectId;
-    this.instanceId = instanceId;
+  private UpdateTableRequest(String tableId) {
     this.tableId = tableId;
   }
 
+  /** Update the table's deletion protection setting * */
   public UpdateTableRequest setDeletionProtection(boolean deletionProtection) {
     requestBuilder.setUpdateMask(
         FieldMaskUtil.union(
@@ -64,16 +61,19 @@ public final class UpdateTableRequest {
       return false;
     }
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equal(requestBuilder.build(), that.requestBuilder.build());
+    return Objects.equal(requestBuilder.getUpdateMask(), that.requestBuilder.getUpdateMask())
+        && Objects.equal(this.tableId, that.tableId)
+        && Objects.equal(this.tableBuilder.build(), that.tableBuilder.build());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(requestBuilder.build());
+    return Objects.hashCode(requestBuilder.getUpdateMask(), tableId, tableBuilder.build());
   }
 
   @InternalApi
-  public com.google.bigtable.admin.v2.UpdateTableRequest toProto() {
+  public com.google.bigtable.admin.v2.UpdateTableRequest toProto(
+      String projectId, String instanceId) {
     tableBuilder.setName(NameUtil.formatTableName(projectId, instanceId, tableId));
     requestBuilder.setTable(tableBuilder.build());
     return requestBuilder.build();
