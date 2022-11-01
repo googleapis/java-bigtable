@@ -75,9 +75,7 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
     return builder.finishRow();
   }
 
-  /**
-   * Internal implementation detail for {@link DefaultRowAdapter}.
-   */
+  /** Internal implementation detail for {@link DefaultRowAdapter}. */
   @InternalApi()
   public class DefaultRowBuilder implements RowBuilder<Row> {
     private ByteString currentKey;
