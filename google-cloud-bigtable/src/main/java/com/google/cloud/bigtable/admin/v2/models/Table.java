@@ -103,7 +103,6 @@ public final class Table {
   private final Map<String, ReplicationState> replicationStatesByClusterId;
   private final List<ColumnFamily> columnFamilies;
   private final boolean deletionProtection;
-  private final String projectId;
 
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
@@ -135,7 +134,6 @@ public final class Table {
       List<ColumnFamily> columnFamilies,
       boolean deletionProtection) {
     this.instanceId = tableName.getInstance();
-    this.projectId = tableName.getProject();
     this.id = tableName.getTable();
     this.replicationStatesByClusterId = replicationStatesByClusterId;
     this.columnFamilies = columnFamilies;
@@ -150,10 +148,6 @@ public final class Table {
   /** Gets the id of the instance that owns this Table. */
   public String getInstanceId() {
     return instanceId;
-  }
-
-  public String getProjectId() {
-    return this.projectId;
   }
 
   public Map<String, ReplicationState> getReplicationStatesByClusterId() {
