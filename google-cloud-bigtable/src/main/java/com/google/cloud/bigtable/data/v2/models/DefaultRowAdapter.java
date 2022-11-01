@@ -75,8 +75,11 @@ public class DefaultRowAdapter implements RowAdapter<Row> {
     return builder.finishRow();
   }
 
-  /** {@inheritDoc} */
-  public static class DefaultRowBuilder implements RowBuilder<Row> {
+  /**
+   * Internal implementation detail for {@link DefaultRowAdapter}.
+   */
+  @InternalApi()
+  public class DefaultRowBuilder implements RowBuilder<Row> {
     private ByteString currentKey;
     private TreeMap<String, ImmutableList.Builder<RowCell>> cellsByFamily;
     private ImmutableList.Builder<RowCell> currentFamilyCells;

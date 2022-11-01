@@ -17,8 +17,9 @@ package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadRowsResponse;
-import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter.DefaultRowBuilder;
+import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.RowAdapter.RowBuilder;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMerger;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,8 @@ public class RowMergerUtil implements AutoCloseable {
   private final RowMerger<Row> merger;
 
   public RowMergerUtil() {
-    merger = new RowMerger<>(new DefaultRowBuilder());
+    RowBuilder<Row> rowBuilder = new DefaultRowAdapter().createRowBuilder();
+    merger = new RowMerger<>(rowBuilder);
   }
 
   @Override
