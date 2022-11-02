@@ -177,15 +177,24 @@ public class BigtableTableAdminClientIT {
 
   @Test
   public void createTableWithDeletionProtection() {
-    tableAdmin.createTable(CreateTableRequest.of(tableId).setDeletionProtection(true));
-    Table table = tableAdmin.getTable(tableId);
+    assume()
+        .withMessage("Emulator doesn't return proper responses for CreateTable")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    Table table =
+        tableAdmin.createTable(CreateTableRequest.of(tableId).setDeletionProtection(true));
     assertThat(table.isProtected()).isTrue();
   }
 
   @Test
   public void updateTableWithDeletionProtection() {
-    tableAdmin.createTable(CreateTableRequest.of(tableId));
-    Table table = tableAdmin.getTable(tableId);
+    assume()
+        .withMessage("Emulator doesn't return proper responses for CreateTable")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    Table table = tableAdmin.createTable(CreateTableRequest.of(tableId));
     assertThat(table.isProtected()).isFalse();
 
     UpdateTableRequest request = UpdateTableRequest.of(tableId).setDeletionProtection(true);
