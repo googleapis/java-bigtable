@@ -35,6 +35,7 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
+import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -68,10 +69,12 @@ public class BigtableTableAdminClientIT {
   @After
   public void tearDown() {
     try {
-      testEnvRule
-          .env()
-          .getTableAdminClient()
-          .updateTable(UpdateTableRequest.of(tableId).setDeletionProtection(false));
+      if (testEnvRule.env() instanceof CloudEnv) {
+        testEnvRule
+            .env()
+            .getTableAdminClient()
+            .updateTable(UpdateTableRequest.of(tableId).setDeletionProtection(false));
+      }
       testEnvRule.env().getTableAdminClient().deleteTable(tableId);
     } catch (NotFoundException e) {
       // table was deleted in test or was never created. Carry on

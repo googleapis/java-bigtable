@@ -60,7 +60,7 @@ import javax.annotation.Nullable;
  *   <li>{@code bigtable.table}
  * </ul>
  */
-class CloudEnv extends AbstractTestEnv {
+public class CloudEnv extends AbstractTestEnv {
   private static final Predicate<InetSocketAddress> DIRECT_PATH_IPV6_MATCHER =
       new Predicate<InetSocketAddress>() {
         @Override
