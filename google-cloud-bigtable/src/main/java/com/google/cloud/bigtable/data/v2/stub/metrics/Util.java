@@ -42,7 +42,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -180,8 +179,8 @@ public class Util {
     // Set the location and cluster id from the metadata. Check both headers and trailers
     // because in different environments the metadata could be returned in headers or trailers
     boolean hasLocationInfo =
-            getTracerLocationFromMetadata(responseMetadata.getMetadata(), tracer)
-                    || getTracerLocationFromMetadata(responseMetadata.getTrailingMetadata(), tracer);
+        getTracerLocationFromMetadata(responseMetadata.getMetadata(), tracer)
+            || getTracerLocationFromMetadata(responseMetadata.getTrailingMetadata(), tracer);
 
     if (hasLocationInfo && latency == null) {
       // For direct path, we won't see GFE server-timing header. However, if we received the
