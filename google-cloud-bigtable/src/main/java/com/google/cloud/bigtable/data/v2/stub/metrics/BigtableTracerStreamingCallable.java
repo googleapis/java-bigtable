@@ -98,13 +98,13 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      Util.metadataHelper(responseMetadata, tracer, t);
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, t);
       outerObserver.onError(t);
     }
 
     @Override
     protected void onCompleteImpl() {
-      Util.metadataHelper(responseMetadata, tracer, null);
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, null);
       outerObserver.onComplete();
     }
   }

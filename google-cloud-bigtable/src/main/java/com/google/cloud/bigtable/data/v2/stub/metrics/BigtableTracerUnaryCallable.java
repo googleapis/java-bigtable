@@ -76,12 +76,12 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
 
     @Override
     public void onFailure(Throwable throwable) {
-      Util.metadataHelper(responseMetadata, tracer, throwable);
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, throwable);
     }
 
     @Override
     public void onSuccess(ResponseT response) {
-      Util.metadataHelper(responseMetadata, tracer, null);
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, null);
     }
   }
 }

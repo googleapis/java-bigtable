@@ -60,7 +60,7 @@ public class Util {
   private static final Metadata.Key<String> SERVER_TIMING_HEADER_KEY =
       Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER);
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
-  static final Metadata.Key<byte[]> METADATA_KEY =
+  static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
@@ -139,7 +139,7 @@ public class Util {
     return headers.build();
   }
 
-  static Long getGfeLatency(Metadata metadata) {
+  private static Long getGfeLatency(Metadata metadata) {
     if (metadata != null && metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
       String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
       Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
@@ -152,43 +152,49 @@ public class Util {
     return null;
   }
 
-  static void metadataHelper(
-      GrpcResponseMetadata responseMetadata, BigtableTracer tracer, Throwable throwable) {
-    boolean hasTrailer = false;
-
-    // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
-    // so it's not checking trailing metadata here.
-    Metadata metadata = responseMetadata.getMetadata();
-    Long latency = Util.getGfeLatency(metadata);
-
+  private static boolean setTracerLocationFromMetadata(
+      Metadata headers, Metadata trailers, BigtableTracer tracer) {
+    boolean hasLocationInfo = false;
     try {
       // Check both headers and trailers because in different environments the metadata
       // could be returned in headers or trailers
-      if (metadata != null) {
-        byte[] trailers = metadata.get(Util.METADATA_KEY);
-        if (trailers == null) {
-          Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
-          if (trailingMetadata != null) {
-            trailers = trailingMetadata.get(Util.METADATA_KEY);
-          }
+      if (headers != null) {
+        byte[] locationInfo = headers.get(Util.LOCATION_METADATA_KEY);
+        if (locationInfo == null && trailers != null) {
+          locationInfo = trailers.get(Util.LOCATION_METADATA_KEY);
         }
         // If the response is terminated abnormally and we didn't get location information in
         // trailers or headers, skip setting the locations
-        if (trailers != null) {
-          hasTrailer = true;
-          ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+        if (locationInfo != null) {
+          hasLocationInfo = true;
+          ResponseParams decodedTrailers = ResponseParams.parseFrom(locationInfo);
           tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
         }
       }
     } catch (InvalidProtocolBufferException e) {
     }
+    return hasLocationInfo;
+  }
 
-    if (hasTrailer && latency == null) {
+  static void recordMetricsFromMetadata(
+      GrpcResponseMetadata responseMetadata, BigtableTracer tracer, Throwable throwable) {
+    // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
+    // so it's not checking trailing metadata here.
+    Metadata metadata = responseMetadata.getMetadata();
+    Long latency = Util.getGfeLatency(metadata);
+
+    // Set the location and cluster id from the metadata
+    boolean hasLocationInfo =
+        setTracerLocationFromMetadata(
+            responseMetadata.getMetadata(), responseMetadata.getTrailingMetadata(), tracer);
+
+    if (hasLocationInfo && latency == null) {
       // For direct path, we won't see GFE server-timing header. However, if we received the
-      // location trailer, we know that there isn't a connectivity issue. Set the latency to
+      // location info, we know that there isn't a connectivity issue. Set the latency to
       // 0 so gfe missing header won't get incremented.
       latency = 0L;
     }
+
     tracer.recordGfeMetadata(latency, throwable);
   }
 }
