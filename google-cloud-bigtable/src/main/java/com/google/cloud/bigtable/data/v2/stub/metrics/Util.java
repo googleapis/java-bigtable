@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
@@ -25,10 +26,12 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.bigtable.v2.ResponseParams;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
@@ -147,5 +150,45 @@ public class Util {
       }
     }
     return null;
+  }
+
+  static void metadataHelper(
+      GrpcResponseMetadata responseMetadata, BigtableTracer tracer, Throwable throwable) {
+    boolean hasTrailer = false;
+
+    // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
+    // so it's not checking trailing metadata here.
+    Metadata metadata = responseMetadata.getMetadata();
+    Long latency = Util.getGfeLatency(metadata);
+
+    try {
+      // Check both headers and trailers because in different environments the metadata
+      // could be returned in headers or trailers
+      if (metadata != null) {
+        byte[] trailers = metadata.get(Util.METADATA_KEY);
+        if (trailers == null) {
+          Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
+          if (trailingMetadata != null) {
+            trailers = trailingMetadata.get(Util.METADATA_KEY);
+          }
+        }
+        // If the response is terminated abnormally and we didn't get location information in
+        // trailers or headers, skip setting the locations
+        if (trailers != null) {
+          hasTrailer = true;
+          ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
+          tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+        }
+      }
+    } catch (InvalidProtocolBufferException e) {
+    }
+
+    if (hasTrailer && latency == null) {
+      // For direct path, we won't see GFE server-timing header. However, if we received the
+      // location trailer, we know that there isn't a connectivity issue. Set the latency to
+      // 0 so gfe missing header won't get incremented.
+      latency = 0L;
+    }
+    tracer.recordGfeMetadata(latency, throwable);
   }
 }
