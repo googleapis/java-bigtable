@@ -42,6 +42,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -139,7 +140,7 @@ public class Util {
     return headers.build();
   }
 
-  private static Long getGfeLatency(Metadata metadata) {
+  private static Long getGfeLatency(@Nullable Metadata metadata) {
     if (metadata != null && metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
       String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
       Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
@@ -152,28 +153,21 @@ public class Util {
     return null;
   }
 
-  private static boolean setTracerLocationFromMetadata(
-      Metadata headers, Metadata trailers, BigtableTracer tracer) {
-    boolean hasLocationInfo = false;
-    try {
-      // Check both headers and trailers because in different environments the metadata
-      // could be returned in headers or trailers
-      if (headers != null) {
-        byte[] locationInfo = headers.get(Util.LOCATION_METADATA_KEY);
-        if (locationInfo == null && trailers != null) {
-          locationInfo = trailers.get(Util.LOCATION_METADATA_KEY);
-        }
-        // If the response is terminated abnormally and we didn't get location information in
-        // trailers or headers, skip setting the locations
-        if (locationInfo != null) {
-          hasLocationInfo = true;
+  private static boolean getTracerLocationFromMetadata(
+      @Nullable Metadata metadata, BigtableTracer tracer) {
+    if (metadata != null) {
+      byte[] locationInfo = metadata.get(Util.LOCATION_METADATA_KEY);
+      if (locationInfo != null) {
+        try {
           ResponseParams decodedTrailers = ResponseParams.parseFrom(locationInfo);
           tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
+        } catch (InvalidProtocolBufferException e) {
+          // This should never throw unless there's a change on the server side
         }
+        return true;
       }
-    } catch (InvalidProtocolBufferException e) {
     }
-    return hasLocationInfo;
+    return false;
   }
 
   static void recordMetricsFromMetadata(
@@ -181,12 +175,13 @@ public class Util {
     // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
     // so it's not checking trailing metadata here.
     Metadata metadata = responseMetadata.getMetadata();
-    Long latency = Util.getGfeLatency(metadata);
+    Long latency = getGfeLatency(metadata);
 
-    // Set the location and cluster id from the metadata
+    // Set the location and cluster id from the metadata. Check both headers and trailers
+    // because in different environments the metadata could be returned in headers or trailers
     boolean hasLocationInfo =
-        setTracerLocationFromMetadata(
-            responseMetadata.getMetadata(), responseMetadata.getTrailingMetadata(), tracer);
+            getTracerLocationFromMetadata(responseMetadata.getMetadata(), tracer)
+                    || getTracerLocationFromMetadata(responseMetadata.getTrailingMetadata(), tracer);
 
     if (hasLocationInfo && latency == null) {
       // For direct path, we won't see GFE server-timing header. However, if we received the
