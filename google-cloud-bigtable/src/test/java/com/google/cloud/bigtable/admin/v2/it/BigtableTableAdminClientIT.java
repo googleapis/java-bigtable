@@ -22,7 +22,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
@@ -35,12 +37,12 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
-import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
+import io.grpc.StatusRuntimeException;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -69,7 +71,7 @@ public class BigtableTableAdminClientIT {
   @After
   public void tearDown() {
     try {
-      if (testEnvRule.env() instanceof CloudEnv) {
+      if (testEnvRule.env().isCloud()) {
         testEnvRule
             .env()
             .getTableAdminClient()
@@ -209,6 +211,25 @@ public class BigtableTableAdminClientIT {
     Table updatedTable2 = tableAdmin.updateTable(request2);
     assertThat(updatedTable2.getId()).isEqualTo(tableId);
     assertThat(updatedTable2.isProtected()).isFalse();
+  }
+
+  @Test
+  public void deleteTableWithDeletionProtectionThrows() {
+    assume()
+        .withMessage("Emulator doesn't return proper responses for CreateTable")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    Table table =
+        tableAdmin.createTable(CreateTableRequest.of(tableId).setDeletionProtection(true));
+    assertThat(table.isProtected()).isTrue();
+
+    try {
+      tableAdmin.deleteTable(tableId);
+      fail("should not have been able to delete table");
+    } catch (FailedPreconditionException e) {
+      assertThat(e.getCause()).isInstanceOf(StatusRuntimeException.class);
+    }
   }
 
   @Test

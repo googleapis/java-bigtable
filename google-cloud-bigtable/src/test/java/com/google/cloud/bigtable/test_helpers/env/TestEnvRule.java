@@ -24,6 +24,7 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
+import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -204,6 +205,11 @@ public class TestEnvRule implements TestRule {
       }
       if (stalePrefix.compareTo(tableId) > 0) {
         try {
+          if (env().isCloud()) {
+            env()
+                .getTableAdminClient()
+                .updateTable(UpdateTableRequest.of(tableId).setDeletionProtection(false));
+          }
           env().getTableAdminClient().deleteTable(tableId);
         } catch (NotFoundException ignored) {
 
