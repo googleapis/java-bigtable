@@ -140,8 +140,8 @@ public class Util {
   }
 
   private static Long getGfeLatency(@Nullable Metadata metadata) {
-    if (metadata != null && metadata.get(SERVER_TIMING_HEADER_KEY) != null) {
-      String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
+    String serverTiming;
+    if (metadata != null && (serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY)) != null) {
       Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
       // this should always be true
       if (matcher.find()) {
