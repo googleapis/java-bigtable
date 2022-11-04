@@ -152,21 +152,15 @@ public class Util {
     return null;
   }
 
-  private static boolean getLocationFromMetadata(
-      @Nullable Metadata metadata, BigtableTracer tracer) {
-    if (metadata != null) {
-      byte[] locationInfo = metadata.get(Util.LOCATION_METADATA_KEY);
-      if (locationInfo != null) {
-        try {
-          ResponseParams decodedTrailers = ResponseParams.parseFrom(locationInfo);
-          tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-        } catch (InvalidProtocolBufferException e) {
-          // This should never throw unless there's a change on the server side
-        }
-        return true;
+  private static ResponseParams getResponseParams(@Nullable Metadata metadata) {
+    byte[] responseParams;
+    if (metadata != null && (responseParams = metadata.get(Util.LOCATION_METADATA_KEY)) != null) {
+      try {
+        return ResponseParams.parseFrom(responseParams);
+      } catch (InvalidProtocolBufferException e) {
       }
     }
-    return false;
+    return null;
   }
 
   static void recordMetricsFromMetadata(
@@ -176,19 +170,26 @@ public class Util {
     Metadata metadata = responseMetadata.getMetadata();
     Long latency = getGfeLatency(metadata);
 
-    // Set the location and cluster id from the metadata. Check both headers and trailers
+    // Get the response params from the metadata. Check both headers and trailers
     // because in different environments the metadata could be returned in headers or trailers
-    boolean hasLocationInfo =
-        getLocationFromMetadata(responseMetadata.getMetadata(), tracer)
-            || getLocationFromMetadata(responseMetadata.getTrailingMetadata(), tracer);
+    ResponseParams responseParams = getResponseParams(responseMetadata.getMetadata());
+    if (responseParams == null) {
+      responseParams = getResponseParams(responseMetadata.getTrailingMetadata());
+    }
 
-    if (hasLocationInfo && latency == null) {
-      // For direct path, we won't see GFE server-timing header. However, if we received the
-      // location info, we know that there isn't a connectivity issue. Set the latency to
-      // 0 so gfe missing header won't get incremented.
+    // For direct path, we won't see GFE server-timing header. However, if we received the
+    // location info, we know that there isn't a connectivity issue. Set the latency to
+    // 0 so gfe missing header won't get incremented.
+    if (responseParams != null && latency == null) {
       latency = 0L;
     }
 
+    // Set tracer locations if response params is not null
+    if (responseParams != null) {
+      tracer.setLocations(responseParams.getZoneId(), responseParams.getClusterId());
+    }
+
+    // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
   }
 }
