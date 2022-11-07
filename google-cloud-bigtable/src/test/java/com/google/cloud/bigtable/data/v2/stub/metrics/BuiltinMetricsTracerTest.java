@@ -432,8 +432,9 @@ public class BuiltinMetricsTracerTest {
       // Adding the first 2 elements should not get throttled since the batch is empty
       assertThat(throttledTime.getAllValues().get(0)).isEqualTo(0);
       // After the first request is sent, batcher will block on add because of the server latency.
-      assertThat(throttledTime.getAllValues().get(1)).isAtLeast(SERVER_LATENCY);
-      assertThat(throttledTime.getAllValues().get(2)).isAtLeast(SERVER_LATENCY);
+      // Blocking latency should be around server latency.
+      assertThat(throttledTime.getAllValues().get(1)).isAtLeast(SERVER_LATENCY - 10);
+      assertThat(throttledTime.getAllValues().get(2)).isAtLeast(SERVER_LATENCY - 10);
     }
   }
 
