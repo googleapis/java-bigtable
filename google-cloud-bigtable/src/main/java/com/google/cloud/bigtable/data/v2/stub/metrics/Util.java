@@ -140,21 +140,28 @@ public class Util {
   }
 
   private static Long getGfeLatency(@Nullable Metadata metadata) {
-    String serverTiming;
-    if (metadata != null && (serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY)) != null) {
-      Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
-      // this should always be true
-      if (matcher.find()) {
-        long latency = Long.valueOf(matcher.group("dur"));
-        return latency;
-      }
+    if (metadata == null) {
+      return null;
+    }
+    String serverTiming = metadata.get(SERVER_TIMING_HEADER_KEY);
+    if (serverTiming == null) {
+      return null;
+    }
+    Matcher matcher = SERVER_TIMING_HEADER_PATTERN.matcher(serverTiming);
+    // this should always be true
+    if (matcher.find()) {
+      long latency = Long.valueOf(matcher.group("dur"));
+      return latency;
     }
     return null;
   }
 
   private static ResponseParams getResponseParams(@Nullable Metadata metadata) {
-    byte[] responseParams;
-    if (metadata != null && (responseParams = metadata.get(Util.LOCATION_METADATA_KEY)) != null) {
+    if (metadata == null) {
+      return null;
+    }
+    byte[] responseParams = metadata.get(Util.LOCATION_METADATA_KEY);
+    if (responseParams != null) {
       try {
         return ResponseParams.parseFrom(responseParams);
       } catch (InvalidProtocolBufferException e) {
@@ -165,30 +172,28 @@ public class Util {
 
   static void recordMetricsFromMetadata(
       GrpcResponseMetadata responseMetadata, BigtableTracer tracer, Throwable throwable) {
-    // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
-    // so it's not checking trailing metadata here.
     Metadata metadata = responseMetadata.getMetadata();
-    Long latency = getGfeLatency(metadata);
 
     // Get the response params from the metadata. Check both headers and trailers
     // because in different environments the metadata could be returned in headers or trailers
-    ResponseParams responseParams = getResponseParams(responseMetadata.getMetadata());
+    @Nullable ResponseParams responseParams = getResponseParams(responseMetadata.getMetadata());
     if (responseParams == null) {
       responseParams = getResponseParams(responseMetadata.getTrailingMetadata());
     }
+    // Set tracer locations if response params is not null
+    if (responseParams != null) {
+      tracer.setLocations(responseParams.getZoneId(), responseParams.getClusterId());
+    }
 
+    // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
+    // so it's not checking trailing metadata here.
+    @Nullable Long latency = getGfeLatency(metadata);
     // For direct path, we won't see GFE server-timing header. However, if we received the
     // location info, we know that there isn't a connectivity issue. Set the latency to
     // 0 so gfe missing header won't get incremented.
     if (responseParams != null && latency == null) {
       latency = 0L;
     }
-
-    // Set tracer locations if response params is not null
-    if (responseParams != null) {
-      tracer.setLocations(responseParams.getZoneId(), responseParams.getClusterId());
-    }
-
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
   }
