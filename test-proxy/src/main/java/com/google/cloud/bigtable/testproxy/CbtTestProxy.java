@@ -25,7 +25,7 @@ import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ServerStream;
-import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.Column;
 import com.google.bigtable.v2.Family;
@@ -42,6 +42,7 @@ import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.testproxy.CloudBigtableV2TestProxyGrpc.CloudBigtableV2TestProxyImplBase;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.Durations;
 import com.google.rpc.Code;
@@ -201,18 +202,12 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public synchronized void createClient(
       CreateClientRequest request, StreamObserver<CreateClientResponse> responseObserver) {
-    if (request.getClientId().isEmpty()
-        || request.getProjectId().isEmpty()
-        || request.getInstanceId().isEmpty()
-        || request.getDataTarget().isEmpty()) {
-      responseObserver.onError(
-          Status.INVALID_ARGUMENT
-              .withDescription("clientId, projectId, instanceId, and dataTarget must be provided.")
-              .asException());
-      return;
-    }
+    Preconditions.checkArgument(!request.getClientId().isEmpty(), "client id must be provided");
+    Preconditions.checkArgument(!request.getProjectId().isEmpty(), "project id must be provided");
+    Preconditions.checkArgument(!request.getInstanceId().isEmpty(), "instance id must be provided");
+    Preconditions.checkArgument(!request.getDataTarget().isEmpty(), "data target must be provided");
 
-    if (idClientMap.get(request.getClientId()) != null) {
+    if (idClientMap.contains(request.getClientId())) {
       responseObserver.onError(
           Status.ALREADY_EXISTS
               .withDescription("Client " + request.getClientId() + " already exists.")
@@ -257,12 +252,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void closeClient(
       CloseClientRequest request, StreamObserver<CloseClientResponse> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -291,12 +285,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void mutateRow(
       MutateRowRequest request, StreamObserver<MutateRowResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -327,12 +320,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void bulkMutateRows(
       MutateRowsRequest request, StreamObserver<MutateRowsResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -377,12 +369,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
   @Override
   public void readRow(ReadRowRequest request, StreamObserver<RowResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -442,12 +433,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
   @Override
   public void readRows(ReadRowsRequest request, StreamObserver<RowsResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -558,12 +548,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void sampleRowKeys(
       SampleRowKeysRequest request, StreamObserver<SampleRowKeysResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -607,12 +596,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void checkAndMutateRow(
       CheckAndMutateRowRequest request, StreamObserver<CheckAndMutateRowResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -643,12 +631,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   @Override
   public void readModifyWriteRow(
       ReadModifyWriteRowRequest request, StreamObserver<RowResult> responseObserver) {
-    CbtClient client = idClientMap.get(request.getClientId());
-    if (client == null) {
-      responseObserver.onError(
-          Status.NOT_FOUND
-              .withDescription("Client " + request.getClientId() + " not found.")
-              .asException());
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
       return;
     }
 
@@ -749,9 +736,9 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return NoCredentialsProvider.create();
     }
 
-    final ServiceAccountJwtAccessCredentials creds =
-        ServiceAccountJwtAccessCredentials.fromStream(
-            new ByteArrayInputStream(credential.getBytes(UTF_8)));
+    final GoogleCredentials creds =
+        GoogleCredentials.fromStream(new ByteArrayInputStream(credential.getBytes(UTF_8)));
+
     return FixedCredentialsProvider.create(creds);
   }
 

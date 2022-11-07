@@ -3,10 +3,11 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable-test-proxy</artifactId>
-  <version>1.0</version>
+  <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable Test Proxy</name>
   <url>https://github.com/googleapis/java-bigtable</url>
+  <description>Cloud Bigtable Java Client test proxy for running conformance tests.</description>
 
   <parent>
     <artifactId>google-cloud-bigtable-parent</artifactId>
@@ -30,11 +31,6 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-      <dependency>
-        <groupId>com.google.auto.value</groupId>
-        <artifactId>auto-value</artifactId>
-        <version>1.9</version>
-      </dependency>
     </dependencies>
   </dependencyManagement>
 
@@ -54,10 +50,6 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>com.google.auto.value</groupId>
-      <artifactId>auto-value</artifactId>
     </dependency>
   </dependencies>
 
@@ -91,7 +83,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.2.4</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -121,6 +112,58 @@
           </execution>
         </executions>
       </plugin>
+      <!-- start skip publishing to maven central -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.0.0-M2</version>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <configuration>
+            <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <configuration>
+            <skipDeploy>true</skipDeploy>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <configuration>
+            <skipSource>true</skipSource>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>clirr-maven-plugin</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
+        <!-- end skip publishing to maven central -->
     </plugins>
   </build>
 </project>
