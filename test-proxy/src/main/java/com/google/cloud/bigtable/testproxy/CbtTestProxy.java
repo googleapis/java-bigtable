@@ -217,14 +217,12 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
     BigtableDataSettings.Builder settingsBuilder = BigtableDataSettings.newBuilder();
     if (request.hasPerOperationTimeout()) {
-      com.google.protobuf.Duration timeoutFromReq = request.getPerOperationTimeout();
-      Duration newTimeout =
-          Duration.ofSeconds(timeoutFromReq.getSeconds(), timeoutFromReq.getNanos());
+      Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
       settingsBuilder = overrideTimeoutSetting(newTimeout, settingsBuilder);
       logger.info(
           String.format(
               "Total timeout is set to %s for all the methods",
-              Durations.toString(timeoutFromReq)));
+              Durations.toString(request.getPerOperationTimeout())));
     }
 
     // Create and store CbtClient for later use
