@@ -85,8 +85,7 @@ public class BigtableStackdriverStatsExporter {
             .setTransportChannelProvider(InstantiatingGrpcChannelProvider.newBuilder().build());
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
-    org.threeten.bp.Duration timeout =
-        org.threeten.bp.Duration.ofMillis(deadline.toMillis());
+    org.threeten.bp.Duration timeout = org.threeten.bp.Duration.ofMillis(deadline.toMillis());
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
     return MetricServiceClient.create(settingsBuilder.build());
   }
