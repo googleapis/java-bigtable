@@ -48,10 +48,9 @@ public class BuiltinMetricsIT {
 
   public static String[] VIEWS = {
     "operation_latencies",
-    "retry_count",
     "attempt_latencies",
     "connectivity_error_count",
-    "application_latencies"
+    "application_blocking_latencies"
   };
 
   @BeforeClass
@@ -125,9 +124,9 @@ public class BuiltinMetricsIT {
       // Verify that metrics are published for ReadRows request
       metricFilter =
           String.format(
-              "metric.type=\"bigtable.googleapis.com/client/operation_latencies\" "
+              "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\"",
-              testEnvRule.env().getInstanceId());
+              view, testEnvRule.env().getInstanceId());
       requestBuilder.setFilter(metricFilter);
       response = metricClient.listTimeSeriesCallable().call(requestBuilder.build());
       assertThat(response.getTimeSeriesCount()).isGreaterThan(0);

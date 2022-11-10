@@ -21,11 +21,9 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import com.google.bigtable.v2.ResponseParams;
+import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import com.google.protobuf.InvalidProtocolBufferException;
-import io.grpc.Metadata;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
@@ -68,7 +66,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     }
   }
 
-  private class BigtableTracerResponseObserver<ResponseT> implements ResponseObserver<ResponseT> {
+  private class BigtableTracerResponseObserver<ResponseT> extends SafeResponseObserver<ResponseT> {
 
     private final BigtableTracer tracer;
     private final ResponseObserver<ResponseT> outerObserver;
@@ -78,81 +76,35 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
         ResponseObserver<ResponseT> observer,
         BigtableTracer tracer,
         GrpcResponseMetadata metadata) {
+      super(observer);
+
       this.tracer = tracer;
       this.outerObserver = observer;
       this.responseMetadata = metadata;
     }
 
     @Override
-    public void onStart(final StreamController controller) {
+    protected void onStartImpl(final StreamController controller) {
       TracedStreamController tracedController = new TracedStreamController(controller, tracer);
       outerObserver.onStart(tracedController);
     }
 
     @Override
-    public void onResponse(ResponseT response) {
+    protected void onResponseImpl(ResponseT response) {
       Stopwatch stopwatch = Stopwatch.createStarted();
       outerObserver.onResponse(response);
       tracer.afterResponse(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
 
     @Override
-    public void onError(Throwable t) {
-      // server-timing metric will be added through GrpcResponseMetadata#onHeaders(Metadata),
-      // so it's not checking trailing metadata here.
-      Metadata metadata = responseMetadata.getMetadata();
-      Long latency = Util.getGfeLatency(metadata);
-      tracer.recordGfeMetadata(latency, t);
-      try {
-        // Check both headers and trailers because in different environments the metadata
-        // could be returned in headers or trailers
-        if (metadata != null) {
-          byte[] trailers = metadata.get(Util.METADATA_KEY);
-          if (trailers == null) {
-            Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
-            if (trailingMetadata != null) {
-              trailers = trailingMetadata.get(Util.METADATA_KEY);
-            }
-          }
-          // If the response is terminated abnormally and we didn't get location information in
-          // trailers or headers, skip setting the locations
-          if (trailers != null) {
-            ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
-            tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-          }
-        }
-      } catch (InvalidProtocolBufferException e) {
-      }
-
+    protected void onErrorImpl(Throwable t) {
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, t);
       outerObserver.onError(t);
     }
 
     @Override
-    public void onComplete() {
-      Metadata metadata = responseMetadata.getMetadata();
-      Long latency = Util.getGfeLatency(metadata);
-      tracer.recordGfeMetadata(latency, null);
-      try {
-        // Check both headers and trailers because in different environments the metadata
-        // could be returned in headers or trailers
-        if (metadata != null) {
-          byte[] trailers = metadata.get(Util.METADATA_KEY);
-          if (trailers == null) {
-            Metadata trailingMetadata = responseMetadata.getTrailingMetadata();
-            if (trailingMetadata != null) {
-              trailers = trailingMetadata.get(Util.METADATA_KEY);
-            }
-          }
-          // If the response is terminated abnormally and we didn't get location information in
-          // trailers or headers, skip setting the locations
-          if (trailers != null) {
-            ResponseParams decodedTrailers = ResponseParams.parseFrom(trailers);
-            tracer.setLocations(decodedTrailers.getZoneId(), decodedTrailers.getClusterId());
-          }
-        }
-      } catch (InvalidProtocolBufferException e) {
-      }
-
+    protected void onCompleteImpl() {
+      Util.recordMetricsFromMetadata(responseMetadata, tracer, null);
       outerObserver.onComplete();
     }
   }

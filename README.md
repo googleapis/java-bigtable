@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>26.1.2</version>
+      <version>26.1.4</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -41,7 +41,7 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.14.1</version>
+  <version>2.15.0</version>
 </dependency>
 
 ```
@@ -56,13 +56,13 @@ implementation 'com.google.cloud:google-cloud-bigtable'
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.15.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.15.1'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.15.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.15.1"
 ```
 
 ## Authentication
@@ -99,7 +99,7 @@ use this Cloud Bigtable Client Library.
 
 ## About Cloud Bigtable
 
-[Cloud Bigtable][cloud-bigtable] is Google's NoSQL Big Data database service. It's
+[Cloud Bigtable][product-docs] is Google's NoSQL Big Data database service. It's
 the same database that powers many core Google services, including Search, Analytics, Maps, and
 Gmail.
 
