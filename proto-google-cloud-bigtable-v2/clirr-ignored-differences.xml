@@ -16,6 +16,9 @@
     <className>com/google/bigtable/v2/*OrBuilder</className>
     <method>boolean has*(*)</method>
   </difference>
+
+  <!--  this proto was renamed and not exposed-->
+  <!--  todo: remove after next release-->
   <difference>
     <differenceType>7002</differenceType>
     <className>com/google/bigtable/v2/RequestStats*</className>
