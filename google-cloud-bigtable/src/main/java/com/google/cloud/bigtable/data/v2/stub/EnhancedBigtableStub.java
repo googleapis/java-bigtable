@@ -77,6 +77,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallabl
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
@@ -710,12 +711,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingSteamingCallable = null;
+    if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
+      cpuThrottlingSteamingCallable =
+          new RateLimitingServerStreamingCallable<>(withStatsHeaders);
+    }
+
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
     // and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
-        new ConvertExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(cpuThrottlingSteamingCallable != null ? cpuThrottlingSteamingCallable : withStatsHeaders);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(

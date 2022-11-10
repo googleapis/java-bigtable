@@ -47,6 +47,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /** Utilities to help integrating with OpenCensus. */
@@ -62,6 +64,13 @@ public class Util {
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
+
+  static final Metadata.Key<String> CPU_THROTTLE_HEADER_KEY =
+      Metadata.Key.of("bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER);
+  static final ApiCallContext.Key<GrpcResponseMetadata> CPU_METADATA =
+      ApiCallContext.Key.create("cpu_metadata");
+
+  static final double PERCENT_CHANGE_LIMIT = .15;
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -196,5 +205,33 @@ public class Util {
     }
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
+  }
+
+  // This function is to calculate the QPS based on current CPU
+  static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
+    if (tsCpus.length == 0) {
+      return currentRate;
+    }
+
+    double cpuDelta = DoubleStream.of(tsCpus).average().getAsDouble() - target;
+
+    if (cpuDelta > 0) {
+      long newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
+      return newRate;
+    }
+    return currentRate;
+  }
+
+  static double[] getCpuList(Metadata metadata) {
+    if (metadata != null && metadata.get(CPU_THROTTLE_HEADER_KEY) != null) {
+      String throttleHeader = metadata.get(CPU_THROTTLE_HEADER_KEY);
+
+      double[] cpus = Stream.of(throttleHeader.split(","))
+          .mapToDouble(Double::parseDouble)
+          .toArray();
+
+      return cpus;
+    }
+    return new double[]{};
   }
 }
