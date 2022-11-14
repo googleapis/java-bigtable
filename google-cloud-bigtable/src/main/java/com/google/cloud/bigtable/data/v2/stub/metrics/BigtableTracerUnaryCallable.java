@@ -52,7 +52,10 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
-      final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+      if (context.getOption(Util.GRPC_METADATA) == null) { // get metadata?
+        context = context.withOption(Util.GRPC_METADATA, new GrpcResponseMetadata());
+      }
+      final GrpcResponseMetadata responseMetadata = context.getOption(Util.GRPC_METADATA);
       final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
       BigtableTracerUnaryCallback callback =
           new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);

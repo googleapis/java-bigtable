@@ -67,8 +67,10 @@ public class Util {
 
   static final Metadata.Key<String> CPU_THROTTLE_HEADER_KEY =
       Metadata.Key.of("bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER);
-  static final ApiCallContext.Key<GrpcResponseMetadata> CPU_METADATA =
+  static final ApiCallContext.Key<GrpcResponseMetadata> GRPC_METADATA =
       ApiCallContext.Key.create("cpu_metadata");
+  public static final Metadata.Key<byte[]> METADATA_KEY =
+      Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   static final double PERCENT_CHANGE_LIMIT = .15;
 

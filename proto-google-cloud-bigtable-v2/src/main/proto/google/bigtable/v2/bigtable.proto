@@ -442,6 +442,8 @@ message MutateRowsRequest {
   // At least one entry must be specified, and in total the entries can
   // contain at most 100000 mutations.
   repeated Entry entries = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Change request here for target CPU
 }
 
 // Response message for BigtableService.MutateRows.
