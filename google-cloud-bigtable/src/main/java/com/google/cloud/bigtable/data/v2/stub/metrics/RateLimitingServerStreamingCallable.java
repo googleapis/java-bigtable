@@ -32,7 +32,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
   private final static long DEFAULT_QPS = 10_000;
   private final static long minimumTimeBetweenUpdates = 60_000;
 
-  private RateLimiter limiter;
+  private RateLimiter limiter; // Capture .setRate() and pass in mocked RateLimiter
   private RateLimitingStats stats;
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
@@ -44,19 +44,27 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
         innerCallable, "Inner callable must be set");
 
   }
+
+  public RateLimitingServerStreamingCallable(
+      @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable, RateLimiter limiter) {
+    this.limiter =  limiter;
+    stats = new RateLimitingStats();
+    this.innerCallable = Preconditions.checkNotNull(
+        innerCallable, "Inner callable must be set");
+
+  }
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    if (context.getOption(Util.CPU_METADATA) == null) {
-      context = context.withOption(Util.CPU_METADATA, new GrpcResponseMetadata());
+    if (context.getOption(Util.GRPC_METADATA) == null) { // get metadata?
+      context = context.withOption(Util.GRPC_METADATA, new GrpcResponseMetadata());
     }
-    final GrpcResponseMetadata responseMetadata = context.getOption(Util.CPU_METADATA);
+    final GrpcResponseMetadata responseMetadata = context.getOption(Util.GRPC_METADATA);
     final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
 
     limiter.acquire();
     CpuMetadataResponseObserver<ResponseT> innerObserver =
-        new CpuMetadataResponseObserver<>(
-            responseObserver, responseMetadata);
+        new CpuMetadataResponseObserver<>(responseObserver, responseMetadata);
 
     innerCallable.call(request, innerObserver, contextWithResponseMetadata);
     //ApiFutures.addCallback(future, new CpuThrottlingUnaryCallback<>(responseMetadata), MoreExecutors.directExecutor());
@@ -100,6 +108,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
       if (currentTime - lastQpsUpdateTime < minimumTimeBetweenUpdates) {
+        outerObserver.onError(t);
         return;
       }
       limiter.setRate(newQps);
@@ -121,6 +130,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
       if (currentTime - lastQpsUpdateTime < minimumTimeBetweenUpdates) {
+        outerObserver.onComplete();
         return;
       }
       limiter.setRate(newQps);
