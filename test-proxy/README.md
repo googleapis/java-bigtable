@@ -34,7 +34,7 @@ mvn exec:java -Dexec.mainClass=com.google.cloud.bigtable.testproxy.CbtTestProxyM
 Build and start the proxy with an older version of the client
 
 ```
-mvn clean install -Dbigtable.client.version=2.1.0 -Denforcer.skip
+mvn clean install -Dbigtable.client.version=<client_version> -Denforcer.skip
 mvn exec:java -Dexec.mainClass=com.google.cloud.bigtable.testproxy.CbtTestProxyMain
 ```
 
