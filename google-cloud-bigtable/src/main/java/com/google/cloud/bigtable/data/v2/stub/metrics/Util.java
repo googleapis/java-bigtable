@@ -219,6 +219,9 @@ public class Util {
 
     if (cpuDelta > 0) {
       long newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
+      if (newRate < 1.0) {
+        return 1.0;
+      }
       return newRate;
     }
     return currentRate;

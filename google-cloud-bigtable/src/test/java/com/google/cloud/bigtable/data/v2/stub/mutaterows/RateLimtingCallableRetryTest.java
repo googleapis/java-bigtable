@@ -27,7 +27,6 @@ import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
-import com.google.bigtable.v2.ResponseParams;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -35,7 +34,6 @@ import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingStats;
-import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import io.grpc.ForwardingServerCall;
@@ -50,10 +48,16 @@ import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.ExecutionException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
@@ -62,30 +66,30 @@ public class RateLimtingCallableRetryTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
-  private static final String ZONE = "us-east1";
-  private static final String CLUSTER = "cluster";
 
   private static final String FAKE_LOW_CPU_VALUES = "40.1,10.1,36.2";
   private static final String FAKE_HIGH_CPU_VALUES = "90.1,80.1,76.2";
 
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
-  private RateLimitingStats stats;
-
   private final FakeService FakeServiceRetry = new FakeService();
   private Server lowCPUServerRetry;
-  private Server highCPUServerRetry; // I need to look at retrying tests
-
+  private Server highCPUServerRetry;
   private EnhancedBigtableStub lowCpuStubRetry;
   private EnhancedBigtableStub highCpuStubRetry;
 
-  private MockMutateInnerCallable innerCallable; // I believe that I can delete this
   private ApiCallContext callContext;
+
+  @Captor
+  private ArgumentCaptor<Double> rate;
+
+  @Mock
+  RateLimitingStats mockLimitingStats;
 
   @Before
   public void setUp() throws Exception {
     //statsArgumentCaptor = ArgumentCaptor.forClass(CpuThrottlingStats.class);
-    innerCallable = new MockMutateInnerCallable();
+    //innerCallable = new MockMutateInnerCallable();
     callContext = GrpcCallContext.createDefault();
 
     // I should make this under the Util class
@@ -120,9 +124,8 @@ public class RateLimtingCallableRetryTest {
     // Fix naming
     EnhancedBigtableStubSettings lowCPUStubSettings = lowCPUSettings.getStubSettings();
     EnhancedBigtableStubSettings highCPUStubSettings = highCPUSettings.getStubSettings();
-    lowCpuStubRetry = new EnhancedBigtableStub(lowCPUSettings.getStubSettings(), ClientContext.create(lowCPUSettings.getStubSettings()));
-    highCpuStubRetry = new EnhancedBigtableStub(highCPUSettings.getStubSettings(), ClientContext.create(highCPUSettings.getStubSettings()));
-    stats = new RateLimitingStats();
+    lowCpuStubRetry = new EnhancedBigtableStub(lowCPUSettings.getStubSettings(), ClientContext.create(lowCPUSettings.getStubSettings()), mockLimitingStats);
+    highCpuStubRetry = new EnhancedBigtableStub(highCPUSettings.getStubSettings(), ClientContext.create(highCPUSettings.getStubSettings()), mockLimitingStats);
   }
 
   @After
@@ -134,29 +137,46 @@ public class RateLimtingCallableRetryTest {
   }
 
   @Test
-  public void testBulkMutateRowsNoThrottling() throws Exception {
+  public void testBulkMutateRowsRetryWithNoChangeInRateLimiting()
+      throws ExecutionException, InterruptedException {
+    Mockito.when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
+
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
-    lowCpuStubRetry.bulkMutateRowsCallable().call(mutations, callContext);
+    // Going to be changing the request
+    // Need to get request submitted and pass in value through request
+    MutateRowsRequest request =
+        MutateRowsRequest.newBuilder().addEntries(MutateRowsRequest.Entry.getDefaultInstance()).build();
 
-    // Tried a few different assertions and stub/callable calls
+    ApiFuture<Void> future =
+        lowCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
+
+    future.get();
+
+    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
+    Assert.assertEquals(rate.getValue(), (Double)10000.0);
   }
 
-  // This test flaked...
-  // BulkMutateIT is now failing if the callable is enabled (since I removed the flag)
-  //
-  /*
   @Test
-  public void testBulkMutateRowsHighCpuThrottling() throws Exception {
+  public void testBulkMutateRowsRetryWithIncreaseInRateLimiting()
+      throws ExecutionException, InterruptedException {
+    Mockito.when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
+
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
-    highCpuStubRetry.bulkMutateRowsCallable().call(mutations, callContext);
+    ApiFuture<Void> future =
+        highCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
 
-    // Tried a few different assertions and stub/callable calls
+    future.get();
+
+    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
+    Assert.assertEquals(rate.getValue(), (Double)606.0); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
   }
-   */
+
+  // Add a test that updates QPS after enough time has passed
+  // Add bound tests
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> expectations = Queues.newArrayDeque();
@@ -192,6 +212,10 @@ public class RateLimtingCallableRetryTest {
     }
   }
 
+  // Add a new proto here and have a change MutateRowsResponse
+  // Q: How to generate .java files from the proto file
+  //
+
   private ServerInterceptor cpuReturningIntercepter(String cpuValues) {
     return new ServerInterceptor() {
       @Override
@@ -205,14 +229,7 @@ public class RateLimtingCallableRetryTest {
               public void sendHeaders(Metadata headers) {
                 // Set CPU values
                 headers.put(Metadata.Key.of(
-                        "bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER),
-                    cpuValues);
-
-                ResponseParams params =
-                    ResponseParams.newBuilder().setZoneId(ZONE).setClusterId(CLUSTER) // What do I need to set?
-                        .build();
-                byte[] byteArray = params.toByteArray();
-                headers.put(Util.METADATA_KEY, byteArray); // Is this right?
+                        "bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER), cpuValues);
 
                 super.sendHeaders(headers);
               }
