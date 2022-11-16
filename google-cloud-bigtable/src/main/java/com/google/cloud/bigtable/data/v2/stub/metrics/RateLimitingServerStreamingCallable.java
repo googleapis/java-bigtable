@@ -108,6 +108,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
         newQps = Util.calculateQpsChange(cpus, 70, limiter.getRate());
         if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
           System.out.println("Calculated QPS is not within bounds"); // Going to change
+          outerObserver.onError(t);
           return;
         }
       }
@@ -137,6 +138,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
         System.out.println(newQps);
         if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
           System.out.println("Calculated QPS is not within bounds"); // Going to change
+          outerObserver.onComplete();
           return;
         }
       }
