@@ -15,11 +15,22 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+// Make stats inside of EnhancedBigtableStub
+// Pass in through constructor
+// EnhancedBigtableStub is per client so we make the stats
+// Have a lower and upper bound
+
 public class RateLimitingStats {
   private long lastQpsUpdateTime;
+  private double currentQps;
+  private double lowerQpsBound;
+  private double upperQpsBound;
 
   public RateLimitingStats() {
-
+    this.lastQpsUpdateTime = System.currentTimeMillis();
+    this.currentQps = -1; // Will be replaced by default value
+    this.lowerQpsBound = 0.001;
+    this.upperQpsBound = 100_000;
   }
 
   public long getLastQpsUpdateTime() {
@@ -28,5 +39,22 @@ public class RateLimitingStats {
 
   public void updateLastQpsUpdateTime(long newQpsUpdateTime) {
     lastQpsUpdateTime = newQpsUpdateTime;
+  }
+
+  public void updateQps(double qps) {
+    if (qps < lowerQpsBound || qps > upperQpsBound) {
+      // Log or report error here
+      System.out.println("New QPS must be within bounds");
+      return;
+    }
+    currentQps = qps;
+  }
+
+  public double getLowerQpsBound() {
+    return lowerQpsBound;
+  }
+
+  public double getUpperQpsBound() {
+    return upperQpsBound;
   }
 }

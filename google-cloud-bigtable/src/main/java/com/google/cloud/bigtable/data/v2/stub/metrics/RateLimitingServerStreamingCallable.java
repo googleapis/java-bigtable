@@ -46,9 +46,9 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
   }
 
   public RateLimitingServerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable, RateLimiter limiter) {
-    this.limiter =  limiter;
-    stats = new RateLimitingStats();
+      @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable, RateLimitingStats stats) {
+    this.limiter =  RateLimiter.create(DEFAULT_QPS);
+    this.stats = stats;
     this.innerCallable = Preconditions.checkNotNull(
         innerCallable, "Inner callable must be set");
 
@@ -92,6 +92,10 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
     @Override
     protected void onResponseImpl(ResponseT response) {
       outerObserver.onResponse(response);
+      // Handle the MutateRowsResponse inside of here
+      // Change implementation from onError and onComplete to be here
+      // How am I suppose to handle failed or onError cases?
+      //
     }
 
     @Override
@@ -102,6 +106,10 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
         newQps = Util.calculateQpsChange(cpus, 70, limiter.getRate());
+        if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
+          System.out.println("Calculated QPS is not within bounds"); // Going to change
+          return;
+        }
       }
 
       // Ensure enough time has passed since updates to QPS
@@ -113,6 +121,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       }
       limiter.setRate(newQps);
       stats.updateLastQpsUpdateTime(System.currentTimeMillis());
+      stats.updateQps(newQps);
 
       outerObserver.onError(t);
     }
@@ -125,6 +134,11 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
         newQps = Util.calculateQpsChange(cpus, 70, limiter.getRate());
+        System.out.println(newQps);
+        if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
+          System.out.println("Calculated QPS is not within bounds"); // Going to change
+          return;
+        }
       }
 
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
@@ -134,6 +148,8 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
         return;
       }
       limiter.setRate(newQps);
+      stats.updateLastQpsUpdateTime(System.currentTimeMillis());
+      stats.updateQps(newQps);
 
       outerObserver.onComplete();
     }

@@ -78,6 +78,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactor
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingServerStreamingCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingStats;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
@@ -138,6 +139,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final RequestContext requestContext;
   private final FlowController bulkMutationFlowController;
   private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
+  private final RateLimitingStats rateLimitingStats;
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
@@ -281,6 +283,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.bulkMutationFlowController =
         new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
+    this.rateLimitingStats = new RateLimitingStats();
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
@@ -288,6 +291,29 @@ public class EnhancedBigtableStub implements AutoCloseable {
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
+    checkAndMutateRowCallable = createCheckAndMutateRowCallable();
+    readModifyWriteRowCallable = createReadModifyWriteRowCallable();
+    pingAndWarmCallable = createPingAndWarmCallable();
+  }
+
+  @VisibleForTesting
+  public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext, RateLimitingStats rateLimitingStats) {
+    this.settings = settings;
+    this.clientContext = clientContext;
+    this.requestContext =
+        RequestContext.create(
+            settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
+    this.bulkMutationFlowController =
+        new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
+    this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
+    this.rateLimitingStats = rateLimitingStats;
+
+    readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
+    readRowCallable = createReadRowCallable(new DefaultRowAdapter());
+    bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
+    sampleRowKeysCallable = createSampleRowKeysCallable();
+    mutateRowCallable = createMutateRowCallable();
+    bulkMutateRowsCallable = createBulkMutateRowsCallable(rateLimitingStats);
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
     pingAndWarmCallable = createPingAndWarmCallable();
@@ -743,7 +769,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public UnaryCallable<MutateRowsRequest, Void> createMutateRowsBaseCallableWithLimiter(
-      RateLimiter limiter) {
+      RateLimitingStats stats) {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<MutateRowsRequest, MutateRowsResponse>newBuilder()
@@ -767,7 +793,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // There is still that error with retries that I need to look at tomorrow in the morning
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
     cpuThrottlingSteamingCallable =
-        new RateLimitingServerStreamingCallable<>(withStatsHeaders, limiter);
+        new RateLimitingServerStreamingCallable<>(withStatsHeaders, stats);
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
@@ -935,13 +961,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return bulkMutateRowsCallable;
   }
 
-  public UnaryCallable<BulkMutation, Void> bulkMutateRowsCallableTest(RateLimiter limiter) {
-    return createBulkMutateRowsCallable(limiter);
-  }
-
-
-  private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable(RateLimiter limiter) {
-    UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallableWithLimiter(limiter);
+  private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable(RateLimitingStats rateLimitingStats) {
+    UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallableWithLimiter(rateLimitingStats);
 
     UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
