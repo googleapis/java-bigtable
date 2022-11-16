@@ -57,6 +57,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -90,6 +91,9 @@ public class RateLimitingCallableTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
+    when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
+    when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
 
     rate = ArgumentCaptor.forClass(Double.class);
     callContext = GrpcCallContext.createDefault();
@@ -134,8 +138,6 @@ public class RateLimitingCallableTest {
   @Test
   public void testBulkMutateRowsWithNoChangeInRateLimiting()
       throws ExecutionException, InterruptedException {
-    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
-
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
@@ -156,8 +158,6 @@ public class RateLimitingCallableTest {
   @Test
   public void testBulkMutateRowsWithIncreaseInRateLimiting()
       throws ExecutionException, InterruptedException {
-    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
-
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 

@@ -15,6 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcCallContext;
@@ -91,6 +94,9 @@ public class RateLimtingCallableRetryTest {
     //statsArgumentCaptor = ArgumentCaptor.forClass(CpuThrottlingStats.class);
     //innerCallable = new MockMutateInnerCallable();
     callContext = GrpcCallContext.createDefault();
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
+    when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
+    when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
 
     // I should make this under the Util class
     ServerInterceptor lowCPUInterceptor = cpuReturningIntercepter(FAKE_LOW_CPU_VALUES);
@@ -139,7 +145,6 @@ public class RateLimtingCallableRetryTest {
   @Test
   public void testBulkMutateRowsRetryWithNoChangeInRateLimiting()
       throws ExecutionException, InterruptedException {
-    Mockito.when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
 
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
@@ -161,8 +166,6 @@ public class RateLimtingCallableRetryTest {
   @Test
   public void testBulkMutateRowsRetryWithIncreaseInRateLimiting()
       throws ExecutionException, InterruptedException {
-    Mockito.when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
-
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
