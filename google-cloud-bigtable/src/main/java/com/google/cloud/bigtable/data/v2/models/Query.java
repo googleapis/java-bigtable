@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.RowFilter;
@@ -38,6 +39,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.SortedSet;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /** A simple wrapper to construct a query for the ReadRows RPC. */
 public final class Query implements Serializable {
@@ -248,6 +250,29 @@ public final class Query implements Serializable {
     return shards;
   }
 
+  /**
+   * Create a query paginator that'll split the query into smaller chunks.
+   *
+   * <p>Example usage:
+   *
+   * <pre>{@code
+   * Query query = Query.create(...).range("a", "z");
+   * Query.QueryPaginator paginator = query.createQueryPaginator(100);
+   * ByteString lastSeenRowKey = null;
+   * while (paginator.advance(lastSeenRowKey)) {
+   *     List<Row> rows = client.readRowsCallable().all().call(paginator.getNextQuery());
+   *     for (Row row : rows) {
+   *        // do some processing
+   *        lastSeenRow = row;
+   *     }
+   * }
+   * }</pre>
+   */
+  @BetaApi("This surface is stable yet it might be removed in the future.")
+  public QueryPaginator createQueryPaginator(int chunkSize) {
+    return new QueryPaginator(this, chunkSize);
+  }
+
   /** Get the minimal range that encloses all of the row keys and ranges in this Query. */
   public ByteStringRange getBound() {
     return RowSetUtil.getBound(builder.getRows());
@@ -295,6 +320,50 @@ public final class Query implements Serializable {
       return null;
     }
     return ByteString.copyFromUtf8(key);
+  }
+
+  @BetaApi("This surface is stable yet it might be removed in the future.")
+  public class QueryPaginator {
+
+    private long originalLimit;
+    private long newLimit;
+    private Query query;
+    private int chunkSize;
+
+    QueryPaginator(@Nonnull Query query, int chunkSize) {
+      this.originalLimit = query.builder.getRowsLimit();
+      this.newLimit = query.builder.getRowsLimit();
+      this.query = query;
+      this.chunkSize = chunkSize;
+    }
+
+    Query getNextQuery() {
+      return query;
+    }
+
+    boolean advance(@Nullable ByteString lastSeenRowKey) {
+      if (originalLimit != 0 && newLimit <= 0) {
+        return false;
+      }
+      if (originalLimit != 0) {
+        query.limit(Math.min(this.chunkSize, newLimit));
+        newLimit -= chunkSize;
+      } else {
+        query.limit(chunkSize);
+      }
+
+      ByteString splitPoint = ByteString.EMPTY;
+      if (lastSeenRowKey != null) {
+        splitPoint = lastSeenRowKey;
+      }
+      RowSetUtil.Split split = RowSetUtil.split(query.builder.getRows(), splitPoint);
+      if (split.getRight() == null) {
+        return false;
+      }
+      query.builder.setRows(split.getRight());
+
+      return true;
+    }
   }
 
   @Override
