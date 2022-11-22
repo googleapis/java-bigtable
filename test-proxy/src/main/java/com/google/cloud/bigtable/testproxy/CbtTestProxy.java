@@ -215,10 +215,11 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     }
 
-    BigtableDataSettings.Builder settingsBuilder = BigtableDataSettings.newBuilder()
-        .setProjectId(request.getProjectId())
-        .setInstanceId(request.getInstanceId())
-        .setAppProfileId(request.getAppProfileId());
+    BigtableDataSettings.Builder settingsBuilder =
+        BigtableDataSettings.newBuilder()
+            .setProjectId(request.getProjectId())
+            .setInstanceId(request.getInstanceId())
+            .setAppProfileId(request.getAppProfileId());
 
     if (request.hasPerOperationTimeout()) {
       Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
@@ -232,7 +233,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     // Create and store CbtClient for later use
     try {
       if (!request.getDataTarget().equals("emulator")) {
-        settingsBuilder.stubSettings()
+        settingsBuilder
+            .stubSettings()
             .setEndpoint(request.getDataTarget())
             .setTransportChannelProvider(getTransportChannel())
             .setCredentialsProvider(getCredentialsProvider());
