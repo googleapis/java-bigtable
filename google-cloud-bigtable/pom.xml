@@ -270,6 +270,7 @@
       <artifactId>google-cloud-monitoring</artifactId>
       <exclusions>
         <exclusion>
+          <!-- using the perfmark version in opencensus -->
           <groupId>io.perfmark</groupId>
           <artifactId>perfmark-api</artifactId>
         </exclusion>

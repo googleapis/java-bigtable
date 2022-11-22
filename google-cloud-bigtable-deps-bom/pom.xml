@@ -76,6 +76,7 @@
         <version>3.7.0</version>
         <exclusions>
           <exclusion>
+            <!-- using the perfmark version in opencensus -->
             <groupId>io.perfmark</groupId>
             <artifactId>perfmark-api</artifactId>
           </exclusion>
