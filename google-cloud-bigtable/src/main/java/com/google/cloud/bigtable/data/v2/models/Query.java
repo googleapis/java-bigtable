@@ -39,7 +39,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.SortedSet;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /** A simple wrapper to construct a query for the ReadRows RPC. */
 public final class Query implements Serializable {
@@ -258,7 +257,7 @@ public final class Query implements Serializable {
    * <pre>{@code
    * Query query = Query.create(...).range("a", "z");
    * Query.QueryPaginator paginator = query.createQueryPaginator(100);
-   * ByteString lastSeenRowKey = null;
+   * ByteString lastSeenRowKey = ByteString.EMPTY;
    * while (paginator.advance(lastSeenRowKey)) {
    *     List<Row> rows = client.readRowsCallable().all().call(paginator.getNextQuery());
    *     for (Row row : rows) {
@@ -329,16 +328,20 @@ public final class Query implements Serializable {
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public class QueryPaginator {
 
-    private long originalLimit;
+    final private long originalLimit;
     private long newLimit;
     private Query query;
-    private int chunkSize;
+    final private int chunkSize;
+    private ByteString prevSplitPoint;
+    private boolean firstRun;
 
     QueryPaginator(@Nonnull Query query, int chunkSize) {
       this.originalLimit = query.builder.getRowsLimit();
       this.newLimit = query.builder.getRowsLimit();
       this.query = query;
       this.chunkSize = chunkSize;
+      this.prevSplitPoint = ByteString.EMPTY;
+      this.firstRun = true;
     }
 
     /** Return the next query. Needs to be called after advance(). */
@@ -350,7 +353,22 @@ public final class Query implements Serializable {
      * Construct the next query. Return true if there are more queries to return. False if we've
      * read everything.
      */
-    boolean advance(@Nullable ByteString lastSeenRowKey) {
+    boolean advance(@Nonnull ByteString lastSeenRowKey) {
+      Preconditions.checkArgument(
+          lastSeenRowKey != null, "lastSeenRowKey cannot be null, use ByteString.EMPTY instead.");
+      // Full table scans don't have ranges or limits. Keep track of the previous split
+      // point. If it's the same as the current input return false. The only exception
+      // is the first run for this paginator. So keep track of the first run state too.
+      if (!firstRun && prevSplitPoint.equals(lastSeenRowKey)) {
+        return false;
+      }
+      if (firstRun) {
+        firstRun = false;
+      }
+      this.prevSplitPoint = lastSeenRowKey;
+
+      // Set the query limit. If the original limit is set, return false if the new
+      // limit is <= 0 to avoid returning more rows than intended.
       if (originalLimit != 0 && newLimit <= 0) {
         return false;
       }
@@ -361,16 +379,13 @@ public final class Query implements Serializable {
         query.limit(chunkSize);
       }
 
-      ByteString splitPoint = ByteString.EMPTY;
-      if (lastSeenRowKey != null) {
-        splitPoint = lastSeenRowKey;
-      }
-      RowSetUtil.Split split = RowSetUtil.split(query.builder.getRows(), splitPoint);
+      // Split the row ranges / row keys. Return false if there's nothing
+      // left on the right of the split point.
+      RowSetUtil.Split split = RowSetUtil.split(query.builder.getRows(), lastSeenRowKey);
       if (split.getRight() == null) {
         return false;
       }
       query.builder.setRows(split.getRight());
-
       return true;
     }
   }
