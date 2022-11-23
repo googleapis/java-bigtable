@@ -24,13 +24,18 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.bigtable.v2.SampleRowKeysRequest;
+import com.google.bigtable.v2.ServerStats;
+import com.google.bigtable.v2.ServerStats.ServerCPUStats;
 import com.google.bigtable.v2.TableName;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
+import com.google.protobuf.DescriptorProtos.FieldDescriptorProtoOrBuilder;
+import com.google.protobuf.Descriptors.FieldDescriptor;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -48,6 +53,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
@@ -219,22 +225,33 @@ public class Util {
 
     if (cpuDelta > 0) {
       long newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
-      if (newRate < 1.0) {
-        return 1.0;
+      if (newRate < 0.1) {
+        return 0.1;
       }
       return newRate;
     }
     return currentRate;
   }
 
-  static double[] getCpuList(Metadata metadata) {
-    if (metadata != null && metadata.get(CPU_THROTTLE_HEADER_KEY) != null) {
-      String throttleHeader = metadata.get(CPU_THROTTLE_HEADER_KEY);
+  static double[] getCpuList(MutateRowsResponse response) {
+    if (response != null && response.hasServerStats()) {
+      ServerStats stats = response.getServerStats();
 
-      double[] cpus = Stream.of(throttleHeader.split(","))
-          .mapToDouble(Double::parseDouble)
-          .toArray();
+      double[] cpus = new double[stats.getCpuStatsList().size()];
+      for (int i = 0; i < stats.getCpuStatsList().size(); i++) {
+        cpus[i] = 100 * ((double)stats.getCpuStats(i).getRecentGcuMillisecondsPerSecond() / stats.getCpuStats(i).getMilligcuLimit()); // Q: What is the list of CpuStats here?
+        // Cpu will be a double [0,1]
 
+        // ServerStats, there is 1 ServerStats and has many requests
+        // CpuStats is basically one RPC, could have many CPU values
+        // Average all the cpuStats under ServerStats
+        // Collect how many CPUStats are returned (Testing for real world, Update RateLimitingStats)
+        // Are there empty responses, what is the average amount of returned CPUStats
+
+        // What is the gcuMillisecondLimit
+        // Divide recentGcuMilliseconds
+      }
+      //System.out.println(cpus[0]);
       return cpus;
     }
     return new double[]{};

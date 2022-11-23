@@ -30,6 +30,8 @@ import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
+import com.google.bigtable.v2.ServerStats;
+import com.google.bigtable.v2.ServerStats.ServerCPUStats;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -75,7 +77,8 @@ public class RateLimtingCallableRetryTest {
 
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
-  private final FakeService FakeServiceRetry = new FakeService();
+  private final FakeService FakeServiceHighCpu = new FakeService(true);
+  private final FakeService FakeServiceLowCpu = new FakeService(false);
   private Server lowCPUServerRetry;
   private Server highCPUServerRetry;
   private EnhancedBigtableStub lowCpuStubRetry;
@@ -98,18 +101,19 @@ public class RateLimtingCallableRetryTest {
     when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
     when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
 
-    // I should make this under the Util class
-    ServerInterceptor lowCPUInterceptor = cpuReturningIntercepter(FAKE_LOW_CPU_VALUES);
-    ServerInterceptor highCPUInterceptor = cpuReturningIntercepter(FAKE_HIGH_CPU_VALUES);
-
-    FakeServiceRetry.expectations.add(new DeadlineExceededException(
+    FakeServiceHighCpu.expectations.add(new DeadlineExceededException(
+        new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
+            "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
+        GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
+        false));
+    FakeServiceLowCpu.expectations.add(new DeadlineExceededException(
         new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
             "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
         GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
         false));
 
-    lowCPUServerRetry = FakeServiceBuilder.create(FakeServiceRetry).intercept(lowCPUInterceptor).start();
-    highCPUServerRetry = FakeServiceBuilder.create(FakeServiceRetry).intercept(highCPUInterceptor).start();
+    highCPUServerRetry = FakeServiceBuilder.create(FakeServiceHighCpu).start();
+    lowCPUServerRetry = FakeServiceBuilder.create(FakeServiceLowCpu).start();
 
     BigtableDataSettings lowCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(lowCPUServerRetry.getPort())
@@ -181,34 +185,44 @@ public class RateLimtingCallableRetryTest {
   // Add a test that updates QPS after enough time has passed
   // Add bound tests
 
-  private static class FakeService extends BigtableGrpc.BigtableImplBase {
+  private class FakeService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> expectations = Queues.newArrayDeque();
+    boolean highCPU;
 
-    static List<MutateRowsResponse> createFakeMutateRowsResponse() {
-      List<MutateRowsResponse> responses = new ArrayList<>();
+    // I need to add a constructor here to seperate the MutateRowsResponse from returning large or low cpu values
+    FakeService(boolean highCPU) {
+      this.highCPU = highCPU;
+    }
 
-      for (int i = 0; i < 1; i++) {
-        ArrayList<MutateRowsResponse.Entry> entries = new ArrayList<>();
-        entries.add(
-            Entry.newBuilder().setIndex(0).setStatus(com.google.rpc.Status.newBuilder().setCode(0).build()).build()); // Definitely a better way to do this
-
-        responses.add(
-            MutateRowsResponse.newBuilder().addAllEntries(
-                entries
-            ).build());
+    MutateRowsResponse createFakeMutateRowsResponse() {
+      ServerStats serverStats;
+      if (this.highCPU) {
+        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
+                .setMilligcuLimit(8000)
+                .setRecentGcuMillisecondsPerSecond(7000))
+            .build(); // I need to talk to Weihan about how the CpuStats correlate with each TS?
+      } else {
+        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
+                .setMilligcuLimit(8000)
+                .setRecentGcuMillisecondsPerSecond(75))
+            .addCpuStats(ServerCPUStats.newBuilder()
+                .setMilligcuLimit(8000)
+                .setRecentGcuMillisecondsPerSecond(80)).build();
       }
 
-      return responses;
+      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build(); // Do I need to have an Entry here
+      return response;
     }
 
     @Override
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
       if (expectations.isEmpty()) {
-        responseObserver.onNext(createFakeMutateRowsResponse().get(0));
+        System.out.println("On complete!");
+        responseObserver.onNext(createFakeMutateRowsResponse());
         responseObserver.onCompleted();
       } else {
-        System.out.println("Expection!");
+        System.out.println("Exception!");
         Exception expectedRpc = expectations.poll();
         responseObserver.onError(expectedRpc);
       }

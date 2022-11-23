@@ -29,6 +29,8 @@ import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
+import com.google.bigtable.v2.ServerStats;
+import com.google.bigtable.v2.ServerStats.ServerCPUStats;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -75,7 +77,8 @@ public class RateLimitingCallableTest {
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private final FakeService FakeService = new FakeService();
+  private FakeService highCpuFakeService;
+  private FakeService lowCpuFakeService;
   private Server lowCPUServer;
   private Server highCPUServer;
   private EnhancedBigtableStub lowCpuStub;
@@ -91,6 +94,10 @@ public class RateLimitingCallableTest {
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
+
+    highCpuFakeService = new FakeService(true);
+    lowCpuFakeService = new FakeService(false);
+
     when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
     when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
     when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
@@ -98,11 +105,11 @@ public class RateLimitingCallableTest {
     rate = ArgumentCaptor.forClass(Double.class);
     callContext = GrpcCallContext.createDefault();
 
-    ServerInterceptor lowCPUInterceptor = cpuReturningIntercepter(FAKE_LOW_CPU_VALUES);
-    ServerInterceptor highCPUInterceptor = cpuReturningIntercepter(FAKE_HIGH_CPU_VALUES);
+    //ServerInterceptor lowCPUInterceptor = cpuReturningIntercepter(FAKE_LOW_CPU_VALUES);
+    //ServerInterceptor highCPUInterceptor = cpuReturningIntercepter(FAKE_HIGH_CPU_VALUES);
 
-    lowCPUServer = FakeServiceBuilder.create(FakeService).intercept(lowCPUInterceptor).start();
-    highCPUServer = FakeServiceBuilder.create(FakeService).intercept(highCPUInterceptor).start();
+    lowCPUServer = FakeServiceBuilder.create(lowCpuFakeService).start();
+    highCPUServer = FakeServiceBuilder.create(highCpuFakeService).start();
 
     BigtableDataSettings lowCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(lowCPUServer.getPort())
@@ -152,7 +159,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals(rate.getValue(), (Double)10000.0);
+    Assert.assertEquals((Double)10000.0, rate.getValue());
   }
 
   @Test
@@ -167,41 +174,52 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals(rate.getValue(), (Double)606.0); // Move to default fields
+    Assert.assertEquals((Double)875.0, rate.getValue()); // Make default value
   }
 
   // Add bound tests (upper and lower)
   // Add several bulk Mutation requests
 
-  private static class FakeService extends BigtableGrpc.BigtableImplBase {
-    Queue<Exception> expectations = Queues.newArrayDeque();
+  private class FakeService extends BigtableGrpc.BigtableImplBase {
+    boolean highCPU;
 
-    static List<MutateRowsResponse> createFakeMutateRowsResponse() {
+    // I need to add a constructor here to seperate the MutateRowsResponse from returning large or low cpu values
+    FakeService(boolean highCPU) {
+      this.highCPU = highCPU;
+    }
+
+    MutateRowsResponse createFakeMutateRowsResponse() {
       List<MutateRowsResponse> responses = new ArrayList<>();
+      ServerStats serverStats;
 
-      for (int i = 0; i < 1; i++) {
-        ArrayList<MutateRowsResponse.Entry> entries = new ArrayList<>();
-        entries.add(
-            Entry.newBuilder().setIndex(0).setStatus(com.google.rpc.Status.newBuilder().setCode(0).build()).build()); // Definitely a better way to do this
-
-        responses.add(
-            MutateRowsResponse.newBuilder().addAllEntries(
-                entries
-            ).build());
+      if (this.highCPU) {
+        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
+                .setMilligcuLimit(8000)
+                .setRecentGcuMillisecondsPerSecond(7000))
+            .build(); // I need to talk to Weihan about how the CpuStats correlate with each TS?
+      } else {
+        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
+                .setMilligcuLimit(8000)
+                .setRecentGcuMillisecondsPerSecond(1000))
+            .build();
       }
 
-      return responses;
+      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build(); // Do I need to have an Entry here
+
+
+      return response;
     }
 
     @Override
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
-      responseObserver.onNext(createFakeMutateRowsResponse().get(0));
+      responseObserver.onNext(createFakeMutateRowsResponse());
       responseObserver.onCompleted();
     }
   }
 
   // Need to move this to a shared class
+  /*
   private ServerInterceptor cpuReturningIntercepter(String cpuValues) {
     return new ServerInterceptor() {
       @Override
@@ -224,7 +242,7 @@ public class RateLimitingCallableTest {
             metadata);
       }
     };
-  }
+  }*/
 
   static class MockMutateInnerCallable
       extends UnaryCallable<MutateRowsRequest, List<MutateRowsResponse>> {
