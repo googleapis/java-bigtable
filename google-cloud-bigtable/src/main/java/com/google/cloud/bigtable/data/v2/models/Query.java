@@ -328,10 +328,10 @@ public final class Query implements Serializable {
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public class QueryPaginator {
 
-    final private long originalLimit;
+    private final long originalLimit;
     private long newLimit;
     private Query query;
-    final private int chunkSize;
+    private final int chunkSize;
     private ByteString prevSplitPoint;
     private boolean firstRun;
 
