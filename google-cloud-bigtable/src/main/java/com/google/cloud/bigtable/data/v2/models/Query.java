@@ -322,6 +322,10 @@ public final class Query implements Serializable {
     return ByteString.copyFromUtf8(key);
   }
 
+  /**
+   * A Query Paginator that will split a query into small chunks. See {@link
+   * Query#createQueryPaginator(int)} for example usage.
+   */
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public class QueryPaginator {
 
@@ -337,10 +341,15 @@ public final class Query implements Serializable {
       this.chunkSize = chunkSize;
     }
 
+    /** Return the next query. Needs to be called after advance(). */
     Query getNextQuery() {
       return query;
     }
 
+    /**
+     * Construct the next query. Return true if there are more queries to return. False if we've
+     * read everything.
+     */
     boolean advance(@Nullable ByteString lastSeenRowKey) {
       if (originalLimit != 0 && newLimit <= 0) {
         return false;

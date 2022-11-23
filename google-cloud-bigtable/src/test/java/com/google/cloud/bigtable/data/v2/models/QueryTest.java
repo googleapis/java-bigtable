@@ -333,7 +333,7 @@ public class QueryTest {
     int chunkSize = 10, limit = 15;
     Query query = Query.create(TABLE_ID).range("a", "z").limit(limit);
     Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
-    paginator.advance(null);
+    assertThat(paginator.advance(null)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -349,7 +349,7 @@ public class QueryTest {
             .setRowsLimit(chunkSize);
     assertThat(nextQuery.toProto(requestContext)).isEqualTo(expectedProto.build());
 
-    paginator.advance(ByteString.copyFromUtf8("c"));
+    assertThat(paginator.advance(ByteString.copyFromUtf8("c"))).isTrue();
     int expectedLimit = limit - chunkSize;
     nextQuery = paginator.getNextQuery();
     expectedProto =
@@ -411,7 +411,7 @@ public class QueryTest {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID).range("a", "z");
     Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
-    paginator.advance(null);
+    assertThat(paginator.advance(null)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -427,7 +427,7 @@ public class QueryTest {
             .setRowsLimit(chunkSize);
     assertThat(nextQuery.toProto(requestContext)).isEqualTo(expectedProto.build());
 
-    paginator.advance(ByteString.copyFromUtf8("c"));
+    assertThat(paginator.advance(ByteString.copyFromUtf8("c"))).isTrue();
     nextQuery = paginator.getNextQuery();
     expectedProto =
         expectedProtoBuilder()
@@ -442,5 +442,36 @@ public class QueryTest {
     assertThat(nextQuery.toProto(requestContext)).isEqualTo(expectedProto.build());
 
     assertThat(paginator.advance(ByteString.copyFromUtf8("z"))).isFalse();
+  }
+
+  @Test
+  public void testQueryPaginatorRowsNoLimit() {
+    int chunkSize = 10;
+    Query query = Query.create(TABLE_ID).rowKey("a").rowKey("b").rowKey("c");
+
+    Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
+    assertThat(paginator.advance(null)).isTrue();
+
+    Query nextQuery = paginator.getNextQuery();
+
+    ReadRowsRequest.Builder expectedProto = expectedProtoBuilder();
+    expectedProto
+        .getRowsBuilder()
+        .addRowKeys(ByteString.copyFromUtf8("a"))
+        .addRowKeys(ByteString.copyFromUtf8("b"))
+        .addRowKeys(ByteString.copyFromUtf8("c"));
+    expectedProto.setRowsLimit(chunkSize);
+
+    assertThat(nextQuery.toProto(requestContext)).isEqualTo(expectedProto.build());
+
+    paginator.advance(ByteString.copyFromUtf8("b"));
+    nextQuery = paginator.getNextQuery();
+    expectedProto = expectedProtoBuilder();
+    expectedProto.getRowsBuilder().addRowKeys(ByteString.copyFromUtf8("c"));
+    expectedProto.setRowsLimit(chunkSize);
+
+    assertThat(nextQuery.toProto(requestContext)).isEqualTo(expectedProto.build());
+
+    assertThat(paginator.advance(ByteString.copyFromUtf8("c"))).isFalse();
   }
 }
