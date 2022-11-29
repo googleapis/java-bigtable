@@ -476,8 +476,7 @@ public class QueryTest {
     Query query = Query.create(TABLE_ID);
     Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
 
-    ReadRowsRequest.Builder expectedProto =
-        expectedProtoBuilder().setRows(RowSet.getDefaultInstance()).setRowsLimit(chunkSize);
+    ReadRowsRequest.Builder expectedProto = expectedProtoBuilder().setRowsLimit(chunkSize);
     assertThat(queryPaginator.getNextQuery().toProto(requestContext))
         .isEqualTo(expectedProto.build());
 
@@ -500,8 +499,7 @@ public class QueryTest {
     Query query = Query.create(TABLE_ID);
     Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
 
-    ReadRowsRequest.Builder expectedProto =
-        expectedProtoBuilder().setRows(RowSet.getDefaultInstance()).setRowsLimit(chunkSize);
+    ReadRowsRequest.Builder expectedProto = expectedProtoBuilder().setRowsLimit(chunkSize);
     assertThat(queryPaginator.getNextQuery().toProto(requestContext))
         .isEqualTo(expectedProto.build());
 

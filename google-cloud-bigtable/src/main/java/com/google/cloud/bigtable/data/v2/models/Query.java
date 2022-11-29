@@ -338,8 +338,11 @@ public final class Query implements Serializable {
       this.hasOverallLimit = query.builder.getRowsLimit() == 0 ? false : true;
       this.remainingRows = query.builder.getRowsLimit();
       this.query = query.limit(pageSize);
+      if (hasOverallLimit) {
+        remainingRows -= pageSize;
+      }
       this.pageSize = pageSize;
-      this.prevSplitPoint = null;
+      this.prevSplitPoint = ByteString.EMPTY;
     }
 
     /** Return the next query. */
