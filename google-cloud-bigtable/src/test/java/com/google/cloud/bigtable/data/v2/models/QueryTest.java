@@ -333,7 +333,6 @@ public class QueryTest {
     int chunkSize = 10, limit = 15;
     Query query = Query.create(TABLE_ID).range("a", "z").limit(limit);
     Query.QueryPaginator paginator = query.createPaginator(chunkSize);
-    assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -372,7 +371,6 @@ public class QueryTest {
     int chunkSize = 10, limit = 20;
     Query query = Query.create(TABLE_ID).range("a", "z").limit(limit);
     Query.QueryPaginator paginator = query.createPaginator(chunkSize);
-    assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -411,7 +409,6 @@ public class QueryTest {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID).range("a", "z");
     Query.QueryPaginator paginator = query.createPaginator(chunkSize);
-    assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -449,7 +446,6 @@ public class QueryTest {
     Query query = Query.create(TABLE_ID).rowKey("a").rowKey("b").rowKey("c");
 
     Query.QueryPaginator paginator = query.createPaginator(chunkSize);
-    assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
 
@@ -479,7 +475,6 @@ public class QueryTest {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID);
     Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
-    assertThat(queryPaginator.advance(ByteString.EMPTY)).isTrue();
 
     ReadRowsRequest.Builder expectedProto =
         expectedProtoBuilder().setRows(RowSet.getDefaultInstance()).setRowsLimit(chunkSize);
@@ -504,7 +499,6 @@ public class QueryTest {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID);
     Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
-    assertThat(queryPaginator.advance(ByteString.EMPTY)).isTrue();
 
     ReadRowsRequest.Builder expectedProto =
         expectedProtoBuilder().setRows(RowSet.getDefaultInstance()).setRowsLimit(chunkSize);

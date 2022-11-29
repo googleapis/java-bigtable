@@ -258,13 +258,13 @@ public final class Query implements Serializable {
    * Query query = Query.create(...).range("a", "z");
    * Query.QueryPaginator paginator = query.createQueryPaginator(100);
    * ByteString lastSeenRowKey = ByteString.EMPTY;
-   * while (paginator.advance(lastSeenRowKey)) {
+   * do {
    *     List<Row> rows = client.readRowsCallable().all().call(paginator.getNextQuery());
    *     for (Row row : rows) {
    *        // do some processing
    *        lastSeenRow = row;
    *     }
-   * }
+   * } while (paginator.advance(lastSeenRowKey));
    * }</pre>
    */
   @BetaApi("This surface is stable yet it might be removed in the future.")
@@ -337,12 +337,12 @@ public final class Query implements Serializable {
     QueryPaginator(@Nonnull Query query, int pageSize) {
       this.hasOverallLimit = query.builder.getRowsLimit() == 0 ? false : true;
       this.remainingRows = query.builder.getRowsLimit();
-      this.query = query;
+      this.query = query.limit(pageSize);
       this.pageSize = pageSize;
       this.prevSplitPoint = null;
     }
 
-    /** Return the next query. Needs to be called after advance(). */
+    /** Return the next query. */
     public Query getNextQuery() {
       return query;
     }
@@ -354,8 +354,9 @@ public final class Query implements Serializable {
     public boolean advance(@Nonnull ByteString lastSeenRowKey) {
       Preconditions.checkNotNull(
           lastSeenRowKey, "lastSeenRowKey cannot be null, use ByteString.EMPTY instead.");
-      // Full table scans don't have ranges or limits. Keep track of the previous split
-      // point. If it's the same as the current input return false.
+      // Full table scans don't have ranges or limits. Running the query again will return an empty
+      // list when we reach the end of the table. lastSeenRowKey won't be updated in this case, and
+      // we can break out of the loop.
       if (lastSeenRowKey.equals(prevSplitPoint)) {
         return false;
       }
