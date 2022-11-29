@@ -332,7 +332,7 @@ public class QueryTest {
   public void testQueryPaginatorRangeLimitReached() {
     int chunkSize = 10, limit = 15;
     Query query = Query.create(TABLE_ID).range("a", "z").limit(limit);
-    Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator paginator = query.createPaginator(chunkSize);
     assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
@@ -371,7 +371,7 @@ public class QueryTest {
   public void testQueryPaginatorRangeLimitMultiplyOfChunkSize() {
     int chunkSize = 10, limit = 20;
     Query query = Query.create(TABLE_ID).range("a", "z").limit(limit);
-    Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator paginator = query.createPaginator(chunkSize);
     assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
@@ -410,7 +410,7 @@ public class QueryTest {
   public void testQueryPaginatorRagneNoLimit() {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID).range("a", "z");
-    Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator paginator = query.createPaginator(chunkSize);
     assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
@@ -448,7 +448,7 @@ public class QueryTest {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID).rowKey("a").rowKey("b").rowKey("c");
 
-    Query.QueryPaginator paginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator paginator = query.createPaginator(chunkSize);
     assertThat(paginator.advance(ByteString.EMPTY)).isTrue();
 
     Query nextQuery = paginator.getNextQuery();
@@ -478,7 +478,7 @@ public class QueryTest {
   public void testQueryPaginatorFullTableScan() {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID);
-    Query.QueryPaginator queryPaginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
     assertThat(queryPaginator.advance(ByteString.EMPTY)).isTrue();
 
     ReadRowsRequest.Builder expectedProto =
@@ -503,7 +503,7 @@ public class QueryTest {
   public void testQueryPaginatorEmptyTable() {
     int chunkSize = 10;
     Query query = Query.create(TABLE_ID);
-    Query.QueryPaginator queryPaginator = query.createQueryPaginator(chunkSize);
+    Query.QueryPaginator queryPaginator = query.createPaginator(chunkSize);
     assertThat(queryPaginator.advance(ByteString.EMPTY)).isTrue();
 
     ReadRowsRequest.Builder expectedProto =

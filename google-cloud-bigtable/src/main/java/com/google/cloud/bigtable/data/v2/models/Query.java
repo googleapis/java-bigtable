@@ -268,8 +268,8 @@ public final class Query implements Serializable {
    * }</pre>
    */
   @BetaApi("This surface is stable yet it might be removed in the future.")
-  public QueryPaginator createQueryPaginator(int chunkSize) {
-    return new QueryPaginator(this, chunkSize);
+  public QueryPaginator createPaginator(int pageSize) {
+    return new QueryPaginator(this, pageSize);
   }
 
   /** Get the minimal range that encloses all of the row keys and ranges in this Query. */
@@ -323,29 +323,27 @@ public final class Query implements Serializable {
 
   /**
    * A Query Paginator that will split a query into small chunks. See {@link
-   * Query#createQueryPaginator(int)} for example usage.
+   * Query#createPaginator(int)} for example usage.
    */
   @BetaApi("This surface is stable yet it might be removed in the future.")
-  public class QueryPaginator {
+  public static class QueryPaginator {
 
-    private final long originalLimit;
-    private long newLimit;
+    private final boolean hasOverallLimit;
+    private long remainingRows;
     private Query query;
-    private final int chunkSize;
+    private final int pageSize;
     private ByteString prevSplitPoint;
-    private boolean firstRun;
 
-    QueryPaginator(@Nonnull Query query, int chunkSize) {
-      this.originalLimit = query.builder.getRowsLimit();
-      this.newLimit = query.builder.getRowsLimit();
+    QueryPaginator(@Nonnull Query query, int pageSize) {
+      this.hasOverallLimit = query.builder.getRowsLimit() == 0 ? false : true;
+      this.remainingRows = query.builder.getRowsLimit();
       this.query = query;
-      this.chunkSize = chunkSize;
-      this.prevSplitPoint = ByteString.EMPTY;
-      this.firstRun = true;
+      this.pageSize = pageSize;
+      this.prevSplitPoint = null;
     }
 
     /** Return the next query. Needs to be called after advance(). */
-    Query getNextQuery() {
+    public Query getNextQuery() {
       return query;
     }
 
@@ -353,30 +351,26 @@ public final class Query implements Serializable {
      * Construct the next query. Return true if there are more queries to return. False if we've
      * read everything.
      */
-    boolean advance(@Nonnull ByteString lastSeenRowKey) {
-      Preconditions.checkArgument(
-          lastSeenRowKey != null, "lastSeenRowKey cannot be null, use ByteString.EMPTY instead.");
+    public boolean advance(@Nonnull ByteString lastSeenRowKey) {
+      Preconditions.checkNotNull(
+          lastSeenRowKey, "lastSeenRowKey cannot be null, use ByteString.EMPTY instead.");
       // Full table scans don't have ranges or limits. Keep track of the previous split
-      // point. If it's the same as the current input return false. The only exception
-      // is the first run for this paginator. So keep track of the first run state too.
-      if (!firstRun && prevSplitPoint.equals(lastSeenRowKey)) {
+      // point. If it's the same as the current input return false.
+      if (lastSeenRowKey.equals(prevSplitPoint)) {
         return false;
-      }
-      if (firstRun) {
-        firstRun = false;
       }
       this.prevSplitPoint = lastSeenRowKey;
 
       // Set the query limit. If the original limit is set, return false if the new
       // limit is <= 0 to avoid returning more rows than intended.
-      if (originalLimit != 0 && newLimit <= 0) {
+      if (hasOverallLimit && remainingRows <= 0) {
         return false;
       }
-      if (originalLimit != 0) {
-        query.limit(Math.min(this.chunkSize, newLimit));
-        newLimit -= chunkSize;
+      if (hasOverallLimit) {
+        query.limit(Math.min(this.pageSize, remainingRows));
+        remainingRows -= pageSize;
       } else {
-        query.limit(chunkSize);
+        query.limit(pageSize);
       }
 
       // Split the row ranges / row keys. Return false if there's nothing
