@@ -335,7 +335,7 @@ public final class Query implements Serializable {
     private ByteString prevSplitPoint;
 
     QueryPaginator(@Nonnull Query query, int pageSize) {
-      this.hasOverallLimit = query.builder.getRowsLimit() == 0 ? false : true;
+      this.hasOverallLimit = query.builder.getRowsLimit() > 0;
       this.remainingRows = query.builder.getRowsLimit();
       this.query = query.limit(pageSize);
       if (hasOverallLimit) {
