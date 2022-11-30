@@ -25,7 +25,11 @@ import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
+import com.google.api.gax.rpc.InternalException;
+import com.google.api.gax.rpc.ResourceExhaustedException;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.api.gax.rpc.UnavailableException;
+import com.google.api.gax.rpc.UnknownException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
@@ -48,6 +52,7 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
+import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
@@ -105,12 +110,13 @@ public class RateLimtingCallableRetryTest {
         new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
             "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
         GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
-        false));
-    FakeServiceLowCpu.expectations.add(new DeadlineExceededException(
-        new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
-            "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
-        GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
-        false));
+        true));
+    FakeServiceLowCpu.expectations.add(new UnavailableException( // Is this exceptation causing issues? Which error should be used here?
+        new StatusRuntimeException(Status.UNAVAILABLE.withDescription(
+            "UNAVAILABLE: HTTP/2 error code: UNABAILABLE")),
+        GrpcStatusCode.of(Code.UNAVAILABLE),
+        true));
+    //FakeServiceLowCpu.expectations.add(new Exception());
 
     highCPUServerRetry = FakeServiceBuilder.create(FakeServiceHighCpu).start();
     lowCPUServerRetry = FakeServiceBuilder.create(FakeServiceLowCpu).start();
@@ -131,9 +137,6 @@ public class RateLimtingCallableRetryTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
-    // Fix naming
-    EnhancedBigtableStubSettings lowCPUStubSettings = lowCPUSettings.getStubSettings();
-    EnhancedBigtableStubSettings highCPUStubSettings = highCPUSettings.getStubSettings();
     lowCpuStubRetry = new EnhancedBigtableStub(lowCPUSettings.getStubSettings(), ClientContext.create(lowCPUSettings.getStubSettings()), mockLimitingStats);
     highCpuStubRetry = new EnhancedBigtableStub(highCPUSettings.getStubSettings(), ClientContext.create(highCPUSettings.getStubSettings()), mockLimitingStats);
   }
@@ -147,7 +150,7 @@ public class RateLimtingCallableRetryTest {
   }
 
   @Test
-  public void testBulkMutateRowsRetryWithNoChangeInRateLimiting()
+  public void testBulkMutateRowsRetryWithNoChangeInRateLimiting() // Change name to retriable error
       throws ExecutionException, InterruptedException {
 
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
@@ -163,8 +166,8 @@ public class RateLimtingCallableRetryTest {
 
     future.get();
 
-    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals(rate.getValue(), (Double)10000.0);
+    Mockito.verify(mockLimitingStats, Mockito.times(1)).updateQps(rate.capture());
+    Assert.assertEquals((Double)10000.0, rate.getValue());
   }
 
   @Test
@@ -179,7 +182,7 @@ public class RateLimtingCallableRetryTest {
     future.get();
 
     Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals(rate.getValue(), (Double)606.0); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
+    Assert.assertEquals((Double)126.0, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
   }
 
   // Add a test that updates QPS after enough time has passed
