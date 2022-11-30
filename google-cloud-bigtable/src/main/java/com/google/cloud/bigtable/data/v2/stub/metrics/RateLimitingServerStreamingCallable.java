@@ -104,6 +104,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       // What process do we need to get this proto?
 
 
+      // Can I move this code out to avoid duplication?
       double[] cpus = Util.getCpuList(mutateResponse);
 
 
@@ -138,6 +139,35 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
     @Override
     protected void onErrorImpl(Throwable t) {
       System.out.println("ERROR");
+      System.out.println(t.getCause());
+      System.out.println(t.getCause().getLocalizedMessage()); // Where will the DEADLINE_EXCEED code be?
+      String returnedStatus = Util.extractStatus(t);
+      // Util class in metric
+      // Get status code similar to returnedStatus
+      if (returnedStatus.compareTo("DEADLINE_EXCEEDED") == 0) { // What other errors do we want checked?
+        System.out.println("Contains DEADLINE!");
+
+        // If deadlines are being reached, assume backend is overloaded
+        double newQps = Util.calculateQpsChange(new double[]{99.0}, 70, limiter.getRate());
+
+        // This if statement is going to change because we want to downscale to the lowest value
+        if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
+          System.out.println("Calculated QPS is not within bounds"); // Going to change
+          outerObserver.onError(t);
+          return;
+        }
+
+        // Ensure enough time has passed since updates to QPS
+        long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastQpsUpdateTime < minimumTimeBetweenUpdates) {
+          outerObserver.onError(t);
+          return;
+        }
+        limiter.setRate(newQps);
+        stats.updateLastQpsUpdateTime(System.currentTimeMillis());
+        stats.updateQps(newQps);
+      }
       outerObserver.onError(t);
     }
 
