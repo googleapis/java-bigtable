@@ -292,7 +292,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
     mutateRowCallable = createMutateRowCallable();
-    bulkMutateRowsCallable = createBulkMutateRowsCallable(rateLimitingStats);
+    bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
     pingAndWarmCallable = createPingAndWarmCallable();
@@ -747,56 +747,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.bulkMutateRowsSettings().getRetryableCodes());
   }
 
-  public UnaryCallable<MutateRowsRequest, Void> createMutateRowsBaseCallableWithLimiter(
-      RateLimitingStats stats) {
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> base =
-        GrpcRawCallableFactory.createServerStreamingCallable(
-            GrpcCallSettings.<MutateRowsRequest, MutateRowsResponse>newBuilder()
-                .setMethodDescriptor(BigtableGrpc.getMutateRowsMethod())
-                .setParamsExtractor(
-                    new RequestParamsExtractor<MutateRowsRequest>() {
-                      @Override
-                      public Map<String, String> extract(MutateRowsRequest mutateRowsRequest) {
-                        return ImmutableMap.of(
-                            "table_name", mutateRowsRequest.getTableName(),
-                            "app_profile_id", mutateRowsRequest.getAppProfileId());
-                      }
-                    })
-                .build(),
-            settings.bulkMutateRowsSettings().getRetryableCodes());
-
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
-        new StatsHeadersServerStreamingCallable<>(base);
-
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingSteamingCallable = null;
-    // There is still that error with retries that I need to look at tomorrow in the morning
-    //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
-    cpuThrottlingSteamingCallable =
-        new RateLimitingServerStreamingCallable(withStatsHeaders, stats);
-    //}
-
-    // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
-    // and
-    // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
-    // which by default is not retryable. Convert the exception so it can be retried in the client.
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
-        new ConvertExceptionCallable<>(cpuThrottlingSteamingCallable != null ? cpuThrottlingSteamingCallable : withStatsHeaders);
-
-    RetryAlgorithm<Void> retryAlgorithm =
-        new RetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<Void>(),
-            new ExponentialRetryAlgorithm(
-                settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
-    RetryingExecutorWithContext<Void> retryingExecutor =
-        new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
-
-    return new MutateRowsRetryingCallable(
-        clientContext.getDefaultCallContext(),
-        convertException,
-        retryingExecutor,
-        settings.bulkMutateRowsSettings().getRetryableCodes());
-  }
-
   /**
    * Creates a callable chain to handle CheckAndMutateRow RPCs. THe chain will:
    *
@@ -938,36 +888,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable() {
     return bulkMutateRowsCallable;
-  }
-
-  private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable(RateLimitingStats rateLimitingStats) {
-    UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallableWithLimiter(rateLimitingStats);
-
-    UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
-    if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
-      flowControlCallable =
-          new DynamicFlowControlCallable(
-              baseCallable,
-              bulkMutationFlowController,
-              bulkMutationDynamicFlowControlStats,
-              settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
-              FLOW_CONTROL_ADJUSTING_INTERVAL_MS);
-    }
-    UnaryCallable<BulkMutation, Void> userFacing =
-        new BulkMutateRowsUserFacingCallable(
-            flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
-
-    SpanName spanName = getSpanName("MutateRows");
-
-    UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
-        new TracedBatcherUnaryCallable<>(userFacing);
-
-    UnaryCallable<BulkMutation, Void> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcherUnaryCallable);
-    UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
-
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
