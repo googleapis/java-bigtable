@@ -28,7 +28,6 @@ import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
-import com.google.bigtable.v2.MutateRowsResponse.Entry;
 import com.google.bigtable.v2.ServerStats;
 import com.google.bigtable.v2.ServerStats.ServerCPUStats;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -37,19 +36,12 @@ import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingStats;
+import com.google.cloud.bigtable.data.v2.stub.RateLimitingStats;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
-import io.grpc.ForwardingServerCall;
-import io.grpc.Metadata;
 import io.grpc.Server;
-import io.grpc.ServerCall;
-import io.grpc.ServerCallHandler;
-import io.grpc.ServerInterceptor;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Assert;
@@ -59,7 +51,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -174,7 +165,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)875.0, rate.getValue()); // Make default value
+    Assert.assertEquals((Double)0.1, rate.getValue()); // Make default value
   }
 
   // Add bound tests (upper and lower)

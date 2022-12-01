@@ -54,10 +54,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    if (context.getOption(Util.GRPC_METADATA) == null) {
-      context = context.withOption(Util.GRPC_METADATA, new GrpcResponseMetadata());
-    }
-    final GrpcResponseMetadata responseMetadata = context.getOption(Util.GRPC_METADATA);
+    final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
     // tracer should always be an instance of bigtable tracer
     if (context.getTracer() instanceof BigtableTracer) {
       BigtableTracerResponseObserver<ResponseT> innerObserver =
