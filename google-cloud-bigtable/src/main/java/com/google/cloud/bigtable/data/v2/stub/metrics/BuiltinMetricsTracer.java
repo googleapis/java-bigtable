@@ -144,6 +144,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void attemptPermanentFailure(Throwable throwable) {
+    recordAttemptCompletion(throwable);
+  }
+
+  @Override
   public void onRequest(int requestCount) {
     requestLeft.accumulateAndGet(requestCount, IntMath::saturatedAdd);
     if (flowControlIsDisabled) {
@@ -232,7 +237,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
     operationTimer.stop();
     long operationLatency = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
-    recorder.putRetryCount(attemptCount - 1);
+    // Only record when retry count is greater than 0 so the retry
+    // graph will be less confusing
+    if (attemptCount > 1) {
+      recorder.putRetryCount(attemptCount - 1);
+    }
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
     recorder.putOperationLatencies(operationLatency);
