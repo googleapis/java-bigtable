@@ -219,6 +219,8 @@ public class BigtableTableAdminClientTests {
 
     com.google.bigtable.admin.v2.CreateTableRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
+            .setTable(
+                com.google.bigtable.admin.v2.Table.newBuilder().setDeletionProtection(true).build())
             .setParent(INSTANCE_NAME)
             .setTableId(TABLE_ID)
             .build();
@@ -230,7 +232,8 @@ public class BigtableTableAdminClientTests {
         .thenReturn(ApiFutures.immediateFuture(expectedResponse));
 
     // Execute
-    Table result = adminClient.createTable(CreateTableRequest.of(TABLE_ID));
+    Table result =
+        adminClient.createTable(CreateTableRequest.of(TABLE_ID).setDeletionProtection(true));
 
     // Verify
     assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
