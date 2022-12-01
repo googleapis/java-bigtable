@@ -513,6 +513,9 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
     }
 
+    /**
+     * Enable Cpu based throttling for BulkMutate requests.
+     */
     @BetaApi("Cpu based throttling is not currently stable and may change in the future")
     public Builder enableBatchMutationCpuBasedThrottling() {
       stubSettings.bulkMutateRowsSettings().enableCpuBasedThrottling();
@@ -529,7 +532,7 @@ public final class BigtableDataSettings {
     }
 
     /**
-     * Gets if Cpu based throttling is enabled for BulkMutate Requests (Will change to javadocs)
+     * Gets if Cpu based throttling is enabled for BulkMutate Requests
      */
     @BetaApi("Cpu based throttling is not currently stable and may change in the future")
     public boolean isCpuBasedThrottlingForBatchMutationEnabled() {
