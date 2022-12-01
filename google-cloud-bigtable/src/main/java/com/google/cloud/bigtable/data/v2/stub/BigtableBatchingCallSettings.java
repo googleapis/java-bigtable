@@ -233,13 +233,13 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     }
 
     /** Enable cpu based throttling. */
-    public Builder enableCpuBasedThrottling() { // Option to set here
+    public Builder enableCpuBasedThrottling() {
       this.isCpuBasedThrottlingEnabled = true;
       return this;
     }
 
     /** Disable cpu based throttling. */
-    public Builder disableCpuBasedThrottling() { // Option to set here
+    public Builder disableCpuBasedThrottling() {
       this.isCpuBasedThrottlingEnabled = false;
       return this;
     }

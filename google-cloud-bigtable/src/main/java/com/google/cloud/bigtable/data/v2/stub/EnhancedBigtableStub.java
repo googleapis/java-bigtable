@@ -272,29 +272,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
-    this.settings = settings;
-    this.clientContext = clientContext;
-    this.requestContext =
-        RequestContext.create(
-            settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
-    this.bulkMutationFlowController =
-        new FlowController(settings.bulkMutateRowsSettings().getDynamicFlowControlSettings());
-    this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
-    this.rateLimitingStats = new RateLimitingStats();
-
-    readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
-    readRowCallable = createReadRowCallable(new DefaultRowAdapter());
-    bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
-    sampleRowKeysCallable = createSampleRowKeysCallable();
-    mutateRowCallable = createMutateRowCallable();
-    bulkMutateRowsCallable = createBulkMutateRowsCallable();
-    checkAndMutateRowCallable = createCheckAndMutateRowCallable();
-    readModifyWriteRowCallable = createReadModifyWriteRowCallable();
-    pingAndWarmCallable = createPingAndWarmCallable();
+    this(settings, clientContext, new RateLimitingStats());
   }
 
   @VisibleForTesting
-  public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext, RateLimitingStats rateLimitingStats) {
+  EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext, RateLimitingStats rateLimitingStats) {
     this.settings = settings;
     this.clientContext = clientContext;
     this.requestContext =
@@ -737,7 +719,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new StatsHeadersServerStreamingCallable<>(base);
 
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingSteamingCallable = null;
-    // There is still that error with retries that I need to look at tomorrow in the morning
+
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
       cpuThrottlingSteamingCallable =
           new RateLimitingServerStreamingCallable<>(withStatsHeaders, rateLimitingStats);
