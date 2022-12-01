@@ -226,7 +226,10 @@ public class BigtableTableAdminClientTests {
             .build();
 
     com.google.bigtable.admin.v2.Table expectedResponse =
-        com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build();
+        com.google.bigtable.admin.v2.Table.newBuilder()
+            .setName(TABLE_NAME)
+            .setDeletionProtection(true)
+            .build();
 
     Mockito.when(mockCreateTableCallable.futureCall(expectedRequest))
         .thenReturn(ApiFutures.immediateFuture(expectedResponse));
