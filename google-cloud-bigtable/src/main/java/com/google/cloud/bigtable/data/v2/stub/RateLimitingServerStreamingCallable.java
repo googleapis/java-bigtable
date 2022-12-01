@@ -82,7 +82,7 @@ public class RateLimitingServerStreamingCallable
 
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
-        newQps = RateLimitingStats.calculateQpsChange(cpus, 70, limiter.getRate());
+        newQps = stats.calculateQpsChange(cpus, 70, limiter.getRate());
         // I need to change this
         if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
           System.out.println("Calculated QPS is not within bounds"); // Going to change

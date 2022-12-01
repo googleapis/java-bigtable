@@ -62,9 +62,6 @@ public class RateLimitingCallableTest {
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
 
-  private static final String FAKE_LOW_CPU_VALUES = "40.1,10.1,36.2";
-  private static final String FAKE_HIGH_CPU_VALUES = "90.1,80.1,76.2";
-
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
