@@ -63,9 +63,6 @@ public class Util {
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
-
-  static final double PERCENT_CHANGE_LIMIT = .15;
-
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
     final String statusString;
