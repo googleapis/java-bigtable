@@ -722,7 +722,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
       cpuThrottlingSteamingCallable =
-          new RateLimitingServerStreamingCallable<>(withStatsHeaders, rateLimitingStats);
+          new RateLimitingServerStreamingCallable(withStatsHeaders, rateLimitingStats);
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
@@ -772,7 +772,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // There is still that error with retries that I need to look at tomorrow in the morning
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
     cpuThrottlingSteamingCallable =
-        new RateLimitingServerStreamingCallable<>(withStatsHeaders, stats);
+        new RateLimitingServerStreamingCallable(withStatsHeaders, stats);
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
