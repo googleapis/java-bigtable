@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.metrics;
+package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
+import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ServerStats;
-import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
-import io.grpc.Metadata;
-import java.time.Instant;
+import io.grpc.StatusRuntimeException;
 import javax.annotation.Nonnull;
 
 public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
@@ -34,18 +32,9 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
   private final static long DEFAULT_QPS = 10_000;
   private final static long minimumTimeBetweenUpdates = 60_000;
 
-  private RateLimiter limiter; // Capture .setRate() and pass in mocked RateLimiter
+  private RateLimiter limiter;
   private RateLimitingStats stats;
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
-
-  public RateLimitingServerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
-    limiter =  RateLimiter.create(DEFAULT_QPS);
-    stats = new RateLimitingStats();
-    this.innerCallable = Preconditions.checkNotNull(
-        innerCallable, "Inner callable must be set");
-
-  }
 
   public RateLimitingServerStreamingCallable(
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable, RateLimitingStats stats) {
@@ -58,31 +47,24 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    //if (context.getOption(Util.GRPC_METADATA) == null) { // get metadata?
-    //  context = context.withOption(Util.GRPC_METADATA, new GrpcResponseMetadata());
-    //}
-    //final GrpcResponseMetadata responseMetadata = context.getOption(Util.GRPC_METADATA);
-    //final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
-
+    // Add response handling?
+    // Add feature flag bitmap here?
     limiter.acquire();
     CpuMetadataResponseObserver<ResponseT> innerObserver =
         new CpuMetadataResponseObserver<>(responseObserver);
 
     innerCallable.call(request, innerObserver, context);
-    //ApiFutures.addCallback(future, new CpuThrottlingUnaryCallback<>(responseMetadata), MoreExecutors.directExecutor());
   }
 
   private class CpuMetadataResponseObserver<ResponseT> extends SafeResponseObserver<ResponseT> {
 
     private final ResponseObserver<ResponseT> outerObserver;
-    //private final GrpcResponseMetadata responseMetadata;
 
     CpuMetadataResponseObserver(
         ResponseObserver<ResponseT> observer) {
       super(observer);
 
       this.outerObserver = observer;
-      //this.responseMetadata = metadata;
     }
 
     @Override
@@ -96,21 +78,12 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
       MutateRowsResponse mutateResponse = (MutateRowsResponse) response; // cast-safe?
       ServerStats serverStats = mutateResponse.getServerStats();
 
-
-      System.out.println(serverStats.getCpuStatsCount());
-      // Where will I check the onError or onComplete?
-      System.out.println(mutateResponse.getEntriesList().toString()); // I don't know if I need to handle errors and retries differently?
-      // Weihan added the change to the proto
-      // What process do we need to get this proto?
-
-
-      // Can I move this code out to avoid duplication?
-      double[] cpus = Util.getCpuList(mutateResponse);
-
+      double[] cpus = RateLimitingStats.getCpuList(mutateResponse);
 
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
-        newQps = Util.calculateQpsChange(cpus, 70, limiter.getRate());
+        newQps = RateLimitingStats.calculateQpsChange(cpus, 70, limiter.getRate());
+        // I need to change this
         if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
           System.out.println("Calculated QPS is not within bounds"); // Going to change
           outerObserver.onResponse(response);
@@ -126,29 +99,18 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
         return;
       }
       limiter.setRate(newQps);
-      stats.updateLastQpsUpdateTime(System.currentTimeMillis());
+      stats.updateLastQpsUpdateTime(currentTime);
       stats.updateQps(newQps);
 
       outerObserver.onResponse(response);
-      // Handle the MutateRowsResponse inside of here
-      // Change implementation from onError and onComplete to be here
-      // How am I suppose to handle failed or onError cases?
-      //
     }
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      System.out.println("ERROR");
-      System.out.println(t.getCause());
-      System.out.println(t.getCause().getLocalizedMessage()); // Where will the DEADLINE_EXCEED code be?
-      String returnedStatus = Util.extractStatus(t);
-      // Util class in metric
-      // Get status code similar to returnedStatus
-      if (returnedStatus.compareTo("DEADLINE_EXCEEDED") == 0) { // What other errors do we want checked?
-        System.out.println("Contains DEADLINE!");
+      if (t instanceof DeadlineExceededException) {
 
-        // If deadlines are being reached, assume backend is overloaded
-        double newQps = Util.calculateQpsChange(new double[]{99.0}, 70, limiter.getRate());
+        // If deadlines are being reached, assume cbt server is overloaded
+        double newQps = RateLimitingStats.calculateQpsChange(new double[]{99.9}, 70, limiter.getRate());
 
         // This if statement is going to change because we want to downscale to the lowest value
         if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
@@ -165,7 +127,7 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
           return;
         }
         limiter.setRate(newQps);
-        stats.updateLastQpsUpdateTime(System.currentTimeMillis());
+        stats.updateLastQpsUpdateTime(currentTime);
         stats.updateQps(newQps);
       }
       outerObserver.onError(t);
@@ -173,7 +135,6 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
 
     @Override
     protected void onCompleteImpl() {
-      System.out.println("Callable Complete");
       outerObserver.onComplete();
     }
   }

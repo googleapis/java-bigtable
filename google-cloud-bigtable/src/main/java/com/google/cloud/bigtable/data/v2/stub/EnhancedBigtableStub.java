@@ -77,8 +77,6 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallabl
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingServerStreamingCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingStats;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
@@ -99,7 +97,6 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.RateLimiter;
 import com.google.protobuf.ByteString;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -743,7 +740,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // There is still that error with retries that I need to look at tomorrow in the morning
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
       cpuThrottlingSteamingCallable =
-          new RateLimitingServerStreamingCallable<>(withStatsHeaders);
+          new RateLimitingServerStreamingCallable<>(withStatsHeaders, rateLimitingStats);
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient

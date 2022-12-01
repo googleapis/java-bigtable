@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.google.api.core.ApiFuture;
@@ -25,15 +24,11 @@ import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
-import com.google.api.gax.rpc.InternalException;
-import com.google.api.gax.rpc.ResourceExhaustedException;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.rpc.UnavailableException;
-import com.google.api.gax.rpc.UnknownException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
-import com.google.bigtable.v2.MutateRowsResponse.Entry;
 import com.google.bigtable.v2.ServerStats;
 import com.google.bigtable.v2.ServerStats.ServerCPUStats;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -41,8 +36,7 @@ import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
-import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.metrics.RateLimitingStats;
+import com.google.cloud.bigtable.data.v2.stub.RateLimitingStats;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import io.grpc.ForwardingServerCall;
@@ -55,7 +49,6 @@ import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -102,7 +95,7 @@ public class RateLimtingCallableRetryTest {
     //statsArgumentCaptor = ArgumentCaptor.forClass(CpuThrottlingStats.class);
     //innerCallable = new MockMutateInnerCallable();
     callContext = GrpcCallContext.createDefault();
-    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(/*System.currentTimeMillis() - */100L); // I may need to mock this in a better way
     when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
     when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
 
@@ -182,7 +175,7 @@ public class RateLimtingCallableRetryTest {
     future.get();
 
     Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals((Double)126.0, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
+    Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
   }
 
   // Add a test that updates QPS after enough time has passed
@@ -192,7 +185,6 @@ public class RateLimtingCallableRetryTest {
     Queue<Exception> expectations = Queues.newArrayDeque();
     boolean highCPU;
 
-    // I need to add a constructor here to seperate the MutateRowsResponse from returning large or low cpu values
     FakeService(boolean highCPU) {
       this.highCPU = highCPU;
     }
