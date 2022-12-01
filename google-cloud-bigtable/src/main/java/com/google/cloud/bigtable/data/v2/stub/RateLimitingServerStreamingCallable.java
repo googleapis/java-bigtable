@@ -18,26 +18,26 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.ResponseObserver;
+import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ServerStats;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
-import io.grpc.StatusRuntimeException;
 import javax.annotation.Nonnull;
 
-public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
-    extends ServerStreamingCallable<RequestT, ResponseT> {
+public class RateLimitingServerStreamingCallable
+    extends ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> {
   private final static long DEFAULT_QPS = 10_000;
   private final static long minimumTimeBetweenUpdates = 60_000;
 
   private RateLimiter limiter;
   private RateLimitingStats stats;
-  private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
+  private final ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable;
 
   public RateLimitingServerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> innerCallable, RateLimitingStats stats) {
+      @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable, RateLimitingStats stats) {
     this.limiter =  RateLimiter.create(DEFAULT_QPS);
     this.stats = stats;
     this.innerCallable = Preconditions.checkNotNull(
@@ -46,22 +46,22 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
   }
   @Override
   public void call(
-      RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
+      MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
     // Add response handling?
     // Add feature flag bitmap here?
     limiter.acquire();
-    CpuMetadataResponseObserver<ResponseT> innerObserver =
-        new CpuMetadataResponseObserver<>(responseObserver);
+    CpuMetadataResponseObserver innerObserver =
+        new CpuMetadataResponseObserver(responseObserver);
 
     innerCallable.call(request, innerObserver, context);
   }
 
-  private class CpuMetadataResponseObserver<ResponseT> extends SafeResponseObserver<ResponseT> {
+  private class CpuMetadataResponseObserver extends SafeResponseObserver<MutateRowsResponse> {
 
-    private final ResponseObserver<ResponseT> outerObserver;
+    private final ResponseObserver<MutateRowsResponse> outerObserver;
 
     CpuMetadataResponseObserver(
-        ResponseObserver<ResponseT> observer) {
+        ResponseObserver<MutateRowsResponse> observer) {
       super(observer);
 
       this.outerObserver = observer;
@@ -73,12 +73,12 @@ public class RateLimitingServerStreamingCallable<RequestT, ResponseT>
     }
 
     @Override
-    protected void onResponseImpl(ResponseT response) { // response is right here...
+    protected void onResponseImpl(MutateRowsResponse response) {
       System.out.println("On Response");
-      MutateRowsResponse mutateResponse = (MutateRowsResponse) response; // cast-safe?
-      ServerStats serverStats = mutateResponse.getServerStats();
+      ServerStats serverStats = response.getServerStats();
 
-      double[] cpus = RateLimitingStats.getCpuList(mutateResponse);
+
+      double[] cpus = RateLimitingStats.getCpuList(response);
 
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
