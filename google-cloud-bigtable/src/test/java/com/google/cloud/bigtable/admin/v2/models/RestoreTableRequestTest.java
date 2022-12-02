@@ -91,6 +91,22 @@ public class RestoreTableRequestTest {
   }
 
   @Test
+  public void testEqualityCrossInstance() {
+    RestoreTableRequest request =
+        RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID);
+
+    assertThat(request)
+        .isEqualTo(
+            RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID));
+    assertThat(request)
+        .isNotEqualTo(RestoreTableRequest.of(CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID));
+    assertThat(request)
+        .isNotEqualTo(
+            RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID)
+                .setTableId("another-table"));
+  }
+
+  @Test
   public void testEqualityCrossProject() {
     RestoreTableRequest request =
         RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID, SOURCE_PROJECT_ID)
@@ -105,22 +121,6 @@ public class RestoreTableRequestTest {
     assertThat(request)
         .isNotEqualTo(
             RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID, SOURCE_PROJECT_ID)
-                .setTableId("another-table"));
-  }
-
-  @Test
-  public void testEqualityCrossInstance() {
-    RestoreTableRequest request =
-        RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID);
-
-    assertThat(request)
-        .isEqualTo(
-            RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID));
-    assertThat(request)
-        .isNotEqualTo(RestoreTableRequest.of(CLUSTER_ID, BACKUP_ID).setTableId(TABLE_ID));
-    assertThat(request)
-        .isNotEqualTo(
-            RestoreTableRequest.of(SOURCE_INSTANCE_ID, CLUSTER_ID, BACKUP_ID)
                 .setTableId("another-table"));
   }
 
