@@ -107,7 +107,11 @@ public final class RestoreTableRequest {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        requestBuilder.getTableId(), sourceInstanceId, sourceClusterId, sourceBackupId, sourceProjectId);
+        requestBuilder.getTableId(),
+        sourceInstanceId,
+        sourceClusterId,
+        sourceBackupId,
+        sourceProjectId);
   }
 
   @InternalApi
