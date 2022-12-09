@@ -54,114 +54,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     return this.unknownFields;
   }
 
-  private Table(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    int mutable_bitField0_ = 0;
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              name_ = s;
-              break;
-            }
-          case 18:
-            {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                clusterStates_ =
-                    com.google.protobuf.MapField.newMapField(
-                        ClusterStatesDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000001;
-              }
-              com.google.protobuf.MapEntry<
-                      java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState>
-                  clusterStates__ =
-                      input.readMessage(
-                          ClusterStatesDefaultEntryHolder.defaultEntry.getParserForType(),
-                          extensionRegistry);
-              clusterStates_
-                  .getMutableMap()
-                  .put(clusterStates__.getKey(), clusterStates__.getValue());
-              break;
-            }
-          case 26:
-            {
-              if (!((mutable_bitField0_ & 0x00000002) != 0)) {
-                columnFamilies_ =
-                    com.google.protobuf.MapField.newMapField(
-                        ColumnFamiliesDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000002;
-              }
-              com.google.protobuf.MapEntry<
-                      java.lang.String, com.google.bigtable.admin.v2.ColumnFamily>
-                  columnFamilies__ =
-                      input.readMessage(
-                          ColumnFamiliesDefaultEntryHolder.defaultEntry.getParserForType(),
-                          extensionRegistry);
-              columnFamilies_
-                  .getMutableMap()
-                  .put(columnFamilies__.getKey(), columnFamilies__.getValue());
-              break;
-            }
-          case 32:
-            {
-              int rawValue = input.readEnum();
-
-              granularity_ = rawValue;
-              break;
-            }
-          case 50:
-            {
-              com.google.bigtable.admin.v2.RestoreInfo.Builder subBuilder = null;
-              if (restoreInfo_ != null) {
-                subBuilder = restoreInfo_.toBuilder();
-              }
-              restoreInfo_ =
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.RestoreInfo.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(restoreInfo_);
-                restoreInfo_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.TableProto
         .internal_static_google_bigtable_admin_v2_Table_descriptor;
@@ -707,68 +599,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       return this.unknownFields;
     }
 
-    private ClusterState(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 8:
-              {
-                int rawValue = input.readEnum();
-
-                replicationState_ = rawValue;
-                break;
-              }
-            case 18:
-              {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  encryptionInfo_ =
-                      new java.util.ArrayList<com.google.bigtable.admin.v2.EncryptionInfo>();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                encryptionInfo_.add(
-                    input.readMessage(
-                        com.google.bigtable.admin.v2.EncryptionInfo.parser(), extensionRegistry));
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          encryptionInfo_ = java.util.Collections.unmodifiableList(encryptionInfo_);
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.TableProto
           .internal_static_google_bigtable_admin_v2_Table_ClusterState_descriptor;
@@ -1193,7 +1023,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < encryptionInfo_.size(); i++) {
         output.writeMessage(2, encryptionInfo_.get(i));
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -1210,7 +1040,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < encryptionInfo_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, encryptionInfo_.get(i));
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -1228,7 +1058,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
 
       if (replicationState_ != other.replicationState_) return false;
       if (!getEncryptionInfoList().equals(other.getEncryptionInfoList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -1245,7 +1075,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         hash = (37 * hash) + ENCRYPTION_INFO_FIELD_NUMBER;
         hash = (53 * hash) + getEncryptionInfoList().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -1376,19 +1206,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       }
 
       // Construct using com.google.bigtable.admin.v2.Table.ClusterState.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-          getEncryptionInfoFieldBuilder();
-        }
       }
 
       @java.lang.Override
@@ -1398,10 +1219,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
 
         if (encryptionInfoBuilder_ == null) {
           encryptionInfo_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
         } else {
+          encryptionInfo_ = null;
           encryptionInfoBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
 
@@ -1522,7 +1344,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
             }
           }
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -1537,18 +1359,50 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.admin.v2.Table.ClusterState parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8:
+                {
+                  replicationState_ = input.readEnum();
+
+                  break;
+                } // case 8
+              case 18:
+                {
+                  com.google.bigtable.admin.v2.EncryptionInfo m =
+                      input.readMessage(
+                          com.google.bigtable.admin.v2.EncryptionInfo.parser(), extensionRegistry);
+                  if (encryptionInfoBuilder_ == null) {
+                    ensureEncryptionInfoIsMutable();
+                    encryptionInfo_.add(m);
+                  } else {
+                    encryptionInfoBuilder_.addMessage(m);
+                  }
+                  break;
+                } // case 18
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.admin.v2.Table.ClusterState) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -2160,7 +2014,19 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new ClusterState(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -2587,6 +2453,29 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     return getRestoreInfo();
   }
 
+  public static final int DELETION_PROTECTION_FIELD_NUMBER = 9;
+  private boolean deletionProtection_;
+  /**
+   *
+   *
+   * <pre>
+   * Set to true to make the table protected against data loss. i.e. deleting
+   * the following resources through Admin APIs are prohibited:
+   *   - The table.
+   *   - The column families in the table.
+   *   - The instance containing the table.
+   * Note one can still delete the data stored in the table through Data APIs.
+   * </pre>
+   *
+   * <code>bool deletion_protection = 9;</code>
+   *
+   * @return The deletionProtection.
+   */
+  @java.lang.Override
+  public boolean getDeletionProtection() {
+    return deletionProtection_;
+  }
+
   private byte memoizedIsInitialized = -1;
 
   @java.lang.Override
@@ -2616,7 +2505,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (restoreInfo_ != null) {
       output.writeMessage(6, getRestoreInfo());
     }
-    unknownFields.writeTo(output);
+    if (deletionProtection_ != false) {
+      output.writeBool(9, deletionProtection_);
+    }
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -2659,7 +2551,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (restoreInfo_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(6, getRestoreInfo());
     }
-    size += unknownFields.getSerializedSize();
+    if (deletionProtection_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(9, deletionProtection_);
+    }
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -2682,7 +2577,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (hasRestoreInfo()) {
       if (!getRestoreInfo().equals(other.getRestoreInfo())) return false;
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (getDeletionProtection() != other.getDeletionProtection()) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -2709,7 +2605,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       hash = (37 * hash) + RESTORE_INFO_FIELD_NUMBER;
       hash = (53 * hash) + getRestoreInfo().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (37 * hash) + DELETION_PROTECTION_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getDeletionProtection());
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -2862,17 +2760,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
 
     // Construct using com.google.bigtable.admin.v2.Table.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
@@ -2890,6 +2781,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         restoreInfo_ = null;
         restoreInfoBuilder_ = null;
       }
+      deletionProtection_ = false;
+
       return this;
     }
 
@@ -2928,6 +2821,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       } else {
         result.restoreInfo_ = restoreInfoBuilder_.build();
       }
+      result.deletionProtection_ = deletionProtection_;
       onBuilt();
       return result;
     }
@@ -2989,7 +2883,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (other.hasRestoreInfo()) {
         mergeRestoreInfo(other.getRestoreInfo());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      if (other.getDeletionProtection() != false) {
+        setDeletionProtection(other.getDeletionProtection());
+      }
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -3004,17 +2901,81 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.Table parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                name_ = input.readStringRequireUtf8();
+
+                break;
+              } // case 10
+            case 18:
+              {
+                com.google.protobuf.MapEntry<
+                        java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState>
+                    clusterStates__ =
+                        input.readMessage(
+                            ClusterStatesDefaultEntryHolder.defaultEntry.getParserForType(),
+                            extensionRegistry);
+                internalGetMutableClusterStates()
+                    .getMutableMap()
+                    .put(clusterStates__.getKey(), clusterStates__.getValue());
+                break;
+              } // case 18
+            case 26:
+              {
+                com.google.protobuf.MapEntry<
+                        java.lang.String, com.google.bigtable.admin.v2.ColumnFamily>
+                    columnFamilies__ =
+                        input.readMessage(
+                            ColumnFamiliesDefaultEntryHolder.defaultEntry.getParserForType(),
+                            extensionRegistry);
+                internalGetMutableColumnFamilies()
+                    .getMutableMap()
+                    .put(columnFamilies__.getKey(), columnFamilies__.getValue());
+                break;
+              } // case 26
+            case 32:
+              {
+                granularity_ = input.readEnum();
+
+                break;
+              } // case 32
+            case 50:
+              {
+                input.readMessage(getRestoreInfoFieldBuilder().getBuilder(), extensionRegistry);
+
+                break;
+              } // case 50
+            case 72:
+              {
+                deletionProtection_ = input.readBool();
+
+                break;
+              } // case 72
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.admin.v2.Table) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -3862,6 +3823,73 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       return restoreInfoBuilder_;
     }
 
+    private boolean deletionProtection_;
+    /**
+     *
+     *
+     * <pre>
+     * Set to true to make the table protected against data loss. i.e. deleting
+     * the following resources through Admin APIs are prohibited:
+     *   - The table.
+     *   - The column families in the table.
+     *   - The instance containing the table.
+     * Note one can still delete the data stored in the table through Data APIs.
+     * </pre>
+     *
+     * <code>bool deletion_protection = 9;</code>
+     *
+     * @return The deletionProtection.
+     */
+    @java.lang.Override
+    public boolean getDeletionProtection() {
+      return deletionProtection_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Set to true to make the table protected against data loss. i.e. deleting
+     * the following resources through Admin APIs are prohibited:
+     *   - The table.
+     *   - The column families in the table.
+     *   - The instance containing the table.
+     * Note one can still delete the data stored in the table through Data APIs.
+     * </pre>
+     *
+     * <code>bool deletion_protection = 9;</code>
+     *
+     * @param value The deletionProtection to set.
+     * @return This builder for chaining.
+     */
+    public Builder setDeletionProtection(boolean value) {
+
+      deletionProtection_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Set to true to make the table protected against data loss. i.e. deleting
+     * the following resources through Admin APIs are prohibited:
+     *   - The table.
+     *   - The column families in the table.
+     *   - The instance containing the table.
+     * Note one can still delete the data stored in the table through Data APIs.
+     * </pre>
+     *
+     * <code>bool deletion_protection = 9;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearDeletionProtection() {
+
+      deletionProtection_ = false;
+      onChanged();
+      return this;
+    }
+
     @java.lang.Override
     public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
@@ -3894,7 +3922,18 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Table(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 
