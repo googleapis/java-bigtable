@@ -39,3 +39,12 @@ java -Dport=1 -jar target/google-cloud-bigtable-test-proxy-<proxy_version>.jar
 cd cloud-bigtable-clients-test/tests
 go test -v -proxy_addr=:9999
 ```
+
+## Test a released client
+
+To do so, you need to build the proxy with the released version of the client.
+Please download the source code
+[here](https://github.com/googleapis/java-bigtable/releases), and repeat the
+above steps.
+
+Note that Kokoro presubmit test doesn't use this route.
