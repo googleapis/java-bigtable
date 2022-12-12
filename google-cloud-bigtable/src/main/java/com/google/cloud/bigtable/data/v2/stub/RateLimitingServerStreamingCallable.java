@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.ResponseObserver;
+import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -30,7 +31,8 @@ import javax.annotation.Nonnull;
 public class RateLimitingServerStreamingCallable
     extends ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> {
   private final static long DEFAULT_QPS = 10_000;
-  private final static long minimumTimeBetweenUpdates = 60_000;
+  private final static double DEAFAULT_TARGET_CPU = 70.0;
+  private final static long minimumTimeMsBetweenUpdates = 60_000;
 
   private RateLimiter limiter;
   private RateLimitingStats stats;
@@ -74,27 +76,21 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
-      System.out.println("On Response");
+      //System.out.println("On Response");
       ServerStats serverStats = response.getServerStats();
 
 
-      double[] cpus = RateLimitingStats.getCpuList(response);
+      double[] cpus = stats.getCpuList(response);
 
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
-        newQps = stats.calculateQpsChange(cpus, 70, limiter.getRate());
-        // I need to change this
-        if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
-          System.out.println("Calculated QPS is not within bounds"); // Going to change
-          outerObserver.onResponse(response);
-          return;
-        }
+        newQps = stats.calculateQpsChange(cpus, DEAFAULT_TARGET_CPU, limiter.getRate());
       }
 
       // Ensure enough time has passed since updates to QPS
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
-      if (currentTime - lastQpsUpdateTime < minimumTimeBetweenUpdates) {
+      if (currentTime - lastQpsUpdateTime < minimumTimeMsBetweenUpdates) {
         outerObserver.onResponse(response);
         return;
       }
@@ -107,22 +103,15 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      if (t instanceof DeadlineExceededException) {
+      if (t instanceof DeadlineExceededException || t instanceof UnavailableException) {
 
         // If deadlines are being reached, assume cbt server is overloaded
-        double newQps = RateLimitingStats.calculateQpsChange(new double[]{99.9}, 70, limiter.getRate());
-
-        // This if statement is going to change because we want to downscale to the lowest value
-        if (newQps < stats.getLowerQpsBound() || newQps > stats.getUpperQpsBound()) {
-          System.out.println("Calculated QPS is not within bounds"); // Going to change
-          outerObserver.onError(t);
-          return;
-        }
+        double newQps = stats.calculateQpsChange(new double[]{99.9}, DEAFAULT_TARGET_CPU, limiter.getRate());
 
         // Ensure enough time has passed since updates to QPS
         long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastQpsUpdateTime < minimumTimeBetweenUpdates) {
+        if (currentTime - lastQpsUpdateTime < minimumTimeMsBetweenUpdates) {
           outerObserver.onError(t);
           return;
         }
