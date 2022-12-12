@@ -21,10 +21,6 @@ cd test-proxy
 mvn clean install
 ```
 
-To build the proxy with an older version of the client, please download the
-source code [here](https://github.com/googleapis/java-bigtable/releases),
-and repeat the build steps mentioned above.
-
 Start the proxy on default port 9999
 
 ```
