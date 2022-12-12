@@ -2,7 +2,7 @@
 
 The CBT test proxy is intended for running confromance tests for Cloug Bigtable Java Client.
 
-## Set up 
+## Set up
 
 If you have not already done so, [install golang](https://go.dev/doc/install), then clone the go test library:
 
@@ -21,23 +21,20 @@ cd test-proxy
 mvn clean install
 ```
 
+To build the proxy with an older version of the client, please download the
+source code [here](https://github.com/googleapis/java-bigtable/releases),
+and repeat the build steps mentioned above.
+
 Start the proxy on default port 9999
 
 ```
-mvn exec:java -Dexec.mainClass=com.google.cloud.bigtable.testproxy.CbtTestProxyMain
+java -jar target/google-cloud-bigtable-test-proxy-<proxy_version>.jar
 ```
 
 Start the proxy on a different port
 
 ```
-mvn exec:java -Dexec.mainClass=com.google.cloud.bigtable.testproxy.CbtTestProxyMain -Dport=1
-```
-
-Build and start the proxy with an older version of the client
-
-```
-mvn clean install -Dbigtable.client.version=<client_version> -Denforcer.skip
-mvn exec:java -Dexec.mainClass=com.google.cloud.bigtable.testproxy.CbtTestProxyMain
+java -Dport=1 -jar target/google-cloud-bigtable-test-proxy-<proxy_version>.jar
 ```
 
 ## Run the test cases
