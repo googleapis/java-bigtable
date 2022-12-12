@@ -89,24 +89,21 @@ public class RateLimtingCallableRetryTest {
 
   @Before
   public void setUp() throws Exception {
-    //statsArgumentCaptor = ArgumentCaptor.forClass(CpuThrottlingStats.class);
-    //innerCallable = new MockMutateInnerCallable();
     callContext = GrpcCallContext.createDefault();
     when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(/*System.currentTimeMillis() - */100L); // I may need to mock this in a better way
     when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
     when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
 
-    FakeServiceHighCpu.expectations.add(new DeadlineExceededException(
+    FakeServiceHighCpu.exceptions.add(new DeadlineExceededException(
         new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
             "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
         GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
         true));
-    FakeServiceLowCpu.expectations.add(new UnavailableException( // Is this exceptation causing issues? Which error should be used here?
+    FakeServiceLowCpu.exceptions.add(new UnavailableException(
         new StatusRuntimeException(Status.UNAVAILABLE.withDescription(
-            "UNAVAILABLE: HTTP/2 error code: UNABAILABLE")),
+            "UNAVAILABLE: HTTP/2 error code: UNAVAILABLE")), // I need to find an ex
         GrpcStatusCode.of(Code.UNAVAILABLE),
         true));
-    //FakeServiceLowCpu.expectations.add(new Exception());
 
     highCPUServerRetry = FakeServiceBuilder.create(FakeServiceHighCpu).start();
     lowCPUServerRetry = FakeServiceBuilder.create(FakeServiceLowCpu).start();
@@ -146,17 +143,11 @@ public class RateLimtingCallableRetryTest {
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
-    // Going to be changing the request
-    // Need to get request submitted and pass in value through request
-    MutateRowsRequest request =
-        MutateRowsRequest.newBuilder().addEntries(MutateRowsRequest.Entry.getDefaultInstance()).build();
-
     ApiFuture<Void> future =
         lowCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
-
     future.get();
 
-    Mockito.verify(mockLimitingStats, Mockito.times(1)).updateQps(rate.capture());
+    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture()); // Should only be called once
     Assert.assertEquals((Double)10000.0, rate.getValue());
   }
 
@@ -175,11 +166,24 @@ public class RateLimtingCallableRetryTest {
     Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
   }
 
+  public void testBulkMutateRowsRetryWithLowerBound() throws ExecutionException, InterruptedException {
+    BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
+        .setCell("cf","qual","value"));
+
+    ApiFuture<Void> future =
+        highCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
+
+    future.get();
+
+    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
+    Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
+  }
+
   // Add a test that updates QPS after enough time has passed
   // Add bound tests
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
-    Queue<Exception> expectations = Queues.newArrayDeque();
+    Queue<Exception> exceptions = Queues.newArrayDeque();
     boolean highCPU;
 
     FakeService(boolean highCPU) {
@@ -209,13 +213,13 @@ public class RateLimtingCallableRetryTest {
     @Override
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
-      if (expectations.isEmpty()) {
+      if (exceptions.isEmpty()) {
         System.out.println("On complete!");
         responseObserver.onNext(createFakeMutateRowsResponse());
         responseObserver.onCompleted();
       } else {
         System.out.println("Exception!");
-        Exception expectedRpc = expectations.poll();
+        Exception expectedRpc = exceptions.poll();
         responseObserver.onError(expectedRpc);
       }
     }

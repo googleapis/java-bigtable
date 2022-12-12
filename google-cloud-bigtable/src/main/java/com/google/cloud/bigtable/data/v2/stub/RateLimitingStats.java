@@ -27,16 +27,13 @@ import java.util.stream.DoubleStream;
 public class RateLimitingStats {
   private long lastQpsUpdateTime;
   private double currentQps;
-  private double lowerQpsBound;
-  private double upperQpsBound;
-  private static double PERCENT_CHANGE_LIMIT;
+  private static double lowerQpsBound = 0.001;
+  private static double upperQpsBound = 100_000;
+  private static double PERCENT_CHANGE_LIMIT = .3;
 
   public RateLimitingStats() {
     this.lastQpsUpdateTime = System.currentTimeMillis();
     this.currentQps = -1; // Will be replaced by default value
-    this.lowerQpsBound = 0.001;
-    this.upperQpsBound = 100_000;
-    this.PERCENT_CHANGE_LIMIT = .3;
   }
 
   public long getLastQpsUpdateTime() {
@@ -48,11 +45,6 @@ public class RateLimitingStats {
   }
 
   public void updateQps(double qps) {
-    if (qps < lowerQpsBound || qps > upperQpsBound) {
-      // Log or report error here
-      System.out.println("New QPS must be within bounds");
-      return;
-    }
     currentQps = qps;
   }
 
@@ -69,20 +61,27 @@ public class RateLimitingStats {
     if (tsCpus.length == 0) {
       return currentRate;
     }
-
     double cpuDelta = DoubleStream.of(tsCpus).average().getAsDouble() - target;
+    double newRate = currentRate;
 
+    // When the CPU is above the target threshold, reduce the rate by a percentage from the target
+    // If the current CPU is within 5% of the target, maintain the currentRate
+    // If the current CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
-      long newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
-      if (newRate < 0.1) {
-        return 0.1;
-      }
-      return newRate;
+      newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
+    } else if (Math.abs(cpuDelta) > 5){
+      newRate = currentRate + (currentRate * (PERCENT_CHANGE_LIMIT / 2));
     }
-    return currentRate;
+    if (newRate < lowerQpsBound) {
+      return lowerQpsBound;
+    } else if (newRate > upperQpsBound) {
+      return upperQpsBound;
+    }
+    return newRate;
   }
 
   static double[] getCpuList(MutateRowsResponse response) {
+    //System.out.println("Response exists: "+response != null);
     if (response != null && response.hasServerStats()) {
       ServerStats stats = response.getServerStats();
 
