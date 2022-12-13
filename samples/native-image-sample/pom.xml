@@ -83,21 +83,13 @@
         <dependency>
           <groupId>org.junit.vintage</groupId>
           <artifactId>junit-vintage-engine</artifactId>
-<<<<<<< HEAD
-          <version>5.9.0</version>
-=======
           <version>5.9.1</version>
->>>>>>> main
           <scope>test</scope>
         </dependency>
         <dependency>
           <groupId>org.graalvm.buildtools</groupId>
           <artifactId>junit-platform-native</artifactId>
-<<<<<<< HEAD
-          <version>0.9.13</version>
-=======
           <version>0.9.19</version>
->>>>>>> main
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -107,11 +99,7 @@
           <plugin>
             <groupId>org.graalvm.buildtools</groupId>
             <artifactId>native-maven-plugin</artifactId>
-<<<<<<< HEAD
-            <version>0.9.13</version>
-=======
             <version>0.9.19</version>
->>>>>>> main
             <extensions>true</extensions>
             <configuration>
               <mainClass>com.example.bigtable.NativeImageBigtableSample
