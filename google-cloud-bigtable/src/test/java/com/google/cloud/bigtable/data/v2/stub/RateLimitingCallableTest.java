@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiFuture;
 
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -101,7 +102,7 @@ public class RateLimitingCallableTest {
 
     // Remove duplication in this class
     // Need to set timeouts to be higher
-    
+
     BigtableDataSettings inRangeCpuSettings =
         BigtableDataSettings.newBuilderForEmulator(inRangeCpuServer.getPort())
             .enableBatchMutationCpuBasedThrottling()
@@ -202,7 +203,7 @@ public class RateLimitingCallableTest {
 
     future.get();
 
-    verify(mockLimitingStats, times(41)).updateQps(rate.capture());
+    verify(mockLimitingStats, timeout(1000).times(41)).updateQps(rate.capture());
     Assert.assertEquals((Double)100_000.0, rate.getValue());
   }
 
@@ -219,7 +220,7 @@ public class RateLimitingCallableTest {
 
     future.get();
 
-    verify(mockLimitingStats, times(41)).updateQps(rate.capture());
+    verify(mockLimitingStats, timeout(1000).times(41)).updateQps(rate.capture());
     Assert.assertEquals((Double)0.001, rate.getValue());
   }
 
