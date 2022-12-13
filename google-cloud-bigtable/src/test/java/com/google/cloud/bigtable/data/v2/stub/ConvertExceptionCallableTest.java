@@ -31,7 +31,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ConvertStreamExceptionCallableTest {
+public class ConvertExceptionCallableTest {
 
   @Test
   public void rstStreamExceptionConvertedToRetryableTest() {
@@ -45,8 +45,8 @@ public class ConvertStreamExceptionCallableTest {
     assertFalse(originalException.isRetryable());
     SettableExceptionCallable<String, String> settableExceptionCallable =
         new SettableExceptionCallable<>(originalException);
-    ConvertStreamExceptionCallable<String, String> convertStreamExceptionCallable =
-        new ConvertStreamExceptionCallable<>(settableExceptionCallable);
+    ConvertExceptionCallable<String, String> convertStreamExceptionCallable =
+        new ConvertExceptionCallable<>(settableExceptionCallable);
 
     Throwable actualError = null;
     try {

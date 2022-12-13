@@ -25,50 +25,50 @@ import com.google.api.gax.rpc.StreamController;
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-final class ConvertStreamExceptionCallable<RequestT, ResponseT>
+final class ConvertExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public ConvertStreamExceptionCallable(
-      ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
+  public ConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = innerCallable;
   }
 
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-    ConvertStreamExceptionResponseObserver<ResponseT> observer =
-        new ConvertStreamExceptionResponseObserver<>(responseObserver);
+    ConvertExceptionResponseObserver<ResponseT> observer =
+        new ConvertExceptionResponseObserver<>(responseObserver);
     innerCallable.call(request, observer, context);
   }
 
-  private class ConvertStreamExceptionResponseObserver<ResponseT>
-      implements ResponseObserver<ResponseT> {
+  private class ConvertExceptionResponseObserver<ResponseT>
+      extends SafeResponseObserver<ResponseT> {
 
     private final ResponseObserver<ResponseT> outerObserver;
 
-    ConvertStreamExceptionResponseObserver(ResponseObserver<ResponseT> outerObserver) {
+    ConvertExceptionResponseObserver(ResponseObserver<ResponseT> outerObserver) {
+      super(outerObserver);
       this.outerObserver = outerObserver;
     }
 
     @Override
-    public void onStart(StreamController controller) {
+    protected void onStartImpl(StreamController controller) {
       outerObserver.onStart(controller);
     }
 
     @Override
-    public void onResponse(ResponseT response) {
+    protected void onResponseImpl(ResponseT response) {
       outerObserver.onResponse(response);
     }
 
     @Override
-    public void onError(Throwable t) {
+    protected void onErrorImpl(Throwable t) {
       outerObserver.onError(convertException(t));
     }
 
     @Override
-    public void onComplete() {
+    protected void onCompleteImpl() {
       outerObserver.onComplete();
     }
   }

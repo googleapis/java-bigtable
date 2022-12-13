@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>26.1.1</version>
+      <version>26.1.5</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -41,7 +41,7 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.11.1</version>
+  <version>2.17.0</version>
 </dependency>
 
 ```
@@ -49,20 +49,20 @@ If you are using Maven without BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.1.1')
+implementation platform('com.google.cloud:libraries-bom:26.1.5')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.11.1'
+implementation 'com.google.cloud:google-cloud-bigtable:2.17.0'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.11.1"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.17.0"
 ```
 
 ## Authentication
@@ -99,7 +99,7 @@ use this Cloud Bigtable Client Library.
 
 ## About Cloud Bigtable
 
-[Cloud Bigtable][cloud-bigtable] is Google's NoSQL Big Data database service. It's
+[Cloud Bigtable][product-docs] is Google's NoSQL Big Data database service. It's
 the same database that powers many core Google services, including Search, Analytics, Maps, and
 Gmail.
 
@@ -490,6 +490,7 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
 | Hello World | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) |
 | Instance Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) |
+| Key Salting | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) |
 | Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
 | Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) |

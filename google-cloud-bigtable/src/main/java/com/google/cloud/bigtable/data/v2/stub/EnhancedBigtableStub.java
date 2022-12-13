@@ -445,7 +445,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
@@ -740,7 +740,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
-        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
@@ -892,7 +892,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // exception has an INTERNAL error code which by default is not retryable. Convert the exception
     // so it can be retried in the client.
     ServerStreamingCallable<String, ByteStringRange> convertException =
-        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     // Copy idle timeout settings for watchdog.
     ServerStreamingCallSettings<String, ByteStringRange> innerSettings =
@@ -964,7 +964,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // INTERNAL error code which by default is not retryable. Convert the exception it can be
     // retried in the client.
     ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> convertException =
-        new ConvertStreamExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> merging =
         new ChangeStreamRecordMergingCallable<>(convertException, changeStreamRecordAdapter);

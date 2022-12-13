@@ -58,102 +58,6 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     return this.unknownFields;
   }
 
-  private Instance(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    int mutable_bitField0_ = 0;
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              name_ = s;
-              break;
-            }
-          case 18:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              displayName_ = s;
-              break;
-            }
-          case 24:
-            {
-              int rawValue = input.readEnum();
-
-              state_ = rawValue;
-              break;
-            }
-          case 32:
-            {
-              int rawValue = input.readEnum();
-
-              type_ = rawValue;
-              break;
-            }
-          case 42:
-            {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                labels_ =
-                    com.google.protobuf.MapField.newMapField(LabelsDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000001;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, java.lang.String> labels__ =
-                  input.readMessage(
-                      LabelsDefaultEntryHolder.defaultEntry.getParserForType(), extensionRegistry);
-              labels_.getMutableMap().put(labels__.getKey(), labels__.getValue());
-              break;
-            }
-          case 58:
-            {
-              com.google.protobuf.Timestamp.Builder subBuilder = null;
-              if (createTime_ != null) {
-                subBuilder = createTime_.toBuilder();
-              }
-              createTime_ =
-                  input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(createTime_);
-                createTime_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.InstanceProto
         .internal_static_google_bigtable_admin_v2_Instance_descriptor;
@@ -506,6 +410,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     // @@protoc_insertion_point(enum_scope:google.bigtable.admin.v2.Instance.Type)
   }
 
+  private int bitField0_;
   public static final int NAME_FIELD_NUMBER = 1;
   private volatile java.lang.Object name_;
   /**
@@ -873,6 +778,39 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     return getCreateTime();
   }
 
+  public static final int SATISFIES_PZS_FIELD_NUMBER = 8;
+  private boolean satisfiesPzs_;
+  /**
+   *
+   *
+   * <pre>
+   * Output only. Reserved for future use.
+   * </pre>
+   *
+   * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   *
+   * @return Whether the satisfiesPzs field is set.
+   */
+  @java.lang.Override
+  public boolean hasSatisfiesPzs() {
+    return ((bitField0_ & 0x00000001) != 0);
+  }
+  /**
+   *
+   *
+   * <pre>
+   * Output only. Reserved for future use.
+   * </pre>
+   *
+   * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   *
+   * @return The satisfiesPzs.
+   */
+  @java.lang.Override
+  public boolean getSatisfiesPzs() {
+    return satisfiesPzs_;
+  }
+
   private byte memoizedIsInitialized = -1;
 
   @java.lang.Override
@@ -904,7 +842,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     if (createTime_ != null) {
       output.writeMessage(7, getCreateTime());
     }
-    unknownFields.writeTo(output);
+    if (((bitField0_ & 0x00000001) != 0)) {
+      output.writeBool(8, satisfiesPzs_);
+    }
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -938,7 +879,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     if (createTime_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(7, getCreateTime());
     }
-    size += unknownFields.getSerializedSize();
+    if (((bitField0_ & 0x00000001) != 0)) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(8, satisfiesPzs_);
+    }
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -962,7 +906,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     if (hasCreateTime()) {
       if (!getCreateTime().equals(other.getCreateTime())) return false;
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (hasSatisfiesPzs() != other.hasSatisfiesPzs()) return false;
+    if (hasSatisfiesPzs()) {
+      if (getSatisfiesPzs() != other.getSatisfiesPzs()) return false;
+    }
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -989,7 +937,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       hash = (37 * hash) + CREATE_TIME_FIELD_NUMBER;
       hash = (53 * hash) + getCreateTime().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    if (hasSatisfiesPzs()) {
+      hash = (37 * hash) + SATISFIES_PZS_FIELD_NUMBER;
+      hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getSatisfiesPzs());
+    }
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -1140,17 +1092,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     }
 
     // Construct using com.google.bigtable.admin.v2.Instance.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
@@ -1171,6 +1116,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
         createTime_ = null;
         createTimeBuilder_ = null;
       }
+      satisfiesPzs_ = false;
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
 
@@ -1199,6 +1146,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       com.google.bigtable.admin.v2.Instance result =
           new com.google.bigtable.admin.v2.Instance(this);
       int from_bitField0_ = bitField0_;
+      int to_bitField0_ = 0;
       result.name_ = name_;
       result.displayName_ = displayName_;
       result.state_ = state_;
@@ -1210,6 +1158,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       } else {
         result.createTime_ = createTimeBuilder_.build();
       }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.satisfiesPzs_ = satisfiesPzs_;
+        to_bitField0_ |= 0x00000001;
+      }
+      result.bitField0_ = to_bitField0_;
       onBuilt();
       return result;
     }
@@ -1277,7 +1230,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (other.hasCreateTime()) {
         mergeCreateTime(other.getCreateTime());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      if (other.hasSatisfiesPzs()) {
+        setSatisfiesPzs(other.getSatisfiesPzs());
+      }
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -1292,17 +1248,78 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.Instance parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                name_ = input.readStringRequireUtf8();
+
+                break;
+              } // case 10
+            case 18:
+              {
+                displayName_ = input.readStringRequireUtf8();
+
+                break;
+              } // case 18
+            case 24:
+              {
+                state_ = input.readEnum();
+
+                break;
+              } // case 24
+            case 32:
+              {
+                type_ = input.readEnum();
+
+                break;
+              } // case 32
+            case 42:
+              {
+                com.google.protobuf.MapEntry<java.lang.String, java.lang.String> labels__ =
+                    input.readMessage(
+                        LabelsDefaultEntryHolder.defaultEntry.getParserForType(),
+                        extensionRegistry);
+                internalGetMutableLabels()
+                    .getMutableMap()
+                    .put(labels__.getKey(), labels__.getValue());
+                break;
+              } // case 42
+            case 58:
+              {
+                input.readMessage(getCreateTimeFieldBuilder().getBuilder(), extensionRegistry);
+
+                break;
+              } // case 58
+            case 64:
+              {
+                satisfiesPzs_ = input.readBool();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 64
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.admin.v2.Instance) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -2162,6 +2179,73 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       return createTimeBuilder_;
     }
 
+    private boolean satisfiesPzs_;
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Reserved for future use.
+     * </pre>
+     *
+     * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return Whether the satisfiesPzs field is set.
+     */
+    @java.lang.Override
+    public boolean hasSatisfiesPzs() {
+      return ((bitField0_ & 0x00000002) != 0);
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Reserved for future use.
+     * </pre>
+     *
+     * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return The satisfiesPzs.
+     */
+    @java.lang.Override
+    public boolean getSatisfiesPzs() {
+      return satisfiesPzs_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Reserved for future use.
+     * </pre>
+     *
+     * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @param value The satisfiesPzs to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSatisfiesPzs(boolean value) {
+      bitField0_ |= 0x00000002;
+      satisfiesPzs_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Reserved for future use.
+     * </pre>
+     *
+     * <code>optional bool satisfies_pzs = 8 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearSatisfiesPzs() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      satisfiesPzs_ = false;
+      onChanged();
+      return this;
+    }
+
     @java.lang.Override
     public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
@@ -2194,7 +2278,18 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new Instance(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 
