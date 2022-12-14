@@ -320,16 +320,17 @@
                         <configuration>
                             <doclet>com.microsoft.doclet.DocFxDoclet</doclet>
                             <useStandardDocletOptions>false</useStandardDocletOptions>
-                            <docletPath>${env.KOKORO_GFILE_DIR}/java-docfx-doclet-1.5.0.jar</docletPath>
+<!--                            <docletPath>${env.KOKORO_GFILE_DIR}/java-docfx-doclet-1.5.0.jar</docletPath>-->
+                            <docletPath>/Users/mattiefu/Downloads/docfx-doclet-1.8.0-jar-with-dependencies.jar</docletPath>
                             <additionalOptions>
                                 -outputpath ${project.build.directory}/docfx-yml
                                 -projectname ${artifactId}
                                 <!-- List of excluded packages as regex, separated by a colon-->
-                                -excludeclasses com\.google\.cloud\.bigtable\.admin\.v2\.internal\.:com\.google\.cloud\.bigtable\.admin\.v2\.(Base.*).*:com\.google\.cloud\.bigtable\.admin\.v2\.stub\.(?!Bigtable.*StubSettings).*:com\.google\.cloud\.bigtable\.data\.v2\.internal\.:com\.google\.cloud\.bigtable\.data\.v2\.(Base.*).*:com\.google\.cloud\.bigtable\.data\.v2\.stub\.(?!Enhanced.*StubSettings).*:com\.google\.cloud\.bigtable\.data\.v2\.stub\.mutaterows\.:com\.google\.cloud\.bigtable\.data\.v2\.stub\.readrows\.:com\.google\.cloud\.bigtable\.data\.v2\.stub\.metrics\.
-                                -excludepackages com\.google\.bigtable\.v2:com\.google\.bigtable\.admin\.v2:com\.google\.cloud\.bigtable\.stats
+                                -excludeclasses com\.google\.cloud\.bigtable\.admin\.v2\.(internal\.|(Base.*).*|stub\.(?!Bigtable.*StubSettings).*):com\.google\.cloud\.bigtable\.data\.v2\.(internal\.|(Base.*).*|stub\.(mutaterows\.|readrows\.|metrics\.|(?!Enhanced.*StubSettings).*))
+                                -excludepackages com\.google\.(bigtable\.v2|bigtable\.admin\.v2|cloud\.bigtable\.stats)
                             </additionalOptions>
                         </configuration>
-                        
+
                         <executions>
                             <execution>
                                 <id>aggregate</id>
