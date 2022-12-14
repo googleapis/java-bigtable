@@ -41,6 +41,7 @@ import com.google.cloud.bigtable.data.v2.stub.RateLimitingStats;
 import com.google.common.collect.Lists;
 import io.grpc.Server;
 import io.grpc.stub.StreamObserver;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -63,15 +64,11 @@ public class RateLimitingCallableTest {
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
 
+  private static final int GCULimit = 8000;
+
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
-  private FakeService inRangeCpuFakeService;
-  private FakeService highCpuFakeService;
-  private FakeService lowCpuFakeService;
-  private Server inRangeCpuServer;
-  private Server lowCPUServer;
-  private Server highCPUServer;
   private EnhancedBigtableStub inRangeCpuStub;
   private EnhancedBigtableStub lowCpuStub;
   private EnhancedBigtableStub highCpuStub;
@@ -87,61 +84,20 @@ public class RateLimitingCallableTest {
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
-    inRangeCpuFakeService = new FakeService(5600);
-    highCpuFakeService = new FakeService(7000);
-    lowCpuFakeService = new FakeService(1000);
-
     when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L);
 
     rate = ArgumentCaptor.forClass(Double.class);
     callContext = GrpcCallContext.createDefault();
 
-    inRangeCpuServer = FakeServiceBuilder.create(inRangeCpuFakeService).start();
-    lowCPUServer = FakeServiceBuilder.create(lowCpuFakeService).start();
-    highCPUServer = FakeServiceBuilder.create(highCpuFakeService).start();
-
-    // Remove duplication in this class
-    // Need to set timeouts to be higher
-
-    BigtableDataSettings inRangeCpuSettings =
-        BigtableDataSettings.newBuilderForEmulator(inRangeCpuServer.getPort())
-            .enableBatchMutationCpuBasedThrottling()
-            .setProjectId(PROJECT_ID)
-            .setInstanceId(INSTANCE_ID)
-            .setAppProfileId(APP_PROFILE_ID)
-            .build();
-
-    BigtableDataSettings lowCPUSettings =
-        BigtableDataSettings.newBuilderForEmulator(lowCPUServer.getPort())
-            .enableBatchMutationCpuBasedThrottling()
-            .setProjectId(PROJECT_ID)
-            .setInstanceId(INSTANCE_ID)
-            .setAppProfileId(APP_PROFILE_ID)
-            .build();
-
-    BigtableDataSettings highCPUSettings =
-        BigtableDataSettings.newBuilderForEmulator(highCPUServer.getPort())
-            .enableBatchMutationCpuBasedThrottling()
-            .setProjectId(PROJECT_ID)
-            .setInstanceId(INSTANCE_ID)
-            .setAppProfileId(APP_PROFILE_ID)
-            .build();
-
-    // Fix naming
-    EnhancedBigtableStubSettings inRangeCPUStubSettings = inRangeCpuSettings.getStubSettings();
-    EnhancedBigtableStubSettings lowCPUStubSettings = lowCPUSettings.getStubSettings();
-    EnhancedBigtableStubSettings highCPUStubSettings = highCPUSettings.getStubSettings();
-    inRangeCpuStub = new EnhancedBigtableStub(inRangeCPUStubSettings, ClientContext.create(inRangeCPUStubSettings), mockLimitingStats);
-    lowCpuStub = new EnhancedBigtableStub(lowCPUStubSettings, ClientContext.create(lowCPUStubSettings), mockLimitingStats);
-    highCpuStub = new EnhancedBigtableStub(highCPUStubSettings, ClientContext.create(highCPUStubSettings), mockLimitingStats);
+    inRangeCpuStub = createStubWithCPU(new FakeService(GCULimit * .7));
+    lowCpuStub = createStubWithCPU(new FakeService(GCULimit * .1));
+    highCpuStub = createStubWithCPU(new FakeService(GCULimit * .9));
   }
 
   @After
   public void tearDown() {
     lowCpuStub.close();
-    lowCPUServer.shutdown();
     highCpuStub.close();
-    highCPUServer.shutdown();
   }
 
   @Test
@@ -186,12 +142,11 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)1750.0, rate.getValue()); // Make default value
+    Assert.assertEquals((Double)1999.0, rate.getValue()); // Make default value
   }
 
-  // Test is being flaky due to timeouts I should probably set the timeout higher in the
   @Test
-  public void testBulkMutateRowsUpperBound() throws ExecutionException, InterruptedException { // Need to fix name
+  public void testBulkMutateRowsUpperBound() throws ExecutionException, InterruptedException {
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
@@ -208,7 +163,7 @@ public class RateLimitingCallableTest {
   }
 
   @Test
-  public void testBulkMutateRowsLowerBound() throws ExecutionException, InterruptedException { // Need to fix name
+  public void testBulkMutateRowsLowerBound() throws ExecutionException, InterruptedException {
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
@@ -224,23 +179,50 @@ public class RateLimitingCallableTest {
     Assert.assertEquals((Double)0.001, rate.getValue());
   }
 
-  // Add bound tests (upper and lower)
-  // Add several bulk Mutation requests
-  // I think the update time test should be inside of the retry test and inside of the this class
+  @Test
+  public void testBulkMutateRowsTimePassesBetweenQpsUpdates() throws ExecutionException, InterruptedException { // Better name
+    BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
+        .setCell("cf","qual","value"));
+
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L).thenReturn(System.currentTimeMillis());
+
+    ApiFuture<Void> future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
+    future.get();
+    future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
+    future.get();
+
+    // stats.updateQps should only be called once
+    verify(mockLimitingStats, timeout(1000).times(1)).updateQps(rate.capture());
+    Assert.assertEquals((Double)10_000.0, rate.getValue());
+  }
+
+  public EnhancedBigtableStub createStubWithCPU(FakeService service) throws IOException {
+    Server server = FakeServiceBuilder.create(service).start();
+
+    BigtableDataSettings dataSettings =
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
+            .enableBatchMutationCpuBasedThrottling()
+            .setProjectId(PROJECT_ID)
+            .setInstanceId(INSTANCE_ID)
+            .setAppProfileId(APP_PROFILE_ID)
+            .build();
+
+    return new EnhancedBigtableStub(dataSettings.getStubSettings(), ClientContext.create(dataSettings.getStubSettings()), mockLimitingStats);
+  }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
-    int CPU;
+    int recentMilliGCU;
 
-    FakeService(int recentMilliGCU) {
-      this.CPU = recentMilliGCU;
+    FakeService(double recentMilliGCU) {
+      this.recentMilliGCU = (int) recentMilliGCU;
     }
 
     MutateRowsResponse createFakeMutateRowsResponse() {
       ServerStats serverStats;
 
       serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
-              .setMilligcuLimit(8000)
-              .setRecentGcuMillisecondsPerSecond(CPU))
+              .setMilligcuLimit(GCULimit)
+              .setRecentGcuMillisecondsPerSecond(recentMilliGCU))
           .build();
 
       MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build();
