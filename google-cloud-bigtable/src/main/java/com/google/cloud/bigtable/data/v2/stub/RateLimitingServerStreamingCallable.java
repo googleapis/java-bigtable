@@ -31,8 +31,8 @@ import javax.annotation.Nonnull;
 public class RateLimitingServerStreamingCallable
     extends ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> {
   private final static long DEFAULT_QPS = 10_000;
-  private final static double DEAFAULT_TARGET_CPU = 70.0;
-  private final static long minimumTimeMsBetweenUpdates = 60_000;
+  private final static double DEFAULT_TARGET_CPU = 70.0;
+  private final static long minimumTimeMsBetweenUpdates = 200_000;
 
   private RateLimiter limiter;
   private RateLimitingStats stats;
@@ -77,14 +77,12 @@ public class RateLimitingServerStreamingCallable
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
       //System.out.println("On Response");
-      ServerStats serverStats = response.getServerStats();
-
 
       double[] cpus = stats.getCpuList(response);
 
       double newQps = limiter.getRate();
       if (cpus.length > 0) {
-        newQps = stats.calculateQpsChange(cpus, DEAFAULT_TARGET_CPU, limiter.getRate());
+        newQps = stats.calculateQpsChange(cpus, DEFAULT_TARGET_CPU, limiter.getRate());
       }
 
       // Ensure enough time has passed since updates to QPS
@@ -106,7 +104,7 @@ public class RateLimitingServerStreamingCallable
       if (t instanceof DeadlineExceededException || t instanceof UnavailableException) {
 
         // If deadlines are being reached, assume cbt server is overloaded
-        double newQps = stats.calculateQpsChange(new double[]{99.9}, DEAFAULT_TARGET_CPU, limiter.getRate());
+        double newQps = stats.calculateQpsChange(new double[]{99.9}, DEFAULT_TARGET_CPU, limiter.getRate());
 
         // Ensure enough time has passed since updates to QPS
         long lastQpsUpdateTime = stats.getLastQpsUpdateTime();

@@ -27,9 +27,9 @@ import java.util.stream.DoubleStream;
 public class RateLimitingStats {
   private long lastQpsUpdateTime;
   private double currentQps;
-  private static double lowerQpsBound = 0.001;
-  private static double upperQpsBound = 100_000;
-  private static double PERCENT_CHANGE_LIMIT = .3;
+  public static double lowerQpsBound = 0.001;
+  public static double upperQpsBound = 100_000;
+  public static double PERCENT_CHANGE_LIMIT = .3;
 
   public RateLimitingStats() {
     this.lastQpsUpdateTime = System.currentTimeMillis();

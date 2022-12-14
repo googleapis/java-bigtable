@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.google.api.core.ApiFuture;
@@ -49,6 +50,7 @@ import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ExecutionException;
@@ -72,8 +74,8 @@ public class RateLimtingCallableRetryTest {
 
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
-  private final FakeService FakeServiceHighCpu = new FakeService(true);
-  private final FakeService FakeServiceLowCpu = new FakeService(false);
+  private final FakeService FakeServiceHighCpu = new FakeService(7000);
+  private final FakeService FakeServiceLowCpu = new FakeService(1000);
   private Server lowCPUServerRetry;
   private Server highCPUServerRetry;
   private EnhancedBigtableStub lowCpuStubRetry;
@@ -179,34 +181,43 @@ public class RateLimtingCallableRetryTest {
     Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
   }
 
+  /*@Test
+  public void testBulkMutateRowsTimePassesBetweenQpsUpdates() throws ExecutionException, InterruptedException { // Better name
+    BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
+        .setCell("cf","qual","value"));
+
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L).thenReturn(System.currentTimeMillis());
+
+    ApiFuture<Void> future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
+    future.get();
+    future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
+    future.get();
+
+    // stats.updateQps should only be called once
+    verify(mockLimitingStats, timeout(1000).times(1)).updateQps(rate.capture());
+    Assert.assertEquals((Double)10_000.0, rate.getValue());
+  }*/
+
   // Add a test that updates QPS after enough time has passed
   // Add bound tests
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
-    Queue<Exception> exceptions = Queues.newArrayDeque();
-    boolean highCPU;
+    Queue<Exception> exceptions = new ArrayDeque<>();
+    int CPU;
 
-    FakeService(boolean highCPU) {
-      this.highCPU = highCPU;
+    FakeService(int recentMilliGCU) {
+      this.CPU = recentMilliGCU;
     }
 
     MutateRowsResponse createFakeMutateRowsResponse() {
       ServerStats serverStats;
-      if (this.highCPU) {
-        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
-                .setMilligcuLimit(8000)
-                .setRecentGcuMillisecondsPerSecond(7000))
-            .build(); // I need to talk to Weihan about how the CpuStats correlate with each TS?
-      } else {
-        serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
-                .setMilligcuLimit(8000)
-                .setRecentGcuMillisecondsPerSecond(75))
-            .addCpuStats(ServerCPUStats.newBuilder()
-                .setMilligcuLimit(8000)
-                .setRecentGcuMillisecondsPerSecond(80)).build();
-      }
 
-      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build(); // Do I need to have an Entry here
+      serverStats = ServerStats.newBuilder().addCpuStats(ServerCPUStats.newBuilder()
+              .setMilligcuLimit(8000)
+              .setRecentGcuMillisecondsPerSecond(CPU))
+          .build();
+
+      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build();
       return response;
     }
 
