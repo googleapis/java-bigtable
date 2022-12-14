@@ -245,7 +245,6 @@ public final class BigtableDataSettings {
   }
 
   /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-  @BetaApi("Channel priming is not currently stable and may change in the future")
   public boolean isRefreshingChannel() {
     return stubSettings.isRefreshingChannel();
   }
@@ -395,19 +394,17 @@ public final class BigtableDataSettings {
     /**
      * Configure periodic gRPC channel refreshes.
      *
-     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is an
-     * experimental feature to address tail latency caused by the service dropping long lived gRPC
-     * connections, which causes the client to renegotiate the gRPC connection in the request path,
-     * which causes periodic spikes in latency
+     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is a
+     * feature to address tail latency caused by the service dropping long lived gRPC connections,
+     * which causes the client to renegotiate the gRPC connection in the request path, which causes
+     * periodic spikes in latency. This feature is enabled by default.
      */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       stubSettings.setRefreshingChannel(isRefreshingChannel);
       return this;
     }
 
     /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
     public boolean isRefreshingChannel() {
       return stubSettings.isRefreshingChannel();
     }

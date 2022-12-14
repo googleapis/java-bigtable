@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingSettings;
@@ -237,7 +236,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /** Returns if channels will gracefully refresh connections to Cloud Bigtable service */
-  @BetaApi("This API depends on experimental gRPC APIs")
   public boolean isRefreshingChannel() {
     return isRefreshingChannel;
   }
@@ -545,7 +543,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     private Builder() {
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
-      this.isRefreshingChannel = false;
+      this.isRefreshingChannel = true;
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -757,11 +755,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * Sets if channels will gracefully refresh connections to Cloud Bigtable service.
      *
      * <p>When enabled, this will wait for the connection to complete the SSL handshake and warm up
-     * serverside caches for all the tables of the instance.
+     * serverside caches for all the tables of the instance. This feature is enabled by default.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
      */
-    @BetaApi("This API depends on experimental gRPC APIs")
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       this.isRefreshingChannel = isRefreshingChannel;
       return this;
@@ -778,7 +775,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-    @BetaApi("This API depends on experimental gRPC APIs")
     public boolean isRefreshingChannel() {
       return isRefreshingChannel;
     }
