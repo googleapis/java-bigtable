@@ -246,7 +246,12 @@ public final class BigtableDataSettings {
     return stubSettings.getAppProfileId();
   }
 
-  /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
+  /**
+   * Gets if channels will gracefully refresh connections to Cloud Bigtable service
+   *
+   * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+   */
+  @Deprecated
   public boolean isRefreshingChannel() {
     return stubSettings.isRefreshingChannel();
   }
@@ -399,14 +404,22 @@ public final class BigtableDataSettings {
      * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is a
      * feature to address tail latency caused by the service dropping long lived gRPC connections,
      * which causes the client to renegotiate the gRPC connection in the request path, which causes
-     * periodic spikes in latency. This feature is enabled by default.
+     * periodic spikes in latency.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
+    @Deprecated
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       stubSettings.setRefreshingChannel(isRefreshingChannel);
       return this;
     }
 
-    /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
+    /**
+     * Gets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+     */
+    @Deprecated
     public boolean isRefreshingChannel() {
       return stubSettings.isRefreshingChannel();
     }

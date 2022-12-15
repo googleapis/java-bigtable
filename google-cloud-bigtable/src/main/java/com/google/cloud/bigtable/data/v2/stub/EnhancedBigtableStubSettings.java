@@ -235,7 +235,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return appProfileId;
   }
 
-  /** Returns if channels will gracefully refresh connections to Cloud Bigtable service */
+  /**
+   * Returns if channels will gracefully refresh connections to Cloud Bigtable service
+   *
+   * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+   */
+  @Deprecated
   public boolean isRefreshingChannel() {
     return isRefreshingChannel;
   }
@@ -758,7 +763,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * serverside caches for all the tables of the instance. This feature is enabled by default.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
+    @Deprecated
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       this.isRefreshingChannel = isRefreshingChannel;
       return this;
@@ -774,7 +782,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
-    /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
+    /**
+     * Gets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+     */
+    @Deprecated
     public boolean isRefreshingChannel() {
       return isRefreshingChannel;
     }
