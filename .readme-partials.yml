@@ -115,7 +115,7 @@ custom_content: |
 
   TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
 
-  ## [Enabling client side built-in metrics](#client-side-metrics)
+  ## Enabling client side metrics
 
   Cloud Bigtable client supports publishing client side metrics to
   [Cloud Monitoring](https://cloud.google.com/monitoring/docs/monitoring-overview) under the
@@ -248,7 +248,7 @@ custom_content: |
 
   ### Enabling Cloud Bigtable Metrics: OpenCensus Stats
 
-  We recommend [enabling client side built-in metrics](#client-side-metrics)
+  We recommend [enabling client side built-in metrics](#enabling-client-side-metrics)
   if you want to view your metrics on cloud monitoring. This integration is only for exporting the
   metrics to a third party dashboard.
 
