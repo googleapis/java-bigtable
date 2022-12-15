@@ -197,60 +197,13 @@ custom_content: |
   );
   ```
 
-  ## Version Conflicts
+  ## Enabling Cloud Bigtable Metrics: OpenCensus Stats
 
-  google-cloud-bigtable depends on gRPC directly which may conflict with the versions brought
-  in by other libraries, for example Apache Beam. This happens because internal dependencies
-  between gRPC libraries are pinned to an exact version of grpc-core
-  (see [here](https://github.com/grpc/grpc-java/commit/90db93b990305aa5a8428cf391b55498c7993b6e)).
-  If both google-cloud-bigtable and the other library bring in two gRPC libraries that depend
-  on the different versions of grpc-core, then dependency resolution will fail.
-  The easiest way to fix this is to depend on the gRPC bom, which will force all the gRPC
-  transitive libraries to use the same version.
-
-  Add the following to your project's pom.xml.
-
-  ```
-      <dependencyManagement>
-        <dependencies>
-          <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-bom</artifactId>
-            <version>1.28.0</version>
-            <type>pom</type>
-            <scope>import</scope>
-          </dependency>
-        </dependencies>
-      </dependencyManagement>
-  ```
-
-  ## Container Deployment
-
-  While deploying this client in [Google Kubernetes Engine(GKE)](https://cloud.google.com/kubernetes-engine) with [CoS](https://cloud.google.com/container-optimized-os/docs/). Please make sure to provide CPU configuration in your deployment file. With default configuration JVM detects only 1 CPU, which affects the number of channels with the client, resulting in performance repercussion.
-
-  Also, The number of `grpc-nio-worker-ELG-1-#` thread is same as number of CPUs. These are managed by a single `grpc-default-executor-#` thread, which is shared among multiple client instances.
-
-  For example:
-  ```yaml
-  appVersion: v1
-  ...
-  spec:
-    ...
-    container:
-      resources:
-        requests:
-          cpu: "1" # Here 1 represents 100% of single node CPUs whereas other than 1 represents the number of CPU it would use from a node.
-  ```
-  see [Assign CPU Resources to Containers](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#specify-a-cpu-request-and-a-cpu-limit) for more information.
-
-
-  ## Appendix
-
-  ### Enabling Cloud Bigtable Metrics: OpenCensus Stats
-
-  We recommend [enabling client side built-in metrics](#enabling-client-side-metrics)
+  ---
+  Note: We recommend [enabling client side built-in metrics](#enabling-client-side-metrics)
   if you want to view your metrics on cloud monitoring. This integration is only for exporting the
   metrics to a third party dashboard.
+  ---
 
   Cloud Bigtable client supports [Opencensus Metrics](https://opencensus.io/stats/),
   which gives insight into the client internals and aids in debugging production issues.
@@ -263,7 +216,7 @@ custom_content: |
   * `bigtable_app_profile_id`: the app profile id that is being used to access the target
     Bigtable instance
 
-  #### Available operation level metric views:
+  ### Available operation level metric views:
 
   * `cloud.google.com/java/bigtable/op_latency`: A distribution of latency of
     each client method call, across all of it's RPC attempts. Tagged by
@@ -380,3 +333,49 @@ custom_content: |
           .build()
   );
   ```
+
+  ## Version Conflicts
+
+  google-cloud-bigtable depends on gRPC directly which may conflict with the versions brought
+  in by other libraries, for example Apache Beam. This happens because internal dependencies
+  between gRPC libraries are pinned to an exact version of grpc-core
+  (see [here](https://github.com/grpc/grpc-java/commit/90db93b990305aa5a8428cf391b55498c7993b6e)).
+  If both google-cloud-bigtable and the other library bring in two gRPC libraries that depend
+  on the different versions of grpc-core, then dependency resolution will fail.
+  The easiest way to fix this is to depend on the gRPC bom, which will force all the gRPC
+  transitive libraries to use the same version.
+
+  Add the following to your project's pom.xml.
+
+  ```
+      <dependencyManagement>
+        <dependencies>
+          <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-bom</artifactId>
+            <version>1.28.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+          </dependency>
+        </dependencies>
+      </dependencyManagement>
+  ```
+
+  ## Container Deployment
+
+  While deploying this client in [Google Kubernetes Engine(GKE)](https://cloud.google.com/kubernetes-engine) with [CoS](https://cloud.google.com/container-optimized-os/docs/). Please make sure to provide CPU configuration in your deployment file. With default configuration JVM detects only 1 CPU, which affects the number of channels with the client, resulting in performance repercussion.
+
+  Also, The number of `grpc-nio-worker-ELG-1-#` thread is same as number of CPUs. These are managed by a single `grpc-default-executor-#` thread, which is shared among multiple client instances.
+
+  For example:
+  ```yaml
+  appVersion: v1
+  ...
+  spec:
+    ...
+    container:
+      resources:
+        requests:
+          cpu: "1" # Here 1 represents 100% of single node CPUs whereas other than 1 represents the number of CPU it would use from a node.
+  ```
+  see [Assign CPU Resources to Containers](https://kubernetes.io/docs/tasks/configure-pod-container/assign-cpu-resource/#specify-a-cpu-request-and-a-cpu-limit) for more information.
