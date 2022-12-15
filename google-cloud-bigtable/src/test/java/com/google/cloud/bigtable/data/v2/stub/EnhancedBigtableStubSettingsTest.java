@@ -677,9 +677,9 @@ public class EnhancedBigtableStubSettingsTest {
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
             .setInstanceId(dummyInstanceId);
-    assertThat(builder.isRefreshingChannel()).isFalse();
-    assertThat(builder.build().isRefreshingChannel()).isFalse();
-    assertThat(builder.build().toBuilder().isRefreshingChannel()).isFalse();
+    assertThat(builder.isRefreshingChannel()).isTrue();
+    assertThat(builder.build().isRefreshingChannel()).isTrue();
+    assertThat(builder.build().toBuilder().isRefreshingChannel()).isTrue();
   }
 
   @Test

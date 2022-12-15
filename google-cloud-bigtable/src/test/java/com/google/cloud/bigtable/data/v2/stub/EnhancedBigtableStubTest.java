@@ -162,7 +162,6 @@ public class EnhancedBigtableStubTest {
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
             .build();
     enhancedBigtableStub = EnhancedBigtableStub.create(settings);
-
     // Send rpc and grab the credentials sent
     enhancedBigtableStub.readRowCallable().futureCall(Query.create("fake-table")).get();
     Metadata metadata = metadataInterceptor.headers.take();
@@ -208,6 +207,9 @@ public class EnhancedBigtableStubTest {
               .setTransportChannelProvider(
                   FixedTransportChannelProvider.create(
                       GrpcTransportChannel.create(emulatorChannel)))
+              // Channel refreshing doesn't work with FixedTransportChannelProvider. Disable it for
+              // the test
+              .setRefreshingChannel(false)
               .build();
       enhancedBigtableStub = EnhancedBigtableStub.create(settings);
       // Send rpc and grab the credentials sent
@@ -274,6 +276,8 @@ public class EnhancedBigtableStubTest {
   public void testUserAgent() throws InterruptedException {
     ServerStreamingCallable<Query, Row> streamingCallable =
         enhancedBigtableStub.createReadRowsCallable(new DefaultRowAdapter());
+    // Clear the headers which will have the priming request
+    metadataInterceptor.headers.clear();
 
     Query request = Query.create("table-id").rowKey("row-key");
     streamingCallable.call(request).iterator().next();
@@ -342,7 +346,7 @@ public class EnhancedBigtableStubTest {
   @Test
   public void testBulkMutationFlowControllerConfigured() throws Exception {
     BigtableDataSettings.Builder settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId("my-project")
             .setInstanceId("my-instance")
             .setCredentialsProvider(defaultSettings.getCredentialsProvider())
@@ -424,64 +428,43 @@ public class EnhancedBigtableStubTest {
 
   @Test
   public void testCallContextPropagatedInMutationBatcher()
-      throws IOException, InterruptedException, ExecutionException {
-    EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
-            .setRefreshingChannel(true)
-            .setPrimedTableIds("table1", "table2")
-            .build();
+      throws InterruptedException, ExecutionException {
+    contextInterceptor.contexts.clear();
 
-    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
-      // clear the previous contexts
-      contextInterceptor.contexts.clear();
+    // Override the timeout
+    GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
-      // Override the timeout
-      GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
-
-      // Send a batch
-      try (Batcher<RowMutationEntry, Void> batcher =
-          stub.newMutateRowsBatcher("table1", clientCtx)) {
-        batcher.add(RowMutationEntry.create("key").deleteRow()).get();
-      }
-
-      // Ensure that the server got the overriden deadline
-      Context serverCtx = contextInterceptor.contexts.poll();
-      assertThat(serverCtx).isNotNull();
-      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
+    // Send a batch
+    try (Batcher<RowMutationEntry, Void> batcher =
+        enhancedBigtableStub.newMutateRowsBatcher("table1", clientCtx)) {
+      batcher.add(RowMutationEntry.create("key").deleteRow()).get();
     }
+
+    // Ensure that the server got the overriden deadline
+    Context serverCtx = contextInterceptor.contexts.poll();
+    assertThat(serverCtx).isNotNull();
+    assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
   }
 
   @Test
   public void testCallContextPropagatedInReadBatcher()
       throws IOException, InterruptedException, ExecutionException {
-    EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
-            .setRefreshingChannel(true)
-            .setPrimedTableIds("table1", "table2")
-            .build();
+    // clear the previous contexts
+    contextInterceptor.contexts.clear();
 
-    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
-      // clear the previous contexts
-      contextInterceptor.contexts.clear();
+    // Override the timeout
+    GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
-      // Override the timeout
-      GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
-
-      // Send a batch
-      try (Batcher<ByteString, Row> batcher =
-          stub.newBulkReadRowsBatcher(Query.create("table1"), clientCtx)) {
-        batcher.add(ByteString.copyFromUtf8("key")).get();
-      }
-
-      // Ensure that the server got the overriden deadline
-      Context serverCtx = contextInterceptor.contexts.poll();
-      assertThat(serverCtx).isNotNull();
-      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
+    // Send a batch
+    try (Batcher<ByteString, Row> batcher =
+        enhancedBigtableStub.newBulkReadRowsBatcher(Query.create("table1"), clientCtx)) {
+      batcher.add(ByteString.copyFromUtf8("key")).get();
     }
+
+    // Ensure that the server got the overriden deadline
+    Context serverCtx = contextInterceptor.contexts.poll();
+    assertThat(serverCtx).isNotNull();
+    assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {

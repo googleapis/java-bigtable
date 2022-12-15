@@ -124,6 +124,7 @@ public final class BigtableDataSettings {
         .stubSettings()
         .setCredentialsProvider(NoCredentialsProvider.create())
         .setEndpoint(hostname + ":" + port)
+        .setRefreshingChannel(false)
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()
                 .setMaxInboundMessageSize(256 * 1024 * 1024)
