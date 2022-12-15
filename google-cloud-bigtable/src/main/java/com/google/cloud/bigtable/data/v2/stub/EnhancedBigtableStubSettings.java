@@ -763,7 +763,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * serverside caches for all the tables of the instance. This feature is enabled by default.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
-     *
      * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
     @Deprecated
