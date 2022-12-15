@@ -124,6 +124,7 @@ public final class BigtableDataSettings {
         .stubSettings()
         .setCredentialsProvider(NoCredentialsProvider.create())
         .setEndpoint(hostname + ":" + port)
+        // disable channel refreshing when creating an emulator
         .setRefreshingChannel(false)
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()

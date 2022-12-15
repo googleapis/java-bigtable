@@ -276,8 +276,6 @@ public class EnhancedBigtableStubTest {
   public void testUserAgent() throws InterruptedException {
     ServerStreamingCallable<Query, Row> streamingCallable =
         enhancedBigtableStub.createReadRowsCallable(new DefaultRowAdapter());
-    // Clear the headers which will have the priming request
-    metadataInterceptor.headers.clear();
 
     Query request = Query.create("table-id").rowKey("row-key");
     streamingCallable.call(request).iterator().next();
@@ -428,43 +426,64 @@ public class EnhancedBigtableStubTest {
 
   @Test
   public void testCallContextPropagatedInMutationBatcher()
-      throws InterruptedException, ExecutionException {
-    contextInterceptor.contexts.clear();
+      throws IOException, InterruptedException, ExecutionException {
+    EnhancedBigtableStubSettings settings =
+        defaultSettings
+            .toBuilder()
+            .setRefreshingChannel(true)
+            .setPrimedTableIds("table1", "table2")
+            .build();
 
-    // Override the timeout
-    GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
+      // clear the previous contexts
+      contextInterceptor.contexts.clear();
 
-    // Send a batch
-    try (Batcher<RowMutationEntry, Void> batcher =
-        enhancedBigtableStub.newMutateRowsBatcher("table1", clientCtx)) {
-      batcher.add(RowMutationEntry.create("key").deleteRow()).get();
+      // Override the timeout
+      GrpcCallContext clientCtx =
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+
+      // Send a batch
+      try (Batcher<RowMutationEntry, Void> batcher =
+          stub.newMutateRowsBatcher("table1", clientCtx)) {
+        batcher.add(RowMutationEntry.create("key").deleteRow()).get();
+      }
+
+      // Ensure that the server got the overriden deadline
+      Context serverCtx = contextInterceptor.contexts.poll();
+      assertThat(serverCtx).isNotNull();
+      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
     }
-
-    // Ensure that the server got the overriden deadline
-    Context serverCtx = contextInterceptor.contexts.poll();
-    assertThat(serverCtx).isNotNull();
-    assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
   }
 
   @Test
   public void testCallContextPropagatedInReadBatcher()
       throws IOException, InterruptedException, ExecutionException {
-    // clear the previous contexts
-    contextInterceptor.contexts.clear();
+    EnhancedBigtableStubSettings settings =
+        defaultSettings
+            .toBuilder()
+            .setRefreshingChannel(true)
+            .setPrimedTableIds("table1", "table2")
+            .build();
 
-    // Override the timeout
-    GrpcCallContext clientCtx = GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
+      // clear the previous contexts
+      contextInterceptor.contexts.clear();
 
-    // Send a batch
-    try (Batcher<ByteString, Row> batcher =
-        enhancedBigtableStub.newBulkReadRowsBatcher(Query.create("table1"), clientCtx)) {
-      batcher.add(ByteString.copyFromUtf8("key")).get();
+      // Override the timeout
+      GrpcCallContext clientCtx =
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
+
+      // Send a batch
+      try (Batcher<ByteString, Row> batcher =
+          stub.newBulkReadRowsBatcher(Query.create("table1"), clientCtx)) {
+        batcher.add(ByteString.copyFromUtf8("key")).get();
+      }
+
+      // Ensure that the server got the overriden deadline
+      Context serverCtx = contextInterceptor.contexts.poll();
+      assertThat(serverCtx).isNotNull();
+      assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
     }
-
-    // Ensure that the server got the overriden deadline
-    Context serverCtx = contextInterceptor.contexts.poll();
-    assertThat(serverCtx).isNotNull();
-    assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {
