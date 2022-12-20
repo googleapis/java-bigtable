@@ -19,6 +19,7 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -53,10 +54,11 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-      final ApiCallContext contextWithResponseMetadata = responseMetadata.addHandlers(context);
       BigtableTracerUnaryCallback callback =
           new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
-      ApiFuture<ResponseT> future = innerCallable.futureCall(request, contextWithResponseMetadata);
+      ApiFuture<ResponseT> future =
+              innerCallable.futureCall(request,
+                      Util.addHandlerToCallContext(context, responseMetadata, (BigtableTracer) context.getTracer()));
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {

@@ -218,4 +218,11 @@ class CompositeTracer extends BigtableTracer {
       tracer.afterResponse(applicationLatency);
     }
   }
+
+  @Override
+  public void requestBlockedOnChannel(long blockedTimeMs) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.requestBlockedOnChannel(blockedTimeMs);
+    }
+  }
 }

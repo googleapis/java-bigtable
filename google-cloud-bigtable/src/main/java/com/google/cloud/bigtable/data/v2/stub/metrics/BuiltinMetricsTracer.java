@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nullable;
+
 import org.threeten.bp.Duration;
 
 /**
@@ -223,6 +224,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   @Override
   public void batchRequestThrottled(long throttledTimeMs) {
     recorder.putBatchRequestThrottled(throttledTimeMs);
+  }
+
+  @Override
+  public void requestBlockedOnChannel(long blockedTimeMs) {
+    recorder.putRequestBlockedOnChannel(blockedTimeMs);
   }
 
   @Override

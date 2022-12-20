@@ -251,4 +251,11 @@ public class CompositeTracerTest {
         .comparingElementsUsing(MethodComparator.METHOD_CORRESPONDENCE)
         .containsAtLeastElementsIn(baseMethods);
   }
+
+  @Test
+  public void testRequestBlockedOnChannel() {
+    compositeTracer.requestBlockedOnChannel(5L);
+    verify(child3, times(1)).requestBlockedOnChannel(5L);
+    verify(child4, times(1)).requestBlockedOnChannel(5L);
+  }
 }

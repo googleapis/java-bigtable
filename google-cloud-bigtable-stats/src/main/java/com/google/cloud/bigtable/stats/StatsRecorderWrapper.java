@@ -119,6 +119,10 @@ public class StatsRecorderWrapper {
     operationMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, throttledTimeMs);
   }
 
+  public void putRequestBlockedOnChannel(long blockedTime) {
+    attemptMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, blockedTime);
+  }
+
   private TagContextBuilder newTagContextBuilder(String tableId, String zone, String cluster) {
     TagContextBuilder tagContextBuilder =
         tagger
