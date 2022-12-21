@@ -26,6 +26,7 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.ServerStats;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
+import io.grpc.Metadata;
 import javax.annotation.Nonnull;
 
 public class RateLimitingServerStreamingCallable
@@ -33,6 +34,9 @@ public class RateLimitingServerStreamingCallable
   private final static long DEFAULT_QPS = 10_000;
   private final static double DEFAULT_TARGET_CPU = 70.0;
   private final static long minimumTimeMsBetweenUpdates = 200_000;
+
+  /*private static final Metadata.Key<String> CPU_THROTTLING_KEY =
+      Metadata.Key.of("", Metadata.ASCII_STRING_MARSHALLER);*/
 
   private RateLimiter limiter;
   private RateLimitingStats stats;
@@ -49,17 +53,16 @@ public class RateLimitingServerStreamingCallable
   @Override
   public void call(
       MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
-    // Add response handling?
-    // Add feature flag bitmap here?
+    // WIP needs feature flag change
+    context = RateLimitingStats.addCpuHeaderToContext(context);
+
     limiter.acquire();
     CpuMetadataResponseObserver innerObserver =
         new CpuMetadataResponseObserver(responseObserver);
-
     innerCallable.call(request, innerObserver, context);
   }
 
   private class CpuMetadataResponseObserver extends SafeResponseObserver<MutateRowsResponse> {
-
     private final ResponseObserver<MutateRowsResponse> outerObserver;
 
     CpuMetadataResponseObserver(
@@ -76,15 +79,6 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
-      //System.out.println("On Response");
-
-      double[] cpus = stats.getCpuList(response);
-
-      double newQps = limiter.getRate();
-      if (cpus.length > 0) {
-        newQps = stats.calculateQpsChange(cpus, DEFAULT_TARGET_CPU, limiter.getRate());
-      }
-
       // Ensure enough time has passed since updates to QPS
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
@@ -92,6 +86,17 @@ public class RateLimitingServerStreamingCallable
         outerObserver.onResponse(response);
         return;
       }
+
+      double[] cpus = stats.getCpuList(response);
+      double newQps;
+
+      if (cpus.length > 0) {
+        newQps = stats.calculateQpsChange(cpus, DEFAULT_TARGET_CPU, limiter.getRate());
+      } else {
+        outerObserver.onResponse(response);
+        return;
+      }
+
       limiter.setRate(newQps);
       stats.updateLastQpsUpdateTime(currentTime);
       stats.updateQps(newQps);
@@ -102,10 +107,6 @@ public class RateLimitingServerStreamingCallable
     @Override
     protected void onErrorImpl(Throwable t) {
       if (t instanceof DeadlineExceededException || t instanceof UnavailableException) {
-
-        // If deadlines are being reached, assume cbt server is overloaded
-        double newQps = stats.calculateQpsChange(new double[]{99.9}, DEFAULT_TARGET_CPU, limiter.getRate());
-
         // Ensure enough time has passed since updates to QPS
         long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
         long currentTime = System.currentTimeMillis();
@@ -113,6 +114,10 @@ public class RateLimitingServerStreamingCallable
           outerObserver.onError(t);
           return;
         }
+
+        // If deadlines are being reached, assume cbt server is overloaded
+        double newQps = stats.calculateQpsChange(new double[]{99.9}, DEFAULT_TARGET_CPU, limiter.getRate());
+
         limiter.setRate(newQps);
         stats.updateLastQpsUpdateTime(currentTime);
         stats.updateQps(newQps);
