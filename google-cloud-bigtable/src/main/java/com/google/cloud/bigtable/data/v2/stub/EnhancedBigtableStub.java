@@ -718,11 +718,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingSteamingCallable = null;
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingStreamingCallable = null;
 
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
-      cpuThrottlingSteamingCallable =
+    try {
+      cpuThrottlingStreamingCallable =
           new RateLimitingServerStreamingCallable(withStatsHeaders, rateLimitingStats);
+    } catch (Exception e) {
+      System.out.println("Error in st");
+    }
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
@@ -730,7 +734,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
-        new ConvertExceptionCallable<>(cpuThrottlingSteamingCallable != null ? cpuThrottlingSteamingCallable : withStatsHeaders);
+        new ConvertExceptionCallable<>(cpuThrottlingStreamingCallable != null ? cpuThrottlingStreamingCallable : withStatsHeaders);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(

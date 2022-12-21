@@ -20,8 +20,13 @@ package com.google.cloud.bigtable.data.v2.stub;
 // EnhancedBigtableStub is per client so we make the stats
 // Have a lower and upper bound
 
+import com.google.api.gax.rpc.ApiCallContext;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ServerStats;
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.DoubleStream;
 
 public class RateLimitingStats {
@@ -65,8 +70,8 @@ public class RateLimitingStats {
     double newRate = currentRate;
 
     // When the CPU is above the target threshold, reduce the rate by a percentage from the target
-    // If the current CPU is within 5% of the target, maintain the currentRate
-    // If the current CPU is below the target, continue to increase till a maintainable CPU is met
+    // If the average CPU is within 5% of the target, maintain the currentRate
+    // If the average CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
       newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
     } else if (Math.abs(cpuDelta) > 5){
@@ -81,27 +86,22 @@ public class RateLimitingStats {
   }
 
   static double[] getCpuList(MutateRowsResponse response) {
-    //System.out.println("Response exists: "+response != null);
     if (response != null && response.hasServerStats()) {
       ServerStats stats = response.getServerStats();
 
       double[] cpus = new double[stats.getCpuStatsList().size()];
       for (int i = 0; i < stats.getCpuStatsList().size(); i++) {
         cpus[i] = 100 * ((double)stats.getCpuStats(i).getRecentGcuMillisecondsPerSecond() / stats.getCpuStats(i).getMilligcuLimit()); // Q: What is the list of CpuStats here?
-        // Cpu will be a double [0,1]
-
-        // ServerStats, there is 1 ServerStats and has many requests
-        // CpuStats is basically one RPC, could have many CPU values
-        // Average all the cpuStats under ServerStats
-        // Collect how many CPUStats are returned (Testing for real world, Update RateLimitingStats)
-        // Are there empty responses, what is the average amount of returned CPUStats
-
-        // What is the gcuMillisecondLimit
-        // Divide recentGcuMilliseconds
       }
-      //System.out.println(cpus[0]);
       return cpus;
     }
     return new double[]{};
+  }
+
+  static ApiCallContext addCpuHeaderToContext(ApiCallContext apiCallContext) {
+    ImmutableMap.Builder<String, List<String>> headers = ImmutableMap.builder();
+    // value needs to be the serialized -> encoded -> set for header
+    headers.put("bigtable-features-bins", Arrays.asList("true"));
+    return apiCallContext.withExtraHeaders(headers.build());
   }
 }
