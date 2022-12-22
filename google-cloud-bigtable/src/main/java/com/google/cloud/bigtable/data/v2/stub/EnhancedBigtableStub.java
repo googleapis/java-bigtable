@@ -47,6 +47,7 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -93,6 +94,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.cloud.bigtable.data.v2.internal.FeatureFlagChannelConfigurator;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -130,6 +132,10 @@ import javax.annotation.Nullable;
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
+  // Feature flags this client supports
+  // TODO(diegomez17): Make this a setting
+  private static final FeatureFlags FEATURE_FLAGS =
+      FeatureFlags.newBuilder().setCpuMetrics(true).build();
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
@@ -165,6 +171,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // workaround JWT audience issues
     patchCredentials(builder);
+
+    // TODO: remove this hack
+    // Workaround gax-java's inability to set binary headers. Idealy this would be expressed as an
+    // InternalHeaderProvider in StubSettings, but that currently only supports ascii headers.
+    // So for the time being it needs to injected elsewhere. The major downside to this workaround
+    // is that feature flags will not be injected for user provided channels
+    // (via FixedChannelProvider).
+    if (settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
+      InstantiatingGrpcChannelProvider.Builder transportProvider =
+          ((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider()).toBuilder();
+
+      transportProvider.setChannelConfigurator(
+          new FeatureFlagChannelConfigurator(
+              transportProvider.getChannelConfigurator(), FEATURE_FLAGS));
+      builder.setTransportChannelProvider(transportProvider.build());
+    }
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
