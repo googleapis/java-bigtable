@@ -19,6 +19,7 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.UnavailableException;
+import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -55,6 +56,8 @@ public class RateLimitingServerStreamingCallable
       MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
     // WIP needs feature flag change
     context = RateLimitingStats.addCpuHeaderToContext(context);
+    FeatureFlags flag;
+    //flag.wr
 
     limiter.acquire();
     CpuMetadataResponseObserver innerObserver =
