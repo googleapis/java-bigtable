@@ -18,7 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,19 +37,43 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
   private StreamController streamController;
   private ResponseObserver outerObserver;
 
+  private AtomicReference<Throwable> cancellation = new AtomicReference<>();
+
   public SafeResponseObserver(ResponseObserver outerObserver) {
     this.outerObserver = outerObserver;
   }
 
   @Override
-  public final void onStart(StreamController streamController) {
+  public final void onStart(final StreamController streamController) {
     if (!isStarted.compareAndSet(false, true)) {
       throw new IllegalStateException("A stream is already started");
     }
 
+    if (cancellation.get() != null) {
+      outerObserver.onError(cancellation.get());
+      return;
+    }
+
     this.streamController = streamController;
+
     try {
-      onStartImpl(streamController);
+      onStartImpl(
+          new StreamController() {
+            @Override
+            public void cancel() {
+              SafeResponseObserver.this.onCancel();
+            }
+
+            @Override
+            public void disableAutoInboundFlowControl() {
+              streamController.disableAutoInboundFlowControl();
+            }
+
+            @Override
+            public void request(int i) {
+              streamController.request(i);
+            }
+          });
     } catch (Throwable t) {
       if (!isClosed.compareAndSet(false, true)) {
         logException("Tried to cancel a closed stream");
@@ -55,6 +81,12 @@ public abstract class SafeResponseObserver<ResponseT> implements ResponseObserve
       }
       streamController.cancel();
       outerObserver.onError(t);
+    }
+  }
+
+  private void onCancel() {
+    if (cancellation.compareAndSet(null, new CancellationException("User cancelled stream"))) {
+      streamController.cancel();
     }
   }
 
