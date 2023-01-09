@@ -653,7 +653,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings = RetrySettings.newBuilder().build();
     builder
@@ -696,7 +697,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings = RetrySettings.newBuilder().build();
     builder
