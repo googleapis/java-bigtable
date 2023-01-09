@@ -83,7 +83,7 @@ public class ReadChangeStreamRetryTest {
     serverRule.getServiceRegistry().addService(service);
 
     BigtableDataSettings.Builder settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(serverRule.getServer().getPort())
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setCredentialsProvider(NoCredentialsProvider.create());

@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>26.1.5</version>
+      <version>26.3.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -41,7 +41,7 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.17.0</version>
+  <version>2.17.1</version>
 </dependency>
 
 ```
@@ -49,20 +49,20 @@ If you are using Maven without BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.1.5')
+implementation platform('com.google.cloud:libraries-bom:26.3.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.17.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.17.1'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.17.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.17.1"
 ```
 
 ## Authentication
@@ -219,13 +219,9 @@ Cloud Bigtable client supports publishing client side metrics to
 [Cloud Monitoring](https://cloud.google.com/monitoring/docs/monitoring-overview) under the
 `bigtable.googleapis.com/client` namespace.
 
-Please fill out this [Google Form](https://forms.gle/xuhu6vCunn2MjV2m9) to sign up for the private preview of this
-feature. And enable it by setting:
+This feature is available once you upgrade to version 2.16.0 and above.
+Follow the guide on https://cloud.google.com/bigtable/docs/client-side-metrics-setup to enable.
 
-```java
-BigtableDataSettings.enableBuiltinMetrics();
-```
-  
 ## Client request tracing: OpenCensus Tracing
 
 Cloud Bigtable client supports [OpenCensus Tracing](https://opencensus.io/tracing/),
@@ -301,6 +297,12 @@ Tracing.getTraceConfig().updateActiveTraceParams(
 
 ## Enabling Cloud Bigtable Metrics: OpenCensus Stats
 
+---
+Note: We recommend [enabling client side built-in metrics](#enabling-client-side-metrics)
+if you want to view your metrics on cloud monitoring. This integration is only for exporting the
+metrics to a third party dashboard.
+---
+
 Cloud Bigtable client supports [Opencensus Metrics](https://opencensus.io/stats/),
 which gives insight into the client internals and aids in debugging production issues.
 All Cloud Bigtable Metrics are prefixed with `cloud.google.com/java/bigtable/`. The
@@ -335,7 +337,7 @@ metrics will be tagged with:
   each operation required, tagged by operation name and final operation status.
   Under normal circumstances, this will be 1.
 
-### GFE metric views:
+#### GFE metric views:
 * `cloud.google.com/java/bigtable/gfe_latency`: A distribution of the latency
 between Google's network receives an RPC and reads back the first byte of
 the response.
