@@ -37,6 +37,8 @@
      Also, this property will be augmented by `internal-bigtable-prod-batch-it-prop-helper` profile -->
     <bigtable.cfe-data-batch-endpoint>batch-bigtable.googleapis.com:443</bigtable.cfe-data-batch-endpoint>
 
+    <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. We have enforcer rule
+     below to make sure that the versions here match the ones we pull in via the shared bom. -->
     <grpc.version>1.51.0</grpc.version>
     <protobuf.version>3.21.10</protobuf.version>
     <protoc.version>${protobuf.version}</protoc.version>

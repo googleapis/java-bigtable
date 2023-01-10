@@ -114,7 +114,7 @@ public class ChangeStreamMutationTest {
     Assert.assertEquals(changeStreamMutation.getRowKey(), ByteString.copyFromUtf8("key"));
     Assert.assertEquals(
         changeStreamMutation.getType(), ChangeStreamMutation.MutationType.GARBAGE_COLLECTION);
-    Assert.assertNull(changeStreamMutation.getSourceClusterId());
+    Assert.assertTrue(changeStreamMutation.getSourceClusterId().isEmpty());
     Assert.assertEquals(changeStreamMutation.getCommitTimestamp(), fakeCommitTimestamp);
     Assert.assertEquals(changeStreamMutation.getTieBreaker(), 0);
     Assert.assertEquals(changeStreamMutation.getToken(), "fake-token");
