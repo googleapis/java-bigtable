@@ -32,8 +32,10 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.internal.FeatureFlagChannelConfigurator;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -84,6 +86,11 @@ import org.threeten.bp.Duration;
  * }</pre>
  */
 public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableStubSettings> {
+  // Feature flags this client supports
+  // TODO(diegomez17): Make this a setting
+  private static final FeatureFlags FEATURE_FLAGS =
+      FeatureFlags.newBuilder().setCpuMetrics(true).build();
+
   private static final Logger logger =
       Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
 
@@ -261,15 +268,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
-        .setPoolSize(getDefaultChannelPoolSize())
-        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
-        .setKeepAliveTimeout(
-            Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        // Attempts direct access to CBT service over gRPC to improve throughput,
-        // whether the attempt is allowed is totally controlled by service owner.
-        .setAttemptDirectPath(true);
+    return InstantiatingGrpcChannelProvider.newBuilder()
+        .setMaxInboundMessageSize(Integer.MAX_VALUE)
+        .setChannelConfigurator(
+            new FeatureFlagChannelConfigurator(
+                null, FEATURE_FLAGS));
   }
 
   static int getDefaultChannelPoolSize() {
@@ -547,6 +550,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * in the underlying GAPIC client for batching).
      */
     private Builder() {
+      System.out.println("Entering BigtableStubSettings Builder");
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
       primedTableIds = ImmutableList.of();

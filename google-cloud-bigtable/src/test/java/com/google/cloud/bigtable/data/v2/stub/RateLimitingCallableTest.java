@@ -96,6 +96,7 @@ public class RateLimitingCallableTest {
 
   @After
   public void tearDown() {
+    inRangeCpuStub.close();
     lowCpuStub.close();
     highCpuStub.close();
   }

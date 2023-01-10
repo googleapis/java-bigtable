@@ -63,6 +63,7 @@ public class RateLimitingStats {
 
   // This function is to calculate the QPS based on current CPU
   static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
+    System.out.println("Calculating QPS");
     if (tsCpus.length == 0) {
       return currentRate;
     }
@@ -73,13 +74,17 @@ public class RateLimitingStats {
     // If the average CPU is within 5% of the target, maintain the currentRate
     // If the average CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
+      System.out.println("CPU is overloaded");
       newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
     } else if (Math.abs(cpuDelta) > 5){
+      System.out.println("Increasing rate");
       newRate = currentRate + (currentRate * (PERCENT_CHANGE_LIMIT / 2));
     }
     if (newRate < lowerQpsBound) {
+      System.out.println("New rate is below lowerQPSbound");
       return lowerQpsBound;
     } else if (newRate > upperQpsBound) {
+      System.out.println("New rate is above lowerQPSbound");
       return upperQpsBound;
     }
     return newRate;

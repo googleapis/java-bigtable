@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebSignature;
+import com.google.api.core.ApiFuture;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.batching.BatchingSettings;
@@ -45,7 +46,9 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
+import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -83,6 +86,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -484,6 +488,23 @@ public class EnhancedBigtableStubTest {
       assertThat(serverCtx).isNotNull();
       assertThat(serverCtx.getDeadline()).isAtLeast(Deadline.after(8, TimeUnit.MINUTES));
     }
+  }
+
+  @Test
+  public void testFeatureFlagCpuMetric() throws InterruptedException, ExecutionException {
+    // Turn to use bulkMutateRowsCallable and also have a setting to turn this on
+
+    BulkMutation mutations = BulkMutation.create(TABLE_NAME).add("fake-row", Mutation.create()
+        .setCell("cf","qual","value"));
+
+    ApiFuture<Void> future =
+        enhancedBigtableStub.bulkMutateRowsCallable().futureCall(mutations, GrpcCallContext.createDefault());
+
+    future.get();
+
+    BlockingQueue<Metadata> metadataHeaders = metadataInterceptor.headers;
+    assertThat(metadataHeaders).hasSize(1);
+    assertThat(metadataHeaders.take().get(Metadata.Key.of("bigtable-features-bin", Metadata.BINARY_BYTE_MARSHALLER))).isNotEmpty();
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {
