@@ -32,7 +32,7 @@ import java.util.stream.DoubleStream;
 public class RateLimitingStats {
   private long lastQpsUpdateTime;
   private double currentQps;
-  public static double lowerQpsBound = 0.001;
+  public static double lowerQpsBound = 1;
   public static double upperQpsBound = 100_000;
   public static double PERCENT_CHANGE_LIMIT = .3;
 
@@ -63,28 +63,29 @@ public class RateLimitingStats {
 
   // This function is to calculate the QPS based on current CPU
   static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
-    System.out.println("Calculating QPS");
     if (tsCpus.length == 0) {
       return currentRate;
     }
     double cpuDelta = DoubleStream.of(tsCpus).average().getAsDouble() - target;
     double newRate = currentRate;
+    if (cpuDelta > 100 - target) {
+      // Ensure that cpuDelta will not result in newRate being 0
+      cpuDelta = 99.9 - target;
+    }
 
     // When the CPU is above the target threshold, reduce the rate by a percentage from the target
     // If the average CPU is within 5% of the target, maintain the currentRate
     // If the average CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
-      System.out.println("CPU is overloaded");
-      newRate = (long)(cpuDelta / (100 - target) * currentRate * PERCENT_CHANGE_LIMIT);
+      double percentChange = Math.max(1 - (cpuDelta / (100 - target)), PERCENT_CHANGE_LIMIT);
+      newRate = (long)(percentChange * currentRate);
+
     } else if (Math.abs(cpuDelta) > 5){
-      System.out.println("Increasing rate");
-      newRate = currentRate + (currentRate * (PERCENT_CHANGE_LIMIT / 2));
+      newRate = currentRate + (currentRate * (PERCENT_CHANGE_LIMIT));
     }
     if (newRate < lowerQpsBound) {
-      System.out.println("New rate is below lowerQPSbound");
       return lowerQpsBound;
     } else if (newRate > upperQpsBound) {
-      System.out.println("New rate is above lowerQPSbound");
       return upperQpsBound;
     }
     return newRate;
@@ -97,16 +98,10 @@ public class RateLimitingStats {
       double[] cpus = new double[stats.getCpuStatsList().size()];
       for (int i = 0; i < stats.getCpuStatsList().size(); i++) {
         cpus[i] = 100 * ((double)stats.getCpuStats(i).getRecentGcuMillisecondsPerSecond() / stats.getCpuStats(i).getMilligcuLimit()); // Q: What is the list of CpuStats here?
+        //System.out.println("Stats: ("+Thread.currentThread()+") Calculated CPU: "+cpus[i]);
       }
       return cpus;
     }
     return new double[]{};
-  }
-
-  static ApiCallContext addCpuHeaderToContext(ApiCallContext apiCallContext) {
-    ImmutableMap.Builder<String, List<String>> headers = ImmutableMap.builder();
-    // value needs to be the serialized -> encoded -> set for header
-    headers.put("bigtable-features-bins", Arrays.asList("true"));
-    return apiCallContext.withExtraHeaders(headers.build());
   }
 }
