@@ -28,6 +28,7 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import javax.annotation.Nullable;
 
 /** Notifies what features this client supports with each request. */
@@ -76,7 +77,8 @@ public class FeatureFlagChannelConfigurator
       return new SimpleForwardingClientCall<ReqT, RespT>(baseCall) {
         @Override
         public void start(Listener<RespT> responseListener, Metadata headers) {
-          headers.put(FEATURE_FLAG_KEY, serializedFlags);
+          System.out.println("Feature flags set");
+          headers.put(FEATURE_FLAG_KEY, Base64.getEncoder().encode(serializedFlags));
           super.start(responseListener, headers);
         }
       };

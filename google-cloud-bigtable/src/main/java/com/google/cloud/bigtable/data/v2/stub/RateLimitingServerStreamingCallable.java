@@ -28,6 +28,7 @@ import com.google.bigtable.v2.ServerStats;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.RateLimiter;
 import io.grpc.Metadata;
+import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 
 public class RateLimitingServerStreamingCallable
@@ -35,9 +36,6 @@ public class RateLimitingServerStreamingCallable
   private final static long DEFAULT_QPS = 10_000;
   private final static double DEFAULT_TARGET_CPU = 70.0;
   private final static long minimumTimeMsBetweenUpdates = 200_000;
-
-  /*private static final Metadata.Key<String> CPU_THROTTLING_KEY =
-      Metadata.Key.of("", Metadata.ASCII_STRING_MARSHALLER);*/
 
   private RateLimiter limiter;
   private RateLimitingStats stats;
@@ -54,11 +52,8 @@ public class RateLimitingServerStreamingCallable
   @Override
   public void call(
       MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
-    // WIP needs feature flag change
-    context = RateLimitingStats.addCpuHeaderToContext(context);
-    FeatureFlags flag;
-    //flag.wr
-
+    System.out.println("Call made");
+    System.out.println("Current QPS: "+limiter.getRate());
     limiter.acquire();
     CpuMetadataResponseObserver innerObserver =
         new CpuMetadataResponseObserver(responseObserver);
@@ -77,15 +72,19 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onStartImpl(final StreamController controller) {
+      System.out.println("Rate Limiting onStart");
       outerObserver.onStart(controller);
     }
 
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
       // Ensure enough time has passed since updates to QPS
+      System.out.println("Received response: "+response.toString());
+      System.out.println("Server Stats: "+response.getServerStats().toString());
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
       if (currentTime - lastQpsUpdateTime < minimumTimeMsBetweenUpdates) {
+        System.out.println("QPS has changed within the last minute");
         outerObserver.onResponse(response);
         return;
       }
@@ -100,6 +99,7 @@ public class RateLimitingServerStreamingCallable
         return;
       }
 
+      System.out.println("New QPS has been set");
       limiter.setRate(newQps);
       stats.updateLastQpsUpdateTime(currentTime);
       stats.updateQps(newQps);
@@ -109,6 +109,7 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onErrorImpl(Throwable t) {
+      System.out.println("Error: "+t.toString());
       if (t instanceof DeadlineExceededException || t instanceof UnavailableException) {
         // Ensure enough time has passed since updates to QPS
         long lastQpsUpdateTime = stats.getLastQpsUpdateTime();

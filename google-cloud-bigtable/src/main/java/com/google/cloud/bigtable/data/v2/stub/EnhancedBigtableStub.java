@@ -27,6 +27,7 @@ import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
+import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
@@ -34,6 +35,7 @@ import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.RequestParamsExtractor;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -132,10 +134,6 @@ import javax.annotation.Nullable;
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
-  // Feature flags this client supports
-  // TODO(diegomez17): Make this a setting
-  private static final FeatureFlags FEATURE_FLAGS =
-      FeatureFlags.newBuilder().setCpuMetrics(true).build();
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
@@ -164,29 +162,24 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStubSettings finalizeSettings(
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
       throws IOException {
+    System.out.println("Finalized settings");
+    System.out.println("Settings endpoint: "+settings.getEndpoint());
+    System.out.println("Settings Mtls endport: "+settings.getMtlsEndpoint());
+    // Move this code (INSIDE IF STATEMENT) to the Builder()
+
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
-
     // workaround JWT audience issues
     patchCredentials(builder);
 
     // TODO: remove this hack
-    // Workaround gax-java's inability to set binary headers. Idealy this would be expressed as an
+    // Workaround gax-java's inability to set binary headers. Ideally this would be expressed as an
     // InternalHeaderProvider in StubSettings, but that currently only supports ascii headers.
     // So for the time being it needs to injected elsewhere. The major downside to this workaround
     // is that feature flags will not be injected for user provided channels
     // (via FixedChannelProvider).
-    if (settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
-      InstantiatingGrpcChannelProvider.Builder transportProvider =
-          ((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider()).toBuilder();
-
-      transportProvider.setChannelConfigurator(
-          new FeatureFlagChannelConfigurator(
-              transportProvider.getChannelConfigurator(), FEATURE_FLAGS));
-      builder.setTransportChannelProvider(transportProvider.build());
-    }
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
@@ -743,12 +736,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingStreamingCallable = null;
 
     //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
-    try {
       cpuThrottlingStreamingCallable =
           new RateLimitingServerStreamingCallable(withStatsHeaders, rateLimitingStats);
-    } catch (Exception e) {
-      System.out.println("Error in st");
-    }
     //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
