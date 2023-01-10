@@ -50,7 +50,7 @@ public class ChangeStreamContinuationTokenTest {
   public void basicTest() throws Exception {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
-        new ChangeStreamContinuationToken(byteStringRange, TOKEN);
+        ChangeStreamContinuationToken.create(byteStringRange, TOKEN);
     Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
 
@@ -80,14 +80,14 @@ public class ChangeStreamContinuationTokenTest {
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
     Assert.assertEquals(
         changeStreamContinuationToken,
-        ChangeStreamContinuationToken.fromProto(changeStreamContinuationToken.toProto()));
+        ChangeStreamContinuationToken.fromProto(changeStreamContinuationToken.getTokenProto()));
   }
 
   @Test
   public void toByteStringTest() throws Exception {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
-        new ChangeStreamContinuationToken(byteStringRange, TOKEN);
+        ChangeStreamContinuationToken.create(byteStringRange, TOKEN);
     Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
     Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
     Assert.assertEquals(

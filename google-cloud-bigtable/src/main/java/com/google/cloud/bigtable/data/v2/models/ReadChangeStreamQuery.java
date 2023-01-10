@@ -35,6 +35,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /** A simple wrapper to construct a query for the ReadChangeStream RPC. */
 public final class ReadChangeStreamQuery implements Serializable {
@@ -164,7 +165,7 @@ public final class ReadChangeStreamQuery implements Serializable {
     for (ChangeStreamContinuationToken changeStreamContinuationToken :
         changeStreamContinuationTokens) {
       builder.setContinuationTokens(
-          streamContinuationTokensBuilder.addTokens(changeStreamContinuationToken.toProto()));
+          streamContinuationTokensBuilder.addTokens(changeStreamContinuationToken.getTokenProto()));
     }
     builder.setContinuationTokens(streamContinuationTokensBuilder.build());
     return this;
@@ -217,7 +218,8 @@ public final class ReadChangeStreamQuery implements Serializable {
     return query;
   }
 
-  private static ByteString wrapKey(String key) {
+  @Nullable
+  private static ByteString wrapKey(@Nullable String key) {
     if (key == null) {
       return null;
     }

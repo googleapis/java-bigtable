@@ -398,8 +398,8 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
       output.defaultWriteObject();
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
-    public static ByteString toByteString(ByteStringRange byteStringRange) {
+    @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+    public static ByteString serializeToByteString(ByteStringRange byteStringRange) {
       return RowRange.newBuilder()
           .setStartKeyClosed(byteStringRange.getStart())
           .setEndKeyOpen(byteStringRange.getEnd())
@@ -407,7 +407,7 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
           .toByteString();
     }
 
-    @InternalApi("Used in Changestream beam pipeline.")
+    @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
     public static ByteStringRange toByteStringRange(ByteString byteString)
         throws InvalidProtocolBufferException {
       RowRange rowRange = RowRange.newBuilder().mergeFrom(byteString).build();

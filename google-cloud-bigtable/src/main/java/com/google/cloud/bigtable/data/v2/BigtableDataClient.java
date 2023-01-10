@@ -1524,7 +1524,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @see ServerStreamingCallable For call styles.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public ServerStream<ByteStringRange> generateInitialChangeStreamPartitions(String tableId) {
     return generateInitialChangeStreamPartitionsCallable().call(tableId);
   }
@@ -1566,7 +1566,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }
    * }</pre>
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public void generateInitialChangeStreamPartitionsAsync(
       String tableId, ResponseObserver<ByteStringRange> observer) {
     generateInitialChangeStreamPartitionsCallable().call(tableId, observer);
@@ -1625,7 +1625,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @see ServerStreamingCallable For call styles.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public ServerStreamingCallable<String, ByteStringRange>
       generateInitialChangeStreamPartitionsCallable() {
     return stub.generateInitialChangeStreamPartitionsCallable();
@@ -1668,7 +1668,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @see ServerStreamingCallable For call styles.
    * @see ReadChangeStreamQuery For query options.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public ServerStream<ChangeStreamRecord> readChangeStream(ReadChangeStreamQuery query) {
     return readChangeStreamCallable().call(query);
   }
@@ -1714,7 +1714,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }
    * }</pre>
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public void readChangeStreamAsync(
       ReadChangeStreamQuery query, ResponseObserver<ChangeStreamRecord> observer) {
     readChangeStreamCallable().call(query, observer);
@@ -1778,7 +1778,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @see ServerStreamingCallable For call styles.
    * @see ReadChangeStreamQuery For query options.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamCallable() {
     return stub.readChangeStreamCallable();

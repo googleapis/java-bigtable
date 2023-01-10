@@ -60,11 +60,11 @@ import org.junit.runners.Parameterized;
  * to <a
  * href="https://github.com/googleapis/conformance-tests/tree/main/bigtable/v2/proto/google/cloud/conformance/bigtable/v2">https://github.com/googleapis/conformance-tests/tree/main/bigtable/v2/proto/google/cloud/conformance/bigtable/v2</a>
  * and the test data to <a
- * href="https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/readrows.json">https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/readrows.json</a>
+ * href="https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/changestream.json">https://github.com/googleapis/conformance-tests/blob/main/bigtable/v2/changestream.json</a>
  */
 @RunWith(Parameterized.class)
 public class ReadChangeStreamMergingAcceptanceTest {
-  // Location: `google-cloud-bigtable/src/main/resources/changestream.json`
+  // Location: `google-cloud-bigtable/src/test/resources/changestream.json`
   private static final String TEST_DATA_JSON_RESOURCE = "changestream.json";
 
   private final ReadChangeStreamTest testCase;
@@ -152,8 +152,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
         } else if (record instanceof CloseStream) {
           CloseStream closeStream = (CloseStream) record;
           ReadChangeStreamResponse.CloseStream.Builder builder =
-              ReadChangeStreamResponse.CloseStream.newBuilder()
-                  .setStatus(closeStream.getStatus().toProto());
+              ReadChangeStreamResponse.CloseStream.newBuilder().setStatus(closeStream.getStatus());
           for (ChangeStreamContinuationToken token :
               closeStream.getChangeStreamContinuationTokens()) {
             builder.addContinuationTokens(

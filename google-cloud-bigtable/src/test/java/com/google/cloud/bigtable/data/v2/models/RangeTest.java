@@ -312,7 +312,7 @@ public class RangeTest {
   public void byteStringRangeToByteStringTest() throws InvalidProtocolBufferException {
     ByteStringRange expected = ByteStringRange.create("a", "z");
 
-    ByteString serialized = ByteStringRange.toByteString(expected);
+    ByteString serialized = ByteStringRange.serializeToByteString(expected);
     ByteStringRange deserialized = ByteStringRange.toByteStringRange(serialized);
 
     assertThat(expected).isEqualTo(deserialized);

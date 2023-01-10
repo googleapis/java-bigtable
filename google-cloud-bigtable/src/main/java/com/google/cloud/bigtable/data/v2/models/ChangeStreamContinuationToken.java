@@ -16,31 +16,31 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.api.core.InternalExtensionOnly;
+import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.bigtable.v2.StreamPartition;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** A simple wrapper for {@link StreamContinuationToken}. */
-public final class ChangeStreamContinuationToken implements Serializable {
+@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@AutoValue
+public abstract class ChangeStreamContinuationToken implements Serializable {
   private static final long serialVersionUID = 524679926247095L;
 
-  private final StreamContinuationToken tokenProto;
-
-  private ChangeStreamContinuationToken(@Nonnull StreamContinuationToken tokenProto) {
-    this.tokenProto = tokenProto;
+  private static ChangeStreamContinuationToken create(@Nonnull StreamContinuationToken tokenProto) {
+    return new AutoValue_ChangeStreamContinuationToken(tokenProto);
   }
 
-  @InternalApi("Used in Changestream beam pipeline.")
-  public ChangeStreamContinuationToken(
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  public static ChangeStreamContinuationToken create(
       @Nonnull ByteStringRange byteStringRange, @Nonnull String token) {
-    this.tokenProto =
+    return create(
         StreamContinuationToken.newBuilder()
             .setPartition(
                 StreamPartition.newBuilder()
@@ -51,68 +51,39 @@ public final class ChangeStreamContinuationToken implements Serializable {
                             .build())
                     .build())
             .setToken(token)
-            .build();
+            .build());
   }
+
+  /** Wraps the protobuf {@link StreamContinuationToken}. */
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  static ChangeStreamContinuationToken fromProto(
+      @Nonnull StreamContinuationToken streamContinuationToken) {
+    return create(streamContinuationToken);
+  }
+
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  public static ChangeStreamContinuationToken fromByteString(ByteString byteString)
+      throws InvalidProtocolBufferException {
+    return create(StreamContinuationToken.newBuilder().mergeFrom(byteString).build());
+  }
+
+  @Nonnull
+  public abstract StreamContinuationToken getTokenProto();
 
   /**
    * Get the partition of the current continuation token, represented by a {@link ByteStringRange}.
    */
   public ByteStringRange getPartition() {
     return ByteStringRange.create(
-        this.tokenProto.getPartition().getRowRange().getStartKeyClosed(),
-        this.tokenProto.getPartition().getRowRange().getEndKeyOpen());
+        getTokenProto().getPartition().getRowRange().getStartKeyClosed(),
+        getTokenProto().getPartition().getRowRange().getEndKeyOpen());
   }
 
   public String getToken() {
-    return this.tokenProto.getToken();
+    return getTokenProto().getToken();
   }
 
-  // Creates the protobuf.
-  StreamContinuationToken toProto() {
-    return tokenProto;
-  }
-
-  /** Wraps the protobuf {@link StreamContinuationToken}. */
-  static ChangeStreamContinuationToken fromProto(
-      @Nonnull StreamContinuationToken streamContinuationToken) {
-    return new ChangeStreamContinuationToken(streamContinuationToken);
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
   public ByteString toByteString() {
-    return tokenProto.toByteString();
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
-  public static ChangeStreamContinuationToken fromByteString(ByteString byteString)
-      throws InvalidProtocolBufferException {
-    return new ChangeStreamContinuationToken(
-        StreamContinuationToken.newBuilder().mergeFrom(byteString).build());
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ChangeStreamContinuationToken otherToken = (ChangeStreamContinuationToken) o;
-    return Objects.equal(getPartition(), otherToken.getPartition())
-        && Objects.equal(getToken(), otherToken.getToken());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(getPartition(), getToken());
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("partition", getPartition())
-        .add("token", getToken())
-        .toString();
+    return getTokenProto().toByteString();
   }
 }

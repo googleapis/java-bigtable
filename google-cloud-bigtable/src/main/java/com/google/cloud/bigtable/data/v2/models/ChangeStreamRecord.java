@@ -21,5 +21,5 @@ import com.google.api.core.InternalExtensionOnly;
  * Default representation of a change stream record, which can be a Heartbeat, a CloseStream, or a
  * logical mutation.
  */
-@InternalExtensionOnly
+@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
 public interface ChangeStreamRecord {}

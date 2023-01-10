@@ -15,17 +15,20 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Default implementation of a {@link ChangeStreamRecordAdapter} that uses {@link
  * ChangeStreamRecord}s to represent change stream records.
  */
+@InternalApi
 public class DefaultChangeStreamRecordAdapter
     implements ChangeStreamRecordAdapter<ChangeStreamRecord> {
 
@@ -68,10 +71,10 @@ public class DefaultChangeStreamRecordAdapter
     private ChangeStreamMutation.Builder changeStreamMutationBuilder = null;
 
     // For the current SetCell.
-    private String family;
-    private ByteString qualifier;
-    private long timestampMicros;
-    private ByteString value;
+    @Nullable private String family;
+    @Nullable private ByteString qualifier;
+    @Nullable private long timestampMicros;
+    @Nullable private ByteString value;
 
     public DefaultChangeStreamRecordBuilder() {
       reset();

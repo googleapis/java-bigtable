@@ -24,7 +24,7 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** A simple wrapper for {@link ReadChangeStreamResponse.Heartbeat}. */
-@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
+@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
@@ -41,9 +41,9 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
         heartbeat.getLowWatermark());
   }
 
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract Timestamp getLowWatermark();
 }

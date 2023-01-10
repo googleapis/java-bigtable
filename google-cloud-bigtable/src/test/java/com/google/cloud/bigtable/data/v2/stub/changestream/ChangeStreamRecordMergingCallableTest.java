@@ -114,7 +114,7 @@ public class ChangeStreamRecordMergingCallableTest {
     ChangeStreamRecord record = results.get(0);
     Assert.assertTrue(record instanceof CloseStream);
     CloseStream closeStream = (CloseStream) record;
-    Assert.assertEquals(closeStream.getStatus().toProto(), closeStreamProto.getStatus());
+    Assert.assertEquals(closeStream.getStatus(), closeStreamProto.getStatus());
     Assert.assertEquals(closeStream.getChangeStreamContinuationTokens().size(), 1);
     ChangeStreamContinuationToken changeStreamContinuationToken =
         closeStream.getChangeStreamContinuationTokens().get(0);

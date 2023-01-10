@@ -17,15 +17,11 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.api.core.InternalExtensionOnly;
+import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.StreamContinuationToken;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.rpc.Status;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -34,75 +30,33 @@ import javax.annotation.Nonnull;
  * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. Make this class non-final so
  * that we can create a subclass to mock it.
  */
-@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
-public class CloseStream implements ChangeStreamRecord, Serializable {
+@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@AutoValue
+public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
-  private final Status status;
-  private transient ImmutableList.Builder<ChangeStreamContinuationToken>
-      changeStreamContinuationTokens = ImmutableList.builder();
 
-  private CloseStream(Status status, List<StreamContinuationToken> continuationTokens) {
-    this.status = status;
+  private static CloseStream create(
+      Status status, List<StreamContinuationToken> continuationTokens) {
+    ImmutableList.Builder<ChangeStreamContinuationToken> changeStreamContinuationTokens =
+        ImmutableList.builder();
     for (StreamContinuationToken streamContinuationToken : continuationTokens) {
       changeStreamContinuationTokens.add(
           ChangeStreamContinuationToken.fromProto(streamContinuationToken));
     }
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
-  public com.google.cloud.bigtable.common.Status getStatus() {
-    return com.google.cloud.bigtable.common.Status.fromProto(this.status);
-  }
-
-  @InternalApi("Used in Changestream beam pipeline.")
-  public List<ChangeStreamContinuationToken> getChangeStreamContinuationTokens() {
-    return changeStreamContinuationTokens.build();
-  }
-
-  private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
-    input.defaultReadObject();
-
-    @SuppressWarnings("unchecked")
-    ImmutableList<ChangeStreamContinuationToken> deserialized =
-        (ImmutableList<ChangeStreamContinuationToken>) input.readObject();
-    this.changeStreamContinuationTokens =
-        ImmutableList.<ChangeStreamContinuationToken>builder().addAll(deserialized);
-  }
-
-  private void writeObject(ObjectOutputStream output) throws IOException {
-    output.defaultWriteObject();
-    output.writeObject(changeStreamContinuationTokens.build());
+    return new AutoValue_CloseStream(status, changeStreamContinuationTokens.build());
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
-    return new CloseStream(closeStream.getStatus(), closeStream.getContinuationTokensList());
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
+    return create(closeStream.getStatus(), closeStream.getContinuationTokensList());
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    CloseStream record = (CloseStream) o;
-    return Objects.equal(getStatus(), record.getStatus())
-        && Objects.equal(
-            getChangeStreamContinuationTokens(), record.getChangeStreamContinuationTokens());
-  }
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  @Nonnull
+  public abstract Status getStatus();
 
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(getStatus(), getChangeStreamContinuationTokens());
-  }
-
-  @Override
-  public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("status", getStatus())
-        .add("changeStreamContinuationTokens", getChangeStreamContinuationTokens())
-        .toString();
-  }
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  @Nonnull
+  public abstract List<ChangeStreamContinuationToken> getChangeStreamContinuationTokens();
 }

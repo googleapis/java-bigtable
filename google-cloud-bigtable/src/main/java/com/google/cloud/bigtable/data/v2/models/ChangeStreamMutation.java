@@ -15,20 +15,16 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
 import com.google.api.core.InternalExtensionOnly;
+import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -64,8 +60,9 @@ import javax.annotation.Nonnull;
  *
  * Make this class non-final so that we can create a subclass to mock it.
  */
-@InternalExtensionOnly("Used in Changestream beam pipeline testing.")
-public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
+@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@AutoValue
+public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
 
   public enum MutationType {
@@ -73,32 +70,16 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
     GARBAGE_COLLECTION
   }
 
-  private final ByteString rowKey;
-
-  private final MutationType type;
-
-  /** This should only be set when type==USER. */
-  private final String sourceClusterId;
-
-  private final Timestamp commitTimestamp;
-
-  private final int tieBreaker;
-
-  private transient ImmutableList.Builder<Entry> entries = ImmutableList.builder();
-
-  private String token;
-
-  private Timestamp lowWatermark;
-
-  private ChangeStreamMutation(Builder builder) {
-    this.rowKey = builder.rowKey;
-    this.type = builder.type;
-    this.sourceClusterId = builder.sourceClusterId;
-    this.commitTimestamp = builder.commitTimestamp;
-    this.tieBreaker = builder.tieBreaker;
-    this.token = builder.token;
-    this.lowWatermark = builder.lowWatermark;
-    this.entries = builder.entries;
+  private static ChangeStreamMutation create(Builder builder) {
+    return new AutoValue_ChangeStreamMutation(
+        builder.rowKey,
+        builder.type,
+        builder.sourceClusterId,
+        builder.commitTimestamp,
+        builder.tieBreaker,
+        builder.token,
+        builder.lowWatermark,
+        builder.entries.build());
   }
 
   /**
@@ -121,68 +102,56 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
    */
   static Builder createGcMutation(
       @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
-    return new Builder(rowKey, MutationType.GARBAGE_COLLECTION, null, commitTimestamp, tieBreaker);
+    return new Builder(rowKey, MutationType.GARBAGE_COLLECTION, "", commitTimestamp, tieBreaker);
   }
 
-  private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
-    input.defaultReadObject();
-
-    @SuppressWarnings("unchecked")
-    ImmutableList<Entry> deserialized = (ImmutableList<Entry>) input.readObject();
-    this.entries = ImmutableList.<Entry>builder().addAll(deserialized);
-  }
-
-  private void writeObject(ObjectOutputStream output) throws IOException {
-    output.defaultWriteObject();
-    output.writeObject(entries.build());
-  }
+  //  private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
+  //    input.defaultReadObject();
+  //
+  //    @SuppressWarnings("unchecked")
+  //    ImmutableList<Entry> deserialized = (ImmutableList<Entry>) input.readObject();
+  //    getEntries() = ImmutableList.<Entry>builder().addAll(deserialized);
+  //  }
+  //
+  //  private void writeObject(ObjectOutputStream output) throws IOException {
+  //    output.defaultWriteObject();
+  //    output.writeObject(getEntries());
+  //  }
 
   /** Get the row key of the current mutation. */
   @Nonnull
-  public ByteString getRowKey() {
-    return this.rowKey;
-  }
+  public abstract ByteString getRowKey();
 
   /** Get the type of the current mutation. */
   @Nonnull
-  public MutationType getType() {
-    return this.type;
-  }
+  public abstract MutationType getType();
 
+  @Nonnull
   /** Get the source cluster id of the current mutation. Null for Garbage collection mutation. */
-  public String getSourceClusterId() {
-    return this.sourceClusterId;
-  }
+  public abstract String getSourceClusterId();
 
   /** Get the commit timestamp of the current mutation. */
   @Nonnull
-  public Timestamp getCommitTimestamp() {
-    return this.commitTimestamp;
-  }
+  public abstract Timestamp getCommitTimestamp();
 
   /**
    * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
    * mutations are applied to different clusters at the same time.
    */
-  public int getTieBreaker() {
-    return this.tieBreaker;
-  }
+  @Nonnull
+  public abstract int getTieBreaker();
 
   /** Get the token of the current mutation, which can be used to resume the changestream. */
-  public String getToken() {
-    return this.token;
-  }
+  @Nonnull
+  public abstract String getToken();
 
   /** Get the low watermark of the current mutation. */
-  public Timestamp getLowWatermark() {
-    return this.lowWatermark;
-  }
+  @Nonnull
+  public abstract Timestamp getLowWatermark();
 
   /** Get the list of mods of the current mutation. */
   @Nonnull
-  public List<Entry> getEntries() {
-    return this.entries.build();
-  }
+  public abstract List<Entry> getEntries();
 
   /** Returns a builder containing all the values of this ChangeStreamMutation class. */
   Builder toBuilder() {
@@ -190,6 +159,7 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   }
 
   /** Helper class to create a ChangeStreamMutation. */
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public static class Builder {
     private final ByteString rowKey;
 
@@ -221,14 +191,14 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
     }
 
     private Builder(ChangeStreamMutation changeStreamMutation) {
-      this.rowKey = changeStreamMutation.rowKey;
-      this.type = changeStreamMutation.type;
-      this.sourceClusterId = changeStreamMutation.sourceClusterId;
-      this.commitTimestamp = changeStreamMutation.commitTimestamp;
-      this.tieBreaker = changeStreamMutation.tieBreaker;
-      this.entries = changeStreamMutation.entries;
-      this.token = changeStreamMutation.token;
-      this.lowWatermark = changeStreamMutation.lowWatermark;
+      this.rowKey = changeStreamMutation.getRowKey();
+      this.type = changeStreamMutation.getType();
+      this.sourceClusterId = changeStreamMutation.getSourceClusterId();
+      this.commitTimestamp = changeStreamMutation.getCommitTimestamp();
+      this.tieBreaker = changeStreamMutation.getTieBreaker();
+      this.entries.addAll(changeStreamMutation.getEntries());
+      this.token = changeStreamMutation.getToken();
+      this.lowWatermark = changeStreamMutation.getLowWatermark();
     }
 
     Builder setCell(
@@ -267,13 +237,13 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
       Preconditions.checkArgument(
           token != null && lowWatermark != null,
           "ChangeStreamMutation must have a continuation token and low watermark.");
-      return new ChangeStreamMutation(this);
+      return ChangeStreamMutation.create(this);
     }
   }
 
   public RowMutation toRowMutation(@Nonnull String tableId) {
-    RowMutation rowMutation = RowMutation.create(tableId, rowKey);
-    for (Entry entry : this.entries.build()) {
+    RowMutation rowMutation = RowMutation.create(tableId, getRowKey());
+    for (Entry entry : getEntries()) {
       if (entry instanceof DeleteFamily) {
         rowMutation.deleteFamily(((DeleteFamily) entry).getFamilyName());
       } else if (entry instanceof DeleteCells) {
@@ -297,8 +267,8 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   }
 
   public RowMutationEntry toRowMutationEntry() {
-    RowMutationEntry rowMutationEntry = RowMutationEntry.create(rowKey);
-    for (Entry entry : this.entries.build()) {
+    RowMutationEntry rowMutationEntry = RowMutationEntry.create(getRowKey());
+    for (Entry entry : getEntries()) {
       if (entry instanceof DeleteFamily) {
         rowMutationEntry.deleteFamily(((DeleteFamily) entry).getFamilyName());
       } else if (entry instanceof DeleteCells) {
@@ -319,55 +289,5 @@ public class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
       }
     }
     return rowMutationEntry;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    ChangeStreamMutation other = (ChangeStreamMutation) o;
-    return Objects.equal(this.rowKey, other.rowKey)
-        && Objects.equal(this.type, other.type)
-        && Objects.equal(this.sourceClusterId, other.sourceClusterId)
-        && Objects.equal(this.commitTimestamp, other.commitTimestamp)
-        && Objects.equal(this.tieBreaker, other.tieBreaker)
-        && Objects.equal(this.token, other.token)
-        && Objects.equal(this.lowWatermark, other.lowWatermark)
-        && Objects.equal(this.entries.build(), other.entries.build());
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hashCode(
-        rowKey,
-        type,
-        sourceClusterId,
-        commitTimestamp,
-        tieBreaker,
-        token,
-        lowWatermark,
-        entries.build());
-  }
-
-  @Override
-  public String toString() {
-    List<String> entriesAsStrings = new ArrayList<>();
-    for (Entry entry : this.entries.build()) {
-      entriesAsStrings.add(entry.toString());
-    }
-    String entryString = "[" + String.join(";\t", entriesAsStrings) + "]";
-    return MoreObjects.toStringHelper(this)
-        .add("rowKey", this.rowKey.toStringUtf8())
-        .add("type", this.type)
-        .add("sourceClusterId", this.sourceClusterId)
-        .add("commitTimestamp", this.commitTimestamp.toString())
-        .add("token", this.token)
-        .add("lowWatermark", this.lowWatermark)
-        .add("entries", entryString)
-        .toString();
   }
 }

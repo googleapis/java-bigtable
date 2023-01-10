@@ -33,25 +33,25 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
   ChangeStreamRecordBuilder<ChangeStreamRecordT> createChangeStreamRecordBuilder();
 
   /** Checks if the given change stream record is a Heartbeat. */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   boolean isHeartbeat(ChangeStreamRecordT record);
 
   /**
    * Get the token from the given Heartbeat record. If the given record is not a Heartbeat, it will
    * throw an Exception.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   String getTokenFromHeartbeat(ChangeStreamRecordT heartbeatRecord);
 
   /** Checks if the given change stream record is a ChangeStreamMutation. */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   boolean isChangeStreamMutation(ChangeStreamRecordT record);
 
   /**
    * Get the token from the given ChangeStreamMutation record. If the given record is not a
    * ChangeStreamMutation, it will throw an Exception.
    */
-  @InternalApi("Used in Changestream beam pipeline.")
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   String getTokenFromChangeStreamMutation(ChangeStreamRecordT record);
 
   /**

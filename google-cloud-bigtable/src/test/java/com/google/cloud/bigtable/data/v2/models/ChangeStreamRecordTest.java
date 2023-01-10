@@ -157,7 +157,7 @@ public class ChangeStreamRecordTest {
             .build();
     CloseStream actualCloseStream = CloseStream.fromProto(closeStreamProto);
 
-    Assert.assertEquals(status, actualCloseStream.getStatus().toProto());
+    Assert.assertEquals(status, actualCloseStream.getStatus());
     Assert.assertEquals(
         actualCloseStream.getChangeStreamContinuationTokens().get(0).getPartition(),
         ByteStringRange.create(rowRange1.getStartKeyClosed(), rowRange1.getEndKeyOpen()));
