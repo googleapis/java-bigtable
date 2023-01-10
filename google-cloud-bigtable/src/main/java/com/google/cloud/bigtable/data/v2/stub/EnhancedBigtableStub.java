@@ -162,24 +162,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStubSettings finalizeSettings(
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
       throws IOException {
-    System.out.println("Finalized settings");
-    System.out.println("Settings endpoint: "+settings.getEndpoint());
-    System.out.println("Settings Mtls endport: "+settings.getMtlsEndpoint());
-    // Move this code (INSIDE IF STATEMENT) to the Builder()
-
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
     // workaround JWT audience issues
     patchCredentials(builder);
-
-    // TODO: remove this hack
-    // Workaround gax-java's inability to set binary headers. Ideally this would be expressed as an
-    // InternalHeaderProvider in StubSettings, but that currently only supports ascii headers.
-    // So for the time being it needs to injected elsewhere. The major downside to this workaround
-    // is that feature flags will not be injected for user provided channels
-    // (via FixedChannelProvider).
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {

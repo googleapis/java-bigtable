@@ -77,7 +77,6 @@ public class FeatureFlagChannelConfigurator
       return new SimpleForwardingClientCall<ReqT, RespT>(baseCall) {
         @Override
         public void start(Listener<RespT> responseListener, Metadata headers) {
-          System.out.println("Feature flags set");
           headers.put(FEATURE_FLAG_KEY, Base64.getEncoder().encode(serializedFlags));
           super.start(responseListener, headers);
         }
