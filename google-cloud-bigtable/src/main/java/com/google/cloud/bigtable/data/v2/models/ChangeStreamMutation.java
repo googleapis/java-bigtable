@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.InternalExtensionOnly;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
@@ -60,7 +59,7 @@ import javax.annotation.Nonnull;
  *
  * Make this class non-final so that we can create a subclass to mock it.
  */
-@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
@@ -104,19 +103,6 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
       @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
     return new Builder(rowKey, MutationType.GARBAGE_COLLECTION, "", commitTimestamp, tieBreaker);
   }
-
-  //  private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
-  //    input.defaultReadObject();
-  //
-  //    @SuppressWarnings("unchecked")
-  //    ImmutableList<Entry> deserialized = (ImmutableList<Entry>) input.readObject();
-  //    getEntries() = ImmutableList.<Entry>builder().addAll(deserialized);
-  //  }
-  //
-  //  private void writeObject(ObjectOutputStream output) throws IOException {
-  //    output.defaultWriteObject();
-  //    output.writeObject(getEntries());
-  //  }
 
   /** Get the row key of the current mutation. */
   @Nonnull

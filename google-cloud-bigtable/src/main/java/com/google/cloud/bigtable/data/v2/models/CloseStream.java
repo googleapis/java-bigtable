@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.InternalExtensionOnly;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.StreamContinuationToken;
@@ -30,7 +29,7 @@ import javax.annotation.Nonnull;
  * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. Make this class non-final so
  * that we can create a subclass to mock it.
  */
-@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;

@@ -15,11 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalExtensionOnly;
+import com.google.api.core.InternalApi;
 
 /**
  * Default representation of a change stream record, which can be a Heartbeat, a CloseStream, or a
  * logical mutation.
  */
-@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 public interface ChangeStreamRecord {}

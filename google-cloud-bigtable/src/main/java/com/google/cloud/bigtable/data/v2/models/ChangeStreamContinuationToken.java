@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.InternalExtensionOnly;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
@@ -28,7 +27,7 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** A simple wrapper for {@link StreamContinuationToken}. */
-@InternalExtensionOnly("Intended for use by the BigtableIO in apache/beam only.")
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class ChangeStreamContinuationToken implements Serializable {
   private static final long serialVersionUID = 524679926247095L;
