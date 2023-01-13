@@ -466,7 +466,30 @@ message MutateRowsResponse {
   }
 
   // One or more results for Entries from the batch request.
-  repeated Entry entries = 1;
+  repeated Entry entries = 1 [(google.api.field_auditing).directive = "AUDIT"];
+
+  ServerStats server_stats = 2 [
+    // Private preview feature for select customers to get tabletserver CPU
+    // utilization and do CPU-based throttline. Only the custom built veneer
+    // client is able to interpret this field.
+    (google.api.field_visibility).restriction =
+      "GOOGLE_INTERNAL,TRUSTED_TESTER_CPU_STATS"
+  ];
+}
+
+message ServerStats {
+  option (google.api.message_visibility).restriction =
+    "GOOGLE_INTERNAL,TRUSTED_TESTER_CPU_STATS";
+
+  message ServerCPUStats {
+    int32 recent_gcu_milliseconds_per_second = 1;
+    int32 milligcu_limit = 2;
+  }
+
+  // Currently we have 1 entry per underlying RPC. Note that multiple RPCs may
+  // be sent to the same tabletserver and we don't de-duplicate. We only get the
+  // stats if the RPC returns OK.
+  repeated ServerCPUStats cpu_stats = 1;
 }
 
 // Request message for Bigtable.CheckAndMutateRow.
