@@ -21,6 +21,7 @@ import "google/api/client.proto";
 import "google/api/field_behavior.proto";
 import "google/api/resource.proto";
 import "google/api/routing.proto";
+//import "google/api/visibility.proto";
 import "google/bigtable/v2/data.proto";
 import "google/bigtable/v2/request_stats.proto";
 import "google/protobuf/wrappers.proto";
@@ -448,6 +449,8 @@ message MutateRowsRequest {
   // At least one entry must be specified, and in total the entries can
   // contain at most 100000 mutations.
   repeated Entry entries = 2 [(google.api.field_behavior) = REQUIRED];
+
+  // Change request here for target CPU
 }
 
 // Response message for BigtableService.MutateRows.

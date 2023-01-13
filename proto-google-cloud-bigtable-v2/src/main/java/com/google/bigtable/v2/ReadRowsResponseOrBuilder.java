@@ -18,24 +18,20 @@
 
 package com.google.bigtable.v2;
 
-public interface ReadRowsResponseOrBuilder
-    extends
+public interface ReadRowsResponseOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.ReadRowsResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * A collection of a row's contents as part of the read request.
    * </pre>
    *
    * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
    */
-  java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> getChunksList();
+  java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> 
+      getChunksList();
   /**
-   *
-   *
    * <pre>
    * A collection of a row's contents as part of the read request.
    * </pre>
@@ -44,8 +40,6 @@ public interface ReadRowsResponseOrBuilder
    */
   com.google.bigtable.v2.ReadRowsResponse.CellChunk getChunks(int index);
   /**
-   *
-   *
    * <pre>
    * A collection of a row's contents as part of the read request.
    * </pre>
@@ -54,30 +48,25 @@ public interface ReadRowsResponseOrBuilder
    */
   int getChunksCount();
   /**
-   *
-   *
    * <pre>
    * A collection of a row's contents as part of the read request.
    * </pre>
    *
    * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
    */
-  java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder>
+  java.util.List<? extends com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder> 
       getChunksOrBuilderList();
   /**
-   *
-   *
    * <pre>
    * A collection of a row's contents as part of the read request.
    * </pre>
    *
    * <code>repeated .google.bigtable.v2.ReadRowsResponse.CellChunk chunks = 1;</code>
    */
-  com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(int index);
+  com.google.bigtable.v2.ReadRowsResponse.CellChunkOrBuilder getChunksOrBuilder(
+      int index);
 
   /**
-   *
-   *
    * <pre>
    * Optionally the server might return the row key of the last row it
    * has scanned.  The client can use this to construct a more
@@ -89,14 +78,11 @@ public interface ReadRowsResponseOrBuilder
    * </pre>
    *
    * <code>bytes last_scanned_row_key = 2;</code>
-   *
    * @return The lastScannedRowKey.
    */
   com.google.protobuf.ByteString getLastScannedRowKey();
 
   /**
-   *
-   *
    * <pre>
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:
@@ -118,13 +104,10 @@ public interface ReadRowsResponseOrBuilder
    * </pre>
    *
    * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
-   *
    * @return Whether the requestStats field is set.
    */
   boolean hasRequestStats();
   /**
-   *
-   *
    * <pre>
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:
@@ -146,13 +129,10 @@ public interface ReadRowsResponseOrBuilder
    * </pre>
    *
    * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
-   *
    * @return The requestStats.
    */
   com.google.bigtable.v2.RequestStats getRequestStats();
   /**
-   *
-   *
    * <pre>
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:

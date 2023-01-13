@@ -19,57 +19,52 @@
 package com.google.bigtable.v2;
 
 /**
- *
- *
  * <pre>
  * FullReadStatsView captures all known information about a read.
  * </pre>
  *
  * Protobuf type {@code google.bigtable.v2.FullReadStatsView}
  */
-public final class FullReadStatsView extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class FullReadStatsView extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.v2.FullReadStatsView)
     FullReadStatsViewOrBuilder {
-  private static final long serialVersionUID = 0L;
+private static final long serialVersionUID = 0L;
   // Use FullReadStatsView.newBuilder() to construct.
   private FullReadStatsView(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
-  private FullReadStatsView() {}
+  private FullReadStatsView() {
+  }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new FullReadStatsView();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-    return com.google.bigtable.v2.RequestStatsProto
-        .internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+    return com.google.bigtable.v2.RequestStatsProto.internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.google.bigtable.v2.RequestStatsProto
-        .internal_static_google_bigtable_v2_FullReadStatsView_fieldAccessorTable
+    return com.google.bigtable.v2.RequestStatsProto.internal_static_google_bigtable_v2_FullReadStatsView_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.google.bigtable.v2.FullReadStatsView.class,
-            com.google.bigtable.v2.FullReadStatsView.Builder.class);
+            com.google.bigtable.v2.FullReadStatsView.class, com.google.bigtable.v2.FullReadStatsView.Builder.class);
   }
 
   public static final int READ_ITERATION_STATS_FIELD_NUMBER = 1;
   private com.google.bigtable.v2.ReadIterationStats readIterationStats_;
   /**
-   *
-   *
    * <pre>
    * Iteration stats describe how efficient the read is, e.g. comparing
    * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -78,7 +73,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
    * </pre>
    *
    * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
-   *
    * @return Whether the readIterationStats field is set.
    */
   @java.lang.Override
@@ -86,8 +80,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     return readIterationStats_ != null;
   }
   /**
-   *
-   *
    * <pre>
    * Iteration stats describe how efficient the read is, e.g. comparing
    * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -96,18 +88,13 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
    * </pre>
    *
    * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
-   *
    * @return The readIterationStats.
    */
   @java.lang.Override
   public com.google.bigtable.v2.ReadIterationStats getReadIterationStats() {
-    return readIterationStats_ == null
-        ? com.google.bigtable.v2.ReadIterationStats.getDefaultInstance()
-        : readIterationStats_;
+    return readIterationStats_ == null ? com.google.bigtable.v2.ReadIterationStats.getDefaultInstance() : readIterationStats_;
   }
   /**
-   *
-   *
    * <pre>
    * Iteration stats describe how efficient the read is, e.g. comparing
    * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -125,15 +112,12 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
   public static final int REQUEST_LATENCY_STATS_FIELD_NUMBER = 2;
   private com.google.bigtable.v2.RequestLatencyStats requestLatencyStats_;
   /**
-   *
-   *
    * <pre>
    * Request latency stats describe the time taken to complete a request, from
    * the server side.
    * </pre>
    *
    * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
-   *
    * @return Whether the requestLatencyStats field is set.
    */
   @java.lang.Override
@@ -141,26 +125,19 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     return requestLatencyStats_ != null;
   }
   /**
-   *
-   *
    * <pre>
    * Request latency stats describe the time taken to complete a request, from
    * the server side.
    * </pre>
    *
    * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
-   *
    * @return The requestLatencyStats.
    */
   @java.lang.Override
   public com.google.bigtable.v2.RequestLatencyStats getRequestLatencyStats() {
-    return requestLatencyStats_ == null
-        ? com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance()
-        : requestLatencyStats_;
+    return requestLatencyStats_ == null ? com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance() : requestLatencyStats_;
   }
   /**
-   *
-   *
    * <pre>
    * Request latency stats describe the time taken to complete a request, from
    * the server side.
@@ -174,7 +151,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
   }
 
   private byte memoizedIsInitialized = -1;
-
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -186,7 +162,8 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
     if (readIterationStats_ != null) {
       output.writeMessage(1, getReadIterationStats());
     }
@@ -203,10 +180,12 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
 
     size = 0;
     if (readIterationStats_ != null) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(1, getReadIterationStats());
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(1, getReadIterationStats());
     }
     if (requestLatencyStats_ != null) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getRequestLatencyStats());
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(2, getRequestLatencyStats());
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -216,7 +195,7 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
   @java.lang.Override
   public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
-      return true;
+     return true;
     }
     if (!(obj instanceof com.google.bigtable.v2.FullReadStatsView)) {
       return super.equals(obj);
@@ -225,11 +204,13 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
 
     if (hasReadIterationStats() != other.hasReadIterationStats()) return false;
     if (hasReadIterationStats()) {
-      if (!getReadIterationStats().equals(other.getReadIterationStats())) return false;
+      if (!getReadIterationStats()
+          .equals(other.getReadIterationStats())) return false;
     }
     if (hasRequestLatencyStats() != other.hasRequestLatencyStats()) return false;
     if (hasRequestLatencyStats()) {
-      if (!getRequestLatencyStats().equals(other.getRequestLatencyStats())) return false;
+      if (!getRequestLatencyStats()
+          .equals(other.getRequestLatencyStats())) return false;
     }
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
@@ -255,136 +236,130 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     return hash;
   }
 
-  public static com.google.bigtable.v2.FullReadStatsView parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.FullReadStatsView parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.FullReadStatsView parseDelimitedFrom(
-      java.io.InputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
-  }
-
-  public static com.google.bigtable.v2.FullReadStatsView parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+  public static com.google.bigtable.v2.FullReadStatsView parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
+  public static com.google.bigtable.v2.FullReadStatsView parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+  }
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
-      com.google.protobuf.CodedInputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.FullReadStatsView parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.v2.FullReadStatsView prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * FullReadStatsView captures all known information about a read.
    * </pre>
    *
    * Protobuf type {@code google.bigtable.v2.FullReadStatsView}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.FullReadStatsView)
       com.google.bigtable.v2.FullReadStatsViewOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return com.google.bigtable.v2.RequestStatsProto
-          .internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.bigtable.v2.RequestStatsProto.internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.bigtable.v2.RequestStatsProto
-          .internal_static_google_bigtable_v2_FullReadStatsView_fieldAccessorTable
+      return com.google.bigtable.v2.RequestStatsProto.internal_static_google_bigtable_v2_FullReadStatsView_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.google.bigtable.v2.FullReadStatsView.class,
-              com.google.bigtable.v2.FullReadStatsView.Builder.class);
+              com.google.bigtable.v2.FullReadStatsView.class, com.google.bigtable.v2.FullReadStatsView.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.FullReadStatsView.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
@@ -404,9 +379,9 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return com.google.bigtable.v2.RequestStatsProto
-          .internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
+      return com.google.bigtable.v2.RequestStatsProto.internal_static_google_bigtable_v2_FullReadStatsView_descriptor;
     }
 
     @java.lang.Override
@@ -425,8 +400,7 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
 
     @java.lang.Override
     public com.google.bigtable.v2.FullReadStatsView buildPartial() {
-      com.google.bigtable.v2.FullReadStatsView result =
-          new com.google.bigtable.v2.FullReadStatsView(this);
+      com.google.bigtable.v2.FullReadStatsView result = new com.google.bigtable.v2.FullReadStatsView(this);
       if (readIterationStatsBuilder_ == null) {
         result.readIterationStats_ = readIterationStats_;
       } else {
@@ -445,39 +419,38 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.v2.FullReadStatsView) {
-        return mergeFrom((com.google.bigtable.v2.FullReadStatsView) other);
+        return mergeFrom((com.google.bigtable.v2.FullReadStatsView)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -518,27 +491,26 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
             case 0:
               done = true;
               break;
-            case 10:
-              {
-                input.readMessage(
-                    getReadIterationStatsFieldBuilder().getBuilder(), extensionRegistry);
+            case 10: {
+              input.readMessage(
+                  getReadIterationStatsFieldBuilder().getBuilder(),
+                  extensionRegistry);
 
-                break;
-              } // case 10
-            case 18:
-              {
-                input.readMessage(
-                    getRequestLatencyStatsFieldBuilder().getBuilder(), extensionRegistry);
+              break;
+            } // case 10
+            case 18: {
+              input.readMessage(
+                  getRequestLatencyStatsFieldBuilder().getBuilder(),
+                  extensionRegistry);
 
-                break;
-              } // case 18
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+              break;
+            } // case 18
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -551,13 +523,8 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
 
     private com.google.bigtable.v2.ReadIterationStats readIterationStats_;
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.bigtable.v2.ReadIterationStats,
-            com.google.bigtable.v2.ReadIterationStats.Builder,
-            com.google.bigtable.v2.ReadIterationStatsOrBuilder>
-        readIterationStatsBuilder_;
+        com.google.bigtable.v2.ReadIterationStats, com.google.bigtable.v2.ReadIterationStats.Builder, com.google.bigtable.v2.ReadIterationStatsOrBuilder> readIterationStatsBuilder_;
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -566,15 +533,12 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * </pre>
      *
      * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
-     *
      * @return Whether the readIterationStats field is set.
      */
     public boolean hasReadIterationStats() {
       return readIterationStatsBuilder_ != null || readIterationStats_ != null;
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -583,21 +547,16 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * </pre>
      *
      * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
-     *
      * @return The readIterationStats.
      */
     public com.google.bigtable.v2.ReadIterationStats getReadIterationStats() {
       if (readIterationStatsBuilder_ == null) {
-        return readIterationStats_ == null
-            ? com.google.bigtable.v2.ReadIterationStats.getDefaultInstance()
-            : readIterationStats_;
+        return readIterationStats_ == null ? com.google.bigtable.v2.ReadIterationStats.getDefaultInstance() : readIterationStats_;
       } else {
         return readIterationStatsBuilder_.getMessage();
       }
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -621,8 +580,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -644,8 +601,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -659,9 +614,7 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       if (readIterationStatsBuilder_ == null) {
         if (readIterationStats_ != null) {
           readIterationStats_ =
-              com.google.bigtable.v2.ReadIterationStats.newBuilder(readIterationStats_)
-                  .mergeFrom(value)
-                  .buildPartial();
+            com.google.bigtable.v2.ReadIterationStats.newBuilder(readIterationStats_).mergeFrom(value).buildPartial();
         } else {
           readIterationStats_ = value;
         }
@@ -673,8 +626,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -696,8 +647,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -708,13 +657,11 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
      */
     public com.google.bigtable.v2.ReadIterationStats.Builder getReadIterationStatsBuilder() {
-
+      
       onChanged();
       return getReadIterationStatsFieldBuilder().getBuilder();
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -728,14 +675,11 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       if (readIterationStatsBuilder_ != null) {
         return readIterationStatsBuilder_.getMessageOrBuilder();
       } else {
-        return readIterationStats_ == null
-            ? com.google.bigtable.v2.ReadIterationStats.getDefaultInstance()
-            : readIterationStats_;
+        return readIterationStats_ == null ?
+            com.google.bigtable.v2.ReadIterationStats.getDefaultInstance() : readIterationStats_;
       }
     }
     /**
-     *
-     *
      * <pre>
      * Iteration stats describe how efficient the read is, e.g. comparing
      * rows seen vs. rows returned or cells seen vs cells returned can provide an
@@ -746,17 +690,14 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * <code>.google.bigtable.v2.ReadIterationStats read_iteration_stats = 1;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.bigtable.v2.ReadIterationStats,
-            com.google.bigtable.v2.ReadIterationStats.Builder,
-            com.google.bigtable.v2.ReadIterationStatsOrBuilder>
+        com.google.bigtable.v2.ReadIterationStats, com.google.bigtable.v2.ReadIterationStats.Builder, com.google.bigtable.v2.ReadIterationStatsOrBuilder> 
         getReadIterationStatsFieldBuilder() {
       if (readIterationStatsBuilder_ == null) {
-        readIterationStatsBuilder_ =
-            new com.google.protobuf.SingleFieldBuilderV3<
-                com.google.bigtable.v2.ReadIterationStats,
-                com.google.bigtable.v2.ReadIterationStats.Builder,
-                com.google.bigtable.v2.ReadIterationStatsOrBuilder>(
-                getReadIterationStats(), getParentForChildren(), isClean());
+        readIterationStatsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.v2.ReadIterationStats, com.google.bigtable.v2.ReadIterationStats.Builder, com.google.bigtable.v2.ReadIterationStatsOrBuilder>(
+                getReadIterationStats(),
+                getParentForChildren(),
+                isClean());
         readIterationStats_ = null;
       }
       return readIterationStatsBuilder_;
@@ -764,49 +705,36 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
 
     private com.google.bigtable.v2.RequestLatencyStats requestLatencyStats_;
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.bigtable.v2.RequestLatencyStats,
-            com.google.bigtable.v2.RequestLatencyStats.Builder,
-            com.google.bigtable.v2.RequestLatencyStatsOrBuilder>
-        requestLatencyStatsBuilder_;
+        com.google.bigtable.v2.RequestLatencyStats, com.google.bigtable.v2.RequestLatencyStats.Builder, com.google.bigtable.v2.RequestLatencyStatsOrBuilder> requestLatencyStatsBuilder_;
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
      * </pre>
      *
      * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
-     *
      * @return Whether the requestLatencyStats field is set.
      */
     public boolean hasRequestLatencyStats() {
       return requestLatencyStatsBuilder_ != null || requestLatencyStats_ != null;
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
      * </pre>
      *
      * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
-     *
      * @return The requestLatencyStats.
      */
     public com.google.bigtable.v2.RequestLatencyStats getRequestLatencyStats() {
       if (requestLatencyStatsBuilder_ == null) {
-        return requestLatencyStats_ == null
-            ? com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance()
-            : requestLatencyStats_;
+        return requestLatencyStats_ == null ? com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance() : requestLatencyStats_;
       } else {
         return requestLatencyStatsBuilder_.getMessage();
       }
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -828,8 +756,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -849,8 +775,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -862,9 +786,7 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       if (requestLatencyStatsBuilder_ == null) {
         if (requestLatencyStats_ != null) {
           requestLatencyStats_ =
-              com.google.bigtable.v2.RequestLatencyStats.newBuilder(requestLatencyStats_)
-                  .mergeFrom(value)
-                  .buildPartial();
+            com.google.bigtable.v2.RequestLatencyStats.newBuilder(requestLatencyStats_).mergeFrom(value).buildPartial();
         } else {
           requestLatencyStats_ = value;
         }
@@ -876,8 +798,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -897,8 +817,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -907,13 +825,11 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
      */
     public com.google.bigtable.v2.RequestLatencyStats.Builder getRequestLatencyStatsBuilder() {
-
+      
       onChanged();
       return getRequestLatencyStatsFieldBuilder().getBuilder();
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -925,14 +841,11 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       if (requestLatencyStatsBuilder_ != null) {
         return requestLatencyStatsBuilder_.getMessageOrBuilder();
       } else {
-        return requestLatencyStats_ == null
-            ? com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance()
-            : requestLatencyStats_;
+        return requestLatencyStats_ == null ?
+            com.google.bigtable.v2.RequestLatencyStats.getDefaultInstance() : requestLatencyStats_;
       }
     }
     /**
-     *
-     *
      * <pre>
      * Request latency stats describe the time taken to complete a request, from
      * the server side.
@@ -941,24 +854,21 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
      * <code>.google.bigtable.v2.RequestLatencyStats request_latency_stats = 2;</code>
      */
     private com.google.protobuf.SingleFieldBuilderV3<
-            com.google.bigtable.v2.RequestLatencyStats,
-            com.google.bigtable.v2.RequestLatencyStats.Builder,
-            com.google.bigtable.v2.RequestLatencyStatsOrBuilder>
+        com.google.bigtable.v2.RequestLatencyStats, com.google.bigtable.v2.RequestLatencyStats.Builder, com.google.bigtable.v2.RequestLatencyStatsOrBuilder> 
         getRequestLatencyStatsFieldBuilder() {
       if (requestLatencyStatsBuilder_ == null) {
-        requestLatencyStatsBuilder_ =
-            new com.google.protobuf.SingleFieldBuilderV3<
-                com.google.bigtable.v2.RequestLatencyStats,
-                com.google.bigtable.v2.RequestLatencyStats.Builder,
-                com.google.bigtable.v2.RequestLatencyStatsOrBuilder>(
-                getRequestLatencyStats(), getParentForChildren(), isClean());
+        requestLatencyStatsBuilder_ = new com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.v2.RequestLatencyStats, com.google.bigtable.v2.RequestLatencyStats.Builder, com.google.bigtable.v2.RequestLatencyStatsOrBuilder>(
+                getRequestLatencyStats(),
+                getParentForChildren(),
+                isClean());
         requestLatencyStats_ = null;
       }
       return requestLatencyStatsBuilder_;
     }
-
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -968,12 +878,12 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.v2.FullReadStatsView)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.FullReadStatsView)
   private static final com.google.bigtable.v2.FullReadStatsView DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.v2.FullReadStatsView();
   }
@@ -982,27 +892,27 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<FullReadStatsView> PARSER =
-      new com.google.protobuf.AbstractParser<FullReadStatsView>() {
-        @java.lang.Override
-        public FullReadStatsView parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<FullReadStatsView>
+      PARSER = new com.google.protobuf.AbstractParser<FullReadStatsView>() {
+    @java.lang.Override
+    public FullReadStatsView parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<FullReadStatsView> parser() {
     return PARSER;
@@ -1017,4 +927,6 @@ public final class FullReadStatsView extends com.google.protobuf.GeneratedMessag
   public com.google.bigtable.v2.FullReadStatsView getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }
+

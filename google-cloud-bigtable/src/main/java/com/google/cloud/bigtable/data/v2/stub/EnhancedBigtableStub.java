@@ -166,10 +166,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
-
     // workaround JWT audience issues
     patchCredentials(builder);
-
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
@@ -722,15 +720,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> rateLimitingStreamingCallable =
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> cpuThrottlingStreamingCallable = null;
+
+    //if (settings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled()) {
+      cpuThrottlingStreamingCallable =
           new RateLimitingServerStreamingCallable(withStatsHeaders, rateLimitingStats);
+    //}
 
     // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
     // and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
-        new ConvertExceptionCallable<>(rateLimitingStreamingCallable);
+        new ConvertExceptionCallable<>(cpuThrottlingStreamingCallable != null ? cpuThrottlingStreamingCallable : withStatsHeaders);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(

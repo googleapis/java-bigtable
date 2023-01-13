@@ -18,14 +18,11 @@
 
 package com.google.bigtable.v2;
 
-public interface RequestLatencyStatsOrBuilder
-    extends
+public interface RequestLatencyStatsOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RequestLatencyStats)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * The latency measured by the frontend server handling this request, from
    * when the request was received, to when this value is sent back in the
@@ -45,13 +42,10 @@ public interface RequestLatencyStatsOrBuilder
    * </pre>
    *
    * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
-   *
    * @return Whether the frontendServerLatency field is set.
    */
   boolean hasFrontendServerLatency();
   /**
-   *
-   *
    * <pre>
    * The latency measured by the frontend server handling this request, from
    * when the request was received, to when this value is sent back in the
@@ -71,13 +65,10 @@ public interface RequestLatencyStatsOrBuilder
    * </pre>
    *
    * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
-   *
    * @return The frontendServerLatency.
    */
   com.google.protobuf.Duration getFrontendServerLatency();
   /**
-   *
-   *
    * <pre>
    * The latency measured by the frontend server handling this request, from
    * when the request was received, to when this value is sent back in the

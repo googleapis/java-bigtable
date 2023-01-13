@@ -19,64 +19,58 @@
 package com.google.bigtable.v2;
 
 /**
- *
- *
  * <pre>
  * Specifies a contiguous range of raw byte values.
  * </pre>
  *
  * Protobuf type {@code google.bigtable.v2.ValueRange}
  */
-public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class ValueRange extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.v2.ValueRange)
     ValueRangeOrBuilder {
-  private static final long serialVersionUID = 0L;
+private static final long serialVersionUID = 0L;
   // Use ValueRange.newBuilder() to construct.
   private ValueRange(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
-  private ValueRange() {}
+  private ValueRange() {
+  }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new ValueRange();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-    return com.google.bigtable.v2.DataProto
-        .internal_static_google_bigtable_v2_ValueRange_descriptor;
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+    return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_ValueRange_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.google.bigtable.v2.DataProto
-        .internal_static_google_bigtable_v2_ValueRange_fieldAccessorTable
+    return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_ValueRange_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.google.bigtable.v2.ValueRange.class,
-            com.google.bigtable.v2.ValueRange.Builder.class);
+            com.google.bigtable.v2.ValueRange.class, com.google.bigtable.v2.ValueRange.Builder.class);
   }
 
   private int startValueCase_ = 0;
   private java.lang.Object startValue_;
-
   public enum StartValueCase
-      implements
-          com.google.protobuf.Internal.EnumLite,
+      implements com.google.protobuf.Internal.EnumLite,
           com.google.protobuf.AbstractMessage.InternalOneOfEnum {
     START_VALUE_CLOSED(1),
     START_VALUE_OPEN(2),
     STARTVALUE_NOT_SET(0);
     private final int value;
-
     private StartValueCase(int value) {
       this.value = value;
     }
@@ -92,38 +86,32 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
     public static StartValueCase forNumber(int value) {
       switch (value) {
-        case 1:
-          return START_VALUE_CLOSED;
-        case 2:
-          return START_VALUE_OPEN;
-        case 0:
-          return STARTVALUE_NOT_SET;
-        default:
-          return null;
+        case 1: return START_VALUE_CLOSED;
+        case 2: return START_VALUE_OPEN;
+        case 0: return STARTVALUE_NOT_SET;
+        default: return null;
       }
     }
-
     public int getNumber() {
       return this.value;
     }
   };
 
-  public StartValueCase getStartValueCase() {
-    return StartValueCase.forNumber(startValueCase_);
+  public StartValueCase
+  getStartValueCase() {
+    return StartValueCase.forNumber(
+        startValueCase_);
   }
 
   private int endValueCase_ = 0;
   private java.lang.Object endValue_;
-
   public enum EndValueCase
-      implements
-          com.google.protobuf.Internal.EnumLite,
+      implements com.google.protobuf.Internal.EnumLite,
           com.google.protobuf.AbstractMessage.InternalOneOfEnum {
     END_VALUE_CLOSED(3),
     END_VALUE_OPEN(4),
     ENDVALUE_NOT_SET(0);
     private final int value;
-
     private EndValueCase(int value) {
       this.value = value;
     }
@@ -139,36 +127,30 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
     public static EndValueCase forNumber(int value) {
       switch (value) {
-        case 3:
-          return END_VALUE_CLOSED;
-        case 4:
-          return END_VALUE_OPEN;
-        case 0:
-          return ENDVALUE_NOT_SET;
-        default:
-          return null;
+        case 3: return END_VALUE_CLOSED;
+        case 4: return END_VALUE_OPEN;
+        case 0: return ENDVALUE_NOT_SET;
+        default: return null;
       }
     }
-
     public int getNumber() {
       return this.value;
     }
   };
 
-  public EndValueCase getEndValueCase() {
-    return EndValueCase.forNumber(endValueCase_);
+  public EndValueCase
+  getEndValueCase() {
+    return EndValueCase.forNumber(
+        endValueCase_);
   }
 
   public static final int START_VALUE_CLOSED_FIELD_NUMBER = 1;
   /**
-   *
-   *
    * <pre>
    * Used when giving an inclusive lower bound for the range.
    * </pre>
    *
    * <code>bytes start_value_closed = 1;</code>
-   *
    * @return Whether the startValueClosed field is set.
    */
   @java.lang.Override
@@ -176,14 +158,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return startValueCase_ == 1;
   }
   /**
-   *
-   *
    * <pre>
    * Used when giving an inclusive lower bound for the range.
    * </pre>
    *
    * <code>bytes start_value_closed = 1;</code>
-   *
    * @return The startValueClosed.
    */
   @java.lang.Override
@@ -196,14 +175,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
   public static final int START_VALUE_OPEN_FIELD_NUMBER = 2;
   /**
-   *
-   *
    * <pre>
    * Used when giving an exclusive lower bound for the range.
    * </pre>
    *
    * <code>bytes start_value_open = 2;</code>
-   *
    * @return Whether the startValueOpen field is set.
    */
   @java.lang.Override
@@ -211,14 +187,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return startValueCase_ == 2;
   }
   /**
-   *
-   *
    * <pre>
    * Used when giving an exclusive lower bound for the range.
    * </pre>
    *
    * <code>bytes start_value_open = 2;</code>
-   *
    * @return The startValueOpen.
    */
   @java.lang.Override
@@ -231,14 +204,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
   public static final int END_VALUE_CLOSED_FIELD_NUMBER = 3;
   /**
-   *
-   *
    * <pre>
    * Used when giving an inclusive upper bound for the range.
    * </pre>
    *
    * <code>bytes end_value_closed = 3;</code>
-   *
    * @return Whether the endValueClosed field is set.
    */
   @java.lang.Override
@@ -246,14 +216,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return endValueCase_ == 3;
   }
   /**
-   *
-   *
    * <pre>
    * Used when giving an inclusive upper bound for the range.
    * </pre>
    *
    * <code>bytes end_value_closed = 3;</code>
-   *
    * @return The endValueClosed.
    */
   @java.lang.Override
@@ -266,14 +233,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
   public static final int END_VALUE_OPEN_FIELD_NUMBER = 4;
   /**
-   *
-   *
    * <pre>
    * Used when giving an exclusive upper bound for the range.
    * </pre>
    *
    * <code>bytes end_value_open = 4;</code>
-   *
    * @return Whether the endValueOpen field is set.
    */
   @java.lang.Override
@@ -281,14 +245,11 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return endValueCase_ == 4;
   }
   /**
-   *
-   *
    * <pre>
    * Used when giving an exclusive upper bound for the range.
    * </pre>
    *
    * <code>bytes end_value_open = 4;</code>
-   *
    * @return The endValueOpen.
    */
   @java.lang.Override
@@ -300,7 +261,6 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private byte memoizedIsInitialized = -1;
-
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -312,18 +272,23 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
     if (startValueCase_ == 1) {
-      output.writeBytes(1, (com.google.protobuf.ByteString) startValue_);
+      output.writeBytes(
+          1, (com.google.protobuf.ByteString) startValue_);
     }
     if (startValueCase_ == 2) {
-      output.writeBytes(2, (com.google.protobuf.ByteString) startValue_);
+      output.writeBytes(
+          2, (com.google.protobuf.ByteString) startValue_);
     }
     if (endValueCase_ == 3) {
-      output.writeBytes(3, (com.google.protobuf.ByteString) endValue_);
+      output.writeBytes(
+          3, (com.google.protobuf.ByteString) endValue_);
     }
     if (endValueCase_ == 4) {
-      output.writeBytes(4, (com.google.protobuf.ByteString) endValue_);
+      output.writeBytes(
+          4, (com.google.protobuf.ByteString) endValue_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -335,24 +300,24 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
     size = 0;
     if (startValueCase_ == 1) {
-      size +=
-          com.google.protobuf.CodedOutputStream.computeBytesSize(
-              1, (com.google.protobuf.ByteString) startValue_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(
+            1, (com.google.protobuf.ByteString) startValue_);
     }
     if (startValueCase_ == 2) {
-      size +=
-          com.google.protobuf.CodedOutputStream.computeBytesSize(
-              2, (com.google.protobuf.ByteString) startValue_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(
+            2, (com.google.protobuf.ByteString) startValue_);
     }
     if (endValueCase_ == 3) {
-      size +=
-          com.google.protobuf.CodedOutputStream.computeBytesSize(
-              3, (com.google.protobuf.ByteString) endValue_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(
+            3, (com.google.protobuf.ByteString) endValue_);
     }
     if (endValueCase_ == 4) {
-      size +=
-          com.google.protobuf.CodedOutputStream.computeBytesSize(
-              4, (com.google.protobuf.ByteString) endValue_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(
+            4, (com.google.protobuf.ByteString) endValue_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -362,7 +327,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
-      return true;
+     return true;
     }
     if (!(obj instanceof com.google.bigtable.v2.ValueRange)) {
       return super.equals(obj);
@@ -372,10 +337,12 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     if (!getStartValueCase().equals(other.getStartValueCase())) return false;
     switch (startValueCase_) {
       case 1:
-        if (!getStartValueClosed().equals(other.getStartValueClosed())) return false;
+        if (!getStartValueClosed()
+            .equals(other.getStartValueClosed())) return false;
         break;
       case 2:
-        if (!getStartValueOpen().equals(other.getStartValueOpen())) return false;
+        if (!getStartValueOpen()
+            .equals(other.getStartValueOpen())) return false;
         break;
       case 0:
       default:
@@ -383,10 +350,12 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     if (!getEndValueCase().equals(other.getEndValueCase())) return false;
     switch (endValueCase_) {
       case 3:
-        if (!getEndValueClosed().equals(other.getEndValueClosed())) return false;
+        if (!getEndValueClosed()
+            .equals(other.getEndValueClosed())) return false;
         break;
       case 4:
-        if (!getEndValueOpen().equals(other.getEndValueOpen())) return false;
+        if (!getEndValueOpen()
+            .equals(other.getEndValueOpen())) return false;
         break;
       case 0:
       default:
@@ -431,135 +400,130 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return hash;
   }
 
-  public static com.google.bigtable.v2.ValueRange parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.ValueRange parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.ValueRange parseFrom(com.google.protobuf.ByteString data)
+  public static com.google.bigtable.v2.ValueRange parseFrom(
+      com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.ValueRange parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.ValueRange parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
-      com.google.protobuf.CodedInputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.ValueRange parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.v2.ValueRange prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * Specifies a contiguous range of raw byte values.
    * </pre>
    *
    * Protobuf type {@code google.bigtable.v2.ValueRange}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.ValueRange)
       com.google.bigtable.v2.ValueRangeOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return com.google.bigtable.v2.DataProto
-          .internal_static_google_bigtable_v2_ValueRange_descriptor;
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_ValueRange_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.bigtable.v2.DataProto
-          .internal_static_google_bigtable_v2_ValueRange_fieldAccessorTable
+      return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_ValueRange_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.google.bigtable.v2.ValueRange.class,
-              com.google.bigtable.v2.ValueRange.Builder.class);
+              com.google.bigtable.v2.ValueRange.class, com.google.bigtable.v2.ValueRange.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.ValueRange.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
@@ -571,9 +535,9 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return com.google.bigtable.v2.DataProto
-          .internal_static_google_bigtable_v2_ValueRange_descriptor;
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
+      return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_ValueRange_descriptor;
     }
 
     @java.lang.Override
@@ -615,39 +579,38 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.v2.ValueRange) {
-        return mergeFrom((com.google.bigtable.v2.ValueRange) other);
+        return mergeFrom((com.google.bigtable.v2.ValueRange)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -657,36 +620,30 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     public Builder mergeFrom(com.google.bigtable.v2.ValueRange other) {
       if (other == com.google.bigtable.v2.ValueRange.getDefaultInstance()) return this;
       switch (other.getStartValueCase()) {
-        case START_VALUE_CLOSED:
-          {
-            setStartValueClosed(other.getStartValueClosed());
-            break;
-          }
-        case START_VALUE_OPEN:
-          {
-            setStartValueOpen(other.getStartValueOpen());
-            break;
-          }
-        case STARTVALUE_NOT_SET:
-          {
-            break;
-          }
+        case START_VALUE_CLOSED: {
+          setStartValueClosed(other.getStartValueClosed());
+          break;
+        }
+        case START_VALUE_OPEN: {
+          setStartValueOpen(other.getStartValueOpen());
+          break;
+        }
+        case STARTVALUE_NOT_SET: {
+          break;
+        }
       }
       switch (other.getEndValueCase()) {
-        case END_VALUE_CLOSED:
-          {
-            setEndValueClosed(other.getEndValueClosed());
-            break;
-          }
-        case END_VALUE_OPEN:
-          {
-            setEndValueOpen(other.getEndValueOpen());
-            break;
-          }
-        case ENDVALUE_NOT_SET:
-          {
-            break;
-          }
+        case END_VALUE_CLOSED: {
+          setEndValueClosed(other.getEndValueClosed());
+          break;
+        }
+        case END_VALUE_OPEN: {
+          setEndValueOpen(other.getEndValueOpen());
+          break;
+        }
+        case ENDVALUE_NOT_SET: {
+          break;
+        }
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -714,37 +671,32 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
             case 0:
               done = true;
               break;
-            case 10:
-              {
-                startValue_ = input.readBytes();
-                startValueCase_ = 1;
-                break;
-              } // case 10
-            case 18:
-              {
-                startValue_ = input.readBytes();
-                startValueCase_ = 2;
-                break;
-              } // case 18
-            case 26:
-              {
-                endValue_ = input.readBytes();
-                endValueCase_ = 3;
-                break;
-              } // case 26
-            case 34:
-              {
-                endValue_ = input.readBytes();
-                endValueCase_ = 4;
-                break;
-              } // case 34
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+            case 10: {
+              startValue_ = input.readBytes();
+              startValueCase_ = 1;
+              break;
+            } // case 10
+            case 18: {
+              startValue_ = input.readBytes();
+              startValueCase_ = 2;
+              break;
+            } // case 18
+            case 26: {
+              endValue_ = input.readBytes();
+              endValueCase_ = 3;
+              break;
+            } // case 26
+            case 34: {
+              endValue_ = input.readBytes();
+              endValueCase_ = 4;
+              break;
+            } // case 34
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -754,12 +706,12 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       } // finally
       return this;
     }
-
     private int startValueCase_ = 0;
     private java.lang.Object startValue_;
-
-    public StartValueCase getStartValueCase() {
-      return StartValueCase.forNumber(startValueCase_);
+    public StartValueCase
+        getStartValueCase() {
+      return StartValueCase.forNumber(
+          startValueCase_);
     }
 
     public Builder clearStartValue() {
@@ -771,9 +723,10 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
 
     private int endValueCase_ = 0;
     private java.lang.Object endValue_;
-
-    public EndValueCase getEndValueCase() {
-      return EndValueCase.forNumber(endValueCase_);
+    public EndValueCase
+        getEndValueCase() {
+      return EndValueCase.forNumber(
+          endValueCase_);
     }
 
     public Builder clearEndValue() {
@@ -783,29 +736,24 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
 
+
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_closed = 1;</code>
-     *
      * @return Whether the startValueClosed field is set.
      */
     public boolean hasStartValueClosed() {
       return startValueCase_ == 1;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_closed = 1;</code>
-     *
      * @return The startValueClosed.
      */
     public com.google.protobuf.ByteString getStartValueClosed() {
@@ -815,35 +763,29 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return com.google.protobuf.ByteString.EMPTY;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_closed = 1;</code>
-     *
      * @param value The startValueClosed to set.
      * @return This builder for chaining.
      */
     public Builder setStartValueClosed(com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      startValueCase_ = 1;
+    throw new NullPointerException();
+  }
+  startValueCase_ = 1;
       startValue_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_closed = 1;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearStartValueClosed() {
@@ -856,28 +798,22 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     }
 
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_open = 2;</code>
-     *
      * @return Whether the startValueOpen field is set.
      */
     public boolean hasStartValueOpen() {
       return startValueCase_ == 2;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_open = 2;</code>
-     *
      * @return The startValueOpen.
      */
     public com.google.protobuf.ByteString getStartValueOpen() {
@@ -887,35 +823,29 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return com.google.protobuf.ByteString.EMPTY;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_open = 2;</code>
-     *
      * @param value The startValueOpen to set.
      * @return This builder for chaining.
      */
     public Builder setStartValueOpen(com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      startValueCase_ = 2;
+    throw new NullPointerException();
+  }
+  startValueCase_ = 2;
       startValue_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive lower bound for the range.
      * </pre>
      *
      * <code>bytes start_value_open = 2;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearStartValueOpen() {
@@ -928,28 +858,22 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     }
 
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_closed = 3;</code>
-     *
      * @return Whether the endValueClosed field is set.
      */
     public boolean hasEndValueClosed() {
       return endValueCase_ == 3;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_closed = 3;</code>
-     *
      * @return The endValueClosed.
      */
     public com.google.protobuf.ByteString getEndValueClosed() {
@@ -959,35 +883,29 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return com.google.protobuf.ByteString.EMPTY;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_closed = 3;</code>
-     *
      * @param value The endValueClosed to set.
      * @return This builder for chaining.
      */
     public Builder setEndValueClosed(com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      endValueCase_ = 3;
+    throw new NullPointerException();
+  }
+  endValueCase_ = 3;
       endValue_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an inclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_closed = 3;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearEndValueClosed() {
@@ -1000,28 +918,22 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     }
 
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_open = 4;</code>
-     *
      * @return Whether the endValueOpen field is set.
      */
     public boolean hasEndValueOpen() {
       return endValueCase_ == 4;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_open = 4;</code>
-     *
      * @return The endValueOpen.
      */
     public com.google.protobuf.ByteString getEndValueOpen() {
@@ -1031,35 +943,29 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return com.google.protobuf.ByteString.EMPTY;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_open = 4;</code>
-     *
      * @param value The endValueOpen to set.
      * @return This builder for chaining.
      */
     public Builder setEndValueOpen(com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      endValueCase_ = 4;
+    throw new NullPointerException();
+  }
+  endValueCase_ = 4;
       endValue_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Used when giving an exclusive upper bound for the range.
      * </pre>
      *
      * <code>bytes end_value_open = 4;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearEndValueOpen() {
@@ -1070,9 +976,9 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       }
       return this;
     }
-
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -1082,12 +988,12 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.v2.ValueRange)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.ValueRange)
   private static final com.google.bigtable.v2.ValueRange DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.v2.ValueRange();
   }
@@ -1096,27 +1002,27 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<ValueRange> PARSER =
-      new com.google.protobuf.AbstractParser<ValueRange>() {
-        @java.lang.Override
-        public ValueRange parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<ValueRange>
+      PARSER = new com.google.protobuf.AbstractParser<ValueRange>() {
+    @java.lang.Override
+    public ValueRange parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<ValueRange> parser() {
     return PARSER;
@@ -1131,4 +1037,6 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   public com.google.bigtable.v2.ValueRange getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }
+

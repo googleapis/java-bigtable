@@ -19,54 +19,66 @@
 package com.google.bigtable.v2;
 
 /**
- *
- *
  * <pre>
  * Response message for Bigtable.PingAndWarm connection keepalive and warming.
  * </pre>
  *
  * Protobuf type {@code google.bigtable.v2.PingAndWarmResponse}
  */
-public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class PingAndWarmResponse extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.v2.PingAndWarmResponse)
     PingAndWarmResponseOrBuilder {
-  private static final long serialVersionUID = 0L;
+private static final long serialVersionUID = 0L;
   // Use PingAndWarmResponse.newBuilder() to construct.
   private PingAndWarmResponse(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
-  private PingAndWarmResponse() {}
+  private PingAndWarmResponse() {
+    pingData_ = com.google.protobuf.ByteString.EMPTY;
+  }
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new PingAndWarmResponse();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-    return com.google.bigtable.v2.BigtableProto
-        .internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
+    return com.google.bigtable.v2.BigtableProto.internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.google.bigtable.v2.BigtableProto
-        .internal_static_google_bigtable_v2_PingAndWarmResponse_fieldAccessorTable
+    return com.google.bigtable.v2.BigtableProto.internal_static_google_bigtable_v2_PingAndWarmResponse_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
-            com.google.bigtable.v2.PingAndWarmResponse.class,
-            com.google.bigtable.v2.PingAndWarmResponse.Builder.class);
+            com.google.bigtable.v2.PingAndWarmResponse.class, com.google.bigtable.v2.PingAndWarmResponse.Builder.class);
+  }
+
+  public static final int PING_DATA_FIELD_NUMBER = 1;
+  private com.google.protobuf.ByteString pingData_;
+  /**
+   * <pre>
+   * Data received from the server.
+   * </pre>
+   *
+   * <code>bytes ping_data = 1;</code>
+   * @return The pingData.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getPingData() {
+    return pingData_;
   }
 
   private byte memoizedIsInitialized = -1;
-
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -78,7 +90,11 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
+    if (!pingData_.isEmpty()) {
+      output.writeBytes(1, pingData_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -88,6 +104,10 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
     if (size != -1) return size;
 
     size = 0;
+    if (!pingData_.isEmpty()) {
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(1, pingData_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -96,14 +116,15 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
   @java.lang.Override
   public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
-      return true;
+     return true;
     }
     if (!(obj instanceof com.google.bigtable.v2.PingAndWarmResponse)) {
       return super.equals(obj);
     }
-    com.google.bigtable.v2.PingAndWarmResponse other =
-        (com.google.bigtable.v2.PingAndWarmResponse) obj;
+    com.google.bigtable.v2.PingAndWarmResponse other = (com.google.bigtable.v2.PingAndWarmResponse) obj;
 
+    if (!getPingData()
+        .equals(other.getPingData())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -115,151 +136,149 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
+    hash = (37 * hash) + PING_DATA_FIELD_NUMBER;
+    hash = (53 * hash) + getPingData().hashCode();
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
 
-  public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
       com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.PingAndWarmResponse parseDelimitedFrom(
-      java.io.InputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
-  }
-
-  public static com.google.bigtable.v2.PingAndWarmResponse parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+  public static com.google.bigtable.v2.PingAndWarmResponse parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
+  public static com.google.bigtable.v2.PingAndWarmResponse parseDelimitedFrom(
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
+  }
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
-      com.google.protobuf.CodedInputStream input) throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+      com.google.protobuf.CodedInputStream input)
+      throws java.io.IOException {
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.PingAndWarmResponse parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.v2.PingAndWarmResponse prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * Response message for Bigtable.PingAndWarm connection keepalive and warming.
    * </pre>
    *
    * Protobuf type {@code google.bigtable.v2.PingAndWarmResponse}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.PingAndWarmResponse)
       com.google.bigtable.v2.PingAndWarmResponseOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
-      return com.google.bigtable.v2.BigtableProto
-          .internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
+      return com.google.bigtable.v2.BigtableProto.internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.bigtable.v2.BigtableProto
-          .internal_static_google_bigtable_v2_PingAndWarmResponse_fieldAccessorTable
+      return com.google.bigtable.v2.BigtableProto.internal_static_google_bigtable_v2_PingAndWarmResponse_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
-              com.google.bigtable.v2.PingAndWarmResponse.class,
-              com.google.bigtable.v2.PingAndWarmResponse.Builder.class);
+              com.google.bigtable.v2.PingAndWarmResponse.class, com.google.bigtable.v2.PingAndWarmResponse.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.PingAndWarmResponse.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      pingData_ = com.google.protobuf.ByteString.EMPTY;
+
       return this;
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
-      return com.google.bigtable.v2.BigtableProto
-          .internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
+      return com.google.bigtable.v2.BigtableProto.internal_static_google_bigtable_v2_PingAndWarmResponse_descriptor;
     }
 
     @java.lang.Override
@@ -278,8 +297,8 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
 
     @java.lang.Override
     public com.google.bigtable.v2.PingAndWarmResponse buildPartial() {
-      com.google.bigtable.v2.PingAndWarmResponse result =
-          new com.google.bigtable.v2.PingAndWarmResponse(this);
+      com.google.bigtable.v2.PingAndWarmResponse result = new com.google.bigtable.v2.PingAndWarmResponse(this);
+      result.pingData_ = pingData_;
       onBuilt();
       return result;
     }
@@ -288,39 +307,38 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.v2.PingAndWarmResponse) {
-        return mergeFrom((com.google.bigtable.v2.PingAndWarmResponse) other);
+        return mergeFrom((com.google.bigtable.v2.PingAndWarmResponse)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -329,6 +347,9 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
 
     public Builder mergeFrom(com.google.bigtable.v2.PingAndWarmResponse other) {
       if (other == com.google.bigtable.v2.PingAndWarmResponse.getDefaultInstance()) return this;
+      if (other.getPingData() != com.google.protobuf.ByteString.EMPTY) {
+        setPingData(other.getPingData());
+      }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
@@ -355,13 +376,17 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
             case 0:
               done = true;
               break;
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+            case 10: {
+              pingData_ = input.readBytes();
+
+              break;
+            } // case 10
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -372,8 +397,54 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
       return this;
     }
 
+    private com.google.protobuf.ByteString pingData_ = com.google.protobuf.ByteString.EMPTY;
+    /**
+     * <pre>
+     * Data received from the server.
+     * </pre>
+     *
+     * <code>bytes ping_data = 1;</code>
+     * @return The pingData.
+     */
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public com.google.protobuf.ByteString getPingData() {
+      return pingData_;
+    }
+    /**
+     * <pre>
+     * Data received from the server.
+     * </pre>
+     *
+     * <code>bytes ping_data = 1;</code>
+     * @param value The pingData to set.
+     * @return This builder for chaining.
+     */
+    public Builder setPingData(com.google.protobuf.ByteString value) {
+      if (value == null) {
+    throw new NullPointerException();
+  }
+  
+      pingData_ = value;
+      onChanged();
+      return this;
+    }
+    /**
+     * <pre>
+     * Data received from the server.
+     * </pre>
+     *
+     * <code>bytes ping_data = 1;</code>
+     * @return This builder for chaining.
+     */
+    public Builder clearPingData() {
+      
+      pingData_ = getDefaultInstance().getPingData();
+      onChanged();
+      return this;
+    }
+    @java.lang.Override
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -383,12 +454,12 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.v2.PingAndWarmResponse)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.PingAndWarmResponse)
   private static final com.google.bigtable.v2.PingAndWarmResponse DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.v2.PingAndWarmResponse();
   }
@@ -397,27 +468,27 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<PingAndWarmResponse> PARSER =
-      new com.google.protobuf.AbstractParser<PingAndWarmResponse>() {
-        @java.lang.Override
-        public PingAndWarmResponse parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<PingAndWarmResponse>
+      PARSER = new com.google.protobuf.AbstractParser<PingAndWarmResponse>() {
+    @java.lang.Override
+    public PingAndWarmResponse parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<PingAndWarmResponse> parser() {
     return PARSER;
@@ -432,4 +503,6 @@ public final class PingAndWarmResponse extends com.google.protobuf.GeneratedMess
   public com.google.bigtable.v2.PingAndWarmResponse getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }
+

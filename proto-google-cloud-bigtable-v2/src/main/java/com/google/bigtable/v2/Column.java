@@ -19,8 +19,6 @@
 package com.google.bigtable.v2;
 
 /**
- *
- *
  * <pre>
  * Specifies (some of) the contents of a single row/column intersection of a
  * table.
@@ -28,16 +26,15 @@ package com.google.bigtable.v2;
  *
  * Protobuf type {@code google.bigtable.v2.Column}
  */
-public final class Column extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class Column extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.v2.Column)
     ColumnOrBuilder {
-  private static final long serialVersionUID = 0L;
+private static final long serialVersionUID = 0L;
   // Use Column.newBuilder() to construct.
   private Column(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
   private Column() {
     qualifier_ = com.google.protobuf.ByteString.EMPTY;
     cells_ = java.util.Collections.emptyList();
@@ -45,24 +42,25 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new Column();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
     return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Column_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.google.bigtable.v2.DataProto
-        .internal_static_google_bigtable_v2_Column_fieldAccessorTable
+    return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Column_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             com.google.bigtable.v2.Column.class, com.google.bigtable.v2.Column.Builder.class);
   }
@@ -70,8 +68,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
   public static final int QUALIFIER_FIELD_NUMBER = 1;
   private com.google.protobuf.ByteString qualifier_;
   /**
-   *
-   *
    * <pre>
    * The unique key which identifies this column within its family. This is the
    * same key that's used to identify the column in, for example, a RowFilter
@@ -81,7 +77,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
    * </pre>
    *
    * <code>bytes qualifier = 1;</code>
-   *
    * @return The qualifier.
    */
   @java.lang.Override
@@ -92,8 +87,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
   public static final int CELLS_FIELD_NUMBER = 2;
   private java.util.List<com.google.bigtable.v2.Cell> cells_;
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of decreasing "timestamp_micros".
    * </pre>
@@ -105,8 +98,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     return cells_;
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of decreasing "timestamp_micros".
    * </pre>
@@ -114,12 +105,11 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
    * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
    */
   @java.lang.Override
-  public java.util.List<? extends com.google.bigtable.v2.CellOrBuilder> getCellsOrBuilderList() {
+  public java.util.List<? extends com.google.bigtable.v2.CellOrBuilder> 
+      getCellsOrBuilderList() {
     return cells_;
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of decreasing "timestamp_micros".
    * </pre>
@@ -131,8 +121,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     return cells_.size();
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of decreasing "timestamp_micros".
    * </pre>
@@ -144,8 +132,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     return cells_.get(index);
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of decreasing "timestamp_micros".
    * </pre>
@@ -153,12 +139,12 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
    * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
    */
   @java.lang.Override
-  public com.google.bigtable.v2.CellOrBuilder getCellsOrBuilder(int index) {
+  public com.google.bigtable.v2.CellOrBuilder getCellsOrBuilder(
+      int index) {
     return cells_.get(index);
   }
 
   private byte memoizedIsInitialized = -1;
-
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -170,7 +156,8 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
     if (!qualifier_.isEmpty()) {
       output.writeBytes(1, qualifier_);
     }
@@ -187,10 +174,12 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
 
     size = 0;
     if (!qualifier_.isEmpty()) {
-      size += com.google.protobuf.CodedOutputStream.computeBytesSize(1, qualifier_);
+      size += com.google.protobuf.CodedOutputStream
+        .computeBytesSize(1, qualifier_);
     }
     for (int i = 0; i < cells_.size(); i++) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, cells_.get(i));
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(2, cells_.get(i));
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -200,15 +189,17 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
-      return true;
+     return true;
     }
     if (!(obj instanceof com.google.bigtable.v2.Column)) {
       return super.equals(obj);
     }
     com.google.bigtable.v2.Column other = (com.google.bigtable.v2.Column) obj;
 
-    if (!getQualifier().equals(other.getQualifier())) return false;
-    if (!getCellsList().equals(other.getCellsList())) return false;
+    if (!getQualifier()
+        .equals(other.getQualifier())) return false;
+    if (!getCellsList()
+        .equals(other.getCellsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -231,103 +222,97 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     return hash;
   }
 
-  public static com.google.bigtable.v2.Column parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.Column parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.Column parseFrom(com.google.protobuf.ByteString data)
+  public static com.google.bigtable.v2.Column parseFrom(
+      com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Column parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Column parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.Column parseFrom(com.google.protobuf.CodedInputStream input)
+  public static com.google.bigtable.v2.Column parseFrom(
+      com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Column parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.v2.Column prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * Specifies (some of) the contents of a single row/column intersection of a
    * table.
@@ -335,30 +320,33 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
    *
    * Protobuf type {@code google.bigtable.v2.Column}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.Column)
       com.google.bigtable.v2.ColumnOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Column_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.bigtable.v2.DataProto
-          .internal_static_google_bigtable_v2_Column_fieldAccessorTable
+      return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Column_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.google.bigtable.v2.Column.class, com.google.bigtable.v2.Column.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.Column.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
@@ -375,7 +363,8 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
       return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Column_descriptor;
     }
 
@@ -415,39 +404,38 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.v2.Column) {
-        return mergeFrom((com.google.bigtable.v2.Column) other);
+        return mergeFrom((com.google.bigtable.v2.Column)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -477,10 +465,9 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
             cellsBuilder_ = null;
             cells_ = other.cells_;
             bitField0_ = (bitField0_ & ~0x00000001);
-            cellsBuilder_ =
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
-                    ? getCellsFieldBuilder()
-                    : null;
+            cellsBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getCellsFieldBuilder() : null;
           } else {
             cellsBuilder_.addAllMessages(other.cells_);
           }
@@ -512,31 +499,30 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
             case 0:
               done = true;
               break;
-            case 10:
-              {
-                qualifier_ = input.readBytes();
+            case 10: {
+              qualifier_ = input.readBytes();
 
-                break;
-              } // case 10
-            case 18:
-              {
-                com.google.bigtable.v2.Cell m =
-                    input.readMessage(com.google.bigtable.v2.Cell.parser(), extensionRegistry);
-                if (cellsBuilder_ == null) {
-                  ensureCellsIsMutable();
-                  cells_.add(m);
-                } else {
-                  cellsBuilder_.addMessage(m);
-                }
-                break;
-              } // case 18
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+              break;
+            } // case 10
+            case 18: {
+              com.google.bigtable.v2.Cell m =
+                  input.readMessage(
+                      com.google.bigtable.v2.Cell.parser(),
+                      extensionRegistry);
+              if (cellsBuilder_ == null) {
+                ensureCellsIsMutable();
+                cells_.add(m);
+              } else {
+                cellsBuilder_.addMessage(m);
+              }
+              break;
+            } // case 18
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -546,13 +532,10 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       } // finally
       return this;
     }
-
     private int bitField0_;
 
     private com.google.protobuf.ByteString qualifier_ = com.google.protobuf.ByteString.EMPTY;
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this column within its family. This is the
      * same key that's used to identify the column in, for example, a RowFilter
@@ -562,7 +545,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>bytes qualifier = 1;</code>
-     *
      * @return The qualifier.
      */
     @java.lang.Override
@@ -570,8 +552,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return qualifier_;
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this column within its family. This is the
      * same key that's used to identify the column in, for example, a RowFilter
@@ -581,22 +561,19 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>bytes qualifier = 1;</code>
-     *
      * @param value The qualifier to set.
      * @return This builder for chaining.
      */
     public Builder setQualifier(com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-
+    throw new NullPointerException();
+  }
+  
       qualifier_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this column within its family. This is the
      * same key that's used to identify the column in, for example, a RowFilter
@@ -606,34 +583,28 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>bytes qualifier = 1;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearQualifier() {
-
+      
       qualifier_ = getDefaultInstance().getQualifier();
       onChanged();
       return this;
     }
 
-    private java.util.List<com.google.bigtable.v2.Cell> cells_ = java.util.Collections.emptyList();
-
+    private java.util.List<com.google.bigtable.v2.Cell> cells_ =
+      java.util.Collections.emptyList();
     private void ensureCellsIsMutable() {
       if (!((bitField0_ & 0x00000001) != 0)) {
         cells_ = new java.util.ArrayList<com.google.bigtable.v2.Cell>(cells_);
         bitField0_ |= 0x00000001;
-      }
+       }
     }
 
     private com.google.protobuf.RepeatedFieldBuilderV3<
-            com.google.bigtable.v2.Cell,
-            com.google.bigtable.v2.Cell.Builder,
-            com.google.bigtable.v2.CellOrBuilder>
-        cellsBuilder_;
+        com.google.bigtable.v2.Cell, com.google.bigtable.v2.Cell.Builder, com.google.bigtable.v2.CellOrBuilder> cellsBuilder_;
 
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -648,8 +619,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -664,8 +633,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -680,15 +647,14 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder setCells(int index, com.google.bigtable.v2.Cell value) {
+    public Builder setCells(
+        int index, com.google.bigtable.v2.Cell value) {
       if (cellsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -702,15 +668,14 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder setCells(int index, com.google.bigtable.v2.Cell.Builder builderForValue) {
+    public Builder setCells(
+        int index, com.google.bigtable.v2.Cell.Builder builderForValue) {
       if (cellsBuilder_ == null) {
         ensureCellsIsMutable();
         cells_.set(index, builderForValue.build());
@@ -721,8 +686,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -743,15 +706,14 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder addCells(int index, com.google.bigtable.v2.Cell value) {
+    public Builder addCells(
+        int index, com.google.bigtable.v2.Cell value) {
       if (cellsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -765,15 +727,14 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder addCells(com.google.bigtable.v2.Cell.Builder builderForValue) {
+    public Builder addCells(
+        com.google.bigtable.v2.Cell.Builder builderForValue) {
       if (cellsBuilder_ == null) {
         ensureCellsIsMutable();
         cells_.add(builderForValue.build());
@@ -784,15 +745,14 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder addCells(int index, com.google.bigtable.v2.Cell.Builder builderForValue) {
+    public Builder addCells(
+        int index, com.google.bigtable.v2.Cell.Builder builderForValue) {
       if (cellsBuilder_ == null) {
         ensureCellsIsMutable();
         cells_.add(index, builderForValue.build());
@@ -803,18 +763,18 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public Builder addAllCells(java.lang.Iterable<? extends com.google.bigtable.v2.Cell> values) {
+    public Builder addAllCells(
+        java.lang.Iterable<? extends com.google.bigtable.v2.Cell> values) {
       if (cellsBuilder_ == null) {
         ensureCellsIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(values, cells_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, cells_);
         onChanged();
       } else {
         cellsBuilder_.addAllMessages(values);
@@ -822,8 +782,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -841,8 +799,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -860,43 +816,39 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public com.google.bigtable.v2.Cell.Builder getCellsBuilder(int index) {
+    public com.google.bigtable.v2.Cell.Builder getCellsBuilder(
+        int index) {
       return getCellsFieldBuilder().getBuilder(index);
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public com.google.bigtable.v2.CellOrBuilder getCellsOrBuilder(int index) {
+    public com.google.bigtable.v2.CellOrBuilder getCellsOrBuilder(
+        int index) {
       if (cellsBuilder_ == null) {
-        return cells_.get(index);
-      } else {
+        return cells_.get(index);  } else {
         return cellsBuilder_.getMessageOrBuilder(index);
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public java.util.List<? extends com.google.bigtable.v2.CellOrBuilder> getCellsOrBuilderList() {
+    public java.util.List<? extends com.google.bigtable.v2.CellOrBuilder> 
+         getCellsOrBuilderList() {
       if (cellsBuilder_ != null) {
         return cellsBuilder_.getMessageOrBuilderList();
       } else {
@@ -904,8 +856,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
@@ -913,53 +863,49 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
     public com.google.bigtable.v2.Cell.Builder addCellsBuilder() {
-      return getCellsFieldBuilder().addBuilder(com.google.bigtable.v2.Cell.getDefaultInstance());
+      return getCellsFieldBuilder().addBuilder(
+          com.google.bigtable.v2.Cell.getDefaultInstance());
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public com.google.bigtable.v2.Cell.Builder addCellsBuilder(int index) {
-      return getCellsFieldBuilder()
-          .addBuilder(index, com.google.bigtable.v2.Cell.getDefaultInstance());
+    public com.google.bigtable.v2.Cell.Builder addCellsBuilder(
+        int index) {
+      return getCellsFieldBuilder().addBuilder(
+          index, com.google.bigtable.v2.Cell.getDefaultInstance());
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of decreasing "timestamp_micros".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Cell cells = 2;</code>
      */
-    public java.util.List<com.google.bigtable.v2.Cell.Builder> getCellsBuilderList() {
+    public java.util.List<com.google.bigtable.v2.Cell.Builder> 
+         getCellsBuilderList() {
       return getCellsFieldBuilder().getBuilderList();
     }
-
     private com.google.protobuf.RepeatedFieldBuilderV3<
-            com.google.bigtable.v2.Cell,
-            com.google.bigtable.v2.Cell.Builder,
-            com.google.bigtable.v2.CellOrBuilder>
+        com.google.bigtable.v2.Cell, com.google.bigtable.v2.Cell.Builder, com.google.bigtable.v2.CellOrBuilder> 
         getCellsFieldBuilder() {
       if (cellsBuilder_ == null) {
-        cellsBuilder_ =
-            new com.google.protobuf.RepeatedFieldBuilderV3<
-                com.google.bigtable.v2.Cell,
-                com.google.bigtable.v2.Cell.Builder,
-                com.google.bigtable.v2.CellOrBuilder>(
-                cells_, ((bitField0_ & 0x00000001) != 0), getParentForChildren(), isClean());
+        cellsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            com.google.bigtable.v2.Cell, com.google.bigtable.v2.Cell.Builder, com.google.bigtable.v2.CellOrBuilder>(
+                cells_,
+                ((bitField0_ & 0x00000001) != 0),
+                getParentForChildren(),
+                isClean());
         cells_ = null;
       }
       return cellsBuilder_;
     }
-
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -969,12 +915,12 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.v2.Column)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.Column)
   private static final com.google.bigtable.v2.Column DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.v2.Column();
   }
@@ -983,27 +929,27 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Column> PARSER =
-      new com.google.protobuf.AbstractParser<Column>() {
-        @java.lang.Override
-        public Column parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<Column>
+      PARSER = new com.google.protobuf.AbstractParser<Column>() {
+    @java.lang.Override
+    public Column parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<Column> parser() {
     return PARSER;
@@ -1018,4 +964,6 @@ public final class Column extends com.google.protobuf.GeneratedMessageV3
   public com.google.bigtable.v2.Column getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }
+

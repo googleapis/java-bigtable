@@ -18,40 +18,31 @@
 
 package com.google.bigtable.v2;
 
-public interface RequestStatsOrBuilder
-    extends
+public interface RequestStatsOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.RequestStats)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * Available with the ReadRowsRequest.RequestStatsView.REQUEST_STATS_FULL
    * view, see package google.bigtable.v2.
    * </pre>
    *
    * <code>.google.bigtable.v2.FullReadStatsView full_read_stats_view = 1;</code>
-   *
    * @return Whether the fullReadStatsView field is set.
    */
   boolean hasFullReadStatsView();
   /**
-   *
-   *
    * <pre>
    * Available with the ReadRowsRequest.RequestStatsView.REQUEST_STATS_FULL
    * view, see package google.bigtable.v2.
    * </pre>
    *
    * <code>.google.bigtable.v2.FullReadStatsView full_read_stats_view = 1;</code>
-   *
    * @return The fullReadStatsView.
    */
   com.google.bigtable.v2.FullReadStatsView getFullReadStatsView();
   /**
-   *
-   *
    * <pre>
    * Available with the ReadRowsRequest.RequestStatsView.REQUEST_STATS_FULL
    * view, see package google.bigtable.v2.

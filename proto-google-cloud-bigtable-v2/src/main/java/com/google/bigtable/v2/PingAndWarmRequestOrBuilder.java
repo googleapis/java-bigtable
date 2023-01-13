@@ -18,66 +18,51 @@
 
 package com.google.bigtable.v2;
 
-public interface PingAndWarmRequestOrBuilder
-    extends
+public interface PingAndWarmRequestOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.PingAndWarmRequest)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * Required. The unique name of the instance to check permissions for as well as
    * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
-   * <code>
-   * string name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
-   * </code>
-   *
+   * <code>string name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }</code>
    * @return The name.
    */
   java.lang.String getName();
   /**
-   *
-   *
    * <pre>
    * Required. The unique name of the instance to check permissions for as well as
    * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
-   * <code>
-   * string name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }
-   * </code>
-   *
+   * <code>string name = 1 [(.google.api.field_behavior) = REQUIRED, (.google.api.resource_reference) = { ... }</code>
    * @return The bytes for name.
    */
-  com.google.protobuf.ByteString getNameBytes();
+  com.google.protobuf.ByteString
+      getNameBytes();
 
   /**
-   *
-   *
    * <pre>
    * This value specifies routing for replication. If not specified, the
    * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 2;</code>
-   *
    * @return The appProfileId.
    */
   java.lang.String getAppProfileId();
   /**
-   *
-   *
    * <pre>
    * This value specifies routing for replication. If not specified, the
    * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 2;</code>
-   *
    * @return The bytes for appProfileId.
    */
-  com.google.protobuf.ByteString getAppProfileIdBytes();
+  com.google.protobuf.ByteString
+      getAppProfileIdBytes();
 }

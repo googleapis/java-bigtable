@@ -19,8 +19,6 @@
 package com.google.bigtable.v2;
 
 /**
- *
- *
  * <pre>
  * Specifies (some of) the contents of a single row/column family intersection
  * of a table.
@@ -28,16 +26,15 @@ package com.google.bigtable.v2;
  *
  * Protobuf type {@code google.bigtable.v2.Family}
  */
-public final class Family extends com.google.protobuf.GeneratedMessageV3
-    implements
+public final class Family extends
+    com.google.protobuf.GeneratedMessageV3 implements
     // @@protoc_insertion_point(message_implements:google.bigtable.v2.Family)
     FamilyOrBuilder {
-  private static final long serialVersionUID = 0L;
+private static final long serialVersionUID = 0L;
   // Use Family.newBuilder() to construct.
   private Family(com.google.protobuf.GeneratedMessageV3.Builder<?> builder) {
     super(builder);
   }
-
   private Family() {
     name_ = "";
     columns_ = java.util.Collections.emptyList();
@@ -45,24 +42,25 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
 
   @java.lang.Override
   @SuppressWarnings({"unused"})
-  protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
+  protected java.lang.Object newInstance(
+      UnusedPrivateParameter unused) {
     return new Family();
   }
 
   @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
+  public final com.google.protobuf.UnknownFieldSet
+  getUnknownFields() {
     return this.unknownFields;
   }
-
-  public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+  public static final com.google.protobuf.Descriptors.Descriptor
+      getDescriptor() {
     return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Family_descriptor;
   }
 
   @java.lang.Override
   protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
       internalGetFieldAccessorTable() {
-    return com.google.bigtable.v2.DataProto
-        .internal_static_google_bigtable_v2_Family_fieldAccessorTable
+    return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Family_fieldAccessorTable
         .ensureFieldAccessorsInitialized(
             com.google.bigtable.v2.Family.class, com.google.bigtable.v2.Family.Builder.class);
   }
@@ -70,8 +68,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
   public static final int NAME_FIELD_NUMBER = 1;
   private volatile java.lang.Object name_;
   /**
-   *
-   *
    * <pre>
    * The unique key which identifies this family within its row. This is the
    * same key that's used to identify the family in, for example, a RowFilter
@@ -82,7 +78,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
    * </pre>
    *
    * <code>string name = 1;</code>
-   *
    * @return The name.
    */
   @java.lang.Override
@@ -91,15 +86,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     if (ref instanceof java.lang.String) {
       return (java.lang.String) ref;
     } else {
-      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+      com.google.protobuf.ByteString bs = 
+          (com.google.protobuf.ByteString) ref;
       java.lang.String s = bs.toStringUtf8();
       name_ = s;
       return s;
     }
   }
   /**
-   *
-   *
    * <pre>
    * The unique key which identifies this family within its row. This is the
    * same key that's used to identify the family in, for example, a RowFilter
@@ -110,15 +104,16 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
    * </pre>
    *
    * <code>string name = 1;</code>
-   *
    * @return The bytes for name.
    */
   @java.lang.Override
-  public com.google.protobuf.ByteString getNameBytes() {
+  public com.google.protobuf.ByteString
+      getNameBytes() {
     java.lang.Object ref = name_;
     if (ref instanceof java.lang.String) {
-      com.google.protobuf.ByteString b =
-          com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+      com.google.protobuf.ByteString b = 
+          com.google.protobuf.ByteString.copyFromUtf8(
+              (java.lang.String) ref);
       name_ = b;
       return b;
     } else {
@@ -129,8 +124,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
   public static final int COLUMNS_FIELD_NUMBER = 2;
   private java.util.List<com.google.bigtable.v2.Column> columns_;
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of increasing "qualifier".
    * </pre>
@@ -142,8 +135,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     return columns_;
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of increasing "qualifier".
    * </pre>
@@ -151,13 +142,11 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
    * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
    */
   @java.lang.Override
-  public java.util.List<? extends com.google.bigtable.v2.ColumnOrBuilder>
+  public java.util.List<? extends com.google.bigtable.v2.ColumnOrBuilder> 
       getColumnsOrBuilderList() {
     return columns_;
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of increasing "qualifier".
    * </pre>
@@ -169,8 +158,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     return columns_.size();
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of increasing "qualifier".
    * </pre>
@@ -182,8 +169,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     return columns_.get(index);
   }
   /**
-   *
-   *
    * <pre>
    * Must not be empty. Sorted in order of increasing "qualifier".
    * </pre>
@@ -191,12 +176,12 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
    * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
    */
   @java.lang.Override
-  public com.google.bigtable.v2.ColumnOrBuilder getColumnsOrBuilder(int index) {
+  public com.google.bigtable.v2.ColumnOrBuilder getColumnsOrBuilder(
+      int index) {
     return columns_.get(index);
   }
 
   private byte memoizedIsInitialized = -1;
-
   @java.lang.Override
   public final boolean isInitialized() {
     byte isInitialized = memoizedIsInitialized;
@@ -208,7 +193,8 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
   }
 
   @java.lang.Override
-  public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+  public void writeTo(com.google.protobuf.CodedOutputStream output)
+                      throws java.io.IOException {
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(name_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 1, name_);
     }
@@ -228,7 +214,8 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(1, name_);
     }
     for (int i = 0; i < columns_.size(); i++) {
-      size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, columns_.get(i));
+      size += com.google.protobuf.CodedOutputStream
+        .computeMessageSize(2, columns_.get(i));
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -238,15 +225,17 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public boolean equals(final java.lang.Object obj) {
     if (obj == this) {
-      return true;
+     return true;
     }
     if (!(obj instanceof com.google.bigtable.v2.Family)) {
       return super.equals(obj);
     }
     com.google.bigtable.v2.Family other = (com.google.bigtable.v2.Family) obj;
 
-    if (!getName().equals(other.getName())) return false;
-    if (!getColumnsList().equals(other.getColumnsList())) return false;
+    if (!getName()
+        .equals(other.getName())) return false;
+    if (!getColumnsList()
+        .equals(other.getColumnsList())) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -269,103 +258,97 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     return hash;
   }
 
-  public static com.google.bigtable.v2.Family parseFrom(java.nio.ByteBuffer data)
+  public static com.google.bigtable.v2.Family parseFrom(
+      java.nio.ByteBuffer data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(
-      java.nio.ByteBuffer data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.nio.ByteBuffer data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.Family parseFrom(com.google.protobuf.ByteString data)
+  public static com.google.bigtable.v2.Family parseFrom(
+      com.google.protobuf.ByteString data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(
       com.google.protobuf.ByteString data,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(byte[] data)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(
-      byte[] data, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      byte[] data,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws com.google.protobuf.InvalidProtocolBufferException {
     return PARSER.parseFrom(data, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
-
   public static com.google.bigtable.v2.Family parseDelimitedFrom(java.io.InputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Family parseDelimitedFrom(
-      java.io.InputStream input, com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+      java.io.InputStream input,
+      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseDelimitedWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseDelimitedWithIOException(PARSER, input, extensionRegistry);
   }
-
-  public static com.google.bigtable.v2.Family parseFrom(com.google.protobuf.CodedInputStream input)
+  public static com.google.bigtable.v2.Family parseFrom(
+      com.google.protobuf.CodedInputStream input)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(PARSER, input);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input);
   }
-
   public static com.google.bigtable.v2.Family parseFrom(
       com.google.protobuf.CodedInputStream input,
       com.google.protobuf.ExtensionRegistryLite extensionRegistry)
       throws java.io.IOException {
-    return com.google.protobuf.GeneratedMessageV3.parseWithIOException(
-        PARSER, input, extensionRegistry);
+    return com.google.protobuf.GeneratedMessageV3
+        .parseWithIOException(PARSER, input, extensionRegistry);
   }
 
   @java.lang.Override
-  public Builder newBuilderForType() {
-    return newBuilder();
-  }
-
+  public Builder newBuilderForType() { return newBuilder(); }
   public static Builder newBuilder() {
     return DEFAULT_INSTANCE.toBuilder();
   }
-
   public static Builder newBuilder(com.google.bigtable.v2.Family prototype) {
     return DEFAULT_INSTANCE.toBuilder().mergeFrom(prototype);
   }
-
   @java.lang.Override
   public Builder toBuilder() {
-    return this == DEFAULT_INSTANCE ? new Builder() : new Builder().mergeFrom(this);
+    return this == DEFAULT_INSTANCE
+        ? new Builder() : new Builder().mergeFrom(this);
   }
 
   @java.lang.Override
-  protected Builder newBuilderForType(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+  protected Builder newBuilderForType(
+      com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
     Builder builder = new Builder(parent);
     return builder;
   }
   /**
-   *
-   *
    * <pre>
    * Specifies (some of) the contents of a single row/column family intersection
    * of a table.
@@ -373,30 +356,33 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
    *
    * Protobuf type {@code google.bigtable.v2.Family}
    */
-  public static final class Builder extends com.google.protobuf.GeneratedMessageV3.Builder<Builder>
-      implements
+  public static final class Builder extends
+      com.google.protobuf.GeneratedMessageV3.Builder<Builder> implements
       // @@protoc_insertion_point(builder_implements:google.bigtable.v2.Family)
       com.google.bigtable.v2.FamilyOrBuilder {
-    public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
+    public static final com.google.protobuf.Descriptors.Descriptor
+        getDescriptor() {
       return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Family_descriptor;
     }
 
     @java.lang.Override
     protected com.google.protobuf.GeneratedMessageV3.FieldAccessorTable
         internalGetFieldAccessorTable() {
-      return com.google.bigtable.v2.DataProto
-          .internal_static_google_bigtable_v2_Family_fieldAccessorTable
+      return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Family_fieldAccessorTable
           .ensureFieldAccessorsInitialized(
               com.google.bigtable.v2.Family.class, com.google.bigtable.v2.Family.Builder.class);
     }
 
     // Construct using com.google.bigtable.v2.Family.newBuilder()
-    private Builder() {}
+    private Builder() {
 
-    private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
-      super(parent);
     }
 
+    private Builder(
+        com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
+      super(parent);
+
+    }
     @java.lang.Override
     public Builder clear() {
       super.clear();
@@ -413,7 +399,8 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     }
 
     @java.lang.Override
-    public com.google.protobuf.Descriptors.Descriptor getDescriptorForType() {
+    public com.google.protobuf.Descriptors.Descriptor
+        getDescriptorForType() {
       return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_Family_descriptor;
     }
 
@@ -453,39 +440,38 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     public Builder clone() {
       return super.clone();
     }
-
     @java.lang.Override
     public Builder setField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.setField(field, value);
     }
-
     @java.lang.Override
-    public Builder clearField(com.google.protobuf.Descriptors.FieldDescriptor field) {
+    public Builder clearField(
+        com.google.protobuf.Descriptors.FieldDescriptor field) {
       return super.clearField(field);
     }
-
     @java.lang.Override
-    public Builder clearOneof(com.google.protobuf.Descriptors.OneofDescriptor oneof) {
+    public Builder clearOneof(
+        com.google.protobuf.Descriptors.OneofDescriptor oneof) {
       return super.clearOneof(oneof);
     }
-
     @java.lang.Override
     public Builder setRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, int index, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        int index, java.lang.Object value) {
       return super.setRepeatedField(field, index, value);
     }
-
     @java.lang.Override
     public Builder addRepeatedField(
-        com.google.protobuf.Descriptors.FieldDescriptor field, java.lang.Object value) {
+        com.google.protobuf.Descriptors.FieldDescriptor field,
+        java.lang.Object value) {
       return super.addRepeatedField(field, value);
     }
-
     @java.lang.Override
     public Builder mergeFrom(com.google.protobuf.Message other) {
       if (other instanceof com.google.bigtable.v2.Family) {
-        return mergeFrom((com.google.bigtable.v2.Family) other);
+        return mergeFrom((com.google.bigtable.v2.Family)other);
       } else {
         super.mergeFrom(other);
         return this;
@@ -516,10 +502,9 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
             columnsBuilder_ = null;
             columns_ = other.columns_;
             bitField0_ = (bitField0_ & ~0x00000001);
-            columnsBuilder_ =
-                com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
-                    ? getColumnsFieldBuilder()
-                    : null;
+            columnsBuilder_ = 
+              com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders ?
+                 getColumnsFieldBuilder() : null;
           } else {
             columnsBuilder_.addAllMessages(other.columns_);
           }
@@ -551,31 +536,30 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
             case 0:
               done = true;
               break;
-            case 10:
-              {
-                name_ = input.readStringRequireUtf8();
+            case 10: {
+              name_ = input.readStringRequireUtf8();
 
-                break;
-              } // case 10
-            case 18:
-              {
-                com.google.bigtable.v2.Column m =
-                    input.readMessage(com.google.bigtable.v2.Column.parser(), extensionRegistry);
-                if (columnsBuilder_ == null) {
-                  ensureColumnsIsMutable();
-                  columns_.add(m);
-                } else {
-                  columnsBuilder_.addMessage(m);
-                }
-                break;
-              } // case 18
-            default:
-              {
-                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
-                  done = true; // was an endgroup tag
-                }
-                break;
-              } // default:
+              break;
+            } // case 10
+            case 18: {
+              com.google.bigtable.v2.Column m =
+                  input.readMessage(
+                      com.google.bigtable.v2.Column.parser(),
+                      extensionRegistry);
+              if (columnsBuilder_ == null) {
+                ensureColumnsIsMutable();
+                columns_.add(m);
+              } else {
+                columnsBuilder_.addMessage(m);
+              }
+              break;
+            } // case 18
+            default: {
+              if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                done = true; // was an endgroup tag
+              }
+              break;
+            } // default:
           } // switch (tag)
         } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
@@ -585,13 +569,10 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       } // finally
       return this;
     }
-
     private int bitField0_;
 
     private java.lang.Object name_ = "";
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this family within its row. This is the
      * same key that's used to identify the family in, for example, a RowFilter
@@ -602,13 +583,13 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>string name = 1;</code>
-     *
      * @return The name.
      */
     public java.lang.String getName() {
       java.lang.Object ref = name_;
       if (!(ref instanceof java.lang.String)) {
-        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        com.google.protobuf.ByteString bs =
+            (com.google.protobuf.ByteString) ref;
         java.lang.String s = bs.toStringUtf8();
         name_ = s;
         return s;
@@ -617,8 +598,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this family within its row. This is the
      * same key that's used to identify the family in, for example, a RowFilter
@@ -629,14 +608,15 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>string name = 1;</code>
-     *
      * @return The bytes for name.
      */
-    public com.google.protobuf.ByteString getNameBytes() {
+    public com.google.protobuf.ByteString
+        getNameBytes() {
       java.lang.Object ref = name_;
       if (ref instanceof String) {
-        com.google.protobuf.ByteString b =
-            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+        com.google.protobuf.ByteString b = 
+            com.google.protobuf.ByteString.copyFromUtf8(
+                (java.lang.String) ref);
         name_ = b;
         return b;
       } else {
@@ -644,8 +624,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this family within its row. This is the
      * same key that's used to identify the family in, for example, a RowFilter
@@ -656,22 +634,20 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>string name = 1;</code>
-     *
      * @param value The name to set.
      * @return This builder for chaining.
      */
-    public Builder setName(java.lang.String value) {
+    public Builder setName(
+        java.lang.String value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-
+    throw new NullPointerException();
+  }
+  
       name_ = value;
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this family within its row. This is the
      * same key that's used to identify the family in, for example, a RowFilter
@@ -682,18 +658,15 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>string name = 1;</code>
-     *
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
+      
       name_ = getDefaultInstance().getName();
       onChanged();
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * The unique key which identifies this family within its row. This is the
      * same key that's used to identify the family in, for example, a RowFilter
@@ -704,40 +677,34 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * </pre>
      *
      * <code>string name = 1;</code>
-     *
      * @param value The bytes for name to set.
      * @return This builder for chaining.
      */
-    public Builder setNameBytes(com.google.protobuf.ByteString value) {
+    public Builder setNameBytes(
+        com.google.protobuf.ByteString value) {
       if (value == null) {
-        throw new NullPointerException();
-      }
-      checkByteStringIsUtf8(value);
-
+    throw new NullPointerException();
+  }
+  checkByteStringIsUtf8(value);
+      
       name_ = value;
       onChanged();
       return this;
     }
 
     private java.util.List<com.google.bigtable.v2.Column> columns_ =
-        java.util.Collections.emptyList();
-
+      java.util.Collections.emptyList();
     private void ensureColumnsIsMutable() {
       if (!((bitField0_ & 0x00000001) != 0)) {
         columns_ = new java.util.ArrayList<com.google.bigtable.v2.Column>(columns_);
         bitField0_ |= 0x00000001;
-      }
+       }
     }
 
     private com.google.protobuf.RepeatedFieldBuilderV3<
-            com.google.bigtable.v2.Column,
-            com.google.bigtable.v2.Column.Builder,
-            com.google.bigtable.v2.ColumnOrBuilder>
-        columnsBuilder_;
+        com.google.bigtable.v2.Column, com.google.bigtable.v2.Column.Builder, com.google.bigtable.v2.ColumnOrBuilder> columnsBuilder_;
 
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -752,8 +719,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -768,8 +733,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -784,15 +747,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public Builder setColumns(int index, com.google.bigtable.v2.Column value) {
+    public Builder setColumns(
+        int index, com.google.bigtable.v2.Column value) {
       if (columnsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -806,15 +768,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public Builder setColumns(int index, com.google.bigtable.v2.Column.Builder builderForValue) {
+    public Builder setColumns(
+        int index, com.google.bigtable.v2.Column.Builder builderForValue) {
       if (columnsBuilder_ == null) {
         ensureColumnsIsMutable();
         columns_.set(index, builderForValue.build());
@@ -825,8 +786,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -847,15 +806,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public Builder addColumns(int index, com.google.bigtable.v2.Column value) {
+    public Builder addColumns(
+        int index, com.google.bigtable.v2.Column value) {
       if (columnsBuilder_ == null) {
         if (value == null) {
           throw new NullPointerException();
@@ -869,15 +827,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public Builder addColumns(com.google.bigtable.v2.Column.Builder builderForValue) {
+    public Builder addColumns(
+        com.google.bigtable.v2.Column.Builder builderForValue) {
       if (columnsBuilder_ == null) {
         ensureColumnsIsMutable();
         columns_.add(builderForValue.build());
@@ -888,15 +845,14 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public Builder addColumns(int index, com.google.bigtable.v2.Column.Builder builderForValue) {
+    public Builder addColumns(
+        int index, com.google.bigtable.v2.Column.Builder builderForValue) {
       if (columnsBuilder_ == null) {
         ensureColumnsIsMutable();
         columns_.add(index, builderForValue.build());
@@ -907,8 +863,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -919,7 +873,8 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
         java.lang.Iterable<? extends com.google.bigtable.v2.Column> values) {
       if (columnsBuilder_ == null) {
         ensureColumnsIsMutable();
-        com.google.protobuf.AbstractMessageLite.Builder.addAll(values, columns_);
+        com.google.protobuf.AbstractMessageLite.Builder.addAll(
+            values, columns_);
         onChanged();
       } else {
         columnsBuilder_.addAllMessages(values);
@@ -927,8 +882,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -946,8 +899,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -965,44 +916,39 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public com.google.bigtable.v2.Column.Builder getColumnsBuilder(int index) {
+    public com.google.bigtable.v2.Column.Builder getColumnsBuilder(
+        int index) {
       return getColumnsFieldBuilder().getBuilder(index);
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public com.google.bigtable.v2.ColumnOrBuilder getColumnsOrBuilder(int index) {
+    public com.google.bigtable.v2.ColumnOrBuilder getColumnsOrBuilder(
+        int index) {
       if (columnsBuilder_ == null) {
-        return columns_.get(index);
-      } else {
+        return columns_.get(index);  } else {
         return columnsBuilder_.getMessageOrBuilder(index);
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public java.util.List<? extends com.google.bigtable.v2.ColumnOrBuilder>
-        getColumnsOrBuilderList() {
+    public java.util.List<? extends com.google.bigtable.v2.ColumnOrBuilder> 
+         getColumnsOrBuilderList() {
       if (columnsBuilder_ != null) {
         return columnsBuilder_.getMessageOrBuilderList();
       } else {
@@ -1010,8 +956,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       }
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
@@ -1019,54 +963,49 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
     public com.google.bigtable.v2.Column.Builder addColumnsBuilder() {
-      return getColumnsFieldBuilder()
-          .addBuilder(com.google.bigtable.v2.Column.getDefaultInstance());
+      return getColumnsFieldBuilder().addBuilder(
+          com.google.bigtable.v2.Column.getDefaultInstance());
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public com.google.bigtable.v2.Column.Builder addColumnsBuilder(int index) {
-      return getColumnsFieldBuilder()
-          .addBuilder(index, com.google.bigtable.v2.Column.getDefaultInstance());
+    public com.google.bigtable.v2.Column.Builder addColumnsBuilder(
+        int index) {
+      return getColumnsFieldBuilder().addBuilder(
+          index, com.google.bigtable.v2.Column.getDefaultInstance());
     }
     /**
-     *
-     *
      * <pre>
      * Must not be empty. Sorted in order of increasing "qualifier".
      * </pre>
      *
      * <code>repeated .google.bigtable.v2.Column columns = 2;</code>
      */
-    public java.util.List<com.google.bigtable.v2.Column.Builder> getColumnsBuilderList() {
+    public java.util.List<com.google.bigtable.v2.Column.Builder> 
+         getColumnsBuilderList() {
       return getColumnsFieldBuilder().getBuilderList();
     }
-
     private com.google.protobuf.RepeatedFieldBuilderV3<
-            com.google.bigtable.v2.Column,
-            com.google.bigtable.v2.Column.Builder,
-            com.google.bigtable.v2.ColumnOrBuilder>
+        com.google.bigtable.v2.Column, com.google.bigtable.v2.Column.Builder, com.google.bigtable.v2.ColumnOrBuilder> 
         getColumnsFieldBuilder() {
       if (columnsBuilder_ == null) {
-        columnsBuilder_ =
-            new com.google.protobuf.RepeatedFieldBuilderV3<
-                com.google.bigtable.v2.Column,
-                com.google.bigtable.v2.Column.Builder,
-                com.google.bigtable.v2.ColumnOrBuilder>(
-                columns_, ((bitField0_ & 0x00000001) != 0), getParentForChildren(), isClean());
+        columnsBuilder_ = new com.google.protobuf.RepeatedFieldBuilderV3<
+            com.google.bigtable.v2.Column, com.google.bigtable.v2.Column.Builder, com.google.bigtable.v2.ColumnOrBuilder>(
+                columns_,
+                ((bitField0_ & 0x00000001) != 0),
+                getParentForChildren(),
+                isClean());
         columns_ = null;
       }
       return columnsBuilder_;
     }
-
     @java.lang.Override
-    public final Builder setUnknownFields(final com.google.protobuf.UnknownFieldSet unknownFields) {
+    public final Builder setUnknownFields(
+        final com.google.protobuf.UnknownFieldSet unknownFields) {
       return super.setUnknownFields(unknownFields);
     }
 
@@ -1076,12 +1015,12 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
       return super.mergeUnknownFields(unknownFields);
     }
 
+
     // @@protoc_insertion_point(builder_scope:google.bigtable.v2.Family)
   }
 
   // @@protoc_insertion_point(class_scope:google.bigtable.v2.Family)
   private static final com.google.bigtable.v2.Family DEFAULT_INSTANCE;
-
   static {
     DEFAULT_INSTANCE = new com.google.bigtable.v2.Family();
   }
@@ -1090,27 +1029,27 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
     return DEFAULT_INSTANCE;
   }
 
-  private static final com.google.protobuf.Parser<Family> PARSER =
-      new com.google.protobuf.AbstractParser<Family>() {
-        @java.lang.Override
-        public Family parsePartialFrom(
-            com.google.protobuf.CodedInputStream input,
-            com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-            throws com.google.protobuf.InvalidProtocolBufferException {
-          Builder builder = newBuilder();
-          try {
-            builder.mergeFrom(input, extensionRegistry);
-          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            throw e.setUnfinishedMessage(builder.buildPartial());
-          } catch (com.google.protobuf.UninitializedMessageException e) {
-            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
-          } catch (java.io.IOException e) {
-            throw new com.google.protobuf.InvalidProtocolBufferException(e)
-                .setUnfinishedMessage(builder.buildPartial());
-          }
-          return builder.buildPartial();
-        }
-      };
+  private static final com.google.protobuf.Parser<Family>
+      PARSER = new com.google.protobuf.AbstractParser<Family>() {
+    @java.lang.Override
+    public Family parsePartialFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
+      Builder builder = newBuilder();
+      try {
+        builder.mergeFrom(input, extensionRegistry);
+      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+        throw e.setUnfinishedMessage(builder.buildPartial());
+      } catch (com.google.protobuf.UninitializedMessageException e) {
+        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+      } catch (java.io.IOException e) {
+        throw new com.google.protobuf.InvalidProtocolBufferException(e)
+            .setUnfinishedMessage(builder.buildPartial());
+      }
+      return builder.buildPartial();
+    }
+  };
 
   public static com.google.protobuf.Parser<Family> parser() {
     return PARSER;
@@ -1125,4 +1064,6 @@ public final class Family extends com.google.protobuf.GeneratedMessageV3
   public com.google.bigtable.v2.Family getDefaultInstanceForType() {
     return DEFAULT_INSTANCE;
   }
+
 }
+

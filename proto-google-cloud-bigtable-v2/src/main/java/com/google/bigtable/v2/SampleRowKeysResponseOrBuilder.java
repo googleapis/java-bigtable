@@ -18,14 +18,11 @@
 
 package com.google.bigtable.v2;
 
-public interface SampleRowKeysResponseOrBuilder
-    extends
+public interface SampleRowKeysResponseOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.SampleRowKeysResponse)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * Sorted streamed sequence of sample row keys in the table. The table might
    * have contents before the first row key in the list and after the last one,
@@ -37,14 +34,11 @@ public interface SampleRowKeysResponseOrBuilder
    * </pre>
    *
    * <code>bytes row_key = 1;</code>
-   *
    * @return The rowKey.
    */
   com.google.protobuf.ByteString getRowKey();
 
   /**
-   *
-   *
    * <pre>
    * Approximate total storage space used by all rows in the table which precede
    * `row_key`. Buffering the contents of all rows between two subsequent
@@ -53,7 +47,6 @@ public interface SampleRowKeysResponseOrBuilder
    * </pre>
    *
    * <code>int64 offset_bytes = 2;</code>
-   *
    * @return The offsetBytes.
    */
   long getOffsetBytes();

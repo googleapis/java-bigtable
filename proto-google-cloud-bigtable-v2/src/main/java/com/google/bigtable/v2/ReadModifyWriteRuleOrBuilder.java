@@ -18,41 +18,33 @@
 
 package com.google.bigtable.v2;
 
-public interface ReadModifyWriteRuleOrBuilder
-    extends
+public interface ReadModifyWriteRuleOrBuilder extends
     // @@protoc_insertion_point(interface_extends:google.bigtable.v2.ReadModifyWriteRule)
     com.google.protobuf.MessageOrBuilder {
 
   /**
-   *
-   *
    * <pre>
    * The name of the family to which the read/modify/write should be applied.
    * Must match `[-_.a-zA-Z0-9]+`
    * </pre>
    *
    * <code>string family_name = 1;</code>
-   *
    * @return The familyName.
    */
   java.lang.String getFamilyName();
   /**
-   *
-   *
    * <pre>
    * The name of the family to which the read/modify/write should be applied.
    * Must match `[-_.a-zA-Z0-9]+`
    * </pre>
    *
    * <code>string family_name = 1;</code>
-   *
    * @return The bytes for familyName.
    */
-  com.google.protobuf.ByteString getFamilyNameBytes();
+  com.google.protobuf.ByteString
+      getFamilyNameBytes();
 
   /**
-   *
-   *
    * <pre>
    * The qualifier of the column to which the read/modify/write should be
    * applied.
@@ -60,14 +52,11 @@ public interface ReadModifyWriteRuleOrBuilder
    * </pre>
    *
    * <code>bytes column_qualifier = 2;</code>
-   *
    * @return The columnQualifier.
    */
   com.google.protobuf.ByteString getColumnQualifier();
 
   /**
-   *
-   *
    * <pre>
    * Rule specifying that `append_value` be appended to the existing value.
    * If the targeted cell is unset, it will be treated as containing the
@@ -75,13 +64,10 @@ public interface ReadModifyWriteRuleOrBuilder
    * </pre>
    *
    * <code>bytes append_value = 3;</code>
-   *
    * @return Whether the appendValue field is set.
    */
   boolean hasAppendValue();
   /**
-   *
-   *
    * <pre>
    * Rule specifying that `append_value` be appended to the existing value.
    * If the targeted cell is unset, it will be treated as containing the
@@ -89,14 +75,11 @@ public interface ReadModifyWriteRuleOrBuilder
    * </pre>
    *
    * <code>bytes append_value = 3;</code>
-   *
    * @return The appendValue.
    */
   com.google.protobuf.ByteString getAppendValue();
 
   /**
-   *
-   *
    * <pre>
    * Rule specifying that `increment_amount` be added to the existing value.
    * If the targeted cell is unset, it will be treated as containing a zero.
@@ -105,13 +88,10 @@ public interface ReadModifyWriteRuleOrBuilder
    * </pre>
    *
    * <code>int64 increment_amount = 4;</code>
-   *
    * @return Whether the incrementAmount field is set.
    */
   boolean hasIncrementAmount();
   /**
-   *
-   *
    * <pre>
    * Rule specifying that `increment_amount` be added to the existing value.
    * If the targeted cell is unset, it will be treated as containing a zero.
@@ -120,7 +100,6 @@ public interface ReadModifyWriteRuleOrBuilder
    * </pre>
    *
    * <code>int64 increment_amount = 4;</code>
-   *
    * @return The incrementAmount.
    */
   long getIncrementAmount();
