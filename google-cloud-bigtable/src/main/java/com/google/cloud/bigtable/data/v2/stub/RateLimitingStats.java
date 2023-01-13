@@ -63,18 +63,14 @@ public class RateLimitingStats {
     // If the average CPU is within 5% of the target, maintain the currentRate
     // If the average CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
-      System.out.println("CPU is overloaded");
       double percentChange = Math.max(1 - (cpuDelta / (100 - target)), PERCENT_CHANGE_LIMIT);
       newRate = (long)(percentChange * currentRate);
     } else if (Math.abs(cpuDelta) > 5){
-      System.out.println("Increasing rate");
       newRate = currentRate + (currentRate * PERCENT_CHANGE_LIMIT);
     }
     if (newRate < lowerQpsBound) {
-      System.out.println("New rate is below lowerQPSbound");
       return lowerQpsBound;
     } else if (newRate > upperQpsBound) {
-      System.out.println("New rate is above lowerQPSbound");
       return upperQpsBound;
     }
     return newRate;
@@ -91,12 +87,5 @@ public class RateLimitingStats {
       return cpus;
     }
     return new double[]{};
-  }
-
-  static ApiCallContext addCpuHeaderToContext(ApiCallContext apiCallContext) {
-    ImmutableMap.Builder<String, List<String>> headers = ImmutableMap.builder();
-    // value needs to be the serialized -> encoded -> set for header
-    headers.put("bigtable-features-bins", Arrays.asList("true"));
-    return apiCallContext.withExtraHeaders(headers.build());
   }
 }
