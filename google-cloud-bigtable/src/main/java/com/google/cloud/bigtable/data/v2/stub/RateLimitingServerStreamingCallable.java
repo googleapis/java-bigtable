@@ -52,8 +52,8 @@ public class RateLimitingServerStreamingCallable
   @Override
   public void call(
       MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
-    //System.out.println("Call made");
-    //System.out.println("Current QPS: "+limiter.getRate());
+    System.out.println("Call made");
+    System.out.println("Current QPS: "+limiter.getRate());
     limiter.acquire();
     CpuMetadataResponseObserver innerObserver =
         new CpuMetadataResponseObserver(responseObserver);
@@ -72,16 +72,19 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onStartImpl(final StreamController controller) {
-      //System.out.println("Rate Limiting onStart");
+      System.out.println("Rate Limiting onStart");
       outerObserver.onStart(controller);
     }
 
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
       // Ensure enough time has passed since updates to QPS
+      System.out.println("Received response: "+response.toString());
+      System.out.println("Server Stats: "+response.getServerStats().toString());
       long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
       long currentTime = System.currentTimeMillis();
       if (currentTime - lastQpsUpdateTime < minimumTimeMsBetweenUpdates) {
+        System.out.println("QPS has changed within the last minute");
         outerObserver.onResponse(response);
         return;
       }
@@ -91,13 +94,12 @@ public class RateLimitingServerStreamingCallable
 
       if (cpus.length > 0) {
         newQps = stats.calculateQpsChange(cpus, DEFAULT_TARGET_CPU, limiter.getRate());
-        //System.out.println("Callable: ("+Thread.currentThread().getId()+") Changing QPS, Server Stats: "+response.getServerStats());
-        //System.out.println("Callable: ("+Thread.currentThread().getId()+") Old rate: "+limiter.getRate()+" New Rate: "+newQps);
       } else {
         outerObserver.onResponse(response);
         return;
       }
 
+      System.out.println("New QPS has been set");
       limiter.setRate(newQps);
       stats.updateLastQpsUpdateTime(currentTime);
       stats.updateQps(newQps);
@@ -107,7 +109,7 @@ public class RateLimitingServerStreamingCallable
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      //System.out.println("Error: ("+Thread.currentThread()+") "+t.toString());
+      System.out.println("Error: "+t.toString());
       if (t instanceof DeadlineExceededException || t instanceof UnavailableException) {
         // Ensure enough time has passed since updates to QPS
         long lastQpsUpdateTime = stats.getLastQpsUpdateTime();
