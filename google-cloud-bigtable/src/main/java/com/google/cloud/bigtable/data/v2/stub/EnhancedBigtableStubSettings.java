@@ -268,14 +268,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
     return InstantiatingGrpcChannelProvider.newBuilder()
-        .setPoolSize(getDefaultChannelPoolSize())
-        .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
-        .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
-        .setKeepAliveTimeout(
-            Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        // Attempts direct access to CBT service over gRPC to improve throughput,
-        // whether the attempt is allowed is totally controlled by service owner.
-        .setAttemptDirectPath(true)
+        .setMaxInboundMessageSize(Integer.MAX_VALUE)
         .setChannelConfigurator(
             new FeatureFlagChannelConfigurator(
                 null, FEATURE_FLAGS));
