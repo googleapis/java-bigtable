@@ -166,8 +166,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
     // consider splitting it up by feature.
+
     // workaround JWT audience issues
     patchCredentials(builder);
+
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
