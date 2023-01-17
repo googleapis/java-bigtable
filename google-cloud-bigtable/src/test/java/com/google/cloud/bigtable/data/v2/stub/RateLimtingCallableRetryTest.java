@@ -110,7 +110,6 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings unavailableCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(unavailableServerRetry.getPort())
-            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -118,7 +117,6 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings deadlineCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(deadlineServerRetry.getPort())
-            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)

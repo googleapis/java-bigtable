@@ -143,7 +143,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)3333.0, rate.getValue()); // Make default value
+    Assert.assertEquals((Double)3333.0, rate.getValue());
   }
 
   @Test
@@ -181,7 +181,8 @@ public class RateLimitingCallableTest {
   }
 
   @Test
-  public void testBulkMutateRowsTimePassesBetweenQpsUpdates() throws ExecutionException, InterruptedException { // Better name
+  public void testBulkMutateRowsTimePassesBetweenQpsUpdates()
+      throws ExecutionException, InterruptedException {
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
@@ -192,7 +193,7 @@ public class RateLimitingCallableTest {
     future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
     future.get();
 
-    // stats.updateQps should only be called once
+    // updateQps() should only be called once
     verify(mockLimitingStats, timeout(1000).times(1)).updateQps(rate.capture());
     Assert.assertEquals((Double)10_000.0, rate.getValue());
   }
@@ -202,7 +203,6 @@ public class RateLimitingCallableTest {
 
     BigtableDataSettings dataSettings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
-            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
