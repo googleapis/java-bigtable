@@ -74,12 +74,12 @@ public class RateLimtingCallableRetryTest {
 
   @Rule
   public final MockitoRule mockitoRule = MockitoJUnit.rule();
-  private final FakeService FakeServiceHighCpu = new FakeService(7000);
-  private final FakeService FakeServiceLowCpu = new FakeService(1000);
-  private Server lowCPUServerRetry;
-  private Server highCPUServerRetry;
-  private EnhancedBigtableStub lowCpuStubRetry;
-  private EnhancedBigtableStub highCpuStubRetry;
+  private final FakeService FakeServiceDeadline = new FakeService(7000);
+  private final FakeService FakeServiceUnavailable = new FakeService(1000);
+  private Server unavailableServerRetry;
+  private Server deadlineServerRetry;
+  private EnhancedBigtableStub unavailableStubRetry;
+  private EnhancedBigtableStub deadlineCpuStubRetry;
 
   private ApiCallContext callContext;
 
@@ -92,114 +92,77 @@ public class RateLimtingCallableRetryTest {
   @Before
   public void setUp() throws Exception {
     callContext = GrpcCallContext.createDefault();
-    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(/*System.currentTimeMillis() - */100L); // I may need to mock this in a better way
-    when(mockLimitingStats.getLowerQpsBound()).thenReturn(.00001);
-    when(mockLimitingStats.getUpperQpsBound()).thenReturn(100000.0);
+    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(100L);
 
-    FakeServiceHighCpu.exceptions.add(new DeadlineExceededException(
+    FakeServiceDeadline.exceptions.add(new DeadlineExceededException(
         new StatusRuntimeException(Status.DEADLINE_EXCEEDED.withDescription(
             "DEADLINE_EXCEEDED: HTTP/2 error code: DEADLINE_EXCEEDED")),
         GrpcStatusCode.of(Status.Code.DEADLINE_EXCEEDED),
         true));
-    FakeServiceLowCpu.exceptions.add(new UnavailableException(
+    FakeServiceUnavailable.exceptions.add(new UnavailableException(
         new StatusRuntimeException(Status.UNAVAILABLE.withDescription(
-            "UNAVAILABLE: HTTP/2 error code: UNAVAILABLE")), // I need to find an ex
+            "UNAVAILABLE: HTTP/2 error code: UNAVAILABLE")),
         GrpcStatusCode.of(Code.UNAVAILABLE),
         true));
 
-    highCPUServerRetry = FakeServiceBuilder.create(FakeServiceHighCpu).start();
-    lowCPUServerRetry = FakeServiceBuilder.create(FakeServiceLowCpu).start();
+    deadlineServerRetry = FakeServiceBuilder.create(FakeServiceDeadline).start();
+    unavailableServerRetry = FakeServiceBuilder.create(FakeServiceUnavailable).start();
 
-    BigtableDataSettings lowCPUSettings =
-        BigtableDataSettings.newBuilderForEmulator(lowCPUServerRetry.getPort())
+    BigtableDataSettings unavailableCPUSettings =
+        BigtableDataSettings.newBuilderForEmulator(unavailableServerRetry.getPort())
             .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
-    BigtableDataSettings highCPUSettings =
-        BigtableDataSettings.newBuilderForEmulator(highCPUServerRetry.getPort())
+    BigtableDataSettings deadlineCPUSettings =
+        BigtableDataSettings.newBuilderForEmulator(deadlineServerRetry.getPort())
             .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
 
-    lowCpuStubRetry = new EnhancedBigtableStub(lowCPUSettings.getStubSettings(), ClientContext.create(lowCPUSettings.getStubSettings()), mockLimitingStats);
-    highCpuStubRetry = new EnhancedBigtableStub(highCPUSettings.getStubSettings(), ClientContext.create(highCPUSettings.getStubSettings()), mockLimitingStats);
+    unavailableStubRetry = new EnhancedBigtableStub(unavailableCPUSettings.getStubSettings(), ClientContext.create(unavailableCPUSettings.getStubSettings()), mockLimitingStats);
+    deadlineCpuStubRetry = new EnhancedBigtableStub(deadlineCPUSettings.getStubSettings(), ClientContext.create(deadlineCPUSettings.getStubSettings()), mockLimitingStats);
   }
 
   @After
   public void tearDown() {
-    lowCpuStubRetry.close();
-    lowCPUServerRetry.shutdown();
-    highCpuStubRetry.close();
-    highCPUServerRetry.shutdown();
+    unavailableStubRetry.close();
+    deadlineCpuStubRetry.close();
   }
 
   @Test
-  public void testBulkMutateRowsRetryWithNoChangeInRateLimiting() // Change name to retriable error
+  public void testBulkMutateRowsRetryWithUnavailable()
       throws ExecutionException, InterruptedException {
 
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
     ApiFuture<Void> future =
-        lowCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
+        unavailableStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
     future.get();
 
-    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture()); // Should only be called once
-    Assert.assertEquals((Double)10000.0, rate.getValue());
+    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
+    Assert.assertEquals((Double)3900.0, rate.getValue());
   }
 
   @Test
-  public void testBulkMutateRowsRetryWithIncreaseInRateLimiting()
+  public void testBulkMutateRowsRetryWithDeadlineExceeded()
       throws ExecutionException, InterruptedException {
     BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
         .setCell("cf","qual","value"));
 
     ApiFuture<Void> future =
-        highCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
+        deadlineCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
 
     future.get();
 
     Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
+    Assert.assertEquals((Double)1250.0, rate.getValue());
   }
-
-  public void testBulkMutateRowsRetryWithLowerBound() throws ExecutionException, InterruptedException {
-    BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
-        .setCell("cf","qual","value"));
-
-    ApiFuture<Void> future =
-        highCpuStubRetry.bulkMutateRowsCallable().futureCall(mutations, callContext);
-
-    future.get();
-
-    Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals((Double)0.1, rate.getValue()); // Shouldn't this lower the QPS twice?? Unless time condition is getting hit
-  }
-
-  /*@Test
-  public void testBulkMutateRowsTimePassesBetweenQpsUpdates() throws ExecutionException, InterruptedException { // Better name
-    BulkMutation mutations = BulkMutation.create(TABLE_ID).add("fake-row", Mutation.create()
-        .setCell("cf","qual","value"));
-
-    when(mockLimitingStats.getLastQpsUpdateTime()).thenReturn(10_000L).thenReturn(System.currentTimeMillis());
-
-    ApiFuture<Void> future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
-    future.get();
-    future = inRangeCpuStub.bulkMutateRowsCallable().futureCall(mutations, callContext);
-    future.get();
-
-    // stats.updateQps should only be called once
-    verify(mockLimitingStats, timeout(1000).times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)10_000.0, rate.getValue());
-  }*/
-
-  // Add a test that updates QPS after enough time has passed
-  // Add bound tests
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> exceptions = new ArrayDeque<>();
@@ -217,7 +180,8 @@ public class RateLimtingCallableRetryTest {
               .setRecentGcuMillisecondsPerSecond(CPU))
           .build();
 
-      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats).build();
+      MutateRowsResponse response = MutateRowsResponse.newBuilder().setServerStats(serverStats)
+          .build();
       return response;
     }
 
@@ -225,58 +189,12 @@ public class RateLimtingCallableRetryTest {
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
       if (exceptions.isEmpty()) {
-        System.out.println("On complete!");
         responseObserver.onNext(createFakeMutateRowsResponse());
         responseObserver.onCompleted();
       } else {
-        System.out.println("Exception!");
         Exception expectedRpc = exceptions.poll();
         responseObserver.onError(expectedRpc);
       }
-    }
-  }
-
-  // Add a new proto here and have a change MutateRowsResponse
-  // Q: How to generate .java files from the proto file
-  //
-
-  private ServerInterceptor cpuReturningIntercepter(String cpuValues) {
-    return new ServerInterceptor() {
-      @Override
-      public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-          ServerCall<ReqT, RespT> serverCall,
-          Metadata metadata,
-          ServerCallHandler<ReqT, RespT> serverCallHandler) {
-        return serverCallHandler.startCall(
-            new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
-              @Override
-              public void sendHeaders(Metadata headers) {
-                // Set CPU values
-                headers.put(Metadata.Key.of(
-                        "bigtable-cpu-values", Metadata.ASCII_STRING_MARSHALLER), cpuValues);
-
-                super.sendHeaders(headers);
-              }
-            },
-            metadata);
-      }
-    };
-  }
-
-  static class MockMutateInnerCallable
-      extends UnaryCallable<MutateRowsRequest, List<MutateRowsResponse>> {
-    List<MutateRowsResponse> response = Lists.newArrayList();
-
-    MutateRowsRequest lastRequest;
-    ApiCallContext lastContext;
-
-    @Override
-    public ApiFuture<List<MutateRowsResponse>> futureCall(
-        MutateRowsRequest request, ApiCallContext context) {
-      lastRequest = request;
-      lastContext = context;
-
-      return ApiFutures.immediateFuture(response);
     }
   }
 }
