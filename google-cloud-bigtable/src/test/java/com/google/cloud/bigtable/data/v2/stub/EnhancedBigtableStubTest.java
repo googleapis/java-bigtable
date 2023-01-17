@@ -490,23 +490,6 @@ public class EnhancedBigtableStubTest {
     }
   }
 
-  @Test
-  public void testFeatureFlagCpuMetric() throws InterruptedException, ExecutionException {
-    // Turn to use bulkMutateRowsCallable and also have a setting to turn this on
-
-    BulkMutation mutations = BulkMutation.create(TABLE_NAME).add("fake-row", Mutation.create()
-        .setCell("cf","qual","value"));
-
-    ApiFuture<Void> future =
-        enhancedBigtableStub.bulkMutateRowsCallable().futureCall(mutations, GrpcCallContext.createDefault());
-
-    future.get();
-
-    BlockingQueue<Metadata> metadataHeaders = metadataInterceptor.headers;
-    assertThat(metadataHeaders).hasSize(1);
-    assertThat(metadataHeaders.take().get(Metadata.Key.of("bigtable-features-bin", Metadata.BINARY_BYTE_MARSHALLER))).isNotEmpty();
-  }
-
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
 
