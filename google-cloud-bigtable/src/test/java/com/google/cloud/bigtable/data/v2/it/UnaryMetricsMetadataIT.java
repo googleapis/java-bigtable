@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -84,11 +82,13 @@ public class UnaryMetricsMetadataIT {
     String rowKey = UUID.randomUUID().toString();
     String familyId = testEnvRule.env().getFamilyId();
 
-    ApiFuture<Void> future = testEnvRule
-          .env()
-          .getDataClient()
-          .mutateRowCallable()
-          .futureCall(RowMutation.create("non-exist-table", rowKey).setCell(familyId, "q", "myVal"));
+    ApiFuture<Void> future =
+        testEnvRule
+            .env()
+            .getDataClient()
+            .mutateRowCallable()
+            .futureCall(
+                RowMutation.create("non-exist-table", rowKey).setCell(familyId, "q", "myVal"));
 
     try {
       future.get(1, TimeUnit.MINUTES);
