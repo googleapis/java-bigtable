@@ -110,6 +110,7 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings unavailableCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(unavailableServerRetry.getPort())
+            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -117,6 +118,7 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings deadlineCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(deadlineServerRetry.getPort())
+            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -144,7 +146,7 @@ public class RateLimtingCallableRetryTest {
     future.get();
 
     Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals((Double)9100.0, rate.getValue());
+    Assert.assertEquals((Double)3900.0, rate.getValue());
   }
 
   @Test
@@ -159,7 +161,7 @@ public class RateLimtingCallableRetryTest {
     future.get();
 
     Mockito.verify(mockLimitingStats, Mockito.times(2)).updateQps(rate.capture());
-    Assert.assertEquals((Double)4900.0, rate.getValue());
+    Assert.assertEquals((Double)1250.0, rate.getValue());
   }
 
   private class FakeService extends BigtableGrpc.BigtableImplBase {
