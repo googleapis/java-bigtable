@@ -52,8 +52,6 @@ public class RateLimitingServerStreamingCallable
   @Override
   public void call(
       MutateRowsRequest request, ResponseObserver<MutateRowsResponse> responseObserver, ApiCallContext context) {
-    System.out.println("Call made");
-    System.out.println("Current QPS: "+limiter.getRate());
     limiter.acquire();
     CpuMetadataResponseObserver innerObserver =
         new CpuMetadataResponseObserver(responseObserver);

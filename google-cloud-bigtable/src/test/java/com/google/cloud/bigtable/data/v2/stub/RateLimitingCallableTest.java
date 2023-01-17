@@ -128,7 +128,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)11500.0, rate.getValue());
+    Assert.assertEquals((Double)13000.0, rate.getValue());
   }
 
   @Test
@@ -143,7 +143,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)1999.0, rate.getValue()); // Make default value
+    Assert.assertEquals((Double)3333.0, rate.getValue()); // Make default value
   }
 
   @Test
@@ -177,7 +177,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, timeout(1000).times(41)).updateQps(rate.capture());
-    Assert.assertEquals((Double)0.001, rate.getValue());
+    Assert.assertEquals((Double)1.0, rate.getValue());
   }
 
   @Test

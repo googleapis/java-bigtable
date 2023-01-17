@@ -53,14 +53,6 @@ public class RateLimitingStats {
     return newQps;
   }
 
-  public double getLowerQpsBound() {
-    return lowerQpsBound;
-  }
-
-  public double getUpperQpsBound() {
-    return upperQpsBound;
-  }
-
   // This function is to calculate the QPS based on current CPU
   static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
     if (tsCpus.length == 0) {
