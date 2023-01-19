@@ -143,7 +143,7 @@ public class RateLimitingCallableTest {
     future.get();
 
     verify(mockLimitingStats, times(1)).updateQps(rate.capture());
-    Assert.assertEquals((Double)3333.0, rate.getValue());
+    Assert.assertEquals((Double)7000.0, rate.getValue());
   }
 
   @Test
