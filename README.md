@@ -27,10 +27,10 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
 </dependencyManagement>
 
 <dependencies>
-  <dependency>
-    <groupId>com.google.cloud</groupId>
-    <artifactId>google-cloud-bigtable</artifactId>
-  </dependency>
+<dependency>
+  <groupId>com.google.cloud</groupId>
+  <artifactId>google-cloud-bigtable</artifactId>
+</dependency>
 
 ```
 
@@ -41,7 +41,7 @@ If you are using Maven without BOM, add this to your dependencies:
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.17.1</version>
+  <version>2.18.0</version>
 </dependency>
 
 ```
@@ -49,20 +49,20 @@ If you are using Maven without BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.3.0')
+implementation platform('com.google.cloud:libraries-bom:26.4.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.17.1'
+implementation 'com.google.cloud:google-cloud-bigtable:2.18.1'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.17.1"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.18.1"
 ```
 
 ## Authentication
@@ -91,7 +91,7 @@ to add `google-cloud-bigtable` as a dependency in your code.
 ## About Cloud Bigtable
 
 
-[Cloud Bigtable][product-docs] 
+[Cloud Bigtable][product-docs]
 
 See the [Cloud Bigtable client library docs][javadocs] to learn how to
 use this Cloud Bigtable Client Library.
@@ -307,9 +307,9 @@ Cloud Bigtable client supports [Opencensus Metrics](https://opencensus.io/stats/
 which gives insight into the client internals and aids in debugging production issues.
 All Cloud Bigtable Metrics are prefixed with `cloud.google.com/java/bigtable/`. The
 metrics will be tagged with:
- * `bigtable_project_id`: the project that contains the target Bigtable instance.
-   Please note that this id could be different from project that the client is running
-   in and different from the project where the metrics are exported to.
+* `bigtable_project_id`: the project that contains the target Bigtable instance.
+  Please note that this id could be different from project that the client is running
+  in and different from the project where the metrics are exported to.
 * `bigtable_instance_id`: the instance id of the target Bigtable instance
 * `bigtable_app_profile_id`: the app profile id that is being used to access the target
   Bigtable instance
@@ -339,12 +339,12 @@ metrics will be tagged with:
 
 #### GFE metric views:
 * `cloud.google.com/java/bigtable/gfe_latency`: A distribution of the latency
-between Google's network receives an RPC and reads back the first byte of
-the response.
+  between Google's network receives an RPC and reads back the first byte of
+  the response.
 
 * `cloud.google.com/java/bigtable/gfe_header_missing_count`: A counter of the
-number of RPC responses received without the server-timing header, which
-indicates that the request probably never reached Google's network.
+  number of RPC responses received without the server-timing header, which
+  indicates that the request probably never reached Google's network.
 
 By default, the functionality is disabled. For example to enable metrics using
 [Google Stackdriver](https://cloud.google.com/monitoring/docs/):
