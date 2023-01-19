@@ -60,7 +60,7 @@ public class RateLimitingStats {
     // If the average CPU is within 5% of the target, maintain the currentRate
     // If the average CPU is below the target, continue to increase till a maintainable CPU is met
     if (cpuDelta > 0) {
-      double percentChange = Math.max(1 - (cpuDelta / (100 - target)), PERCENT_CHANGE_LIMIT);
+      double percentChange = 1 - Math.min(cpuDelta / (100 - target), PERCENT_CHANGE_LIMIT);
       newRate = (long)(percentChange * currentRate);
     } else if (Math.abs(cpuDelta) > 5){
       newRate = currentRate + (currentRate * PERCENT_CHANGE_LIMIT);
