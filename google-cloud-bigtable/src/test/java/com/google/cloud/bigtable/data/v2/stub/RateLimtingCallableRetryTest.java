@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,6 +110,7 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings unavailableCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(unavailableServerRetry.getPort())
+            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
@@ -117,6 +118,7 @@ public class RateLimtingCallableRetryTest {
 
     BigtableDataSettings deadlineCPUSettings =
         BigtableDataSettings.newBuilderForEmulator(deadlineServerRetry.getPort())
+            .enableBatchMutationCpuBasedThrottling()
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)

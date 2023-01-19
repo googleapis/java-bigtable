@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,8 +90,7 @@ public class RateLimitingServerStreamingCallable
       if (cpus.length > 0) {
         newQps = stats.calculateQpsChange(cpus, DEFAULT_TARGET_CPU, limiter.getRate());
       } else {
-        outerObserver.onResponse(response);
-        return;
+        newQps = stats.calculateQpsChange(new double[]{99.9}, DEFAULT_TARGET_CPU, limiter.getRate());
       }
 
       limiter.setRate(newQps);

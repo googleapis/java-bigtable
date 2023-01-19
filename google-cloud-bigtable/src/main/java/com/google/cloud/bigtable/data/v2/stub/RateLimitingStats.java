@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,15 +50,21 @@ public class RateLimitingStats {
 
   // This function is to calculate the QPS based on current CPU
   static double calculateQpsChange(double[] tsCpus, double target, double currentRate) {
-    if (tsCpus.length == 0) {
-      return currentRate;
-    }
     double cpuDelta = DoubleStream.of(tsCpus).average().getAsDouble() - target;
     double newRate = currentRate;
 
     // When the CPU is above the target threshold, reduce the rate by a percentage from the target
     // If the average CPU is within 5% of the target, maintain the currentRate
     // If the average CPU is below the target, continue to increase till a maintainable CPU is met
+    if (Math.abs(cpuDelta) < 5) {
+      return currentRate;
+    } else if (cpuDelta > 0) {
+      double percentChange = 1 - Math.min(cpuDelta / (100 - target), PERCENT_CHANGE_LIMIT);
+      newRate = (long)(percentChange * currentRate);
+    } else {
+      newRate = currentRate + (currentRate * (PERCENT_CHANGE_LIMIT / 2));
+    }
+
     if (cpuDelta > 0) {
       double percentChange = 1 - Math.min(cpuDelta / (100 - target), PERCENT_CHANGE_LIMIT);
       newRate = (long)(percentChange * currentRate);

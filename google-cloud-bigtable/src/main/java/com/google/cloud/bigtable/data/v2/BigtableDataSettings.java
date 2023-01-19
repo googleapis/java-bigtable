@@ -269,6 +269,14 @@ public final class BigtableDataSettings {
   }
 
   /**
+   * Gets if cpu based throttling is enabled for bulkMutate requests
+   */
+  @BetaApi("Cpu based throttling is not currently stable and may change in the future")
+  public boolean isCpuBasedThrottlingForBatchMutationsEnabled() {
+    return stubSettings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled();
+  }
+
+  /**
    * Gets target bulk mutation rpc latency if latency based throttling is enabled for {@link
    * BigtableDataClient#newBulkMutationBatcher(String)}. Otherwise returns null.
    */
@@ -503,6 +511,32 @@ public final class BigtableDataSettings {
     @Nullable
     public Long getTargetRpcLatencyMsForBatchMutation() {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+    }
+
+    /**
+     * Enable Cpu based throttling for BulkMutate requests.
+     */
+    @BetaApi("Cpu based throttling is not currently stable and may change in the future")
+    public Builder enableBatchMutationCpuBasedThrottling() {
+      stubSettings.bulkMutateRowsSettings().enableCpuBasedThrottling();
+      return this;
+    }
+
+    /**
+     * Disable Cpu based throttling for BulkMutate requests
+     */
+    @BetaApi("Cpu based throttling is not currently stable and may change in the future")
+    public Builder disableBatchMutationCpuBasedThrottling() {
+      stubSettings.bulkMutateRowsSettings().disableCpuBasedThrottling();
+      return this;
+    }
+
+    /**
+     * Gets if Cpu based throttling is enabled for BulkMutate Requests
+     */
+    @BetaApi("Cpu based throttling is not currently stable and may change in the future")
+    public boolean isCpuBasedThrottlingForBatchMutationEnabled() {
+      return stubSettings.bulkMutateRowsSettings().isCpuBasedThrottlingEnabled();
     }
 
     /**

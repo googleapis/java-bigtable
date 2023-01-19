@@ -65,6 +65,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
   private final boolean isLatencyBasedThrottlingEnabled;
   private final Long targetRpcLatencyMs;
   private final DynamicFlowControlSettings dynamicFlowControlSettings;
+  private final boolean isCpuBasedThrottlingEnabled;
 
   private BigtableBatchingCallSettings(Builder builder) {
     super(builder);
@@ -75,6 +76,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
             .setRetryableCodes(builder.getRetryableCodes())
             .build();
     this.isLatencyBasedThrottlingEnabled = builder.isLatencyBasedThrottlingEnabled;
+    this.isCpuBasedThrottlingEnabled = builder.isCpuBasedThrottlingEnabled;
     this.targetRpcLatencyMs = builder.targetRpcLatencyMs;
     this.dynamicFlowControlSettings = builder.dynamicFlowControlSettings;
   }
@@ -93,6 +95,9 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
   public boolean isLatencyBasedThrottlingEnabled() {
     return isLatencyBasedThrottlingEnabled;
   }
+
+  /** Gets if cpu based throttling is enabled. */
+  public boolean isCpuBasedThrottlingEnabled(){ return isCpuBasedThrottlingEnabled; }
 
   /** Gets target rpc latency if latency based throttling is enabled. Otherwise returns null. */
   @Nullable
@@ -128,6 +133,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     return MoreObjects.toStringHelper(this)
         .add("batchingCallSettings", batchingCallSettings)
         .add("isLatencyBasedThrottlingEnabled", isLatencyBasedThrottlingEnabled)
+        .add("isCpuBasedThrottlingEnabled", isCpuBasedThrottlingEnabled)
         .add("targetRpcLatency", targetRpcLatencyMs)
         .add("dynamicFlowControlSettings", dynamicFlowControlSettings)
         .toString();
@@ -142,6 +148,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     private BatchingDescriptor<RowMutationEntry, Void, BulkMutation, Void> batchingDescriptor;
     private BatchingSettings batchingSettings;
     private boolean isLatencyBasedThrottlingEnabled;
+    private boolean isCpuBasedThrottlingEnabled;
     private Long targetRpcLatencyMs;
     private DynamicFlowControlSettings dynamicFlowControlSettings;
 
@@ -157,6 +164,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
       this.batchingDescriptor = settings.getBatchingDescriptor();
       this.batchingSettings = settings.getBatchingSettings();
       this.isLatencyBasedThrottlingEnabled = settings.isLatencyBasedThrottlingEnabled();
+      this.isCpuBasedThrottlingEnabled = settings.isCpuBasedThrottlingEnabled();
       this.targetRpcLatencyMs = settings.getTargetRpcLatencyMs();
       this.dynamicFlowControlSettings = settings.getDynamicFlowControlSettings();
     }
@@ -222,6 +230,23 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
     /** Gets if latency based throttling is enabled. */
     public boolean isLatencyBasedThrottlingEnabled() {
       return this.isLatencyBasedThrottlingEnabled;
+    }
+
+    /** Enable cpu based throttling. */
+    public Builder enableCpuBasedThrottling() {
+      this.isCpuBasedThrottlingEnabled = true;
+      return this;
+    }
+
+    /** Disable cpu based throttling. */
+    public Builder disableCpuBasedThrottling() {
+      this.isCpuBasedThrottlingEnabled = false;
+      return this;
+    }
+
+    /** Gets if cpu based throttling is enabled. */
+    public boolean isCpuBasedThrottlingEnabled() {
+      return this.isCpuBasedThrottlingEnabled;
     }
 
     /**
