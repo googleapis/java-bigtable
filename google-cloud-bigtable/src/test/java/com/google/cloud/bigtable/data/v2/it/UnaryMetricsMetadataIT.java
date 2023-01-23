@@ -101,6 +101,8 @@ public class UnaryMetricsMetadataIT {
     } catch (ExecutionException e) {
       if (e.getCause() instanceof NotFoundException) {
         // ignore NotFoundException
+      } else {
+        throw e;
       }
     }
 
