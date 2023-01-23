@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,9 +60,12 @@ public class DynamicFlowControlCallableTest {
   private static final int DEADLINE_EXCEEDED_LATENCY = 501;
 
   private FlowController flowController;
+  private DynamicFlowControlStats stats;
   private UnaryCallable innerCallable;
   private ApiCallContext context;
   private MutateRowsRequest request;
+
+  private DynamicFlowControlCallable callableToTest;
 
   @Before
   public void setup() {
@@ -76,21 +80,26 @@ public class DynamicFlowControlCallableTest {
                 .setMinOutstandingRequestBytes(15L)
                 .setLimitExceededBehavior(LimitExceededBehavior.Block)
                 .build());
+    stats = new DynamicFlowControlStats();
     context = GrpcCallContext.createDefault();
     innerCallable = new MockInnerCallable();
     request =
         MutateRowsRequest.newBuilder()
             .addEntries(MutateRowsRequest.Entry.getDefaultInstance())
             .build();
+    callableToTest =
+        new DynamicFlowControlCallable(
+            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
+  }
+
+  @After
+  public void cleanup() {
+    // reset last adjustedTimestamp after each test
+    stats.setLastAdjustedTimestampMs(stats.getLastAdjustedTimestampMs(), 0);
   }
 
   @Test
   public void testLatenciesAreRecorded() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList("5"));
     ApiCallContext newContext = context.withExtraHeaders(extraHeaders);
@@ -102,11 +111,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testTriggeringAdjustingThreshold() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList(String.valueOf(TARGET_LATENCY_MS * 4)));
     long currentTimeMs = System.currentTimeMillis();
@@ -125,11 +129,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testNoConsecutiveUpdatesToThreshold() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList(String.valueOf(TARGET_LATENCY_MS * 4)));
     long firstRequest = System.currentTimeMillis();
@@ -152,11 +151,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testDecreasingThresholdsCantGoOverLimit() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     // set adjusting intervals to 0 so the thresholds can keep getting updated
     callableToTest =
         new DynamicFlowControlCallable(innerCallable, flowController, stats, TARGET_LATENCY_MS, 0);
@@ -182,11 +176,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testIncreasingThreshold() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     // Test when there was flow control events and mean latency is low, increase the thresholds
     callableToTest =
         new DynamicFlowControlCallable(
@@ -204,11 +193,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testIncreasingThresholdCantGoOverLimit() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     // set adjusting interval to 0 so it can be updated multiple times
     callableToTest = new DynamicFlowControlCallable(innerCallable, flowController, stats, 1000, 0);
     createFlowControlEvent(flowController);
@@ -229,11 +213,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testConcurrentUpdates() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     callableToTest =
         new DynamicFlowControlCallable(
             innerCallable, flowController, stats, 1000, ADJUSTING_INTERVAL_MS);
@@ -257,11 +236,6 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testDeadlineExceeded() throws Exception {
-    DynamicFlowControlStats stats = new DynamicFlowControlStats();
-    DynamicFlowControlCallable callableToTest =
-        new DynamicFlowControlCallable(
-            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
-
     // very high latency with deadline exceeded exception, limits should be decreased
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList(String.valueOf(DEADLINE_EXCEEDED_LATENCY)));
