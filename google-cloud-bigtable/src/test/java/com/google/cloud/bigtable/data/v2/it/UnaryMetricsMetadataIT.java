@@ -70,7 +70,13 @@ public class UnaryMetricsMetadataIT {
     List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
 
     // give opencensus some time to populate view data
-    Thread.sleep(1000);
+    for (int i = 0; i < 10; i++) {
+      if (StatsWrapper.getOperationLatencyViewTagValueStrings()
+          .contains(clusters.get(0).getZone())) {
+        break;
+      }
+      Thread.sleep(100);
+    }
 
     List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
     assertThat(tagValueStrings).contains(clusters.get(0).getZone());
@@ -99,7 +105,12 @@ public class UnaryMetricsMetadataIT {
     }
 
     // give opencensus some time to populate view data
-    Thread.sleep(1000);
+    for (int i = 0; i < 10; i++) {
+      if (StatsWrapper.getOperationLatencyViewTagValueStrings().contains("unspecified")) {
+        break;
+      }
+      Thread.sleep(100);
+    }
 
     List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
     assertThat(tagValueStrings).contains("unspecified");
