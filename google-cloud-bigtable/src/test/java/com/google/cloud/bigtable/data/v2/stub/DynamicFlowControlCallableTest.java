@@ -100,6 +100,10 @@ public class DynamicFlowControlCallableTest {
 
   @Test
   public void testLatenciesAreRecorded() throws Exception {
+    DynamicFlowControlStats stats = new DynamicFlowControlStats();
+    DynamicFlowControlCallable callableToTest =
+        new DynamicFlowControlCallable(
+            innerCallable, flowController, stats, TARGET_LATENCY_MS, ADJUSTING_INTERVAL_MS);
     Map<String, List<String>> extraHeaders = new HashMap<>();
     extraHeaders.put(LATENCY_HEADER, Arrays.asList("5"));
     ApiCallContext newContext = context.withExtraHeaders(extraHeaders);
