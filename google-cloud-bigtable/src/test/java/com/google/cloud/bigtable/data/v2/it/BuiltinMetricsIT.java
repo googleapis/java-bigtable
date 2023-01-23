@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.client.util.Lists;
-import com.google.api.core.ApiFuture;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -35,8 +34,6 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -79,42 +76,27 @@ public class BuiltinMetricsIT {
 
   @Test
   public void testBuiltinMetrics() throws Exception {
-    List<ApiFuture> futures = new ArrayList<>();
-    // Send a few MutateRow and ReadRows requests
-    for (int i = 0; i < 5; i++) {
-      ApiFuture<Void> future =
-          testEnvRule
-              .env()
-              .getDataClient()
-              .mutateRowAsync(
-                  RowMutation.create(testEnvRule.env().getTableId(), "a-new-key" + i)
-                      .setCell(testEnvRule.env().getFamilyId(), "q", "abc"));
-      futures.add(future);
-    }
-    for (int i = 0; i < 5; i++) {
-      ArrayList<Row> rows =
-          Lists.newArrayList(
-              testEnvRule
-                  .env()
-                  .getDataClient()
-                  .readRows(Query.create(testEnvRule.env().getTableId()).limit(10)));
-    }
-
-    futures.forEach(
-        f -> {
-          try {
-            f.get(1, TimeUnit.MINUTES);
-          } catch (Exception e) {
-          }
-        });
+    // Send a MutateRow and ReadRows request
+    testEnvRule
+        .env()
+        .getDataClient()
+        .mutateRow(
+            RowMutation.create(testEnvRule.env().getTableId(), "a-new-key")
+                .setCell(testEnvRule.env().getFamilyId(), "q", "abc"));
+    ArrayList<Row> rows =
+        Lists.newArrayList(
+            testEnvRule
+                .env()
+                .getDataClient()
+                .readRows(Query.create(testEnvRule.env().getTableId()).limit(10)));
 
     // Sleep 5 minutes so the metrics could be published and precomputation is done
     Thread.sleep(Duration.ofMinutes(5).toMillis());
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
-    // Restrict time to last 15 minutes
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(15).toMillis();
+    // Restrict time to last 10 minutes
+    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(10).toMillis();
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(startMillis))
