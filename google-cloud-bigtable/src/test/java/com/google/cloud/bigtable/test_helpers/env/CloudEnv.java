@@ -122,8 +122,7 @@ class CloudEnv extends AbstractTestEnv {
     this.dataSettings =
         BigtableDataSettings.newBuilder()
             .setProjectId(projectId)
-            .setInstanceId(instanceId)
-            .setRefreshingChannel(false);
+            .setInstanceId(instanceId);
     if (!Strings.isNullOrEmpty(dataEndpoint)) {
       dataSettings.stubSettings().setEndpoint(dataEndpoint);
     }
