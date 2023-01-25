@@ -45,7 +45,6 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
-import io.grpc.ClientInterceptor;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.Server;
@@ -361,7 +360,7 @@ public class BigtableTracerCallableTest {
   @Test
   public void testMetricsWithErrorResponse() throws InterruptedException {
     try {
-      stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator().next();
+      stub.readRowsCallable().call(Query.create("random-table-id")).iterator().next();
       fail("readrows should throw exception");
     } catch (Exception e) {
       assertThat(e).isInstanceOf(UnavailableException.class);

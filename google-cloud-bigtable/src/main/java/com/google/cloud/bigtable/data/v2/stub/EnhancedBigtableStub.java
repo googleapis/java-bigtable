@@ -484,7 +484,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
     UnaryCallable<Query, List<RowT>> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcher);
+        new BigtableTracerUnaryCallable<>(tracedBatcher, true);
 
     UnaryCallable<Query, List<RowT>> traced =
         new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), span);
@@ -616,7 +616,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedBatcherUnaryCallable<>(userFacing);
 
     UnaryCallable<BulkMutation, Void> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(tracedBatcherUnaryCallable);
+        new BigtableTracerUnaryCallable<>(tracedBatcherUnaryCallable, true);
     UnaryCallable<BulkMutation, Void> traced =
         new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
 

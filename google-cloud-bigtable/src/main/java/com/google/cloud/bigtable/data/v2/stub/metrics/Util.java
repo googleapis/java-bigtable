@@ -201,14 +201,14 @@ public class Util {
   }
 
   static GrpcCallContext addHandlerToCallContext(
-          ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
+      ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
     if (context instanceof GrpcCallContext) {
       // context should always be an instance of GrpcCallContext. Sanity check just in case.
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
       return responseMetadata.addHandlers(
-              callContext.withCallOptions(callOptions.withStreamTracerFactory(
-                      new BigtableGrpcStreamTracer.Factory(tracer))));
+          callContext.withCallOptions(
+              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
     } else {
       return responseMetadata.addHandlers(context);
     }

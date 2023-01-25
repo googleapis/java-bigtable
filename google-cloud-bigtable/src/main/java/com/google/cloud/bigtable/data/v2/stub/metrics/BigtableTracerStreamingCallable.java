@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -25,9 +24,6 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
-import io.grpc.ClientStreamTracer;
-
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
@@ -49,10 +45,17 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
+  private final boolean batching;
 
   public BigtableTracerStreamingCallable(
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable) {
+    this(callable, false);
+  }
+
+  public BigtableTracerStreamingCallable(
+      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable, boolean batching) {
     this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
+    this.batching = batching;
   }
 
   @Override
@@ -64,8 +67,15 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       BigtableTracerResponseObserver<ResponseT> innerObserver =
           new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
-      innerCallable.call(request, innerObserver,
-              Util.addHandlerToCallContext(context, responseMetadata, (BigtableTracer) context.getTracer()));
+      if (batching) {
+        innerCallable.call(request, innerObserver, context);
+      } else {
+        innerCallable.call(
+            request,
+            innerObserver,
+            Util.addHandlerToCallContext(
+                context, responseMetadata, (BigtableTracer) context.getTracer()));
+      }
     } else {
       innerCallable.call(request, responseObserver, context);
     }

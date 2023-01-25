@@ -19,7 +19,6 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -44,9 +43,16 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
+  private final boolean batching;
 
   public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
+    this(innerCallable, false);
+  }
+
+  public BigtableTracerUnaryCallable(
+      @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable, boolean batching) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
+    this.batching = batching;
   }
 
   @Override
@@ -56,9 +62,16 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
       BigtableTracerUnaryCallback callback =
           new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
-      ApiFuture<ResponseT> future =
-              innerCallable.futureCall(request,
-                      Util.addHandlerToCallContext(context, responseMetadata, (BigtableTracer) context.getTracer()));
+      ApiFuture<ResponseT> future;
+      if (batching) {
+        future = innerCallable.futureCall(request, context);
+      } else {
+        future =
+            innerCallable.futureCall(
+                request,
+                Util.addHandlerToCallContext(
+                    context, responseMetadata, (BigtableTracer) context.getTracer()));
+      }
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {
