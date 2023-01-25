@@ -64,7 +64,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
           new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
       ApiFuture<ResponseT> future;
       if (batching) {
-        future = innerCallable.futureCall(request, context);
+        future = innerCallable.futureCall(request, responseMetadata.addHandlers(context));
       } else {
         future =
             innerCallable.futureCall(

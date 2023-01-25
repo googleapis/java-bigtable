@@ -68,7 +68,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
           new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
       if (batching) {
-        innerCallable.call(request, innerObserver, context);
+        innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
       } else {
         innerCallable.call(
             request,
