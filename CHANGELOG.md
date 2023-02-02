@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.18.3](https://github.com/googleapis/java-bigtable/compare/v2.18.2...v2.18.3) (2023-01-24)
+
+
+### Bug Fixes
+
+* Make channel priming work with batch endpoint ([#1600](https://github.com/googleapis/java-bigtable/issues/1600)) ([133c7e5](https://github.com/googleapis/java-bigtable/commit/133c7e50a5a84e880f23cfc7ed88ea2250a2994d))
+
+## [2.18.2](https://github.com/googleapis/java-bigtable/compare/v2.18.1...v2.18.2) (2023-01-24)
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:google-cloud-monitoring-bom to v3.10.0 ([#1597](https://github.com/googleapis/java-bigtable/issues/1597)) ([1724d4e](https://github.com/googleapis/java-bigtable/commit/1724d4ee6b63085b035082bd299668ceadd8bd01))
+* Update dependency com.google.cloud:google-cloud-shared-dependencies to v3.1.2 ([#1595](https://github.com/googleapis/java-bigtable/issues/1595)) ([e466191](https://github.com/googleapis/java-bigtable/commit/e466191ef8562b767218dcd4811a271ec6e98257))
+
 ## [2.18.1](https://github.com/googleapis/java-bigtable/compare/v2.18.0...v2.18.1) (2023-01-17)
 
 
