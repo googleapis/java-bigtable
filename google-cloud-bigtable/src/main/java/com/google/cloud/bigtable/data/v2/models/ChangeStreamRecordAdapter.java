@@ -19,7 +19,6 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Timestamp;
 import javax.annotation.Nonnull;
 
 /**
@@ -28,6 +27,7 @@ import javax.annotation.Nonnull;
  * filtering(for example, only keep DeleteFamily in the mutations). This adapter acts like a factory
  * for a SAX style change stream record builder.
  */
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
   /** Creates a new instance of a {@link ChangeStreamRecordBuilder}. */
   ChangeStreamRecordBuilder<ChangeStreamRecordT> createChangeStreamRecordBuilder();
@@ -115,7 +115,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        @Nonnull Timestamp commitTimestamp,
+        @Nonnull long commitTimestamp,
         int tieBreaker);
 
     /**
@@ -123,8 +123,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
      * once. If called, the current change stream record must not include any close stream message
      * or heartbeat.
      */
-    void startGcMutation(
-        @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker);
+    void startGcMutation(@Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker);
 
     /** Called to add a DeleteFamily mod. */
     void deleteFamily(@Nonnull String familyName);
@@ -165,7 +164,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
 
     /** Called once per stream record to signal that all mods have been processed (unless reset). */
     ChangeStreamRecordT finishChangeStreamMutation(
-        @Nonnull String token, @Nonnull Timestamp lowWatermark);
+        @Nonnull String token, @Nonnull long lowWatermark);
 
     /** Called when the current in progress change stream record should be dropped */
     void reset();

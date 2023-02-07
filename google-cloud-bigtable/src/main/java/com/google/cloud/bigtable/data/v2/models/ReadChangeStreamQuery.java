@@ -28,7 +28,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Duration;
-import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -38,7 +38,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /** A simple wrapper to construct a query for the ReadChangeStream RPC. */
-public final class ReadChangeStreamQuery implements Serializable {
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+public final class ReadChangeStreamQuery implements Serializable, Cloneable {
   private static final long serialVersionUID = 948588515749969176L;
 
   private final String tableId;
@@ -140,45 +141,43 @@ public final class ReadChangeStreamQuery implements Serializable {
     return streamPartition(rangeBuilder.build());
   }
 
-  /** Sets the startTime to read the change stream. */
-  public ReadChangeStreamQuery startTime(Timestamp value) {
-    Preconditions.checkArgument(
+  /** Sets the startTime(Nanosecond) to read the change stream. */
+  public ReadChangeStreamQuery startTime(long value) {
+    Preconditions.checkState(
         !builder.hasContinuationTokens(),
         "startTime and continuationTokens can't be specified together");
-    builder.setStartTime(value);
+    builder.setStartTime(Timestamps.fromNanos(value));
     return this;
   }
 
-  /** Sets the endTime to read the change stream. */
-  public ReadChangeStreamQuery endTime(Timestamp value) {
-    builder.setEndTime(value);
+  /** Sets the endTime(Nanosecond) to read the change stream. */
+  public ReadChangeStreamQuery endTime(long value) {
+    builder.setEndTime(Timestamps.fromNanos(value));
     return this;
   }
 
   /** Sets the stream continuation tokens to read the change stream. */
   public ReadChangeStreamQuery continuationTokens(
       List<ChangeStreamContinuationToken> changeStreamContinuationTokens) {
-    Preconditions.checkArgument(
+    Preconditions.checkState(
         !builder.hasStartTime(), "startTime and continuationTokens can't be specified together");
     StreamContinuationTokens.Builder streamContinuationTokensBuilder =
         StreamContinuationTokens.newBuilder();
     for (ChangeStreamContinuationToken changeStreamContinuationToken :
         changeStreamContinuationTokens) {
-      builder.setContinuationTokens(
-          streamContinuationTokensBuilder.addTokens(changeStreamContinuationToken.getTokenProto()));
+      streamContinuationTokensBuilder.addTokens(changeStreamContinuationToken.getTokenProto());
     }
-    builder.setContinuationTokens(streamContinuationTokensBuilder.build());
+    builder.setContinuationTokens(streamContinuationTokensBuilder);
     return this;
   }
 
   /** Sets the heartbeat duration for the change stream. */
-  public ReadChangeStreamQuery heartbeatDuration(long seconds) {
-    return heartbeatDuration(seconds, 0);
-  }
-
-  /** Sets the heartbeat duration for the change stream. */
-  public ReadChangeStreamQuery heartbeatDuration(long seconds, int nanos) {
-    builder.setHeartbeatDuration(Duration.newBuilder().setSeconds(seconds).setNanos(nanos).build());
+  public ReadChangeStreamQuery heartbeatDuration(java.time.Duration duration) {
+    builder.setHeartbeatDuration(
+        Duration.newBuilder()
+            .setSeconds(duration.getSeconds())
+            .setNanos(duration.getNano())
+            .build());
     return this;
   }
 
@@ -212,7 +211,8 @@ public final class ReadChangeStreamQuery implements Serializable {
     return query;
   }
 
-  public ReadChangeStreamQuery clone() {
+  @Override
+  protected ReadChangeStreamQuery clone() {
     ReadChangeStreamQuery query = ReadChangeStreamQuery.create(tableId);
     query.builder = this.builder.clone();
     return query;

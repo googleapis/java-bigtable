@@ -43,6 +43,7 @@ import com.google.common.collect.Queues;
 import com.google.common.truth.Truth;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
@@ -71,7 +72,7 @@ public class ReadChangeStreamRetryTest {
   private static final String HEARTBEAT_TOKEN = "heartbeat-token";
   private static final String CLOSE_STREAM_TOKEN = "close-stream-token";
   private static final String DATA_CHANGE_TOKEN = "data-change-token";
-  private static Timestamp REQUEST_START_TIME = Timestamp.newBuilder().setSeconds(1).build();
+  private static final long REQUEST_START_TIME = 1000L;
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
   private TestBigtableService service;
@@ -443,7 +444,7 @@ public class ReadChangeStreamRetryTest {
     }
 
     RpcExpectation expectInitialRequest() {
-      requestBuilder.setStartTime(REQUEST_START_TIME);
+      requestBuilder.setStartTime(Timestamps.fromNanos(REQUEST_START_TIME));
       return this;
     }
 

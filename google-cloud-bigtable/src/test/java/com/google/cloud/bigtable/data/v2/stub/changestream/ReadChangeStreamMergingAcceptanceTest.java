@@ -44,6 +44,7 @@ import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.Chang
 import com.google.cloud.conformance.bigtable.v2.ChangeStreamTestDefinition.ReadChangeStreamTest;
 import com.google.common.base.CaseFormat;
 import com.google.protobuf.util.JsonFormat;
+import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -191,10 +192,11 @@ public class ReadChangeStreamMergingAcceptanceTest {
           if (changeStreamMutation.getSourceClusterId() != null) {
             builder.setSourceClusterId(changeStreamMutation.getSourceClusterId());
           }
-          builder.setCommitTimestamp(changeStreamMutation.getCommitTimestamp());
+          builder.setCommitTimestamp(
+              Timestamps.fromNanos(changeStreamMutation.getCommitTimestamp()));
           builder.setTiebreaker(changeStreamMutation.getTieBreaker());
           builder.setToken(changeStreamMutation.getToken());
-          builder.setLowWatermark(changeStreamMutation.getLowWatermark());
+          builder.setLowWatermark(Timestamps.fromNanos(changeStreamMutation.getLowWatermark()));
           for (Entry entry : changeStreamMutation.getEntries()) {
             if (entry instanceof DeleteFamily) {
               DeleteFamily deleteFamily = (DeleteFamily) entry;

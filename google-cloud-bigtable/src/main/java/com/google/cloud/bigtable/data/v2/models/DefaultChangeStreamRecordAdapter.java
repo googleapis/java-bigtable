@@ -20,7 +20,6 @@ import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Timestamp;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -83,7 +82,7 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public ChangeStreamRecord onHeartbeat(ReadChangeStreamResponse.Heartbeat heartbeat) {
-      Preconditions.checkArgument(
+      Preconditions.checkState(
           this.changeStreamMutationBuilder == null,
           "Can not create a Heartbeat when there is an existing ChangeStreamMutation being built.");
       return Heartbeat.fromProto(heartbeat);
@@ -92,7 +91,7 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public ChangeStreamRecord onCloseStream(ReadChangeStreamResponse.CloseStream closeStream) {
-      Preconditions.checkArgument(
+      Preconditions.checkState(
           this.changeStreamMutationBuilder == null,
           "Can not create a CloseStream when there is an existing ChangeStreamMutation being built.");
       return CloseStream.fromProto(closeStream);
@@ -103,7 +102,7 @@ public class DefaultChangeStreamRecordAdapter
     public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        @Nonnull Timestamp commitTimestamp,
+        @Nonnull long commitTimestamp,
         int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createUserMutation(
@@ -113,7 +112,7 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public void startGcMutation(
-        @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
+        @Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createGcMutation(rowKey, commitTimestamp, tieBreaker);
     }
@@ -158,7 +157,7 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public ChangeStreamRecord finishChangeStreamMutation(
-        @Nonnull String token, @Nonnull Timestamp lowWatermark) {
+        @Nonnull String token, @Nonnull long lowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
       this.changeStreamMutationBuilder.setLowWatermark(lowWatermark);
       return this.changeStreamMutationBuilder.build();

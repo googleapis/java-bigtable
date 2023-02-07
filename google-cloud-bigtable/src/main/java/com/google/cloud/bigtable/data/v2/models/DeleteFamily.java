@@ -15,11 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** Representation of a DeleteFamily mod in a data change. */
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class DeleteFamily implements Entry, Serializable {
   private static final long serialVersionUID = 81806775917145615L;

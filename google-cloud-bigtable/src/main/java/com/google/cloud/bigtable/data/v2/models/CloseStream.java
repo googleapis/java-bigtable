@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
-import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.common.collect.ImmutableList;
 import com.google.rpc.Status;
 import java.io.Serializable;
@@ -26,8 +25,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. Make this class non-final so
- * that we can create a subclass to mock it.
+ * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. This message is received when
+ * the stream reading is finished(i.e. read past the stream end time), or an error has occurred.
  */
 @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
@@ -35,20 +34,18 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
 
   private static CloseStream create(
-      Status status, List<StreamContinuationToken> continuationTokens) {
-    ImmutableList.Builder<ChangeStreamContinuationToken> changeStreamContinuationTokens =
-        ImmutableList.builder();
-    for (StreamContinuationToken streamContinuationToken : continuationTokens) {
-      changeStreamContinuationTokens.add(
-          ChangeStreamContinuationToken.fromProto(streamContinuationToken));
-    }
-    return new AutoValue_CloseStream(status, changeStreamContinuationTokens.build());
+      Status status, List<ChangeStreamContinuationToken> changeStreamContinuationTokens) {
+    return new AutoValue_CloseStream(status, changeStreamContinuationTokens);
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
-    return create(closeStream.getStatus(), closeStream.getContinuationTokensList());
+    return create(
+        closeStream.getStatus(),
+        closeStream.getContinuationTokensList().stream()
+            .map(ChangeStreamContinuationToken::fromProto)
+            .collect(ImmutableList.toImmutableList()));
   }
 
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")

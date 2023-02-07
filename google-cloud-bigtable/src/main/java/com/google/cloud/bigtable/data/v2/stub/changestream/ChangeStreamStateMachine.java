@@ -21,6 +21,7 @@ import com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter.ChangeStreamRecordBuilder;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.util.Timestamps;
 
 /**
  * A state machine to produce change stream records from a stream of {@link
@@ -71,12 +72,18 @@ import com.google.common.base.Preconditions;
  * ChangeStreamStateMachine changeStreamStateMachine = new ChangeStreamStateMachine<>(myChangeStreamRecordAdapter);
  * while(responseIterator.hasNext()) {
  *   ReadChangeStreamResponse response = responseIterator.next();
- *   if (response.hasHeartbeat()) {
- *     changeStreamStateMachine.handleHeartbeat(response.getHeartbeat());
- *   } else if (response.hasCloseStream()) {
- *     changeStreamStateMachine.handleCloseStream(response.getCloseStream());
- *   } else {
+ *   switch (response.getStreamRecordCase()) {
+ *     case HEARTBEAT:
+ *       changeStreamStateMachine.handleHeartbeat(response.getHeartbeat());
+ *       break;
+ *     case CLOSE_STREAM:
+ *       changeStreamStateMachine.handleCloseStream(response.getCloseStream());
+ *       break;
+ *     case DATA_CHANGE:
  *       changeStreamStateMachine.handleDataChange(response.getDataChange());
+ *       break;
+ *     case STREAMRECORD_NOT_SET:
+ *       throw new IllegalStateException("Illegal stream record.");
  *   }
  *   if (changeStreamStateMachine.hasCompleteChangeStreamRecord()) {
  *       MyChangeStreamRecord = changeStreamStateMachine.consumeChangeStreamRecord();
@@ -133,7 +140,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       numHeartbeats++;
       currentState = currentState.handleHeartbeat(heartbeat);
     } catch (RuntimeException e) {
-      currentState = null;
+      currentState = ERROR;
       throw e;
     }
   }
@@ -153,7 +160,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       numCloseStreams++;
       currentState = currentState.handleCloseStream(closeStream);
     } catch (RuntimeException e) {
-      currentState = null;
+      currentState = ERROR;
       throw e;
     }
   }
@@ -183,7 +190,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       numDataChanges++;
       currentState = currentState.handleMod(dataChange, 0);
     } catch (RuntimeException e) {
-      currentState = null;
+      currentState = ERROR;
       throw e;
     }
   }
@@ -331,7 +338,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
                 "AWAITING_NEW_STREAM_RECORD: GC mutation shouldn't have source cluster id.");
             builder.startGcMutation(
                 dataChange.getRowKey(),
-                dataChange.getCommitTimestamp(),
+                Timestamps.toNanos(dataChange.getCommitTimestamp()),
                 dataChange.getTiebreaker());
           } else if (dataChange.getType() == Type.USER) {
             validate(
@@ -340,7 +347,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             builder.startUserMutation(
                 dataChange.getRowKey(),
                 dataChange.getSourceClusterId(),
-                dataChange.getCommitTimestamp(),
+                Timestamps.toNanos(dataChange.getCommitTimestamp()),
                 dataChange.getTiebreaker());
           } else {
             validate(false, "AWAITING_NEW_STREAM_RECORD: Unexpected type: " + dataChange.getType());
@@ -531,6 +538,28 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       };
 
   /**
+   * A state that represents a broken state of the state machine. Any method called on this state
+   * will get an exception.
+   */
+  private final State ERROR =
+      new State() {
+        @Override
+        State handleHeartbeat(ReadChangeStreamResponse.Heartbeat heartbeat) {
+          throw new IllegalStateException("ERROR: Failed to handle Heartbeat.");
+        }
+
+        @Override
+        State handleCloseStream(ReadChangeStreamResponse.CloseStream closeStream) {
+          throw new IllegalStateException("ERROR: Failed to handle CloseStream.");
+        }
+
+        @Override
+        State handleMod(ReadChangeStreamResponse.DataChange dataChange, int index) {
+          throw new IllegalStateException("ERROR: Failed to handle DataChange.");
+        }
+      };
+
+  /**
    * Check if we should continue handling mods in the current DataChange or wrap up. There are 3
    * cases:
    *
@@ -561,7 +590,8 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       validate(!dataChange.getToken().isEmpty(), "Last data change missing token");
       validate(dataChange.hasLowWatermark(), "Last data change missing lowWatermark");
       completeChangeStreamRecord =
-          builder.finishChangeStreamMutation(dataChange.getToken(), dataChange.getLowWatermark());
+          builder.finishChangeStreamMutation(
+              dataChange.getToken(), Timestamps.toNanos(dataChange.getLowWatermark()));
       return AWAITING_STREAM_RECORD_CONSUME;
     }
     // Case 2_2): The current DataChange itself is chunked, so wait for the next

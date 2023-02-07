@@ -15,9 +15,12 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.api.core.InternalApi;
+
 /**
  * Default representation of a mod in a data change, which can be a {@link DeleteFamily}, a {@link
  * DeleteCells}, or a {@link SetCell} This class will be used by {@link ChangeStreamMutation} to
  * represent a list of mods in a logical change stream mutation.
  */
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 public interface Entry {}

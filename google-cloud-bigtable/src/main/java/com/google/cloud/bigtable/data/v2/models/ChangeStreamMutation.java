@@ -19,12 +19,9 @@ import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Timestamp;
 import java.io.Serializable;
-import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
@@ -69,18 +66,6 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
     GARBAGE_COLLECTION
   }
 
-  private static ChangeStreamMutation create(Builder builder) {
-    return new AutoValue_ChangeStreamMutation(
-        builder.rowKey,
-        builder.type,
-        builder.sourceClusterId,
-        builder.commitTimestamp,
-        builder.tieBreaker,
-        builder.token,
-        builder.lowWatermark,
-        builder.entries.build());
-  }
-
   /**
    * Creates a new instance of a user initiated mutation. It returns a builder instead of a
    * ChangeStreamMutation because `token` and `loWatermark` must be set later when we finish
@@ -89,9 +74,14 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   static Builder createUserMutation(
       @Nonnull ByteString rowKey,
       @Nonnull String sourceClusterId,
-      @Nonnull Timestamp commitTimestamp,
+      @Nonnull long commitTimestamp,
       int tieBreaker) {
-    return new Builder(rowKey, MutationType.USER, sourceClusterId, commitTimestamp, tieBreaker);
+    return builder()
+        .setRowKey(rowKey)
+        .setType(MutationType.USER)
+        .setSourceClusterId(sourceClusterId)
+        .setCommitTimestamp(commitTimestamp)
+        .setTieBreaker(tieBreaker);
   }
 
   /**
@@ -100,8 +90,13 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
    * mutation.
    */
   static Builder createGcMutation(
-      @Nonnull ByteString rowKey, @Nonnull Timestamp commitTimestamp, int tieBreaker) {
-    return new Builder(rowKey, MutationType.GARBAGE_COLLECTION, "", commitTimestamp, tieBreaker);
+      @Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker) {
+    return builder()
+        .setRowKey(rowKey)
+        .setType(MutationType.GARBAGE_COLLECTION)
+        .setSourceClusterId("")
+        .setCommitTimestamp(commitTimestamp)
+        .setTieBreaker(tieBreaker);
   }
 
   /** Get the row key of the current mutation. */
@@ -118,7 +113,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
   /** Get the commit timestamp of the current mutation. */
   @Nonnull
-  public abstract Timestamp getCommitTimestamp();
+  public abstract long getCommitTimestamp();
 
   /**
    * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
@@ -133,66 +128,43 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
   /** Get the low watermark of the current mutation. */
   @Nonnull
-  public abstract Timestamp getLowWatermark();
+  public abstract long getLowWatermark();
 
   /** Get the list of mods of the current mutation. */
   @Nonnull
-  public abstract List<Entry> getEntries();
+  public abstract ImmutableList<Entry> getEntries();
 
-  /** Returns a builder containing all the values of this ChangeStreamMutation class. */
-  Builder toBuilder() {
-    return new Builder(this);
+  /** Returns a new builder for this class. */
+  static Builder builder() {
+    return new AutoValue_ChangeStreamMutation.Builder();
   }
 
   /** Helper class to create a ChangeStreamMutation. */
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
-  public static class Builder {
-    private final ByteString rowKey;
+  @AutoValue.Builder
+  abstract static class Builder {
+    abstract Builder setRowKey(@Nonnull ByteString rowKey);
 
-    private final MutationType type;
+    abstract Builder setType(@Nonnull MutationType type);
 
-    private final String sourceClusterId;
+    abstract Builder setSourceClusterId(@Nonnull String sourceClusterId);
 
-    private final Timestamp commitTimestamp;
+    abstract Builder setCommitTimestamp(@Nonnull long commitTimestamp);
 
-    private final int tieBreaker;
+    abstract Builder setTieBreaker(@Nonnull int tieBreaker);
 
-    private transient ImmutableList.Builder<Entry> entries = ImmutableList.builder();
+    abstract ImmutableList.Builder<Entry> entriesBuilder();
 
-    private String token;
+    abstract Builder setToken(@Nonnull String token);
 
-    private Timestamp lowWatermark;
-
-    private Builder(
-        ByteString rowKey,
-        MutationType type,
-        String sourceClusterId,
-        Timestamp commitTimestamp,
-        int tieBreaker) {
-      this.rowKey = rowKey;
-      this.type = type;
-      this.sourceClusterId = sourceClusterId;
-      this.commitTimestamp = commitTimestamp;
-      this.tieBreaker = tieBreaker;
-    }
-
-    private Builder(ChangeStreamMutation changeStreamMutation) {
-      this.rowKey = changeStreamMutation.getRowKey();
-      this.type = changeStreamMutation.getType();
-      this.sourceClusterId = changeStreamMutation.getSourceClusterId();
-      this.commitTimestamp = changeStreamMutation.getCommitTimestamp();
-      this.tieBreaker = changeStreamMutation.getTieBreaker();
-      this.entries.addAll(changeStreamMutation.getEntries());
-      this.token = changeStreamMutation.getToken();
-      this.lowWatermark = changeStreamMutation.getLowWatermark();
-    }
+    abstract Builder setLowWatermark(@Nonnull long lowWatermark);
 
     Builder setCell(
         @Nonnull String familyName,
         @Nonnull ByteString qualifier,
         long timestamp,
         @Nonnull ByteString value) {
-      this.entries.add(SetCell.create(familyName, qualifier, timestamp, value));
+      this.entriesBuilder().add(SetCell.create(familyName, qualifier, timestamp, value));
       return this;
     }
 
@@ -200,31 +172,16 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
         @Nonnull String familyName,
         @Nonnull ByteString qualifier,
         @Nonnull TimestampRange timestampRange) {
-      this.entries.add(DeleteCells.create(familyName, qualifier, timestampRange));
+      this.entriesBuilder().add(DeleteCells.create(familyName, qualifier, timestampRange));
       return this;
     }
 
     Builder deleteFamily(@Nonnull String familyName) {
-      this.entries.add(DeleteFamily.create(familyName));
+      this.entriesBuilder().add(DeleteFamily.create(familyName));
       return this;
     }
 
-    Builder setToken(@Nonnull String token) {
-      this.token = token;
-      return this;
-    }
-
-    Builder setLowWatermark(@Nonnull Timestamp lowWatermark) {
-      this.lowWatermark = lowWatermark;
-      return this;
-    }
-
-    ChangeStreamMutation build() {
-      Preconditions.checkArgument(
-          token != null && lowWatermark != null,
-          "ChangeStreamMutation must have a continuation token and low watermark.");
-      return ChangeStreamMutation.create(this);
-    }
+    abstract ChangeStreamMutation build();
   }
 
   public RowMutation toRowMutation(@Nonnull String tableId) {

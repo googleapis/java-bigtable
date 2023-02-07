@@ -77,12 +77,18 @@ public class ChangeStreamRecordMerger<ChangeStreamRecordT>
 
   @Override
   public void push(ReadChangeStreamResponse response) {
-    if (response.hasHeartbeat()) {
-      changeStreamStateMachine.handleHeartbeat(response.getHeartbeat());
-    } else if (response.hasCloseStream()) {
-      changeStreamStateMachine.handleCloseStream(response.getCloseStream());
-    } else {
-      changeStreamStateMachine.handleDataChange(response.getDataChange());
+    switch (response.getStreamRecordCase()) {
+      case HEARTBEAT:
+        changeStreamStateMachine.handleHeartbeat(response.getHeartbeat());
+        break;
+      case CLOSE_STREAM:
+        changeStreamStateMachine.handleCloseStream(response.getCloseStream());
+        break;
+      case DATA_CHANGE:
+        changeStreamStateMachine.handleDataChange(response.getDataChange());
+        break;
+      case STREAMRECORD_NOT_SET:
+        throw new IllegalStateException("Illegal stream record.");
     }
     if (changeStreamStateMachine.hasCompleteChangeStreamRecord()) {
       changeStreamRecord.add(changeStreamStateMachine.consumeChangeStreamRecord());
