@@ -53,8 +53,6 @@ import javax.annotation.Nonnull;
  * builder.deleteCells(...);
  * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
  * }</pre>
- *
- * Make this class non-final so that we can create a subclass to mock it.
  */
 @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
@@ -108,7 +106,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   public abstract MutationType getType();
 
   @Nonnull
-  /** Get the source cluster id of the current mutation. Null for Garbage collection mutation. */
+  /** Get the source cluster id of the current mutation. */
   public abstract String getSourceClusterId();
 
   /** Get the commit timestamp of the current mutation. */
