@@ -1240,7 +1240,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *     }
    *   },
    *   MoreExecutors.directExecutor()
-   * );
+   * );}</pre>
    * */
   public ApiFuture<Void> awaitOptimizeRestoredTableAsync(
       OptimizeRestoredTableOperationToken token) {
