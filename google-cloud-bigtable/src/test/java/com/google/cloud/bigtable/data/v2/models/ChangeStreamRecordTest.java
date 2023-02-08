@@ -30,7 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -119,11 +118,10 @@ public class ChangeStreamRecordTest {
             .build();
     Heartbeat actualHeartbeat = Heartbeat.fromProto(heartbeatProto);
 
-    Assert.assertEquals(actualHeartbeat.getLowWatermark(), lowWatermark);
-    Assert.assertEquals(
-        actualHeartbeat.getChangeStreamContinuationToken().getPartition(),
-        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
-    Assert.assertEquals(actualHeartbeat.getChangeStreamContinuationToken().getToken(), token);
+    assertThat(actualHeartbeat.getLowWatermark()).isEqualTo(lowWatermark);
+    assertThat(actualHeartbeat.getChangeStreamContinuationToken().getPartition())
+        .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
+    assertThat(actualHeartbeat.getChangeStreamContinuationToken().getToken()).isEqualTo(token);
   }
 
   @Test
@@ -157,16 +155,16 @@ public class ChangeStreamRecordTest {
             .build();
     CloseStream actualCloseStream = CloseStream.fromProto(closeStreamProto);
 
-    Assert.assertEquals(status, actualCloseStream.getStatus());
-    Assert.assertEquals(
-        actualCloseStream.getChangeStreamContinuationTokens().get(0).getPartition(),
-        ByteStringRange.create(rowRange1.getStartKeyClosed(), rowRange1.getEndKeyOpen()));
-    Assert.assertEquals(
-        token1, actualCloseStream.getChangeStreamContinuationTokens().get(0).getToken());
-    Assert.assertEquals(
-        actualCloseStream.getChangeStreamContinuationTokens().get(1).getPartition(),
-        ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
-    Assert.assertEquals(
-        token2, actualCloseStream.getChangeStreamContinuationTokens().get(1).getToken());
+    assertThat(status).isEqualTo(actualCloseStream.getStatus());
+    assertThat(actualCloseStream.getChangeStreamContinuationTokens().get(0).getPartition())
+        .isEqualTo(
+            ByteStringRange.create(rowRange1.getStartKeyClosed(), rowRange1.getEndKeyOpen()));
+    assertThat(token1)
+        .isEqualTo(actualCloseStream.getChangeStreamContinuationTokens().get(0).getToken());
+    assertThat(actualCloseStream.getChangeStreamContinuationTokens().get(1).getPartition())
+        .isEqualTo(
+            ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
+    assertThat(token2)
+        .isEqualTo(actualCloseStream.getChangeStreamContinuationTokens().get(1).getToken());
   }
 }

@@ -97,7 +97,8 @@ public final class ReadChangeStreamQuery implements Serializable, Cloneable {
    *     infinity.
    * @param end The end of the range (exclusive). Can be null to represent positive infinity.
    */
-  public ReadChangeStreamQuery streamPartition(ByteString start, ByteString end) {
+  public ReadChangeStreamQuery streamPartition(
+      @Nullable ByteString start, @Nullable ByteString end) {
     RowRange.Builder rangeBuilder = RowRange.newBuilder();
     if (start != null) {
       rangeBuilder.setStartKeyClosed(start);

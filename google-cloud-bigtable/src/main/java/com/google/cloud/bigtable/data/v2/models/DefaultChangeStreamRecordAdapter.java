@@ -72,7 +72,7 @@ public class DefaultChangeStreamRecordAdapter
     // For the current SetCell.
     @Nullable private String family;
     @Nullable private ByteString qualifier;
-    @Nullable private long timestampMicros;
+    private long timestampMicros;
     @Nullable private ByteString value;
 
     public DefaultChangeStreamRecordBuilder() {
@@ -102,7 +102,7 @@ public class DefaultChangeStreamRecordAdapter
     public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        @Nonnull long commitTimestamp,
+        long commitTimestamp,
         int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createUserMutation(
@@ -111,8 +111,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    public void startGcMutation(
-        @Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker) {
+    public void startGcMutation(@Nonnull ByteString rowKey, long commitTimestamp, int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createGcMutation(rowKey, commitTimestamp, tieBreaker);
     }
@@ -156,8 +155,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    public ChangeStreamRecord finishChangeStreamMutation(
-        @Nonnull String token, @Nonnull long lowWatermark) {
+    public ChangeStreamRecord finishChangeStreamMutation(@Nonnull String token, long lowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
       this.changeStreamMutationBuilder.setLowWatermark(lowWatermark);
       return this.changeStreamMutationBuilder.build();

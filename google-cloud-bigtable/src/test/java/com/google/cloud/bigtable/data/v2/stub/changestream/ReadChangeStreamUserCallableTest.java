@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.changestream;
 
-import com.google.bigtable.v2.*;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;

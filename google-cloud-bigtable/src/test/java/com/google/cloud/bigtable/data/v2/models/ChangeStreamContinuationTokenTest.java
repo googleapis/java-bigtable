@@ -25,7 +25,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -51,8 +50,8 @@ public class ChangeStreamContinuationTokenTest {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         ChangeStreamContinuationToken.create(byteStringRange, TOKEN);
-    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
-    Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
+    assertThat(changeStreamContinuationToken.getPartition()).isEqualTo(byteStringRange);
+    assertThat(changeStreamContinuationToken.getToken()).isEqualTo(TOKEN);
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -76,11 +75,11 @@ public class ChangeStreamContinuationTokenTest {
             .build();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         ChangeStreamContinuationToken.fromProto(proto);
-    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
-    Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
-    Assert.assertEquals(
-        changeStreamContinuationToken,
-        ChangeStreamContinuationToken.fromProto(changeStreamContinuationToken.getTokenProto()));
+    assertThat(changeStreamContinuationToken.getPartition()).isEqualTo(byteStringRange);
+    assertThat(changeStreamContinuationToken.getToken()).isEqualTo(TOKEN);
+    assertThat(changeStreamContinuationToken)
+        .isEqualTo(
+            ChangeStreamContinuationToken.fromProto(changeStreamContinuationToken.getTokenProto()));
   }
 
   @Test
@@ -88,10 +87,11 @@ public class ChangeStreamContinuationTokenTest {
     ByteStringRange byteStringRange = createFakeByteStringRange();
     ChangeStreamContinuationToken changeStreamContinuationToken =
         ChangeStreamContinuationToken.create(byteStringRange, TOKEN);
-    Assert.assertEquals(changeStreamContinuationToken.getPartition(), byteStringRange);
-    Assert.assertEquals(changeStreamContinuationToken.getToken(), TOKEN);
-    Assert.assertEquals(
-        changeStreamContinuationToken,
-        ChangeStreamContinuationToken.fromByteString(changeStreamContinuationToken.toByteString()));
+    assertThat(changeStreamContinuationToken.getPartition()).isEqualTo(byteStringRange);
+    assertThat(changeStreamContinuationToken.getToken()).isEqualTo(TOKEN);
+    assertThat(changeStreamContinuationToken)
+        .isEqualTo(
+            ChangeStreamContinuationToken.fromByteString(
+                changeStreamContinuationToken.toByteString()));
   }
 }

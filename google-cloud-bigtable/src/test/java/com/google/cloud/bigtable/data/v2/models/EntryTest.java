@@ -23,7 +23,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -68,7 +67,7 @@ public class EntryTest {
   public void deleteFamilyTest() {
     Entry deleteFamilyEntry = DeleteFamily.create("fake-family");
     DeleteFamily deleteFamily = (DeleteFamily) deleteFamilyEntry;
-    Assert.assertEquals("fake-family", deleteFamily.getFamilyName());
+    assertThat("fake-family").isEqualTo(deleteFamily.getFamilyName());
   }
 
   @Test
@@ -79,9 +78,10 @@ public class EntryTest {
             ByteString.copyFromUtf8("fake-qualifier"),
             Range.TimestampRange.create(1000L, 2000L));
     DeleteCells deleteCells = (DeleteCells) deleteCellEntry;
-    Assert.assertEquals("fake-family", deleteCells.getFamilyName());
-    Assert.assertEquals(ByteString.copyFromUtf8("fake-qualifier"), deleteCells.getQualifier());
-    Assert.assertEquals(Range.TimestampRange.create(1000L, 2000L), deleteCells.getTimestampRange());
+    assertThat("fake-family").isEqualTo(deleteCells.getFamilyName());
+    assertThat(ByteString.copyFromUtf8("fake-qualifier")).isEqualTo(deleteCells.getQualifier());
+    assertThat(Range.TimestampRange.create(1000L, 2000L))
+        .isEqualTo(deleteCells.getTimestampRange());
   }
 
   @Test
@@ -93,9 +93,9 @@ public class EntryTest {
             1000,
             ByteString.copyFromUtf8("fake-value"));
     SetCell setCell = (SetCell) setCellEntry;
-    Assert.assertEquals("fake-family", setCell.getFamilyName());
-    Assert.assertEquals(ByteString.copyFromUtf8("fake-qualifier"), setCell.getQualifier());
-    Assert.assertEquals(1000, setCell.getTimestamp());
-    Assert.assertEquals(ByteString.copyFromUtf8("fake-value"), setCell.getValue());
+    assertThat("fake-family").isEqualTo(setCell.getFamilyName());
+    assertThat(ByteString.copyFromUtf8("fake-qualifier")).isEqualTo(setCell.getQualifier());
+    assertThat(1000).isEqualTo(setCell.getTimestamp());
+    assertThat(ByteString.copyFromUtf8("fake-value")).isEqualTo(setCell.getValue());
   }
 }

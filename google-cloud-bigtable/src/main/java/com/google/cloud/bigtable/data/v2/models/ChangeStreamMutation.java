@@ -72,7 +72,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   static Builder createUserMutation(
       @Nonnull ByteString rowKey,
       @Nonnull String sourceClusterId,
-      @Nonnull long commitTimestamp,
+      long commitTimestamp,
       int tieBreaker) {
     return builder()
         .setRowKey(rowKey)
@@ -88,7 +88,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
    * mutation.
    */
   static Builder createGcMutation(
-      @Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker) {
+      @Nonnull ByteString rowKey, long commitTimestamp, int tieBreaker) {
     return builder()
         .setRowKey(rowKey)
         .setType(MutationType.GARBAGE_COLLECTION)
@@ -105,19 +105,17 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   @Nonnull
   public abstract MutationType getType();
 
-  @Nonnull
   /** Get the source cluster id of the current mutation. */
+  @Nonnull
   public abstract String getSourceClusterId();
 
   /** Get the commit timestamp of the current mutation. */
-  @Nonnull
   public abstract long getCommitTimestamp();
 
   /**
    * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
    * mutations are applied to different clusters at the same time.
    */
-  @Nonnull
   public abstract int getTieBreaker();
 
   /** Get the token of the current mutation, which can be used to resume the changestream. */
@@ -125,7 +123,6 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   public abstract String getToken();
 
   /** Get the low watermark of the current mutation. */
-  @Nonnull
   public abstract long getLowWatermark();
 
   /** Get the list of mods of the current mutation. */
@@ -147,15 +144,15 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setSourceClusterId(@Nonnull String sourceClusterId);
 
-    abstract Builder setCommitTimestamp(@Nonnull long commitTimestamp);
+    abstract Builder setCommitTimestamp(long commitTimestamp);
 
-    abstract Builder setTieBreaker(@Nonnull int tieBreaker);
+    abstract Builder setTieBreaker(int tieBreaker);
 
     abstract ImmutableList.Builder<Entry> entriesBuilder();
 
     abstract Builder setToken(@Nonnull String token);
 
-    abstract Builder setLowWatermark(@Nonnull long lowWatermark);
+    abstract Builder setLowWatermark(long lowWatermark);
 
     Builder setCell(
         @Nonnull String familyName,

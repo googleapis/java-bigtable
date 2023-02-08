@@ -59,8 +59,7 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
     // will return an OK status right after sending a CloseStream.
     if (changeStreamRecordAdapter.isHeartbeat(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromHeartbeat(response);
-    }
-    if (changeStreamRecordAdapter.isChangeStreamMutation(response)) {
+    } else if (changeStreamRecordAdapter.isChangeStreamMutation(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromChangeStreamMutation(response);
     }
     return response;

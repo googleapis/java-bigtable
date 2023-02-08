@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.changestream;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.RowRange;
@@ -69,17 +71,15 @@ public class ChangeStreamRecordMergingCallableTest {
         mergingCallable.all().call(ReadChangeStreamRequest.getDefaultInstance());
 
     // Validate the result.
-    Assert.assertEquals(results.size(), 1);
+    assertThat(results.size()).isEqualTo(1);
     ChangeStreamRecord record = results.get(0);
     Assert.assertTrue(record instanceof Heartbeat);
     Heartbeat heartbeat = (Heartbeat) record;
-    Assert.assertEquals(
-        heartbeat.getChangeStreamContinuationToken().getPartition(),
-        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
-    Assert.assertEquals(
-        heartbeat.getChangeStreamContinuationToken().getToken(),
-        heartbeatProto.getContinuationToken().getToken());
-    Assert.assertEquals(heartbeat.getLowWatermark(), heartbeatProto.getLowWatermark());
+    assertThat(heartbeat.getChangeStreamContinuationToken().getPartition())
+        .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
+    assertThat(heartbeat.getChangeStreamContinuationToken().getToken())
+        .isEqualTo(heartbeatProto.getContinuationToken().getToken());
+    assertThat(heartbeat.getLowWatermark()).isEqualTo(heartbeatProto.getLowWatermark());
   }
 
   @Test
@@ -110,18 +110,17 @@ public class ChangeStreamRecordMergingCallableTest {
         mergingCallable.all().call(ReadChangeStreamRequest.getDefaultInstance());
 
     // Validate the result.
-    Assert.assertEquals(results.size(), 1);
+    assertThat(results.size()).isEqualTo(1);
     ChangeStreamRecord record = results.get(0);
     Assert.assertTrue(record instanceof CloseStream);
     CloseStream closeStream = (CloseStream) record;
-    Assert.assertEquals(closeStream.getStatus(), closeStreamProto.getStatus());
-    Assert.assertEquals(closeStream.getChangeStreamContinuationTokens().size(), 1);
+    assertThat(closeStream.getStatus()).isEqualTo(closeStreamProto.getStatus());
+    assertThat(closeStream.getChangeStreamContinuationTokens().size()).isEqualTo(1);
     ChangeStreamContinuationToken changeStreamContinuationToken =
         closeStream.getChangeStreamContinuationTokens().get(0);
-    Assert.assertEquals(
-        changeStreamContinuationToken.getPartition(),
-        ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
-    Assert.assertEquals(
-        changeStreamContinuationToken.getToken(), streamContinuationToken.getToken());
+    assertThat(changeStreamContinuationToken.getPartition())
+        .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
+    assertThat(changeStreamContinuationToken.getToken())
+        .isEqualTo(streamContinuationToken.getToken());
   }
 }

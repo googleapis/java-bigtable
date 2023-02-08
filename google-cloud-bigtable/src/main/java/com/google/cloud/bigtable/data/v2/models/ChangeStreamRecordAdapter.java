@@ -115,7 +115,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        @Nonnull long commitTimestamp,
+        long commitTimestamp,
         int tieBreaker);
 
     /**
@@ -123,7 +123,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
      * once. If called, the current change stream record must not include any close stream message
      * or heartbeat.
      */
-    void startGcMutation(@Nonnull ByteString rowKey, @Nonnull long commitTimestamp, int tieBreaker);
+    void startGcMutation(@Nonnull ByteString rowKey, long commitTimestamp, int tieBreaker);
 
     /** Called to add a DeleteFamily mod. */
     void deleteFamily(@Nonnull String familyName);
@@ -163,8 +163,7 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     void finishCell();
 
     /** Called once per stream record to signal that all mods have been processed (unless reset). */
-    ChangeStreamRecordT finishChangeStreamMutation(
-        @Nonnull String token, @Nonnull long lowWatermark);
+    ChangeStreamRecordT finishChangeStreamMutation(@Nonnull String token, long lowWatermark);
 
     /** Called when the current in progress change stream record should be dropped */
     void reset();

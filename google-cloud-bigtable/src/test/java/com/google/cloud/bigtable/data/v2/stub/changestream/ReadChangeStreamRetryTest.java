@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.changestream;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
@@ -168,7 +170,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(heartbeatResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
   }
 
@@ -180,7 +182,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(closeStreamResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof CloseStream);
   }
 
@@ -193,7 +195,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(dataChangeResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof ChangeStreamMutation);
   }
 
@@ -210,7 +212,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(heartbeatResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
   }
 
@@ -226,7 +228,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(closeStreamResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof CloseStream);
   }
 
@@ -242,7 +244,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(dataChangeResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof ChangeStreamMutation);
   }
 
@@ -268,7 +270,7 @@ public class ReadChangeStreamRetryTest {
                 StreamContinuationTokens.newBuilder().addTokens(streamContinuationToken).build()));
     List<ChangeStreamRecord> actualResults = getResults();
     // This is the Heartbeat we get before UNAVAILABLE.
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
   }
 
@@ -292,7 +294,7 @@ public class ReadChangeStreamRetryTest {
                     .addTokens(createStreamContinuationToken(DATA_CHANGE_TOKEN))
                     .build()));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof ChangeStreamMutation);
   }
 
@@ -343,7 +345,7 @@ public class ReadChangeStreamRetryTest {
                     .addTokens(createStreamContinuationToken(HEARTBEAT_TOKEN))
                     .build()));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 2);
+    assertThat(actualResults.size()).isEqualTo(2);
     Assert.assertTrue(actualResults.get(0) instanceof ChangeStreamMutation);
     Assert.assertTrue(actualResults.get(1) instanceof Heartbeat);
   }
@@ -368,7 +370,7 @@ public class ReadChangeStreamRetryTest {
     service.expectations.add(
         RpcExpectation.create().expectInitialRequest().respondWith(heartbeatResponse));
     List<ChangeStreamRecord> actualResults = getResults();
-    Assert.assertEquals(actualResults.size(), 1);
+    assertThat(actualResults.size()).isEqualTo(1);
     Assert.assertTrue(actualResults.get(0) instanceof Heartbeat);
   }
 
