@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ package com.google.bigtable.v2;
  *
  *
  * <pre>
- * NOTE: This API is not generally available. Users must be allowlisted.
+ * NOTE: This API is intended to be used by Apache Beam BigtableIO.
  * Response message for Bigtable.GenerateInitialChangeStreamPartitions.
  * </pre>
  *
@@ -51,61 +51,6 @@ public final class GenerateInitialChangeStreamPartitionsResponse
   @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
-  }
-
-  private GenerateInitialChangeStreamPartitionsResponse(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              com.google.bigtable.v2.StreamPartition.Builder subBuilder = null;
-              if (partition_ != null) {
-                subBuilder = partition_.toBuilder();
-              }
-              partition_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.StreamPartition.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(partition_);
-                partition_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -168,7 +113,9 @@ public final class GenerateInitialChangeStreamPartitionsResponse
    */
   @java.lang.Override
   public com.google.bigtable.v2.StreamPartitionOrBuilder getPartitionOrBuilder() {
-    return getPartition();
+    return partition_ == null
+        ? com.google.bigtable.v2.StreamPartition.getDefaultInstance()
+        : partition_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -188,7 +135,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
     if (partition_ != null) {
       output.writeMessage(1, getPartition());
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -200,7 +147,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
     if (partition_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(1, getPartition());
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -220,7 +167,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
     if (hasPartition()) {
       if (!getPartition().equals(other.getPartition())) return false;
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -235,7 +182,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
       hash = (37 * hash) + PARTITION_FIELD_NUMBER;
       hash = (53 * hash) + getPartition().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -341,7 +288,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
    *
    *
    * <pre>
-   * NOTE: This API is not generally available. Users must be allowlisted.
+   * NOTE: This API is intended to be used by Apache Beam BigtableIO.
    * Response message for Bigtable.GenerateInitialChangeStreamPartitions.
    * </pre>
    *
@@ -368,26 +315,19 @@ public final class GenerateInitialChangeStreamPartitionsResponse
 
     // Construct using
     // com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (partitionBuilder_ == null) {
-        partition_ = null;
-      } else {
-        partition_ = null;
+      bitField0_ = 0;
+      partition_ = null;
+      if (partitionBuilder_ != null) {
+        partitionBuilder_.dispose();
         partitionBuilder_ = null;
       }
       return this;
@@ -419,13 +359,19 @@ public final class GenerateInitialChangeStreamPartitionsResponse
     public com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse buildPartial() {
       com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse result =
           new com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse(this);
-      if (partitionBuilder_ == null) {
-        result.partition_ = partition_;
-      } else {
-        result.partition_ = partitionBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(
+        com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.partition_ = partitionBuilder_ == null ? partition_ : partitionBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -480,7 +426,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
       if (other.hasPartition()) {
         mergePartition(other.getPartition());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -495,21 +441,41 @@ public final class GenerateInitialChangeStreamPartitionsResponse
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                input.readMessage(getPartitionFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage =
-            (com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse)
-                e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private com.google.bigtable.v2.StreamPartition partition_;
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -529,7 +495,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
      * @return Whether the partition field is set.
      */
     public boolean hasPartition() {
-      return partitionBuilder_ != null || partition_ != null;
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      *
@@ -566,11 +532,11 @@ public final class GenerateInitialChangeStreamPartitionsResponse
           throw new NullPointerException();
         }
         partition_ = value;
-        onChanged();
       } else {
         partitionBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -585,11 +551,11 @@ public final class GenerateInitialChangeStreamPartitionsResponse
     public Builder setPartition(com.google.bigtable.v2.StreamPartition.Builder builderForValue) {
       if (partitionBuilder_ == null) {
         partition_ = builderForValue.build();
-        onChanged();
       } else {
         partitionBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -603,19 +569,18 @@ public final class GenerateInitialChangeStreamPartitionsResponse
      */
     public Builder mergePartition(com.google.bigtable.v2.StreamPartition value) {
       if (partitionBuilder_ == null) {
-        if (partition_ != null) {
-          partition_ =
-              com.google.bigtable.v2.StreamPartition.newBuilder(partition_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000001) != 0)
+            && partition_ != null
+            && partition_ != com.google.bigtable.v2.StreamPartition.getDefaultInstance()) {
+          getPartitionBuilder().mergeFrom(value);
         } else {
           partition_ = value;
         }
-        onChanged();
       } else {
         partitionBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -628,14 +593,13 @@ public final class GenerateInitialChangeStreamPartitionsResponse
      * <code>.google.bigtable.v2.StreamPartition partition = 1;</code>
      */
     public Builder clearPartition() {
-      if (partitionBuilder_ == null) {
-        partition_ = null;
-        onChanged();
-      } else {
-        partition_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      partition_ = null;
+      if (partitionBuilder_ != null) {
+        partitionBuilder_.dispose();
         partitionBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -648,7 +612,7 @@ public final class GenerateInitialChangeStreamPartitionsResponse
      * <code>.google.bigtable.v2.StreamPartition partition = 1;</code>
      */
     public com.google.bigtable.v2.StreamPartition.Builder getPartitionBuilder() {
-
+      bitField0_ |= 0x00000001;
       onChanged();
       return getPartitionFieldBuilder().getBuilder();
     }
@@ -731,7 +695,19 @@ public final class GenerateInitialChangeStreamPartitionsResponse
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
-              return new GenerateInitialChangeStreamPartitionsResponse(input, extensionRegistry);
+              Builder builder = newBuilder();
+              try {
+                builder.mergeFrom(input, extensionRegistry);
+              } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(builder.buildPartial());
+              } catch (com.google.protobuf.UninitializedMessageException e) {
+                throw e.asInvalidProtocolBufferException()
+                    .setUnfinishedMessage(builder.buildPartial());
+              } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                    .setUnfinishedMessage(builder.buildPartial());
+              }
+              return builder.buildPartial();
             }
           };
 

@@ -126,7 +126,7 @@ public class ReadChangeStreamRetryTest {
       StreamContinuationToken streamContinuationToken) {
     return ReadChangeStreamResponse.Heartbeat.newBuilder()
         .setContinuationToken(streamContinuationToken)
-        .setLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
+        .setEstimatedLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
         .build();
   }
 
@@ -154,7 +154,7 @@ public class ReadChangeStreamRetryTest {
                 ReadChangeStreamResponse.MutationChunk.newBuilder().setMutation(deleteFromFamily));
     if (done) {
       dataChangeBuilder.setDone(true);
-      dataChangeBuilder.setLowWatermark(Timestamp.newBuilder().setSeconds(1).build());
+      dataChangeBuilder.setEstimatedLowWatermark(Timestamp.newBuilder().setSeconds(1).build());
       dataChangeBuilder.setToken(DATA_CHANGE_TOKEN);
     }
     return dataChangeBuilder.build();

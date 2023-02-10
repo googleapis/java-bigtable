@@ -163,7 +163,8 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     void finishCell();
 
     /** Called once per stream record to signal that all mods have been processed (unless reset). */
-    ChangeStreamRecordT finishChangeStreamMutation(@Nonnull String token, long lowWatermark);
+    ChangeStreamRecordT finishChangeStreamMutation(
+        @Nonnull String token, long estimatedLowWatermark);
 
     /** Called when the current in progress change stream record should be dropped */
     void reset();

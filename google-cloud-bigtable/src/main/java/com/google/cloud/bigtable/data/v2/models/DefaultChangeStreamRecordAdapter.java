@@ -155,9 +155,10 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    public ChangeStreamRecord finishChangeStreamMutation(@Nonnull String token, long lowWatermark) {
+    public ChangeStreamRecord finishChangeStreamMutation(
+        @Nonnull String token, long estimatedLowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
-      this.changeStreamMutationBuilder.setLowWatermark(lowWatermark);
+      this.changeStreamMutationBuilder.setEstimatedLowWatermark(estimatedLowWatermark);
       return this.changeStreamMutationBuilder.build();
     }
 

@@ -76,8 +76,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
    *
    *
    * <pre>
-   * Required. The unique name of the instance to check permissions for as well as
-   * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * Required. The unique name of the instance to check permissions for as well
+   * as respond. Values are of the form
+   * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>
@@ -102,8 +103,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
    *
    *
    * <pre>
-   * Required. The unique name of the instance to check permissions for as well as
-   * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * Required. The unique name of the instance to check permissions for as well
+   * as respond. Values are of the form
+   * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>
@@ -548,8 +550,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
      *
      *
      * <pre>
-     * Required. The unique name of the instance to check permissions for as well as
-     * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * Required. The unique name of the instance to check permissions for as well
+     * as respond. Values are of the form
+     * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -573,8 +576,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
      *
      *
      * <pre>
-     * Required. The unique name of the instance to check permissions for as well as
-     * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * Required. The unique name of the instance to check permissions for as well
+     * as respond. Values are of the form
+     * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -598,8 +602,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
      *
      *
      * <pre>
-     * Required. The unique name of the instance to check permissions for as well as
-     * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * Required. The unique name of the instance to check permissions for as well
+     * as respond. Values are of the form
+     * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -622,8 +627,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
      *
      *
      * <pre>
-     * Required. The unique name of the instance to check permissions for as well as
-     * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * Required. The unique name of the instance to check permissions for as well
+     * as respond. Values are of the form
+     * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -642,8 +648,9 @@ public final class PingAndWarmRequest extends com.google.protobuf.GeneratedMessa
      *
      *
      * <pre>
-     * Required. The unique name of the instance to check permissions for as well as
-     * respond. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * Required. The unique name of the instance to check permissions for as well
+     * as respond. Values are of the form
+     * `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>

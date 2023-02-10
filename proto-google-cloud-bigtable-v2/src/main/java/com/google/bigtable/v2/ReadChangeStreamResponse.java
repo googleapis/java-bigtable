@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ package com.google.bigtable.v2;
  *
  *
  * <pre>
- * NOTE: This API is not generally available. Users must be allowlisted.
+ * NOTE: This API is intended to be used by Apache Beam BigtableIO.
  * Response message for Bigtable.ReadChangeStream.
  * </pre>
  *
@@ -49,105 +49,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
   @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
-  }
-
-  private ReadChangeStreamResponse(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Builder subBuilder = null;
-              if (streamRecordCase_ == 1) {
-                subBuilder =
-                    ((com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_)
-                        .toBuilder();
-              }
-              streamRecord_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.parser(),
-                      extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(
-                    (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) streamRecord_);
-                streamRecord_ = subBuilder.buildPartial();
-              }
-              streamRecordCase_ = 1;
-              break;
-            }
-          case 18:
-            {
-              com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.Builder subBuilder = null;
-              if (streamRecordCase_ == 2) {
-                subBuilder =
-                    ((com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_)
-                        .toBuilder();
-              }
-              streamRecord_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.parser(),
-                      extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(
-                    (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) streamRecord_);
-                streamRecord_ = subBuilder.buildPartial();
-              }
-              streamRecordCase_ = 2;
-              break;
-            }
-          case 26:
-            {
-              com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.Builder subBuilder = null;
-              if (streamRecordCase_ == 3) {
-                subBuilder =
-                    ((com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_)
-                        .toBuilder();
-              }
-              streamRecord_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.parser(),
-                      extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(
-                    (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
-                streamRecord_ = subBuilder.buildPartial();
-              }
-              streamRecordCase_ = 3;
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -285,79 +186,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return this.unknownFields;
     }
 
-    private MutationChunk(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
-                    subBuilder = null;
-                if (chunkInfo_ != null) {
-                  subBuilder = chunkInfo_.toBuilder();
-                }
-                chunkInfo_ =
-                    input.readMessage(
-                        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
-                            .parser(),
-                        extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(chunkInfo_);
-                  chunkInfo_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 18:
-              {
-                com.google.bigtable.v2.Mutation.Builder subBuilder = null;
-                if (mutation_ != null) {
-                  subBuilder = mutation_.toBuilder();
-                }
-                mutation_ =
-                    input.readMessage(com.google.bigtable.v2.Mutation.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(mutation_);
-                  mutation_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_descriptor;
@@ -452,61 +280,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return this.unknownFields;
       }
 
-      private ChunkInfo(
-          com.google.protobuf.CodedInputStream input,
-          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-          throws com.google.protobuf.InvalidProtocolBufferException {
-        this();
-        if (extensionRegistry == null) {
-          throw new java.lang.NullPointerException();
-        }
-        com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-            com.google.protobuf.UnknownFieldSet.newBuilder();
-        try {
-          boolean done = false;
-          while (!done) {
-            int tag = input.readTag();
-            switch (tag) {
-              case 0:
-                done = true;
-                break;
-              case 8:
-                {
-                  chunkedValueSize_ = input.readInt32();
-                  break;
-                }
-              case 16:
-                {
-                  chunkedValueOffset_ = input.readInt32();
-                  break;
-                }
-              case 24:
-                {
-                  lastChunk_ = input.readBool();
-                  break;
-                }
-              default:
-                {
-                  if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                    done = true;
-                  }
-                  break;
-                }
-            }
-          }
-        } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          throw e.setUnfinishedMessage(this);
-        } catch (com.google.protobuf.UninitializedMessageException e) {
-          throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-        } catch (java.io.IOException e) {
-          throw new com.google.protobuf.InvalidProtocolBufferException(e)
-              .setUnfinishedMessage(this);
-        } finally {
-          this.unknownFields = unknownFields.build();
-          makeExtensionsImmutable();
-        }
-      }
-
       public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
         return com.google.bigtable.v2.BigtableProto
             .internal_static_google_bigtable_v2_ReadChangeStreamResponse_MutationChunk_ChunkInfo_descriptor;
@@ -524,7 +297,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       public static final int CHUNKED_VALUE_SIZE_FIELD_NUMBER = 1;
-      private int chunkedValueSize_;
+      private int chunkedValueSize_ = 0;
       /**
        *
        *
@@ -542,7 +315,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       public static final int CHUNKED_VALUE_OFFSET_FIELD_NUMBER = 2;
-      private int chunkedValueOffset_;
+      private int chunkedValueOffset_ = 0;
       /**
        *
        *
@@ -561,7 +334,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       public static final int LAST_CHUNK_FIELD_NUMBER = 3;
-      private boolean lastChunk_;
+      private boolean lastChunk_ = false;
       /**
        *
        *
@@ -601,7 +374,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (lastChunk_ != false) {
           output.writeBool(3, lastChunk_);
         }
-        unknownFields.writeTo(output);
+        getUnknownFields().writeTo(output);
       }
 
       @java.lang.Override
@@ -619,7 +392,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (lastChunk_ != false) {
           size += com.google.protobuf.CodedOutputStream.computeBoolSize(3, lastChunk_);
         }
-        size += unknownFields.getSerializedSize();
+        size += getUnknownFields().getSerializedSize();
         memoizedSize = size;
         return size;
       }
@@ -639,7 +412,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (getChunkedValueSize() != other.getChunkedValueSize()) return false;
         if (getChunkedValueOffset() != other.getChunkedValueOffset()) return false;
         if (getLastChunk() != other.getLastChunk()) return false;
-        if (!unknownFields.equals(other.unknownFields)) return false;
+        if (!getUnknownFields().equals(other.getUnknownFields())) return false;
         return true;
       }
 
@@ -656,7 +429,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         hash = (53 * hash) + getChunkedValueOffset();
         hash = (37 * hash) + LAST_CHUNK_FIELD_NUMBER;
         hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getLastChunk());
-        hash = (29 * hash) + unknownFields.hashCode();
+        hash = (29 * hash) + getUnknownFields().hashCode();
         memoizedHashCode = hash;
         return hash;
       }
@@ -800,28 +573,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
 
         // Construct using
         // com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.newBuilder()
-        private Builder() {
-          maybeForceBuilderInitialization();
-        }
+        private Builder() {}
 
         private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
           super(parent);
-          maybeForceBuilderInitialization();
-        }
-
-        private void maybeForceBuilderInitialization() {
-          if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
         }
 
         @java.lang.Override
         public Builder clear() {
           super.clear();
+          bitField0_ = 0;
           chunkedValueSize_ = 0;
-
           chunkedValueOffset_ = 0;
-
           lastChunk_ = false;
-
           return this;
         }
 
@@ -853,11 +617,25 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             buildPartial() {
           com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo result =
               new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo(this);
-          result.chunkedValueSize_ = chunkedValueSize_;
-          result.chunkedValueOffset_ = chunkedValueOffset_;
-          result.lastChunk_ = lastChunk_;
+          if (bitField0_ != 0) {
+            buildPartial0(result);
+          }
           onBuilt();
           return result;
+        }
+
+        private void buildPartial0(
+            com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo result) {
+          int from_bitField0_ = bitField0_;
+          if (((from_bitField0_ & 0x00000001) != 0)) {
+            result.chunkedValueSize_ = chunkedValueSize_;
+          }
+          if (((from_bitField0_ & 0x00000002) != 0)) {
+            result.chunkedValueOffset_ = chunkedValueOffset_;
+          }
+          if (((from_bitField0_ & 0x00000004) != 0)) {
+            result.lastChunk_ = lastChunk_;
+          }
         }
 
         @java.lang.Override
@@ -921,7 +699,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           if (other.getLastChunk() != false) {
             setLastChunk(other.getLastChunk());
           }
-          this.mergeUnknownFields(other.unknownFields);
+          this.mergeUnknownFields(other.getUnknownFields());
           onChanged();
           return this;
         }
@@ -936,22 +714,53 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws java.io.IOException {
-          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo parsedMessage =
-              null;
+          if (extensionRegistry == null) {
+            throw new java.lang.NullPointerException();
+          }
           try {
-            parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+            boolean done = false;
+            while (!done) {
+              int tag = input.readTag();
+              switch (tag) {
+                case 0:
+                  done = true;
+                  break;
+                case 8:
+                  {
+                    chunkedValueSize_ = input.readInt32();
+                    bitField0_ |= 0x00000001;
+                    break;
+                  } // case 8
+                case 16:
+                  {
+                    chunkedValueOffset_ = input.readInt32();
+                    bitField0_ |= 0x00000002;
+                    break;
+                  } // case 16
+                case 24:
+                  {
+                    lastChunk_ = input.readBool();
+                    bitField0_ |= 0x00000004;
+                    break;
+                  } // case 24
+                default:
+                  {
+                    if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                      done = true; // was an endgroup tag
+                    }
+                    break;
+                  } // default:
+              } // switch (tag)
+            } // while (!done)
           } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-            parsedMessage =
-                (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo)
-                    e.getUnfinishedMessage();
             throw e.unwrapIOException();
           } finally {
-            if (parsedMessage != null) {
-              mergeFrom(parsedMessage);
-            }
-          }
+            onChanged();
+          } // finally
           return this;
         }
+
+        private int bitField0_;
 
         private int chunkedValueSize_;
         /**
@@ -984,6 +793,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         public Builder setChunkedValueSize(int value) {
 
           chunkedValueSize_ = value;
+          bitField0_ |= 0x00000001;
           onChanged();
           return this;
         }
@@ -999,7 +809,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          * @return This builder for chaining.
          */
         public Builder clearChunkedValueSize() {
-
+          bitField0_ = (bitField0_ & ~0x00000001);
           chunkedValueSize_ = 0;
           onChanged();
           return this;
@@ -1038,6 +848,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         public Builder setChunkedValueOffset(int value) {
 
           chunkedValueOffset_ = value;
+          bitField0_ |= 0x00000002;
           onChanged();
           return this;
         }
@@ -1054,7 +865,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          * @return This builder for chaining.
          */
         public Builder clearChunkedValueOffset() {
-
+          bitField0_ = (bitField0_ & ~0x00000002);
           chunkedValueOffset_ = 0;
           onChanged();
           return this;
@@ -1091,6 +902,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         public Builder setLastChunk(boolean value) {
 
           lastChunk_ = value;
+          bitField0_ |= 0x00000004;
           onChanged();
           return this;
         }
@@ -1106,7 +918,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
          * @return This builder for chaining.
          */
         public Builder clearLastChunk() {
-
+          bitField0_ = (bitField0_ & ~0x00000004);
           lastChunk_ = false;
           onChanged();
           return this;
@@ -1148,7 +960,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
                 com.google.protobuf.CodedInputStream input,
                 com.google.protobuf.ExtensionRegistryLite extensionRegistry)
                 throws com.google.protobuf.InvalidProtocolBufferException {
-              return new ChunkInfo(input, extensionRegistry);
+              Builder builder = newBuilder();
+              try {
+                builder.mergeFrom(input, extensionRegistry);
+              } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+                throw e.setUnfinishedMessage(builder.buildPartial());
+              } catch (com.google.protobuf.UninitializedMessageException e) {
+                throw e.asInvalidProtocolBufferException()
+                    .setUnfinishedMessage(builder.buildPartial());
+              } catch (java.io.IOException e) {
+                throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                    .setUnfinishedMessage(builder.buildPartial());
+              }
+              return builder.buildPartial();
             }
           };
 
@@ -1221,7 +1045,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     @java.lang.Override
     public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfoOrBuilder
         getChunkInfoOrBuilder() {
-      return getChunkInfo();
+      return chunkInfo_ == null
+          ? com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+              .getDefaultInstance()
+          : chunkInfo_;
     }
 
     public static final int MUTATION_FIELD_NUMBER = 2;
@@ -1273,7 +1100,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      */
     @java.lang.Override
     public com.google.bigtable.v2.MutationOrBuilder getMutationOrBuilder() {
-      return getMutation();
+      return mutation_ == null ? com.google.bigtable.v2.Mutation.getDefaultInstance() : mutation_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -1296,7 +1123,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (mutation_ != null) {
         output.writeMessage(2, getMutation());
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -1311,7 +1138,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (mutation_ != null) {
         size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getMutation());
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -1335,7 +1162,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (hasMutation()) {
         if (!getMutation().equals(other.getMutation())) return false;
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -1354,7 +1181,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         hash = (37 * hash) + MUTATION_FIELD_NUMBER;
         hash = (53 * hash) + getMutation().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -1486,32 +1313,24 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (chunkInfoBuilder_ == null) {
-          chunkInfo_ = null;
-        } else {
-          chunkInfo_ = null;
+        bitField0_ = 0;
+        chunkInfo_ = null;
+        if (chunkInfoBuilder_ != null) {
+          chunkInfoBuilder_.dispose();
           chunkInfoBuilder_ = null;
         }
-        if (mutationBuilder_ == null) {
-          mutation_ = null;
-        } else {
-          mutation_ = null;
+        mutation_ = null;
+        if (mutationBuilder_ != null) {
+          mutationBuilder_.dispose();
           mutationBuilder_ = null;
         }
         return this;
@@ -1542,18 +1361,22 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk buildPartial() {
         com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk result =
             new com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk(this);
-        if (chunkInfoBuilder_ == null) {
-          result.chunkInfo_ = chunkInfo_;
-        } else {
-          result.chunkInfo_ = chunkInfoBuilder_.build();
-        }
-        if (mutationBuilder_ == null) {
-          result.mutation_ = mutation_;
-        } else {
-          result.mutation_ = mutationBuilder_.build();
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(
+          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.chunkInfo_ = chunkInfoBuilder_ == null ? chunkInfo_ : chunkInfoBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.mutation_ = mutationBuilder_ == null ? mutation_ : mutationBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -1612,7 +1435,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (other.hasMutation()) {
           mergeMutation(other.getMutation());
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -1627,21 +1450,47 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  input.readMessage(getChunkInfoFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 10
+              case 18:
+                {
+                  input.readMessage(getMutationFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000002;
+                  break;
+                } // case 18
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk)
-                  e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
+
+      private int bitField0_;
 
       private com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo chunkInfo_;
       private com.google.protobuf.SingleFieldBuilderV3<
@@ -1663,7 +1512,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return Whether the chunkInfo field is set.
        */
       public boolean hasChunkInfo() {
-        return chunkInfoBuilder_ != null || chunkInfo_ != null;
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        *
@@ -1707,11 +1556,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             throw new NullPointerException();
           }
           chunkInfo_ = value;
-          onChanged();
         } else {
           chunkInfoBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -1730,11 +1579,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               builderForValue) {
         if (chunkInfoBuilder_ == null) {
           chunkInfo_ = builderForValue.build();
-          onChanged();
         } else {
           chunkInfoBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -1751,20 +1600,20 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder mergeChunkInfo(
           com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo value) {
         if (chunkInfoBuilder_ == null) {
-          if (chunkInfo_ != null) {
-            chunkInfo_ =
-                com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.newBuilder(
-                        chunkInfo_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000001) != 0)
+              && chunkInfo_ != null
+              && chunkInfo_
+                  != com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo
+                      .getDefaultInstance()) {
+            getChunkInfoBuilder().mergeFrom(value);
           } else {
             chunkInfo_ = value;
           }
-          onChanged();
         } else {
           chunkInfoBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -1779,14 +1628,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * </code>
        */
       public Builder clearChunkInfo() {
-        if (chunkInfoBuilder_ == null) {
-          chunkInfo_ = null;
-          onChanged();
-        } else {
-          chunkInfo_ = null;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        chunkInfo_ = null;
+        if (chunkInfoBuilder_ != null) {
+          chunkInfoBuilder_.dispose();
           chunkInfoBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -1802,7 +1650,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       public com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.ChunkInfo.Builder
           getChunkInfoBuilder() {
-
+        bitField0_ |= 0x00000001;
         onChanged();
         return getChunkInfoFieldBuilder().getBuilder();
       }
@@ -1876,7 +1724,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return Whether the mutation field is set.
        */
       public boolean hasMutation() {
-        return mutationBuilder_ != null || mutation_ != null;
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        *
@@ -1917,11 +1765,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             throw new NullPointerException();
           }
           mutation_ = value;
-          onChanged();
         } else {
           mutationBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1938,11 +1786,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder setMutation(com.google.bigtable.v2.Mutation.Builder builderForValue) {
         if (mutationBuilder_ == null) {
           mutation_ = builderForValue.build();
-          onChanged();
         } else {
           mutationBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1958,19 +1806,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       public Builder mergeMutation(com.google.bigtable.v2.Mutation value) {
         if (mutationBuilder_ == null) {
-          if (mutation_ != null) {
-            mutation_ =
-                com.google.bigtable.v2.Mutation.newBuilder(mutation_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000002) != 0)
+              && mutation_ != null
+              && mutation_ != com.google.bigtable.v2.Mutation.getDefaultInstance()) {
+            getMutationBuilder().mergeFrom(value);
           } else {
             mutation_ = value;
           }
-          onChanged();
         } else {
           mutationBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1985,14 +1832,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
       public Builder clearMutation() {
-        if (mutationBuilder_ == null) {
-          mutation_ = null;
-          onChanged();
-        } else {
-          mutation_ = null;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        mutation_ = null;
+        if (mutationBuilder_ != null) {
+          mutationBuilder_.dispose();
           mutationBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -2007,7 +1853,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.Mutation mutation = 2;</code>
        */
       public com.google.bigtable.v2.Mutation.Builder getMutationBuilder() {
-
+        bitField0_ |= 0x00000002;
         onChanged();
         return getMutationFieldBuilder().getBuilder();
       }
@@ -2094,7 +1940,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new MutationChunk(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -2348,42 +2206,51 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      *
-     * @return Whether the lowWatermark field is set.
+     * @return Whether the estimatedLowWatermark field is set.
      */
-    boolean hasLowWatermark();
+    boolean hasEstimatedLowWatermark();
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      *
-     * @return The lowWatermark.
+     * @return The estimatedLowWatermark.
      */
-    com.google.protobuf.Timestamp getLowWatermark();
+    com.google.protobuf.Timestamp getEstimatedLowWatermark();
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      */
-    com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder();
+    com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder();
   }
   /**
    *
@@ -2426,129 +2293,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
-    }
-
-    private DataChange(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 8:
-              {
-                int rawValue = input.readEnum();
-
-                type_ = rawValue;
-                break;
-              }
-            case 18:
-              {
-                java.lang.String s = input.readStringRequireUtf8();
-
-                sourceClusterId_ = s;
-                break;
-              }
-            case 26:
-              {
-                rowKey_ = input.readBytes();
-                break;
-              }
-            case 34:
-              {
-                com.google.protobuf.Timestamp.Builder subBuilder = null;
-                if (commitTimestamp_ != null) {
-                  subBuilder = commitTimestamp_.toBuilder();
-                }
-                commitTimestamp_ =
-                    input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(commitTimestamp_);
-                  commitTimestamp_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 40:
-              {
-                tiebreaker_ = input.readInt32();
-                break;
-              }
-            case 50:
-              {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  chunks_ =
-                      new java.util.ArrayList<
-                          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                chunks_.add(
-                    input.readMessage(
-                        com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.parser(),
-                        extensionRegistry));
-                break;
-              }
-            case 64:
-              {
-                done_ = input.readBool();
-                break;
-              }
-            case 74:
-              {
-                java.lang.String s = input.readStringRequireUtf8();
-
-                token_ = s;
-                break;
-              }
-            case 82:
-              {
-                com.google.protobuf.Timestamp.Builder subBuilder = null;
-                if (lowWatermark_ != null) {
-                  subBuilder = lowWatermark_.toBuilder();
-                }
-                lowWatermark_ =
-                    input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(lowWatermark_);
-                  lowWatermark_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          chunks_ = java.util.Collections.unmodifiableList(chunks_);
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -2750,7 +2494,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final int TYPE_FIELD_NUMBER = 1;
-    private int type_;
+    private int type_ = 0;
     /**
      *
      *
@@ -2779,16 +2523,17 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      */
     @java.lang.Override
     public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type getType() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type result =
-          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.valueOf(type_);
+          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.forNumber(type_);
       return result == null
           ? com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.UNRECOGNIZED
           : result;
     }
 
     public static final int SOURCE_CLUSTER_ID_FIELD_NUMBER = 2;
-    private volatile java.lang.Object sourceClusterId_;
+
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object sourceClusterId_ = "";
     /**
      *
      *
@@ -2839,7 +2584,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final int ROW_KEY_FIELD_NUMBER = 3;
-    private com.google.protobuf.ByteString rowKey_;
+    private com.google.protobuf.ByteString rowKey_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -2903,11 +2648,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      */
     @java.lang.Override
     public com.google.protobuf.TimestampOrBuilder getCommitTimestampOrBuilder() {
-      return getCommitTimestamp();
+      return commitTimestamp_ == null
+          ? com.google.protobuf.Timestamp.getDefaultInstance()
+          : commitTimestamp_;
     }
 
     public static final int TIEBREAKER_FIELD_NUMBER = 5;
-    private int tiebreaker_;
+    private int tiebreaker_ = 0;
     /**
      *
      *
@@ -2931,6 +2678,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final int CHUNKS_FIELD_NUMBER = 6;
+
+    @SuppressWarnings("serial")
     private java.util.List<com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk> chunks_;
     /**
      *
@@ -3013,7 +2762,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final int DONE_FIELD_NUMBER = 8;
-    private boolean done_;
+    private boolean done_ = false;
     /**
      *
      *
@@ -3032,7 +2781,9 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     public static final int TOKEN_FIELD_NUMBER = 9;
-    private volatile java.lang.Object token_;
+
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object token_ = "";
     /**
      *
      *
@@ -3082,58 +2833,69 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
     }
 
-    public static final int LOW_WATERMARK_FIELD_NUMBER = 10;
-    private com.google.protobuf.Timestamp lowWatermark_;
+    public static final int ESTIMATED_LOW_WATERMARK_FIELD_NUMBER = 10;
+    private com.google.protobuf.Timestamp estimatedLowWatermark_;
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      *
-     * @return Whether the lowWatermark field is set.
+     * @return Whether the estimatedLowWatermark field is set.
      */
     @java.lang.Override
-    public boolean hasLowWatermark() {
-      return lowWatermark_ != null;
+    public boolean hasEstimatedLowWatermark() {
+      return estimatedLowWatermark_ != null;
     }
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      *
-     * @return The lowWatermark.
+     * @return The estimatedLowWatermark.
      */
     @java.lang.Override
-    public com.google.protobuf.Timestamp getLowWatermark() {
-      return lowWatermark_ == null
+    public com.google.protobuf.Timestamp getEstimatedLowWatermark() {
+      return estimatedLowWatermark_ == null
           ? com.google.protobuf.Timestamp.getDefaultInstance()
-          : lowWatermark_;
+          : estimatedLowWatermark_;
     }
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
-      return getLowWatermark();
+    public com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder() {
+      return estimatedLowWatermark_ == null
+          ? com.google.protobuf.Timestamp.getDefaultInstance()
+          : estimatedLowWatermark_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -3176,10 +2938,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(token_)) {
         com.google.protobuf.GeneratedMessageV3.writeString(output, 9, token_);
       }
-      if (lowWatermark_ != null) {
-        output.writeMessage(10, getLowWatermark());
+      if (estimatedLowWatermark_ != null) {
+        output.writeMessage(10, getEstimatedLowWatermark());
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -3214,10 +2976,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(token_)) {
         size += com.google.protobuf.GeneratedMessageV3.computeStringSize(9, token_);
       }
-      if (lowWatermark_ != null) {
-        size += com.google.protobuf.CodedOutputStream.computeMessageSize(10, getLowWatermark());
+      if (estimatedLowWatermark_ != null) {
+        size +=
+            com.google.protobuf.CodedOutputStream.computeMessageSize(
+                10, getEstimatedLowWatermark());
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -3244,11 +3008,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (!getChunksList().equals(other.getChunksList())) return false;
       if (getDone() != other.getDone()) return false;
       if (!getToken().equals(other.getToken())) return false;
-      if (hasLowWatermark() != other.hasLowWatermark()) return false;
-      if (hasLowWatermark()) {
-        if (!getLowWatermark().equals(other.getLowWatermark())) return false;
+      if (hasEstimatedLowWatermark() != other.hasEstimatedLowWatermark()) return false;
+      if (hasEstimatedLowWatermark()) {
+        if (!getEstimatedLowWatermark().equals(other.getEstimatedLowWatermark())) return false;
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -3279,11 +3043,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getDone());
       hash = (37 * hash) + TOKEN_FIELD_NUMBER;
       hash = (53 * hash) + getToken().hashCode();
-      if (hasLowWatermark()) {
-        hash = (37 * hash) + LOW_WATERMARK_FIELD_NUMBER;
-        hash = (53 * hash) + getLowWatermark().hashCode();
+      if (hasEstimatedLowWatermark()) {
+        hash = (37 * hash) + ESTIMATED_LOW_WATERMARK_FIELD_NUMBER;
+        hash = (53 * hash) + getEstimatedLowWatermark().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -3420,53 +3184,38 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-          getChunksFieldBuilder();
-        }
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         type_ = 0;
-
         sourceClusterId_ = "";
-
         rowKey_ = com.google.protobuf.ByteString.EMPTY;
-
-        if (commitTimestampBuilder_ == null) {
-          commitTimestamp_ = null;
-        } else {
-          commitTimestamp_ = null;
+        commitTimestamp_ = null;
+        if (commitTimestampBuilder_ != null) {
+          commitTimestampBuilder_.dispose();
           commitTimestampBuilder_ = null;
         }
         tiebreaker_ = 0;
-
         if (chunksBuilder_ == null) {
           chunks_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
         } else {
+          chunks_ = null;
           chunksBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000020);
         done_ = false;
-
         token_ = "";
-
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = null;
-        } else {
-          lowWatermark_ = null;
-          lowWatermarkBuilder_ = null;
+        estimatedLowWatermark_ = null;
+        if (estimatedLowWatermarkBuilder_ != null) {
+          estimatedLowWatermarkBuilder_.dispose();
+          estimatedLowWatermarkBuilder_ = null;
         }
         return this;
       }
@@ -3496,34 +3245,58 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange buildPartial() {
         com.google.bigtable.v2.ReadChangeStreamResponse.DataChange result =
             new com.google.bigtable.v2.ReadChangeStreamResponse.DataChange(this);
-        int from_bitField0_ = bitField0_;
-        result.type_ = type_;
-        result.sourceClusterId_ = sourceClusterId_;
-        result.rowKey_ = rowKey_;
-        if (commitTimestampBuilder_ == null) {
-          result.commitTimestamp_ = commitTimestamp_;
-        } else {
-          result.commitTimestamp_ = commitTimestampBuilder_.build();
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
-        result.tiebreaker_ = tiebreaker_;
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(
+          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange result) {
         if (chunksBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) != 0)) {
+          if (((bitField0_ & 0x00000020) != 0)) {
             chunks_ = java.util.Collections.unmodifiableList(chunks_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000020);
           }
           result.chunks_ = chunks_;
         } else {
           result.chunks_ = chunksBuilder_.build();
         }
-        result.done_ = done_;
-        result.token_ = token_;
-        if (lowWatermarkBuilder_ == null) {
-          result.lowWatermark_ = lowWatermark_;
-        } else {
-          result.lowWatermark_ = lowWatermarkBuilder_.build();
+      }
+
+      private void buildPartial0(
+          com.google.bigtable.v2.ReadChangeStreamResponse.DataChange result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.type_ = type_;
         }
-        onBuilt();
-        return result;
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.sourceClusterId_ = sourceClusterId_;
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.rowKey_ = rowKey_;
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.commitTimestamp_ =
+              commitTimestampBuilder_ == null ? commitTimestamp_ : commitTimestampBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          result.tiebreaker_ = tiebreaker_;
+        }
+        if (((from_bitField0_ & 0x00000040) != 0)) {
+          result.done_ = done_;
+        }
+        if (((from_bitField0_ & 0x00000080) != 0)) {
+          result.token_ = token_;
+        }
+        if (((from_bitField0_ & 0x00000100) != 0)) {
+          result.estimatedLowWatermark_ =
+              estimatedLowWatermarkBuilder_ == null
+                  ? estimatedLowWatermark_
+                  : estimatedLowWatermarkBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -3580,6 +3353,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         }
         if (!other.getSourceClusterId().isEmpty()) {
           sourceClusterId_ = other.sourceClusterId_;
+          bitField0_ |= 0x00000002;
           onChanged();
         }
         if (other.getRowKey() != com.google.protobuf.ByteString.EMPTY) {
@@ -3595,7 +3369,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           if (!other.chunks_.isEmpty()) {
             if (chunks_.isEmpty()) {
               chunks_ = other.chunks_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000020);
             } else {
               ensureChunksIsMutable();
               chunks_.addAll(other.chunks_);
@@ -3608,7 +3382,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               chunksBuilder_.dispose();
               chunksBuilder_ = null;
               chunks_ = other.chunks_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000020);
               chunksBuilder_ =
                   com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                       ? getChunksFieldBuilder()
@@ -3623,12 +3397,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         }
         if (!other.getToken().isEmpty()) {
           token_ = other.token_;
+          bitField0_ |= 0x00000080;
           onChanged();
         }
-        if (other.hasLowWatermark()) {
-          mergeLowWatermark(other.getLowWatermark());
+        if (other.hasEstimatedLowWatermark()) {
+          mergeEstimatedLowWatermark(other.getEstimatedLowWatermark());
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -3643,18 +3418,95 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.v2.ReadChangeStreamResponse.DataChange parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 8:
+                {
+                  type_ = input.readEnum();
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 8
+              case 18:
+                {
+                  sourceClusterId_ = input.readStringRequireUtf8();
+                  bitField0_ |= 0x00000002;
+                  break;
+                } // case 18
+              case 26:
+                {
+                  rowKey_ = input.readBytes();
+                  bitField0_ |= 0x00000004;
+                  break;
+                } // case 26
+              case 34:
+                {
+                  input.readMessage(
+                      getCommitTimestampFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000008;
+                  break;
+                } // case 34
+              case 40:
+                {
+                  tiebreaker_ = input.readInt32();
+                  bitField0_ |= 0x00000010;
+                  break;
+                } // case 40
+              case 50:
+                {
+                  com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk m =
+                      input.readMessage(
+                          com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.parser(),
+                          extensionRegistry);
+                  if (chunksBuilder_ == null) {
+                    ensureChunksIsMutable();
+                    chunks_.add(m);
+                  } else {
+                    chunksBuilder_.addMessage(m);
+                  }
+                  break;
+                } // case 50
+              case 64:
+                {
+                  done_ = input.readBool();
+                  bitField0_ |= 0x00000040;
+                  break;
+                } // case 64
+              case 74:
+                {
+                  token_ = input.readStringRequireUtf8();
+                  bitField0_ |= 0x00000080;
+                  break;
+                } // case 74
+              case 82:
+                {
+                  input.readMessage(
+                      getEstimatedLowWatermarkFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000100;
+                  break;
+                } // case 82
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.v2.ReadChangeStreamResponse.DataChange) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -3689,8 +3541,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder setTypeValue(int value) {
-
         type_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -3707,9 +3559,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       @java.lang.Override
       public com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type getType() {
-        @SuppressWarnings("deprecation")
         com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type result =
-            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.valueOf(type_);
+            com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.forNumber(type_);
         return result == null
             ? com.google.bigtable.v2.ReadChangeStreamResponse.DataChange.Type.UNRECOGNIZED
             : result;
@@ -3731,7 +3582,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (value == null) {
           throw new NullPointerException();
         }
-
+        bitField0_ |= 0x00000001;
         type_ = value.getNumber();
         onChanged();
         return this;
@@ -3748,7 +3599,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearType() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         type_ = 0;
         onChanged();
         return this;
@@ -3818,8 +3669,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (value == null) {
           throw new NullPointerException();
         }
-
         sourceClusterId_ = value;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
@@ -3836,8 +3687,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearSourceClusterId() {
-
         sourceClusterId_ = getDefaultInstance().getSourceClusterId();
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
@@ -3859,8 +3710,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           throw new NullPointerException();
         }
         checkByteStringIsUtf8(value);
-
         sourceClusterId_ = value;
+        bitField0_ |= 0x00000002;
         onChanged();
         return this;
       }
@@ -3901,8 +3752,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (value == null) {
           throw new NullPointerException();
         }
-
         rowKey_ = value;
+        bitField0_ |= 0x00000004;
         onChanged();
         return this;
       }
@@ -3920,7 +3771,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearRowKey() {
-
+        bitField0_ = (bitField0_ & ~0x00000004);
         rowKey_ = getDefaultInstance().getRowKey();
         onChanged();
         return this;
@@ -3944,7 +3795,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return Whether the commitTimestamp field is set.
        */
       public boolean hasCommitTimestamp() {
-        return commitTimestampBuilder_ != null || commitTimestamp_ != null;
+        return ((bitField0_ & 0x00000008) != 0);
       }
       /**
        *
@@ -3981,11 +3832,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             throw new NullPointerException();
           }
           commitTimestamp_ = value;
-          onChanged();
         } else {
           commitTimestampBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000008;
+        onChanged();
         return this;
       }
       /**
@@ -4000,11 +3851,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder setCommitTimestamp(com.google.protobuf.Timestamp.Builder builderForValue) {
         if (commitTimestampBuilder_ == null) {
           commitTimestamp_ = builderForValue.build();
-          onChanged();
         } else {
           commitTimestampBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000008;
+        onChanged();
         return this;
       }
       /**
@@ -4018,19 +3869,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       public Builder mergeCommitTimestamp(com.google.protobuf.Timestamp value) {
         if (commitTimestampBuilder_ == null) {
-          if (commitTimestamp_ != null) {
-            commitTimestamp_ =
-                com.google.protobuf.Timestamp.newBuilder(commitTimestamp_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000008) != 0)
+              && commitTimestamp_ != null
+              && commitTimestamp_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+            getCommitTimestampBuilder().mergeFrom(value);
           } else {
             commitTimestamp_ = value;
           }
-          onChanged();
         } else {
           commitTimestampBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000008;
+        onChanged();
         return this;
       }
       /**
@@ -4043,14 +3893,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.protobuf.Timestamp commit_timestamp = 4;</code>
        */
       public Builder clearCommitTimestamp() {
-        if (commitTimestampBuilder_ == null) {
-          commitTimestamp_ = null;
-          onChanged();
-        } else {
-          commitTimestamp_ = null;
+        bitField0_ = (bitField0_ & ~0x00000008);
+        commitTimestamp_ = null;
+        if (commitTimestampBuilder_ != null) {
+          commitTimestampBuilder_.dispose();
           commitTimestampBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -4063,7 +3912,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.protobuf.Timestamp commit_timestamp = 4;</code>
        */
       public com.google.protobuf.Timestamp.Builder getCommitTimestampBuilder() {
-
+        bitField0_ |= 0x00000008;
         onChanged();
         return getCommitTimestampFieldBuilder().getBuilder();
       }
@@ -4154,6 +4003,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder setTiebreaker(int value) {
 
         tiebreaker_ = value;
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
@@ -4175,7 +4025,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearTiebreaker() {
-
+        bitField0_ = (bitField0_ & ~0x00000010);
         tiebreaker_ = 0;
         onChanged();
         return this;
@@ -4185,11 +4035,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           chunks_ = java.util.Collections.emptyList();
 
       private void ensureChunksIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000020) != 0)) {
           chunks_ =
               new java.util.ArrayList<
                   com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk>(chunks_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000020;
         }
       }
 
@@ -4446,7 +4296,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder clearChunks() {
         if (chunksBuilder_ == null) {
           chunks_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000020);
           onChanged();
         } else {
           chunksBuilder_.clear();
@@ -4597,7 +4447,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
                   com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk,
                   com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunk.Builder,
                   com.google.bigtable.v2.ReadChangeStreamResponse.MutationChunkOrBuilder>(
-                  chunks_, ((bitField0_ & 0x00000001) != 0), getParentForChildren(), isClean());
+                  chunks_, ((bitField0_ & 0x00000020) != 0), getParentForChildren(), isClean());
           chunks_ = null;
         }
         return chunksBuilder_;
@@ -4636,6 +4486,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder setDone(boolean value) {
 
         done_ = value;
+        bitField0_ |= 0x00000040;
         onChanged();
         return this;
       }
@@ -4652,7 +4503,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearDone() {
-
+        bitField0_ = (bitField0_ & ~0x00000040);
         done_ = false;
         onChanged();
         return this;
@@ -4722,8 +4573,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (value == null) {
           throw new NullPointerException();
         }
-
         token_ = value;
+        bitField0_ |= 0x00000080;
         onChanged();
         return this;
       }
@@ -4740,8 +4591,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return This builder for chaining.
        */
       public Builder clearToken() {
-
         token_ = getDefaultInstance().getToken();
+        bitField0_ = (bitField0_ & ~0x00000080);
         onChanged();
         return this;
       }
@@ -4763,213 +4614,239 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           throw new NullPointerException();
         }
         checkByteStringIsUtf8(value);
-
         token_ = value;
+        bitField0_ |= 0x00000080;
         onChanged();
         return this;
       }
 
-      private com.google.protobuf.Timestamp lowWatermark_;
+      private com.google.protobuf.Timestamp estimatedLowWatermark_;
       private com.google.protobuf.SingleFieldBuilderV3<
               com.google.protobuf.Timestamp,
               com.google.protobuf.Timestamp.Builder,
               com.google.protobuf.TimestampOrBuilder>
-          lowWatermarkBuilder_;
+          estimatedLowWatermarkBuilder_;
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
        *
-       * @return Whether the lowWatermark field is set.
+       * @return Whether the estimatedLowWatermark field is set.
        */
-      public boolean hasLowWatermark() {
-        return lowWatermarkBuilder_ != null || lowWatermark_ != null;
+      public boolean hasEstimatedLowWatermark() {
+        return ((bitField0_ & 0x00000100) != 0);
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
        *
-       * @return The lowWatermark.
+       * @return The estimatedLowWatermark.
        */
-      public com.google.protobuf.Timestamp getLowWatermark() {
-        if (lowWatermarkBuilder_ == null) {
-          return lowWatermark_ == null
+      public com.google.protobuf.Timestamp getEstimatedLowWatermark() {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          return estimatedLowWatermark_ == null
               ? com.google.protobuf.Timestamp.getDefaultInstance()
-              : lowWatermark_;
+              : estimatedLowWatermark_;
         } else {
-          return lowWatermarkBuilder_.getMessage();
+          return estimatedLowWatermarkBuilder_.getMessage();
         }
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
        */
-      public Builder setLowWatermark(com.google.protobuf.Timestamp value) {
-        if (lowWatermarkBuilder_ == null) {
+      public Builder setEstimatedLowWatermark(com.google.protobuf.Timestamp value) {
+        if (estimatedLowWatermarkBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          lowWatermark_ = value;
-          onChanged();
+          estimatedLowWatermark_ = value;
         } else {
-          lowWatermarkBuilder_.setMessage(value);
+          estimatedLowWatermarkBuilder_.setMessage(value);
         }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
-       */
-      public Builder setLowWatermark(com.google.protobuf.Timestamp.Builder builderForValue) {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = builderForValue.build();
-          onChanged();
-        } else {
-          lowWatermarkBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
-       */
-      public Builder mergeLowWatermark(com.google.protobuf.Timestamp value) {
-        if (lowWatermarkBuilder_ == null) {
-          if (lowWatermark_ != null) {
-            lowWatermark_ =
-                com.google.protobuf.Timestamp.newBuilder(lowWatermark_)
-                    .mergeFrom(value)
-                    .buildPartial();
-          } else {
-            lowWatermark_ = value;
-          }
-          onChanged();
-        } else {
-          lowWatermarkBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
-       */
-      public Builder clearLowWatermark() {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = null;
-          onChanged();
-        } else {
-          lowWatermark_ = null;
-          lowWatermarkBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
-       */
-      public com.google.protobuf.Timestamp.Builder getLowWatermarkBuilder() {
-
+        bitField0_ |= 0x00000100;
         onChanged();
-        return getLowWatermarkFieldBuilder().getBuilder();
+        return this;
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
        */
-      public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
-        if (lowWatermarkBuilder_ != null) {
-          return lowWatermarkBuilder_.getMessageOrBuilder();
+      public Builder setEstimatedLowWatermark(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          estimatedLowWatermark_ = builderForValue.build();
         } else {
-          return lowWatermark_ == null
+          estimatedLowWatermarkBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
+       */
+      public Builder mergeEstimatedLowWatermark(com.google.protobuf.Timestamp value) {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          if (((bitField0_ & 0x00000100) != 0)
+              && estimatedLowWatermark_ != null
+              && estimatedLowWatermark_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+            getEstimatedLowWatermarkBuilder().mergeFrom(value);
+          } else {
+            estimatedLowWatermark_ = value;
+          }
+        } else {
+          estimatedLowWatermarkBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
+       */
+      public Builder clearEstimatedLowWatermark() {
+        bitField0_ = (bitField0_ & ~0x00000100);
+        estimatedLowWatermark_ = null;
+        if (estimatedLowWatermarkBuilder_ != null) {
+          estimatedLowWatermarkBuilder_.dispose();
+          estimatedLowWatermarkBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
+       */
+      public com.google.protobuf.Timestamp.Builder getEstimatedLowWatermarkBuilder() {
+        bitField0_ |= 0x00000100;
+        onChanged();
+        return getEstimatedLowWatermarkFieldBuilder().getBuilder();
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
+       */
+      public com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder() {
+        if (estimatedLowWatermarkBuilder_ != null) {
+          return estimatedLowWatermarkBuilder_.getMessageOrBuilder();
+        } else {
+          return estimatedLowWatermark_ == null
               ? com.google.protobuf.Timestamp.getDefaultInstance()
-              : lowWatermark_;
+              : estimatedLowWatermark_;
         }
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 10;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 10;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
               com.google.protobuf.Timestamp,
               com.google.protobuf.Timestamp.Builder,
               com.google.protobuf.TimestampOrBuilder>
-          getLowWatermarkFieldBuilder() {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermarkBuilder_ =
+          getEstimatedLowWatermarkFieldBuilder() {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          estimatedLowWatermarkBuilder_ =
               new com.google.protobuf.SingleFieldBuilderV3<
                   com.google.protobuf.Timestamp,
                   com.google.protobuf.Timestamp.Builder,
                   com.google.protobuf.TimestampOrBuilder>(
-                  getLowWatermark(), getParentForChildren(), isClean());
-          lowWatermark_ = null;
+                  getEstimatedLowWatermark(), getParentForChildren(), isClean());
+          estimatedLowWatermark_ = null;
         }
-        return lowWatermarkBuilder_;
+        return estimatedLowWatermarkBuilder_;
       }
 
       @java.lang.Override
@@ -5006,7 +4883,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new DataChange(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -5072,42 +4961,51 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      *
-     * @return Whether the lowWatermark field is set.
+     * @return Whether the estimatedLowWatermark field is set.
      */
-    boolean hasLowWatermark();
+    boolean hasEstimatedLowWatermark();
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      *
-     * @return The lowWatermark.
+     * @return The estimatedLowWatermark.
      */
-    com.google.protobuf.Timestamp getLowWatermark();
+    com.google.protobuf.Timestamp getEstimatedLowWatermark();
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      */
-    com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder();
+    com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder();
   }
   /**
    *
@@ -5140,76 +5038,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     @java.lang.Override
     public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
       return this.unknownFields;
-    }
-
-    private Heartbeat(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                com.google.bigtable.v2.StreamContinuationToken.Builder subBuilder = null;
-                if (continuationToken_ != null) {
-                  subBuilder = continuationToken_.toBuilder();
-                }
-                continuationToken_ =
-                    input.readMessage(
-                        com.google.bigtable.v2.StreamContinuationToken.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(continuationToken_);
-                  continuationToken_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 18:
-              {
-                com.google.protobuf.Timestamp.Builder subBuilder = null;
-                if (lowWatermark_ != null) {
-                  subBuilder = lowWatermark_.toBuilder();
-                }
-                lowWatermark_ =
-                    input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(lowWatermark_);
-                  lowWatermark_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -5275,61 +5103,74 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      */
     @java.lang.Override
     public com.google.bigtable.v2.StreamContinuationTokenOrBuilder getContinuationTokenOrBuilder() {
-      return getContinuationToken();
+      return continuationToken_ == null
+          ? com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance()
+          : continuationToken_;
     }
 
-    public static final int LOW_WATERMARK_FIELD_NUMBER = 2;
-    private com.google.protobuf.Timestamp lowWatermark_;
+    public static final int ESTIMATED_LOW_WATERMARK_FIELD_NUMBER = 2;
+    private com.google.protobuf.Timestamp estimatedLowWatermark_;
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      *
-     * @return Whether the lowWatermark field is set.
+     * @return Whether the estimatedLowWatermark field is set.
      */
     @java.lang.Override
-    public boolean hasLowWatermark() {
-      return lowWatermark_ != null;
+    public boolean hasEstimatedLowWatermark() {
+      return estimatedLowWatermark_ != null;
     }
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      *
-     * @return The lowWatermark.
+     * @return The estimatedLowWatermark.
      */
     @java.lang.Override
-    public com.google.protobuf.Timestamp getLowWatermark() {
-      return lowWatermark_ == null
+    public com.google.protobuf.Timestamp getEstimatedLowWatermark() {
+      return estimatedLowWatermark_ == null
           ? com.google.protobuf.Timestamp.getDefaultInstance()
-          : lowWatermark_;
+          : estimatedLowWatermark_;
     }
     /**
      *
      *
      * <pre>
-     * A commit timestamp that is lower than or equal to any timestamp for a
-     * record that will be delivered in the future on the stream. For an example
-     * usage see https://beam.apache.org/documentation/basics/#watermarks
+     * An estimate of the commit timestamp that is usually lower than or equal
+     * to any timestamp for a record that will be delivered in the future on the
+     * stream. It is possible that, under particular circumstances that a future
+     * record has a timestamp is is lower than a previously seen timestamp. For
+     * an example usage see
+     * https://beam.apache.org/documentation/basics/#watermarks
      * </pre>
      *
-     * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+     * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
      */
     @java.lang.Override
-    public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
-      return getLowWatermark();
+    public com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder() {
+      return estimatedLowWatermark_ == null
+          ? com.google.protobuf.Timestamp.getDefaultInstance()
+          : estimatedLowWatermark_;
     }
 
     private byte memoizedIsInitialized = -1;
@@ -5349,10 +5190,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (continuationToken_ != null) {
         output.writeMessage(1, getContinuationToken());
       }
-      if (lowWatermark_ != null) {
-        output.writeMessage(2, getLowWatermark());
+      if (estimatedLowWatermark_ != null) {
+        output.writeMessage(2, getEstimatedLowWatermark());
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -5364,10 +5205,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (continuationToken_ != null) {
         size += com.google.protobuf.CodedOutputStream.computeMessageSize(1, getContinuationToken());
       }
-      if (lowWatermark_ != null) {
-        size += com.google.protobuf.CodedOutputStream.computeMessageSize(2, getLowWatermark());
+      if (estimatedLowWatermark_ != null) {
+        size +=
+            com.google.protobuf.CodedOutputStream.computeMessageSize(2, getEstimatedLowWatermark());
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -5387,11 +5229,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       if (hasContinuationToken()) {
         if (!getContinuationToken().equals(other.getContinuationToken())) return false;
       }
-      if (hasLowWatermark() != other.hasLowWatermark()) return false;
-      if (hasLowWatermark()) {
-        if (!getLowWatermark().equals(other.getLowWatermark())) return false;
+      if (hasEstimatedLowWatermark() != other.hasEstimatedLowWatermark()) return false;
+      if (hasEstimatedLowWatermark()) {
+        if (!getEstimatedLowWatermark().equals(other.getEstimatedLowWatermark())) return false;
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -5406,11 +5248,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         hash = (37 * hash) + CONTINUATION_TOKEN_FIELD_NUMBER;
         hash = (53 * hash) + getContinuationToken().hashCode();
       }
-      if (hasLowWatermark()) {
-        hash = (37 * hash) + LOW_WATERMARK_FIELD_NUMBER;
-        hash = (53 * hash) + getLowWatermark().hashCode();
+      if (hasEstimatedLowWatermark()) {
+        hash = (37 * hash) + ESTIMATED_LOW_WATERMARK_FIELD_NUMBER;
+        hash = (53 * hash) + getEstimatedLowWatermark().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -5543,33 +5385,25 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (continuationTokenBuilder_ == null) {
-          continuationToken_ = null;
-        } else {
-          continuationToken_ = null;
+        bitField0_ = 0;
+        continuationToken_ = null;
+        if (continuationTokenBuilder_ != null) {
+          continuationTokenBuilder_.dispose();
           continuationTokenBuilder_ = null;
         }
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = null;
-        } else {
-          lowWatermark_ = null;
-          lowWatermarkBuilder_ = null;
+        estimatedLowWatermark_ = null;
+        if (estimatedLowWatermarkBuilder_ != null) {
+          estimatedLowWatermarkBuilder_.dispose();
+          estimatedLowWatermarkBuilder_ = null;
         }
         return this;
       }
@@ -5598,18 +5432,27 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat buildPartial() {
         com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat result =
             new com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat(this);
-        if (continuationTokenBuilder_ == null) {
-          result.continuationToken_ = continuationToken_;
-        } else {
-          result.continuationToken_ = continuationTokenBuilder_.build();
-        }
-        if (lowWatermarkBuilder_ == null) {
-          result.lowWatermark_ = lowWatermark_;
-        } else {
-          result.lowWatermark_ = lowWatermarkBuilder_.build();
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.continuationToken_ =
+              continuationTokenBuilder_ == null
+                  ? continuationToken_
+                  : continuationTokenBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.estimatedLowWatermark_ =
+              estimatedLowWatermarkBuilder_ == null
+                  ? estimatedLowWatermark_
+                  : estimatedLowWatermarkBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -5663,10 +5506,10 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (other.hasContinuationToken()) {
           mergeContinuationToken(other.getContinuationToken());
         }
-        if (other.hasLowWatermark()) {
-          mergeLowWatermark(other.getLowWatermark());
+        if (other.hasEstimatedLowWatermark()) {
+          mergeEstimatedLowWatermark(other.getEstimatedLowWatermark());
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -5681,20 +5524,49 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  input.readMessage(
+                      getContinuationTokenFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 10
+              case 18:
+                {
+                  input.readMessage(
+                      getEstimatedLowWatermarkFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000002;
+                  break;
+                } // case 18
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.v2.ReadChangeStreamResponse.Heartbeat) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
+
+      private int bitField0_;
 
       private com.google.bigtable.v2.StreamContinuationToken continuationToken_;
       private com.google.protobuf.SingleFieldBuilderV3<
@@ -5715,7 +5587,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return Whether the continuationToken field is set.
        */
       public boolean hasContinuationToken() {
-        return continuationTokenBuilder_ != null || continuationToken_ != null;
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        *
@@ -5754,11 +5626,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             throw new NullPointerException();
           }
           continuationToken_ = value;
-          onChanged();
         } else {
           continuationTokenBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -5775,11 +5647,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.bigtable.v2.StreamContinuationToken.Builder builderForValue) {
         if (continuationTokenBuilder_ == null) {
           continuationToken_ = builderForValue.build();
-          onChanged();
         } else {
           continuationTokenBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -5794,19 +5666,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       public Builder mergeContinuationToken(com.google.bigtable.v2.StreamContinuationToken value) {
         if (continuationTokenBuilder_ == null) {
-          if (continuationToken_ != null) {
-            continuationToken_ =
-                com.google.bigtable.v2.StreamContinuationToken.newBuilder(continuationToken_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000001) != 0)
+              && continuationToken_ != null
+              && continuationToken_
+                  != com.google.bigtable.v2.StreamContinuationToken.getDefaultInstance()) {
+            getContinuationTokenBuilder().mergeFrom(value);
           } else {
             continuationToken_ = value;
           }
-          onChanged();
         } else {
           continuationTokenBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -5820,14 +5692,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
       public Builder clearContinuationToken() {
-        if (continuationTokenBuilder_ == null) {
-          continuationToken_ = null;
-          onChanged();
-        } else {
-          continuationToken_ = null;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        continuationToken_ = null;
+        if (continuationTokenBuilder_ != null) {
+          continuationTokenBuilder_.dispose();
           continuationTokenBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -5841,7 +5712,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.bigtable.v2.StreamContinuationToken continuation_token = 1;</code>
        */
       public com.google.bigtable.v2.StreamContinuationToken.Builder getContinuationTokenBuilder() {
-
+        bitField0_ |= 0x00000001;
         onChanged();
         return getContinuationTokenFieldBuilder().getBuilder();
       }
@@ -5892,207 +5763,233 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         return continuationTokenBuilder_;
       }
 
-      private com.google.protobuf.Timestamp lowWatermark_;
+      private com.google.protobuf.Timestamp estimatedLowWatermark_;
       private com.google.protobuf.SingleFieldBuilderV3<
               com.google.protobuf.Timestamp,
               com.google.protobuf.Timestamp.Builder,
               com.google.protobuf.TimestampOrBuilder>
-          lowWatermarkBuilder_;
+          estimatedLowWatermarkBuilder_;
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
        *
-       * @return Whether the lowWatermark field is set.
+       * @return Whether the estimatedLowWatermark field is set.
        */
-      public boolean hasLowWatermark() {
-        return lowWatermarkBuilder_ != null || lowWatermark_ != null;
+      public boolean hasEstimatedLowWatermark() {
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
        *
-       * @return The lowWatermark.
+       * @return The estimatedLowWatermark.
        */
-      public com.google.protobuf.Timestamp getLowWatermark() {
-        if (lowWatermarkBuilder_ == null) {
-          return lowWatermark_ == null
+      public com.google.protobuf.Timestamp getEstimatedLowWatermark() {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          return estimatedLowWatermark_ == null
               ? com.google.protobuf.Timestamp.getDefaultInstance()
-              : lowWatermark_;
+              : estimatedLowWatermark_;
         } else {
-          return lowWatermarkBuilder_.getMessage();
+          return estimatedLowWatermarkBuilder_.getMessage();
         }
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
        */
-      public Builder setLowWatermark(com.google.protobuf.Timestamp value) {
-        if (lowWatermarkBuilder_ == null) {
+      public Builder setEstimatedLowWatermark(com.google.protobuf.Timestamp value) {
+        if (estimatedLowWatermarkBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
           }
-          lowWatermark_ = value;
-          onChanged();
+          estimatedLowWatermark_ = value;
         } else {
-          lowWatermarkBuilder_.setMessage(value);
+          estimatedLowWatermarkBuilder_.setMessage(value);
         }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
-       */
-      public Builder setLowWatermark(com.google.protobuf.Timestamp.Builder builderForValue) {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = builderForValue.build();
-          onChanged();
-        } else {
-          lowWatermarkBuilder_.setMessage(builderForValue.build());
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
-       */
-      public Builder mergeLowWatermark(com.google.protobuf.Timestamp value) {
-        if (lowWatermarkBuilder_ == null) {
-          if (lowWatermark_ != null) {
-            lowWatermark_ =
-                com.google.protobuf.Timestamp.newBuilder(lowWatermark_)
-                    .mergeFrom(value)
-                    .buildPartial();
-          } else {
-            lowWatermark_ = value;
-          }
-          onChanged();
-        } else {
-          lowWatermarkBuilder_.mergeFrom(value);
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
-       */
-      public Builder clearLowWatermark() {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermark_ = null;
-          onChanged();
-        } else {
-          lowWatermark_ = null;
-          lowWatermarkBuilder_ = null;
-        }
-
-        return this;
-      }
-      /**
-       *
-       *
-       * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
-       * </pre>
-       *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
-       */
-      public com.google.protobuf.Timestamp.Builder getLowWatermarkBuilder() {
-
+        bitField0_ |= 0x00000002;
         onChanged();
-        return getLowWatermarkFieldBuilder().getBuilder();
+        return this;
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
        */
-      public com.google.protobuf.TimestampOrBuilder getLowWatermarkOrBuilder() {
-        if (lowWatermarkBuilder_ != null) {
-          return lowWatermarkBuilder_.getMessageOrBuilder();
+      public Builder setEstimatedLowWatermark(
+          com.google.protobuf.Timestamp.Builder builderForValue) {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          estimatedLowWatermark_ = builderForValue.build();
         } else {
-          return lowWatermark_ == null
+          estimatedLowWatermarkBuilder_.setMessage(builderForValue.build());
+        }
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
+       */
+      public Builder mergeEstimatedLowWatermark(com.google.protobuf.Timestamp value) {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          if (((bitField0_ & 0x00000002) != 0)
+              && estimatedLowWatermark_ != null
+              && estimatedLowWatermark_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+            getEstimatedLowWatermarkBuilder().mergeFrom(value);
+          } else {
+            estimatedLowWatermark_ = value;
+          }
+        } else {
+          estimatedLowWatermarkBuilder_.mergeFrom(value);
+        }
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
+       */
+      public Builder clearEstimatedLowWatermark() {
+        bitField0_ = (bitField0_ & ~0x00000002);
+        estimatedLowWatermark_ = null;
+        if (estimatedLowWatermarkBuilder_ != null) {
+          estimatedLowWatermarkBuilder_.dispose();
+          estimatedLowWatermarkBuilder_ = null;
+        }
+        onChanged();
+        return this;
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
+       */
+      public com.google.protobuf.Timestamp.Builder getEstimatedLowWatermarkBuilder() {
+        bitField0_ |= 0x00000002;
+        onChanged();
+        return getEstimatedLowWatermarkFieldBuilder().getBuilder();
+      }
+      /**
+       *
+       *
+       * <pre>
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
+       * </pre>
+       *
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
+       */
+      public com.google.protobuf.TimestampOrBuilder getEstimatedLowWatermarkOrBuilder() {
+        if (estimatedLowWatermarkBuilder_ != null) {
+          return estimatedLowWatermarkBuilder_.getMessageOrBuilder();
+        } else {
+          return estimatedLowWatermark_ == null
               ? com.google.protobuf.Timestamp.getDefaultInstance()
-              : lowWatermark_;
+              : estimatedLowWatermark_;
         }
       }
       /**
        *
        *
        * <pre>
-       * A commit timestamp that is lower than or equal to any timestamp for a
-       * record that will be delivered in the future on the stream. For an example
-       * usage see https://beam.apache.org/documentation/basics/#watermarks
+       * An estimate of the commit timestamp that is usually lower than or equal
+       * to any timestamp for a record that will be delivered in the future on the
+       * stream. It is possible that, under particular circumstances that a future
+       * record has a timestamp is is lower than a previously seen timestamp. For
+       * an example usage see
+       * https://beam.apache.org/documentation/basics/#watermarks
        * </pre>
        *
-       * <code>.google.protobuf.Timestamp low_watermark = 2;</code>
+       * <code>.google.protobuf.Timestamp estimated_low_watermark = 2;</code>
        */
       private com.google.protobuf.SingleFieldBuilderV3<
               com.google.protobuf.Timestamp,
               com.google.protobuf.Timestamp.Builder,
               com.google.protobuf.TimestampOrBuilder>
-          getLowWatermarkFieldBuilder() {
-        if (lowWatermarkBuilder_ == null) {
-          lowWatermarkBuilder_ =
+          getEstimatedLowWatermarkFieldBuilder() {
+        if (estimatedLowWatermarkBuilder_ == null) {
+          estimatedLowWatermarkBuilder_ =
               new com.google.protobuf.SingleFieldBuilderV3<
                   com.google.protobuf.Timestamp,
                   com.google.protobuf.Timestamp.Builder,
                   com.google.protobuf.TimestampOrBuilder>(
-                  getLowWatermark(), getParentForChildren(), isClean());
-          lowWatermark_ = null;
+                  getEstimatedLowWatermark(), getParentForChildren(), isClean());
+          estimatedLowWatermark_ = null;
         }
-        return lowWatermarkBuilder_;
+        return estimatedLowWatermarkBuilder_;
       }
 
       @java.lang.Override
@@ -6128,7 +6025,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Heartbeat(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -6283,76 +6192,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       return this.unknownFields;
     }
 
-    private CloseStream(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                com.google.rpc.Status.Builder subBuilder = null;
-                if (status_ != null) {
-                  subBuilder = status_.toBuilder();
-                }
-                status_ = input.readMessage(com.google.rpc.Status.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(status_);
-                  status_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 18:
-              {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  continuationTokens_ =
-                      new java.util.ArrayList<com.google.bigtable.v2.StreamContinuationToken>();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                continuationTokens_.add(
-                    input.readMessage(
-                        com.google.bigtable.v2.StreamContinuationToken.parser(),
-                        extensionRegistry));
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          continuationTokens_ = java.util.Collections.unmodifiableList(continuationTokens_);
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadChangeStreamResponse_CloseStream_descriptor;
@@ -6411,10 +6250,12 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
      */
     @java.lang.Override
     public com.google.rpc.StatusOrBuilder getStatusOrBuilder() {
-      return getStatus();
+      return status_ == null ? com.google.rpc.Status.getDefaultInstance() : status_;
     }
 
     public static final int CONTINUATION_TOKENS_FIELD_NUMBER = 2;
+
+    @SuppressWarnings("serial")
     private java.util.List<com.google.bigtable.v2.StreamContinuationToken> continuationTokens_;
     /**
      *
@@ -6510,7 +6351,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       for (int i = 0; i < continuationTokens_.size(); i++) {
         output.writeMessage(2, continuationTokens_.get(i));
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -6526,7 +6367,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         size +=
             com.google.protobuf.CodedOutputStream.computeMessageSize(2, continuationTokens_.get(i));
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -6547,7 +6388,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         if (!getStatus().equals(other.getStatus())) return false;
       }
       if (!getContinuationTokensList().equals(other.getContinuationTokensList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -6566,7 +6407,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         hash = (37 * hash) + CONTINUATION_TOKENS_FIELD_NUMBER;
         hash = (53 * hash) + getContinuationTokensList().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -6702,36 +6543,28 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
 
       // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-          getContinuationTokensFieldBuilder();
-        }
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
-        if (statusBuilder_ == null) {
-          status_ = null;
-        } else {
-          status_ = null;
+        bitField0_ = 0;
+        status_ = null;
+        if (statusBuilder_ != null) {
+          statusBuilder_.dispose();
           statusBuilder_ = null;
         }
         if (continuationTokensBuilder_ == null) {
           continuationTokens_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
         } else {
+          continuationTokens_ = null;
           continuationTokensBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -6760,23 +6593,33 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream buildPartial() {
         com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream result =
             new com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream(this);
-        int from_bitField0_ = bitField0_;
-        if (statusBuilder_ == null) {
-          result.status_ = status_;
-        } else {
-          result.status_ = statusBuilder_.build();
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(
+          com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream result) {
         if (continuationTokensBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) != 0)) {
+          if (((bitField0_ & 0x00000002) != 0)) {
             continuationTokens_ = java.util.Collections.unmodifiableList(continuationTokens_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           }
           result.continuationTokens_ = continuationTokens_;
         } else {
           result.continuationTokens_ = continuationTokensBuilder_.build();
         }
-        onBuilt();
-        return result;
+      }
+
+      private void buildPartial0(
+          com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.status_ = statusBuilder_ == null ? status_ : statusBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -6835,7 +6678,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           if (!other.continuationTokens_.isEmpty()) {
             if (continuationTokens_.isEmpty()) {
               continuationTokens_ = other.continuationTokens_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureContinuationTokensIsMutable();
               continuationTokens_.addAll(other.continuationTokens_);
@@ -6848,7 +6691,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               continuationTokensBuilder_.dispose();
               continuationTokensBuilder_ = null;
               continuationTokens_ = other.continuationTokens_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               continuationTokensBuilder_ =
                   com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                       ? getContinuationTokensFieldBuilder()
@@ -6858,7 +6701,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             }
           }
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -6873,19 +6716,51 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  input.readMessage(getStatusFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 10
+              case 18:
+                {
+                  com.google.bigtable.v2.StreamContinuationToken m =
+                      input.readMessage(
+                          com.google.bigtable.v2.StreamContinuationToken.parser(),
+                          extensionRegistry);
+                  if (continuationTokensBuilder_ == null) {
+                    ensureContinuationTokensIsMutable();
+                    continuationTokens_.add(m);
+                  } else {
+                    continuationTokensBuilder_.addMessage(m);
+                  }
+                  break;
+                } // case 18
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream)
-                  e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -6907,7 +6782,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * @return Whether the status field is set.
        */
       public boolean hasStatus() {
-        return statusBuilder_ != null || status_ != null;
+        return ((bitField0_ & 0x00000001) != 0);
       }
       /**
        *
@@ -6942,11 +6817,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             throw new NullPointerException();
           }
           status_ = value;
-          onChanged();
         } else {
           statusBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -6961,11 +6836,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder setStatus(com.google.rpc.Status.Builder builderForValue) {
         if (statusBuilder_ == null) {
           status_ = builderForValue.build();
-          onChanged();
         } else {
           statusBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -6979,16 +6854,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        */
       public Builder mergeStatus(com.google.rpc.Status value) {
         if (statusBuilder_ == null) {
-          if (status_ != null) {
-            status_ = com.google.rpc.Status.newBuilder(status_).mergeFrom(value).buildPartial();
+          if (((bitField0_ & 0x00000001) != 0)
+              && status_ != null
+              && status_ != com.google.rpc.Status.getDefaultInstance()) {
+            getStatusBuilder().mergeFrom(value);
           } else {
             status_ = value;
           }
-          onChanged();
         } else {
           statusBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000001;
+        onChanged();
         return this;
       }
       /**
@@ -7001,14 +6878,13 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.rpc.Status status = 1;</code>
        */
       public Builder clearStatus() {
-        if (statusBuilder_ == null) {
-          status_ = null;
-          onChanged();
-        } else {
-          status_ = null;
+        bitField0_ = (bitField0_ & ~0x00000001);
+        status_ = null;
+        if (statusBuilder_ != null) {
+          statusBuilder_.dispose();
           statusBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -7021,7 +6897,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
        * <code>.google.rpc.Status status = 1;</code>
        */
       public com.google.rpc.Status.Builder getStatusBuilder() {
-
+        bitField0_ |= 0x00000001;
         onChanged();
         return getStatusFieldBuilder().getBuilder();
       }
@@ -7068,11 +6944,11 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           java.util.Collections.emptyList();
 
       private void ensureContinuationTokensIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000002) != 0)) {
           continuationTokens_ =
               new java.util.ArrayList<com.google.bigtable.v2.StreamContinuationToken>(
                   continuationTokens_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
         }
       }
 
@@ -7302,7 +7178,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       public Builder clearContinuationTokens() {
         if (continuationTokensBuilder_ == null) {
           continuationTokens_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           continuationTokensBuilder_.clear();
@@ -7435,7 +7311,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
                   com.google.bigtable.v2.StreamContinuationToken.Builder,
                   com.google.bigtable.v2.StreamContinuationTokenOrBuilder>(
                   continuationTokens_,
-                  ((bitField0_ & 0x00000001) != 0),
+                  ((bitField0_ & 0x00000002) != 0),
                   getParentForChildren(),
                   isClean());
           continuationTokens_ = null;
@@ -7477,7 +7353,19 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new CloseStream(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -7728,7 +7616,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       output.writeMessage(
           3, (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -7752,7 +7640,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
           com.google.protobuf.CodedOutputStream.computeMessageSize(
               3, (com.google.bigtable.v2.ReadChangeStreamResponse.CloseStream) streamRecord_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -7782,7 +7670,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       case 0:
       default:
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -7809,7 +7697,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       case 0:
       default:
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -7913,7 +7801,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
    *
    *
    * <pre>
-   * NOTE: This API is not generally available. Users must be allowlisted.
+   * NOTE: This API is intended to be used by Apache Beam BigtableIO.
    * Response message for Bigtable.ReadChangeStream.
    * </pre>
    *
@@ -7939,22 +7827,25 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     }
 
     // Construct using com.google.bigtable.v2.ReadChangeStreamResponse.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
+      if (dataChangeBuilder_ != null) {
+        dataChangeBuilder_.clear();
+      }
+      if (heartbeatBuilder_ != null) {
+        heartbeatBuilder_.clear();
+      }
+      if (closeStreamBuilder_ != null) {
+        closeStreamBuilder_.clear();
+      }
       streamRecordCase_ = 0;
       streamRecord_ = null;
       return this;
@@ -7984,30 +7875,30 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
     public com.google.bigtable.v2.ReadChangeStreamResponse buildPartial() {
       com.google.bigtable.v2.ReadChangeStreamResponse result =
           new com.google.bigtable.v2.ReadChangeStreamResponse(this);
-      if (streamRecordCase_ == 1) {
-        if (dataChangeBuilder_ == null) {
-          result.streamRecord_ = streamRecord_;
-        } else {
-          result.streamRecord_ = dataChangeBuilder_.build();
-        }
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (streamRecordCase_ == 2) {
-        if (heartbeatBuilder_ == null) {
-          result.streamRecord_ = streamRecord_;
-        } else {
-          result.streamRecord_ = heartbeatBuilder_.build();
-        }
-      }
-      if (streamRecordCase_ == 3) {
-        if (closeStreamBuilder_ == null) {
-          result.streamRecord_ = streamRecord_;
-        } else {
-          result.streamRecord_ = closeStreamBuilder_.build();
-        }
-      }
-      result.streamRecordCase_ = streamRecordCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadChangeStreamResponse result) {
+      int from_bitField0_ = bitField0_;
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.ReadChangeStreamResponse result) {
+      result.streamRecordCase_ = streamRecordCase_;
+      result.streamRecord_ = this.streamRecord_;
+      if (streamRecordCase_ == 1 && dataChangeBuilder_ != null) {
+        result.streamRecord_ = dataChangeBuilder_.build();
+      }
+      if (streamRecordCase_ == 2 && heartbeatBuilder_ != null) {
+        result.streamRecord_ = heartbeatBuilder_.build();
+      }
+      if (streamRecordCase_ == 3 && closeStreamBuilder_ != null) {
+        result.streamRecord_ = closeStreamBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -8077,7 +7968,7 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             break;
           }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -8092,17 +7983,49 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.v2.ReadChangeStreamResponse parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                input.readMessage(getDataChangeFieldBuilder().getBuilder(), extensionRegistry);
+                streamRecordCase_ = 1;
+                break;
+              } // case 10
+            case 18:
+              {
+                input.readMessage(getHeartbeatFieldBuilder().getBuilder(), extensionRegistry);
+                streamRecordCase_ = 2;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getCloseStreamFieldBuilder().getBuilder(), extensionRegistry);
+                streamRecordCase_ = 3;
+                break;
+              } // case 26
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.v2.ReadChangeStreamResponse) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -8119,6 +8042,8 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     private com.google.protobuf.SingleFieldBuilderV3<
             com.google.bigtable.v2.ReadChangeStreamResponse.DataChange,
@@ -8332,7 +8257,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
       streamRecordCase_ = 1;
       onChanged();
-      ;
       return dataChangeBuilder_;
     }
 
@@ -8545,7 +8469,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
       streamRecordCase_ = 2;
       onChanged();
-      ;
       return heartbeatBuilder_;
     }
 
@@ -8762,7 +8685,6 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
       }
       streamRecordCase_ = 3;
       onChanged();
-      ;
       return closeStreamBuilder_;
     }
 
@@ -8798,7 +8720,18 @@ public final class ReadChangeStreamResponse extends com.google.protobuf.Generate
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new ReadChangeStreamResponse(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

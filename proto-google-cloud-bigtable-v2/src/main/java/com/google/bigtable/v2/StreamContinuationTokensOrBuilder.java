@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ public interface StreamContinuationTokensOrBuilder
    *
    * <code>repeated .google.bigtable.v2.StreamContinuationToken tokens = 1;</code>
    */
-  java.util.List<StreamContinuationToken> getTokensList();
+  java.util.List<com.google.bigtable.v2.StreamContinuationToken> getTokensList();
   /**
    *
    *
@@ -42,7 +42,7 @@ public interface StreamContinuationTokensOrBuilder
    *
    * <code>repeated .google.bigtable.v2.StreamContinuationToken tokens = 1;</code>
    */
-  StreamContinuationToken getTokens(int index);
+  com.google.bigtable.v2.StreamContinuationToken getTokens(int index);
   /**
    *
    *
@@ -62,7 +62,8 @@ public interface StreamContinuationTokensOrBuilder
    *
    * <code>repeated .google.bigtable.v2.StreamContinuationToken tokens = 1;</code>
    */
-  java.util.List<? extends StreamContinuationTokenOrBuilder> getTokensOrBuilderList();
+  java.util.List<? extends com.google.bigtable.v2.StreamContinuationTokenOrBuilder>
+      getTokensOrBuilderList();
   /**
    *
    *
@@ -72,5 +73,5 @@ public interface StreamContinuationTokensOrBuilder
    *
    * <code>repeated .google.bigtable.v2.StreamContinuationToken tokens = 1;</code>
    */
-  StreamContinuationTokenOrBuilder getTokensOrBuilder(int index);
+  com.google.bigtable.v2.StreamContinuationTokenOrBuilder getTokensOrBuilder(int index);
 }

@@ -41,7 +41,8 @@ public class ChangeStreamRecordTest {
   public void heartbeatSerializationTest() throws IOException, ClassNotFoundException {
     ReadChangeStreamResponse.Heartbeat heartbeatProto =
         ReadChangeStreamResponse.Heartbeat.newBuilder()
-            .setLowWatermark(com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build())
+            .setEstimatedLowWatermark(
+                com.google.protobuf.Timestamp.newBuilder().setSeconds(1000).build())
             .setContinuationToken(
                 StreamContinuationToken.newBuilder().setToken("random-token").build())
             .build();
@@ -109,7 +110,7 @@ public class ChangeStreamRecordTest {
     String token = "heartbeat-token";
     ReadChangeStreamResponse.Heartbeat heartbeatProto =
         ReadChangeStreamResponse.Heartbeat.newBuilder()
-            .setLowWatermark(lowWatermark)
+            .setEstimatedLowWatermark(lowWatermark)
             .setContinuationToken(
                 StreamContinuationToken.newBuilder()
                     .setPartition(StreamPartition.newBuilder().setRowRange(rowRange).build())
@@ -118,7 +119,7 @@ public class ChangeStreamRecordTest {
             .build();
     Heartbeat actualHeartbeat = Heartbeat.fromProto(heartbeatProto);
 
-    assertThat(actualHeartbeat.getLowWatermark()).isEqualTo(lowWatermark);
+    assertThat(actualHeartbeat.getEstimatedLowWatermark()).isEqualTo(lowWatermark);
     assertThat(actualHeartbeat.getChangeStreamContinuationToken().getPartition())
         .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
     assertThat(actualHeartbeat.getChangeStreamContinuationToken().getToken()).isEqualTo(token);

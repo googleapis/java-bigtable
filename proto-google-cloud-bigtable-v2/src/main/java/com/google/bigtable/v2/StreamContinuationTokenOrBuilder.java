@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public interface StreamContinuationTokenOrBuilder
    *
    * @return The partition.
    */
-  StreamPartition getPartition();
+  com.google.bigtable.v2.StreamPartition getPartition();
   /**
    *
    *
@@ -56,7 +56,7 @@ public interface StreamContinuationTokenOrBuilder
    *
    * <code>.google.bigtable.v2.StreamPartition partition = 1;</code>
    */
-  StreamPartitionOrBuilder getPartitionOrBuilder();
+  com.google.bigtable.v2.StreamPartitionOrBuilder getPartitionOrBuilder();
 
   /**
    *
@@ -69,7 +69,7 @@ public interface StreamContinuationTokenOrBuilder
    *
    * @return The token.
    */
-  String getToken();
+  java.lang.String getToken();
   /**
    *
    *

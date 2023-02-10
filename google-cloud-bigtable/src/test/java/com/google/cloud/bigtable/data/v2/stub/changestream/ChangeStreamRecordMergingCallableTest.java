@@ -53,7 +53,7 @@ public class ChangeStreamRecordMergingCallableTest {
     RowRange rowRange = RowRange.newBuilder().getDefaultInstanceForType();
     ReadChangeStreamResponse.Heartbeat heartbeatProto =
         ReadChangeStreamResponse.Heartbeat.newBuilder()
-            .setLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
+            .setEstimatedLowWatermark(Timestamp.newBuilder().setSeconds(1000).build())
             .setContinuationToken(
                 StreamContinuationToken.newBuilder()
                     .setPartition(StreamPartition.newBuilder().setRowRange(rowRange))
@@ -79,7 +79,8 @@ public class ChangeStreamRecordMergingCallableTest {
         .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));
     assertThat(heartbeat.getChangeStreamContinuationToken().getToken())
         .isEqualTo(heartbeatProto.getContinuationToken().getToken());
-    assertThat(heartbeat.getLowWatermark()).isEqualTo(heartbeatProto.getLowWatermark());
+    assertThat(heartbeat.getEstimatedLowWatermark())
+        .isEqualTo(heartbeatProto.getEstimatedLowWatermark());
   }
 
   @Test

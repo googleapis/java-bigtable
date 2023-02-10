@@ -588,10 +588,10 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
     if (dataChange.getDone()) {
       // Case 2_1): Current change stream mutation is complete.
       validate(!dataChange.getToken().isEmpty(), "Last data change missing token");
-      validate(dataChange.hasLowWatermark(), "Last data change missing lowWatermark");
+      validate(dataChange.hasEstimatedLowWatermark(), "Last data change missing lowWatermark");
       completeChangeStreamRecord =
           builder.finishChangeStreamMutation(
-              dataChange.getToken(), Timestamps.toNanos(dataChange.getLowWatermark()));
+              dataChange.getToken(), Timestamps.toNanos(dataChange.getEstimatedLowWatermark()));
       return AWAITING_STREAM_RECORD_CONSUME;
     }
     // Case 2_2): The current DataChange itself is chunked, so wait for the next

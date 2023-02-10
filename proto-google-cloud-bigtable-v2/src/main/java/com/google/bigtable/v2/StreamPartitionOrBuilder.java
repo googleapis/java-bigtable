@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public interface StreamPartitionOrBuilder
    *
    * @return The rowRange.
    */
-  RowRange getRowRange();
+  com.google.bigtable.v2.RowRange getRowRange();
   /**
    *
    *
@@ -59,5 +59,5 @@ public interface StreamPartitionOrBuilder
    *
    * <code>.google.bigtable.v2.RowRange row_range = 1;</code>
    */
-  RowRangeOrBuilder getRowRangeOrBuilder();
+  com.google.bigtable.v2.RowRangeOrBuilder getRowRangeOrBuilder();
 }

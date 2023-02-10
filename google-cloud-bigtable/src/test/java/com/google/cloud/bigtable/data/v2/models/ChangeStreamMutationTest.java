@@ -61,7 +61,7 @@ public class ChangeStreamMutationTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
 
     // Test the getters.
@@ -71,7 +71,7 @@ public class ChangeStreamMutationTest {
     assertThat(changeStreamMutation.getCommitTimestamp()).isEqualTo(FAKE_COMMIT_TIMESTAMP);
     assertThat(changeStreamMutation.getTieBreaker()).isEqualTo(0);
     assertThat(changeStreamMutation.getToken()).isEqualTo("fake-token");
-    assertThat(changeStreamMutation.getLowWatermark()).isEqualTo(FAKE_LOW_WATERMARK);
+    assertThat(changeStreamMutation.getEstimatedLowWatermark()).isEqualTo(FAKE_LOW_WATERMARK);
 
     // Test serialization.
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -100,7 +100,7 @@ public class ChangeStreamMutationTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
 
     // Test the getters.
@@ -111,7 +111,7 @@ public class ChangeStreamMutationTest {
     assertThat(changeStreamMutation.getCommitTimestamp()).isEqualTo(FAKE_COMMIT_TIMESTAMP);
     assertThat(changeStreamMutation.getTieBreaker()).isEqualTo(0);
     assertThat(changeStreamMutation.getToken()).isEqualTo("fake-token");
-    assertThat(changeStreamMutation.getLowWatermark()).isEqualTo(FAKE_LOW_WATERMARK);
+    assertThat(changeStreamMutation.getEstimatedLowWatermark()).isEqualTo(FAKE_LOW_WATERMARK);
 
     // Test serialization.
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -139,7 +139,7 @@ public class ChangeStreamMutationTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
 
     // Convert it to a rowMutation and construct a MutateRowRequest.
@@ -166,7 +166,7 @@ public class ChangeStreamMutationTest {
         ChangeStreamMutation.createUserMutation(
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
-            .setLowWatermark(FAKE_LOW_WATERMARK);
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK);
     Assert.assertThrows(IllegalStateException.class, builder::build);
   }
 
@@ -196,7 +196,7 @@ public class ChangeStreamMutationTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
 
     // Convert it to a rowMutationEntry and construct a MutateRowRequest.
@@ -220,7 +220,7 @@ public class ChangeStreamMutationTest {
         ChangeStreamMutation.createUserMutation(
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
-            .setLowWatermark(FAKE_LOW_WATERMARK);
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK);
     Assert.assertThrows(IllegalStateException.class, builder::build);
   }
 
@@ -245,7 +245,7 @@ public class ChangeStreamMutationTest {
                 1000L,
                 ByteString.copyFrom(Longs.toByteArray(1L)))
             .setToken("fake-token")
-            .setLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
 
     RowMutation rowMutation = changeStreamMutation.toRowMutation(TABLE_ID);

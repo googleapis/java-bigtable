@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ package com.google.bigtable.v2;
  *
  *
  * <pre>
- * NOTE: This API is not generally available. Users must be allowlisted.
+ * NOTE: This API is intended to be used by Apache Beam BigtableIO.
  * Request message for Bigtable.ReadChangeStream.
  * </pre>
  *
@@ -52,137 +52,6 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
   @java.lang.Override
   public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
     return this.unknownFields;
-  }
-
-  private ReadChangeStreamRequest(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              tableName_ = s;
-              break;
-            }
-          case 18:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              appProfileId_ = s;
-              break;
-            }
-          case 26:
-            {
-              com.google.bigtable.v2.StreamPartition.Builder subBuilder = null;
-              if (partition_ != null) {
-                subBuilder = partition_.toBuilder();
-              }
-              partition_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.StreamPartition.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(partition_);
-                partition_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 34:
-            {
-              com.google.protobuf.Timestamp.Builder subBuilder = null;
-              if (startFromCase_ == 4) {
-                subBuilder = ((com.google.protobuf.Timestamp) startFrom_).toBuilder();
-              }
-              startFrom_ =
-                  input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((com.google.protobuf.Timestamp) startFrom_);
-                startFrom_ = subBuilder.buildPartial();
-              }
-              startFromCase_ = 4;
-              break;
-            }
-          case 42:
-            {
-              com.google.protobuf.Timestamp.Builder subBuilder = null;
-              if (endTime_ != null) {
-                subBuilder = endTime_.toBuilder();
-              }
-              endTime_ =
-                  input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(endTime_);
-                endTime_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 50:
-            {
-              com.google.bigtable.v2.StreamContinuationTokens.Builder subBuilder = null;
-              if (startFromCase_ == 6) {
-                subBuilder =
-                    ((com.google.bigtable.v2.StreamContinuationTokens) startFrom_).toBuilder();
-              }
-              startFrom_ =
-                  input.readMessage(
-                      com.google.bigtable.v2.StreamContinuationTokens.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((com.google.bigtable.v2.StreamContinuationTokens) startFrom_);
-                startFrom_ = subBuilder.buildPartial();
-              }
-              startFromCase_ = 6;
-              break;
-            }
-          case 58:
-            {
-              com.google.protobuf.Duration.Builder subBuilder = null;
-              if (heartbeatDuration_ != null) {
-                subBuilder = heartbeatDuration_.toBuilder();
-              }
-              heartbeatDuration_ =
-                  input.readMessage(com.google.protobuf.Duration.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(heartbeatDuration_);
-                heartbeatDuration_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -248,7 +117,9 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
   }
 
   public static final int TABLE_NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object tableName_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object tableName_ = "";
   /**
    *
    *
@@ -307,7 +178,9 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
   }
 
   public static final int APP_PROFILE_ID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object appProfileId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object appProfileId_ = "";
   /**
    *
    *
@@ -404,7 +277,9 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
    */
   @java.lang.Override
   public com.google.bigtable.v2.StreamPartitionOrBuilder getPartitionOrBuilder() {
-    return getPartition();
+    return partition_ == null
+        ? com.google.bigtable.v2.StreamPartition.getDefaultInstance()
+        : partition_;
   }
 
   public static final int START_TIME_FIELD_NUMBER = 4;
@@ -591,7 +466,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getEndTimeOrBuilder() {
-    return getEndTime();
+    return endTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : endTime_;
   }
 
   public static final int HEARTBEAT_DURATION_FIELD_NUMBER = 7;
@@ -642,7 +517,9 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
    */
   @java.lang.Override
   public com.google.protobuf.DurationOrBuilder getHeartbeatDurationOrBuilder() {
-    return getHeartbeatDuration();
+    return heartbeatDuration_ == null
+        ? com.google.protobuf.Duration.getDefaultInstance()
+        : heartbeatDuration_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -680,7 +557,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     if (heartbeatDuration_ != null) {
       output.writeMessage(7, getHeartbeatDuration());
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -714,7 +591,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     if (heartbeatDuration_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(7, getHeartbeatDuration());
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -755,7 +632,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       case 0:
       default:
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -794,7 +671,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       case 0:
       default:
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -898,7 +775,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
    *
    *
    * <pre>
-   * NOTE: This API is not generally available. Users must be allowlisted.
+   * NOTE: This API is intended to be used by Apache Beam BigtableIO.
    * Request message for Bigtable.ReadChangeStream.
    * </pre>
    *
@@ -924,42 +801,37 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     }
 
     // Construct using com.google.bigtable.v2.ReadChangeStreamRequest.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       tableName_ = "";
-
       appProfileId_ = "";
-
-      if (partitionBuilder_ == null) {
-        partition_ = null;
-      } else {
-        partition_ = null;
+      partition_ = null;
+      if (partitionBuilder_ != null) {
+        partitionBuilder_.dispose();
         partitionBuilder_ = null;
       }
-      if (endTimeBuilder_ == null) {
-        endTime_ = null;
-      } else {
-        endTime_ = null;
+      if (startTimeBuilder_ != null) {
+        startTimeBuilder_.clear();
+      }
+      if (continuationTokensBuilder_ != null) {
+        continuationTokensBuilder_.clear();
+      }
+      endTime_ = null;
+      if (endTimeBuilder_ != null) {
+        endTimeBuilder_.dispose();
         endTimeBuilder_ = null;
       }
-      if (heartbeatDurationBuilder_ == null) {
-        heartbeatDuration_ = null;
-      } else {
-        heartbeatDuration_ = null;
+      heartbeatDuration_ = null;
+      if (heartbeatDurationBuilder_ != null) {
+        heartbeatDurationBuilder_.dispose();
         heartbeatDurationBuilder_ = null;
       }
       startFromCase_ = 0;
@@ -991,40 +863,45 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     public com.google.bigtable.v2.ReadChangeStreamRequest buildPartial() {
       com.google.bigtable.v2.ReadChangeStreamRequest result =
           new com.google.bigtable.v2.ReadChangeStreamRequest(this);
-      result.tableName_ = tableName_;
-      result.appProfileId_ = appProfileId_;
-      if (partitionBuilder_ == null) {
-        result.partition_ = partition_;
-      } else {
-        result.partition_ = partitionBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (startFromCase_ == 4) {
-        if (startTimeBuilder_ == null) {
-          result.startFrom_ = startFrom_;
-        } else {
-          result.startFrom_ = startTimeBuilder_.build();
-        }
-      }
-      if (startFromCase_ == 6) {
-        if (continuationTokensBuilder_ == null) {
-          result.startFrom_ = startFrom_;
-        } else {
-          result.startFrom_ = continuationTokensBuilder_.build();
-        }
-      }
-      if (endTimeBuilder_ == null) {
-        result.endTime_ = endTime_;
-      } else {
-        result.endTime_ = endTimeBuilder_.build();
-      }
-      if (heartbeatDurationBuilder_ == null) {
-        result.heartbeatDuration_ = heartbeatDuration_;
-      } else {
-        result.heartbeatDuration_ = heartbeatDurationBuilder_.build();
-      }
-      result.startFromCase_ = startFromCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadChangeStreamRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.tableName_ = tableName_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.appProfileId_ = appProfileId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.partition_ = partitionBuilder_ == null ? partition_ : partitionBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.endTime_ = endTimeBuilder_ == null ? endTime_ : endTimeBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000040) != 0)) {
+        result.heartbeatDuration_ =
+            heartbeatDurationBuilder_ == null
+                ? heartbeatDuration_
+                : heartbeatDurationBuilder_.build();
+      }
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.ReadChangeStreamRequest result) {
+      result.startFromCase_ = startFromCase_;
+      result.startFrom_ = this.startFrom_;
+      if (startFromCase_ == 4 && startTimeBuilder_ != null) {
+        result.startFrom_ = startTimeBuilder_.build();
+      }
+      if (startFromCase_ == 6 && continuationTokensBuilder_ != null) {
+        result.startFrom_ = continuationTokensBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -1074,10 +951,12 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       if (other == com.google.bigtable.v2.ReadChangeStreamRequest.getDefaultInstance()) return this;
       if (!other.getTableName().isEmpty()) {
         tableName_ = other.tableName_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getAppProfileId().isEmpty()) {
         appProfileId_ = other.appProfileId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasPartition()) {
@@ -1105,7 +984,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
             break;
           }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -1120,17 +999,75 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.v2.ReadChangeStreamRequest parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                tableName_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            case 18:
+              {
+                appProfileId_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getPartitionFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            case 34:
+              {
+                input.readMessage(getStartTimeFieldBuilder().getBuilder(), extensionRegistry);
+                startFromCase_ = 4;
+                break;
+              } // case 34
+            case 42:
+              {
+                input.readMessage(getEndTimeFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 42
+            case 50:
+              {
+                input.readMessage(
+                    getContinuationTokensFieldBuilder().getBuilder(), extensionRegistry);
+                startFromCase_ = 6;
+                break;
+              } // case 50
+            case 58:
+              {
+                input.readMessage(
+                    getHeartbeatDurationFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000040;
+                break;
+              } // case 58
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.v2.ReadChangeStreamRequest) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -1147,6 +1084,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object tableName_ = "";
     /**
@@ -1224,8 +1163,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       if (value == null) {
         throw new NullPointerException();
       }
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1246,8 +1185,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * @return This builder for chaining.
      */
     public Builder clearTableName() {
-
       tableName_ = getDefaultInstance().getTableName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1273,8 +1212,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1346,8 +1285,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       if (value == null) {
         throw new NullPointerException();
       }
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1365,8 +1304,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * @return This builder for chaining.
      */
     public Builder clearAppProfileId() {
-
       appProfileId_ = getDefaultInstance().getAppProfileId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1389,8 +1328,8 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1413,7 +1352,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * @return Whether the partition field is set.
      */
     public boolean hasPartition() {
-      return partitionBuilder_ != null || partition_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1450,11 +1389,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
           throw new NullPointerException();
         }
         partition_ = value;
-        onChanged();
       } else {
         partitionBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1469,11 +1408,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     public Builder setPartition(com.google.bigtable.v2.StreamPartition.Builder builderForValue) {
       if (partitionBuilder_ == null) {
         partition_ = builderForValue.build();
-        onChanged();
       } else {
         partitionBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1487,19 +1426,18 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      */
     public Builder mergePartition(com.google.bigtable.v2.StreamPartition value) {
       if (partitionBuilder_ == null) {
-        if (partition_ != null) {
-          partition_ =
-              com.google.bigtable.v2.StreamPartition.newBuilder(partition_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && partition_ != null
+            && partition_ != com.google.bigtable.v2.StreamPartition.getDefaultInstance()) {
+          getPartitionBuilder().mergeFrom(value);
         } else {
           partition_ = value;
         }
-        onChanged();
       } else {
         partitionBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1512,14 +1450,13 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.bigtable.v2.StreamPartition partition = 3;</code>
      */
     public Builder clearPartition() {
-      if (partitionBuilder_ == null) {
-        partition_ = null;
-        onChanged();
-      } else {
-        partition_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      partition_ = null;
+      if (partitionBuilder_ != null) {
+        partitionBuilder_.dispose();
         partitionBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1532,7 +1469,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.bigtable.v2.StreamPartition partition = 3;</code>
      */
     public com.google.bigtable.v2.StreamPartition.Builder getPartitionBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getPartitionFieldBuilder().getBuilder();
     }
@@ -1809,7 +1746,6 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       }
       startFromCase_ = 4;
       onChanged();
-      ;
       return startTimeBuilder_;
     }
 
@@ -2092,7 +2028,6 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
       }
       startFromCase_ = 6;
       onChanged();
-      ;
       return continuationTokensBuilder_;
     }
 
@@ -2116,7 +2051,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * @return Whether the endTime field is set.
      */
     public boolean hasEndTime() {
-      return endTimeBuilder_ != null || endTime_ != null;
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
      *
@@ -2155,11 +2090,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
           throw new NullPointerException();
         }
         endTime_ = value;
-        onChanged();
       } else {
         endTimeBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2176,11 +2111,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     public Builder setEndTime(com.google.protobuf.Timestamp.Builder builderForValue) {
       if (endTimeBuilder_ == null) {
         endTime_ = builderForValue.build();
-        onChanged();
       } else {
         endTimeBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2196,17 +2131,18 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      */
     public Builder mergeEndTime(com.google.protobuf.Timestamp value) {
       if (endTimeBuilder_ == null) {
-        if (endTime_ != null) {
-          endTime_ =
-              com.google.protobuf.Timestamp.newBuilder(endTime_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000020) != 0)
+            && endTime_ != null
+            && endTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+          getEndTimeBuilder().mergeFrom(value);
         } else {
           endTime_ = value;
         }
-        onChanged();
       } else {
         endTimeBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2221,14 +2157,13 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.protobuf.Timestamp end_time = 5;</code>
      */
     public Builder clearEndTime() {
-      if (endTimeBuilder_ == null) {
-        endTime_ = null;
-        onChanged();
-      } else {
-        endTime_ = null;
+      bitField0_ = (bitField0_ & ~0x00000020);
+      endTime_ = null;
+      if (endTimeBuilder_ != null) {
+        endTimeBuilder_.dispose();
         endTimeBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -2243,7 +2178,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.protobuf.Timestamp end_time = 5;</code>
      */
     public com.google.protobuf.Timestamp.Builder getEndTimeBuilder() {
-
+      bitField0_ |= 0x00000020;
       onChanged();
       return getEndTimeFieldBuilder().getBuilder();
     }
@@ -2312,7 +2247,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * @return Whether the heartbeatDuration field is set.
      */
     public boolean hasHeartbeatDuration() {
-      return heartbeatDurationBuilder_ != null || heartbeatDuration_ != null;
+      return ((bitField0_ & 0x00000040) != 0);
     }
     /**
      *
@@ -2351,11 +2286,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
           throw new NullPointerException();
         }
         heartbeatDuration_ = value;
-        onChanged();
       } else {
         heartbeatDurationBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000040;
+      onChanged();
       return this;
     }
     /**
@@ -2371,11 +2306,11 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
     public Builder setHeartbeatDuration(com.google.protobuf.Duration.Builder builderForValue) {
       if (heartbeatDurationBuilder_ == null) {
         heartbeatDuration_ = builderForValue.build();
-        onChanged();
       } else {
         heartbeatDurationBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000040;
+      onChanged();
       return this;
     }
     /**
@@ -2390,19 +2325,18 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      */
     public Builder mergeHeartbeatDuration(com.google.protobuf.Duration value) {
       if (heartbeatDurationBuilder_ == null) {
-        if (heartbeatDuration_ != null) {
-          heartbeatDuration_ =
-              com.google.protobuf.Duration.newBuilder(heartbeatDuration_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000040) != 0)
+            && heartbeatDuration_ != null
+            && heartbeatDuration_ != com.google.protobuf.Duration.getDefaultInstance()) {
+          getHeartbeatDurationBuilder().mergeFrom(value);
         } else {
           heartbeatDuration_ = value;
         }
-        onChanged();
       } else {
         heartbeatDurationBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000040;
+      onChanged();
       return this;
     }
     /**
@@ -2416,14 +2350,13 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.protobuf.Duration heartbeat_duration = 7;</code>
      */
     public Builder clearHeartbeatDuration() {
-      if (heartbeatDurationBuilder_ == null) {
-        heartbeatDuration_ = null;
-        onChanged();
-      } else {
-        heartbeatDuration_ = null;
+      bitField0_ = (bitField0_ & ~0x00000040);
+      heartbeatDuration_ = null;
+      if (heartbeatDurationBuilder_ != null) {
+        heartbeatDurationBuilder_.dispose();
         heartbeatDurationBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -2437,7 +2370,7 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
      * <code>.google.protobuf.Duration heartbeat_duration = 7;</code>
      */
     public com.google.protobuf.Duration.Builder getHeartbeatDurationBuilder() {
-
+      bitField0_ |= 0x00000040;
       onChanged();
       return getHeartbeatDurationFieldBuilder().getBuilder();
     }
@@ -2519,7 +2452,18 @@ public final class ReadChangeStreamRequest extends com.google.protobuf.Generated
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new ReadChangeStreamRequest(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

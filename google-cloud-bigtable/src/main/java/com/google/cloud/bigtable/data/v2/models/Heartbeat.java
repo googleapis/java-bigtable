@@ -29,20 +29,21 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
 
   private static Heartbeat create(
-      ChangeStreamContinuationToken changeStreamContinuationToken, Timestamp lowWatermark) {
-    return new AutoValue_Heartbeat(changeStreamContinuationToken, lowWatermark);
+      ChangeStreamContinuationToken changeStreamContinuationToken,
+      Timestamp estimatedLowWatermark) {
+    return new AutoValue_Heartbeat(changeStreamContinuationToken, estimatedLowWatermark);
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
   static Heartbeat fromProto(@Nonnull ReadChangeStreamResponse.Heartbeat heartbeat) {
     return create(
         ChangeStreamContinuationToken.fromProto(heartbeat.getContinuationToken()),
-        heartbeat.getLowWatermark());
+        heartbeat.getEstimatedLowWatermark());
   }
 
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
-  public abstract Timestamp getLowWatermark();
+  public abstract Timestamp getEstimatedLowWatermark();
 }

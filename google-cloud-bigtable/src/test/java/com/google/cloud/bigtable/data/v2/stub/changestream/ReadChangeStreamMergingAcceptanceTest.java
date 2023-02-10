@@ -141,7 +141,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
                                   .build())
                           .setToken(heartbeat.getChangeStreamContinuationToken().getToken())
                           .build())
-                  .setLowWatermark(heartbeat.getLowWatermark())
+                  .setEstimatedLowWatermark(heartbeat.getEstimatedLowWatermark())
                   .build();
           actualResults.add(
               ReadChangeStreamTest.Result.newBuilder()
@@ -196,7 +196,8 @@ public class ReadChangeStreamMergingAcceptanceTest {
               Timestamps.fromNanos(changeStreamMutation.getCommitTimestamp()));
           builder.setTiebreaker(changeStreamMutation.getTieBreaker());
           builder.setToken(changeStreamMutation.getToken());
-          builder.setLowWatermark(Timestamps.fromNanos(changeStreamMutation.getLowWatermark()));
+          builder.setLowWatermark(
+              Timestamps.fromNanos(changeStreamMutation.getEstimatedLowWatermark()));
           for (Entry entry : changeStreamMutation.getEntries()) {
             if (entry instanceof DeleteFamily) {
               DeleteFamily deleteFamily = (DeleteFamily) entry;

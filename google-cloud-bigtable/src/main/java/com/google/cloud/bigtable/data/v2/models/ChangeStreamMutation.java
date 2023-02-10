@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
  *
  * <p>A ChangeStreamMutation can be constructed in two ways, depending on whether it's a user
  * initiated mutation or a Garbage Collection mutation. Either way, the caller should explicitly set
- * `token` and `lowWatermark` before build(), otherwise it'll raise an error.
+ * `token` and `estimatedLowWatermark` before build(), otherwise it'll raise an error.
  *
  * <p>Case 1) User initiated mutation.
  *
@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
  * builder.setCell(...);
  * builder.deleteFamily(...);
  * builder.deleteCells(...);
- * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
+ * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setEstimatedLowWatermark().build();
  * }</pre>
  *
  * Case 2) Garbage Collection mutation.
@@ -51,7 +51,7 @@ import javax.annotation.Nonnull;
  * builder.setCell(...);
  * builder.deleteFamily(...);
  * builder.deleteCells(...);
- * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setLowWatermark().build();
+ * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setEstimatedLowWatermark().build();
  * }</pre>
  */
 @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
@@ -123,7 +123,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   public abstract String getToken();
 
   /** Get the low watermark of the current mutation. */
-  public abstract long getLowWatermark();
+  public abstract long getEstimatedLowWatermark();
 
   /** Get the list of mods of the current mutation. */
   @Nonnull
@@ -152,7 +152,7 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setToken(@Nonnull String token);
 
-    abstract Builder setLowWatermark(long lowWatermark);
+    abstract Builder setEstimatedLowWatermark(long estimatedLowWatermark);
 
     Builder setCell(
         @Nonnull String familyName,

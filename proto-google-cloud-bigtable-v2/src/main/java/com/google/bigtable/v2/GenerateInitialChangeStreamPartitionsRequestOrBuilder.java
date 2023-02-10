@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public interface GenerateInitialChangeStreamPartitionsRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the table from which to get change stream partitions.
-   * Values are of the form
+   * Required. The unique name of the table from which to get change stream
+   * partitions. Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * Change streaming must be enabled on the table.
    * </pre>
@@ -44,8 +44,8 @@ public interface GenerateInitialChangeStreamPartitionsRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the table from which to get change stream partitions.
-   * Values are of the form
+   * Required. The unique name of the table from which to get change stream
+   * partitions. Values are of the form
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`.
    * Change streaming must be enabled on the table.
    * </pre>
