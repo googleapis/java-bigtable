@@ -14,7 +14,7 @@
               },
               "token": "heartbeat-token"
             },
-            "low_watermark": "2022-07-01T00:00:00Z"
+            "estimated_low_watermark": "2022-07-01T00:00:00Z"
           }
         }
       ],
@@ -31,7 +31,7 @@
                 },
                 "token": "heartbeat-token"
               },
-              "low_watermark": "2022-07-01T00:00:00Z"
+              "estimated_low_watermark": "2022-07-01T00:00:00Z"
             }
           },
           "error": false
@@ -118,7 +118,7 @@
               },
               "token": "heartbeat-token"
             },
-            "low_watermark": "2022-07-01T00:00:00Z"
+            "estimated_low_watermark": "2022-07-01T00:00:00Z"
           }
         },
         {
@@ -154,7 +154,7 @@
                 },
                 "token": "heartbeat-token"
               },
-              "low_watermark": "2022-07-01T00:00:00Z"
+              "estimated_low_watermark": "2022-07-01T00:00:00Z"
             }
           },
           "error": false
@@ -194,7 +194,7 @@
             "commit_timestamp": "2022-07-01T00:00:00Z",
             "tiebreaker": 100,
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "mutation": {
@@ -238,7 +238,7 @@
               "type": "USER",
               "source_cluster_id": "source-cluster-id",
               "commit_timestamp": "2022-07-01T00:00:00Z",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
               "mutations": [
@@ -311,7 +311,7 @@
             "commit_timestamp": "2022-07-01T00:00:00Z",
             "tiebreaker": 100,
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "mutation": {
@@ -334,7 +334,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "delete_from_family": {
@@ -379,7 +379,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -408,7 +408,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -456,7 +456,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -512,7 +512,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -532,7 +532,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -561,7 +561,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -641,7 +641,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -670,7 +670,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -726,7 +726,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -765,7 +765,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -831,7 +831,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -860,7 +860,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -923,7 +923,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -959,7 +959,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "delete_from_family": {
@@ -1017,7 +1017,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "chunk_info": {
@@ -1065,7 +1065,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "set_cell": {
@@ -1122,7 +1122,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "mutation": {
@@ -1158,7 +1158,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "delete_from_family": {
@@ -1212,7 +1212,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "mutation": {
@@ -1247,7 +1247,7 @@
           "data_change": {
             "type": "CONTINUATION",
             "token": "data-change-token",
-            "low_watermark": "2022-07-01T00:00:00Z",
+            "estimated_low_watermark": "2022-07-01T00:00:00Z",
             "chunks": [
               {
                 "mutation": {
@@ -1299,7 +1299,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "delete_from_family": {
@@ -1325,7 +1325,7 @@
               "commit_timestamp": "2022-07-01T00:00:00Z",
               "tiebreaker": 100,
               "token": "data-change-token",
-              "low_watermark": "2022-07-01T00:00:00Z",
+              "estimated_low_watermark": "2022-07-01T00:00:00Z",
               "mutations": [
                 {
                   "delete_from_family": {

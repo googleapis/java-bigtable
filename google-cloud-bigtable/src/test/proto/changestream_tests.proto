@@ -38,7 +38,7 @@ message ReadChangeStreamTest {
     google.protobuf.Timestamp commit_timestamp = 4;
     int64 tiebreaker = 5;
     string token = 6;
-    google.protobuf.Timestamp low_watermark = 7;
+    google.protobuf.Timestamp estimated_low_watermark = 7;
     repeated google.bigtable.v2.Mutation mutations = 8;
   }
 

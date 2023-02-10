@@ -196,7 +196,7 @@ public class ReadChangeStreamMergingAcceptanceTest {
               Timestamps.fromNanos(changeStreamMutation.getCommitTimestamp()));
           builder.setTiebreaker(changeStreamMutation.getTieBreaker());
           builder.setToken(changeStreamMutation.getToken());
-          builder.setLowWatermark(
+          builder.setEstimatedLowWatermark(
               Timestamps.fromNanos(changeStreamMutation.getEstimatedLowWatermark()));
           for (Entry entry : changeStreamMutation.getEntries()) {
             if (entry instanceof DeleteFamily) {
