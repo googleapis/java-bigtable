@@ -208,7 +208,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
       recorder.putGfeMissingHeaders(0);
     } else {
       recorder.putGfeMissingHeaders(1);
-      System.out.println("missing gfe header");
     }
   }
 
