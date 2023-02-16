@@ -34,7 +34,6 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Queues;
 import com.google.common.collect.Range;
 import com.google.common.truth.Truth;
 import com.google.protobuf.ByteString;
