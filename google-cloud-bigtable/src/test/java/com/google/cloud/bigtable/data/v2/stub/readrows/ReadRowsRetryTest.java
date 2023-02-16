@@ -300,7 +300,7 @@ public class ReadRowsRetryTest {
   }
 
   private static class TestBigtableService extends BigtableGrpc.BigtableImplBase {
-    Queue<RpcExpectation> expectations = Queues.newArrayDeque();
+    Queue<RpcExpectation> expectations = new LinkedBlockingDeque<>();
     int i = -1;
 
     @Override
