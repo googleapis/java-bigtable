@@ -60,6 +60,24 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
+
+      <!-- this is only included to update the grpc.version via renovate used by the protobuf-maven-plugin for tests-->
+      <dependency>
+        <groupId>io.grpc</groupId>
+        <artifactId>grpc-bom</artifactId>
+        <version>${grpc.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- this is only included to update the protobuf.version via renovate used by the protobuf-maven-plugin for tests-->
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-bom</artifactId>
+        <version>${protobuf.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
