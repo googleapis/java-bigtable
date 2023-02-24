@@ -433,7 +433,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
                 // Concatenate the cell value of this mod into the builder.
                 validate(
                     chunk.getChunkInfo().getChunkedValueSize() == expectedTotalSizeOfChunkedSetCell,
-                    "AWAITING_CELL_VALUE: Chunked value size must be the same for all chunks.");
+                    "AWAITING_NEW_DATA_CHANGE: Chunked value size must be the same for all chunks.");
                 numCellChunks++;
                 builder.cellValue(setCell.getValue());
                 actualTotalSizeOfChunkedSetCell += setCell.getValue().size();
@@ -454,7 +454,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
                   // in the following ReadChangeStream response.
                   validate(
                       index == dataChange.getChunksCount() - 1,
-                      "AWAITING_CELL_VALUE: Current mod is a chunked SetCell "
+                      "AWAITING_NEW_DATA_CHANGE: Current mod is a chunked SetCell "
                           + "but not the last chunk, but it's not the last mod of the current response.");
                   return AWAITING_NEW_DATA_CHANGE;
                 }
