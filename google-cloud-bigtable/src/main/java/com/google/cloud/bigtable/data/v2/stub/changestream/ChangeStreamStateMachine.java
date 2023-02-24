@@ -433,7 +433,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
                 // Concatenate the cell value of this mod into the builder.
                 validate(
                     chunk.getChunkInfo().getChunkedValueSize() == expectedTotalSizeOfChunkedSetCell,
-                    "AWAITING_NEW_DATA_CHANGE: Chunked value size must be the same for all chunks.");
+                    "AWAITING_NEW_DATA_CHANGE: Chunked cell value size must be the same for all chunks.");
                 numCellChunks++;
                 builder.cellValue(setCell.getValue());
                 actualTotalSizeOfChunkedSetCell += setCell.getValue().size();
