@@ -266,12 +266,12 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
     }
 
     /**
-     * Accepts a new mod and transitions to the next state. A mod could be a DeleteFamily, a
-     * DeleteColumn, or a SetCell.
+     * Accepts a new DataChange and transitions to the next state. A DataChange can have multiple
+     * mods, where each mod could be a DeleteFamily, a DeleteColumn, or a SetCell.
      *
      * @param dataChange The DataChange that holds the new mod to process.
      * @return The next state.
-     * @throws IllegalStateException If the subclass can't handle the mod.
+     * @throws IllegalStateException If the subclass can't handle the DataChange.
      * @throws ChangeStreamStateMachine.InvalidInputException If the subclass determines that this
      *     dataChange is invalid.
      */
@@ -361,7 +361,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
    * <dl>
    *   <dt>Valid exit states:
    *   <dd>{@link ChangeStreamStateMachine#AWAITING_NEW_DATA_CHANGE}. All mods from the current
-   *       DataChange are added, and we have more mods to expect.
+   *       DataChange are added, and we have more DataChange to expect.
    *   <dd>{@link ChangeStreamStateMachine#AWAITING_STREAM_RECORD_CONSUME}. Current DataChange is
    *       the last DataChange of the current logical mutation.
    * </dl>
@@ -564,7 +564,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       return AWAITING_STREAM_RECORD_CONSUME;
     }
     // Case 2: The current DataChange itself is chunked, so wait for the next
-    // ReadChangeStreamResponse. Note that we should wait for the new mods instead
+    // ReadChangeStreamResponse. Note that we should wait for the new data change instead
     // of for the new change stream record since the current record hasn't finished yet.
     return AWAITING_NEW_DATA_CHANGE;
   }
