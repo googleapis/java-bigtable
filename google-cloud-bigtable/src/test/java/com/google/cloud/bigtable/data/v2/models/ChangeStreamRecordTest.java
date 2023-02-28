@@ -85,6 +85,8 @@ public class ChangeStreamRecordTest {
                     .setPartition(StreamPartition.newBuilder().setRowRange(rowRange2).build())
                     .setToken(token2)
                     .build())
+            .addNewPartitions(StreamPartition.newBuilder().setRowRange(rowRange1))
+            .addNewPartitions(StreamPartition.newBuilder().setRowRange(rowRange2))
             .setStatus(status)
             .build();
     CloseStream closeStream = CloseStream.fromProto(closeStreamProto);
@@ -98,6 +100,7 @@ public class ChangeStreamRecordTest {
     assertThat(actual.getChangeStreamContinuationTokens())
         .isEqualTo(closeStream.getChangeStreamContinuationTokens());
     assertThat(actual.getStatus()).isEqualTo(closeStream.getStatus());
+    assertThat(actual.getNewPartitions()).isEqualTo(closeStream.getNewPartitions());
   }
 
   @Test
@@ -154,6 +157,8 @@ public class ChangeStreamRecordTest {
                     .setPartition(StreamPartition.newBuilder().setRowRange(rowRange2).build())
                     .setToken(token2)
                     .build())
+            .addNewPartitions(StreamPartition.newBuilder().setRowRange(rowRange1))
+            .addNewPartitions(StreamPartition.newBuilder().setRowRange(rowRange2))
             .setStatus(status)
             .build();
     CloseStream actualCloseStream = CloseStream.fromProto(closeStreamProto);
@@ -169,5 +174,11 @@ public class ChangeStreamRecordTest {
             ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
     assertThat(token2)
         .isEqualTo(actualCloseStream.getChangeStreamContinuationTokens().get(1).getToken());
+    assertThat(actualCloseStream.getNewPartitions().get(0))
+        .isEqualTo(
+            ByteStringRange.create(rowRange1.getStartKeyClosed(), rowRange1.getEndKeyOpen()));
+    assertThat(actualCloseStream.getNewPartitions().get(1))
+        .isEqualTo(
+            ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
   }
 }

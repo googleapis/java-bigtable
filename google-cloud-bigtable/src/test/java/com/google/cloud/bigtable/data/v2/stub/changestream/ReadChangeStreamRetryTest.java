@@ -122,6 +122,15 @@ public class ReadChangeStreamRetryTest {
         .build();
   }
 
+  private StreamPartition createNewPartitionForCloseStream() {
+    return StreamPartition.newBuilder()
+        .setRowRange(
+            RowRange.newBuilder()
+                .setStartKeyClosed(ByteString.copyFromUtf8(START_KEY_CLOSED))
+                .setEndKeyOpen(ByteString.copyFromUtf8(END_KEY_OPEN)))
+        .build();
+  }
+
   private ReadChangeStreamResponse.Heartbeat createHeartbeat(
       StreamContinuationToken streamContinuationToken) {
     return ReadChangeStreamResponse.Heartbeat.newBuilder()
@@ -133,6 +142,7 @@ public class ReadChangeStreamRetryTest {
   private ReadChangeStreamResponse.CloseStream createCloseStream() {
     return ReadChangeStreamResponse.CloseStream.newBuilder()
         .addContinuationTokens(createStreamContinuationToken(CLOSE_STREAM_TOKEN))
+        .addNewPartitions(createNewPartitionForCloseStream())
         .setStatus(com.google.rpc.Status.newBuilder().setCode(0).build())
         .build();
   }

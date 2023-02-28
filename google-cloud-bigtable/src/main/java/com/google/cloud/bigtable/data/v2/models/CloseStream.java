@@ -19,6 +19,7 @@ import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.common.Status;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java.util.List;
@@ -35,8 +36,10 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
 
   private static CloseStream create(
       com.google.rpc.Status status,
-      List<ChangeStreamContinuationToken> changeStreamContinuationTokens) {
-    return new AutoValue_CloseStream(Status.fromProto(status), changeStreamContinuationTokens);
+      List<ChangeStreamContinuationToken> changeStreamContinuationTokens,
+      List<ByteStringRange> newPartitions) {
+    return new AutoValue_CloseStream(
+        Status.fromProto(status), changeStreamContinuationTokens, newPartitions);
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
@@ -46,6 +49,13 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
         closeStream.getStatus(),
         closeStream.getContinuationTokensList().stream()
             .map(ChangeStreamContinuationToken::fromProto)
+            .collect(ImmutableList.toImmutableList()),
+        closeStream.getNewPartitionsList().stream()
+            .map(
+                newPartition ->
+                    ByteStringRange.create(
+                        newPartition.getRowRange().getStartKeyClosed(),
+                        newPartition.getRowRange().getEndKeyOpen()))
             .collect(ImmutableList.toImmutableList()));
   }
 
@@ -56,4 +66,8 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   @Nonnull
   public abstract List<ChangeStreamContinuationToken> getChangeStreamContinuationTokens();
+
+  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+  @Nonnull
+  public abstract List<ByteStringRange> getNewPartitions();
 }
