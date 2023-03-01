@@ -30,13 +30,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ChangeStreamRecordTest {
+
+  @Rule public ExpectedException expect = ExpectedException.none();
 
   @Test
   public void heartbeatSerializationTest() throws IOException, ClassNotFoundException {
@@ -60,7 +66,7 @@ public class ChangeStreamRecordTest {
 
   @Test
   public void closeStreamSerializationTest() throws IOException, ClassNotFoundException {
-    Status status = Status.newBuilder().setCode(0).build();
+    Status status = Status.newBuilder().setCode(11).build();
     RowRange rowRange1 =
         RowRange.newBuilder()
             .setStartKeyClosed(ByteString.copyFromUtf8(""))
@@ -132,7 +138,7 @@ public class ChangeStreamRecordTest {
 
   @Test
   public void closeStreamTest() {
-    Status status = Status.newBuilder().setCode(0).build();
+    Status status = Status.newBuilder().setCode(11).build();
     RowRange rowRange1 =
         RowRange.newBuilder()
             .setStartKeyClosed(ByteString.copyFromUtf8(""))
@@ -180,5 +186,59 @@ public class ChangeStreamRecordTest {
     assertThat(actualCloseStream.getNewPartitions().get(1))
         .isEqualTo(
             ByteStringRange.create(rowRange2.getStartKeyClosed(), rowRange2.getEndKeyOpen()));
+  }
+
+  // Tests that an OK CloseStream should not have continuation tokens.
+  @Test(expected = IllegalStateException.class)
+  public void closeStreamOkWithContinuationTokenShouldFail() {
+    Status status = Status.newBuilder().setCode(0).build();
+    RowRange rowRange =
+        RowRange.newBuilder()
+            .setStartKeyClosed(ByteString.copyFromUtf8(""))
+            .setEndKeyOpen(ByteString.copyFromUtf8("apple"))
+            .build();
+    String token = "close-stream-token-1";
+    ReadChangeStreamResponse.CloseStream closeStreamProto =
+        ReadChangeStreamResponse.CloseStream.newBuilder()
+            .addContinuationTokens(
+                StreamContinuationToken.newBuilder()
+                    .setPartition(StreamPartition.newBuilder().setRowRange(rowRange))
+                    .setToken(token))
+            .setStatus(status)
+            .build();
+    Assert.assertThrows(
+        IllegalStateException.class, (ThrowingRunnable) CloseStream.fromProto(closeStreamProto));
+  }
+
+  // Tests that a non-OK CloseStream should have continuation tokens.
+  @Test(expected = IllegalStateException.class)
+  public void closeStreamErrorWithoutContinuationTokenShouldFail() {
+    Status status = Status.newBuilder().setCode(11).build();
+    ReadChangeStreamResponse.CloseStream closeStreamProto =
+        ReadChangeStreamResponse.CloseStream.newBuilder().setStatus(status).build();
+    Assert.assertThrows(
+        IllegalStateException.class, (ThrowingRunnable) CloseStream.fromProto(closeStreamProto));
+  }
+
+  // Tests that the number of continuation tokens should match the number of new partitions.
+  @Test(expected = IllegalStateException.class)
+  public void closeStreamTokenAndNewPartitionCountMismatchedTest() {
+    Status status = Status.newBuilder().setCode(11).build();
+    RowRange rowRange =
+        RowRange.newBuilder()
+            .setStartKeyClosed(ByteString.copyFromUtf8(""))
+            .setEndKeyOpen(ByteString.copyFromUtf8("apple"))
+            .build();
+    String token = "close-stream-token-1";
+    ReadChangeStreamResponse.CloseStream closeStreamProto =
+        ReadChangeStreamResponse.CloseStream.newBuilder()
+            .addContinuationTokens(
+                StreamContinuationToken.newBuilder()
+                    .setPartition(StreamPartition.newBuilder().setRowRange(rowRange))
+                    .setToken(token))
+            .setStatus(status)
+            .build();
+    Assert.assertThrows(
+        IllegalStateException.class, (ThrowingRunnable) CloseStream.fromProto(closeStreamProto));
   }
 }

@@ -20,6 +20,7 @@ import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.common.Status;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import java.io.Serializable;
 import java.util.List;
@@ -38,6 +39,18 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
       com.google.rpc.Status status,
       List<ChangeStreamContinuationToken> changeStreamContinuationTokens,
       List<ByteStringRange> newPartitions) {
+    if (status.getCode() == 0) {
+      Preconditions.checkState(
+          changeStreamContinuationTokens.isEmpty(),
+          "An OK CloseStream should not have continuation tokens.");
+    } else {
+      Preconditions.checkState(
+          !changeStreamContinuationTokens.isEmpty(),
+          "A non-OK CloseStream should have continuation token(s).");
+      Preconditions.checkState(
+          changeStreamContinuationTokens.size() == newPartitions.size(),
+          "Number of continuation tokens does not match number of new partitions.");
+    }
     return new AutoValue_CloseStream(
         Status.fromProto(status), changeStreamContinuationTokens, newPartitions);
   }
