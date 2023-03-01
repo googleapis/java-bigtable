@@ -56,7 +56,8 @@ public class ReadChangeStreamResumptionStrategy<ChangeStreamRecordT>
   public ChangeStreamRecordT processResponse(ChangeStreamRecordT response) {
     // Update the token from a Heartbeat or a ChangeStreamMutation.
     // We don't worry about resumption after CloseStream, since the server
-    // will return an OK status right after sending a CloseStream.
+    // will close the stream with an OK status right after sending a CloseStream,
+    // no matter what status the CloseStream.Status is.
     if (changeStreamRecordAdapter.isHeartbeat(response)) {
       this.token = changeStreamRecordAdapter.getTokenFromHeartbeat(response);
     } else if (changeStreamRecordAdapter.isChangeStreamMutation(response)) {

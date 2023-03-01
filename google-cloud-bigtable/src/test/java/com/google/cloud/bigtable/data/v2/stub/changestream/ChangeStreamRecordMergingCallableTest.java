@@ -103,7 +103,7 @@ public class ChangeStreamRecordMergingCallableTest {
         ReadChangeStreamResponse.CloseStream.newBuilder()
             .addContinuationTokens(streamContinuationToken)
             .addNewPartitions(StreamPartition.newBuilder().setRowRange(rowRange))
-            .setStatus(Status.newBuilder().setCode(0).build())
+            .setStatus(Status.newBuilder().setCode(11))
             .build();
     ReadChangeStreamResponse response =
         ReadChangeStreamResponse.newBuilder().setCloseStream(closeStreamProto).build();
