@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.it;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.client.util.Lists;
@@ -90,8 +90,7 @@ public class BuiltinMetricsIT {
                 .getDataClient()
                 .readRows(Query.create(testEnvRule.env().getTableId()).limit(10)));
 
-    // Sleep 5 minutes so the metrics could be published and precomputation is done
-    Thread.sleep(Duration.ofMinutes(5).toMillis());
+    long currentTime = System.currentTimeMillis();
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
@@ -103,6 +102,8 @@ public class BuiltinMetricsIT {
             .setEndTime(Timestamps.fromMillis(System.currentTimeMillis()))
             .build();
 
+    ListTimeSeriesResponse response;
+    boolean waited = false;
     for (String view : VIEWS) {
       // Filter on instance and method name
       // Verify that metrics are published for MutateRow request
@@ -117,9 +118,19 @@ public class BuiltinMetricsIT {
               .setFilter(metricFilter)
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
-      ListTimeSeriesResponse response =
-          metricClient.listTimeSeriesCallable().call(requestBuilder.build());
-      assertThat(response.getTimeSeriesCount()).isGreaterThan(0);
+
+      if (!waited) {
+        do {
+          response = metricClient.listTimeSeriesCallable().call(requestBuilder.build());
+          waited = true;
+          // Call list timeseries every 10 seconds
+          Thread.sleep(10000);
+        } while (response.getTimeSeriesCount() == 0
+            && System.currentTimeMillis() - currentTime < Duration.ofMinutes(10).toMillis());
+        assertWithMessage("View " + view + " didn't return any data.")
+            .that(response.getTimeSeriesCount())
+            .isGreaterThan(0);
+      }
 
       // Verify that metrics are published for ReadRows request
       metricFilter =
@@ -128,8 +139,11 @@ public class BuiltinMetricsIT {
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\"",
               view, testEnvRule.env().getInstanceId());
       requestBuilder.setFilter(metricFilter);
+
       response = metricClient.listTimeSeriesCallable().call(requestBuilder.build());
-      assertThat(response.getTimeSeriesCount()).isGreaterThan(0);
+      assertWithMessage("View " + view + " didn't return any data.")
+          .that(response.getTimeSeriesCount())
+          .isGreaterThan(0);
     }
   }
 }

@@ -762,8 +762,8 @@
           <skipTests>${skipUnitTests}</skipTests>
 
           <!-- Enable concurrent test execution by default -->
-          <parallel>classes</parallel>
-          <threadCount>10</threadCount>
+          <forkCount>10</forkCount>
+          <reuseForks>false</reuseForks>
 
           <trimStackTrace>false</trimStackTrace>
         </configuration>
