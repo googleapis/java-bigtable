@@ -26,6 +26,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
+import com.google.common.base.Stopwatch;
 import com.google.monitoring.v3.ListTimeSeriesRequest;
 import com.google.monitoring.v3.ListTimeSeriesResponse;
 import com.google.monitoring.v3.ProjectName;
@@ -33,6 +34,7 @@ import com.google.monitoring.v3.TimeInterval;
 import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -90,7 +92,7 @@ public class BuiltinMetricsIT {
                 .getDataClient()
                 .readRows(Query.create(testEnvRule.env().getTableId()).limit(10)));
 
-    long currentTime = System.currentTimeMillis();
+    Stopwatch stopwatch = Stopwatch.createStarted();
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
@@ -102,8 +104,6 @@ public class BuiltinMetricsIT {
             .setEndTime(Timestamps.fromMillis(System.currentTimeMillis()))
             .build();
 
-    ListTimeSeriesResponse response;
-    boolean waited = false;
     for (String view : VIEWS) {
       // Filter on instance and method name
       // Verify that metrics are published for MutateRow request
@@ -119,18 +119,7 @@ public class BuiltinMetricsIT {
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
 
-      if (!waited) {
-        do {
-          response = metricClient.listTimeSeriesCallable().call(requestBuilder.build());
-          waited = true;
-          // Call list timeseries every 10 seconds
-          Thread.sleep(10000);
-        } while (response.getTimeSeriesCount() == 0
-            && System.currentTimeMillis() - currentTime < Duration.ofMinutes(10).toMillis());
-        assertWithMessage("View " + view + " didn't return any data.")
-            .that(response.getTimeSeriesCount())
-            .isGreaterThan(0);
-      }
+      verifyMetricsArePublished(requestBuilder.build(), stopwatch, view);
 
       // Verify that metrics are published for ReadRows request
       metricFilter =
@@ -140,10 +129,21 @@ public class BuiltinMetricsIT {
               view, testEnvRule.env().getInstanceId());
       requestBuilder.setFilter(metricFilter);
 
-      response = metricClient.listTimeSeriesCallable().call(requestBuilder.build());
-      assertWithMessage("View " + view + " didn't return any data.")
-          .that(response.getTimeSeriesCount())
-          .isGreaterThan(0);
+      verifyMetricsArePublished(requestBuilder.build(), stopwatch, view);
     }
+  }
+
+  private void verifyMetricsArePublished(
+      ListTimeSeriesRequest request, Stopwatch stopwatch, String view) throws Exception {
+    ListTimeSeriesResponse response;
+    do {
+      response = metricClient.listTimeSeriesCallable().call(request);
+      // Call listTimeSeries every 10 seconds
+      Thread.sleep(10000);
+    } while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10);
+
+    assertWithMessage("View " + view + " didn't return any data.")
+        .that(response.getTimeSeriesCount())
+        .isGreaterThan(0);
   }
 }
