@@ -35,6 +35,7 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -46,6 +47,8 @@ import org.threeten.bp.Duration;
 @RunWith(JUnit4.class)
 public class BuiltinMetricsIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+
+  private static Logger logger = Logger.getLogger(BuiltinMetricsIT.class.getName());
   public static MetricServiceClient metricClient;
 
   public static String[] VIEWS = {
@@ -138,6 +141,13 @@ public class BuiltinMetricsIT {
     ListTimeSeriesResponse response;
     do {
       response = metricClient.listTimeSeriesCallable().call(request);
+      logger.info(
+          "checking response for view: "
+              + view
+              + " stopwatch time: "
+              + stopwatch.elapsed()
+              + " response timeseries count:"
+              + response.getTimeSeriesCount());
       // Call listTimeSeries every 10 seconds
       Thread.sleep(10000);
     } while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10);
