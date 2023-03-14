@@ -35,7 +35,6 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -48,7 +47,6 @@ import org.threeten.bp.Duration;
 public class BuiltinMetricsIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  private static Logger logger = Logger.getLogger(BuiltinMetricsIT.class.getName());
   public static MetricServiceClient metricClient;
 
   public static String[] VIEWS = {
@@ -138,19 +136,12 @@ public class BuiltinMetricsIT {
 
   private void verifyMetricsArePublished(
       ListTimeSeriesRequest request, Stopwatch stopwatch, String view) throws Exception {
-    ListTimeSeriesResponse response;
-    do {
+    ListTimeSeriesResponse response = ListTimeSeriesResponse.getDefaultInstance();
+    while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10) {
       response = metricClient.listTimeSeriesCallable().call(request);
-      logger.info(
-          "checking response for view: "
-              + view
-              + " stopwatch time: "
-              + stopwatch.elapsed()
-              + " response timeseries count:"
-              + response.getTimeSeriesCount());
-      // Call listTimeSeries every 10 seconds
-      Thread.sleep(10000);
-    } while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10);
+      // Call listTimeSeries every minute
+      Thread.sleep(Duration.ofMinutes(1).toMillis());
+    }
 
     assertWithMessage("View " + view + " didn't return any data.")
         .that(response.getTimeSeriesCount())
