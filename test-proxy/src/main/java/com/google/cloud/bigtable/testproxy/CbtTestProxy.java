@@ -504,7 +504,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
         row.getCells().stream()
             .collect(
                 Collectors.groupingBy(
-                    RowCell::getFamily, Collectors.groupingBy(
+                    RowCell::getFamily,
+                    Collectors.groupingBy(
                         RowCell::getQualifier, LinkedHashMap::new, Collectors.toList())));
     for (Map.Entry<String, Map<ByteString, List<RowCell>>> e : grouped.entrySet()) {
       Family.Builder family = rowBuilder.addFamiliesBuilder().setName(e.getKey());
