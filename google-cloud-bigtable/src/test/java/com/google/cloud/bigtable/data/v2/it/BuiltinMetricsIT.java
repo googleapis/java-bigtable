@@ -19,6 +19,9 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.client.util.Lists;
+import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -26,6 +29,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
+import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.base.Stopwatch;
 import com.google.monitoring.v3.ListTimeSeriesRequest;
 import com.google.monitoring.v3.ListTimeSeriesResponse;
@@ -34,6 +38,7 @@ import com.google.monitoring.v3.TimeInterval;
 import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +56,9 @@ public class BuiltinMetricsIT {
 
   private static final Logger logger = Logger.getLogger(BuiltinMetricsIT.class.getName());
 
-  public static MetricServiceClient metricClient;
+  private static Table table;
+  private static BigtableTableAdminClient tableAdminClient;
+  private static MetricServiceClient metricClient;
 
   public static String[] VIEWS = {
     "operation_latencies",
@@ -70,8 +77,12 @@ public class BuiltinMetricsIT {
     // Enable built in metrics
     BigtableDataSettings.enableBuiltinMetrics();
 
+    MetricServiceSettings.Builder metricServiceSettings = MetricServiceSettings.newBuilder();
+    metricServiceSettings.listTimeSeriesSettings().setSimpleTimeoutNoRetries(Duration.ofMinutes(1));
     // Create a cloud monitoring client
-    metricClient = MetricServiceClient.create();
+    metricClient = MetricServiceClient.create(metricServiceSettings.build());
+
+    tableAdminClient = testEnvRule.env().getTableAdminClient();
   }
 
   @AfterClass
@@ -79,24 +90,26 @@ public class BuiltinMetricsIT {
     if (metricClient != null) {
       metricClient.close();
     }
+    if (table != null) {
+      tableAdminClient.deleteTable(table.getId());
+    }
   }
 
   @Test
   public void testBuiltinMetrics() throws Exception {
     logger.info("Started testing builtin metrics");
+    table =
+        tableAdminClient.createTable(
+            CreateTableRequest.of("metrics-test-" + UUID.randomUUID()).addFamily("cf"));
+    logger.info("Create table: " + table.getId());
     // Send a MutateRow and ReadRows request
     testEnvRule
         .env()
         .getDataClient()
-        .mutateRow(
-            RowMutation.create(testEnvRule.env().getTableId(), "a-new-key")
-                .setCell(testEnvRule.env().getFamilyId(), "q", "abc"));
+        .mutateRow(RowMutation.create(table.getId(), "a-new-key").setCell("cf", "q", "abc"));
     ArrayList<Row> rows =
         Lists.newArrayList(
-            testEnvRule
-                .env()
-                .getDataClient()
-                .readRows(Query.create(testEnvRule.env().getTableId()).limit(10)));
+            testEnvRule.env().getDataClient().readRows(Query.create(table.getId()).limit(10)));
 
     Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -117,8 +130,9 @@ public class BuiltinMetricsIT {
       String metricFilter =
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\"",
-              view, testEnvRule.env().getInstanceId());
+                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), table.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
               .setName(name.toString())
@@ -132,8 +146,9 @@ public class BuiltinMetricsIT {
       metricFilter =
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
-                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\"",
-              view, testEnvRule.env().getInstanceId());
+                  + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), table.getId());
       requestBuilder.setFilter(metricFilter);
 
       verifyMetricsArePublished(requestBuilder.build(), stopwatch, view);

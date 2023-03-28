@@ -761,10 +761,10 @@
           <!-- enable the ability to skip unit tests, while running integration tests -->
           <skipTests>${skipUnitTests}</skipTests>
 
-          <!-- Enable concurrent test execution by default -->
-<!--          <forkCount>4</forkCount>-->
-<!--          <reuseForks>false</reuseForks>-->
-
+          <!--Enable concurrent test execution by default-->
+          <forkCount>4</forkCount>
+          <reuseForks>false</reuseForks>
+          <redirectTestOutputToFile>false</redirectTestOutputToFile>
           <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
