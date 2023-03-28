@@ -97,12 +97,13 @@ public class BuiltinMetricsIT {
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
-    // Restrict time to last 10 minutes
+    // Restrict time to last 10 minutes and 5 minutes after the request
     long startMillis = System.currentTimeMillis() - Duration.ofMinutes(10).toMillis();
+    long endMillis = startMillis + Duration.ofMinutes(15).toMillis();
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(startMillis))
-            .setEndTime(Timestamps.fromMillis(System.currentTimeMillis()))
+            .setEndTime(Timestamps.fromMillis(endMillis))
             .build();
 
     for (String view : VIEWS) {
@@ -136,11 +137,11 @@ public class BuiltinMetricsIT {
 
   private void verifyMetricsArePublished(
       ListTimeSeriesRequest request, Stopwatch stopwatch, String view) throws Exception {
-    ListTimeSeriesResponse response = ListTimeSeriesResponse.getDefaultInstance();
+    ListTimeSeriesResponse response = metricClient.listTimeSeriesCallable().call(request);
     while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10) {
-      response = metricClient.listTimeSeriesCallable().call(request);
       // Call listTimeSeries every minute
       Thread.sleep(Duration.ofMinutes(1).toMillis());
+      response = metricClient.listTimeSeriesCallable().call(request);
     }
 
     assertWithMessage("View " + view + " didn't return any data.")
