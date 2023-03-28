@@ -35,6 +35,8 @@ import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -46,6 +48,8 @@ import org.threeten.bp.Duration;
 @RunWith(JUnit4.class)
 public class BuiltinMetricsIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+
+  private static final Logger logger = Logger.getLogger(BuiltinMetricsIT.class.getName());
 
   public static MetricServiceClient metricClient;
 
@@ -79,6 +83,7 @@ public class BuiltinMetricsIT {
 
   @Test
   public void testBuiltinMetrics() throws Exception {
+    logger.info("Started testing builtin metrics");
     // Send a MutateRow and ReadRows request
     testEnvRule
         .env()
@@ -138,6 +143,14 @@ public class BuiltinMetricsIT {
   private void verifyMetricsArePublished(
       ListTimeSeriesRequest request, Stopwatch stopwatch, String view) throws Exception {
     ListTimeSeriesResponse response = metricClient.listTimeSeriesCallable().call(request);
+    logger.log(
+        Level.INFO,
+        "Checking for view "
+            + view
+            + ", has timeseries="
+            + response.getTimeSeriesCount()
+            + " stopwatch elapsed "
+            + stopwatch.elapsed(TimeUnit.MINUTES));
     while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10) {
       // Call listTimeSeries every minute
       Thread.sleep(Duration.ofMinutes(1).toMillis());
