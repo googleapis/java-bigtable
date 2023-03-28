@@ -762,8 +762,8 @@
           <skipTests>${skipUnitTests}</skipTests>
 
           <!-- Enable concurrent test execution by default -->
-          <forkCount>4</forkCount>
-          <reuseForks>false</reuseForks>
+<!--          <forkCount>4</forkCount>-->
+<!--          <reuseForks>false</reuseForks>-->
 
           <trimStackTrace>false</trimStackTrace>
         </configuration>
