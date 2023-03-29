@@ -746,6 +746,10 @@
           <skip>true</skip>
 
           <!-- Enable concurrent test execution by default -->
+          <!-- Using processes instead of threads because BuiltinMetricsIT updates a global variable when
+           enabling metrics collection. It only works with cloud environment and will fail with permission
+           denied when running against emulators. Running in different processes make sure the state is
+           only set on the process for BuiltinMetricsIT test. -->
           <forkCount>4</forkCount>
           <reuseForks>false</reuseForks>
 
@@ -756,11 +760,12 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
+
         <configuration>
           <!-- enable the ability to skip unit tests, while running integration tests -->
           <skipTests>${skipUnitTests}</skipTests>
 
-          <!-- Enable concurrent test execution by default-->
+          <!-- Enable concurrent test execution by default -->
           <parallel>classes</parallel>
           <threadCount>10</threadCount>
 

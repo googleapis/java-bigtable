@@ -27,9 +27,9 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
+import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
-import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.base.Stopwatch;
 import com.google.monitoring.v3.ListTimeSeriesRequest;
 import com.google.monitoring.v3.ListTimeSeriesResponse;
@@ -38,7 +38,6 @@ import com.google.monitoring.v3.TimeInterval;
 import com.google.protobuf.util.Timestamps;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -80,10 +79,8 @@ public class BuiltinMetricsIT {
     // Enable built in metrics
     BigtableDataSettings.enableBuiltinMetrics();
 
-    MetricServiceSettings.Builder metricServiceSettings = MetricServiceSettings.newBuilder();
-    metricServiceSettings.listTimeSeriesSettings().setSimpleTimeoutNoRetries(Duration.ofMinutes(1));
     // Create a cloud monitoring client
-    metricClient = MetricServiceClient.create(metricServiceSettings.build());
+    metricClient = MetricServiceClient.create();
 
     tableAdminClient = testEnvRule.env().getTableAdminClient();
   }
@@ -103,7 +100,7 @@ public class BuiltinMetricsIT {
     logger.info("Started testing builtin metrics");
     table =
         tableAdminClient.createTable(
-            CreateTableRequest.of("metrics-test-" + UUID.randomUUID()).addFamily("cf"));
+            CreateTableRequest.of(PrefixGenerator.newPrefix("BuiltinMetricsIT#test")));
     logger.info("Create table: " + table.getId());
     // Send a MutateRow and ReadRows request
     testEnvRule
