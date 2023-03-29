@@ -45,7 +45,9 @@ import java.util.logging.Logger;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.threeten.bp.Duration;
@@ -56,6 +58,7 @@ public class BuiltinMetricsIT {
 
   private static final Logger logger = Logger.getLogger(BuiltinMetricsIT.class.getName());
 
+  @Rule public Timeout globalTimeout = Timeout.seconds(900);
   private static Table table;
   private static BigtableTableAdminClient tableAdminClient;
   private static MetricServiceClient metricClient;

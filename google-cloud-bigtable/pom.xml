@@ -746,8 +746,8 @@
           <skip>true</skip>
 
           <!-- Enable concurrent test execution by default -->
-          <parallel>classes</parallel>
-          <threadCount>10</threadCount>
+          <forkCount>4</forkCount>
+          <reuseForks>false</reuseForks>
 
           <!-- print full stacktraces by default -->
           <trimStackTrace>false</trimStackTrace>
@@ -756,15 +756,13 @@
 
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-
         <configuration>
           <!-- enable the ability to skip unit tests, while running integration tests -->
           <skipTests>${skipUnitTests}</skipTests>
-
           <!--Enable concurrent test execution by default-->
-          <forkCount>4</forkCount>
-          <reuseForks>false</reuseForks>
-          <redirectTestOutputToFile>false</redirectTestOutputToFile>
+          <parallel>classes</parallel>
+          <threadCount>10</threadCount>
+
           <trimStackTrace>false</trimStackTrace>
         </configuration>
       </plugin>
