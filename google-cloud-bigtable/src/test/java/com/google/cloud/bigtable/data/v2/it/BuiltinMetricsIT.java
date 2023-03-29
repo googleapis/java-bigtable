@@ -100,7 +100,8 @@ public class BuiltinMetricsIT {
     logger.info("Started testing builtin metrics");
     table =
         tableAdminClient.createTable(
-            CreateTableRequest.of(PrefixGenerator.newPrefix("BuiltinMetricsIT#test")));
+            CreateTableRequest.of(PrefixGenerator.newPrefix("BuiltinMetricsIT#test"))
+                .addFamily("cf"));
     logger.info("Create table: " + table.getId());
     // Send a MutateRow and ReadRows request
     testEnvRule
