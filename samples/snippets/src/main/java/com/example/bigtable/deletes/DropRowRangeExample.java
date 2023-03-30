@@ -20,7 +20,7 @@ package com.example.bigtable.deletes;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import java.io.IOException;
 
-public class DeleteDropRowRangeExample {
+public class DropRowRangeExample {
   public void dropRowRange(String projectId, String instanceId, String tableId) throws IOException {
     try (BigtableTableAdminClient tableAdminClient =
         BigtableTableAdminClient.create(projectId, instanceId)) {

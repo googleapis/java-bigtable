@@ -131,8 +131,8 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
 
     Truth.assertThat(rowCount).isGreaterThan(1);
 
-    DeleteDropRowRangeExample deleteDropRowRangeExample = new DeleteDropRowRangeExample();
-    deleteDropRowRangeExample.dropRowRange(projectId, instanceId, TABLE_ID);
+    DropRowRangeExample dropRowRangeExample = new DropRowRangeExample();
+    dropRowRangeExample.dropRowRange(projectId, instanceId, TABLE_ID);
     rows = bigtableDataClient.readRows(query);
     rowCount = 0;
     for (Row ignored : rows) {
