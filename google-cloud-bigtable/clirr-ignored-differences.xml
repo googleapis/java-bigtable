@@ -39,6 +39,11 @@
         <differenceType>8001</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/CompositeTracerFactory</className>
     </difference>
+    <!-- InternalApi was renamed -->
+    <difference>
+        <differenceType>8001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/readrows/ReadRowsConvertExceptionCallable</className>
+    </difference>
     <!-- InternalApi that was removed -->
     <difference>
         <differenceType>8001</differenceType>
@@ -80,5 +85,53 @@
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/gaxx/reframing/ReframingResponseObserver</className>
         <to>com/google/api/gax/rpc/StateCheckingResponseObserver</to>
+    </difference>
+    <!-- change method return type is ok because Heartbeat is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/Heartbeat</className>
+        <method>*getEstimatedLowWatermark*</method>
+        <to>org.threeten.bp.Instant</to>
+    </difference>
+    <!-- change method return type is ok because CloseStream is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/CloseStream</className>
+        <method>*getStatus*</method>
+        <to>com.google.cloud.bigtable.common.Status</to>
+    </difference>
+    <!-- add new method is ok because CloseStream is InternalApi -->
+    <difference>
+        <differenceType>7013</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/CloseStream</className>
+        <method>*getNewPartitions*</method>
+    </difference>
+    <!-- change method return type is ok because ChangeStreamMutation is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/ChangeStreamMutation</className>
+        <method>*getCommitTimestamp*</method>
+        <to>org.threeten.bp.Instant</to>
+    </difference>
+    <!-- change method return type is ok because ChangeStreamMutation is InternalApi -->
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/ChangeStreamMutation</className>
+        <method>*getEstimatedLowWatermark*</method>
+        <to>org.threeten.bp.Instant</to>
+    </difference>
+    <!-- change method argument type is ok because ChangeStreamRecordAdapter is InternalApi -->
+    <difference>
+        <differenceType>7005</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/ChangeStreamRecordAdapter$ChangeStreamRecordBuilder</className>
+        <method>*</method>
+        <to>*</to>
+    </difference>
+    <!-- change method argument type is ok because ReadChangeStreamQuery is InternalApi -->
+    <difference>
+        <differenceType>7005</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/ReadChangeStreamQuery</className>
+        <method>*</method>
+        <to>*</to>
     </difference>
 </differences>

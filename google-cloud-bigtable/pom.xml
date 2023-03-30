@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.14.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+  <version>2.20.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable</name>
   <url>https://github.com/googleapis/java-bigtable</url>
@@ -12,11 +12,11 @@
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable-parent</artifactId>
-    <version>2.14.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.20.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <!-- The version that will be embedded in the published jar via maven-resources-plugin -->
-    <java-bigtable.version>2.14.2-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <java-bigtable.version>2.20.2-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
 
     <site.installationModule>google-cloud-bigtable</site.installationModule>
 
@@ -36,6 +36,12 @@
     <!-- This is used by bigtable-prod-batch-it profile to ensure that tests work on the batch endpoint.
      Also, this property will be augmented by `internal-bigtable-prod-batch-it-prop-helper` profile -->
     <bigtable.cfe-data-batch-endpoint>batch-bigtable.googleapis.com:443</bigtable.cfe-data-batch-endpoint>
+
+    <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. We have enforcer rule
+     below to make sure that the versions here match the ones we pull in via the shared bom. -->
+    <grpc.version>1.53.0</grpc.version>
+    <protobuf.version>3.21.12</protobuf.version>
+    <protoc.version>${protobuf.version}</protoc.version>
   </properties>
 
   <dependencyManagement>
@@ -43,14 +49,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-        <version>2.14.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.20.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-bom</artifactId>
-        <version>2.14.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.20.2-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -268,6 +274,13 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-monitoring</artifactId>
+      <exclusions>
+        <exclusion>
+          <!-- using the perfmark version in opencensus -->
+          <groupId>io.perfmark</groupId>
+          <artifactId>perfmark-api</artifactId>
+        </exclusion>
+      </exclusions>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -586,7 +599,63 @@
   </profiles>
 
   <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.6.0</version>
+      </extension>
+    </extensions>
     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>enforce-declared-grpc-and-proto-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <bannedDependencies>
+                  <includes>
+                    <dependency>io.grpc:*:[${grpc.version}]</dependency>
+                    <dependency>com.google.protobuf:*:[${protobuf.version}]</dependency>
+                  </includes>
+                  <excludes>
+                    <dependency>io.grpc:*</dependency>
+                    <dependency>com.google.protobuf:*</dependency>
+                  </excludes>
+                </bannedDependencies>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.xolstice.maven.plugins</groupId>
+        <artifactId>protobuf-maven-plugin</artifactId>
+        <version>0.6.1</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-compile</goal>
+              <goal>test-compile-custom</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <protocArtifact>
+            com.google.protobuf:protoc:${protoc.version}:exe:${os.detected.classifier}
+          </protocArtifact>
+          <pluginId>grpc-java</pluginId>
+          <pluginArtifact>
+            io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
+          </pluginArtifact>
+        </configuration>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -609,7 +678,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.2.1</version>
         <executions>
           <!-- Prevent users from mistyping a profile name -->
           <execution>
@@ -644,12 +713,12 @@
           <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>extra-enforcer-rules</artifactId>
-            <version>1.6.1</version>
+            <version>1.6.2</version>
           </dependency>
           <dependency>
             <groupId>org.apache.maven.shared</groupId>
             <artifactId>maven-dependency-tree</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.1</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -677,8 +746,12 @@
           <skip>true</skip>
 
           <!-- Enable concurrent test execution by default -->
-          <parallel>classes</parallel>
-          <threadCount>10</threadCount>
+          <!-- Using processes instead of threads because BuiltinMetricsIT updates a global variable when
+           enabling metrics collection. It only works with cloud environment and will fail with permission
+           denied when running against emulators. Running in different processes make sure the state is
+           only set on the process for BuiltinMetricsIT test. -->
+          <forkCount>4</forkCount>
+          <reuseForks>false</reuseForks>
 
           <!-- print full stacktraces by default -->
           <trimStackTrace>false</trimStackTrace>

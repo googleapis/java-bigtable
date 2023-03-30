@@ -15,12 +15,12 @@
  */
 package com.google.cloud.bigtable.data.v2;
 
-import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
@@ -124,17 +124,13 @@ public final class BigtableDataSettings {
         .stubSettings()
         .setCredentialsProvider(NoCredentialsProvider.create())
         .setEndpoint(hostname + ":" + port)
+        // disable channel refreshing when creating an emulator
+        .setRefreshingChannel(false)
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()
                 .setMaxInboundMessageSize(256 * 1024 * 1024)
-                .setPoolSize(1)
-                .setChannelConfigurator(
-                    new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
-                      @Override
-                      public ManagedChannelBuilder apply(ManagedChannelBuilder input) {
-                        return input.usePlaintext();
-                      }
-                    })
+                .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
+                .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
                 .setKeepAliveTime(Duration.ofSeconds(61)) // sends ping in this interval
                 .setKeepAliveTimeout(
                     Duration.ofSeconds(10)) // wait this long before considering the connection dead
@@ -244,8 +240,12 @@ public final class BigtableDataSettings {
     return stubSettings.getAppProfileId();
   }
 
-  /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-  @BetaApi("Channel priming is not currently stable and may change in the future")
+  /**
+   * Gets if channels will gracefully refresh connections to Cloud Bigtable service
+   *
+   * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+   */
+  @Deprecated
   public boolean isRefreshingChannel() {
     return stubSettings.isRefreshingChannel();
   }
@@ -395,19 +395,25 @@ public final class BigtableDataSettings {
     /**
      * Configure periodic gRPC channel refreshes.
      *
-     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is an
-     * experimental feature to address tail latency caused by the service dropping long lived gRPC
-     * connections, which causes the client to renegotiate the gRPC connection in the request path,
-     * which causes periodic spikes in latency
+     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is a
+     * feature to address tail latency caused by the service dropping long lived gRPC connections,
+     * which causes the client to renegotiate the gRPC connection in the request path, which causes
+     * periodic spikes in latency.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    @Deprecated
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       stubSettings.setRefreshingChannel(isRefreshingChannel);
       return this;
     }
 
-    /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    /**
+     * Gets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+     */
+    @Deprecated
     public boolean isRefreshingChannel() {
       return stubSettings.isRefreshingChannel();
     }

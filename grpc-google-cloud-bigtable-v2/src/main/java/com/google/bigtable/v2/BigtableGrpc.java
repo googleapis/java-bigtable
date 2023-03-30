@@ -334,6 +334,104 @@ public final class BigtableGrpc {
     return getReadModifyWriteRowMethod;
   }
 
+  private static volatile io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest,
+          com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+      getGenerateInitialChangeStreamPartitionsMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "GenerateInitialChangeStreamPartitions",
+      requestType = com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest.class,
+      responseType = com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest,
+          com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+      getGenerateInitialChangeStreamPartitionsMethod() {
+    io.grpc.MethodDescriptor<
+            com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest,
+            com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+        getGenerateInitialChangeStreamPartitionsMethod;
+    if ((getGenerateInitialChangeStreamPartitionsMethod =
+            BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod)
+        == null) {
+      synchronized (BigtableGrpc.class) {
+        if ((getGenerateInitialChangeStreamPartitionsMethod =
+                BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod)
+            == null) {
+          BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod =
+              getGenerateInitialChangeStreamPartitionsMethod =
+                  io.grpc.MethodDescriptor
+                      .<com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest,
+                          com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+                          newBuilder()
+                      .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+                      .setFullMethodName(
+                          generateFullMethodName(
+                              SERVICE_NAME, "GenerateInitialChangeStreamPartitions"))
+                      .setSampledToLocalTracing(true)
+                      .setRequestMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest
+                                  .getDefaultInstance()))
+                      .setResponseMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse
+                                  .getDefaultInstance()))
+                      .setSchemaDescriptor(
+                          new BigtableMethodDescriptorSupplier(
+                              "GenerateInitialChangeStreamPartitions"))
+                      .build();
+        }
+      }
+    }
+    return getGenerateInitialChangeStreamPartitionsMethod;
+  }
+
+  private static volatile io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ReadChangeStreamRequest,
+          com.google.bigtable.v2.ReadChangeStreamResponse>
+      getReadChangeStreamMethod;
+
+  @io.grpc.stub.annotations.RpcMethod(
+      fullMethodName = SERVICE_NAME + '/' + "ReadChangeStream",
+      requestType = com.google.bigtable.v2.ReadChangeStreamRequest.class,
+      responseType = com.google.bigtable.v2.ReadChangeStreamResponse.class,
+      methodType = io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+  public static io.grpc.MethodDescriptor<
+          com.google.bigtable.v2.ReadChangeStreamRequest,
+          com.google.bigtable.v2.ReadChangeStreamResponse>
+      getReadChangeStreamMethod() {
+    io.grpc.MethodDescriptor<
+            com.google.bigtable.v2.ReadChangeStreamRequest,
+            com.google.bigtable.v2.ReadChangeStreamResponse>
+        getReadChangeStreamMethod;
+    if ((getReadChangeStreamMethod = BigtableGrpc.getReadChangeStreamMethod) == null) {
+      synchronized (BigtableGrpc.class) {
+        if ((getReadChangeStreamMethod = BigtableGrpc.getReadChangeStreamMethod) == null) {
+          BigtableGrpc.getReadChangeStreamMethod =
+              getReadChangeStreamMethod =
+                  io.grpc.MethodDescriptor
+                      .<com.google.bigtable.v2.ReadChangeStreamRequest,
+                          com.google.bigtable.v2.ReadChangeStreamResponse>
+                          newBuilder()
+                      .setType(io.grpc.MethodDescriptor.MethodType.SERVER_STREAMING)
+                      .setFullMethodName(generateFullMethodName(SERVICE_NAME, "ReadChangeStream"))
+                      .setSampledToLocalTracing(true)
+                      .setRequestMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ReadChangeStreamRequest.getDefaultInstance()))
+                      .setResponseMarshaller(
+                          io.grpc.protobuf.ProtoUtils.marshaller(
+                              com.google.bigtable.v2.ReadChangeStreamResponse.getDefaultInstance()))
+                      .setSchemaDescriptor(new BigtableMethodDescriptorSupplier("ReadChangeStream"))
+                      .build();
+        }
+      }
+    }
+    return getReadChangeStreamMethod;
+  }
+
   /** Creates a new async stub that supports all call types for the service */
   public static BigtableStub newStub(io.grpc.Channel channel) {
     io.grpc.stub.AbstractStub.StubFactory<BigtableStub> factory =
@@ -381,7 +479,7 @@ public final class BigtableGrpc {
    * Service for reading from and writing to existing Bigtable tables.
    * </pre>
    */
-  public abstract static class BigtableImplBase implements io.grpc.BindableService {
+  public interface AsyncService {
 
     /**
      *
@@ -394,7 +492,7 @@ public final class BigtableGrpc {
      * ReadRowsResponse documentation for details.
      * </pre>
      */
-    public void readRows(
+    default void readRows(
         com.google.bigtable.v2.ReadRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadRowsResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getReadRowsMethod(), responseObserver);
@@ -410,7 +508,7 @@ public final class BigtableGrpc {
      * mapreduces.
      * </pre>
      */
-    public void sampleRowKeys(
+    default void sampleRowKeys(
         com.google.bigtable.v2.SampleRowKeysRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.SampleRowKeysResponse>
             responseObserver) {
@@ -426,7 +524,7 @@ public final class BigtableGrpc {
      * unchanged unless explicitly changed by `mutation`.
      * </pre>
      */
-    public void mutateRow(
+    default void mutateRow(
         com.google.bigtable.v2.MutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getMutateRowMethod(), responseObserver);
@@ -441,7 +539,7 @@ public final class BigtableGrpc {
      * atomically.
      * </pre>
      */
-    public void mutateRows(
+    default void mutateRows(
         com.google.bigtable.v2.MutateRowsRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.MutateRowsResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getMutateRowsMethod(), responseObserver);
@@ -454,7 +552,7 @@ public final class BigtableGrpc {
      * Mutates a row atomically based on the output of a predicate Reader filter.
      * </pre>
      */
-    public void checkAndMutateRow(
+    default void checkAndMutateRow(
         com.google.bigtable.v2.CheckAndMutateRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.CheckAndMutateRowResponse>
             responseObserver) {
@@ -470,7 +568,7 @@ public final class BigtableGrpc {
      * This call is not required but may be useful for connection keep-alive.
      * </pre>
      */
-    public void pingAndWarm(
+    default void pingAndWarm(
         com.google.bigtable.v2.PingAndWarmRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.PingAndWarmResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(
@@ -488,7 +586,7 @@ public final class BigtableGrpc {
      * time. The method returns the new contents of all modified cells.
      * </pre>
      */
-    public void readModifyWriteRow(
+    default void readModifyWriteRow(
         com.google.bigtable.v2.ReadModifyWriteRowRequest request,
         io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadModifyWriteRowResponse>
             responseObserver) {
@@ -496,60 +594,61 @@ public final class BigtableGrpc {
           getReadModifyWriteRowMethod(), responseObserver);
     }
 
-    @java.lang.Override
-    public final io.grpc.ServerServiceDefinition bindService() {
-      return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
-          .addMethod(
-              getReadRowsMethod(),
-              io.grpc.stub.ServerCalls.asyncServerStreamingCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.ReadRowsRequest,
-                      com.google.bigtable.v2.ReadRowsResponse>(this, METHODID_READ_ROWS)))
-          .addMethod(
-              getSampleRowKeysMethod(),
-              io.grpc.stub.ServerCalls.asyncServerStreamingCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.SampleRowKeysRequest,
-                      com.google.bigtable.v2.SampleRowKeysResponse>(
-                      this, METHODID_SAMPLE_ROW_KEYS)))
-          .addMethod(
-              getMutateRowMethod(),
-              io.grpc.stub.ServerCalls.asyncUnaryCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.MutateRowRequest,
-                      com.google.bigtable.v2.MutateRowResponse>(this, METHODID_MUTATE_ROW)))
-          .addMethod(
-              getMutateRowsMethod(),
-              io.grpc.stub.ServerCalls.asyncServerStreamingCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.MutateRowsRequest,
-                      com.google.bigtable.v2.MutateRowsResponse>(this, METHODID_MUTATE_ROWS)))
-          .addMethod(
-              getCheckAndMutateRowMethod(),
-              io.grpc.stub.ServerCalls.asyncUnaryCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.CheckAndMutateRowRequest,
-                      com.google.bigtable.v2.CheckAndMutateRowResponse>(
-                      this, METHODID_CHECK_AND_MUTATE_ROW)))
-          .addMethod(
-              getPingAndWarmMethod(),
-              io.grpc.stub.ServerCalls.asyncUnaryCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.PingAndWarmRequest,
-                      com.google.bigtable.v2.PingAndWarmResponse>(this, METHODID_PING_AND_WARM)))
-          .addMethod(
-              getReadModifyWriteRowMethod(),
-              io.grpc.stub.ServerCalls.asyncUnaryCall(
-                  new MethodHandlers<
-                      com.google.bigtable.v2.ReadModifyWriteRowRequest,
-                      com.google.bigtable.v2.ReadModifyWriteRowResponse>(
-                      this, METHODID_READ_MODIFY_WRITE_ROW)))
-          .build();
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    default void generateInitialChangeStreamPartitions(
+        com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest request,
+        io.grpc.stub.StreamObserver<
+                com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+            responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(
+          getGenerateInitialChangeStreamPartitionsMethod(), responseObserver);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    default void readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>
+            responseObserver) {
+      io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(
+          getReadChangeStreamMethod(), responseObserver);
     }
   }
 
   /**
+   * Base class for the server implementation of the service Bigtable.
    *
+   * <pre>
+   * Service for reading from and writing to existing Bigtable tables.
+   * </pre>
+   */
+  public abstract static class BigtableImplBase implements io.grpc.BindableService, AsyncService {
+
+    @java.lang.Override
+    public final io.grpc.ServerServiceDefinition bindService() {
+      return BigtableGrpc.bindService(this);
+    }
+  }
+
+  /**
+   * A stub to allow clients to do asynchronous rpc calls to service Bigtable.
    *
    * <pre>
    * Service for reading from and writing to existing Bigtable tables.
@@ -688,10 +787,51 @@ public final class BigtableGrpc {
           request,
           responseObserver);
     }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    public void generateInitialChangeStreamPartitions(
+        com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest request,
+        io.grpc.stub.StreamObserver<
+                com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+            responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getGenerateInitialChangeStreamPartitionsMethod(), getCallOptions()),
+          request,
+          responseObserver);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    public void readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request,
+        io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>
+            responseObserver) {
+      io.grpc.stub.ClientCalls.asyncServerStreamingCall(
+          getChannel().newCall(getReadChangeStreamMethod(), getCallOptions()),
+          request,
+          responseObserver);
+    }
   }
 
   /**
-   *
+   * A stub to allow clients to do synchronous rpc calls to service Bigtable.
    *
    * <pre>
    * Service for reading from and writing to existing Bigtable tables.
@@ -813,10 +953,46 @@ public final class BigtableGrpc {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getReadModifyWriteRowMethod(), getCallOptions(), request);
     }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Returns the current list of partitions that make up the table's
+     * change stream. The union of partitions will cover the entire keyspace.
+     * Partitions can be read with `ReadChangeStream`.
+     * </pre>
+     */
+    public java.util.Iterator<com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>
+        generateInitialChangeStreamPartitions(
+            com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(),
+          getGenerateInitialChangeStreamPartitionsMethod(),
+          getCallOptions(),
+          request);
+    }
+
+    /**
+     *
+     *
+     * <pre>
+     * NOTE: This API is intended to be used by Apache Beam BigtableIO.
+     * Reads changes from a table's change stream. Changes will
+     * reflect both user-initiated mutations and mutations that are caused by
+     * garbage collection.
+     * </pre>
+     */
+    public java.util.Iterator<com.google.bigtable.v2.ReadChangeStreamResponse> readChangeStream(
+        com.google.bigtable.v2.ReadChangeStreamRequest request) {
+      return io.grpc.stub.ClientCalls.blockingServerStreamingCall(
+          getChannel(), getReadChangeStreamMethod(), getCallOptions(), request);
+    }
   }
 
   /**
-   *
+   * A stub to allow clients to do ListenableFuture-style rpc calls to service Bigtable.
    *
    * <pre>
    * Service for reading from and writing to existing Bigtable tables.
@@ -903,16 +1079,18 @@ public final class BigtableGrpc {
   private static final int METHODID_CHECK_AND_MUTATE_ROW = 4;
   private static final int METHODID_PING_AND_WARM = 5;
   private static final int METHODID_READ_MODIFY_WRITE_ROW = 6;
+  private static final int METHODID_GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS = 7;
+  private static final int METHODID_READ_CHANGE_STREAM = 8;
 
   private static final class MethodHandlers<Req, Resp>
       implements io.grpc.stub.ServerCalls.UnaryMethod<Req, Resp>,
           io.grpc.stub.ServerCalls.ServerStreamingMethod<Req, Resp>,
           io.grpc.stub.ServerCalls.ClientStreamingMethod<Req, Resp>,
           io.grpc.stub.ServerCalls.BidiStreamingMethod<Req, Resp> {
-    private final BigtableImplBase serviceImpl;
+    private final AsyncService serviceImpl;
     private final int methodId;
 
-    MethodHandlers(BigtableImplBase serviceImpl, int methodId) {
+    MethodHandlers(AsyncService serviceImpl, int methodId) {
       this.serviceImpl = serviceImpl;
       this.methodId = methodId;
     }
@@ -963,6 +1141,19 @@ public final class BigtableGrpc {
               (io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadModifyWriteRowResponse>)
                   responseObserver);
           break;
+        case METHODID_GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS:
+          serviceImpl.generateInitialChangeStreamPartitions(
+              (com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest) request,
+              (io.grpc.stub.StreamObserver<
+                      com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>)
+                  responseObserver);
+          break;
+        case METHODID_READ_CHANGE_STREAM:
+          serviceImpl.readChangeStream(
+              (com.google.bigtable.v2.ReadChangeStreamRequest) request,
+              (io.grpc.stub.StreamObserver<com.google.bigtable.v2.ReadChangeStreamResponse>)
+                  responseObserver);
+          break;
         default:
           throw new AssertionError();
       }
@@ -977,6 +1168,70 @@ public final class BigtableGrpc {
           throw new AssertionError();
       }
     }
+  }
+
+  public static final io.grpc.ServerServiceDefinition bindService(AsyncService service) {
+    return io.grpc.ServerServiceDefinition.builder(getServiceDescriptor())
+        .addMethod(
+            getReadRowsMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.ReadRowsRequest,
+                    com.google.bigtable.v2.ReadRowsResponse>(service, METHODID_READ_ROWS)))
+        .addMethod(
+            getSampleRowKeysMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.SampleRowKeysRequest,
+                    com.google.bigtable.v2.SampleRowKeysResponse>(
+                    service, METHODID_SAMPLE_ROW_KEYS)))
+        .addMethod(
+            getMutateRowMethod(),
+            io.grpc.stub.ServerCalls.asyncUnaryCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.MutateRowRequest,
+                    com.google.bigtable.v2.MutateRowResponse>(service, METHODID_MUTATE_ROW)))
+        .addMethod(
+            getMutateRowsMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.MutateRowsRequest,
+                    com.google.bigtable.v2.MutateRowsResponse>(service, METHODID_MUTATE_ROWS)))
+        .addMethod(
+            getCheckAndMutateRowMethod(),
+            io.grpc.stub.ServerCalls.asyncUnaryCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.CheckAndMutateRowRequest,
+                    com.google.bigtable.v2.CheckAndMutateRowResponse>(
+                    service, METHODID_CHECK_AND_MUTATE_ROW)))
+        .addMethod(
+            getPingAndWarmMethod(),
+            io.grpc.stub.ServerCalls.asyncUnaryCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.PingAndWarmRequest,
+                    com.google.bigtable.v2.PingAndWarmResponse>(service, METHODID_PING_AND_WARM)))
+        .addMethod(
+            getReadModifyWriteRowMethod(),
+            io.grpc.stub.ServerCalls.asyncUnaryCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.ReadModifyWriteRowRequest,
+                    com.google.bigtable.v2.ReadModifyWriteRowResponse>(
+                    service, METHODID_READ_MODIFY_WRITE_ROW)))
+        .addMethod(
+            getGenerateInitialChangeStreamPartitionsMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest,
+                    com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse>(
+                    service, METHODID_GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS)))
+        .addMethod(
+            getReadChangeStreamMethod(),
+            io.grpc.stub.ServerCalls.asyncServerStreamingCall(
+                new MethodHandlers<
+                    com.google.bigtable.v2.ReadChangeStreamRequest,
+                    com.google.bigtable.v2.ReadChangeStreamResponse>(
+                    service, METHODID_READ_CHANGE_STREAM)))
+        .build();
   }
 
   private abstract static class BigtableBaseDescriptorSupplier
@@ -1032,6 +1287,8 @@ public final class BigtableGrpc {
                       .addMethod(getCheckAndMutateRowMethod())
                       .addMethod(getPingAndWarmMethod())
                       .addMethod(getReadModifyWriteRowMethod())
+                      .addMethod(getGenerateInitialChangeStreamPartitionsMethod())
+                      .addMethod(getReadChangeStreamMethod())
                       .build();
         }
       }

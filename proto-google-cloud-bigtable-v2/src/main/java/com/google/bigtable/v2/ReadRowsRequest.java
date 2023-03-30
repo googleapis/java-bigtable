@@ -105,23 +105,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * Include stats related to the efficiency of the read.
-     * </pre>
-     *
-     * <code>REQUEST_STATS_EFFICIENCY = 2;</code>
-     */
-    REQUEST_STATS_EFFICIENCY(2),
-    /**
-     *
-     *
-     * <pre>
      * Include the full set of available RequestStats in the response,
      * applicable to this read.
      * </pre>
      *
-     * <code>REQUEST_STATS_FULL = 3;</code>
+     * <code>REQUEST_STATS_FULL = 2;</code>
      */
-    REQUEST_STATS_FULL(3),
+    REQUEST_STATS_FULL(2),
     UNRECOGNIZED(-1),
     ;
 
@@ -150,23 +140,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * Include stats related to the efficiency of the read.
-     * </pre>
-     *
-     * <code>REQUEST_STATS_EFFICIENCY = 2;</code>
-     */
-    public static final int REQUEST_STATS_EFFICIENCY_VALUE = 2;
-    /**
-     *
-     *
-     * <pre>
      * Include the full set of available RequestStats in the response,
      * applicable to this read.
      * </pre>
      *
-     * <code>REQUEST_STATS_FULL = 3;</code>
+     * <code>REQUEST_STATS_FULL = 2;</code>
      */
-    public static final int REQUEST_STATS_FULL_VALUE = 3;
+    public static final int REQUEST_STATS_FULL_VALUE = 2;
 
     public final int getNumber() {
       if (this == UNRECOGNIZED) {
@@ -197,8 +177,6 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
         case 1:
           return REQUEST_STATS_NONE;
         case 2:
-          return REQUEST_STATS_EFFICIENCY;
-        case 3:
           return REQUEST_STATS_FULL;
         default:
           return null;
@@ -256,7 +234,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int TABLE_NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object tableName_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object tableName_ = "";
   /**
    *
    *
@@ -313,7 +293,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int APP_PROFILE_ID_FIELD_NUMBER = 5;
-  private volatile java.lang.Object appProfileId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object appProfileId_ = "";
   /**
    *
    *
@@ -409,7 +391,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.RowSetOrBuilder getRowsOrBuilder() {
-    return getRows();
+    return rows_ == null ? com.google.bigtable.v2.RowSet.getDefaultInstance() : rows_;
   }
 
   public static final int FILTER_FIELD_NUMBER = 3;
@@ -458,11 +440,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.RowFilterOrBuilder getFilterOrBuilder() {
-    return getFilter();
+    return filter_ == null ? com.google.bigtable.v2.RowFilter.getDefaultInstance() : filter_;
   }
 
   public static final int ROWS_LIMIT_FIELD_NUMBER = 4;
-  private long rowsLimit_;
+  private long rowsLimit_ = 0L;
   /**
    *
    *
@@ -481,7 +463,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int REQUEST_STATS_VIEW_FIELD_NUMBER = 6;
-  private int requestStatsView_;
+  private int requestStatsView_ = 0;
   /**
    *
    *
@@ -510,9 +492,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.v2.ReadRowsRequest.RequestStatsView result =
-        com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.valueOf(requestStatsView_);
+        com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.forNumber(requestStatsView_);
     return result == null
         ? com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.UNRECOGNIZED
         : result;
@@ -773,26 +754,21 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       tableName_ = "";
-
       appProfileId_ = "";
-
-      if (rowsBuilder_ == null) {
-        rows_ = null;
-      } else {
-        rows_ = null;
+      rows_ = null;
+      if (rowsBuilder_ != null) {
+        rowsBuilder_.dispose();
         rowsBuilder_ = null;
       }
-      if (filterBuilder_ == null) {
-        filter_ = null;
-      } else {
-        filter_ = null;
+      filter_ = null;
+      if (filterBuilder_ != null) {
+        filterBuilder_.dispose();
         filterBuilder_ = null;
       }
       rowsLimit_ = 0L;
-
       requestStatsView_ = 0;
-
       return this;
     }
 
@@ -820,22 +796,33 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public com.google.bigtable.v2.ReadRowsRequest buildPartial() {
       com.google.bigtable.v2.ReadRowsRequest result =
           new com.google.bigtable.v2.ReadRowsRequest(this);
-      result.tableName_ = tableName_;
-      result.appProfileId_ = appProfileId_;
-      if (rowsBuilder_ == null) {
-        result.rows_ = rows_;
-      } else {
-        result.rows_ = rowsBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (filterBuilder_ == null) {
-        result.filter_ = filter_;
-      } else {
-        result.filter_ = filterBuilder_.build();
-      }
-      result.rowsLimit_ = rowsLimit_;
-      result.requestStatsView_ = requestStatsView_;
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadRowsRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.tableName_ = tableName_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.appProfileId_ = appProfileId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.rows_ = rowsBuilder_ == null ? rows_ : rowsBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.filter_ = filterBuilder_ == null ? filter_ : filterBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.rowsLimit_ = rowsLimit_;
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.requestStatsView_ = requestStatsView_;
+      }
     }
 
     @java.lang.Override
@@ -885,10 +872,12 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (other == com.google.bigtable.v2.ReadRowsRequest.getDefaultInstance()) return this;
       if (!other.getTableName().isEmpty()) {
         tableName_ = other.tableName_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getAppProfileId().isEmpty()) {
         appProfileId_ = other.appProfileId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasRows()) {
@@ -932,37 +921,37 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
             case 10:
               {
                 tableName_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 input.readMessage(getRowsFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 18
             case 26:
               {
                 input.readMessage(getFilterFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000008;
                 break;
               } // case 26
             case 32:
               {
                 rowsLimit_ = input.readInt64();
-
+                bitField0_ |= 0x00000010;
                 break;
               } // case 32
             case 42:
               {
                 appProfileId_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 42
             case 48:
               {
                 requestStatsView_ = input.readEnum();
-
+                bitField0_ |= 0x00000020;
                 break;
               } // case 48
             default:
@@ -981,6 +970,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object tableName_ = "";
     /**
@@ -1055,8 +1046,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1076,8 +1067,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearTableName() {
-
       tableName_ = getDefaultInstance().getTableName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1102,8 +1093,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1172,8 +1163,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1190,8 +1181,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearAppProfileId() {
-
       appProfileId_ = getDefaultInstance().getAppProfileId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1213,8 +1204,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1238,7 +1229,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return Whether the rows field is set.
      */
     public boolean hasRows() {
-      return rowsBuilder_ != null || rows_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1275,11 +1266,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
           throw new NullPointerException();
         }
         rows_ = value;
-        onChanged();
       } else {
         rowsBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1295,11 +1286,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setRows(com.google.bigtable.v2.RowSet.Builder builderForValue) {
       if (rowsBuilder_ == null) {
         rows_ = builderForValue.build();
-        onChanged();
       } else {
         rowsBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1314,16 +1305,18 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     public Builder mergeRows(com.google.bigtable.v2.RowSet value) {
       if (rowsBuilder_ == null) {
-        if (rows_ != null) {
-          rows_ = com.google.bigtable.v2.RowSet.newBuilder(rows_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && rows_ != null
+            && rows_ != com.google.bigtable.v2.RowSet.getDefaultInstance()) {
+          getRowsBuilder().mergeFrom(value);
         } else {
           rows_ = value;
         }
-        onChanged();
       } else {
         rowsBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1337,14 +1330,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowSet rows = 2;</code>
      */
     public Builder clearRows() {
-      if (rowsBuilder_ == null) {
-        rows_ = null;
-        onChanged();
-      } else {
-        rows_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      rows_ = null;
+      if (rowsBuilder_ != null) {
+        rowsBuilder_.dispose();
         rowsBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1358,7 +1350,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowSet rows = 2;</code>
      */
     public com.google.bigtable.v2.RowSet.Builder getRowsBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getRowsFieldBuilder().getBuilder();
     }
@@ -1425,7 +1417,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return Whether the filter field is set.
      */
     public boolean hasFilter() {
-      return filterBuilder_ != null || filter_ != null;
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      *
@@ -1462,11 +1454,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
           throw new NullPointerException();
         }
         filter_ = value;
-        onChanged();
       } else {
         filterBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1482,11 +1474,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setFilter(com.google.bigtable.v2.RowFilter.Builder builderForValue) {
       if (filterBuilder_ == null) {
         filter_ = builderForValue.build();
-        onChanged();
       } else {
         filterBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1501,17 +1493,18 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     public Builder mergeFilter(com.google.bigtable.v2.RowFilter value) {
       if (filterBuilder_ == null) {
-        if (filter_ != null) {
-          filter_ =
-              com.google.bigtable.v2.RowFilter.newBuilder(filter_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000008) != 0)
+            && filter_ != null
+            && filter_ != com.google.bigtable.v2.RowFilter.getDefaultInstance()) {
+          getFilterBuilder().mergeFrom(value);
         } else {
           filter_ = value;
         }
-        onChanged();
       } else {
         filterBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1525,14 +1518,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowFilter filter = 3;</code>
      */
     public Builder clearFilter() {
-      if (filterBuilder_ == null) {
-        filter_ = null;
-        onChanged();
-      } else {
-        filter_ = null;
+      bitField0_ = (bitField0_ & ~0x00000008);
+      filter_ = null;
+      if (filterBuilder_ != null) {
+        filterBuilder_.dispose();
         filterBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1546,7 +1538,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowFilter filter = 3;</code>
      */
     public com.google.bigtable.v2.RowFilter.Builder getFilterBuilder() {
-
+      bitField0_ |= 0x00000008;
       onChanged();
       return getFilterFieldBuilder().getBuilder();
     }
@@ -1627,6 +1619,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setRowsLimit(long value) {
 
       rowsLimit_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1643,7 +1636,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearRowsLimit() {
-
+      bitField0_ = (bitField0_ & ~0x00000010);
       rowsLimit_ = 0L;
       onChanged();
       return this;
@@ -1678,8 +1671,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder setRequestStatsViewValue(int value) {
-
       requestStatsView_ = value;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1696,9 +1689,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     @java.lang.Override
     public com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.v2.ReadRowsRequest.RequestStatsView result =
-          com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.valueOf(requestStatsView_);
+          com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.forNumber(requestStatsView_);
       return result == null
           ? com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.UNRECOGNIZED
           : result;
@@ -1720,7 +1712,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000020;
       requestStatsView_ = value.getNumber();
       onChanged();
       return this;
@@ -1737,7 +1729,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearRequestStatsView() {
-
+      bitField0_ = (bitField0_ & ~0x00000020);
       requestStatsView_ = 0;
       onChanged();
       return this;
