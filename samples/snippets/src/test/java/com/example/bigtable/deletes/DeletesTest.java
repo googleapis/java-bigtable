@@ -104,17 +104,17 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
 
   @Test
   public void test4_testCheckAndMutate() throws IOException {
-    String rowKey = "phone#5c10102#20190502";
+    String rowKey = "phone#4c410523#20190502";
     Row row = bigtableDataClient.readRow(TABLE_ID, rowKey);
-    String qualifier = "data_plan_10gb";
-    List<RowCell> cells = row.getCells(COLUMN_FAMILY_NAME_PLAN, qualifier);
+    String qualifier = "os_build";
+    List<RowCell> cells = row.getCells(COLUMN_FAMILY_NAME_STATS, qualifier);
 
     Truth.assertThat(cells).isNotEmpty();
 
     ConditionalDeleteExample conditionalDeleteExample = new ConditionalDeleteExample();
     conditionalDeleteExample.conditionalDelete(projectId, instanceId, TABLE_ID);
     row = bigtableDataClient.readRow(TABLE_ID, rowKey);
-    List<RowCell> cellsAfterDelete = row.getCells(COLUMN_FAMILY_NAME_PLAN, qualifier);
+    List<RowCell> cellsAfterDelete = row.getCells(COLUMN_FAMILY_NAME_STATS, qualifier);
 
     Truth.assertThat(cellsAfterDelete).isEmpty();
   }

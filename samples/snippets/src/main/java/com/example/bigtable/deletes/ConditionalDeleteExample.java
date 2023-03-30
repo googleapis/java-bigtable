@@ -27,10 +27,10 @@ public class ConditionalDeleteExample {
   public void conditionalDelete(String projectId, String instanceId, String tableId)
       throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      Filters.Filter condition = Filters.FILTERS.qualifier().exactMatch("data_plan_10gb");
-      Mutation mutation = Mutation.create().deleteCells("cell_plan", "data_plan_10gb");
+      Filters.Filter condition = Filters.FILTERS.value().exactMatch("PQ2A.190405.004");
+      Mutation mutation = Mutation.create().deleteCells("stats_summary", "os_build");
       dataClient.checkAndMutateRow(
-          ConditionalRowMutation.create(tableId, "phone#5c10102#20190502")
+          ConditionalRowMutation.create(tableId, "phone#4c410523#20190502")
               .condition(condition)
               .then(mutation));
     }
