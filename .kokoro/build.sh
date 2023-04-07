@@ -115,10 +115,9 @@ clirr)
 behavioral)
     # TODO: complete the testing script
     # Locate the test folder
-    ls ../../cloud-bigtable-clients-test
-    # Build the java proxy
+    ls cloud-bigtable-clients-test
+    # Change dir to the test proxy
     cd test-proxy
-    mvn clean install
     RETURN_CODE=$?
     ;;
 *)
