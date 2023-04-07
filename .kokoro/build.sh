@@ -112,6 +112,13 @@ clirr)
     mvn -B -ntp -Denforcer.skip=true clirr:check
     RETURN_CODE=$?
     ;;
+behavioral)
+    # TODO: complete the testing script
+    # Temporary operation: locate the test folder and test proxy folder
+    ls ${scriptDir}/behavioral-test
+    ls test-proxy
+    RETURN_CODE=$?
+    ;;
 *)
     ;;
 esac
