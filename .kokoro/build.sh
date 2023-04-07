@@ -114,9 +114,11 @@ clirr)
     ;;
 behavioral)
     # TODO: complete the testing script
-    # Temporary operation: locate the test folder and test proxy folder
-    ls ${scriptDir}/behavioral-test
-    ls test-proxy
+    # Locate the test folder
+    ls ../../cloud-bigtable-clients-test
+    # Build the java proxy
+    cd test-proxy
+    mvn clean install
     RETURN_CODE=$?
     ;;
 *)

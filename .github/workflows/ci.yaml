@@ -95,7 +95,7 @@ jobs:
       with:
         repository: googleapis/cloud-bigtable-clients-test
         ref: main
-        path: behavioral-test
+        path: cloud-bigtable-clients-test
     - uses: actions/setup-java@v3
       with:
         distribution: zulu
