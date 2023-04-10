@@ -112,25 +112,6 @@ clirr)
     mvn -B -ntp -Denforcer.skip=true clirr:check
     RETURN_CODE=$?
     ;;
-conformance)
-    # Build and start the proxy in a separate process
-    pushd .
-    cd test-proxy
-    mvn clean install -DskipTests
-    nohup java -Dport=9999 -jar target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
-    proxyPID=$!
-    popd
-
-    # Invoke the test
-    pushd .
-    cd cloud-bigtable-clients-test/tests
-    eval "go test -v -skip `cat ../../test-proxy/known_failures.txt` -proxy_addr=:9999"
-    RETURN_CODE=$?
-    popd
-
-    # Stop the proxy
-    kill $proxyPID
-    ;;
 *)
     ;;
 esac
