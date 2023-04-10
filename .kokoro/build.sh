@@ -116,7 +116,7 @@ conformance)
     # Build and start the proxy in a separate process
     pushd .
     cd test-proxy
-    mvn clean install
+    mvn clean install -DskipTests
     nohup java -Dport=9999 -jar target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
     proxyPID=$!
     popd
