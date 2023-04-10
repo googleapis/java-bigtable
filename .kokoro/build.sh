@@ -112,12 +112,12 @@ clirr)
     mvn -B -ntp -Denforcer.skip=true clirr:check
     RETURN_CODE=$?
     ;;
-behavioral)
+conformance)
     # TODO: complete the testing script
     # Locate the test folder
     ls cloud-bigtable-clients-test
-    # Change dir to the test proxy
-    cd test-proxy
+    # Locate the test proxy
+    ls test-proxy
     RETURN_CODE=$?
     ;;
 *)
