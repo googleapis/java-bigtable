@@ -113,12 +113,23 @@ clirr)
     RETURN_CODE=$?
     ;;
 conformance)
-    # TODO: complete the testing script
-    # Locate the test folder
-    ls cloud-bigtable-clients-test
-    # Locate the test proxy
-    ls test-proxy
+    # Build and start the proxy in a separate process
+    pushd .
+    cd test-proxy
+    mvn clean install
+    nohup java -Dport=9999 -jar target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
+    proxyPID=$!
+    popd
+
+    # Invoke the test
+    pushd .
+    cd cloud-bigtable-clients-test/tests
+    eval "go test -v -skip `cat ../../test-proxy/known_failures.txt` -proxy_addr=:9999"
     RETURN_CODE=$?
+    popd
+
+    # Stop the proxy
+    kill $proxyPID
     ;;
 *)
     ;;
