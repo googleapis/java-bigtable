@@ -87,7 +87,7 @@
     },
     {
       "fileMatch": ["^.*\/pom\\.xml$"],
-      "matchStrings": ["\\<test\\-protobuf\\.version>(?<currentValue>.*?)\\<\\/test\\-protobuf\\.version\\>"],
+      "matchStrings": ["\\<test\\-protoc\\.version>(?<currentValue>.*?)\\<\\/test\\-protoc\\.version\\>"],
       "depNameTemplate": "com.google.protobuf:protoc",
       "datasourceTemplate": "maven"
     }
