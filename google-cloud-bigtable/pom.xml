@@ -677,26 +677,6 @@
               <goal>enforce</goal>
             </goals>
           </execution>
-          <execution>
-            <id>enforce-declared-grpc-and-proto-version</id>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-            <configuration>
-              <rules>
-                <bannedDependencies>
-                  <includes>
-                    <dependency>io.grpc:*:[${grpc.version}]</dependency>
-                    <dependency>com.google.protobuf:*:[${protobuf.version}]</dependency>
-                  </includes>
-                  <excludes>
-                    <dependency>io.grpc:*</dependency>
-                    <dependency>com.google.protobuf:*</dependency>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-            </configuration>
-          </execution>
         </executions>
         <!--
           workaround for https://github.com/mojohaus/extra-enforcer-rules/issues/132
