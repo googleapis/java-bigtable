@@ -32,6 +32,7 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
@@ -50,6 +51,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.io.BaseEncoding;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -89,6 +91,10 @@ import org.threeten.bp.Duration;
 public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableStubSettings> {
   private static final Logger logger =
       Logger.getLogger(EnhancedBigtableStubSettings.class.getName());
+
+  // Feature flags this client supports
+  private static final FeatureFlags FEATURE_FLAGS =
+      FeatureFlags.newBuilder().setReverseScans(true).build();
 
   // The largest message that can be received is a 256 MB ReadRowsResponse.
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
@@ -621,13 +627,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
 
-      // Inject the UserAgent in addition to api-client header
+      // Inject the UserAgent & feature flags in addition to api-client header
+      String encodedFeatureFlags = BaseEncoding.base64Url().encode(FEATURE_FLAGS.toByteArray());
       Map<String, String> headers =
           ImmutableMap.<String, String>builder()
               .putAll(
                   BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
               // GrpcHeaderInterceptor treats the `user-agent` as a magic string
               .put("user-agent", "bigtable-java/" + Version.VERSION)
+              .put("bigtable-features", encodedFeatureFlags)
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 
