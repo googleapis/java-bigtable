@@ -150,7 +150,8 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
 
     Truth.assertThat(cells).isNotEmpty();
 
-    DeleteFromColumnFamilyExample deleteFromColumnFamilyExample = new DeleteFromColumnFamilyExample();
+    DeleteFromColumnFamilyExample deleteFromColumnFamilyExample =
+        new DeleteFromColumnFamilyExample();
     deleteFromColumnFamilyExample.deleteFromColumnFamily(projectId, instanceId, TABLE_ID);
     row = bigtableDataClient.readRow(TABLE_ID, rowKey);
     List<RowCell> cellsAfterDelete = row.getCells(COLUMN_FAMILY_NAME_STATS);
@@ -165,7 +166,8 @@ public class DeletesTest extends MobileTimeSeriesBaseTest {
       Truth.assertThat(tableAdminClient.getTable(TABLE_ID).getColumnFamilies().size()).isEqualTo(2);
 
       DeleteColumnFamilyExample deleteColumnFamilyExample = new DeleteColumnFamilyExample();
-      deleteColumnFamilyExample.deleteColumnFamily(projectId, instanceId, TABLE_ID, COLUMN_FAMILY_NAME_STATS);
+      deleteColumnFamilyExample.deleteColumnFamily(
+          projectId, instanceId, TABLE_ID, COLUMN_FAMILY_NAME_STATS);
 
       Truth.assertThat(tableAdminClient.getTable(TABLE_ID).getColumnFamilies().size()).isEqualTo(1);
     }
