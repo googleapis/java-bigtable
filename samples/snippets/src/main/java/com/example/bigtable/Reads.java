@@ -24,6 +24,7 @@ import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import java.io.IOException;
@@ -199,6 +200,39 @@ public class Reads {
     }
   }
   // [END bigtable_reads_prefix]
+
+  // [START bigtable_reverse_scan]
+  public static void readRowsReversed() {
+    // TODO(developer): Replace these variables before running the sample.
+    String projectId = "my-project-id";
+    String instanceId = "my-instance-id";
+    String tableId = "mobile-time-series";
+    readPrefix(projectId, instanceId, tableId);
+  }
+
+  public static void readRowsReversed(String projectId, String instanceId, String tableId) {
+    // Initialize client that will be used to send requests. This client only needs to be created
+    // once, and can be reused for multiple requests. After completing all of your requests, call
+    // the "close" method on the client to safely clean up any remaining background resources.
+    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+      Query query = Query.create(tableId)
+          .reversed(true)
+          .limit(2)
+          .prefix("phone#4c410523")
+          .range(ByteStringRange.unbounded()
+              .startClosed("phone#5c10102")
+              .endClosed("phone#5c10102")
+          );
+      ServerStream<Row> rows = dataClient.readRows(query);
+      for (Row row : rows) {
+        printRow(row);
+      }
+    } catch (IOException e) {
+      System.out.println(
+          "Unable to initialize service client, as a network error occurred: \n" + e.toString());
+    }
+  }
+  // [END bigtable_reverse_scan]
 
   // [START bigtable_reads_filter]
   public static void readFilter() {
