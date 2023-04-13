@@ -55,7 +55,6 @@
         "^com.google.cloud:google-cloud-conformance-tests",
         "^io.grpc:protoc-gen-grpc-java",
         "^com.google.protobuf:protoc"
-        
       ],
       "semanticCommitType": "test",
       "semanticCommitScope": "deps"
