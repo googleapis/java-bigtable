@@ -35,6 +35,8 @@ import javax.annotation.Nonnull;
  *     the gfe_header_missing_counter in this case.
  * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
  *     cluster ids.
+ * <li>-This class will also inject a {@link BigtableGrpcStreamTracer} that'll record the time an
+ *     RPC spent in a grpc channel queue.
  * <li>This class is considered an internal implementation detail and not meant to be used by
  *     applications.
  */
@@ -43,35 +45,24 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
-  private final boolean batching;
 
   public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
-    this(innerCallable, false);
-  }
-
-  public BigtableTracerUnaryCallable(
-      @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable, boolean batching) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
-    this.batching = batching;
   }
 
   @Override
-  public ApiFuture futureCall(RequestT request, ApiCallContext context) {
+  public ApiFuture<ResponseT> futureCall(RequestT request, ApiCallContext context) {
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
-      BigtableTracerUnaryCallback callback =
-          new BigtableTracerUnaryCallback((BigtableTracer) context.getTracer(), responseMetadata);
-      ApiFuture<ResponseT> future;
-      if (batching) {
-        future = innerCallable.futureCall(request, responseMetadata.addHandlers(context));
-      } else {
-        future =
-            innerCallable.futureCall(
-                request,
-                Util.addHandlerToCallContext(
-                    context, responseMetadata, (BigtableTracer) context.getTracer()));
-      }
+      BigtableTracerUnaryCallback<ResponseT> callback =
+          new BigtableTracerUnaryCallback<ResponseT>(
+              (BigtableTracer) context.getTracer(), responseMetadata);
+      ApiFuture<ResponseT> future =
+          innerCallable.futureCall(
+              request,
+              Util.injectBigtableStreamTracer(
+                  context, responseMetadata, (BigtableTracer) context.getTracer()));
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {

@@ -21,7 +21,11 @@ import io.grpc.ClientStreamTracer;
 import io.grpc.Metadata;
 import java.util.concurrent.TimeUnit;
 
-/** Records the time a request is blocked on the grpc channel */
+/**
+ * Records the time a request is enqueued in a grpc channel queue. This a bridge between gRPC stream
+ * tracing and Bigtable tracing. Its primary purpose is to measure the transition time between
+ * asking gRPC to start an RPC and gRPC actually serializing that RPC.
+ */
 class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final Stopwatch stopwatch = Stopwatch.createUnstarted();
@@ -38,7 +42,7 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
-    tracer.requestBlockedOnChannel(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    tracer.grpcChannelQueuedLatencies(stopwatch.elapsed(TimeUnit.MILLISECONDS));
   }
 
   static class Factory extends ClientStreamTracer.Factory {

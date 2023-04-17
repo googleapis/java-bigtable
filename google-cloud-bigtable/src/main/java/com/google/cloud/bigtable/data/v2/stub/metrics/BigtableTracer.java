@@ -83,7 +83,7 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
-  public void requestBlockedOnChannel(long blockedTimeMs) {
+  public void grpcChannelQueuedLatencies(long queuedTimeMs) {
     // noop
   }
 }

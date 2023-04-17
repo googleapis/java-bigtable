@@ -512,7 +512,7 @@ public class BuiltinMetricsTracerTest {
     ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
 
     verify(statsRecorderWrapper, times(fakeService.attemptCounter.get()))
-        .putRequestBlockedOnChannel(blockedTime.capture());
+        .putGrpcChannelQueuedLatencies(blockedTime.capture());
 
     assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
   }
@@ -528,7 +528,7 @@ public class BuiltinMetricsTracerTest {
     ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
 
     verify(statsRecorderWrapper, times(fakeService.attemptCounter.get()))
-        .putRequestBlockedOnChannel(blockedTime.capture());
+        .putGrpcChannelQueuedLatencies(blockedTime.capture());
 
     assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
     assertThat(blockedTime.getAllValues().get(2)).isAtLeast(CHANNEL_BLOCKING_LATENCY);

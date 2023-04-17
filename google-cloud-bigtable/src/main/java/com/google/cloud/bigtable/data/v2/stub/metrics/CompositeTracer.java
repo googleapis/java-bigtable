@@ -220,9 +220,9 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
-  public void requestBlockedOnChannel(long blockedTimeMs) {
+  public void grpcChannelQueuedLatencies(long queuedTimeMs) {
     for (BigtableTracer tracer : bigtableTracers) {
-      tracer.requestBlockedOnChannel(blockedTimeMs);
+      tracer.grpcChannelQueuedLatencies(queuedTimeMs);
     }
   }
 }

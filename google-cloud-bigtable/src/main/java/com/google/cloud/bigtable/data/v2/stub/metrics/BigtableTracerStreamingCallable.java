@@ -73,7 +73,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
         innerCallable.call(
             request,
             innerObserver,
-            Util.addHandlerToCallContext(
+            Util.injectBigtableStreamTracer(
                 context, responseMetadata, (BigtableTracer) context.getTracer()));
       }
     } else {

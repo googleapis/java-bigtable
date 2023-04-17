@@ -223,8 +223,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void requestBlockedOnChannel(long blockedTimeMs) {
-    recorder.putRequestBlockedOnChannel(blockedTimeMs);
+  public void grpcChannelQueuedLatencies(long queuedTimeMs) {
+    recorder.putGrpcChannelQueuedLatencies(queuedTimeMs);
   }
 
   @Override

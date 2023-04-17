@@ -200,7 +200,11 @@ public class Util {
     tracer.recordGfeMetadata(latency, throwable);
   }
 
-  static GrpcCallContext addHandlerToCallContext(
+  /**
+   * This method bridges gRPC stream tracing to bigtable tracing by adding a {@link
+   * io.grpc.ClientStreamTracer} to the callContext.
+   */
+  static GrpcCallContext injectBigtableStreamTracer(
       ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
     if (context instanceof GrpcCallContext) {
       // context should always be an instance of GrpcCallContext. Sanity check just in case.
