@@ -25,9 +25,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import javax.annotation.Nonnull;
 
 /**
- * This callable will do everything described in {@link BigtableTracerUnaryCallable}
- * except that it won't inject a {@link BigtableGrpcStreamTracer}. For batching calls,
- * we only want to calculate the total time client is blocked because of flow control.
+ * This callable will do everything described in {@link BigtableTracerUnaryCallable} except that it
+ * won't inject a {@link BigtableGrpcStreamTracer}. For batching calls, we only want to calculate
+ * the total time client is blocked because of flow control.
  */
 @InternalApi
 public class BigtableTracerBatchedCallable<RequestT, ResponseT>

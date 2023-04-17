@@ -207,14 +207,15 @@ public class Util {
   static GrpcCallContext injectBigtableStreamTracer(
       ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
     if (context instanceof GrpcCallContext) {
-      // context should always be an instance of GrpcCallContext. Sanity check just in case.
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
               callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
     } else {
-      return responseMetadata.addHandlers(context);
+      // context should always be an instance of GrpcCallContext. If not throw an exception
+      // so we can see what class context is.
+      throw new RuntimeException("Unexpected context class: " + context.getClass().getName());
     }
   }
 }
