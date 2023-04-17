@@ -219,10 +219,7 @@ public class Reads {
           .reversed(true)
           .limit(2)
           .prefix("phone#4c410523")
-          .range(ByteStringRange.unbounded()
-              .startClosed("phone#5c10102")
-              .endClosed("phone#5c10102")
-          );
+          .range("phone#5c10102", "phone#5c10103");
       ServerStream<Row> rows = dataClient.readRows(query);
       for (Row row : rows) {
         printRow(row);
