@@ -40,7 +40,6 @@ public class StatsRecorderWrapper {
   private final SpanName spanName;
   private final Map<String, String> statsAttributes;
 
-  private volatile long accumulatedLatency = 0;
   private MeasureMap attemptMeasureMap;
   private MeasureMap operationMeasureMap;
 
