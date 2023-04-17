@@ -30,12 +30,13 @@ import javax.annotation.Nonnull;
  * the total time client is blocked because of flow control.
  */
 @InternalApi
-public class BigtableTracerBatchedCallable<RequestT, ResponseT>
+public class BigtableTracerBatchedUnaryCallable<RequestT, ResponseT>
     extends BigtableTracerUnaryCallable<RequestT, ResponseT> {
 
   private UnaryCallable<RequestT, ResponseT> innerCallable;
 
-  public BigtableTracerBatchedCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
+  public BigtableTracerBatchedUnaryCallable(
+      @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
     super(innerCallable);
     this.innerCallable = innerCallable;
   }

@@ -37,6 +37,8 @@ import javax.annotation.Nonnull;
  * <li>-This class will also access trailers from {@link GrpcResponseMetadata} to record zone and
  *     cluster ids.
  * <li>-Call {@link BigtableTracer#onRequest(int)} to record the request events in a stream.
+ * <li>-This class will also inject a {@link BigtableGrpcStreamTracer} that'll record the time an
+ *     RPC spent in a grpc channel queue.
  * <li>This class is considered an internal implementation detail and not meant to be used by
  *     applications.
  */
@@ -45,17 +47,10 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
-  private final boolean batching;
 
   public BigtableTracerStreamingCallable(
       @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable) {
-    this(callable, false);
-  }
-
-  public BigtableTracerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable, boolean batching) {
     this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
-    this.batching = batching;
   }
 
   @Override
@@ -67,15 +62,11 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       BigtableTracerResponseObserver<ResponseT> innerObserver =
           new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
-      if (batching) {
-        innerCallable.call(request, innerObserver, responseMetadata.addHandlers(context));
-      } else {
-        innerCallable.call(
-            request,
-            innerObserver,
-            Util.injectBigtableStreamTracer(
-                context, responseMetadata, (BigtableTracer) context.getTracer()));
-      }
+      innerCallable.call(
+          request,
+          innerObserver,
+          Util.injectBigtableStreamTracer(
+              context, responseMetadata, (BigtableTracer) context.getTracer()));
     } else {
       innerCallable.call(request, responseObserver, context);
     }
