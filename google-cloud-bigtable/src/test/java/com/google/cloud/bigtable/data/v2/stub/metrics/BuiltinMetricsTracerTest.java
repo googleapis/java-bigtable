@@ -480,8 +480,8 @@ public class BuiltinMetricsTracerTest {
 
       int expectedNumRequests = 6 / batchElementCount;
       ArgumentCaptor<Long> throttledTime = ArgumentCaptor.forClass(Long.class);
-      verify(statsRecorderWrapper, times(expectedNumRequests))
-          .putBatchRequestThrottled(throttledTime.capture());
+      verify(statsRecorderWrapper, timeout(1000).times(expectedNumRequests))
+          .putClientBlockingLatencies(throttledTime.capture());
 
       // Adding the first 2 elements should not get throttled since the batch is empty
       assertThat(throttledTime.getAllValues().get(0)).isEqualTo(0);
@@ -493,7 +493,7 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testBlockedOnChannelServerStreamLatencies() throws InterruptedException {
+  public void testQueuedOnChannelServerStreamLatencies() throws InterruptedException {
     when(mockFactory.newTracer(any(), any(), any()))
         .thenReturn(
             new BuiltinMetricsTracer(
@@ -505,14 +505,14 @@ public class BuiltinMetricsTracerTest {
 
     ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
 
-    verify(statsRecorderWrapper, times(fakeService.attemptCounter.get()))
-        .putGrpcChannelQueuedLatencies(blockedTime.capture());
+    verify(statsRecorderWrapper, timeout(1000).times(fakeService.attemptCounter.get()))
+        .putClientBlockingLatencies(blockedTime.capture());
 
     assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
   }
 
   @Test
-  public void testBlockedOnChannelUnaryLatencies() throws InterruptedException {
+  public void testQueuedOnChannelUnaryLatencies() throws InterruptedException {
     when(mockFactory.newTracer(any(), any(), any()))
         .thenReturn(
             new BuiltinMetricsTracer(
@@ -521,8 +521,8 @@ public class BuiltinMetricsTracerTest {
 
     ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
 
-    verify(statsRecorderWrapper, times(fakeService.attemptCounter.get()))
-        .putGrpcChannelQueuedLatencies(blockedTime.capture());
+    verify(statsRecorderWrapper, timeout(1000).times(fakeService.attemptCounter.get()))
+        .putClientBlockingLatencies(blockedTime.capture());
 
     assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
     assertThat(blockedTime.getAllValues().get(2)).isAtLeast(CHANNEL_BLOCKING_LATENCY);

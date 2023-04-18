@@ -115,12 +115,8 @@ public class StatsRecorderWrapper {
     attemptMeasureMap.put(BuiltinMeasureConstants.CONNECTIVITY_ERROR_COUNT, connectivityErrors);
   }
 
-  public void putBatchRequestThrottled(long throttledTimeMs) {
-    operationMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, throttledTimeMs);
-  }
-
-  public void putGrpcChannelQueuedLatencies(long blockedTime) {
-    attemptMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, blockedTime);
+  public void putClientBlockingLatencies(long clientBlockingLatency) {
+    operationMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, clientBlockingLatency);
   }
 
   private TagContextBuilder newTagContextBuilder(String tableId, String zone, String cluster) {
