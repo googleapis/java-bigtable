@@ -221,19 +221,13 @@ public class BuiltinMetricsTracerTest {
     final ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldConfigurator =
         channelProvider.getChannelConfigurator();
 
-    @SuppressWarnings("rawtypes")
-    final ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> newConfigurator =
-        new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
-          @Override
-          @SuppressWarnings("rawtypes")
-          public ManagedChannelBuilder apply(ManagedChannelBuilder builder) {
-            if (oldConfigurator != null) {
-              builder = oldConfigurator.apply(builder);
-            }
-            return builder.intercept(clientInterceptor);
+    channelProvider.setChannelConfigurator(
+        (builder) -> {
+          if (oldConfigurator != null) {
+            builder = oldConfigurator.apply(builder);
           }
-        };
-    channelProvider.setChannelConfigurator(newConfigurator);
+          return builder.intercept(clientInterceptor);
+        });
     stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
 
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
