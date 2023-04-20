@@ -15,18 +15,27 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import static io.grpc.Metadata.Key;
+
 import com.google.api.core.BetaApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
 import com.google.api.gax.grpc.ChannelPrimer;
+import com.google.api.gax.grpc.GrpcCallContext;
+import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.auth.Credentials;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 
@@ -42,6 +51,15 @@ class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
 
   private final EnhancedBigtableStubSettings settingsTemplate;
+
+  private static final String RETURN_ENCRYPTED_HEADERS_KEY = "x-return-encrypted-headers";
+
+  private static final String RETURN_ENCRYPTED_HEADERS_TYPE = "all_response";
+
+  private static final Key<String> ENCRYPTED_HEADERS_KEY =
+      Key.of("x-encrypted-debug-headers", Metadata.ASCII_STRING_MARSHALLER);
+
+  private final Map<String, List<String>> returnEncryptedHeaders;
 
   static BigtableChannelPrimer create(
       Credentials credentials, String projectId, String instanceId, String appProfileId) {
@@ -62,6 +80,8 @@ class BigtableChannelPrimer implements ChannelPrimer {
   private BigtableChannelPrimer(EnhancedBigtableStubSettings settingsTemplate) {
     Preconditions.checkNotNull(settingsTemplate, "settingsTemplate can't be null");
     this.settingsTemplate = settingsTemplate;
+    this.returnEncryptedHeaders =
+        ImmutableMap.of(RETURN_ENCRYPTED_HEADERS_KEY, Arrays.asList(RETURN_ENCRYPTED_HEADERS_TYPE));
   }
 
   @Override
@@ -96,8 +116,14 @@ class BigtableChannelPrimer implements ChannelPrimer {
               .setAppProfileId(primingSettings.getAppProfileId())
               .build();
 
+      GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+
       try {
-        stub.pingAndWarmCallable().call(request);
+        GrpcCallContext callContext =
+            GrpcCallContext.createDefault().withExtraHeaders(returnEncryptedHeaders);
+        stub.pingAndWarmCallable().call(request, responseMetadata.addHandlers(callContext));
+
+        responseMetadata.getMetadata();
       } catch (Throwable e) {
         // TODO: Not sure if we should swallow the error here. We are pre-emptively swapping
         // channels if the new
@@ -106,6 +132,11 @@ class BigtableChannelPrimer implements ChannelPrimer {
           e = e.getCause();
         }
         LOG.warning(String.format("Failed to prime channel: %s", e));
+        if (responseMetadata.getMetadata() != null) {
+          LOG.warning(
+              "Encrypted debug header is "
+                  + responseMetadata.getMetadata().get(ENCRYPTED_HEADERS_KEY));
+        }
       }
     }
   }
