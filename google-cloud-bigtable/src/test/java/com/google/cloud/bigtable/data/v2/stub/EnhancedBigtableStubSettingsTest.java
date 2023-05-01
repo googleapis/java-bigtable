@@ -799,6 +799,7 @@ public class EnhancedBigtableStubSettingsTest {
     "generateInitialChangeStreamPartitionsSettings",
     "readChangeStreamSettings",
     "pingAndWarmSettings",
+    "featureFlags",
   };
 
   @Test
