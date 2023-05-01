@@ -114,6 +114,7 @@ public final class BigtableBatchingCallSettings extends UnaryCallSettings<BulkMu
   }
 
   /** Gets if flow control is enabled. */
+  @InternalApi("Intended for use by the Bigtable dataflow connectors only")
   public boolean isServerInitiatedFlowControlEnabled() {
     return isServerInitiatedFlowControlEnabled;
   }
