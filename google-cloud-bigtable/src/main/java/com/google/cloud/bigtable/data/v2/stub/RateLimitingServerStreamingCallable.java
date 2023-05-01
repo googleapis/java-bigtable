@@ -31,25 +31,43 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.RateLimiter;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 class RateLimitingServerStreamingCallable
     extends ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> {
   private static final Logger logger =
       Logger.getLogger(RateLimitingServerStreamingCallable.class.getName());
+
+  // When the mutation size is large, starting with a higher QPS will make
+  // the dataflow job fail very quickly. Start with lower QPS and increase
+  // the QPS gradually if the server doesn't push back
   private static final long DEFAULT_QPS = 10;
-  // Default interval before changing the QPS on error response
-  private static Duration DEFAULT_PERIOD = Duration.ofSeconds(10);
-  private final RateLimiter limiter;
-  private final AtomicLong lastQpsChangeTime = new AtomicLong(System.currentTimeMillis());
-  private final ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable;
+
+  // Default interval before changing the QPS on error responses
+  private static final Duration DEFAULT_PERIOD = Duration.ofSeconds(10);
+
+  // Minimum QPS to make sure the job is not stuck
   private static final double MIN_QPS = 0.1;
   private static final double MAX_QPS = 100_000;
+
+  // QPS can be lowered to at most MIN_FACTOR * currentQps. When server returned
+  // an error, use MIN_FACTOR to calculate the new QPS. This is the same as
+  // the server side cap.
   @VisibleForTesting static final double MIN_FACTOR = 0.7;
+
+  // QPS can be increased to at most MAX_FACTOR * currentQps. This is the same
+  // as the server side cap
   private static final double MAX_FACTOR = 1.3;
+
+  private final RateLimiter limiter;
+
+  private final AtomicReference<Instant> lastQpsChangeTime = new AtomicReference<>(Instant.now());
+  private final ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable;
 
   RateLimitingServerStreamingCallable(
       @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable) {
@@ -70,20 +88,29 @@ class RateLimitingServerStreamingCallable
       ((BigtableTracer) context.getTracer())
           .batchRequestThrottled(stopwatch.elapsed(TimeUnit.MILLISECONDS));
     }
-    RateLimitingResponseObserver innerObserver = new RateLimitingResponseObserver(responseObserver);
+    RateLimitingResponseObserver innerObserver =
+        new RateLimitingResponseObserver(limiter, lastQpsChangeTime, responseObserver);
     innerCallable.call(request, innerObserver, context);
   }
 
   class RateLimitingResponseObserver extends SafeResponseObserver<MutateRowsResponse> {
     private final ResponseObserver<MutateRowsResponse> outerObserver;
+    private final RateLimiter rateLimiter;
 
-    RateLimitingResponseObserver(ResponseObserver<MutateRowsResponse> observer) {
+    private final AtomicReference<Instant> lastQpsChangeTime;
+
+    RateLimitingResponseObserver(
+        RateLimiter rateLimiter,
+        AtomicReference<Instant> lastQpsChangeTime,
+        ResponseObserver<MutateRowsResponse> observer) {
       super(observer);
       this.outerObserver = observer;
+      this.rateLimiter = rateLimiter;
+      this.lastQpsChangeTime = lastQpsChangeTime;
     }
 
     @Override
-    protected void onStartImpl(final StreamController controller) {
+    protected void onStartImpl(StreamController controller) {
       outerObserver.onStart(controller);
     }
 
@@ -95,7 +122,9 @@ class RateLimitingServerStreamingCallable
         // have presence even thought it's marked as "optional". Check the factor and
         // period to make sure they're not 0.
         if (info.getFactor() != 0 && info.getPeriod().getSeconds() != 0) {
-          updateQps(info.getFactor(), Duration.ofSeconds(info.getPeriod().getSeconds()));
+          updateQps(
+              info.getFactor(),
+              Duration.ofSeconds(com.google.protobuf.util.Durations.toSeconds(info.getPeriod())));
         }
       }
     }
@@ -118,27 +147,23 @@ class RateLimitingServerStreamingCallable
     }
 
     private void updateQps(double factor, Duration period) {
-      long lastTime = lastQpsChangeTime.get();
-      long now = System.currentTimeMillis();
-      if (now - lastTime > period.toMillis() && lastQpsChangeTime.compareAndSet(lastTime, now)) {
+      Instant lastTime = lastQpsChangeTime.get();
+      Instant now = Instant.now();
+
+      if (now.minus(period).isAfter(lastTime) && lastQpsChangeTime.compareAndSet(lastTime, now)) {
         double cappedFactor = Math.min(Math.max(factor, MIN_FACTOR), MAX_FACTOR);
         double currentRate = limiter.getRate();
         limiter.setRate(Math.min(Math.max(currentRate * cappedFactor, MIN_QPS), MAX_QPS));
-        logger.fine(
-            "Updated QPS from "
-                + currentRate
-                + " to "
-                + limiter.getRate()
-                + ", server returned factor is "
-                + factor
-                + ", capped factor is "
-                + cappedFactor);
+        logger.log(
+            Level.FINE,
+            "Updated QPS from {0} to {1}, server returned factor is {2}, capped factor is {3}",
+            new Object[] {currentRate, limiter.getRate(), factor, cappedFactor});
       }
     }
   }
 
   @VisibleForTesting
-  AtomicLong getLastQpsChangeTime() {
+  AtomicReference<Instant> getLastQpsChangeTime() {
     return lastQpsChangeTime;
   }
 

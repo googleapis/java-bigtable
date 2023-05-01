@@ -35,6 +35,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
+import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class RateLimitingCallableTest {
@@ -55,11 +56,12 @@ public class RateLimitingCallableTest {
 
   @Test
   public void testWithRateLimitInfo() throws Exception {
-    callableToTest = new RateLimitingServerStreamingCallable(innerCallable);
     callableToTest.call(request, responseObserver, context);
 
+    Instant earlier = Instant.now().minus(org.threeten.bp.Duration.ofHours(1));
+
     // make sure QPS will be updated
-    callableToTest.getLastQpsChangeTime().set(1000);
+    callableToTest.getLastQpsChangeTime().set(earlier);
     double oldQps = callableToTest.getCurrentRate();
 
     double factor = 0.8;
@@ -85,11 +87,11 @@ public class RateLimitingCallableTest {
 
   @Test
   public void testNoUpdateWithinPeriod() throws Exception {
-    callableToTest = new RateLimitingServerStreamingCallable(innerCallable);
     callableToTest.call(request, responseObserver, context);
 
-    // make sure QPS will be updated
-    callableToTest.getLastQpsChangeTime().set(System.currentTimeMillis());
+    Instant now = Instant.now();
+    // make sure QPS will not be updated
+    callableToTest.getLastQpsChangeTime().set(now);
     double oldQps = callableToTest.getCurrentRate();
 
     double factor = 0.3;
@@ -115,11 +117,12 @@ public class RateLimitingCallableTest {
 
   @Test
   public void testErrorInfoLowerQPS() throws Exception {
-    callableToTest = new RateLimitingServerStreamingCallable(innerCallable);
     callableToTest.call(request, responseObserver, context);
 
+    Instant earlier = Instant.now().minus(org.threeten.bp.Duration.ofHours(1));
+
     // make sure QPS will be updated
-    callableToTest.getLastQpsChangeTime().set(1000);
+    callableToTest.getLastQpsChangeTime().set(earlier);
     double oldQps = callableToTest.getCurrentRate();
 
     innerCallable
