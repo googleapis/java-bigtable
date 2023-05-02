@@ -630,16 +630,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
 
-      // Inject the UserAgent in addition to api-client header
-      Map<String, String> headers =
-          ImmutableMap.<String, String>builder()
-              .putAll(
-                  BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
-              // GrpcHeaderInterceptor treats the `user-agent` as a magic string
-              .put("user-agent", "bigtable-java/" + Version.VERSION)
-              .build();
-      setInternalHeaderProvider(FixedHeaderProvider.create(headers));
-
       // Per-method settings using baseSettings for defaults.
       readRowsSettings = ServerStreamingCallSettings.newBuilder();
 
@@ -993,7 +983,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       try {
         featureFlags.build().writeTo(boas);
       } catch (IOException e) {
-        throw new IllegalStateException("Unexpected IOException while serializing feature flags", e);
+        throw new IllegalStateException(
+            "Unexpected IOException while serializing feature flags", e);
       }
       byte[] serializedFlags = boas.toByteArray();
       byte[] encodedFlags = Base64.getUrlEncoder().encode(serializedFlags);
