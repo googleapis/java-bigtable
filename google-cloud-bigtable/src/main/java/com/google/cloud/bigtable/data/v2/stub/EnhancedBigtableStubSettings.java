@@ -993,10 +993,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       try {
         featureFlags.build().writeTo(boas);
       } catch (IOException e) {
-        throw new IllegalStateException("Unexpected IOException while serializing feature flags");
+        throw new IllegalStateException("Unexpected IOException while serializing feature flags", e);
       }
       byte[] serializedFlags = boas.toByteArray();
-      byte[] encodedFlags = Base64.getEncoder().encode(serializedFlags);
+      byte[] encodedFlags = Base64.getUrlEncoder().encode(serializedFlags);
 
       // Inject the UserAgent in addition to api-client header
       Map<String, String> headers =
@@ -1036,7 +1036,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
-        .add("featureFlags", featureFlags)
         .add("parent", super.toString())
         .toString();
   }
