@@ -318,7 +318,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setChannelPoolSettings(
             ChannelPoolSettings.builder()
-                .setInitialChannelCount(2)
+                .setInitialChannelCount(10)
                 .setMinRpcsPerChannel(1)
                 .setMaxRpcsPerChannel(50)
                 .setPreemptiveRefreshEnabled(true)
