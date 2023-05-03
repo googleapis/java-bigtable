@@ -55,92 +55,6 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     return this.unknownFields;
   }
 
-  private CreateTableRequest(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    int mutable_bitField0_ = 0;
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              parent_ = s;
-              break;
-            }
-          case 18:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              tableId_ = s;
-              break;
-            }
-          case 26:
-            {
-              com.google.bigtable.admin.v2.Table.Builder subBuilder = null;
-              if (table_ != null) {
-                subBuilder = table_.toBuilder();
-              }
-              table_ =
-                  input.readMessage(com.google.bigtable.admin.v2.Table.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(table_);
-                table_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 34:
-            {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                initialSplits_ =
-                    new java.util.ArrayList<
-                        com.google.bigtable.admin.v2.CreateTableRequest.Split>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              initialSplits_.add(
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.CreateTableRequest.Split.parser(),
-                      extensionRegistry));
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      if (((mutable_bitField0_ & 0x00000001) != 0)) {
-        initialSplits_ = java.util.Collections.unmodifiableList(initialSplits_);
-      }
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_CreateTableRequest_descriptor;
@@ -208,50 +122,6 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       return this.unknownFields;
     }
 
-    private Split(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                key_ = input.readBytes();
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.BigtableTableAdminProto
           .internal_static_google_bigtable_admin_v2_CreateTableRequest_Split_descriptor;
@@ -268,7 +138,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     }
 
     public static final int KEY_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString key_;
+    private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -302,7 +172,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (!key_.isEmpty()) {
         output.writeBytes(1, key_);
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -314,7 +184,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (!key_.isEmpty()) {
         size += com.google.protobuf.CodedOutputStream.computeBytesSize(1, key_);
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -331,7 +201,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
           (com.google.bigtable.admin.v2.CreateTableRequest.Split) obj;
 
       if (!getKey().equals(other.getKey())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -344,7 +214,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       hash = (19 * hash) + getDescriptor().hashCode();
       hash = (37 * hash) + KEY_FIELD_NUMBER;
       hash = (53 * hash) + getKey().hashCode();
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -476,24 +346,17 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       }
 
       // Construct using com.google.bigtable.admin.v2.CreateTableRequest.Split.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         key_ = com.google.protobuf.ByteString.EMPTY;
-
         return this;
       }
 
@@ -521,9 +384,18 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       public com.google.bigtable.admin.v2.CreateTableRequest.Split buildPartial() {
         com.google.bigtable.admin.v2.CreateTableRequest.Split result =
             new com.google.bigtable.admin.v2.CreateTableRequest.Split(this);
-        result.key_ = key_;
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.admin.v2.CreateTableRequest.Split result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.key_ = key_;
+        }
       }
 
       @java.lang.Override
@@ -577,7 +449,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         if (other.getKey() != com.google.protobuf.ByteString.EMPTY) {
           setKey(other.getKey());
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -592,20 +464,41 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.admin.v2.CreateTableRequest.Split parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  key_ = input.readBytes();
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 10
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.admin.v2.CreateTableRequest.Split) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
+
+      private int bitField0_;
 
       private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
       /**
@@ -639,8 +532,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         if (value == null) {
           throw new NullPointerException();
         }
-
         key_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -656,7 +549,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
        * @return This builder for chaining.
        */
       public Builder clearKey() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         key_ = getDefaultInstance().getKey();
         onChanged();
         return this;
@@ -695,7 +588,19 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Split(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -715,7 +620,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int PARENT_FIELD_NUMBER = 1;
-  private volatile java.lang.Object parent_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object parent_ = "";
   /**
    *
    *
@@ -770,7 +677,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int TABLE_ID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object tableId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object tableId_ = "";
   /**
    *
    *
@@ -868,10 +777,12 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.TableOrBuilder getTableOrBuilder() {
-    return getTable();
+    return table_ == null ? com.google.bigtable.admin.v2.Table.getDefaultInstance() : table_;
   }
 
   public static final int INITIAL_SPLITS_FIELD_NUMBER = 4;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.admin.v2.CreateTableRequest.Split> initialSplits_;
   /**
    *
@@ -1033,7 +944,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     for (int i = 0; i < initialSplits_.size(); i++) {
       output.writeMessage(4, initialSplits_.get(i));
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -1054,7 +965,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     for (int i = 0; i < initialSplits_.size(); i++) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(4, initialSplits_.get(i));
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -1077,7 +988,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (!getTable().equals(other.getTable())) return false;
     }
     if (!getInitialSplitsList().equals(other.getInitialSplitsList())) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -1100,7 +1011,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       hash = (37 * hash) + INITIAL_SPLITS_FIELD_NUMBER;
       hash = (53 * hash) + getInitialSplitsList().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -1230,40 +1141,30 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     }
 
     // Construct using com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-        getInitialSplitsFieldBuilder();
-      }
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       parent_ = "";
-
       tableId_ = "";
-
-      if (tableBuilder_ == null) {
-        table_ = null;
-      } else {
-        table_ = null;
+      table_ = null;
+      if (tableBuilder_ != null) {
+        tableBuilder_.dispose();
         tableBuilder_ = null;
       }
       if (initialSplitsBuilder_ == null) {
         initialSplits_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
       } else {
+        initialSplits_ = null;
         initialSplitsBuilder_.clear();
       }
+      bitField0_ = (bitField0_ & ~0x00000008);
       return this;
     }
 
@@ -1291,25 +1192,38 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public com.google.bigtable.admin.v2.CreateTableRequest buildPartial() {
       com.google.bigtable.admin.v2.CreateTableRequest result =
           new com.google.bigtable.admin.v2.CreateTableRequest(this);
-      int from_bitField0_ = bitField0_;
-      result.parent_ = parent_;
-      result.tableId_ = tableId_;
-      if (tableBuilder_ == null) {
-        result.table_ = table_;
-      } else {
-        result.table_ = tableBuilder_.build();
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(
+        com.google.bigtable.admin.v2.CreateTableRequest result) {
       if (initialSplitsBuilder_ == null) {
-        if (((bitField0_ & 0x00000001) != 0)) {
+        if (((bitField0_ & 0x00000008) != 0)) {
           initialSplits_ = java.util.Collections.unmodifiableList(initialSplits_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.initialSplits_ = initialSplits_;
       } else {
         result.initialSplits_ = initialSplitsBuilder_.build();
       }
-      onBuilt();
-      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.CreateTableRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.parent_ = parent_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.tableId_ = tableId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.table_ = tableBuilder_ == null ? table_ : tableBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -1360,10 +1274,12 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         return this;
       if (!other.getParent().isEmpty()) {
         parent_ = other.parent_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getTableId().isEmpty()) {
         tableId_ = other.tableId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasTable()) {
@@ -1373,7 +1289,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         if (!other.initialSplits_.isEmpty()) {
           if (initialSplits_.isEmpty()) {
             initialSplits_ = other.initialSplits_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000008);
           } else {
             ensureInitialSplitsIsMutable();
             initialSplits_.addAll(other.initialSplits_);
@@ -1386,7 +1302,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
             initialSplitsBuilder_.dispose();
             initialSplitsBuilder_ = null;
             initialSplits_ = other.initialSplits_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000008);
             initialSplitsBuilder_ =
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                     ? getInitialSplitsFieldBuilder()
@@ -1396,7 +1312,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
           }
         }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -1411,17 +1327,63 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.CreateTableRequest parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                parent_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            case 18:
+              {
+                tableId_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getTableFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            case 34:
+              {
+                com.google.bigtable.admin.v2.CreateTableRequest.Split m =
+                    input.readMessage(
+                        com.google.bigtable.admin.v2.CreateTableRequest.Split.parser(),
+                        extensionRegistry);
+                if (initialSplitsBuilder_ == null) {
+                  ensureInitialSplitsIsMutable();
+                  initialSplits_.add(m);
+                } else {
+                  initialSplitsBuilder_.addMessage(m);
+                }
+                break;
+              } // case 34
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.admin.v2.CreateTableRequest) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -1497,8 +1459,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (value == null) {
         throw new NullPointerException();
       }
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1517,8 +1479,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearParent() {
-
       parent_ = getDefaultInstance().getParent();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1542,8 +1504,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1615,8 +1577,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (value == null) {
         throw new NullPointerException();
       }
-
       tableId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1634,8 +1596,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearTableId() {
-
       tableId_ = getDefaultInstance().getTableId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1658,8 +1620,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       tableId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1683,7 +1645,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return Whether the table field is set.
      */
     public boolean hasTable() {
-      return tableBuilder_ != null || table_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1720,11 +1682,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
           throw new NullPointerException();
         }
         table_ = value;
-        onChanged();
       } else {
         tableBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1740,11 +1702,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public Builder setTable(com.google.bigtable.admin.v2.Table.Builder builderForValue) {
       if (tableBuilder_ == null) {
         table_ = builderForValue.build();
-        onChanged();
       } else {
         tableBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1759,17 +1721,18 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      */
     public Builder mergeTable(com.google.bigtable.admin.v2.Table value) {
       if (tableBuilder_ == null) {
-        if (table_ != null) {
-          table_ =
-              com.google.bigtable.admin.v2.Table.newBuilder(table_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && table_ != null
+            && table_ != com.google.bigtable.admin.v2.Table.getDefaultInstance()) {
+          getTableBuilder().mergeFrom(value);
         } else {
           table_ = value;
         }
-        onChanged();
       } else {
         tableBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1783,14 +1746,13 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * </code>
      */
     public Builder clearTable() {
-      if (tableBuilder_ == null) {
-        table_ = null;
-        onChanged();
-      } else {
-        table_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      table_ = null;
+      if (tableBuilder_ != null) {
+        tableBuilder_.dispose();
         tableBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1804,7 +1766,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * </code>
      */
     public com.google.bigtable.admin.v2.Table.Builder getTableBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getTableFieldBuilder().getBuilder();
     }
@@ -1856,11 +1818,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         java.util.Collections.emptyList();
 
     private void ensureInitialSplitsIsMutable() {
-      if (!((bitField0_ & 0x00000001) != 0)) {
+      if (!((bitField0_ & 0x00000008) != 0)) {
         initialSplits_ =
             new java.util.ArrayList<com.google.bigtable.admin.v2.CreateTableRequest.Split>(
                 initialSplits_);
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
       }
     }
 
@@ -2223,7 +2185,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public Builder clearInitialSplits() {
       if (initialSplitsBuilder_ == null) {
         initialSplits_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000008);
         onChanged();
       } else {
         initialSplitsBuilder_.clear();
@@ -2441,7 +2403,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
                 com.google.bigtable.admin.v2.CreateTableRequest.Split.Builder,
                 com.google.bigtable.admin.v2.CreateTableRequest.SplitOrBuilder>(
                 initialSplits_,
-                ((bitField0_ & 0x00000001) != 0),
+                ((bitField0_ & 0x00000008) != 0),
                 getParentForChildren(),
                 isClean());
         initialSplits_ = null;
@@ -2481,7 +2443,18 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new CreateTableRequest(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

@@ -28,6 +28,7 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.WatchdogProvider;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -184,7 +185,10 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            // Here and everywhere in this test, disable channel priming so we won't need
+            // authentication for sending the prime request since we're only testing the settings.
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
@@ -242,7 +246,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId("my-project")
-            .setInstanceId("my-instance");
+            .setInstanceId("my-instance")
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
@@ -294,7 +299,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId("my-project")
-            .setInstanceId("my-instance");
+            .setInstanceId("my-instance")
+            .setRefreshingChannel(false);
 
     builder.readRowsSettings().setRetryableCodes(Code.DEADLINE_EXCEEDED);
 
@@ -328,7 +334,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
@@ -375,7 +382,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
@@ -422,7 +430,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     assertThat(builder.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()).isFalse();
 
@@ -535,7 +544,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
@@ -610,7 +620,8 @@ public class EnhancedBigtableStubSettingsTest {
     EnhancedBigtableStubSettings.Builder builder =
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
-            .setInstanceId(dummyInstanceId);
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
 
     RetrySettings retrySettings = RetrySettings.newBuilder().build();
     builder
@@ -635,6 +646,83 @@ public class EnhancedBigtableStubSettingsTest {
   }
 
   @Test
+  public void generateInitialChangeStreamPartitionsSettingsAreNotLostTest() {
+    String dummyProjectId = "my-project";
+    String dummyInstanceId = "my-instance";
+
+    EnhancedBigtableStubSettings.Builder builder =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
+
+    RetrySettings retrySettings = RetrySettings.newBuilder().build();
+    builder
+        .generateInitialChangeStreamPartitionsSettings()
+        .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
+        .setRetrySettings(retrySettings)
+        .build();
+
+    assertThat(builder.generateInitialChangeStreamPartitionsSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.generateInitialChangeStreamPartitionsSettings().getRetrySettings())
+        .isEqualTo(retrySettings);
+
+    assertThat(builder.build().generateInitialChangeStreamPartitionsSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.build().generateInitialChangeStreamPartitionsSettings().getRetrySettings())
+        .isEqualTo(retrySettings);
+
+    assertThat(
+            builder
+                .build()
+                .toBuilder()
+                .generateInitialChangeStreamPartitionsSettings()
+                .getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(
+            builder
+                .build()
+                .toBuilder()
+                .generateInitialChangeStreamPartitionsSettings()
+                .getRetrySettings())
+        .isEqualTo(retrySettings);
+  }
+
+  @Test
+  public void readChangeStreamSettingsAreNotLostTest() {
+    String dummyProjectId = "my-project";
+    String dummyInstanceId = "my-instance";
+
+    EnhancedBigtableStubSettings.Builder builder =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setRefreshingChannel(false);
+
+    RetrySettings retrySettings = RetrySettings.newBuilder().build();
+    builder
+        .readChangeStreamSettings()
+        .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
+        .setRetrySettings(retrySettings)
+        .build();
+
+    assertThat(builder.readChangeStreamSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.readChangeStreamSettings().getRetrySettings()).isEqualTo(retrySettings);
+
+    assertThat(builder.build().readChangeStreamSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.build().readChangeStreamSettings().getRetrySettings())
+        .isEqualTo(retrySettings);
+
+    assertThat(builder.build().toBuilder().readChangeStreamSettings().getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
+    assertThat(builder.build().toBuilder().readChangeStreamSettings().getRetrySettings())
+        .isEqualTo(retrySettings);
+  }
+
+  @Test
   public void checkAndMutateRowSettingsAreSane() {
     UnaryCallSettings.Builder<ConditionalRowMutation, Boolean> builder =
         EnhancedBigtableStubSettings.newBuilder().checkAndMutateRowSettings();
@@ -643,6 +731,15 @@ public class EnhancedBigtableStubSettingsTest {
     // default.
     assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
     assertThat(builder.getRetryableCodes()).isEmpty();
+  }
+
+  @Test
+  public void pingAndWarmRetriesAreDisabled() {
+    UnaryCallSettings.Builder<PingAndWarmRequest, Void> builder =
+        EnhancedBigtableStubSettings.newBuilder().pingAndWarmSettings();
+
+    assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isAtMost(Duration.ofSeconds(30));
   }
 
   private void verifyRetrySettingAreSane(Set<Code> retryCodes, RetrySettings retrySettings) {
@@ -667,9 +764,7 @@ public class EnhancedBigtableStubSettingsTest {
         EnhancedBigtableStubSettings.newBuilder()
             .setProjectId(dummyProjectId)
             .setInstanceId(dummyInstanceId);
-    assertThat(builder.isRefreshingChannel()).isFalse();
-    assertThat(builder.build().isRefreshingChannel()).isFalse();
-    assertThat(builder.build().toBuilder().isRefreshingChannel()).isFalse();
+    assertThat(builder.isRefreshingChannel()).isTrue();
   }
 
   @Test
@@ -701,6 +796,9 @@ public class EnhancedBigtableStubSettingsTest {
     "bulkReadRowsSettings",
     "checkAndMutateRowSettings",
     "readModifyWriteRowSettings",
+    "generateInitialChangeStreamPartitionsSettings",
+    "readChangeStreamSettings",
+    "pingAndWarmSettings",
   };
 
   @Test
@@ -710,6 +808,7 @@ public class EnhancedBigtableStubSettingsTest {
             .setProjectId("our-project-85")
             .setInstanceId("our-instance-06")
             .setAppProfileId("our-appProfile-06")
+            .setRefreshingChannel(false)
             .build();
 
     checkToString(defaultSettings);
@@ -732,8 +831,8 @@ public class EnhancedBigtableStubSettingsTest {
         nonStaticFields++;
       }
     }
-    // failure will signal about adding a new settings property
-    assertThat(SETTINGS_LIST.length).isEqualTo(nonStaticFields);
+    // failure will signal about adding a new settings property - feature flag field
+    assertThat(SETTINGS_LIST.length).isEqualTo(nonStaticFields - 1);
   }
 
   void checkToString(EnhancedBigtableStubSettings settings) {

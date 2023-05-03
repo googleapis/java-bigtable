@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Stopwatch;
@@ -118,14 +119,11 @@ class MetricsTracer extends BigtableTracer {
 
     TagContextBuilder tagCtx =
         newTagCtxBuilder()
-            .putLocal(RpcMeasureConstants.BIGTABLE_STATUS, Util.extractStatus(throwable));
+            .putLocal(
+                RpcMeasureConstants.BIGTABLE_STATUS,
+                TagValue.create(Util.extractStatus(throwable)));
 
     measures.record(tagCtx.build());
-  }
-
-  @Override
-  public void connectionSelected(String s) {
-    // noop: cardinality for connection ids is too high to use as tags
   }
 
   @Override
@@ -169,21 +167,20 @@ class MetricsTracer extends BigtableTracer {
                 RpcMeasureConstants.BIGTABLE_ATTEMPT_LATENCY,
                 attemptTimer.elapsed(TimeUnit.MILLISECONDS));
 
+    // Patch the throwable until it's fixed in gax. When an attempt failed,
+    // it'll throw a ServerStreamingAttemptException. Unwrap the exception
+    // so it could get processed by extractStatus
+    if (throwable instanceof ServerStreamingAttemptException) {
+      throwable = throwable.getCause();
+    }
+
     TagContextBuilder tagCtx =
         newTagCtxBuilder()
-            .putLocal(RpcMeasureConstants.BIGTABLE_STATUS, Util.extractStatus(throwable));
+            .putLocal(
+                RpcMeasureConstants.BIGTABLE_STATUS,
+                TagValue.create(Util.extractStatus(throwable)));
 
     measures.record(tagCtx.build());
-  }
-
-  @Override
-  public void lroStartFailed(Throwable throwable) {
-    // noop
-  }
-
-  @Override
-  public void lroStartSucceeded() {
-    // noop
   }
 
   @Override
@@ -193,16 +190,6 @@ class MetricsTracer extends BigtableTracer {
     }
     attemptResponseCount++;
     operationResponseCount++;
-  }
-
-  @Override
-  public void requestSent() {
-    // noop: no operations are client streaming
-  }
-
-  @Override
-  public void batchRequestSent(long elementCount, long requestSize) {
-    // noop
   }
 
   @Override
@@ -222,7 +209,8 @@ class MetricsTracer extends BigtableTracer {
     }
     measures.record(
         newTagCtxBuilder()
-            .putLocal(RpcMeasureConstants.BIGTABLE_STATUS, Util.extractStatus(throwable))
+            .putLocal(
+                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create(Util.extractStatus(throwable)))
             .build());
   }
 

@@ -54,7 +54,11 @@ import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
+import com.google.bigtable.admin.v2.UndeleteTableMetadata;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
 import com.google.iam.v1.SetIamPolicyRequest;
@@ -102,8 +106,26 @@ public abstract class BigtableTableAdminStub implements BackgroundResource {
     throw new UnsupportedOperationException("Not implemented: getTableCallable()");
   }
 
+  public OperationCallable<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationCallable() {
+    throw new UnsupportedOperationException("Not implemented: updateTableOperationCallable()");
+  }
+
+  public UnaryCallable<UpdateTableRequest, Operation> updateTableCallable() {
+    throw new UnsupportedOperationException("Not implemented: updateTableCallable()");
+  }
+
   public UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable() {
     throw new UnsupportedOperationException("Not implemented: deleteTableCallable()");
+  }
+
+  public OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationCallable() {
+    throw new UnsupportedOperationException("Not implemented: undeleteTableOperationCallable()");
+  }
+
+  public UnaryCallable<UndeleteTableRequest, Operation> undeleteTableCallable() {
+    throw new UnsupportedOperationException("Not implemented: undeleteTableCallable()");
   }
 
   public UnaryCallable<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesCallable() {

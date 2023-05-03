@@ -50,97 +50,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     return this.unknownFields;
   }
 
-  private GcRule(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 8:
-            {
-              rule_ = input.readInt32();
-              ruleCase_ = 1;
-              break;
-            }
-          case 18:
-            {
-              com.google.protobuf.Duration.Builder subBuilder = null;
-              if (ruleCase_ == 2) {
-                subBuilder = ((com.google.protobuf.Duration) rule_).toBuilder();
-              }
-              rule_ = input.readMessage(com.google.protobuf.Duration.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((com.google.protobuf.Duration) rule_);
-                rule_ = subBuilder.buildPartial();
-              }
-              ruleCase_ = 2;
-              break;
-            }
-          case 26:
-            {
-              com.google.bigtable.admin.v2.GcRule.Intersection.Builder subBuilder = null;
-              if (ruleCase_ == 3) {
-                subBuilder = ((com.google.bigtable.admin.v2.GcRule.Intersection) rule_).toBuilder();
-              }
-              rule_ =
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.GcRule.Intersection.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((com.google.bigtable.admin.v2.GcRule.Intersection) rule_);
-                rule_ = subBuilder.buildPartial();
-              }
-              ruleCase_ = 3;
-              break;
-            }
-          case 34:
-            {
-              com.google.bigtable.admin.v2.GcRule.Union.Builder subBuilder = null;
-              if (ruleCase_ == 4) {
-                subBuilder = ((com.google.bigtable.admin.v2.GcRule.Union) rule_).toBuilder();
-              }
-              rule_ =
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.GcRule.Union.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom((com.google.bigtable.admin.v2.GcRule.Union) rule_);
-                rule_ = subBuilder.buildPartial();
-              }
-              ruleCase_ = 4;
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.TableProto
         .internal_static_google_bigtable_admin_v2_GcRule_descriptor;
@@ -246,60 +155,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       return this.unknownFields;
     }
 
-    private Intersection(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  rules_ = new java.util.ArrayList<com.google.bigtable.admin.v2.GcRule>();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                rules_.add(
-                    input.readMessage(
-                        com.google.bigtable.admin.v2.GcRule.parser(), extensionRegistry));
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          rules_ = java.util.Collections.unmodifiableList(rules_);
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.TableProto
           .internal_static_google_bigtable_admin_v2_GcRule_Intersection_descriptor;
@@ -316,6 +171,8 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     }
 
     public static final int RULES_FIELD_NUMBER = 1;
+
+    @SuppressWarnings("serial")
     private java.util.List<com.google.bigtable.admin.v2.GcRule> rules_;
     /**
      *
@@ -401,7 +258,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < rules_.size(); i++) {
         output.writeMessage(1, rules_.get(i));
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -413,7 +270,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < rules_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream.computeMessageSize(1, rules_.get(i));
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -430,7 +287,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
           (com.google.bigtable.admin.v2.GcRule.Intersection) obj;
 
       if (!getRulesList().equals(other.getRulesList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -445,7 +302,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
         hash = (37 * hash) + RULES_FIELD_NUMBER;
         hash = (53 * hash) + getRulesList().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -576,30 +433,23 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       }
 
       // Construct using com.google.bigtable.admin.v2.GcRule.Intersection.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-          getRulesFieldBuilder();
-        }
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         if (rulesBuilder_ == null) {
           rules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
         } else {
+          rules_ = null;
           rulesBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
 
@@ -627,7 +477,16 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       public com.google.bigtable.admin.v2.GcRule.Intersection buildPartial() {
         com.google.bigtable.admin.v2.GcRule.Intersection result =
             new com.google.bigtable.admin.v2.GcRule.Intersection(this);
-        int from_bitField0_ = bitField0_;
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(
+          com.google.bigtable.admin.v2.GcRule.Intersection result) {
         if (rulesBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
             rules_ = java.util.Collections.unmodifiableList(rules_);
@@ -637,8 +496,10 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
         } else {
           result.rules_ = rulesBuilder_.build();
         }
-        onBuilt();
-        return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.admin.v2.GcRule.Intersection result) {
+        int from_bitField0_ = bitField0_;
       }
 
       @java.lang.Override
@@ -716,7 +577,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
             }
           }
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -731,18 +592,44 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.admin.v2.GcRule.Intersection parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  com.google.bigtable.admin.v2.GcRule m =
+                      input.readMessage(
+                          com.google.bigtable.admin.v2.GcRule.parser(), extensionRegistry);
+                  if (rulesBuilder_ == null) {
+                    ensureRulesIsMutable();
+                    rules_.add(m);
+                  } else {
+                    rulesBuilder_.addMessage(m);
+                  }
+                  break;
+                } // case 10
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.admin.v2.GcRule.Intersection) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -1129,7 +1016,19 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Intersection(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -1238,60 +1137,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       return this.unknownFields;
     }
 
-    private Union(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  rules_ = new java.util.ArrayList<com.google.bigtable.admin.v2.GcRule>();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                rules_.add(
-                    input.readMessage(
-                        com.google.bigtable.admin.v2.GcRule.parser(), extensionRegistry));
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          rules_ = java.util.Collections.unmodifiableList(rules_);
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.TableProto
           .internal_static_google_bigtable_admin_v2_GcRule_Union_descriptor;
@@ -1308,6 +1153,8 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     }
 
     public static final int RULES_FIELD_NUMBER = 1;
+
+    @SuppressWarnings("serial")
     private java.util.List<com.google.bigtable.admin.v2.GcRule> rules_;
     /**
      *
@@ -1393,7 +1240,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < rules_.size(); i++) {
         output.writeMessage(1, rules_.get(i));
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -1405,7 +1252,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       for (int i = 0; i < rules_.size(); i++) {
         size += com.google.protobuf.CodedOutputStream.computeMessageSize(1, rules_.get(i));
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -1422,7 +1269,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
           (com.google.bigtable.admin.v2.GcRule.Union) obj;
 
       if (!getRulesList().equals(other.getRulesList())) return false;
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -1437,7 +1284,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
         hash = (37 * hash) + RULES_FIELD_NUMBER;
         hash = (53 * hash) + getRulesList().hashCode();
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -1568,30 +1415,23 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       }
 
       // Construct using com.google.bigtable.admin.v2.GcRule.Union.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-          getRulesFieldBuilder();
-        }
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         if (rulesBuilder_ == null) {
           rules_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
         } else {
+          rules_ = null;
           rulesBuilder_.clear();
         }
+        bitField0_ = (bitField0_ & ~0x00000001);
         return this;
       }
 
@@ -1619,7 +1459,15 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       public com.google.bigtable.admin.v2.GcRule.Union buildPartial() {
         com.google.bigtable.admin.v2.GcRule.Union result =
             new com.google.bigtable.admin.v2.GcRule.Union(this);
-        int from_bitField0_ = bitField0_;
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(com.google.bigtable.admin.v2.GcRule.Union result) {
         if (rulesBuilder_ == null) {
           if (((bitField0_ & 0x00000001) != 0)) {
             rules_ = java.util.Collections.unmodifiableList(rules_);
@@ -1629,8 +1477,10 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
         } else {
           result.rules_ = rulesBuilder_.build();
         }
-        onBuilt();
-        return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.admin.v2.GcRule.Union result) {
+        int from_bitField0_ = bitField0_;
       }
 
       @java.lang.Override
@@ -1707,7 +1557,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
             }
           }
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -1722,17 +1572,44 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.admin.v2.GcRule.Union parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  com.google.bigtable.admin.v2.GcRule m =
+                      input.readMessage(
+                          com.google.bigtable.admin.v2.GcRule.parser(), extensionRegistry);
+                  if (rulesBuilder_ == null) {
+                    ensureRulesIsMutable();
+                    rules_.add(m);
+                  } else {
+                    rulesBuilder_.addMessage(m);
+                  }
+                  break;
+                } // case 10
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage = (com.google.bigtable.admin.v2.GcRule.Union) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -2119,7 +1996,19 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new Union(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -2411,7 +2300,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     if (ruleCase_ == 4) {
       output.writeMessage(4, (com.google.bigtable.admin.v2.GcRule.Union) rule_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -2440,7 +2329,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
           com.google.protobuf.CodedOutputStream.computeMessageSize(
               4, (com.google.bigtable.admin.v2.GcRule.Union) rule_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -2472,7 +2361,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       case 0:
       default:
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -2503,7 +2392,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       case 0:
       default:
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -2631,22 +2520,25 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     }
 
     // Construct using com.google.bigtable.admin.v2.GcRule.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
+      if (maxAgeBuilder_ != null) {
+        maxAgeBuilder_.clear();
+      }
+      if (intersectionBuilder_ != null) {
+        intersectionBuilder_.clear();
+      }
+      if (unionBuilder_ != null) {
+        unionBuilder_.clear();
+      }
       ruleCase_ = 0;
       rule_ = null;
       return this;
@@ -2675,33 +2567,30 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public com.google.bigtable.admin.v2.GcRule buildPartial() {
       com.google.bigtable.admin.v2.GcRule result = new com.google.bigtable.admin.v2.GcRule(this);
-      if (ruleCase_ == 1) {
-        result.rule_ = rule_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (ruleCase_ == 2) {
-        if (maxAgeBuilder_ == null) {
-          result.rule_ = rule_;
-        } else {
-          result.rule_ = maxAgeBuilder_.build();
-        }
-      }
-      if (ruleCase_ == 3) {
-        if (intersectionBuilder_ == null) {
-          result.rule_ = rule_;
-        } else {
-          result.rule_ = intersectionBuilder_.build();
-        }
-      }
-      if (ruleCase_ == 4) {
-        if (unionBuilder_ == null) {
-          result.rule_ = rule_;
-        } else {
-          result.rule_ = unionBuilder_.build();
-        }
-      }
-      result.ruleCase_ = ruleCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.GcRule result) {
+      int from_bitField0_ = bitField0_;
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.admin.v2.GcRule result) {
+      result.ruleCase_ = ruleCase_;
+      result.rule_ = this.rule_;
+      if (ruleCase_ == 2 && maxAgeBuilder_ != null) {
+        result.rule_ = maxAgeBuilder_.build();
+      }
+      if (ruleCase_ == 3 && intersectionBuilder_ != null) {
+        result.rule_ = intersectionBuilder_.build();
+      }
+      if (ruleCase_ == 4 && unionBuilder_ != null) {
+        result.rule_ = unionBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -2775,7 +2664,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
             break;
           }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -2790,17 +2679,55 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.GcRule parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 8:
+              {
+                rule_ = input.readInt32();
+                ruleCase_ = 1;
+                break;
+              } // case 8
+            case 18:
+              {
+                input.readMessage(getMaxAgeFieldBuilder().getBuilder(), extensionRegistry);
+                ruleCase_ = 2;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getIntersectionFieldBuilder().getBuilder(), extensionRegistry);
+                ruleCase_ = 3;
+                break;
+              } // case 26
+            case 34:
+              {
+                input.readMessage(getUnionFieldBuilder().getBuilder(), extensionRegistry);
+                ruleCase_ = 4;
+                break;
+              } // case 34
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.admin.v2.GcRule) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -2817,6 +2744,8 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     /**
      *
@@ -2862,6 +2791,7 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder setMaxNumVersions(int value) {
+
       ruleCase_ = 1;
       rule_ = value;
       onChanged();
@@ -3106,7 +3036,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       }
       ruleCase_ = 2;
       onChanged();
-      ;
       return maxAgeBuilder_;
     }
 
@@ -3316,7 +3245,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       }
       ruleCase_ = 3;
       onChanged();
-      ;
       return intersectionBuilder_;
     }
 
@@ -3525,7 +3453,6 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
       }
       ruleCase_ = 4;
       onChanged();
-      ;
       return unionBuilder_;
     }
 
@@ -3561,7 +3488,18 @@ public final class GcRule extends com.google.protobuf.GeneratedMessageV3
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new GcRule(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

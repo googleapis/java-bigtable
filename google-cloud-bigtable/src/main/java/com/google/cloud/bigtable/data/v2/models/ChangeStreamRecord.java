@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2022 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.stats;
+package com.google.cloud.bigtable.data.v2.models;
 
-public final class MavenPlaceholderShaded {
-  /**
-   * This class is here to force generation of source javadoc jars so that the maven release process
-   * doesn't complain. The shading plugin generated a shaded jar of bigtable-stats, but it doesn't
-   * generate javadoc or source files; this class is here as a hack and better methods should be
-   * employed.
-   */
-  private MavenPlaceholderShaded() {}
-}
+import com.google.api.core.InternalApi;
+import java.io.Serializable;
+
+/**
+ * Default representation of a change stream record, which can be a Heartbeat, a CloseStream, or a
+ * logical mutation.
+ */
+@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
+public interface ChangeStreamRecord extends Serializable {}

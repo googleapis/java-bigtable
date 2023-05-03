@@ -58,7 +58,11 @@ import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
+import com.google.bigtable.admin.v2.UndeleteTableMetadata;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.ImmutableMap;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
@@ -115,6 +119,14 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setResponseMarshaller(ProtoUtils.marshaller(Table.getDefaultInstance()))
           .build();
 
+  private static final MethodDescriptor<UpdateTableRequest, Operation> updateTableMethodDescriptor =
+      MethodDescriptor.<UpdateTableRequest, Operation>newBuilder()
+          .setType(MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UpdateTable")
+          .setRequestMarshaller(ProtoUtils.marshaller(UpdateTableRequest.getDefaultInstance()))
+          .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+          .build();
+
   private static final MethodDescriptor<DeleteTableRequest, Empty> deleteTableMethodDescriptor =
       MethodDescriptor.<DeleteTableRequest, Empty>newBuilder()
           .setType(MethodDescriptor.MethodType.UNARY)
@@ -122,6 +134,16 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
           .setRequestMarshaller(ProtoUtils.marshaller(DeleteTableRequest.getDefaultInstance()))
           .setResponseMarshaller(ProtoUtils.marshaller(Empty.getDefaultInstance()))
           .build();
+
+  private static final MethodDescriptor<UndeleteTableRequest, Operation>
+      undeleteTableMethodDescriptor =
+          MethodDescriptor.<UndeleteTableRequest, Operation>newBuilder()
+              .setType(MethodDescriptor.MethodType.UNARY)
+              .setFullMethodName("google.bigtable.admin.v2.BigtableTableAdmin/UndeleteTable")
+              .setRequestMarshaller(
+                  ProtoUtils.marshaller(UndeleteTableRequest.getDefaultInstance()))
+              .setResponseMarshaller(ProtoUtils.marshaller(Operation.getDefaultInstance()))
+              .build();
 
   private static final MethodDescriptor<ModifyColumnFamiliesRequest, Table>
       modifyColumnFamiliesMethodDescriptor =
@@ -293,7 +315,13 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   private final UnaryCallable<ListTablesRequest, ListTablesResponse> listTablesCallable;
   private final UnaryCallable<ListTablesRequest, ListTablesPagedResponse> listTablesPagedCallable;
   private final UnaryCallable<GetTableRequest, Table> getTableCallable;
+  private final UnaryCallable<UpdateTableRequest, Operation> updateTableCallable;
+  private final OperationCallable<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationCallable;
   private final UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable;
+  private final UnaryCallable<UndeleteTableRequest, Operation> undeleteTableCallable;
+  private final OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationCallable;
   private final UnaryCallable<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesCallable;
   private final UnaryCallable<DropRowRangeRequest, Empty> dropRowRangeCallable;
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
@@ -410,9 +438,29 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
                   return params.build();
                 })
             .build();
+    GrpcCallSettings<UpdateTableRequest, Operation> updateTableTransportSettings =
+        GrpcCallSettings.<UpdateTableRequest, Operation>newBuilder()
+            .setMethodDescriptor(updateTableMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
+                  params.put("table.name", String.valueOf(request.getTable().getName()));
+                  return params.build();
+                })
+            .build();
     GrpcCallSettings<DeleteTableRequest, Empty> deleteTableTransportSettings =
         GrpcCallSettings.<DeleteTableRequest, Empty>newBuilder()
             .setMethodDescriptor(deleteTableMethodDescriptor)
+            .setParamsExtractor(
+                request -> {
+                  ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
+                  params.put("name", String.valueOf(request.getName()));
+                  return params.build();
+                })
+            .build();
+    GrpcCallSettings<UndeleteTableRequest, Operation> undeleteTableTransportSettings =
+        GrpcCallSettings.<UndeleteTableRequest, Operation>newBuilder()
+            .setMethodDescriptor(undeleteTableMethodDescriptor)
             .setParamsExtractor(
                 request -> {
                   ImmutableMap.Builder<String, String> params = ImmutableMap.builder();
@@ -618,9 +666,27 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
     this.getTableCallable =
         callableFactory.createUnaryCallable(
             getTableTransportSettings, settings.getTableSettings(), clientContext);
+    this.updateTableCallable =
+        callableFactory.createUnaryCallable(
+            updateTableTransportSettings, settings.updateTableSettings(), clientContext);
+    this.updateTableOperationCallable =
+        callableFactory.createOperationCallable(
+            updateTableTransportSettings,
+            settings.updateTableOperationSettings(),
+            clientContext,
+            operationsStub);
     this.deleteTableCallable =
         callableFactory.createUnaryCallable(
             deleteTableTransportSettings, settings.deleteTableSettings(), clientContext);
+    this.undeleteTableCallable =
+        callableFactory.createUnaryCallable(
+            undeleteTableTransportSettings, settings.undeleteTableSettings(), clientContext);
+    this.undeleteTableOperationCallable =
+        callableFactory.createOperationCallable(
+            undeleteTableTransportSettings,
+            settings.undeleteTableOperationSettings(),
+            clientContext,
+            operationsStub);
     this.modifyColumnFamiliesCallable =
         callableFactory.createUnaryCallable(
             modifyColumnFamiliesTransportSettings,
@@ -744,8 +810,30 @@ public class GrpcBigtableTableAdminStub extends BigtableTableAdminStub {
   }
 
   @Override
+  public UnaryCallable<UpdateTableRequest, Operation> updateTableCallable() {
+    return updateTableCallable;
+  }
+
+  @Override
+  public OperationCallable<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationCallable() {
+    return updateTableOperationCallable;
+  }
+
+  @Override
   public UnaryCallable<DeleteTableRequest, Empty> deleteTableCallable() {
     return deleteTableCallable;
+  }
+
+  @Override
+  public UnaryCallable<UndeleteTableRequest, Operation> undeleteTableCallable() {
+    return undeleteTableCallable;
+  }
+
+  @Override
+  public OperationCallable<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationCallable() {
+    return undeleteTableOperationCallable;
   }
 
   @Override

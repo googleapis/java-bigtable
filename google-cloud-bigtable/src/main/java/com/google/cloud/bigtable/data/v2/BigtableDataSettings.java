@@ -15,22 +15,29 @@
  */
 package com.google.cloud.bigtable.data.v2;
 
-import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
+import com.google.auth.Credentials;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.cloud.bigtable.stats.BigtableStackdriverStatsExporter;
+import com.google.cloud.bigtable.stats.BuiltinViews;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
+import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,6 +77,7 @@ public final class BigtableDataSettings {
 
   private static final Logger LOGGER = Logger.getLogger(BigtableDataSettings.class.getName());
   private static final String BIGTABLE_EMULATOR_HOST_ENV_VAR = "BIGTABLE_EMULATOR_HOST";
+  private static final AtomicBoolean BUILTIN_METRICS_REGISTERED = new AtomicBoolean(false);
 
   private final EnhancedBigtableStubSettings stubSettings;
 
@@ -117,17 +125,13 @@ public final class BigtableDataSettings {
         .stubSettings()
         .setCredentialsProvider(NoCredentialsProvider.create())
         .setEndpoint(hostname + ":" + port)
+        // disable channel refreshing when creating an emulator
+        .setRefreshingChannel(false)
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()
                 .setMaxInboundMessageSize(256 * 1024 * 1024)
-                .setPoolSize(1)
-                .setChannelConfigurator(
-                    new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
-                      @Override
-                      public ManagedChannelBuilder apply(ManagedChannelBuilder input) {
-                        return input.usePlaintext();
-                      }
-                    })
+                .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
+                .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
                 .setKeepAliveTime(Duration.ofSeconds(61)) // sends ping in this interval
                 .setKeepAliveTimeout(
                     Duration.ofSeconds(10)) // wait this long before considering the connection dead
@@ -193,6 +197,35 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
+  /**
+   * Register built in metrics.
+   *
+   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
+   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
+   */
+  @BetaApi("Built in metric is not currently stable and may change in the future")
+  public static void enableBuiltinMetrics() throws IOException {
+    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
+      BuiltinViews.registerBigtableBuiltinViews();
+      BigtableStackdriverStatsExporter.register(GoogleCredentials.getApplicationDefault());
+    }
+  }
+
+  /**
+   * Register built in metrics with credentials. The credentials need to have metric write access
+   * for all the projects you're publishing to.
+   *
+   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
+   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
+   */
+  @BetaApi("Built in metric is not currently stable and may change in the future")
+  public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
+    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
+      BuiltinViews.registerBigtableBuiltinViews();
+      BigtableStackdriverStatsExporter.register(credentials);
+    }
+  }
+
   /** Returns the target project id. */
   public String getProjectId() {
     return stubSettings.getProjectId();
@@ -208,17 +241,21 @@ public final class BigtableDataSettings {
     return stubSettings.getAppProfileId();
   }
 
-  /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-  @BetaApi("Channel priming is not currently stable and may change in the future")
+  /**
+   * Gets if channels will gracefully refresh connections to Cloud Bigtable service
+   *
+   * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+   */
+  @Deprecated
   public boolean isRefreshingChannel() {
     return stubSettings.isRefreshingChannel();
   }
 
   /**
-   * Gets the table ids that will be used to send warmup requests when {@link
-   * #isRefreshingChannel()} is enabled.
+   * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+   *     requests will be sent to all table ids of the instance.
    */
-  @BetaApi("Channel priming is not currently stable and may change in the future")
+  @Deprecated
   public List<String> getPrimingTableIds() {
     return stubSettings.getPrimedTableIds();
   }
@@ -240,6 +277,15 @@ public final class BigtableDataSettings {
   @Nullable
   public Long getBatchMutationsTargetRpcLatencyMs() {
     return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+  }
+
+  /**
+   * Gets if flow control is enabled for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+   * based on the load of the Bigtable server.
+   */
+  @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+  public boolean isBulkMutationFlowControlEnabled() {
+    return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
   }
 
   /** Returns the underlying RPC settings. */
@@ -359,41 +405,44 @@ public final class BigtableDataSettings {
     /**
      * Configure periodic gRPC channel refreshes.
      *
-     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is an
-     * experimental feature to address tail latency caused by the service dropping long lived gRPC
-     * connections, which causes the client to renegotiate the gRPC connection in the request path,
-     * which causes periodic spikes in latency
+     * <p>This feature will gracefully refresh connections to the Cloud Bigtable service. This is a
+     * feature to address tail latency caused by the service dropping long lived gRPC connections,
+     * which causes the client to renegotiate the gRPC connection in the request path, which causes
+     * periodic spikes in latency.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    @Deprecated
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       stubSettings.setRefreshingChannel(isRefreshingChannel);
       return this;
     }
 
-    /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    /**
+     * Gets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+     */
+    @Deprecated
     public boolean isRefreshingChannel() {
       return stubSettings.isRefreshingChannel();
     }
 
     /**
-     * Configure the tables that can be used to prime a channel during a refresh.
-     *
-     * <p>These tables work in conjunction with {@link #setRefreshingChannel(boolean)}. When a
-     * channel is refreshed, it will send a request to each table to warm up the serverside caches
-     * before admitting the new channel into the channel pool.
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
      */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    @Deprecated
     public Builder setPrimingTableIds(String... tableIds) {
       stubSettings.setPrimedTableIds(tableIds);
       return this;
     }
 
     /**
-     * Gets the table ids that will be used to send warmup requests when {@link
-     * #setRefreshingChannel(boolean)} is enabled.
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
      */
-    @BetaApi("Channel priming is not currently stable and may change in the future")
+    @Deprecated
     public List<String> getPrimingTableIds() {
       return stubSettings.getPrimedTableIds();
     }
@@ -464,6 +513,28 @@ public final class BigtableDataSettings {
     @Nullable
     public Long getTargetRpcLatencyMsForBatchMutation() {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+    }
+
+    /**
+     * Configure flow control for {@link BigtableDataClient#newBulkMutationBatcher(String)} based on
+     * the current load on the Bigtable cluster.
+     *
+     * <p>This is different from the {@link FlowController} that's always enabled on batch reads and
+     * batch writes, which limits the number of outstanding requests to the Bigtable server.
+     */
+    @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+    public Builder setBulkMutationFlowControl(boolean isEnableFlowControl) {
+      stubSettings.bulkMutateRowsSettings().setServerInitiatedFlowControl(isEnableFlowControl);
+      return this;
+    }
+
+    /**
+     * Gets if flow control is enabled for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+     * based on the load of the Bigtable server.
+     */
+    @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+    public boolean isBulkMutationFlowControlEnabled() {
+      return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
     }
 
     /**

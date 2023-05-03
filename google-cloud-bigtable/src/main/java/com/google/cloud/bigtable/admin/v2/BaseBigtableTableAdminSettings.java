@@ -63,7 +63,11 @@ import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
+import com.google.bigtable.admin.v2.UndeleteTableMetadata;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.iam.v1.GetIamPolicyRequest;
 import com.google.iam.v1.Policy;
@@ -112,9 +116,31 @@ public class BaseBigtableTableAdminSettings extends ClientSettings<BaseBigtableT
     return ((BigtableTableAdminStubSettings) getStubSettings()).getTableSettings();
   }
 
+  /** Returns the object with the settings used for calls to updateTable. */
+  public UnaryCallSettings<UpdateTableRequest, Operation> updateTableSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).updateTableSettings();
+  }
+
+  /** Returns the object with the settings used for calls to updateTable. */
+  public OperationCallSettings<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).updateTableOperationSettings();
+  }
+
   /** Returns the object with the settings used for calls to deleteTable. */
   public UnaryCallSettings<DeleteTableRequest, Empty> deleteTableSettings() {
     return ((BigtableTableAdminStubSettings) getStubSettings()).deleteTableSettings();
+  }
+
+  /** Returns the object with the settings used for calls to undeleteTable. */
+  public UnaryCallSettings<UndeleteTableRequest, Operation> undeleteTableSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).undeleteTableSettings();
+  }
+
+  /** Returns the object with the settings used for calls to undeleteTable. */
+  public OperationCallSettings<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationSettings() {
+    return ((BigtableTableAdminStubSettings) getStubSettings()).undeleteTableOperationSettings();
   }
 
   /** Returns the object with the settings used for calls to modifyColumnFamilies. */
@@ -352,9 +378,31 @@ public class BaseBigtableTableAdminSettings extends ClientSettings<BaseBigtableT
       return getStubSettingsBuilder().getTableSettings();
     }
 
+    /** Returns the builder for the settings used for calls to updateTable. */
+    public UnaryCallSettings.Builder<UpdateTableRequest, Operation> updateTableSettings() {
+      return getStubSettingsBuilder().updateTableSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to updateTable. */
+    public OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
+        updateTableOperationSettings() {
+      return getStubSettingsBuilder().updateTableOperationSettings();
+    }
+
     /** Returns the builder for the settings used for calls to deleteTable. */
     public UnaryCallSettings.Builder<DeleteTableRequest, Empty> deleteTableSettings() {
       return getStubSettingsBuilder().deleteTableSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to undeleteTable. */
+    public UnaryCallSettings.Builder<UndeleteTableRequest, Operation> undeleteTableSettings() {
+      return getStubSettingsBuilder().undeleteTableSettings();
+    }
+
+    /** Returns the builder for the settings used for calls to undeleteTable. */
+    public OperationCallSettings.Builder<UndeleteTableRequest, Table, UndeleteTableMetadata>
+        undeleteTableOperationSettings() {
+      return getStubSettingsBuilder().undeleteTableOperationSettings();
     }
 
     /** Returns the builder for the settings used for calls to modifyColumnFamilies. */

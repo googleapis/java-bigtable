@@ -50,92 +50,6 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     return this.unknownFields;
   }
 
-  private UpdateInstanceMetadata(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.Builder subBuilder = null;
-              if (originalRequest_ != null) {
-                subBuilder = originalRequest_.toBuilder();
-              }
-              originalRequest_ =
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.parser(),
-                      extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(originalRequest_);
-                originalRequest_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 18:
-            {
-              com.google.protobuf.Timestamp.Builder subBuilder = null;
-              if (requestTime_ != null) {
-                subBuilder = requestTime_.toBuilder();
-              }
-              requestTime_ =
-                  input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(requestTime_);
-                requestTime_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 26:
-            {
-              com.google.protobuf.Timestamp.Builder subBuilder = null;
-              if (finishTime_ != null) {
-                subBuilder = finishTime_.toBuilder();
-              }
-              finishTime_ =
-                  input.readMessage(com.google.protobuf.Timestamp.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(finishTime_);
-                finishTime_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_UpdateInstanceMetadata_descriptor;
@@ -197,7 +111,9 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
   @java.lang.Override
   public com.google.bigtable.admin.v2.PartialUpdateInstanceRequestOrBuilder
       getOriginalRequestOrBuilder() {
-    return getOriginalRequest();
+    return originalRequest_ == null
+        ? com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.getDefaultInstance()
+        : originalRequest_;
   }
 
   public static final int REQUEST_TIME_FIELD_NUMBER = 2;
@@ -243,7 +159,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getRequestTimeOrBuilder() {
-    return getRequestTime();
+    return requestTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : requestTime_;
   }
 
   public static final int FINISH_TIME_FIELD_NUMBER = 3;
@@ -289,7 +205,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getFinishTimeOrBuilder() {
-    return getFinishTime();
+    return finishTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : finishTime_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -315,7 +231,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     if (finishTime_ != null) {
       output.writeMessage(3, getFinishTime());
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -333,7 +249,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     if (finishTime_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(3, getFinishTime());
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -361,7 +277,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     if (hasFinishTime()) {
       if (!getFinishTime().equals(other.getFinishTime())) return false;
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -384,7 +300,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
       hash = (37 * hash) + FINISH_TIME_FIELD_NUMBER;
       hash = (53 * hash) + getFinishTime().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -513,38 +429,29 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     }
 
     // Construct using com.google.bigtable.admin.v2.UpdateInstanceMetadata.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (originalRequestBuilder_ == null) {
-        originalRequest_ = null;
-      } else {
-        originalRequest_ = null;
+      bitField0_ = 0;
+      originalRequest_ = null;
+      if (originalRequestBuilder_ != null) {
+        originalRequestBuilder_.dispose();
         originalRequestBuilder_ = null;
       }
-      if (requestTimeBuilder_ == null) {
-        requestTime_ = null;
-      } else {
-        requestTime_ = null;
+      requestTime_ = null;
+      if (requestTimeBuilder_ != null) {
+        requestTimeBuilder_.dispose();
         requestTimeBuilder_ = null;
       }
-      if (finishTimeBuilder_ == null) {
-        finishTime_ = null;
-      } else {
-        finishTime_ = null;
+      finishTime_ = null;
+      if (finishTimeBuilder_ != null) {
+        finishTimeBuilder_.dispose();
         finishTimeBuilder_ = null;
       }
       return this;
@@ -574,23 +481,26 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     public com.google.bigtable.admin.v2.UpdateInstanceMetadata buildPartial() {
       com.google.bigtable.admin.v2.UpdateInstanceMetadata result =
           new com.google.bigtable.admin.v2.UpdateInstanceMetadata(this);
-      if (originalRequestBuilder_ == null) {
-        result.originalRequest_ = originalRequest_;
-      } else {
-        result.originalRequest_ = originalRequestBuilder_.build();
-      }
-      if (requestTimeBuilder_ == null) {
-        result.requestTime_ = requestTime_;
-      } else {
-        result.requestTime_ = requestTimeBuilder_.build();
-      }
-      if (finishTimeBuilder_ == null) {
-        result.finishTime_ = finishTime_;
-      } else {
-        result.finishTime_ = finishTimeBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.UpdateInstanceMetadata result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.originalRequest_ =
+            originalRequestBuilder_ == null ? originalRequest_ : originalRequestBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.requestTime_ =
+            requestTimeBuilder_ == null ? requestTime_ : requestTimeBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.finishTime_ = finishTimeBuilder_ == null ? finishTime_ : finishTimeBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -648,7 +558,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
       if (other.hasFinishTime()) {
         mergeFinishTime(other.getFinishTime());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -663,20 +573,53 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.UpdateInstanceMetadata parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                input.readMessage(getOriginalRequestFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            case 18:
+              {
+                input.readMessage(getRequestTimeFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getFinishTimeFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage =
-            (com.google.bigtable.admin.v2.UpdateInstanceMetadata) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private com.google.bigtable.admin.v2.PartialUpdateInstanceRequest originalRequest_;
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -696,7 +639,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * @return Whether the originalRequest field is set.
      */
     public boolean hasOriginalRequest() {
-      return originalRequestBuilder_ != null || originalRequest_ != null;
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      *
@@ -734,11 +677,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
           throw new NullPointerException();
         }
         originalRequest_ = value;
-        onChanged();
       } else {
         originalRequestBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -754,11 +697,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.Builder builderForValue) {
       if (originalRequestBuilder_ == null) {
         originalRequest_ = builderForValue.build();
-        onChanged();
       } else {
         originalRequestBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -773,19 +716,19 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     public Builder mergeOriginalRequest(
         com.google.bigtable.admin.v2.PartialUpdateInstanceRequest value) {
       if (originalRequestBuilder_ == null) {
-        if (originalRequest_ != null) {
-          originalRequest_ =
-              com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.newBuilder(originalRequest_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000001) != 0)
+            && originalRequest_ != null
+            && originalRequest_
+                != com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.getDefaultInstance()) {
+          getOriginalRequestBuilder().mergeFrom(value);
         } else {
           originalRequest_ = value;
         }
-        onChanged();
       } else {
         originalRequestBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -798,14 +741,13 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * <code>.google.bigtable.admin.v2.PartialUpdateInstanceRequest original_request = 1;</code>
      */
     public Builder clearOriginalRequest() {
-      if (originalRequestBuilder_ == null) {
-        originalRequest_ = null;
-        onChanged();
-      } else {
-        originalRequest_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      originalRequest_ = null;
+      if (originalRequestBuilder_ != null) {
+        originalRequestBuilder_.dispose();
         originalRequestBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -819,7 +761,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      */
     public com.google.bigtable.admin.v2.PartialUpdateInstanceRequest.Builder
         getOriginalRequestBuilder() {
-
+      bitField0_ |= 0x00000001;
       onChanged();
       return getOriginalRequestFieldBuilder().getBuilder();
     }
@@ -886,7 +828,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * @return Whether the requestTime field is set.
      */
     public boolean hasRequestTime() {
-      return requestTimeBuilder_ != null || requestTime_ != null;
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      *
@@ -923,11 +865,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
           throw new NullPointerException();
         }
         requestTime_ = value;
-        onChanged();
       } else {
         requestTimeBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -942,11 +884,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     public Builder setRequestTime(com.google.protobuf.Timestamp.Builder builderForValue) {
       if (requestTimeBuilder_ == null) {
         requestTime_ = builderForValue.build();
-        onChanged();
       } else {
         requestTimeBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -960,19 +902,18 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      */
     public Builder mergeRequestTime(com.google.protobuf.Timestamp value) {
       if (requestTimeBuilder_ == null) {
-        if (requestTime_ != null) {
-          requestTime_ =
-              com.google.protobuf.Timestamp.newBuilder(requestTime_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000002) != 0)
+            && requestTime_ != null
+            && requestTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+          getRequestTimeBuilder().mergeFrom(value);
         } else {
           requestTime_ = value;
         }
-        onChanged();
       } else {
         requestTimeBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -985,14 +926,13 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * <code>.google.protobuf.Timestamp request_time = 2;</code>
      */
     public Builder clearRequestTime() {
-      if (requestTimeBuilder_ == null) {
-        requestTime_ = null;
-        onChanged();
-      } else {
-        requestTime_ = null;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      requestTime_ = null;
+      if (requestTimeBuilder_ != null) {
+        requestTimeBuilder_.dispose();
         requestTimeBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1005,7 +945,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * <code>.google.protobuf.Timestamp request_time = 2;</code>
      */
     public com.google.protobuf.Timestamp.Builder getRequestTimeBuilder() {
-
+      bitField0_ |= 0x00000002;
       onChanged();
       return getRequestTimeFieldBuilder().getBuilder();
     }
@@ -1071,7 +1011,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * @return Whether the finishTime field is set.
      */
     public boolean hasFinishTime() {
-      return finishTimeBuilder_ != null || finishTime_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1108,11 +1048,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
           throw new NullPointerException();
         }
         finishTime_ = value;
-        onChanged();
       } else {
         finishTimeBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1127,11 +1067,11 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
     public Builder setFinishTime(com.google.protobuf.Timestamp.Builder builderForValue) {
       if (finishTimeBuilder_ == null) {
         finishTime_ = builderForValue.build();
-        onChanged();
       } else {
         finishTimeBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1145,17 +1085,18 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      */
     public Builder mergeFinishTime(com.google.protobuf.Timestamp value) {
       if (finishTimeBuilder_ == null) {
-        if (finishTime_ != null) {
-          finishTime_ =
-              com.google.protobuf.Timestamp.newBuilder(finishTime_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && finishTime_ != null
+            && finishTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+          getFinishTimeBuilder().mergeFrom(value);
         } else {
           finishTime_ = value;
         }
-        onChanged();
       } else {
         finishTimeBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1168,14 +1109,13 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * <code>.google.protobuf.Timestamp finish_time = 3;</code>
      */
     public Builder clearFinishTime() {
-      if (finishTimeBuilder_ == null) {
-        finishTime_ = null;
-        onChanged();
-      } else {
-        finishTime_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      finishTime_ = null;
+      if (finishTimeBuilder_ != null) {
+        finishTimeBuilder_.dispose();
         finishTimeBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1188,7 +1128,7 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
      * <code>.google.protobuf.Timestamp finish_time = 3;</code>
      */
     public com.google.protobuf.Timestamp.Builder getFinishTimeBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getFinishTimeFieldBuilder().getBuilder();
     }
@@ -1268,7 +1208,18 @@ public final class UpdateInstanceMetadata extends com.google.protobuf.GeneratedM
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new UpdateInstanceMetadata(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

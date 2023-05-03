@@ -60,87 +60,6 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     return this.unknownFields;
   }
 
-  private SnapshotTableRequest(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              name_ = s;
-              break;
-            }
-          case 18:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              cluster_ = s;
-              break;
-            }
-          case 26:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              snapshotId_ = s;
-              break;
-            }
-          case 34:
-            {
-              com.google.protobuf.Duration.Builder subBuilder = null;
-              if (ttl_ != null) {
-                subBuilder = ttl_.toBuilder();
-              }
-              ttl_ = input.readMessage(com.google.protobuf.Duration.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(ttl_);
-                ttl_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 42:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              description_ = s;
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_SnapshotTableRequest_descriptor;
@@ -157,7 +76,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
   }
 
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -214,7 +135,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
   }
 
   public static final int CLUSTER_FIELD_NUMBER = 2;
-  private volatile java.lang.Object cluster_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object cluster_ = "";
   /**
    *
    *
@@ -271,7 +194,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
   }
 
   public static final int SNAPSHOT_ID_FIELD_NUMBER = 3;
-  private volatile java.lang.Object snapshotId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object snapshotId_ = "";
   /**
    *
    *
@@ -377,11 +302,13 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
    */
   @java.lang.Override
   public com.google.protobuf.DurationOrBuilder getTtlOrBuilder() {
-    return getTtl();
+    return ttl_ == null ? com.google.protobuf.Duration.getDefaultInstance() : ttl_;
   }
 
   public static final int DESCRIPTION_FIELD_NUMBER = 5;
-  private volatile java.lang.Object description_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object description_ = "";
   /**
    *
    *
@@ -458,7 +385,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(description_)) {
       com.google.protobuf.GeneratedMessageV3.writeString(output, 5, description_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -482,7 +409,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(description_)) {
       size += com.google.protobuf.GeneratedMessageV3.computeStringSize(5, description_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -506,7 +433,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       if (!getTtl().equals(other.getTtl())) return false;
     }
     if (!getDescription().equals(other.getDescription())) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -529,7 +456,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     }
     hash = (37 * hash) + DESCRIPTION_FIELD_NUMBER;
     hash = (53 * hash) + getDescription().hashCode();
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -663,36 +590,25 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     }
 
     // Construct using com.google.bigtable.admin.v2.SnapshotTableRequest.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       cluster_ = "";
-
       snapshotId_ = "";
-
-      if (ttlBuilder_ == null) {
-        ttl_ = null;
-      } else {
-        ttl_ = null;
+      ttl_ = null;
+      if (ttlBuilder_ != null) {
+        ttlBuilder_.dispose();
         ttlBuilder_ = null;
       }
       description_ = "";
-
       return this;
     }
 
@@ -720,17 +636,30 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     public com.google.bigtable.admin.v2.SnapshotTableRequest buildPartial() {
       com.google.bigtable.admin.v2.SnapshotTableRequest result =
           new com.google.bigtable.admin.v2.SnapshotTableRequest(this);
-      result.name_ = name_;
-      result.cluster_ = cluster_;
-      result.snapshotId_ = snapshotId_;
-      if (ttlBuilder_ == null) {
-        result.ttl_ = ttl_;
-      } else {
-        result.ttl_ = ttlBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      result.description_ = description_;
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.SnapshotTableRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.cluster_ = cluster_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.snapshotId_ = snapshotId_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.ttl_ = ttlBuilder_ == null ? ttl_ : ttlBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.description_ = description_;
+      }
     }
 
     @java.lang.Override
@@ -781,14 +710,17 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getCluster().isEmpty()) {
         cluster_ = other.cluster_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (!other.getSnapshotId().isEmpty()) {
         snapshotId_ = other.snapshotId_;
+        bitField0_ |= 0x00000004;
         onChanged();
       }
       if (other.hasTtl()) {
@@ -796,9 +728,10 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       }
       if (!other.getDescription().isEmpty()) {
         description_ = other.description_;
+        bitField0_ |= 0x00000010;
         onChanged();
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -813,20 +746,65 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.SnapshotTableRequest parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                name_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            case 18:
+              {
+                cluster_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                snapshotId_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            case 34:
+              {
+                input.readMessage(getTtlFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+            case 42:
+              {
+                description_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000010;
+                break;
+              } // case 42
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage =
-            (com.google.bigtable.admin.v2.SnapshotTableRequest) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object name_ = "";
     /**
@@ -901,8 +879,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -922,8 +900,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -948,8 +926,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1027,8 +1005,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       if (value == null) {
         throw new NullPointerException();
       }
-
       cluster_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1048,8 +1026,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * @return This builder for chaining.
      */
     public Builder clearCluster() {
-
       cluster_ = getDefaultInstance().getCluster();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1074,8 +1052,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       cluster_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1150,8 +1128,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       if (value == null) {
         throw new NullPointerException();
       }
-
       snapshotId_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -1170,8 +1148,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * @return This builder for chaining.
      */
     public Builder clearSnapshotId() {
-
       snapshotId_ = getDefaultInstance().getSnapshotId();
+      bitField0_ = (bitField0_ & ~0x00000004);
       onChanged();
       return this;
     }
@@ -1195,8 +1173,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       snapshotId_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -1222,7 +1200,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * @return Whether the ttl field is set.
      */
     public boolean hasTtl() {
-      return ttlBuilder_ != null || ttl_ != null;
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      *
@@ -1263,11 +1241,11 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
           throw new NullPointerException();
         }
         ttl_ = value;
-        onChanged();
       } else {
         ttlBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1285,11 +1263,11 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
     public Builder setTtl(com.google.protobuf.Duration.Builder builderForValue) {
       if (ttlBuilder_ == null) {
         ttl_ = builderForValue.build();
-        onChanged();
       } else {
         ttlBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1306,16 +1284,18 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      */
     public Builder mergeTtl(com.google.protobuf.Duration value) {
       if (ttlBuilder_ == null) {
-        if (ttl_ != null) {
-          ttl_ = com.google.protobuf.Duration.newBuilder(ttl_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000008) != 0)
+            && ttl_ != null
+            && ttl_ != com.google.protobuf.Duration.getDefaultInstance()) {
+          getTtlBuilder().mergeFrom(value);
         } else {
           ttl_ = value;
         }
-        onChanged();
       } else {
         ttlBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1331,14 +1311,13 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * <code>.google.protobuf.Duration ttl = 4;</code>
      */
     public Builder clearTtl() {
-      if (ttlBuilder_ == null) {
-        ttl_ = null;
-        onChanged();
-      } else {
-        ttl_ = null;
+      bitField0_ = (bitField0_ & ~0x00000008);
+      ttl_ = null;
+      if (ttlBuilder_ != null) {
+        ttlBuilder_.dispose();
         ttlBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1354,7 +1333,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * <code>.google.protobuf.Duration ttl = 4;</code>
      */
     public com.google.protobuf.Duration.Builder getTtlBuilder() {
-
+      bitField0_ |= 0x00000008;
       onChanged();
       return getTtlFieldBuilder().getBuilder();
     }
@@ -1466,8 +1445,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
       if (value == null) {
         throw new NullPointerException();
       }
-
       description_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1483,8 +1462,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      * @return This builder for chaining.
      */
     public Builder clearDescription() {
-
       description_ = getDefaultInstance().getDescription();
+      bitField0_ = (bitField0_ & ~0x00000010);
       onChanged();
       return this;
     }
@@ -1505,8 +1484,8 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       description_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1543,7 +1522,18 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new SnapshotTableRequest(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

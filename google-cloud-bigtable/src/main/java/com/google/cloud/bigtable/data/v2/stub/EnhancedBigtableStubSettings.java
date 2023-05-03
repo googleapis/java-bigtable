@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingSettings;
@@ -34,10 +33,15 @@ import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
+import com.google.bigtable.v2.FeatureFlags;
+import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
+import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -48,7 +52,10 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -114,6 +121,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final Set<Code> READ_ROWS_RETRY_CODES =
       ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
 
+  // Priming request should have a shorter timeout
+  private static Duration PRIME_REQUEST_TIMEOUT = Duration.ofSeconds(30);
+
   private static final RetrySettings READ_ROWS_RETRY_SETTINGS =
       RetrySettings.newBuilder()
           .setInitialRetryDelay(Duration.ofMillis(10))
@@ -136,6 +146,42 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRpcTimeoutMultiplier(1.0)
           .setMaxRpcTimeout(Duration.ofMinutes(1))
           .setTotalTimeout(Duration.ofMinutes(10))
+          .build();
+
+  private static final Set<Code> GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES =
+      ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
+
+  private static final RetrySettings GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS =
+      RetrySettings.newBuilder()
+          .setInitialRetryDelay(Duration.ofMillis(10))
+          .setRetryDelayMultiplier(2.0)
+          .setMaxRetryDelay(Duration.ofMinutes(1))
+          .setMaxAttempts(10)
+          .setJittered(true)
+          .setInitialRpcTimeout(Duration.ofMinutes(1))
+          .setRpcTimeoutMultiplier(2.0)
+          .setMaxRpcTimeout(Duration.ofMinutes(10))
+          .setTotalTimeout(Duration.ofMinutes(60))
+          .build();
+
+  // Allow retrying ABORTED statuses. These will be returned by the server when the client is
+  // too slow to read the change stream records. This makes sense for the java client because
+  // retries happen after the mutation merging logic. Which means that the retry will not be
+  // invoked until the current buffered change stream mutations are consumed.
+  private static final Set<Code> READ_CHANGE_STREAM_RETRY_CODES =
+      ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
+
+  private static final RetrySettings READ_CHANGE_STREAM_RETRY_SETTINGS =
+      RetrySettings.newBuilder()
+          .setInitialRetryDelay(Duration.ofMillis(10))
+          .setRetryDelayMultiplier(2.0)
+          .setMaxRetryDelay(Duration.ofMinutes(1))
+          .setMaxAttempts(10)
+          .setJittered(true)
+          .setInitialRpcTimeout(Duration.ofMinutes(5))
+          .setRpcTimeoutMultiplier(2.0)
+          .setMaxRpcTimeout(Duration.ofMinutes(5))
+          .setTotalTimeout(Duration.ofHours(12))
           .build();
 
   /**
@@ -174,6 +220,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final BigtableBulkReadRowsCallSettings bulkReadRowsSettings;
   private final UnaryCallSettings<ConditionalRowMutation, Boolean> checkAndMutateRowSettings;
   private final UnaryCallSettings<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
+  private final ServerStreamingCallSettings<String, ByteStringRange>
+      generateInitialChangeStreamPartitionsSettings;
+  private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamSettings;
+  private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
+
+  private final FeatureFlags featureFlags;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -209,6 +262,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     bulkReadRowsSettings = builder.bulkReadRowsSettings.build();
     checkAndMutateRowSettings = builder.checkAndMutateRowSettings.build();
     readModifyWriteRowSettings = builder.readModifyWriteRowSettings.build();
+    generateInitialChangeStreamPartitionsSettings =
+        builder.generateInitialChangeStreamPartitionsSettings.build();
+    readChangeStreamSettings = builder.readChangeStreamSettings.build();
+    pingAndWarmSettings = builder.pingAndWarmSettings.build();
+    featureFlags = builder.featureFlags.build();
   }
 
   /** Create a new builder. */
@@ -231,14 +289,21 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return appProfileId;
   }
 
-  /** Returns if channels will gracefully refresh connections to Cloud Bigtable service */
-  @BetaApi("This API depends on experimental gRPC APIs")
+  /**
+   * Returns if channels will gracefully refresh connections to Cloud Bigtable service
+   *
+   * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+   */
+  @Deprecated
   public boolean isRefreshingChannel() {
     return isRefreshingChannel;
   }
 
-  /** Gets the tables that will be primed during a channel refresh. */
-  @BetaApi("Channel priming is not currently stable and might change in the future")
+  /**
+   * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+   *     requests will be sent to all table ids of the instance.
+   */
+  @Deprecated
   public List<String> getPrimedTableIds() {
     return primedTableIds;
   }
@@ -493,6 +558,25 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readModifyWriteRowSettings;
   }
 
+  public ServerStreamingCallSettings<String, ByteStringRange>
+      generateInitialChangeStreamPartitionsSettings() {
+    return generateInitialChangeStreamPartitionsSettings;
+  }
+
+  public ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamSettings() {
+    return readChangeStreamSettings;
+  }
+
+  /**
+   * Returns the object with the settings used for calls to PingAndWarm.
+   *
+   * <p>By default the retries are disabled for PingAndWarm and deadline is set to 30 seconds.
+   */
+  UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings() {
+    return pingAndWarmSettings;
+  }
+
   /** Returns a builder containing all the values of this settings class. */
   public Builder toBuilder() {
     return new Builder(this);
@@ -517,6 +601,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<ConditionalRowMutation, Boolean>
         checkAndMutateRowSettings;
     private final UnaryCallSettings.Builder<ReadModifyWriteRow, Row> readModifyWriteRowSettings;
+    private final ServerStreamingCallSettings.Builder<String, ByteStringRange>
+        generateInitialChangeStreamPartitionsSettings;
+    private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
+        readChangeStreamSettings;
+    private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
+
+    private FeatureFlags.Builder featureFlags;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -528,7 +619,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      */
     private Builder() {
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
-      this.isRefreshingChannel = false;
+      this.isRefreshingChannel = true;
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -540,16 +631,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setTransportChannelProvider(defaultTransportChannelProvider());
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
-
-      // Inject the UserAgent in addition to api-client header
-      Map<String, String> headers =
-          ImmutableMap.<String, String>builder()
-              .putAll(
-                  BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
-              // GrpcHeaderInterceptor treats the `user-agent` as a magic string
-              .put("user-agent", "bigtable-java/" + Version.VERSION)
-              .build();
-      setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 
       // Per-method settings using baseSettings for defaults.
       readRowsSettings = ServerStreamingCallSettings.newBuilder();
@@ -624,6 +705,29 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       readModifyWriteRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       copyRetrySettings(baseDefaults.readModifyWriteRowSettings(), readModifyWriteRowSettings);
+
+      generateInitialChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
+      generateInitialChangeStreamPartitionsSettings
+          .setRetryableCodes(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
+          .setRetrySettings(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
+          .setIdleTimeout(Duration.ofMinutes(5));
+
+      readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
+      readChangeStreamSettings
+          .setRetryableCodes(READ_CHANGE_STREAM_RETRY_CODES)
+          .setRetrySettings(READ_CHANGE_STREAM_RETRY_SETTINGS)
+          .setIdleTimeout(Duration.ofMinutes(5));
+
+      pingAndWarmSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      pingAndWarmSettings.setRetrySettings(
+          RetrySettings.newBuilder()
+              .setMaxAttempts(1)
+              .setInitialRpcTimeout(PRIME_REQUEST_TIMEOUT)
+              .setMaxRpcTimeout(PRIME_REQUEST_TIMEOUT)
+              .setTotalTimeout(PRIME_REQUEST_TIMEOUT)
+              .build());
+
+      featureFlags = FeatureFlags.newBuilder();
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -644,6 +748,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       bulkReadRowsSettings = settings.bulkReadRowsSettings.toBuilder();
       checkAndMutateRowSettings = settings.checkAndMutateRowSettings.toBuilder();
       readModifyWriteRowSettings = settings.readModifyWriteRowSettings.toBuilder();
+      generateInitialChangeStreamPartitionsSettings =
+          settings.generateInitialChangeStreamPartitionsSettings.toBuilder();
+      readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
+      pingAndWarmSettings = settings.pingAndWarmSettings.toBuilder();
+      featureFlags = settings.featureFlags.toBuilder();
     }
     // <editor-fold desc="Private Helpers">
 
@@ -725,33 +834,43 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     /**
      * Sets if channels will gracefully refresh connections to Cloud Bigtable service.
      *
-     * <p>When enabled, this will wait for the connection to complete the SSL handshake. The effect
-     * can be enhanced by configuring table ids that can be used warm serverside caches using {@link
-     * #setPrimedTableIds(String...)}.
+     * <p>When enabled, this will wait for the connection to complete the SSL handshake and warm up
+     * serverside caches for all the tables of the instance. This feature is enabled by default.
      *
      * @see com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setRefreshingChannel
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
      */
-    @BetaApi("This API depends on experimental gRPC APIs")
+    @Deprecated
     public Builder setRefreshingChannel(boolean isRefreshingChannel) {
       this.isRefreshingChannel = isRefreshingChannel;
       return this;
     }
 
-    /** Configures which tables will be primed when a connection is created. */
-    @BetaApi("Channel priming is not currently stable and might change in the future")
+    /**
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
+     */
+    @Deprecated
     public Builder setPrimedTableIds(String... tableIds) {
       this.primedTableIds = ImmutableList.copyOf(tableIds);
       return this;
     }
 
-    /** Gets if channels will gracefully refresh connections to Cloud Bigtable service */
-    @BetaApi("This API depends on experimental gRPC APIs")
+    /**
+     * Gets if channels will gracefully refresh connections to Cloud Bigtable service.
+     *
+     * @deprecated Channel refreshing is enabled by default and this method will be deprecated.
+     */
+    @Deprecated
     public boolean isRefreshingChannel() {
       return isRefreshingChannel;
     }
 
-    /** Gets the tables that will be primed during a channel refresh. */
-    @BetaApi("Channel priming is not currently stable and might change in the future")
+    /**
+     * @deprecated This field is ignored. If {@link #isRefreshingChannel()} is enabled, warm up
+     *     requests will be sent to all table ids of the instance.
+     */
+    @Deprecated
     public List<String> getPrimedTableIds() {
       return primedTableIds;
     }
@@ -807,6 +926,25 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return readModifyWriteRowSettings;
     }
 
+    /** Returns the builder for the settings used for calls to ReadChangeStream. */
+    public ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
+        readChangeStreamSettings() {
+      return readChangeStreamSettings;
+    }
+
+    /**
+     * Returns the builder for the settings used for calls to GenerateInitialChangeStreamPartitions.
+     */
+    public ServerStreamingCallSettings.Builder<String, ByteStringRange>
+        generateInitialChangeStreamPartitionsSettings() {
+      return generateInitialChangeStreamPartitionsSettings;
+    }
+
+    /** Returns the builder with the settings used for calls to PingAndWarm. */
+    public UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings() {
+      return pingAndWarmSettings;
+    }
+
     @SuppressWarnings("unchecked")
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
@@ -829,10 +967,37 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         // Use shared credentials
         this.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
         channelProviderBuilder.setChannelPrimer(
-            BigtableChannelPrimer.create(
-                credentials, projectId, instanceId, appProfileId, primedTableIds));
+            BigtableChannelPrimer.create(credentials, projectId, instanceId, appProfileId));
         this.setTransportChannelProvider(channelProviderBuilder.build());
       }
+
+      if (this.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
+        // only set mutate rows feature flag when this feature is enabled
+        featureFlags.setMutateRowsRateLimit(true);
+      }
+
+      // Serialize the web64 encode the bigtable feature flags
+      ByteArrayOutputStream boas = new ByteArrayOutputStream();
+      try {
+        featureFlags.build().writeTo(boas);
+      } catch (IOException e) {
+        throw new IllegalStateException(
+            "Unexpected IOException while serializing feature flags", e);
+      }
+      byte[] serializedFlags = boas.toByteArray();
+      byte[] encodedFlags = Base64.getUrlEncoder().encode(serializedFlags);
+
+      // Inject the UserAgent in addition to api-client header
+      Map<String, String> headers =
+          ImmutableMap.<String, String>builder()
+              .putAll(
+                  BigtableStubSettings.defaultApiClientHeaderProviderBuilder().build().getHeaders())
+              // GrpcHeaderInterceptor treats the `user-agent` as a magic string
+              .put("user-agent", "bigtable-java/" + Version.VERSION)
+              .put("bigtable-features", new String(encodedFlags, StandardCharsets.UTF_8))
+              .build();
+      setInternalHeaderProvider(FixedHeaderProvider.create(headers));
+
       return new EnhancedBigtableStubSettings(this);
     }
     // </editor-fold>
@@ -855,6 +1020,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("bulkReadRowsSettings", bulkReadRowsSettings)
         .add("checkAndMutateRowSettings", checkAndMutateRowSettings)
         .add("readModifyWriteRowSettings", readModifyWriteRowSettings)
+        .add(
+            "generateInitialChangeStreamPartitionsSettings",
+            generateInitialChangeStreamPartitionsSettings)
+        .add("readChangeStreamSettings", readChangeStreamSettings)
+        .add("pingAndWarmSettings", pingAndWarmSettings)
         .add("parent", super.toString())
         .toString();
   }

@@ -53,67 +53,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     return this.unknownFields;
   }
 
-  private ReadRowsResponse(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    int mutable_bitField0_ = 0;
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                chunks_ =
-                    new java.util.ArrayList<com.google.bigtable.v2.ReadRowsResponse.CellChunk>();
-                mutable_bitField0_ |= 0x00000001;
-              }
-              chunks_.add(
-                  input.readMessage(
-                      com.google.bigtable.v2.ReadRowsResponse.CellChunk.parser(),
-                      extensionRegistry));
-              break;
-            }
-          case 18:
-            {
-              lastScannedRowKey_ = input.readBytes();
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      if (((mutable_bitField0_ & 0x00000001) != 0)) {
-        chunks_ = java.util.Collections.unmodifiableList(chunks_);
-      }
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.BigtableProto
         .internal_static_google_bigtable_v2_ReadRowsResponse_descriptor;
@@ -452,121 +391,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       return this.unknownFields;
     }
 
-    private CellChunk(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws com.google.protobuf.InvalidProtocolBufferException {
-      this();
-      if (extensionRegistry == null) {
-        throw new java.lang.NullPointerException();
-      }
-      int mutable_bitField0_ = 0;
-      com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-          com.google.protobuf.UnknownFieldSet.newBuilder();
-      try {
-        boolean done = false;
-        while (!done) {
-          int tag = input.readTag();
-          switch (tag) {
-            case 0:
-              done = true;
-              break;
-            case 10:
-              {
-                rowKey_ = input.readBytes();
-                break;
-              }
-            case 18:
-              {
-                com.google.protobuf.StringValue.Builder subBuilder = null;
-                if (familyName_ != null) {
-                  subBuilder = familyName_.toBuilder();
-                }
-                familyName_ =
-                    input.readMessage(com.google.protobuf.StringValue.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(familyName_);
-                  familyName_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 26:
-              {
-                com.google.protobuf.BytesValue.Builder subBuilder = null;
-                if (qualifier_ != null) {
-                  subBuilder = qualifier_.toBuilder();
-                }
-                qualifier_ =
-                    input.readMessage(com.google.protobuf.BytesValue.parser(), extensionRegistry);
-                if (subBuilder != null) {
-                  subBuilder.mergeFrom(qualifier_);
-                  qualifier_ = subBuilder.buildPartial();
-                }
-
-                break;
-              }
-            case 32:
-              {
-                timestampMicros_ = input.readInt64();
-                break;
-              }
-            case 42:
-              {
-                java.lang.String s = input.readStringRequireUtf8();
-                if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                  labels_ = new com.google.protobuf.LazyStringArrayList();
-                  mutable_bitField0_ |= 0x00000001;
-                }
-                labels_.add(s);
-                break;
-              }
-            case 50:
-              {
-                value_ = input.readBytes();
-                break;
-              }
-            case 56:
-              {
-                valueSize_ = input.readInt32();
-                break;
-              }
-            case 64:
-              {
-                rowStatus_ = input.readBool();
-                rowStatusCase_ = 8;
-                break;
-              }
-            case 72:
-              {
-                rowStatus_ = input.readBool();
-                rowStatusCase_ = 9;
-                break;
-              }
-            default:
-              {
-                if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                  done = true;
-                }
-                break;
-              }
-          }
-        }
-      } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        throw e.setUnfinishedMessage(this);
-      } catch (com.google.protobuf.UninitializedMessageException e) {
-        throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-      } catch (java.io.IOException e) {
-        throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-      } finally {
-        if (((mutable_bitField0_ & 0x00000001) != 0)) {
-          labels_ = labels_.getUnmodifiableView();
-        }
-        this.unknownFields = unknownFields.build();
-        makeExtensionsImmutable();
-      }
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.BigtableProto
           .internal_static_google_bigtable_v2_ReadRowsResponse_CellChunk_descriptor;
@@ -630,7 +454,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int ROW_KEY_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString rowKey_;
+    private com.google.protobuf.ByteString rowKey_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -710,7 +534,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     @java.lang.Override
     public com.google.protobuf.StringValueOrBuilder getFamilyNameOrBuilder() {
-      return getFamilyName();
+      return familyName_ == null
+          ? com.google.protobuf.StringValue.getDefaultInstance()
+          : familyName_;
     }
 
     public static final int QUALIFIER_FIELD_NUMBER = 3;
@@ -768,11 +594,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     @java.lang.Override
     public com.google.protobuf.BytesValueOrBuilder getQualifierOrBuilder() {
-      return getQualifier();
+      return qualifier_ == null ? com.google.protobuf.BytesValue.getDefaultInstance() : qualifier_;
     }
 
     public static final int TIMESTAMP_MICROS_FIELD_NUMBER = 4;
-    private long timestampMicros_;
+    private long timestampMicros_ = 0L;
     /**
      *
      *
@@ -797,6 +623,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int LABELS_FIELD_NUMBER = 5;
+
+    @SuppressWarnings("serial")
     private com.google.protobuf.LazyStringList labels_;
     /**
      *
@@ -866,7 +694,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int VALUE_FIELD_NUMBER = 6;
-    private com.google.protobuf.ByteString value_;
+    private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -888,7 +716,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int VALUE_SIZE_FIELD_NUMBER = 7;
-    private int valueSize_;
+    private int valueSize_ = 0;
     /**
      *
      *
@@ -1023,7 +851,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       if (rowStatusCase_ == 9) {
         output.writeBool(9, (boolean) ((java.lang.Boolean) rowStatus_));
       }
-      unknownFields.writeTo(output);
+      getUnknownFields().writeTo(output);
     }
 
     @java.lang.Override
@@ -1068,7 +896,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             com.google.protobuf.CodedOutputStream.computeBoolSize(
                 9, (boolean) ((java.lang.Boolean) rowStatus_));
       }
-      size += unknownFields.getSerializedSize();
+      size += getUnknownFields().getSerializedSize();
       memoizedSize = size;
       return size;
     }
@@ -1108,7 +936,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         case 0:
         default:
       }
-      if (!unknownFields.equals(other.unknownFields)) return false;
+      if (!getUnknownFields().equals(other.getUnknownFields())) return false;
       return true;
     }
 
@@ -1151,7 +979,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         case 0:
         default:
       }
-      hash = (29 * hash) + unknownFields.hashCode();
+      hash = (29 * hash) + getUnknownFields().hashCode();
       memoizedHashCode = hash;
       return hash;
     }
@@ -1283,44 +1111,32 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
 
       // Construct using com.google.bigtable.v2.ReadRowsResponse.CellChunk.newBuilder()
-      private Builder() {
-        maybeForceBuilderInitialization();
-      }
+      private Builder() {}
 
       private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
         super(parent);
-        maybeForceBuilderInitialization();
-      }
-
-      private void maybeForceBuilderInitialization() {
-        if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
       }
 
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         rowKey_ = com.google.protobuf.ByteString.EMPTY;
-
-        if (familyNameBuilder_ == null) {
-          familyName_ = null;
-        } else {
-          familyName_ = null;
+        familyName_ = null;
+        if (familyNameBuilder_ != null) {
+          familyNameBuilder_.dispose();
           familyNameBuilder_ = null;
         }
-        if (qualifierBuilder_ == null) {
-          qualifier_ = null;
-        } else {
-          qualifier_ = null;
+        qualifier_ = null;
+        if (qualifierBuilder_ != null) {
+          qualifierBuilder_.dispose();
           qualifierBuilder_ = null;
         }
         timestampMicros_ = 0L;
-
         labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000010);
         value_ = com.google.protobuf.ByteString.EMPTY;
-
         valueSize_ = 0;
-
         rowStatusCase_ = 0;
         rowStatus_ = null;
         return this;
@@ -1350,35 +1166,50 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public com.google.bigtable.v2.ReadRowsResponse.CellChunk buildPartial() {
         com.google.bigtable.v2.ReadRowsResponse.CellChunk result =
             new com.google.bigtable.v2.ReadRowsResponse.CellChunk(this);
-        int from_bitField0_ = bitField0_;
-        result.rowKey_ = rowKey_;
-        if (familyNameBuilder_ == null) {
-          result.familyName_ = familyName_;
-        } else {
-          result.familyName_ = familyNameBuilder_.build();
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
-        if (qualifierBuilder_ == null) {
-          result.qualifier_ = qualifier_;
-        } else {
-          result.qualifier_ = qualifierBuilder_.build();
-        }
-        result.timestampMicros_ = timestampMicros_;
-        if (((bitField0_ & 0x00000001) != 0)) {
-          labels_ = labels_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        }
-        result.labels_ = labels_;
-        result.value_ = value_;
-        result.valueSize_ = valueSize_;
-        if (rowStatusCase_ == 8) {
-          result.rowStatus_ = rowStatus_;
-        }
-        if (rowStatusCase_ == 9) {
-          result.rowStatus_ = rowStatus_;
-        }
-        result.rowStatusCase_ = rowStatusCase_;
+        buildPartialOneofs(result);
         onBuilt();
         return result;
+      }
+
+      private void buildPartialRepeatedFields(
+          com.google.bigtable.v2.ReadRowsResponse.CellChunk result) {
+        if (((bitField0_ & 0x00000010) != 0)) {
+          labels_ = labels_.getUnmodifiableView();
+          bitField0_ = (bitField0_ & ~0x00000010);
+        }
+        result.labels_ = labels_;
+      }
+
+      private void buildPartial0(com.google.bigtable.v2.ReadRowsResponse.CellChunk result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.rowKey_ = rowKey_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.familyName_ =
+              familyNameBuilder_ == null ? familyName_ : familyNameBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.qualifier_ = qualifierBuilder_ == null ? qualifier_ : qualifierBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.timestampMicros_ = timestampMicros_;
+        }
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.value_ = value_;
+        }
+        if (((from_bitField0_ & 0x00000040) != 0)) {
+          result.valueSize_ = valueSize_;
+        }
+      }
+
+      private void buildPartialOneofs(com.google.bigtable.v2.ReadRowsResponse.CellChunk result) {
+        result.rowStatusCase_ = rowStatusCase_;
+        result.rowStatus_ = this.rowStatus_;
       }
 
       @java.lang.Override
@@ -1444,7 +1275,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (!other.labels_.isEmpty()) {
           if (labels_.isEmpty()) {
             labels_ = other.labels_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000010);
           } else {
             ensureLabelsIsMutable();
             labels_.addAll(other.labels_);
@@ -1473,7 +1304,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               break;
             }
         }
-        this.mergeUnknownFields(other.unknownFields);
+        this.mergeUnknownFields(other.getUnknownFields());
         onChanged();
         return this;
       }
@@ -1488,18 +1319,86 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
           com.google.protobuf.CodedInputStream input,
           com.google.protobuf.ExtensionRegistryLite extensionRegistry)
           throws java.io.IOException {
-        com.google.bigtable.v2.ReadRowsResponse.CellChunk parsedMessage = null;
+        if (extensionRegistry == null) {
+          throw new java.lang.NullPointerException();
+        }
         try {
-          parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+          boolean done = false;
+          while (!done) {
+            int tag = input.readTag();
+            switch (tag) {
+              case 0:
+                done = true;
+                break;
+              case 10:
+                {
+                  rowKey_ = input.readBytes();
+                  bitField0_ |= 0x00000001;
+                  break;
+                } // case 10
+              case 18:
+                {
+                  input.readMessage(getFamilyNameFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000002;
+                  break;
+                } // case 18
+              case 26:
+                {
+                  input.readMessage(getQualifierFieldBuilder().getBuilder(), extensionRegistry);
+                  bitField0_ |= 0x00000004;
+                  break;
+                } // case 26
+              case 32:
+                {
+                  timestampMicros_ = input.readInt64();
+                  bitField0_ |= 0x00000008;
+                  break;
+                } // case 32
+              case 42:
+                {
+                  java.lang.String s = input.readStringRequireUtf8();
+                  ensureLabelsIsMutable();
+                  labels_.add(s);
+                  break;
+                } // case 42
+              case 50:
+                {
+                  value_ = input.readBytes();
+                  bitField0_ |= 0x00000020;
+                  break;
+                } // case 50
+              case 56:
+                {
+                  valueSize_ = input.readInt32();
+                  bitField0_ |= 0x00000040;
+                  break;
+                } // case 56
+              case 64:
+                {
+                  rowStatus_ = input.readBool();
+                  rowStatusCase_ = 8;
+                  break;
+                } // case 64
+              case 72:
+                {
+                  rowStatus_ = input.readBool();
+                  rowStatusCase_ = 9;
+                  break;
+                } // case 72
+              default:
+                {
+                  if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                    done = true; // was an endgroup tag
+                  }
+                  break;
+                } // default:
+            } // switch (tag)
+          } // while (!done)
         } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-          parsedMessage =
-              (com.google.bigtable.v2.ReadRowsResponse.CellChunk) e.getUnfinishedMessage();
           throw e.unwrapIOException();
         } finally {
-          if (parsedMessage != null) {
-            mergeFrom(parsedMessage);
-          }
-        }
+          onChanged();
+        } // finally
         return this;
       }
 
@@ -1557,8 +1456,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (value == null) {
           throw new NullPointerException();
         }
-
         rowKey_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -1577,7 +1476,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearRowKey() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         rowKey_ = getDefaultInstance().getRowKey();
         onChanged();
         return this;
@@ -1606,7 +1505,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return Whether the familyName field is set.
        */
       public boolean hasFamilyName() {
-        return familyNameBuilder_ != null || familyName_ != null;
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        *
@@ -1653,11 +1552,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             throw new NullPointerException();
           }
           familyName_ = value;
-          onChanged();
         } else {
           familyNameBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1677,11 +1576,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setFamilyName(com.google.protobuf.StringValue.Builder builderForValue) {
         if (familyNameBuilder_ == null) {
           familyName_ = builderForValue.build();
-          onChanged();
         } else {
           familyNameBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1700,19 +1599,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        */
       public Builder mergeFamilyName(com.google.protobuf.StringValue value) {
         if (familyNameBuilder_ == null) {
-          if (familyName_ != null) {
-            familyName_ =
-                com.google.protobuf.StringValue.newBuilder(familyName_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000002) != 0)
+              && familyName_ != null
+              && familyName_ != com.google.protobuf.StringValue.getDefaultInstance()) {
+            getFamilyNameBuilder().mergeFrom(value);
           } else {
             familyName_ = value;
           }
-          onChanged();
         } else {
           familyNameBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1730,14 +1628,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.StringValue family_name = 2;</code>
        */
       public Builder clearFamilyName() {
-        if (familyNameBuilder_ == null) {
-          familyName_ = null;
-          onChanged();
-        } else {
-          familyName_ = null;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        familyName_ = null;
+        if (familyNameBuilder_ != null) {
+          familyNameBuilder_.dispose();
           familyNameBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -1755,7 +1652,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.StringValue family_name = 2;</code>
        */
       public com.google.protobuf.StringValue.Builder getFamilyNameBuilder() {
-
+        bitField0_ |= 0x00000002;
         onChanged();
         return getFamilyNameFieldBuilder().getBuilder();
       }
@@ -1835,7 +1732,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return Whether the qualifier field is set.
        */
       public boolean hasQualifier() {
-        return qualifierBuilder_ != null || qualifier_ != null;
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
        *
@@ -1880,11 +1777,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             throw new NullPointerException();
           }
           qualifier_ = value;
-          onChanged();
         } else {
           qualifierBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1903,11 +1800,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setQualifier(com.google.protobuf.BytesValue.Builder builderForValue) {
         if (qualifierBuilder_ == null) {
           qualifier_ = builderForValue.build();
-          onChanged();
         } else {
           qualifierBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1925,19 +1822,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        */
       public Builder mergeQualifier(com.google.protobuf.BytesValue value) {
         if (qualifierBuilder_ == null) {
-          if (qualifier_ != null) {
-            qualifier_ =
-                com.google.protobuf.BytesValue.newBuilder(qualifier_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000004) != 0)
+              && qualifier_ != null
+              && qualifier_ != com.google.protobuf.BytesValue.getDefaultInstance()) {
+            getQualifierBuilder().mergeFrom(value);
           } else {
             qualifier_ = value;
           }
-          onChanged();
         } else {
           qualifierBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1954,14 +1850,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
        */
       public Builder clearQualifier() {
-        if (qualifierBuilder_ == null) {
-          qualifier_ = null;
-          onChanged();
-        } else {
-          qualifier_ = null;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        qualifier_ = null;
+        if (qualifierBuilder_ != null) {
+          qualifierBuilder_.dispose();
           qualifierBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -1978,7 +1873,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
        */
       public com.google.protobuf.BytesValue.Builder getQualifierBuilder() {
-
+        bitField0_ |= 0x00000004;
         onChanged();
         return getQualifierFieldBuilder().getBuilder();
       }
@@ -2079,6 +1974,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setTimestampMicros(long value) {
 
         timestampMicros_ = value;
+        bitField0_ |= 0x00000008;
         onChanged();
         return this;
       }
@@ -2101,7 +1997,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearTimestampMicros() {
-
+        bitField0_ = (bitField0_ & ~0x00000008);
         timestampMicros_ = 0L;
         onChanged();
         return this;
@@ -2111,9 +2007,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
           com.google.protobuf.LazyStringArrayList.EMPTY;
 
       private void ensureLabelsIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000010) != 0)) {
           labels_ = new com.google.protobuf.LazyStringArrayList(labels_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000010;
         }
       }
       /**
@@ -2264,7 +2160,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        */
       public Builder clearLabels() {
         labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000010);
         onChanged();
         return this;
       }
@@ -2333,8 +2229,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (value == null) {
           throw new NullPointerException();
         }
-
         value_ = value;
+        bitField0_ |= 0x00000020;
         onChanged();
         return this;
       }
@@ -2354,7 +2250,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearValue() {
-
+        bitField0_ = (bitField0_ & ~0x00000020);
         value_ = getDefaultInstance().getValue();
         onChanged();
         return this;
@@ -2397,6 +2293,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setValueSize(int value) {
 
         valueSize_ = value;
+        bitField0_ |= 0x00000040;
         onChanged();
         return this;
       }
@@ -2415,7 +2312,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearValueSize() {
-
+        bitField0_ = (bitField0_ & ~0x00000040);
         valueSize_ = 0;
         onChanged();
         return this;
@@ -2468,6 +2365,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder setResetRow(boolean value) {
+
         rowStatusCase_ = 8;
         rowStatus_ = value;
         onChanged();
@@ -2541,6 +2439,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder setCommitRow(boolean value) {
+
         rowStatusCase_ = 9;
         rowStatus_ = value;
         onChanged();
@@ -2600,7 +2499,19 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               com.google.protobuf.CodedInputStream input,
               com.google.protobuf.ExtensionRegistryLite extensionRegistry)
               throws com.google.protobuf.InvalidProtocolBufferException {
-            return new CellChunk(input, extensionRegistry);
+            Builder builder = newBuilder();
+            try {
+              builder.mergeFrom(input, extensionRegistry);
+            } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+              throw e.setUnfinishedMessage(builder.buildPartial());
+            } catch (com.google.protobuf.UninitializedMessageException e) {
+              throw e.asInvalidProtocolBufferException()
+                  .setUnfinishedMessage(builder.buildPartial());
+            } catch (java.io.IOException e) {
+              throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                  .setUnfinishedMessage(builder.buildPartial());
+            }
+            return builder.buildPartial();
           }
         };
 
@@ -2620,6 +2531,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   }
 
   public static final int CHUNKS_FIELD_NUMBER = 1;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> chunks_;
   /**
    *
@@ -2689,7 +2602,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   }
 
   public static final int LAST_SCANNED_ROW_KEY_FIELD_NUMBER = 2;
-  private com.google.protobuf.ByteString lastScannedRowKey_;
+  private com.google.protobuf.ByteString lastScannedRowKey_ = com.google.protobuf.ByteString.EMPTY;
   /**
    *
    *
@@ -2712,6 +2625,104 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     return lastScannedRowKey_;
   }
 
+  public static final int REQUEST_STATS_FIELD_NUMBER = 3;
+  private com.google.bigtable.v2.RequestStats requestStats_;
+  /**
+   *
+   *
+   * <pre>
+   * If requested, provide enhanced query performance statistics. The semantics
+   * dictate:
+   *   * request_stats is empty on every (streamed) response, except
+   *   * request_stats has non-empty information after all chunks have been
+   *     streamed, where the ReadRowsResponse message only contains
+   *     request_stats.
+   *       * For example, if a read request would have returned an empty
+   *         response instead a single ReadRowsResponse is streamed with empty
+   *         chunks and request_stats filled.
+   * Visually, response messages will stream as follows:
+   *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+   *   &#92;______________________/  &#92;________________________________/
+   *       Primary response         Trailer of RequestStats info
+   * Or if the read did not return any values:
+   *   {chunks: [], request_stats: {...}}
+   *   &#92;________________________________/
+   *      Trailer of RequestStats info
+   * </pre>
+   *
+   * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+   *
+   * @return Whether the requestStats field is set.
+   */
+  @java.lang.Override
+  public boolean hasRequestStats() {
+    return requestStats_ != null;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If requested, provide enhanced query performance statistics. The semantics
+   * dictate:
+   *   * request_stats is empty on every (streamed) response, except
+   *   * request_stats has non-empty information after all chunks have been
+   *     streamed, where the ReadRowsResponse message only contains
+   *     request_stats.
+   *       * For example, if a read request would have returned an empty
+   *         response instead a single ReadRowsResponse is streamed with empty
+   *         chunks and request_stats filled.
+   * Visually, response messages will stream as follows:
+   *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+   *   &#92;______________________/  &#92;________________________________/
+   *       Primary response         Trailer of RequestStats info
+   * Or if the read did not return any values:
+   *   {chunks: [], request_stats: {...}}
+   *   &#92;________________________________/
+   *      Trailer of RequestStats info
+   * </pre>
+   *
+   * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+   *
+   * @return The requestStats.
+   */
+  @java.lang.Override
+  public com.google.bigtable.v2.RequestStats getRequestStats() {
+    return requestStats_ == null
+        ? com.google.bigtable.v2.RequestStats.getDefaultInstance()
+        : requestStats_;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If requested, provide enhanced query performance statistics. The semantics
+   * dictate:
+   *   * request_stats is empty on every (streamed) response, except
+   *   * request_stats has non-empty information after all chunks have been
+   *     streamed, where the ReadRowsResponse message only contains
+   *     request_stats.
+   *       * For example, if a read request would have returned an empty
+   *         response instead a single ReadRowsResponse is streamed with empty
+   *         chunks and request_stats filled.
+   * Visually, response messages will stream as follows:
+   *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+   *   &#92;______________________/  &#92;________________________________/
+   *       Primary response         Trailer of RequestStats info
+   * Or if the read did not return any values:
+   *   {chunks: [], request_stats: {...}}
+   *   &#92;________________________________/
+   *      Trailer of RequestStats info
+   * </pre>
+   *
+   * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+   */
+  @java.lang.Override
+  public com.google.bigtable.v2.RequestStatsOrBuilder getRequestStatsOrBuilder() {
+    return requestStats_ == null
+        ? com.google.bigtable.v2.RequestStats.getDefaultInstance()
+        : requestStats_;
+  }
+
   private byte memoizedIsInitialized = -1;
 
   @java.lang.Override
@@ -2732,7 +2743,10 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     if (!lastScannedRowKey_.isEmpty()) {
       output.writeBytes(2, lastScannedRowKey_);
     }
-    unknownFields.writeTo(output);
+    if (requestStats_ != null) {
+      output.writeMessage(3, getRequestStats());
+    }
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -2747,7 +2761,10 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     if (!lastScannedRowKey_.isEmpty()) {
       size += com.google.protobuf.CodedOutputStream.computeBytesSize(2, lastScannedRowKey_);
     }
-    size += unknownFields.getSerializedSize();
+    if (requestStats_ != null) {
+      size += com.google.protobuf.CodedOutputStream.computeMessageSize(3, getRequestStats());
+    }
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -2764,7 +2781,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
 
     if (!getChunksList().equals(other.getChunksList())) return false;
     if (!getLastScannedRowKey().equals(other.getLastScannedRowKey())) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (hasRequestStats() != other.hasRequestStats()) return false;
+    if (hasRequestStats()) {
+      if (!getRequestStats().equals(other.getRequestStats())) return false;
+    }
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -2781,7 +2802,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
     hash = (37 * hash) + LAST_SCANNED_ROW_KEY_FIELD_NUMBER;
     hash = (53 * hash) + getLastScannedRowKey().hashCode();
-    hash = (29 * hash) + unknownFields.hashCode();
+    if (hasRequestStats()) {
+      hash = (37 * hash) + REQUEST_STATS_FIELD_NUMBER;
+      hash = (53 * hash) + getRequestStats().hashCode();
+    }
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -2910,32 +2935,29 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     // Construct using com.google.bigtable.v2.ReadRowsResponse.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {
-        getChunksFieldBuilder();
-      }
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       if (chunksBuilder_ == null) {
         chunks_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
       } else {
+        chunks_ = null;
         chunksBuilder_.clear();
       }
+      bitField0_ = (bitField0_ & ~0x00000001);
       lastScannedRowKey_ = com.google.protobuf.ByteString.EMPTY;
-
+      requestStats_ = null;
+      if (requestStatsBuilder_ != null) {
+        requestStatsBuilder_.dispose();
+        requestStatsBuilder_ = null;
+      }
       return this;
     }
 
@@ -2963,7 +2985,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     public com.google.bigtable.v2.ReadRowsResponse buildPartial() {
       com.google.bigtable.v2.ReadRowsResponse result =
           new com.google.bigtable.v2.ReadRowsResponse(this);
-      int from_bitField0_ = bitField0_;
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(com.google.bigtable.v2.ReadRowsResponse result) {
       if (chunksBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           chunks_ = java.util.Collections.unmodifiableList(chunks_);
@@ -2973,9 +3003,17 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       } else {
         result.chunks_ = chunksBuilder_.build();
       }
-      result.lastScannedRowKey_ = lastScannedRowKey_;
-      onBuilt();
-      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadRowsResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.lastScannedRowKey_ = lastScannedRowKey_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.requestStats_ =
+            requestStatsBuilder_ == null ? requestStats_ : requestStatsBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -3053,7 +3091,10 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       if (other.getLastScannedRowKey() != com.google.protobuf.ByteString.EMPTY) {
         setLastScannedRowKey(other.getLastScannedRowKey());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      if (other.hasRequestStats()) {
+        mergeRequestStats(other.getRequestStats());
+      }
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -3068,17 +3109,57 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.v2.ReadRowsResponse parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                com.google.bigtable.v2.ReadRowsResponse.CellChunk m =
+                    input.readMessage(
+                        com.google.bigtable.v2.ReadRowsResponse.CellChunk.parser(),
+                        extensionRegistry);
+                if (chunksBuilder_ == null) {
+                  ensureChunksIsMutable();
+                  chunks_.add(m);
+                } else {
+                  chunksBuilder_.addMessage(m);
+                }
+                break;
+              } // case 10
+            case 18:
+              {
+                lastScannedRowKey_ = input.readBytes();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getRequestStatsFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.v2.ReadRowsResponse) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -3482,8 +3563,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       if (value == null) {
         throw new NullPointerException();
       }
-
       lastScannedRowKey_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -3505,10 +3586,337 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * @return This builder for chaining.
      */
     public Builder clearLastScannedRowKey() {
-
+      bitField0_ = (bitField0_ & ~0x00000002);
       lastScannedRowKey_ = getDefaultInstance().getLastScannedRowKey();
       onChanged();
       return this;
+    }
+
+    private com.google.bigtable.v2.RequestStats requestStats_;
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.v2.RequestStats,
+            com.google.bigtable.v2.RequestStats.Builder,
+            com.google.bigtable.v2.RequestStatsOrBuilder>
+        requestStatsBuilder_;
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     *
+     * @return Whether the requestStats field is set.
+     */
+    public boolean hasRequestStats() {
+      return ((bitField0_ & 0x00000004) != 0);
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     *
+     * @return The requestStats.
+     */
+    public com.google.bigtable.v2.RequestStats getRequestStats() {
+      if (requestStatsBuilder_ == null) {
+        return requestStats_ == null
+            ? com.google.bigtable.v2.RequestStats.getDefaultInstance()
+            : requestStats_;
+      } else {
+        return requestStatsBuilder_.getMessage();
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public Builder setRequestStats(com.google.bigtable.v2.RequestStats value) {
+      if (requestStatsBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        requestStats_ = value;
+      } else {
+        requestStatsBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public Builder setRequestStats(com.google.bigtable.v2.RequestStats.Builder builderForValue) {
+      if (requestStatsBuilder_ == null) {
+        requestStats_ = builderForValue.build();
+      } else {
+        requestStatsBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public Builder mergeRequestStats(com.google.bigtable.v2.RequestStats value) {
+      if (requestStatsBuilder_ == null) {
+        if (((bitField0_ & 0x00000004) != 0)
+            && requestStats_ != null
+            && requestStats_ != com.google.bigtable.v2.RequestStats.getDefaultInstance()) {
+          getRequestStatsBuilder().mergeFrom(value);
+        } else {
+          requestStats_ = value;
+        }
+      } else {
+        requestStatsBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public Builder clearRequestStats() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      requestStats_ = null;
+      if (requestStatsBuilder_ != null) {
+        requestStatsBuilder_.dispose();
+        requestStatsBuilder_ = null;
+      }
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public com.google.bigtable.v2.RequestStats.Builder getRequestStatsBuilder() {
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return getRequestStatsFieldBuilder().getBuilder();
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    public com.google.bigtable.v2.RequestStatsOrBuilder getRequestStatsOrBuilder() {
+      if (requestStatsBuilder_ != null) {
+        return requestStatsBuilder_.getMessageOrBuilder();
+      } else {
+        return requestStats_ == null
+            ? com.google.bigtable.v2.RequestStats.getDefaultInstance()
+            : requestStats_;
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If requested, provide enhanced query performance statistics. The semantics
+     * dictate:
+     *   * request_stats is empty on every (streamed) response, except
+     *   * request_stats has non-empty information after all chunks have been
+     *     streamed, where the ReadRowsResponse message only contains
+     *     request_stats.
+     *       * For example, if a read request would have returned an empty
+     *         response instead a single ReadRowsResponse is streamed with empty
+     *         chunks and request_stats filled.
+     * Visually, response messages will stream as follows:
+     *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
+     *   &#92;______________________/  &#92;________________________________/
+     *       Primary response         Trailer of RequestStats info
+     * Or if the read did not return any values:
+     *   {chunks: [], request_stats: {...}}
+     *   &#92;________________________________/
+     *      Trailer of RequestStats info
+     * </pre>
+     *
+     * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.v2.RequestStats,
+            com.google.bigtable.v2.RequestStats.Builder,
+            com.google.bigtable.v2.RequestStatsOrBuilder>
+        getRequestStatsFieldBuilder() {
+      if (requestStatsBuilder_ == null) {
+        requestStatsBuilder_ =
+            new com.google.protobuf.SingleFieldBuilderV3<
+                com.google.bigtable.v2.RequestStats,
+                com.google.bigtable.v2.RequestStats.Builder,
+                com.google.bigtable.v2.RequestStatsOrBuilder>(
+                getRequestStats(), getParentForChildren(), isClean());
+        requestStats_ = null;
+      }
+      return requestStatsBuilder_;
     }
 
     @java.lang.Override
@@ -3543,7 +3951,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new ReadRowsResponse(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

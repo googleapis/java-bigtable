@@ -33,8 +33,11 @@ import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.PingAndWarmRequest;
+import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowSet;
@@ -43,6 +46,7 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
@@ -75,6 +79,7 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -160,7 +165,6 @@ public class EnhancedBigtableStubTest {
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
             .build();
     enhancedBigtableStub = EnhancedBigtableStub.create(settings);
-
     // Send rpc and grab the credentials sent
     enhancedBigtableStub.readRowCallable().futureCall(Query.create("fake-table")).get();
     Metadata metadata = metadataInterceptor.headers.take();
@@ -206,6 +210,9 @@ public class EnhancedBigtableStubTest {
               .setTransportChannelProvider(
                   FixedTransportChannelProvider.create(
                       GrpcTransportChannel.create(emulatorChannel)))
+              // Channel refreshing doesn't work with FixedTransportChannelProvider. Disable it for
+              // the test
+              .setRefreshingChannel(false)
               .build();
       enhancedBigtableStub = EnhancedBigtableStub.create(settings);
       // Send rpc and grab the credentials sent
@@ -261,15 +268,10 @@ public class EnhancedBigtableStubTest {
   @Test
   public void testChannelPrimerConfigured() throws IOException {
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
-            .setRefreshingChannel(true)
-            .setPrimedTableIds("table1", "table2")
-            .build();
+        defaultSettings.toBuilder().setRefreshingChannel(true).build();
 
     try (EnhancedBigtableStub ignored = EnhancedBigtableStub.create(settings)) {
-      // priming will issue a request per table on startup
-      assertThat(fakeDataService.requests).hasSize(2);
+      assertThat(fakeDataService.pingRequests).hasSize(1);
     }
   }
 
@@ -345,7 +347,7 @@ public class EnhancedBigtableStubTest {
   @Test
   public void testBulkMutationFlowControllerConfigured() throws Exception {
     BigtableDataSettings.Builder settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId("my-project")
             .setInstanceId("my-instance")
             .setCredentialsProvider(defaultSettings.getCredentialsProvider())
@@ -487,6 +489,45 @@ public class EnhancedBigtableStubTest {
     }
   }
 
+  @Test
+  public void testBulkMutationFlowControlFeatureFlagIsSet() throws Exception {
+    BulkMutation bulkMutation =
+        BulkMutation.create("my-table")
+            .add(RowMutationEntry.create("row-key").setCell("cf", "q", "value"));
+
+    // Test the header is set when the feature is enabled
+    EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
+    settings.bulkMutateRowsSettings().setServerInitiatedFlowControl(true);
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
+    stub.bulkMutateRowsCallable().call(bulkMutation);
+    assertThat(metadataInterceptor.headers).hasSize(1);
+    Metadata metadata = metadataInterceptor.headers.take();
+    String encodedFlags =
+        metadata.get(Metadata.Key.of("bigtable-features", Metadata.ASCII_STRING_MARSHALLER));
+    byte[] decodedFlags = Base64.getDecoder().decode(encodedFlags);
+    FeatureFlags featureFlags = FeatureFlags.parseFrom(decodedFlags);
+    assertThat(featureFlags.getMutateRowsRateLimit()).isTrue();
+  }
+
+  @Test
+  public void testBulkMutationFlowControlFeatureFlagIsNotSet() throws Exception {
+    BulkMutation bulkMutation =
+        BulkMutation.create("my-table")
+            .add(RowMutationEntry.create("row-key").setCell("cf", "q", "value"));
+
+    EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
+    settings.bulkMutateRowsSettings().setServerInitiatedFlowControl(false);
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
+    stub.bulkMutateRowsCallable().call(bulkMutation);
+    assertThat(metadataInterceptor.headers).hasSize(1);
+    Metadata metadata = metadataInterceptor.headers.take();
+    String encodedFlags =
+        metadata.get(Metadata.Key.of("bigtable-features", Metadata.ASCII_STRING_MARSHALLER));
+    byte[] decodedFlags = Base64.getDecoder().decode(encodedFlags);
+    FeatureFlags featureFlags = FeatureFlags.parseFrom(decodedFlags);
+    assertThat(featureFlags.getMutateRowsRateLimit()).isFalse();
+  }
+
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
 
@@ -515,6 +556,7 @@ public class EnhancedBigtableStubTest {
 
   private static class FakeDataService extends BigtableGrpc.BigtableImplBase {
     final BlockingQueue<ReadRowsRequest> requests = Queues.newLinkedBlockingDeque();
+    final BlockingQueue<PingAndWarmRequest> pingRequests = Queues.newLinkedBlockingDeque();
 
     @SuppressWarnings("unchecked")
     ReadRowsRequest popLastRequest() throws InterruptedException {
@@ -547,6 +589,14 @@ public class EnhancedBigtableStubTest {
                       .setQualifier(BytesValue.getDefaultInstance())
                       .setValueSize(0))
               .build());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void pingAndWarm(
+        PingAndWarmRequest request, StreamObserver<PingAndWarmResponse> responseObserver) {
+      pingRequests.add(request);
+      responseObserver.onNext(PingAndWarmResponse.getDefaultInstance());
       responseObserver.onCompleted();
     }
   }

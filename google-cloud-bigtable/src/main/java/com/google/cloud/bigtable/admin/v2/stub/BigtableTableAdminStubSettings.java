@@ -76,7 +76,11 @@ import com.google.bigtable.admin.v2.Snapshot;
 import com.google.bigtable.admin.v2.SnapshotTableMetadata;
 import com.google.bigtable.admin.v2.SnapshotTableRequest;
 import com.google.bigtable.admin.v2.Table;
+import com.google.bigtable.admin.v2.UndeleteTableMetadata;
+import com.google.bigtable.admin.v2.UndeleteTableRequest;
 import com.google.bigtable.admin.v2.UpdateBackupRequest;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
+import com.google.bigtable.admin.v2.UpdateTableRequest;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -111,8 +115,11 @@ import org.threeten.bp.Duration;
  * <p>For example, to set the total timeout of createTable to 30 seconds:
  *
  * <pre>{@code
- * // This snippet has been automatically generated for illustrative purposes only.
- * // It may require modifications to work in your environment.
+ * // This snippet has been automatically generated and should be regarded as a code template only.
+ * // It will require modifications to work:
+ * // - It may require correct/in-range values for request initialization.
+ * // - It may require specifying regional endpoints when creating the service client as shown in
+ * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
  * BigtableTableAdminStubSettings.Builder baseBigtableTableAdminSettingsBuilder =
  *     BigtableTableAdminStubSettings.newBuilder();
  * baseBigtableTableAdminSettingsBuilder
@@ -150,7 +157,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
   private final PagedCallSettings<ListTablesRequest, ListTablesResponse, ListTablesPagedResponse>
       listTablesSettings;
   private final UnaryCallSettings<GetTableRequest, Table> getTableSettings;
+  private final UnaryCallSettings<UpdateTableRequest, Operation> updateTableSettings;
+  private final OperationCallSettings<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationSettings;
   private final UnaryCallSettings<DeleteTableRequest, Empty> deleteTableSettings;
+  private final UnaryCallSettings<UndeleteTableRequest, Operation> undeleteTableSettings;
+  private final OperationCallSettings<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationSettings;
   private final UnaryCallSettings<ModifyColumnFamiliesRequest, Table> modifyColumnFamiliesSettings;
   private final UnaryCallSettings<DropRowRangeRequest, Empty> dropRowRangeSettings;
   private final UnaryCallSettings<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
@@ -369,9 +382,31 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     return getTableSettings;
   }
 
+  /** Returns the object with the settings used for calls to updateTable. */
+  public UnaryCallSettings<UpdateTableRequest, Operation> updateTableSettings() {
+    return updateTableSettings;
+  }
+
+  /** Returns the object with the settings used for calls to updateTable. */
+  public OperationCallSettings<UpdateTableRequest, Table, UpdateTableMetadata>
+      updateTableOperationSettings() {
+    return updateTableOperationSettings;
+  }
+
   /** Returns the object with the settings used for calls to deleteTable. */
   public UnaryCallSettings<DeleteTableRequest, Empty> deleteTableSettings() {
     return deleteTableSettings;
+  }
+
+  /** Returns the object with the settings used for calls to undeleteTable. */
+  public UnaryCallSettings<UndeleteTableRequest, Operation> undeleteTableSettings() {
+    return undeleteTableSettings;
+  }
+
+  /** Returns the object with the settings used for calls to undeleteTable. */
+  public OperationCallSettings<UndeleteTableRequest, Table, UndeleteTableMetadata>
+      undeleteTableOperationSettings() {
+    return undeleteTableOperationSettings;
   }
 
   /** Returns the object with the settings used for calls to modifyColumnFamilies. */
@@ -563,7 +598,11 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
         settingsBuilder.createTableFromSnapshotOperationSettings().build();
     listTablesSettings = settingsBuilder.listTablesSettings().build();
     getTableSettings = settingsBuilder.getTableSettings().build();
+    updateTableSettings = settingsBuilder.updateTableSettings().build();
+    updateTableOperationSettings = settingsBuilder.updateTableOperationSettings().build();
     deleteTableSettings = settingsBuilder.deleteTableSettings().build();
+    undeleteTableSettings = settingsBuilder.undeleteTableSettings().build();
+    undeleteTableOperationSettings = settingsBuilder.undeleteTableOperationSettings().build();
     modifyColumnFamiliesSettings = settingsBuilder.modifyColumnFamiliesSettings().build();
     dropRowRangeSettings = settingsBuilder.dropRowRangeSettings().build();
     generateConsistencyTokenSettings = settingsBuilder.generateConsistencyTokenSettings().build();
@@ -600,7 +639,13 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
             ListTablesRequest, ListTablesResponse, ListTablesPagedResponse>
         listTablesSettings;
     private final UnaryCallSettings.Builder<GetTableRequest, Table> getTableSettings;
+    private final UnaryCallSettings.Builder<UpdateTableRequest, Operation> updateTableSettings;
+    private final OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
+        updateTableOperationSettings;
     private final UnaryCallSettings.Builder<DeleteTableRequest, Empty> deleteTableSettings;
+    private final UnaryCallSettings.Builder<UndeleteTableRequest, Operation> undeleteTableSettings;
+    private final OperationCallSettings.Builder<UndeleteTableRequest, Table, UndeleteTableMetadata>
+        undeleteTableOperationSettings;
     private final UnaryCallSettings.Builder<ModifyColumnFamiliesRequest, Table>
         modifyColumnFamiliesSettings;
     private final UnaryCallSettings.Builder<DropRowRangeRequest, Empty> dropRowRangeSettings;
@@ -728,7 +773,11 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       createTableFromSnapshotOperationSettings = OperationCallSettings.newBuilder();
       listTablesSettings = PagedCallSettings.newBuilder(LIST_TABLES_PAGE_STR_FACT);
       getTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      updateTableOperationSettings = OperationCallSettings.newBuilder();
       deleteTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      undeleteTableSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      undeleteTableOperationSettings = OperationCallSettings.newBuilder();
       modifyColumnFamiliesSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       dropRowRangeSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       generateConsistencyTokenSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
@@ -756,7 +805,9 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               createTableFromSnapshotSettings,
               listTablesSettings,
               getTableSettings,
+              updateTableSettings,
               deleteTableSettings,
+              undeleteTableSettings,
               modifyColumnFamiliesSettings,
               dropRowRangeSettings,
               generateConsistencyTokenSettings,
@@ -786,7 +837,11 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           settings.createTableFromSnapshotOperationSettings.toBuilder();
       listTablesSettings = settings.listTablesSettings.toBuilder();
       getTableSettings = settings.getTableSettings.toBuilder();
+      updateTableSettings = settings.updateTableSettings.toBuilder();
+      updateTableOperationSettings = settings.updateTableOperationSettings.toBuilder();
       deleteTableSettings = settings.deleteTableSettings.toBuilder();
+      undeleteTableSettings = settings.undeleteTableSettings.toBuilder();
+      undeleteTableOperationSettings = settings.undeleteTableOperationSettings.toBuilder();
       modifyColumnFamiliesSettings = settings.modifyColumnFamiliesSettings.toBuilder();
       dropRowRangeSettings = settings.dropRowRangeSettings.toBuilder();
       generateConsistencyTokenSettings = settings.generateConsistencyTokenSettings.toBuilder();
@@ -814,7 +869,9 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               createTableFromSnapshotSettings,
               listTablesSettings,
               getTableSettings,
+              updateTableSettings,
               deleteTableSettings,
+              undeleteTableSettings,
               modifyColumnFamiliesSettings,
               dropRowRangeSettings,
               generateConsistencyTokenSettings,
@@ -869,9 +926,19 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("retry_policy_2_params"));
 
       builder
+          .updateTableSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
+
+      builder
           .deleteTableSettings()
           .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_1_codes"))
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_1_params"));
+
+      builder
+          .undeleteTableSettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       builder
           .modifyColumnFamiliesSettings()
@@ -981,6 +1048,53 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
                       .setRpcTimeoutMultiplier(1.0)
                       .setMaxRpcTimeout(Duration.ZERO)
                       .setTotalTimeout(Duration.ofMillis(3600000L))
+                      .build()));
+
+      builder
+          .updateTableOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings.<UpdateTableRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(Table.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(UpdateTableMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelay(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeout(Duration.ZERO)
+                      .setTotalTimeout(Duration.ofMillis(300000L))
+                      .build()));
+
+      builder
+          .undeleteTableOperationSettings()
+          .setInitialCallSettings(
+              UnaryCallSettings
+                  .<UndeleteTableRequest, OperationSnapshot>newUnaryCallSettingsBuilder()
+                  .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+                  .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"))
+                  .build())
+          .setResponseTransformer(
+              ProtoOperationTransformers.ResponseTransformer.create(Table.class))
+          .setMetadataTransformer(
+              ProtoOperationTransformers.MetadataTransformer.create(UndeleteTableMetadata.class))
+          .setPollingAlgorithm(
+              OperationTimedPollAlgorithm.create(
+                  RetrySettings.newBuilder()
+                      .setInitialRetryDelay(Duration.ofMillis(5000L))
+                      .setRetryDelayMultiplier(1.5)
+                      .setMaxRetryDelay(Duration.ofMillis(45000L))
+                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .setMaxRpcTimeout(Duration.ZERO)
+                      .setTotalTimeout(Duration.ofMillis(300000L))
                       .build()));
 
       builder
@@ -1104,9 +1218,35 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
       return getTableSettings;
     }
 
+    /** Returns the builder for the settings used for calls to updateTable. */
+    public UnaryCallSettings.Builder<UpdateTableRequest, Operation> updateTableSettings() {
+      return updateTableSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to updateTable. */
+    @BetaApi(
+        "The surface for use by generated code is not stable yet and may change in the future.")
+    public OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
+        updateTableOperationSettings() {
+      return updateTableOperationSettings;
+    }
+
     /** Returns the builder for the settings used for calls to deleteTable. */
     public UnaryCallSettings.Builder<DeleteTableRequest, Empty> deleteTableSettings() {
       return deleteTableSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to undeleteTable. */
+    public UnaryCallSettings.Builder<UndeleteTableRequest, Operation> undeleteTableSettings() {
+      return undeleteTableSettings;
+    }
+
+    /** Returns the builder for the settings used for calls to undeleteTable. */
+    @BetaApi(
+        "The surface for use by generated code is not stable yet and may change in the future.")
+    public OperationCallSettings.Builder<UndeleteTableRequest, Table, UndeleteTableMetadata>
+        undeleteTableOperationSettings() {
+      return undeleteTableOperationSettings;
     }
 
     /** Returns the builder for the settings used for calls to modifyColumnFamilies. */

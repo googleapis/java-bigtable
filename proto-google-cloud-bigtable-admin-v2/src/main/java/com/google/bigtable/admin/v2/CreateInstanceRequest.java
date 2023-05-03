@@ -53,92 +53,6 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     return this.unknownFields;
   }
 
-  private CreateInstanceRequest(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    int mutable_bitField0_ = 0;
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              parent_ = s;
-              break;
-            }
-          case 18:
-            {
-              java.lang.String s = input.readStringRequireUtf8();
-
-              instanceId_ = s;
-              break;
-            }
-          case 26:
-            {
-              com.google.bigtable.admin.v2.Instance.Builder subBuilder = null;
-              if (instance_ != null) {
-                subBuilder = instance_.toBuilder();
-              }
-              instance_ =
-                  input.readMessage(
-                      com.google.bigtable.admin.v2.Instance.parser(), extensionRegistry);
-              if (subBuilder != null) {
-                subBuilder.mergeFrom(instance_);
-                instance_ = subBuilder.buildPartial();
-              }
-
-              break;
-            }
-          case 34:
-            {
-              if (!((mutable_bitField0_ & 0x00000001) != 0)) {
-                clusters_ =
-                    com.google.protobuf.MapField.newMapField(
-                        ClustersDefaultEntryHolder.defaultEntry);
-                mutable_bitField0_ |= 0x00000001;
-              }
-              com.google.protobuf.MapEntry<java.lang.String, com.google.bigtable.admin.v2.Cluster>
-                  clusters__ =
-                      input.readMessage(
-                          ClustersDefaultEntryHolder.defaultEntry.getParserForType(),
-                          extensionRegistry);
-              clusters_.getMutableMap().put(clusters__.getKey(), clusters__.getValue());
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_CreateInstanceRequest_descriptor;
@@ -166,7 +80,9 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
   }
 
   public static final int PARENT_FIELD_NUMBER = 1;
-  private volatile java.lang.Object parent_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object parent_ = "";
   /**
    *
    *
@@ -221,7 +137,9 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
   }
 
   public static final int INSTANCE_ID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object instanceId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object instanceId_ = "";
   /**
    *
    *
@@ -327,7 +245,9 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.InstanceOrBuilder getInstanceOrBuilder() {
-    return getInstance();
+    return instance_ == null
+        ? com.google.bigtable.admin.v2.Instance.getDefaultInstance()
+        : instance_;
   }
 
   public static final int CLUSTERS_FIELD_NUMBER = 4;
@@ -346,6 +266,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
                     com.google.bigtable.admin.v2.Cluster.getDefaultInstance());
   }
 
+  @SuppressWarnings("serial")
   private com.google.protobuf.MapField<java.lang.String, com.google.bigtable.admin.v2.Cluster>
       clusters_;
 
@@ -423,8 +344,10 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    * </code>
    */
   @java.lang.Override
-  public com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
-      java.lang.String key, com.google.bigtable.admin.v2.Cluster defaultValue) {
+  public /* nullable */ com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
+      java.lang.String key,
+      /* nullable */
+      com.google.bigtable.admin.v2.Cluster defaultValue) {
     if (key == null) {
       throw new NullPointerException("map key");
     }
@@ -485,7 +408,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     }
     com.google.protobuf.GeneratedMessageV3.serializeStringMapTo(
         output, internalGetClusters(), ClustersDefaultEntryHolder.defaultEntry, 4);
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -514,7 +437,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
                   .build();
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(4, clusters__);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -537,7 +460,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       if (!getInstance().equals(other.getInstance())) return false;
     }
     if (!internalGetClusters().equals(other.internalGetClusters())) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -560,7 +483,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       hash = (37 * hash) + CLUSTERS_FIELD_NUMBER;
       hash = (53 * hash) + internalGetClusters().hashCode();
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -709,30 +632,21 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     }
 
     // Construct using com.google.bigtable.admin.v2.CreateInstanceRequest.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       parent_ = "";
-
       instanceId_ = "";
-
-      if (instanceBuilder_ == null) {
-        instance_ = null;
-      } else {
-        instance_ = null;
+      instance_ = null;
+      if (instanceBuilder_ != null) {
+        instanceBuilder_.dispose();
         instanceBuilder_ = null;
       }
       internalGetMutableClusters().clear();
@@ -763,18 +677,28 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     public com.google.bigtable.admin.v2.CreateInstanceRequest buildPartial() {
       com.google.bigtable.admin.v2.CreateInstanceRequest result =
           new com.google.bigtable.admin.v2.CreateInstanceRequest(this);
-      int from_bitField0_ = bitField0_;
-      result.parent_ = parent_;
-      result.instanceId_ = instanceId_;
-      if (instanceBuilder_ == null) {
-        result.instance_ = instance_;
-      } else {
-        result.instance_ = instanceBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      result.clusters_ = internalGetClusters();
-      result.clusters_.makeImmutable();
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.CreateInstanceRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.parent_ = parent_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.instanceId_ = instanceId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.instance_ = instanceBuilder_ == null ? instance_ : instanceBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.clusters_ = internalGetClusters();
+        result.clusters_.makeImmutable();
+      }
     }
 
     @java.lang.Override
@@ -825,17 +749,20 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
         return this;
       if (!other.getParent().isEmpty()) {
         parent_ = other.parent_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getInstanceId().isEmpty()) {
         instanceId_ = other.instanceId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasInstance()) {
         mergeInstance(other.getInstance());
       }
       internalGetMutableClusters().mergeFrom(other.internalGetClusters());
-      this.mergeUnknownFields(other.unknownFields);
+      bitField0_ |= 0x00000008;
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -850,18 +777,62 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.CreateInstanceRequest parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                parent_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 10
+            case 18:
+              {
+                instanceId_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 18
+            case 26:
+              {
+                input.readMessage(getInstanceFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 26
+            case 34:
+              {
+                com.google.protobuf.MapEntry<java.lang.String, com.google.bigtable.admin.v2.Cluster>
+                    clusters__ =
+                        input.readMessage(
+                            ClustersDefaultEntryHolder.defaultEntry.getParserForType(),
+                            extensionRegistry);
+                internalGetMutableClusters()
+                    .getMutableMap()
+                    .put(clusters__.getKey(), clusters__.getValue());
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 34
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage =
-            (com.google.bigtable.admin.v2.CreateInstanceRequest) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -937,8 +908,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       if (value == null) {
         throw new NullPointerException();
       }
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -957,8 +928,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * @return This builder for chaining.
      */
     public Builder clearParent() {
-
       parent_ = getDefaultInstance().getParent();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -982,8 +953,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1055,8 +1026,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       if (value == null) {
         throw new NullPointerException();
       }
-
       instanceId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1074,8 +1045,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * @return This builder for chaining.
      */
     public Builder clearInstanceId() {
-
       instanceId_ = getDefaultInstance().getInstanceId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1098,8 +1069,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       instanceId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1125,7 +1096,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * @return Whether the instance field is set.
      */
     public boolean hasInstance() {
-      return instanceBuilder_ != null || instance_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1168,11 +1139,11 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
           throw new NullPointerException();
         }
         instance_ = value;
-        onChanged();
       } else {
         instanceBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1190,11 +1161,11 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     public Builder setInstance(com.google.bigtable.admin.v2.Instance.Builder builderForValue) {
       if (instanceBuilder_ == null) {
         instance_ = builderForValue.build();
-        onChanged();
       } else {
         instanceBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1211,19 +1182,18 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      */
     public Builder mergeInstance(com.google.bigtable.admin.v2.Instance value) {
       if (instanceBuilder_ == null) {
-        if (instance_ != null) {
-          instance_ =
-              com.google.bigtable.admin.v2.Instance.newBuilder(instance_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && instance_ != null
+            && instance_ != com.google.bigtable.admin.v2.Instance.getDefaultInstance()) {
+          getInstanceBuilder().mergeFrom(value);
         } else {
           instance_ = value;
         }
-        onChanged();
       } else {
         instanceBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1239,14 +1209,13 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * </code>
      */
     public Builder clearInstance() {
-      if (instanceBuilder_ == null) {
-        instance_ = null;
-        onChanged();
-      } else {
-        instance_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      instance_ = null;
+      if (instanceBuilder_ != null) {
+        instanceBuilder_.dispose();
         instanceBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1262,7 +1231,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * </code>
      */
     public com.google.bigtable.admin.v2.Instance.Builder getInstanceBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getInstanceFieldBuilder().getBuilder();
     }
@@ -1329,8 +1298,6 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
 
     private com.google.protobuf.MapField<java.lang.String, com.google.bigtable.admin.v2.Cluster>
         internalGetMutableClusters() {
-      onChanged();
-      ;
       if (clusters_ == null) {
         clusters_ =
             com.google.protobuf.MapField.newMapField(ClustersDefaultEntryHolder.defaultEntry);
@@ -1338,6 +1305,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       if (!clusters_.isMutable()) {
         clusters_ = clusters_.copy();
       }
+      bitField0_ |= 0x00000008;
+      onChanged();
       return clusters_;
     }
 
@@ -1407,8 +1376,10 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      * </code>
      */
     @java.lang.Override
-    public com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
-        java.lang.String key, com.google.bigtable.admin.v2.Cluster defaultValue) {
+    public /* nullable */ com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
+        java.lang.String key,
+        /* nullable */
+        com.google.bigtable.admin.v2.Cluster defaultValue) {
       if (key == null) {
         throw new NullPointerException("map key");
       }
@@ -1445,6 +1416,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     }
 
     public Builder clearClusters() {
+      bitField0_ = (bitField0_ & ~0x00000008);
       internalGetMutableClusters().getMutableMap().clear();
       return this;
     }
@@ -1474,6 +1446,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     @java.lang.Deprecated
     public java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster>
         getMutableClusters() {
+      bitField0_ |= 0x00000008;
       return internalGetMutableClusters().getMutableMap();
     }
     /**
@@ -1498,8 +1471,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
       if (value == null) {
         throw new NullPointerException("map value");
       }
-
       internalGetMutableClusters().getMutableMap().put(key, value);
+      bitField0_ |= 0x00000008;
       return this;
     }
     /**
@@ -1520,6 +1493,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     public Builder putAllClusters(
         java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Cluster> values) {
       internalGetMutableClusters().getMutableMap().putAll(values);
+      bitField0_ |= 0x00000008;
       return this;
     }
 
@@ -1555,7 +1529,18 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new CreateInstanceRequest(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

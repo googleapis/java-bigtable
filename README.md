@@ -11,7 +11,7 @@ Java idiomatic client for [Cloud Bigtable][product-docs].
 
 ## Quickstart
 
-If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
+If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
 
 ```xml
 <dependencyManagement>
@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>25.3.0</version>
+      <version>26.14.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -34,36 +34,38 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file
 
 ```
 
-If you are using Maven without BOM, add this to your dependencies:
+If you are using Maven without the BOM, add this to your dependencies:
 
+<!-- {x-version-update-start:google-cloud-bigtable:released} -->
 
 ```xml
 <dependency>
   <groupId>com.google.cloud</groupId>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.8.0</version>
+  <version>2.22.0</version>
 </dependency>
 
 ```
 
-If you are using Gradle 5.x or later, add this to your dependencies
+If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:25.3.0')
+implementation platform('com.google.cloud:libraries-bom:26.14.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
-If you are using Gradle without BOM, add this to your dependencies
+If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.8.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.22.0'
 ```
 
-If you are using SBT, add this to your dependencies
+If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.8.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.22.0"
 ```
+<!-- {x-version-update-end} -->
 
 ## Authentication
 
@@ -80,7 +82,7 @@ The client application making API calls must be granted [authorization scopes][a
 You will need a [Google Cloud Platform Console][developer-console] project with the Cloud Bigtable [API enabled][enable-api].
 
 [Follow these instructions][create-project] to get your project set up. You will also need to set up the local development environment by
-[installing the Google Cloud SDK][cloud-sdk] and running the following commands in command line:
+[installing the Google Cloud Command Line Interface][cloud-cli] and running the following commands in command line:
 `gcloud auth login` and `gcloud config set project [YOUR PROJECT ID]`.
 
 ### Installation and setup
@@ -99,7 +101,7 @@ use this Cloud Bigtable Client Library.
 
 ## About Cloud Bigtable
 
-[Cloud Bigtable][cloud-bigtable] is Google's NoSQL Big Data database service. It's
+[Cloud Bigtable][product-docs] is Google's NoSQL Big Data database service. It's
 the same database that powers many core Google services, including Search, Analytics, Maps, and
 Gmail.
 
@@ -213,6 +215,15 @@ try {
 
 TIP: If you are experiencing version conflicts with gRPC, see [Version Conflicts](#version-conflicts).
 
+## Enabling client side metrics
+
+Cloud Bigtable client supports publishing client side metrics to
+[Cloud Monitoring](https://cloud.google.com/monitoring/docs/monitoring-overview) under the
+`bigtable.googleapis.com/client` namespace.
+
+This feature is available once you upgrade to version 2.16.0 and above.
+Follow the guide on https://cloud.google.com/bigtable/docs/client-side-metrics-setup to enable.
+
 ## Client request tracing: OpenCensus Tracing
 
 Cloud Bigtable client supports [OpenCensus Tracing](https://opencensus.io/tracing/),
@@ -288,6 +299,12 @@ Tracing.getTraceConfig().updateActiveTraceParams(
 
 ## Enabling Cloud Bigtable Metrics: OpenCensus Stats
 
+---
+Note: We recommend [enabling client side built-in metrics](#enabling-client-side-metrics)
+if you want to view your metrics on cloud monitoring. This integration is only for exporting the
+metrics to a third party dashboard.
+---
+
 Cloud Bigtable client supports [Opencensus Metrics](https://opencensus.io/stats/),
 which gives insight into the client internals and aids in debugging production issues.
 All Cloud Bigtable Metrics are prefixed with `cloud.google.com/java/bigtable/`. The
@@ -322,7 +339,7 @@ metrics will be tagged with:
   each operation required, tagged by operation name and final operation status.
   Under normal circumstances, this will be 1.
 
-### GFE metric views:
+#### GFE metric views:
 * `cloud.google.com/java/bigtable/gfe_latency`: A distribution of the latency
 between Google's network receives an RPC and reads back the first byte of
 the response.
@@ -477,6 +494,7 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
 | Hello World | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/HelloWorld.java) |
 | Instance Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/InstanceAdminExample.java) |
+| Key Salting | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/KeySalting.java) |
 | Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
 | Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) |
@@ -484,6 +502,14 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 | Write Conditionally | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) |
 | Write Increment | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) |
 | Write Simple | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteSimple.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteSimple.java) |
+| Batch Delete Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/BatchDeleteExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/BatchDeleteExample.java) |
+| Conditional Delete Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/ConditionalDeleteExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/ConditionalDeleteExample.java) |
+| Delete Column Family Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteColumnFamilyExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteColumnFamilyExample.java) |
+| Delete From Column Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromColumnExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromColumnExample.java) |
+| Delete From Column Family Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromColumnFamilyExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromColumnFamilyExample.java) |
+| Delete From Row Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromRowExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteFromRowExample.java) |
+| Delete Table Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteTableExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DeleteTableExample.java) |
+| Drop Row Range Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/deletes/DropRowRangeExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/deletes/DropRowRangeExample.java) |
 
 
 
@@ -583,15 +609,15 @@ Java is a registered trademark of Oracle and/or its affiliates.
 [kokoro-badge-link-5]: http://storage.googleapis.com/cloud-devrel-public/java/badges/java-bigtable/java11.html
 [stability-image]: https://img.shields.io/badge/stability-stable-green
 [maven-version-image]: https://img.shields.io/maven-central/v/com.google.cloud/google-cloud-bigtable.svg
-[maven-version-link]: https://search.maven.org/search?q=g:com.google.cloud%20AND%20a:google-cloud-bigtable&core=gav
+[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.22.0
 [authentication]: https://github.com/googleapis/google-cloud-java#authentication
 [auth-scopes]: https://developers.google.com/identity/protocols/oauth2/scopes
 [predefined-iam-roles]: https://cloud.google.com/iam/docs/understanding-roles#predefined_roles
 [iam-policy]: https://cloud.google.com/iam/docs/overview#cloud-iam-policy
 [developer-console]: https://console.developers.google.com/
 [create-project]: https://cloud.google.com/resource-manager/docs/creating-managing-projects
-[cloud-sdk]: https://cloud.google.com/sdk/
-[troubleshooting]: https://github.com/googleapis/google-cloud-common/blob/main/troubleshooting/readme.md#troubleshooting
+[cloud-cli]: https://cloud.google.com/cli
+[troubleshooting]: https://github.com/googleapis/google-cloud-java/blob/main/TROUBLESHOOTING.md
 [contributing]: https://github.com/googleapis/java-bigtable/blob/main/CONTRIBUTING.md
 [code-of-conduct]: https://github.com/googleapis/java-bigtable/blob/main/CODE_OF_CONDUCT.md#contributor-code-of-conduct
 [license]: https://github.com/googleapis/java-bigtable/blob/main/LICENSE

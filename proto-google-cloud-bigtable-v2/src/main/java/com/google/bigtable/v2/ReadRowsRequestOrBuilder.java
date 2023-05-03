@@ -172,4 +172,29 @@ public interface ReadRowsRequestOrBuilder
    * @return The rowsLimit.
    */
   long getRowsLimit();
+
+  /**
+   *
+   *
+   * <pre>
+   * The view into RequestStats, as described above.
+   * </pre>
+   *
+   * <code>.google.bigtable.v2.ReadRowsRequest.RequestStatsView request_stats_view = 6;</code>
+   *
+   * @return The enum numeric value on the wire for requestStatsView.
+   */
+  int getRequestStatsViewValue();
+  /**
+   *
+   *
+   * <pre>
+   * The view into RequestStats, as described above.
+   * </pre>
+   *
+   * <code>.google.bigtable.v2.ReadRowsRequest.RequestStatsView request_stats_view = 6;</code>
+   *
+   * @return The requestStatsView.
+   */
+  com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView();
 }

@@ -47,32 +47,51 @@ import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.PingAndWarmRequest;
+import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
+import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
+import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.DefaultChangeStreamRecordAdapter;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
+import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
+import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
+import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerBatchedUnaryCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerStreamingCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.HeaderTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
@@ -83,7 +102,7 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescr
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
-import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsConvertExceptionCallable;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsFirstCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -103,6 +122,7 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -140,6 +160,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
+  private final UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable;
+
+  private final ServerStreamingCallable<String, ByteStringRange>
+      generateInitialChangeStreamPartitionsCallable;
+
+  private final ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -163,8 +190,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
       Credentials credentials = null;
-      if (settings.getCredentialsProvider() != null) {
-        credentials = settings.getCredentialsProvider().getCredentials();
+      if (builder.getCredentialsProvider() != null) {
+        credentials = builder.getCredentialsProvider().getCredentials();
       }
       builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
@@ -180,8 +207,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       credentials,
                       settings.getProjectId(),
                       settings.getInstanceId(),
-                      settings.getAppProfileId(),
-                      settings.getPrimedTableIds()))
+                      settings.getAppProfileId()))
               .build());
     }
 
@@ -193,6 +219,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .put(
                 RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
                 TagValue.create(settings.getAppProfileId()))
+            .build();
+    ImmutableMap<String, String> builtinAttributes =
+        ImmutableMap.<String, String>builder()
+            .put("project_id", settings.getProjectId())
+            .put("instance", settings.getInstanceId())
+            .put("app_profile", settings.getAppProfileId())
             .build();
     // Inject Opencensus instrumentation
     builder.setTracerFactory(
@@ -218,6 +250,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(tagger, stats, attributes),
+                BuiltinMetricsTracerFactory.create(builtinAttributes),
                 // Add user configured tracer
                 settings.getTracerFactory())));
     return builder.build();
@@ -276,6 +309,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
+    generateInitialChangeStreamPartitionsCallable =
+        createGenerateInitialChangeStreamPartitionsCallable();
+    readChangeStreamCallable =
+        createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
+    pingAndWarmCallable = createPingAndWarmCallable();
   }
 
   // <editor-fold desc="Callable creators">
@@ -355,10 +393,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             rowAdapter);
 
-    UnaryCallable<Query, RowT> readRowCallable =
-        new ReadRowsUserCallable<>(readRowsCallable, requestContext).first();
+    ReadRowsUserCallable<RowT> readRowCallable =
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
-    return createUserFacingUnaryCallable("ReadRow", readRowCallable);
+    ReadRowsFirstCallable<RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
+
+    UnaryCallable<Query, RowT> traced =
+        new TracedUnaryCallable<>(
+            firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -369,7 +413,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Upon receiving the response stream, it will merge the {@link
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured by the {@code rowAdapter} parameter.
-   *   <li>Add header tracer for tracking GFE metrics.
+   *   <li>Add bigtable tracer for tracking bigtable specific metrics.
    *   <li>Retry/resume on failure.
    *   <li>Filter out marker rows.
    * </ul>
@@ -402,7 +446,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ReadRowsConvertExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
@@ -420,13 +464,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> withHeaderTracer =
-        new HeaderTracerStreamingCallable<>(watched);
+    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(withHeaderTracer);
+        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         Callables.retrying(retrying1, innerSettings, clientContext);
@@ -465,11 +509,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<Query, List<RowT>> tracedBatcher =
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
-    UnaryCallable<Query, List<RowT>> withHeaderTracer =
-        new HeaderTracerUnaryCallable(tracedBatcher);
+    UnaryCallable<Query, List<RowT>> withBigtableTracer =
+        new BigtableTracerBatchedUnaryCallable<>(tracedBatcher);
 
     UnaryCallable<Query, List<RowT>> traced =
-        new TracedUnaryCallable<>(withHeaderTracer, clientContext.getTracerFactory(), span);
+        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -511,11 +555,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withStatsHeaders =
         new StatsHeadersUnaryCallable<>(spoolable);
 
-    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(withStatsHeaders);
+    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withBigtableTracer =
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> retryable =
-        Callables.retrying(withHeaderTracer, settings.sampleRowKeysSettings(), clientContext);
+        Callables.retrying(withBigtableTracer, settings.sampleRowKeysSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new SampleRowKeysCallable(retryable, requestContext));
@@ -550,11 +594,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<MutateRowRequest, MutateRowResponse> withStatsHeaders =
         new StatsHeadersUnaryCallable<>(base);
 
-    UnaryCallable<MutateRowRequest, MutateRowResponse> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(withStatsHeaders);
+    UnaryCallable<MutateRowRequest, MutateRowResponse> withBigtableTracer =
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
-        Callables.retrying(withHeaderTracer, settings.mutateRowSettings(), clientContext);
+        Callables.retrying(withBigtableTracer, settings.mutateRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new MutateRowCallable(retrying, requestContext));
@@ -594,13 +638,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     SpanName spanName = getSpanName("MutateRows");
 
-    UnaryCallable<BulkMutation, Void> tracedBatcher = new TracedBatcherUnaryCallable<>(userFacing);
+    UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
+        new TracedBatcherUnaryCallable<>(userFacing);
 
-    UnaryCallable<BulkMutation, Void> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(tracedBatcher);
-
+    UnaryCallable<BulkMutation, Void> withBigtableTracer =
+        new BigtableTracerBatchedUnaryCallable<>(tracedBatcherUnaryCallable);
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(withHeaderTracer, clientContext.getTracerFactory(), spanName);
+        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -689,8 +733,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             settings.bulkMutateRowsSettings().getRetryableCodes());
 
-    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withStatsHeaders =
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> callable =
         new StatsHeadersServerStreamingCallable<>(base);
+
+    if (settings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
+      callable = new RateLimitingServerStreamingCallable(callable);
+    }
+
+    // Sometimes MutateRows connections are disconnected via an RST frame. This error is transient
+    // and
+    // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
+    // which by default is not retryable. Convert the exception so it can be retried in the client.
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
+        new ConvertExceptionCallable<>(callable);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
@@ -702,7 +757,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return new MutateRowsRetryingCallable(
         clientContext.getDefaultCallContext(),
-        withStatsHeaders,
+        convertException,
         retryingExecutor,
         settings.bulkMutateRowsSettings().getRetryableCodes());
   }
@@ -738,11 +793,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withStatsHeaders =
         new StatsHeadersUnaryCallable<>(base);
 
-    UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(withStatsHeaders);
+    UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withBigtableTracer =
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> retrying =
-        Callables.retrying(withHeaderTracer, settings.checkAndMutateRowSettings(), clientContext);
+        Callables.retrying(withBigtableTracer, settings.checkAndMutateRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new CheckAndMutateRowCallable(retrying, requestContext));
@@ -779,14 +834,175 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new StatsHeadersUnaryCallable<>(base);
 
     String methodName = "ReadModifyWriteRow";
-    UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> withHeaderTracer =
-        new HeaderTracerUnaryCallable<>(withStatsHeaders);
+    UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> withBigtableTracer =
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> retrying =
-        Callables.retrying(withHeaderTracer, settings.readModifyWriteRowSettings(), clientContext);
+        Callables.retrying(
+            withBigtableTracer, settings.readModifyWriteRowSettings(), clientContext);
 
     return createUserFacingUnaryCallable(
         methodName, new ReadModifyWriteRowCallable(retrying, requestContext));
+  }
+
+  /**
+   * Creates a callable chain to handle streaming GenerateInitialChangeStreamPartitions RPCs. The
+   * chain will:
+   *
+   * <ul>
+   *   <li>Convert a String format tableId into a {@link
+   *       GenerateInitialChangeStreamPartitionsRequest} and dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will convert the {@link
+   *       com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse}s into {@link
+   *       RowRange}.
+   * </ul>
+   */
+  private ServerStreamingCallable<String, ByteStringRange>
+      createGenerateInitialChangeStreamPartitionsCallable() {
+    ServerStreamingCallable<
+            GenerateInitialChangeStreamPartitionsRequest,
+            GenerateInitialChangeStreamPartitionsResponse>
+        base =
+            GrpcRawCallableFactory.createServerStreamingCallable(
+                GrpcCallSettings
+                    .<GenerateInitialChangeStreamPartitionsRequest,
+                        GenerateInitialChangeStreamPartitionsResponse>
+                        newBuilder()
+                    .setMethodDescriptor(
+                        BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod())
+                    .setParamsExtractor(
+                        new RequestParamsExtractor<GenerateInitialChangeStreamPartitionsRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              GenerateInitialChangeStreamPartitionsRequest
+                                  generateInitialChangeStreamPartitionsRequest) {
+                            return ImmutableMap.of(
+                                "table_name",
+                                generateInitialChangeStreamPartitionsRequest.getTableName(),
+                                "app_profile_id",
+                                generateInitialChangeStreamPartitionsRequest.getAppProfileId());
+                          }
+                        })
+                    .build(),
+                settings.generateInitialChangeStreamPartitionsSettings().getRetryableCodes());
+
+    ServerStreamingCallable<String, ByteStringRange> userCallable =
+        new GenerateInitialChangeStreamPartitionsUserCallable(base, requestContext);
+
+    ServerStreamingCallable<String, ByteStringRange> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(userCallable);
+
+    // Sometimes GenerateInitialChangeStreamPartitions connections are disconnected via an RST
+    // frame. This error is transient and should be treated similar to UNAVAILABLE. However, this
+    // exception has an INTERNAL error code which by default is not retryable. Convert the exception
+    // so it can be retried in the client.
+    ServerStreamingCallable<String, ByteStringRange> convertException =
+        new ConvertExceptionCallable<>(withStatsHeaders);
+
+    // Copy idle timeout settings for watchdog.
+    ServerStreamingCallSettings<String, ByteStringRange> innerSettings =
+        ServerStreamingCallSettings.<String, ByteStringRange>newBuilder()
+            .setRetryableCodes(
+                settings.generateInitialChangeStreamPartitionsSettings().getRetryableCodes())
+            .setRetrySettings(
+                settings.generateInitialChangeStreamPartitionsSettings().getRetrySettings())
+            .setIdleTimeout(
+                settings.generateInitialChangeStreamPartitionsSettings().getIdleTimeout())
+            .build();
+
+    ServerStreamingCallable<String, ByteStringRange> watched =
+        Callables.watched(convertException, innerSettings, clientContext);
+
+    ServerStreamingCallable<String, ByteStringRange> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
+
+    ServerStreamingCallable<String, ByteStringRange> retrying =
+        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+
+    SpanName span = getSpanName("GenerateInitialChangeStreamPartitions");
+    ServerStreamingCallable<String, ByteStringRange> traced =
+        new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  /**
+   * Creates a callable chain to handle streaming ReadChangeStream RPCs. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a {@link ReadChangeStreamQuery} into a {@link ReadChangeStreamRequest} and
+   *       dispatch the RPC.
+   *   <li>Upon receiving the response stream, it will produce a stream of ChangeStreamRecordT. In
+   *       case of mutations, it will merge the {@link ReadChangeStreamResponse.DataChange}s into
+   *       {@link ChangeStreamMutation}. The actual change stream record implementation can be
+   *       configured by the {@code changeStreamRecordAdapter} parameter.
+   *   <li>Retry/resume on failure.
+   *   <li>Add tracing & metrics.
+   * </ul>
+   */
+  public <ChangeStreamRecordT>
+      ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
+          createReadChangeStreamCallable(
+              ChangeStreamRecordAdapter<ChangeStreamRecordT> changeStreamRecordAdapter) {
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> base =
+        GrpcRawCallableFactory.createServerStreamingCallable(
+            GrpcCallSettings.<ReadChangeStreamRequest, ReadChangeStreamResponse>newBuilder()
+                .setMethodDescriptor(BigtableGrpc.getReadChangeStreamMethod())
+                .setParamsExtractor(
+                    new RequestParamsExtractor<ReadChangeStreamRequest>() {
+                      @Override
+                      public Map<String, String> extract(
+                          ReadChangeStreamRequest readChangeStreamRequest) {
+                        return ImmutableMap.of(
+                            "table_name", readChangeStreamRequest.getTableName(),
+                            "app_profile_id", readChangeStreamRequest.getAppProfileId());
+                      }
+                    })
+                .build(),
+            settings.readChangeStreamSettings().getRetryableCodes());
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(base);
+
+    // Sometimes ReadChangeStream connections are disconnected via an RST frame. This error is
+    // transient and should be treated similar to UNAVAILABLE. However, this exception has an
+    // INTERNAL error code which by default is not retryable. Convert the exception it can be
+    // retried in the client.
+    ServerStreamingCallable<ReadChangeStreamRequest, ReadChangeStreamResponse> convertException =
+        new ConvertExceptionCallable<>(withStatsHeaders);
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> merging =
+        new ChangeStreamRecordMergingCallable<>(convertException, changeStreamRecordAdapter);
+
+    // Copy idle timeout settings for watchdog.
+    ServerStreamingCallSettings<ReadChangeStreamRequest, ChangeStreamRecordT> innerSettings =
+        ServerStreamingCallSettings.<ReadChangeStreamRequest, ChangeStreamRecordT>newBuilder()
+            .setResumptionStrategy(
+                new ReadChangeStreamResumptionStrategy<>(changeStreamRecordAdapter))
+            .setRetryableCodes(settings.readChangeStreamSettings().getRetryableCodes())
+            .setRetrySettings(settings.readChangeStreamSettings().getRetrySettings())
+            .setIdleTimeout(settings.readChangeStreamSettings().getIdleTimeout())
+            .build();
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> watched =
+        Callables.watched(merging, innerSettings, clientContext);
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
+
+    ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
+        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
+        readChangeStreamUserCallable =
+            new ReadChangeStreamUserCallable<>(readChangeStreamCallable, requestContext);
+
+    SpanName span = getSpanName("ReadChangeStream");
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> traced =
+        new TracedServerStreamingCallable<>(
+            readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
+
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -800,6 +1016,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(inner, clientContext.getTracerFactory(), getSpanName(methodName));
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
+    UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarm =
+        GrpcRawCallableFactory.createUnaryCallable(
+            GrpcCallSettings.<PingAndWarmRequest, PingAndWarmResponse>newBuilder()
+                .setMethodDescriptor(BigtableGrpc.getPingAndWarmMethod())
+                .setParamsExtractor(
+                    new RequestParamsExtractor<PingAndWarmRequest>() {
+                      @Override
+                      public Map<String, String> extract(PingAndWarmRequest request) {
+                        return ImmutableMap.of(
+                            "name", request.getName(),
+                            "app_profile_id", request.getAppProfileId());
+                      }
+                    })
+                .build(),
+            Collections.emptySet());
+    return pingAndWarm.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
   // </editor-fold>
 
@@ -844,6 +1079,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable() {
     return readModifyWriteRowCallable;
+  }
+
+  /** Returns a streaming generate initial change stream partitions callable */
+  public ServerStreamingCallable<String, ByteStringRange>
+      generateInitialChangeStreamPartitionsCallable() {
+    return generateInitialChangeStreamPartitionsCallable;
+  }
+
+  /** Returns a streaming read change stream callable. */
+  public ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecord>
+      readChangeStreamCallable() {
+    return readChangeStreamCallable;
+  }
+
+  UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable() {
+    return pingAndWarmCallable;
   }
   // </editor-fold>
 

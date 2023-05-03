@@ -50,69 +50,6 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return this.unknownFields;
   }
 
-  private ValueRange(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 10:
-            {
-              startValue_ = input.readBytes();
-              startValueCase_ = 1;
-              break;
-            }
-          case 18:
-            {
-              startValue_ = input.readBytes();
-              startValueCase_ = 2;
-              break;
-            }
-          case 26:
-            {
-              endValue_ = input.readBytes();
-              endValueCase_ = 3;
-              break;
-            }
-          case 34:
-            {
-              endValue_ = input.readBytes();
-              endValueCase_ = 4;
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto
         .internal_static_google_bigtable_v2_ValueRange_descriptor;
@@ -388,7 +325,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     if (endValueCase_ == 4) {
       output.writeBytes(4, (com.google.protobuf.ByteString) endValue_);
     }
-    unknownFields.writeTo(output);
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -417,7 +354,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
           com.google.protobuf.CodedOutputStream.computeBytesSize(
               4, (com.google.protobuf.ByteString) endValue_);
     }
-    size += unknownFields.getSerializedSize();
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -454,7 +391,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       case 0:
       default:
     }
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -489,7 +426,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       case 0:
       default:
     }
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -617,22 +554,16 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     }
 
     // Construct using com.google.bigtable.v2.ValueRange.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       startValueCase_ = 0;
       startValue_ = null;
       endValueCase_ = 0;
@@ -663,22 +594,23 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public com.google.bigtable.v2.ValueRange buildPartial() {
       com.google.bigtable.v2.ValueRange result = new com.google.bigtable.v2.ValueRange(this);
-      if (startValueCase_ == 1) {
-        result.startValue_ = startValue_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (startValueCase_ == 2) {
-        result.startValue_ = startValue_;
-      }
-      if (endValueCase_ == 3) {
-        result.endValue_ = endValue_;
-      }
-      if (endValueCase_ == 4) {
-        result.endValue_ = endValue_;
-      }
-      result.startValueCase_ = startValueCase_;
-      result.endValueCase_ = endValueCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ValueRange result) {
+      int from_bitField0_ = bitField0_;
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.ValueRange result) {
+      result.startValueCase_ = startValueCase_;
+      result.startValue_ = this.startValue_;
+      result.endValueCase_ = endValueCase_;
+      result.endValue_ = this.endValue_;
     }
 
     @java.lang.Override
@@ -758,7 +690,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
             break;
           }
       }
-      this.mergeUnknownFields(other.unknownFields);
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -773,17 +705,55 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.v2.ValueRange parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 10:
+              {
+                startValue_ = input.readBytes();
+                startValueCase_ = 1;
+                break;
+              } // case 10
+            case 18:
+              {
+                startValue_ = input.readBytes();
+                startValueCase_ = 2;
+                break;
+              } // case 18
+            case 26:
+              {
+                endValue_ = input.readBytes();
+                endValueCase_ = 3;
+                break;
+              } // case 26
+            case 34:
+              {
+                endValue_ = input.readBytes();
+                endValueCase_ = 4;
+                break;
+              } // case 34
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.v2.ValueRange) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
 
@@ -814,6 +784,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     /**
      *
@@ -1135,7 +1107,18 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new ValueRange(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 

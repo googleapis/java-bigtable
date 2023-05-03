@@ -137,6 +137,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -196,6 +197,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -255,6 +257,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -296,6 +299,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -417,6 +421,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
@@ -426,6 +431,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
 
     Instance actualResponse = client.updateInstance(request);
@@ -441,6 +447,7 @@ public class BaseBigtableInstanceAdminClientTest {
     Assert.assertEquals(request.getType(), actualRequest.getType());
     Assert.assertEquals(request.getLabelsMap(), actualRequest.getLabelsMap());
     Assert.assertEquals(request.getCreateTime(), actualRequest.getCreateTime());
+    Assert.assertEquals(request.getSatisfiesPzs(), actualRequest.getSatisfiesPzs());
     Assert.assertTrue(
         channelProvider.isHeaderSent(
             ApiClientHeaderProvider.getDefaultApiClientHeaderKey(),
@@ -459,6 +466,7 @@ public class BaseBigtableInstanceAdminClientTest {
               .setDisplayName("displayName1714148973")
               .putAllLabels(new HashMap<String, String>())
               .setCreateTime(Timestamp.newBuilder().build())
+              .setSatisfiesPzs(true)
               .build();
       client.updateInstance(request);
       Assert.fail("No exception raised");
@@ -475,6 +483,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .setDisplayName("displayName1714148973")
             .putAllLabels(new HashMap<String, String>())
             .setCreateTime(Timestamp.newBuilder().build())
+            .setSatisfiesPzs(true)
             .build();
     Operation resultOperation =
         Operation.newBuilder()
@@ -1446,7 +1455,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
 
     Policy actualResponse = client.getIamPolicy(resource);
     Assert.assertEquals(expectedResponse, actualResponse);
@@ -1468,7 +1477,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
       client.getIamPolicy(resource);
       Assert.fail("No exception raised");
     } catch (InvalidArgumentException e) {
@@ -1528,7 +1537,7 @@ public class BaseBigtableInstanceAdminClientTest {
             .build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
     Policy policy = Policy.newBuilder().build();
 
     Policy actualResponse = client.setIamPolicy(resource, policy);
@@ -1552,7 +1561,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
       Policy policy = Policy.newBuilder().build();
       client.setIamPolicy(resource, policy);
       Assert.fail("No exception raised");
@@ -1611,7 +1620,7 @@ public class BaseBigtableInstanceAdminClientTest {
         TestIamPermissionsResponse.newBuilder().addAllPermissions(new ArrayList<String>()).build();
     mockBigtableInstanceAdmin.addResponse(expectedResponse);
 
-    ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+    ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
     List<String> permissions = new ArrayList<>();
 
     TestIamPermissionsResponse actualResponse = client.testIamPermissions(resource, permissions);
@@ -1635,7 +1644,7 @@ public class BaseBigtableInstanceAdminClientTest {
     mockBigtableInstanceAdmin.addException(exception);
 
     try {
-      ResourceName resource = AppProfileName.of("[PROJECT]", "[INSTANCE]", "[APP_PROFILE]");
+      ResourceName resource = InstanceName.of("[PROJECT]", "[INSTANCE]");
       List<String> permissions = new ArrayList<>();
       client.testIamPermissions(resource, permissions);
       Assert.fail("No exception raised");

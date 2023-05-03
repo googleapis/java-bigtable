@@ -50,50 +50,6 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     return this.unknownFields;
   }
 
-  private AutoscalingTargets(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
-    this();
-    if (extensionRegistry == null) {
-      throw new java.lang.NullPointerException();
-    }
-    com.google.protobuf.UnknownFieldSet.Builder unknownFields =
-        com.google.protobuf.UnknownFieldSet.newBuilder();
-    try {
-      boolean done = false;
-      while (!done) {
-        int tag = input.readTag();
-        switch (tag) {
-          case 0:
-            done = true;
-            break;
-          case 16:
-            {
-              cpuUtilizationPercent_ = input.readInt32();
-              break;
-            }
-          default:
-            {
-              if (!parseUnknownField(input, unknownFields, extensionRegistry, tag)) {
-                done = true;
-              }
-              break;
-            }
-        }
-      }
-    } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-      throw e.setUnfinishedMessage(this);
-    } catch (com.google.protobuf.UninitializedMessageException e) {
-      throw e.asInvalidProtocolBufferException().setUnfinishedMessage(this);
-    } catch (java.io.IOException e) {
-      throw new com.google.protobuf.InvalidProtocolBufferException(e).setUnfinishedMessage(this);
-    } finally {
-      this.unknownFields = unknownFields.build();
-      makeExtensionsImmutable();
-    }
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.InstanceProto
         .internal_static_google_bigtable_admin_v2_AutoscalingTargets_descriptor;
@@ -110,7 +66,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int CPU_UTILIZATION_PERCENT_FIELD_NUMBER = 2;
-  private int cpuUtilizationPercent_;
+  private int cpuUtilizationPercent_ = 0;
   /**
    *
    *
@@ -130,6 +86,29 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     return cpuUtilizationPercent_;
   }
 
+  public static final int STORAGE_UTILIZATION_GIB_PER_NODE_FIELD_NUMBER = 3;
+  private int storageUtilizationGibPerNode_ = 0;
+  /**
+   *
+   *
+   * <pre>
+   * The storage utilization that the Autoscaler should be trying to achieve.
+   * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
+   * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+   * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
+   * it will be treated as if it were set to the default value: 2560 for SSD,
+   * 8192 for HDD.
+   * </pre>
+   *
+   * <code>int32 storage_utilization_gib_per_node = 3;</code>
+   *
+   * @return The storageUtilizationGibPerNode.
+   */
+  @java.lang.Override
+  public int getStorageUtilizationGibPerNode() {
+    return storageUtilizationGibPerNode_;
+  }
+
   private byte memoizedIsInitialized = -1;
 
   @java.lang.Override
@@ -147,7 +126,10 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     if (cpuUtilizationPercent_ != 0) {
       output.writeInt32(2, cpuUtilizationPercent_);
     }
-    unknownFields.writeTo(output);
+    if (storageUtilizationGibPerNode_ != 0) {
+      output.writeInt32(3, storageUtilizationGibPerNode_);
+    }
+    getUnknownFields().writeTo(output);
   }
 
   @java.lang.Override
@@ -159,7 +141,11 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     if (cpuUtilizationPercent_ != 0) {
       size += com.google.protobuf.CodedOutputStream.computeInt32Size(2, cpuUtilizationPercent_);
     }
-    size += unknownFields.getSerializedSize();
+    if (storageUtilizationGibPerNode_ != 0) {
+      size +=
+          com.google.protobuf.CodedOutputStream.computeInt32Size(3, storageUtilizationGibPerNode_);
+    }
+    size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
   }
@@ -176,7 +162,8 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
         (com.google.bigtable.admin.v2.AutoscalingTargets) obj;
 
     if (getCpuUtilizationPercent() != other.getCpuUtilizationPercent()) return false;
-    if (!unknownFields.equals(other.unknownFields)) return false;
+    if (getStorageUtilizationGibPerNode() != other.getStorageUtilizationGibPerNode()) return false;
+    if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
 
@@ -189,7 +176,9 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     hash = (19 * hash) + getDescriptor().hashCode();
     hash = (37 * hash) + CPU_UTILIZATION_PERCENT_FIELD_NUMBER;
     hash = (53 * hash) + getCpuUtilizationPercent();
-    hash = (29 * hash) + unknownFields.hashCode();
+    hash = (37 * hash) + STORAGE_UTILIZATION_GIB_PER_NODE_FIELD_NUMBER;
+    hash = (53 * hash) + getStorageUtilizationGibPerNode();
+    hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
   }
@@ -318,24 +307,18 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     }
 
     // Construct using com.google.bigtable.admin.v2.AutoscalingTargets.newBuilder()
-    private Builder() {
-      maybeForceBuilderInitialization();
-    }
+    private Builder() {}
 
     private Builder(com.google.protobuf.GeneratedMessageV3.BuilderParent parent) {
       super(parent);
-      maybeForceBuilderInitialization();
-    }
-
-    private void maybeForceBuilderInitialization() {
-      if (com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders) {}
     }
 
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       cpuUtilizationPercent_ = 0;
-
+      storageUtilizationGibPerNode_ = 0;
       return this;
     }
 
@@ -363,9 +346,21 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     public com.google.bigtable.admin.v2.AutoscalingTargets buildPartial() {
       com.google.bigtable.admin.v2.AutoscalingTargets result =
           new com.google.bigtable.admin.v2.AutoscalingTargets(this);
-      result.cpuUtilizationPercent_ = cpuUtilizationPercent_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.AutoscalingTargets result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.cpuUtilizationPercent_ = cpuUtilizationPercent_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.storageUtilizationGibPerNode_ = storageUtilizationGibPerNode_;
+      }
     }
 
     @java.lang.Override
@@ -417,7 +412,10 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
       if (other.getCpuUtilizationPercent() != 0) {
         setCpuUtilizationPercent(other.getCpuUtilizationPercent());
       }
-      this.mergeUnknownFields(other.unknownFields);
+      if (other.getStorageUtilizationGibPerNode() != 0) {
+        setStorageUtilizationGibPerNode(other.getStorageUtilizationGibPerNode());
+      }
+      this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
       return this;
     }
@@ -432,19 +430,47 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
         com.google.protobuf.CodedInputStream input,
         com.google.protobuf.ExtensionRegistryLite extensionRegistry)
         throws java.io.IOException {
-      com.google.bigtable.admin.v2.AutoscalingTargets parsedMessage = null;
+      if (extensionRegistry == null) {
+        throw new java.lang.NullPointerException();
+      }
       try {
-        parsedMessage = PARSER.parsePartialFrom(input, extensionRegistry);
+        boolean done = false;
+        while (!done) {
+          int tag = input.readTag();
+          switch (tag) {
+            case 0:
+              done = true;
+              break;
+            case 16:
+              {
+                cpuUtilizationPercent_ = input.readInt32();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 16
+            case 24:
+              {
+                storageUtilizationGibPerNode_ = input.readInt32();
+                bitField0_ |= 0x00000002;
+                break;
+              } // case 24
+            default:
+              {
+                if (!super.parseUnknownField(input, extensionRegistry, tag)) {
+                  done = true; // was an endgroup tag
+                }
+                break;
+              } // default:
+          } // switch (tag)
+        } // while (!done)
       } catch (com.google.protobuf.InvalidProtocolBufferException e) {
-        parsedMessage = (com.google.bigtable.admin.v2.AutoscalingTargets) e.getUnfinishedMessage();
         throw e.unwrapIOException();
       } finally {
-        if (parsedMessage != null) {
-          mergeFrom(parsedMessage);
-        }
-      }
+        onChanged();
+      } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private int cpuUtilizationPercent_;
     /**
@@ -483,6 +509,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     public Builder setCpuUtilizationPercent(int value) {
 
       cpuUtilizationPercent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -501,8 +528,76 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearCpuUtilizationPercent() {
-
+      bitField0_ = (bitField0_ & ~0x00000001);
       cpuUtilizationPercent_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private int storageUtilizationGibPerNode_;
+    /**
+     *
+     *
+     * <pre>
+     * The storage utilization that the Autoscaler should be trying to achieve.
+     * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
+     * it will be treated as if it were set to the default value: 2560 for SSD,
+     * 8192 for HDD.
+     * </pre>
+     *
+     * <code>int32 storage_utilization_gib_per_node = 3;</code>
+     *
+     * @return The storageUtilizationGibPerNode.
+     */
+    @java.lang.Override
+    public int getStorageUtilizationGibPerNode() {
+      return storageUtilizationGibPerNode_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * The storage utilization that the Autoscaler should be trying to achieve.
+     * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
+     * it will be treated as if it were set to the default value: 2560 for SSD,
+     * 8192 for HDD.
+     * </pre>
+     *
+     * <code>int32 storage_utilization_gib_per_node = 3;</code>
+     *
+     * @param value The storageUtilizationGibPerNode to set.
+     * @return This builder for chaining.
+     */
+    public Builder setStorageUtilizationGibPerNode(int value) {
+
+      storageUtilizationGibPerNode_ = value;
+      bitField0_ |= 0x00000002;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * The storage utilization that the Autoscaler should be trying to achieve.
+     * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
+     * it will be treated as if it were set to the default value: 2560 for SSD,
+     * 8192 for HDD.
+     * </pre>
+     *
+     * <code>int32 storage_utilization_gib_per_node = 3;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearStorageUtilizationGibPerNode() {
+      bitField0_ = (bitField0_ & ~0x00000002);
+      storageUtilizationGibPerNode_ = 0;
       onChanged();
       return this;
     }
@@ -539,7 +634,18 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
             com.google.protobuf.CodedInputStream input,
             com.google.protobuf.ExtensionRegistryLite extensionRegistry)
             throws com.google.protobuf.InvalidProtocolBufferException {
-          return new AutoscalingTargets(input, extensionRegistry);
+          Builder builder = newBuilder();
+          try {
+            builder.mergeFrom(input, extensionRegistry);
+          } catch (com.google.protobuf.InvalidProtocolBufferException e) {
+            throw e.setUnfinishedMessage(builder.buildPartial());
+          } catch (com.google.protobuf.UninitializedMessageException e) {
+            throw e.asInvalidProtocolBufferException().setUnfinishedMessage(builder.buildPartial());
+          } catch (java.io.IOException e) {
+            throw new com.google.protobuf.InvalidProtocolBufferException(e)
+                .setUnfinishedMessage(builder.buildPartial());
+          }
+          return builder.buildPartial();
         }
       };
 
