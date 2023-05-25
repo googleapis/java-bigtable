@@ -363,8 +363,7 @@ public class Filters {
   private static void readRowFilter(
       String projectId, String instanceId, String tableId, Filter filter) {
     // Initialize client that will be used to send requests. This client only needs to be created
-    // once, and can be reused for multiple requests. After completing all of your requests, call
-    // the "close" method on the client to safely clean up any remaining background resources.
+    // once, and can be reused for multiple requests.
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       String rowKey =
           Base64.getEncoder().encodeToString("greeting0".getBytes(StandardCharsets.UTF_8));
