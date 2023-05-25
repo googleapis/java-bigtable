@@ -366,8 +366,8 @@ public class Filters {
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      String rowKey = Base64.getEncoder()
-          .encodeToString("greeting0".getBytes(StandardCharsets.UTF_8));
+      String rowKey =
+          Base64.getEncoder().encodeToString("greeting0".getBytes(StandardCharsets.UTF_8));
       Row row = dataClient.readRow(tableId, rowKey, filter);
       printRow(row);
       System.out.println("Row filter completed.");
