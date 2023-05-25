@@ -59,6 +59,8 @@ public class HelloWorld {
   private static final String COLUMN_QUALIFIER_GREETING = "greeting";
   private static final String COLUMN_QUALIFIER_NAME = "name";
   private static final String ROW_KEY_PREFIX = "rowKey";
+  private static String PROJECT_ID;
+  private static String INSTANCE_ID;
   private final String tableId;
   private final BigtableDataClient dataClient;
   private final BigtableTableAdminClient adminClient;
@@ -69,10 +71,10 @@ public class HelloWorld {
       System.out.println("Missing required project id or instance id");
       return;
     }
-    String projectId = args[0];
-    String instanceId = args[1];
+    PROJECT_ID = args[0];
+    INSTANCE_ID = args[1];
 
-    HelloWorld helloWorld = new HelloWorld(projectId, instanceId, "test-table");
+    HelloWorld helloWorld = new HelloWorld(PROJECT_ID, INSTANCE_ID, "test-table");
     helloWorld.run();
   }
 
@@ -105,7 +107,7 @@ public class HelloWorld {
     readSingleRow();
     readSpecificCells();
     readTable();
-    filterLimitCellsPerCol();
+    filterLimitCellsPerCol(PROJECT_ID, INSTANCE_ID, tableId);
     deleteTable();
     close();
   }
@@ -217,14 +219,6 @@ public class HelloWorld {
   }
 
   // [START bigtable_hw_create_filter]
-  public static void filterLimitCellsPerCol() {
-    // TODO(developer): Replace these variables before running the sample.
-    String projectId = "my-project-id";
-    String instanceId = "my-instance-id";
-    String tableId = "mobile-time-series";
-    filterLimitCellsPerCol(projectId, instanceId, tableId);
-  }
-
   public static void filterLimitCellsPerCol(String projectId, String instanceId, String tableId) {
     // A filter that matches only the most recent 2 cells within each column
     Filter filter = FILTERS.limit().cellsPerColumn(2);
