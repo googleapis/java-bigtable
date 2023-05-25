@@ -264,9 +264,7 @@ public class HelloWorld {
   }
   // [END bigtable_hw_scan_with_filter]
 
-  /**
-   * Demonstrates how to delete a table.
-   */
+  /** Demonstrates how to delete a table. */
   public void deleteTable() {
     // [START bigtable_hw_delete_table]
     System.out.println("\nDeleting table: " + tableId);
