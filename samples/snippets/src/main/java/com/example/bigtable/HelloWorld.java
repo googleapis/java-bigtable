@@ -59,8 +59,8 @@ public class HelloWorld {
   private static final String COLUMN_QUALIFIER_GREETING = "greeting";
   private static final String COLUMN_QUALIFIER_NAME = "name";
   private static final String ROW_KEY_PREFIX = "rowKey";
-  private static String PROJECT_ID;
-  private static String INSTANCE_ID;
+  private final String projectId;
+  private final String instanceId;
   private final String tableId;
   private final BigtableDataClient dataClient;
   private final BigtableTableAdminClient adminClient;
@@ -71,15 +71,17 @@ public class HelloWorld {
       System.out.println("Missing required project id or instance id");
       return;
     }
-    PROJECT_ID = args[0];
-    INSTANCE_ID = args[1];
+    String projectId = args[0];
+    String instanceId = args[1];
 
-    HelloWorld helloWorld = new HelloWorld(PROJECT_ID, INSTANCE_ID, "test-table");
+    HelloWorld helloWorld = new HelloWorld(projectId, instanceId, "test-table");
     helloWorld.run();
   }
 
   public HelloWorld(String projectId, String instanceId, String tableId) throws IOException {
     this.tableId = tableId;
+    this.projectId = projectId;
+    this.instanceId = instanceId;
 
     // [START bigtable_hw_connect]
     // Creates the settings to configure a bigtable data client.
@@ -107,7 +109,7 @@ public class HelloWorld {
     readSingleRow();
     readSpecificCells();
     readTable();
-    filterLimitCellsPerCol(PROJECT_ID, INSTANCE_ID, tableId);
+    filterLimitCellsPerCol(this.projectId, this.instanceId, tableId);
     deleteTable();
     close();
   }
