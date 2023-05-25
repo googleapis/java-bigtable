@@ -400,7 +400,9 @@ public class Filters {
 
   // [START bigtable_print_row]
   private static void printRow(Row row) {
-    if (row == null) return;
+    if (row == null) {
+      return;
+    }
     System.out.printf("Reading data for %s%n", row.getKey().toStringUtf8());
     String colFamily = "";
     for (RowCell cell : row.getCells()) {
