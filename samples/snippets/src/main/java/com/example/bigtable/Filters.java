@@ -396,8 +396,11 @@ public class Filters {
           "Unable to initialize service client, as a network error occurred: \n" + e);
     }
   }
+  // [END bigtable_hw_scan_with_filter]
 
+  // [START bigtable_print_row]
   private static void printRow(Row row) {
+    if (row == null) return;
     System.out.printf("Reading data for %s%n", row.getKey().toStringUtf8());
     String colFamily = "";
     for (RowCell cell : row.getCells()) {
@@ -416,6 +419,6 @@ public class Filters {
     }
     System.out.println();
   }
-  // [END bigtable_hw_scan_with_filter]
+  // [END bigtable_print_row]
 }
 // [END bigtable_filters_print]
