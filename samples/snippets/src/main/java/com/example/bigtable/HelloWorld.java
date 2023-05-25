@@ -220,8 +220,8 @@ public class HelloWorld {
 
   // [START bigtable_hw_create_filter]
   public static void filterLimitCellsPerCol(String projectId, String instanceId, String tableId) {
-    // A filter that matches only the most recent 2 cells within each column
-    Filter filter = FILTERS.limit().cellsPerColumn(2);
+    // A filter that matches only the most recent cell within each column
+    Filter filter = FILTERS.limit().cellsPerColumn(1);
     readRowFilter(projectId, instanceId, tableId, filter);
     readFilter(projectId, instanceId, tableId, filter);
   }
