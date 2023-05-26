@@ -40,6 +40,7 @@
     <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. -->
     <test-protoc-grpc.version>1.55.1</test-protoc-grpc.version>
     <test-protoc.version>3.23.2</test-protoc.version>
+    <opentelemetry.version>1.26.0</opentelemetry.version>
   </properties>
 
   <dependencyManagement>
@@ -331,6 +332,45 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
+      <version>${opentelemetry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-metrics</artifactId>
+      <version>${opentelemetry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-common</artifactId>
+      <version>${opentelemetry.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud</groupId>
+      <artifactId>google-cloud-monitoring</artifactId>
+      <!-- Excluding unused transitive dependencies to avoid conflict in google-cloud-bigtable -->
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client-gson</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.http-client</groupId>
+          <artifactId>google-http-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <!-- using the perfmark version in opencensus -->
+          <groupId>io.perfmark</groupId>
+          <artifactId>perfmark-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.google.api.grpc</groupId>
+      <artifactId>proto-google-cloud-monitoring-v3</artifactId>
     </dependency>
   </dependencies>
 
