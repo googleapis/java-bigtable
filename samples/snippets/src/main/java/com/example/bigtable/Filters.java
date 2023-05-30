@@ -365,13 +365,17 @@ public class Filters {
       for (Row row : rows) {
         printRow(row);
       }
+      System.out.println("Table filter completed.");
     } catch (IOException e) {
       System.out.println(
-          "Unable to initialize service client, as a network error occurred: \n" + e.toString());
+          "Unable to initialize service client, as a network error occurred: \n" + e);
     }
   }
 
   private static void printRow(Row row) {
+    if (row == null) {
+      return;
+    }
     System.out.printf("Reading data for %s%n", row.getKey().toStringUtf8());
     String colFamily = "";
     for (RowCell cell : row.getCells()) {
