@@ -157,6 +157,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
         settingsBuilder.stubSettings().checkAndMutateRowSettings().retrySettings(), newTimeout);
     updateTimeout(
         settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+            settingsBuilder.stubSettings().sampleRowKeysSettings().retrySettings(), newTimeout);
 
     return settingsBuilder;
   }
