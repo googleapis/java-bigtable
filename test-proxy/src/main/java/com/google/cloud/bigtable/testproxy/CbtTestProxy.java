@@ -148,13 +148,15 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   private static BigtableDataSettings.Builder overrideTimeoutSetting(
       Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
 
-    updateTimeout(settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
     updateTimeout(settingsBuilder.stubSettings().mutateRowSettings().retrySettings(), newTimeout);
     updateTimeout(settingsBuilder.stubSettings().readRowSettings().retrySettings(), newTimeout);
     updateTimeout(settingsBuilder.stubSettings().readRowsSettings().retrySettings(), newTimeout);
-    updateTimeout(settingsBuilder.stubSettings().checkAndMutateRowSettings().retrySettings(), newTimeout);
-    updateTimeout(settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
-
+    updateTimeout(
+        settingsBuilder.stubSettings().checkAndMutateRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
 
     return settingsBuilder;
   }
@@ -165,9 +167,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     // TODO: this should happen in gax
     // Clamp the rpcTimeout to the overall timeout
     if (rpcTimeout != null && rpcTimeout.compareTo(newTimeout) > 0) {
-      settings
-              .setInitialRpcTimeout(newTimeout)
-              .setMaxRpcTimeout(newTimeout);
+      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeout(newTimeout);
     }
 
     settings.setTotalTimeout(newTimeout);
