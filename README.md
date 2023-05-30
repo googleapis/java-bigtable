@@ -50,6 +50,7 @@ If you are using Maven without the BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
+
 implementation platform('com.google.cloud:libraries-bom:26.15.0')
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
@@ -62,7 +63,8 @@ implementation 'com.google.cloud:google-cloud-bigtable:2.23.1'
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.23.1"```
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.23.1"
+```
 <!-- {x-version-update-end} -->
 
 ## Authentication
