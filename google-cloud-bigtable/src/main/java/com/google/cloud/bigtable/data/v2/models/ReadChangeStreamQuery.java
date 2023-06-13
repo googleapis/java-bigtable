@@ -39,7 +39,6 @@ import javax.annotation.Nullable;
 import org.threeten.bp.Instant;
 
 /** A simple wrapper to construct a query for the ReadChangeStream RPC. */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 public final class ReadChangeStreamQuery implements Serializable, Cloneable {
   private static final long serialVersionUID = 948588515749969176L;
 

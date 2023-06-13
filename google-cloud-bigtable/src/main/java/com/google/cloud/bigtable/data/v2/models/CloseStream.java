@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.common.Status;
@@ -30,7 +29,6 @@ import javax.annotation.Nonnull;
  * A simple wrapper for {@link ReadChangeStreamResponse.CloseStream}. This message is received when
  * the stream reading is finished(i.e. read past the stream end time), or an error has occurred.
  */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608505L;
@@ -57,7 +55,6 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.CloseStream}. */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public static CloseStream fromProto(@Nonnull ReadChangeStreamResponse.CloseStream closeStream) {
     return create(
         closeStream.getStatus(),
@@ -73,15 +70,12 @@ public abstract class CloseStream implements ChangeStreamRecord, Serializable {
             .collect(ImmutableList.toImmutableList()));
   }
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   @Nonnull
   public abstract Status getStatus();
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   @Nonnull
   public abstract List<ChangeStreamContinuationToken> getChangeStreamContinuationTokens();
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   @Nonnull
   public abstract List<ByteStringRange> getNewPartitions();
 }

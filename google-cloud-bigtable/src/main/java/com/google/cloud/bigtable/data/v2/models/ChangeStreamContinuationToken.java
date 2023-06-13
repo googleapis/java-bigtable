@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.StreamContinuationToken;
@@ -27,7 +26,6 @@ import java.io.Serializable;
 import javax.annotation.Nonnull;
 
 /** A simple wrapper for {@link StreamContinuationToken}. */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class ChangeStreamContinuationToken implements Serializable {
   private static final long serialVersionUID = 524679926247095L;
@@ -36,7 +34,6 @@ public abstract class ChangeStreamContinuationToken implements Serializable {
     return new AutoValue_ChangeStreamContinuationToken(tokenProto);
   }
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public static ChangeStreamContinuationToken create(
       @Nonnull ByteStringRange byteStringRange, @Nonnull String token) {
     return create(
@@ -54,13 +51,11 @@ public abstract class ChangeStreamContinuationToken implements Serializable {
   }
 
   /** Wraps the protobuf {@link StreamContinuationToken}. */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   static ChangeStreamContinuationToken fromProto(
       @Nonnull StreamContinuationToken streamContinuationToken) {
     return create(streamContinuationToken);
   }
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public static ChangeStreamContinuationToken fromByteString(ByteString byteString)
       throws InvalidProtocolBufferException {
     return create(StreamContinuationToken.newBuilder().mergeFrom(byteString).build());

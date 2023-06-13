@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
@@ -55,7 +54,6 @@ import org.threeten.bp.Instant;
  * ChangeStreamMutation changeStreamMutation = builder.setToken(...).setEstimatedLowWatermark().build();
  * }</pre>
  */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 8419520253162024218L;
@@ -136,7 +134,6 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   }
 
   /** Helper class to create a ChangeStreamMutation. */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   @AutoValue.Builder
   abstract static class Builder {
     abstract Builder setRowKey(@Nonnull ByteString rowKey);

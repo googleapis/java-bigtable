@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import java.io.Serializable;
@@ -23,7 +22,6 @@ import javax.annotation.Nonnull;
 import org.threeten.bp.Instant;
 
 /** A simple wrapper for {@link ReadChangeStreamResponse.Heartbeat}. */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static final long serialVersionUID = 7316215828353608504L;
@@ -42,9 +40,7 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
             heartbeat.getEstimatedLowWatermark().getNanos()));
   }
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract Instant getEstimatedLowWatermark();
 }

@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
 import com.google.protobuf.ByteString;
@@ -26,7 +25,6 @@ import javax.annotation.Nonnull;
  * Representation of a SetCell mod in a data change, whose value is concatenated by {@link
  * ChangeStreamRecordMerger} in case of SetCell value chunking.
  */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 @AutoValue
 public abstract class SetCell implements Entry, Serializable {
   private static final long serialVersionUID = 77123872266724154L;

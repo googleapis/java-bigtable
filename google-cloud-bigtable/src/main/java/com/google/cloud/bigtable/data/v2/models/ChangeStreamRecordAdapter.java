@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.protobuf.ByteString;
@@ -28,31 +27,26 @@ import org.threeten.bp.Instant;
  * filtering(for example, only keep DeleteFamily in the mutations). This adapter acts like a factory
  * for a SAX style change stream record builder.
  */
-@InternalApi("Intended for use by the BigtableIO in apache/beam only.")
 public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
   /** Creates a new instance of a {@link ChangeStreamRecordBuilder}. */
   ChangeStreamRecordBuilder<ChangeStreamRecordT> createChangeStreamRecordBuilder();
 
   /** Checks if the given change stream record is a Heartbeat. */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   boolean isHeartbeat(ChangeStreamRecordT record);
 
   /**
    * Get the token from the given Heartbeat record. If the given record is not a Heartbeat, it will
    * throw an Exception.
    */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   String getTokenFromHeartbeat(ChangeStreamRecordT heartbeatRecord);
 
   /** Checks if the given change stream record is a ChangeStreamMutation. */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   boolean isChangeStreamMutation(ChangeStreamRecordT record);
 
   /**
    * Get the token from the given ChangeStreamMutation record. If the given record is not a
    * ChangeStreamMutation, it will throw an Exception.
    */
-  @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   String getTokenFromChangeStreamMutation(ChangeStreamRecordT record);
 
   /**

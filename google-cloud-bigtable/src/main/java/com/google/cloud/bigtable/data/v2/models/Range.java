@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.api.core.InternalApi;
 import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.v2.RowRange;
 import com.google.common.base.Objects;
@@ -398,7 +397,6 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
       output.defaultWriteObject();
     }
 
-    @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
     public static ByteString serializeToByteString(ByteStringRange byteStringRange) {
       return RowRange.newBuilder()
           .setStartKeyClosed(byteStringRange.getStart())
@@ -407,7 +405,6 @@ public abstract class Range<T, R extends Range<T, R>> implements Serializable {
           .toByteString();
     }
 
-    @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
     public static ByteStringRange toByteStringRange(ByteString byteString)
         throws InvalidProtocolBufferException {
       RowRange rowRange = RowRange.newBuilder().mergeFrom(byteString).build();
