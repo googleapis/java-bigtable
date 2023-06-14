@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-
 /**
  * Default representation of a mod in a data change, which can be a {@link DeleteFamily}, a {@link
  * DeleteCells}, or a {@link SetCell} This class will be used by {@link ChangeStreamMutation} to
