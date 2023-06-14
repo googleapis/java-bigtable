@@ -4,7 +4,7 @@ set -e
 
 basedir=$(dirname "$(readlink -f "$0")")
 
-generator_branch=$(cat "${basedir}/generator-branch")
+generator_branch=$(cat "${basedir}/generator-branch" | tr -d '\n')
 
 mkdir -p target
 rm -rf target/sdk-platform-java
