@@ -228,6 +228,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final FeatureFlags featureFlags;
 
+  private final boolean isBuiltinMetricsEnabled;
+
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
 
@@ -252,6 +254,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
     jwtAudienceMapping = builder.jwtAudienceMapping;
+    isBuiltinMetricsEnabled = builder.isBuiltinMetricsEnabled;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -311,6 +314,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @InternalApi("Used for internal testing")
   public Map<String, String> getJwtAudienceMapping() {
     return jwtAudienceMapping;
+  }
+
+  public boolean isBuiltinMetricsEnabled() {
+    return isBuiltinMetricsEnabled;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -613,6 +620,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private FeatureFlags.Builder featureFlags;
 
+    private boolean isBuiltinMetricsEnabled;
+
     /**
      * Initializes a new Builder with sane defaults for all settings.
      *
@@ -624,6 +633,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Builder() {
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
+      this.isBuiltinMetricsEnabled = true;
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
@@ -886,6 +896,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
+    /** Returns true if builtin metrics is enabled. */
+    public boolean isBuiltinMetricsEnabled() {
+      return isBuiltinMetricsEnabled;
+    }
+
+    /** Set if builtin metrics will be enabled. */
+    public Builder setBuiltinMetricsEnabled(boolean enable) {
+      this.isBuiltinMetricsEnabled = enable;
+      return this;
+    }
+
     @InternalApi("Used for internal testing")
     public Map<String, String> getJwtAudienceMapping() {
       return jwtAudienceMapping;
@@ -1030,6 +1051,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
+        .add("isBuiltinMetricsEnabled", isBuiltinMetricsEnabled)
         .add("parent", super.toString())
         .toString();
   }

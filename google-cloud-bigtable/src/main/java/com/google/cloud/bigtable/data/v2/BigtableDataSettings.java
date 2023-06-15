@@ -25,13 +25,10 @@ import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.stats.BigtableStackdriverStatsExporter;
-import com.google.cloud.bigtable.stats.BuiltinViews;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
@@ -197,23 +194,26 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
-  /** Register built in metrics. */
+  /**
+   * Register built in metrics.
+   *
+   * @deprecated Please use {@link BigtableDataSettings.Builder#setBuiltinMetricsEnabled(boolean)}
+   *     to enable or disable built-in metrics.
+   */
+  @Deprecated
   public static void enableBuiltinMetrics() throws IOException {
-    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
-      BuiltinViews.registerBigtableBuiltinViews();
-      BigtableStackdriverStatsExporter.register(GoogleCredentials.getApplicationDefault());
-    }
+    BUILTIN_METRICS_REGISTERED.compareAndSet(false, true);
   }
 
   /**
    * Register built in metrics with credentials. The credentials need to have metric write access
    * for all the projects you're publishing to.
+   *
+   * @deprecated Please use {@link BigtableDataSettings.Builder#setBuiltinMetricsEnabled(boolean)}
+   *     to enable or disable built-in metrics.
    */
   public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
-    if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
-      BuiltinViews.registerBigtableBuiltinViews();
-      BigtableStackdriverStatsExporter.register(credentials);
-    }
+    BUILTIN_METRICS_REGISTERED.compareAndSet(false, true);
   }
 
   /** Returns the target project id. */
@@ -276,6 +276,11 @@ public final class BigtableDataSettings {
   @InternalApi("Intended for use by the Bigtable dataflow connectors only")
   public boolean isBulkMutationFlowControlEnabled() {
     return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
+  }
+
+  /** Gets if built-in metrics is enabled. */
+  public boolean isBuiltinMetricsEnabled() {
+    return stubSettings.isBuiltinMetricsEnabled();
   }
 
   /** Returns the underlying RPC settings. */
@@ -525,6 +530,17 @@ public final class BigtableDataSettings {
     @InternalApi("Intended for use by the Bigtable dataflow connectors only")
     public boolean isBulkMutationFlowControlEnabled() {
       return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
+    }
+
+    /** Set if built-in metrics will be enabled. */
+    public Builder setBuiltinMetricsEnabled(boolean enable) {
+      stubSettings.setBuiltinMetricsEnabled(enable);
+      return this;
+    }
+
+    /** Gets if built-in metrics is enabled. */
+    public boolean isBuiltinMetricsEnabled() {
+      return stubSettings.isBuiltinMetricsEnabled();
     }
 
     /**

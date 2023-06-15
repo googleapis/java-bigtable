@@ -16,13 +16,19 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.METHOD;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.STATUS;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.STREAMING;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
 
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
+import io.opentelemetry.api.common.Attributes;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,10 +43,11 @@ import org.threeten.bp.Duration;
  */
 class BuiltinMetricsTracer extends BigtableTracer {
 
-  private final StatsRecorderWrapper recorder;
-
+  private static final String NAME = "java-bigtable";
   private final OperationType operationType;
   private final SpanName spanName;
+
+  private final BigtableMetricsRecorder instruments;
 
   // Operation level metrics
   private final AtomicBoolean opFinished = new AtomicBoolean();
@@ -73,12 +80,20 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
-  @VisibleForTesting
+  private final Attributes baseAttributes;
+
+  private Long serverLatencies = null;
+
   BuiltinMetricsTracer(
-      OperationType operationType, SpanName spanName, StatsRecorderWrapper recorder) {
+      OperationType operationType,
+      SpanName spanName,
+      BigtableMetricsRecorder instruments,
+      Attributes attributes) {
     this.operationType = operationType;
     this.spanName = spanName;
-    this.recorder = recorder;
+
+    this.instruments = instruments;
+    this.baseAttributes = attributes;
   }
 
   @Override
@@ -203,13 +218,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    // Record the metrics and put in the map after the attempt is done, so we can have cluster and
-    // zone information
     if (latency != null) {
-      recorder.putGfeLatencies(latency);
-      recorder.putGfeMissingHeaders(0);
-    } else {
-      recorder.putGfeMissingHeaders(1);
+      serverLatencies = latency;
     }
   }
 
@@ -239,26 +249,44 @@ class BuiltinMetricsTracer extends BigtableTracer {
       return;
     }
     operationTimer.stop();
+
+    boolean isStreaming = operationType == OperationType.ServerStreaming;
+    String statusStr = Util.extractStatus(status);
+
+    Attributes attributes =
+        baseAttributes
+            .toBuilder()
+            .put(TABLE_ID, tableId)
+            .put(CLUSTER_ID, cluster)
+            .put(ZONE_ID, zone)
+            .put(METHOD, spanName.toString())
+            .put(CLIENT_NAME, NAME)
+            .build();
+
     long operationLatency = operationTimer.elapsed(TimeUnit.MILLISECONDS);
     long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
     if (attemptCount > 1) {
-      recorder.putRetryCount(attemptCount - 1);
+      instruments.recordRetryCount(
+          attemptCount - 1, attributes.toBuilder().put(STATUS, statusStr).build());
     }
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
-    recorder.putOperationLatencies(operationLatency);
-    recorder.putApplicationLatencies(
-        Duration.ofNanos(operationLatencyNano - totalServerLatencyNano.get()).toMillis());
+    instruments.recordOperationLatencies(
+        operationLatency,
+        attributes.toBuilder().put(STREAMING, isStreaming).put(STATUS, statusStr).build());
+    instruments.recordApplicationBlockingLatencies(
+        Duration.ofNanos(operationLatencyNano - totalServerLatencyNano.get()).toMillis(),
+        attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
-      recorder.putFirstResponseLatencies(firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
+      instruments.recordFirstResponseLatencies(
+          firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS),
+          attributes.toBuilder().put(STATUS, Util.extractStatus(status)).build());
     }
-
-    recorder.recordOperation(Util.extractStatus(status), tableId, zone, cluster);
   }
 
   private void recordAttemptCompletion(@Nullable Throwable status) {
@@ -273,7 +301,19 @@ class BuiltinMetricsTracer extends BigtableTracer {
       }
     }
 
-    recorder.putClientBlockingLatencies(totalClientBlockingTime.get());
+    boolean isStreaming = operationType == OperationType.ServerStreaming;
+
+    Attributes attributes =
+        baseAttributes
+            .toBuilder()
+            .put(TABLE_ID, tableId)
+            .put(CLUSTER_ID, cluster)
+            .put(ZONE_ID, zone)
+            .put(METHOD, spanName.toString())
+            .put(CLIENT_NAME, NAME)
+            .build();
+
+    instruments.recordClientBlockingLatencies(totalClientBlockingTime.get(), attributes);
 
     // Patch the status until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
@@ -282,7 +322,20 @@ class BuiltinMetricsTracer extends BigtableTracer {
       status = status.getCause();
     }
 
-    recorder.putAttemptLatencies(attemptTimer.elapsed(TimeUnit.MILLISECONDS));
-    recorder.recordAttempt(Util.extractStatus(status), tableId, zone, cluster);
+    String statusStr = Util.extractStatus(status);
+
+    instruments.recordAttemptLatencies(
+        attemptTimer.elapsed(TimeUnit.MILLISECONDS),
+        attributes.toBuilder().put(STREAMING, isStreaming).put(STATUS, statusStr).build());
+
+    if (serverLatencies != null) {
+      instruments.recordServerLatencies(
+          serverLatencies, attributes.toBuilder().put(STATUS, statusStr).build());
+      instruments.recordConnectivityErrorCount(
+          0, attributes.toBuilder().put(STATUS, statusStr).build());
+    } else {
+      instruments.recordConnectivityErrorCount(
+          1, attributes.toBuilder().put(STATUS, statusStr).build());
+    }
   }
 }

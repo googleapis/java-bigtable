@@ -220,12 +220,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
                 TagValue.create(settings.getAppProfileId()))
             .build();
-    ImmutableMap<String, String> builtinAttributes =
-        ImmutableMap.<String, String>builder()
-            .put("project_id", settings.getProjectId())
-            .put("instance", settings.getInstanceId())
-            .put("app_profile", settings.getAppProfileId())
-            .build();
     // Inject Opencensus instrumentation
     builder.setTracerFactory(
         new CompositeTracerFactory(
@@ -250,7 +244,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         .build()),
                 // Add OpenCensus Metrics
                 MetricsTracerFactory.create(tagger, stats, attributes),
-                BuiltinMetricsTracerFactory.create(builtinAttributes),
+                BuiltinMetricsTracerFactory.create(settings),
                 // Add user configured tracer
                 settings.getTracerFactory())));
     return builder.build();

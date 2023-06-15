@@ -67,6 +67,8 @@ class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
 
+  private static final String METRIC_PREFIX = "bigtable.googleapis.com/internal/client/";
+
   static String getDefaultTaskValue() {
     // Something like '<pid>@<hostname>'
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
@@ -117,7 +119,7 @@ class BigtableExporterUtils {
             .setMetricKind(convertMetricKind(metricData))
             .setMetric(
                 Metric.newBuilder()
-                    .setType(metricData.getName())
+                    .setType(METRIC_PREFIX + metricData.getName())
                     .putAllLabels(metricLabels.build())
                     .build())
             .setValueType(convertValueType(metricData.getType()));
