@@ -41,8 +41,9 @@ import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
-import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.DoublePointData;
 import io.opentelemetry.sdk.metrics.data.HistogramData;
@@ -56,16 +57,15 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.SecureRandom;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/** Utils to convert OpenTelemetry types to Cloud Monitoring API types. */
 class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
-  private static final long NANO_PER_SECOND = (long) 1e9;
 
   static String getDefaultTaskValue() {
     // Something like '<pid>@<hostname>'
@@ -92,19 +92,23 @@ class BigtableExporterUtils {
       PointData pointData,
       String taskId,
       MonitoredResource monitoredResource) {
-    Map<AttributeKey<?>, Object> attributes = pointData.getAttributes().asMap();
+    Attributes attributes = pointData.getAttributes();
     MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
     ImmutableMap.Builder<String, String> metricLabels = new ImmutableMap.Builder<>();
-    for (AttributeKey<?> attributeKey : attributes.keySet()) {
-      if (PROMOTED_RESOURCE_LABELS.contains(attributeKey)) {
-        monitoredResourceBuilder.putLabels(
-            attributeKey.getKey(), String.valueOf(attributes.get(attributeKey)));
-      } else {
-        if (attributes.get(attributeKey) != null) {
-          metricLabels.put(attributeKey.getKey(), String.valueOf(attributes.get(attributeKey)));
-        }
-      }
+
+    // Populated monitored resource schema
+    for (AttributeKey<?> attributeKey : PROMOTED_RESOURCE_LABELS) {
+      monitoredResourceBuilder.putLabels(
+          attributeKey.getKey(), String.valueOf(attributes.get(attributeKey)));
     }
+
+    // Populate the rest of the metric labels
+    attributes.forEach(
+        (key, value) -> {
+          if (!PROMOTED_RESOURCE_LABELS.contains(key) && value != null) {
+            metricLabels.put(key.getKey(), String.valueOf(value));
+          }
+        });
     metricLabels.put(CLIENT_UID.getKey(), taskId);
 
     TimeSeries.Builder builder =
@@ -120,8 +124,8 @@ class BigtableExporterUtils {
 
     TimeInterval timeInterval =
         TimeInterval.newBuilder()
-            .setStartTime(convertTimestamp(pointData.getStartEpochNanos()))
-            .setEndTime(convertTimestamp(pointData.getEpochNanos()))
+            .setStartTime(Timestamps.fromNanos(pointData.getStartEpochNanos()))
+            .setEndTime(Timestamps.fromNanos(pointData.getEpochNanos()))
             .build();
 
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
@@ -137,7 +141,7 @@ class BigtableExporterUtils {
     switch (metricData.getType()) {
       case HISTOGRAM:
       case EXPONENTIAL_HISTOGRAM:
-        return convertHistogramDataType(metricData.getHistogramData());
+        return convertHistogramType(metricData.getHistogramData());
       case LONG_GAUGE:
       case DOUBLE_GAUGE:
         return GAUGE;
@@ -150,7 +154,7 @@ class BigtableExporterUtils {
     }
   }
 
-  private static MetricKind convertHistogramDataType(HistogramData histogramData) {
+  private static MetricKind convertHistogramType(HistogramData histogramData) {
     if (histogramData.getAggregationTemporality() == AggregationTemporality.CUMULATIVE) {
       return CUMULATIVE;
     }
@@ -181,13 +185,6 @@ class BigtableExporterUtils {
       default:
         return ValueType.UNRECOGNIZED;
     }
-  }
-
-  private static Timestamp convertTimestamp(long epochNanos) {
-    return Timestamp.newBuilder()
-        .setSeconds(epochNanos / NANO_PER_SECOND)
-        .setNanos((int) (epochNanos % NANO_PER_SECOND))
-        .build();
   }
 
   private static Point createPoint(

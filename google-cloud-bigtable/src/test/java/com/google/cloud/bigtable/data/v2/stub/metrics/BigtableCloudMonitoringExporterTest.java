@@ -84,6 +84,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
+            projectId,
             fakeMetricServiceClient,
             MonitoredResource.newBuilder().setType("bigtable-table").build(),
             taskId);
