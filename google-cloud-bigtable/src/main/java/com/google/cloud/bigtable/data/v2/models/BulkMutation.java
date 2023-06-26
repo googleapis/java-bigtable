@@ -69,6 +69,9 @@ public final class BulkMutation implements Serializable, Cloneable {
   public BulkMutation add(@Nonnull String rowKey, @Nonnull Mutation mutation) {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
+    Preconditions.checkArgument(
+        mutation.getMutations().size() <= 100000,
+        "Too many mutations, got " + mutation.getMutations().size() + ", limit is 100000");
 
     return add(ByteString.copyFromUtf8(rowKey), mutation);
   }
@@ -80,6 +83,9 @@ public final class BulkMutation implements Serializable, Cloneable {
   public BulkMutation add(@Nonnull ByteString rowKey, @Nonnull Mutation mutation) {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
+    Preconditions.checkArgument(
+        mutation.getMutations().size() <= 100000,
+        "Too many mutations, got " + mutation.getMutations().size() + ", limit is 100000");
 
     builder.addEntries(
         MutateRowsRequest.Entry.newBuilder()
@@ -95,6 +101,7 @@ public final class BulkMutation implements Serializable, Cloneable {
    */
   public BulkMutation add(@Nonnull RowMutationEntry entry) {
     Preconditions.checkNotNull(entry, "Row mutation entry can't be null");
+
     builder.addEntries(entry.toProto());
     return this;
   }

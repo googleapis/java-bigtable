@@ -83,4 +83,41 @@ public class BulkMutateIT {
       assertThat(row.getCells()).hasSize(1);
     }
   }
+
+  @Test
+  public void testManyMutations() throws IOException, InterruptedException {
+    BigtableDataSettings settings = testEnvRule.env().getDataClientSettings();
+    String rowPrefix = UUID.randomUUID().toString();
+    // Set target latency really low so it'll trigger adjusting thresholds
+    BigtableDataSettings.Builder builder =
+        settings.toBuilder().enableBatchMutationLatencyBasedThrottling(2L);
+
+    try (BigtableDataClient client = BigtableDataClient.create(builder.build());
+        BatcherImpl<RowMutationEntry, Void, BulkMutation, Void> batcher =
+            (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
+                client.newBulkMutationBatcher(testEnvRule.env().getTableId())) {
+
+      String familyId = testEnvRule.env().getFamilyId();
+      for (int i = 0; i < 4; i++) {
+        String key = rowPrefix + "test-key" + i;
+        RowMutationEntry rowMutationEntry = RowMutationEntry.create(key);
+        // Create mutation entries with many columns. The batcher should flush every time.
+        for (long j = 0; j < 50001; j++) {
+          rowMutationEntry.setCell(familyId, "q" + j, "value" + j);
+        }
+        batcher.add(rowMutationEntry);
+      }
+      batcher.flush();
+      // Query a key to make sure the write succeeded
+      Row row =
+          testEnvRule
+              .env()
+              .getDataClient()
+              .readRowsCallable()
+              .first()
+              .call(
+                  Query.create(testEnvRule.env().getTableId()).rowKey(rowPrefix + "test-key" + 2));
+      assertThat(row.getCells()).hasSize(50001);
+    }
+  }
 }

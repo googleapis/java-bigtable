@@ -180,6 +180,9 @@ public class RowMutationEntry implements MutationApi<RowMutationEntry>, Serializ
 
   @InternalApi
   public MutateRowsRequest.Entry toProto() {
+    Preconditions.checkArgument(
+        mutation.getMutations().size() <= 100000,
+        "Too many mutations, got " + mutation.getMutations().size() + ", max is 100000");
     return MutateRowsRequest.Entry.newBuilder()
         .setRowKey(key)
         .addAllMutations(mutation.getMutations())
