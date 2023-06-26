@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import static com.google.cloud.bigtable.data.v2.models.RowMutationEntry.MAX_MUTATION;
+
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -35,6 +37,7 @@ import javax.annotation.Nonnull;
  * <p>This class is meant for manual batching.
  */
 public final class BulkMutation implements Serializable, Cloneable {
+
   private static final long serialVersionUID = 3522061250439399088L;
 
   private final String tableId;
@@ -70,8 +73,10 @@ public final class BulkMutation implements Serializable, Cloneable {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
     Preconditions.checkArgument(
-        mutation.getMutations().size() <= 100000,
-        "Too many mutations, got " + mutation.getMutations().size() + ", limit is 100000");
+        mutation.getMutations().size() < MAX_MUTATION,
+        String.format(
+            "Too many mutations, got %s, limit is %s",
+            mutation.getMutations().size(), MAX_MUTATION));
 
     return add(ByteString.copyFromUtf8(rowKey), mutation);
   }
@@ -84,8 +89,10 @@ public final class BulkMutation implements Serializable, Cloneable {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
     Preconditions.checkArgument(
-        mutation.getMutations().size() <= 100000,
-        "Too many mutations, got " + mutation.getMutations().size() + ", limit is 100000");
+        mutation.getMutations().size() <= MAX_MUTATION,
+        String.format(
+            "Too many mutations, got %s, limit is %s",
+            mutation.getMutations().size(), MAX_MUTATION));
 
     builder.addEntries(
         MutateRowsRequest.Entry.newBuilder()

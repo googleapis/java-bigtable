@@ -36,6 +36,7 @@ abstract class MutateRowsBatchResource implements BatchResource {
         batchResource instanceof MutateRowsBatchResource,
         "Expected MutateRowsBatchResource, got " + batchResource.getClass());
     MutateRowsBatchResource mutateRowsResource = (MutateRowsBatchResource) batchResource;
+
     return new AutoValue_MutateRowsBatchResource(
         getElementCount() + mutateRowsResource.getElementCount(),
         getByteCount() + mutateRowsResource.getByteCount(),
