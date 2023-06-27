@@ -36,7 +36,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.truth.TruthJUnit;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
@@ -282,30 +281,31 @@ public class ReadIT {
                     ByteString.copyFromUtf8("C"))));
 
     assertThat(
-        ImmutableList.copyOf(
-            client.readRows(
-                Query.create(tableId)
-                    .reversed(true)
-                    .range(ByteStringRange.prefix(uniqueKey))))
-    ).containsExactly(expectedRowC, expectedRowB, expectedRowA).inOrder();
+            ImmutableList.copyOf(
+                client.readRows(
+                    Query.create(tableId).reversed(true).range(ByteStringRange.prefix(uniqueKey)))))
+        .containsExactly(expectedRowC, expectedRowB, expectedRowA)
+        .inOrder();
 
     assertThat(
-        ImmutableList.copyOf(
-            client.readRows(
-                Query.create(tableId)
-                    .reversed(true)
-                    .range(ByteStringRange.prefix(uniqueKey))
-                    .limit(2)))
-    ).containsExactly(expectedRowC, expectedRowB).inOrder();
+            ImmutableList.copyOf(
+                client.readRows(
+                    Query.create(tableId)
+                        .reversed(true)
+                        .range(ByteStringRange.prefix(uniqueKey))
+                        .limit(2))))
+        .containsExactly(expectedRowC, expectedRowB)
+        .inOrder();
 
     assertThat(
-        ImmutableList.copyOf(
-            client.readRows(
-                Query.create(tableId)
-                    .reversed(true)
-                    .range(ByteStringRange.unbounded().endClosed(keyC))
-                    .limit(2)))
-    ).containsExactly(expectedRowC, expectedRowB).inOrder();
+            ImmutableList.copyOf(
+                client.readRows(
+                    Query.create(tableId)
+                        .reversed(true)
+                        .range(ByteStringRange.unbounded().endClosed(keyC))
+                        .limit(2))))
+        .containsExactly(expectedRowC, expectedRowB)
+        .inOrder();
   }
 
   @Test

@@ -265,17 +265,14 @@ final class StateMachine<RowT> {
           validate(chunk.hasQualifier(), "AWAITING_NEW_ROW: qualifier missing");
           if (lastCompleteRowKey != null) {
 
-            int cmp = ByteStringComparator.INSTANCE.compare(lastCompleteRowKey,
-                chunk.getRowKey());
-            String direction  = "increasing";
+            int cmp = ByteStringComparator.INSTANCE.compare(lastCompleteRowKey, chunk.getRowKey());
+            String direction = "increasing";
             if (reversed) {
               cmp *= -1;
               direction = "decreasing";
             }
 
-            validate(
-                cmp < 0,
-                "AWAITING_NEW_ROW: key must be strictly " + direction);
+            validate(cmp < 0, "AWAITING_NEW_ROW: key must be strictly " + direction);
           }
 
           rowKey = chunk.getRowKey();
