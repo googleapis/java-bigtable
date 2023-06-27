@@ -99,11 +99,11 @@ public class BulkMutateIT {
 
       String familyId = testEnvRule.env().getFamilyId();
       for (int i = 0; i < 4; i++) {
-        String key = rowPrefix + "test-key" + i;
+        String key = rowPrefix + "test-key";
         RowMutationEntry rowMutationEntry = RowMutationEntry.create(key);
         // Create mutation entries with many columns. The batcher should flush every time.
         for (long j = 0; j < 50001; j++) {
-          rowMutationEntry.setCell(familyId, "q" + j, "value" + j);
+          rowMutationEntry.setCell(familyId, "q" + j + i, "value" + j);
         }
         batcher.add(rowMutationEntry);
       }
@@ -115,8 +115,7 @@ public class BulkMutateIT {
               .getDataClient()
               .readRowsCallable()
               .first()
-              .call(
-                  Query.create(testEnvRule.env().getTableId()).rowKey(rowPrefix + "test-key" + 2));
+              .call(Query.create(testEnvRule.env().getTableId()).rowKey(rowPrefix + "test-key"));
       assertThat(row.getCells()).hasSize(50001);
     }
   }

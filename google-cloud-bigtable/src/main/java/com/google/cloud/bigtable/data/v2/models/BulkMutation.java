@@ -43,6 +43,8 @@ public final class BulkMutation implements Serializable, Cloneable {
   private final String tableId;
   private transient MutateRowsRequest.Builder builder;
 
+  private long mutationCountSum = 0;
+
   public static BulkMutation create(String tableId) {
     return new BulkMutation(tableId);
   }
@@ -72,11 +74,6 @@ public final class BulkMutation implements Serializable, Cloneable {
   public BulkMutation add(@Nonnull String rowKey, @Nonnull Mutation mutation) {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
-    Preconditions.checkArgument(
-        mutation.getMutations().size() < MAX_MUTATION,
-        String.format(
-            "Too many mutations, got %s, limit is %s",
-            mutation.getMutations().size(), MAX_MUTATION));
 
     return add(ByteString.copyFromUtf8(rowKey), mutation);
   }
@@ -88,11 +85,11 @@ public final class BulkMutation implements Serializable, Cloneable {
   public BulkMutation add(@Nonnull ByteString rowKey, @Nonnull Mutation mutation) {
     Preconditions.checkNotNull(rowKey);
     Preconditions.checkNotNull(mutation);
+
+    this.mutationCountSum += mutation.getMutations().size();
     Preconditions.checkArgument(
-        mutation.getMutations().size() <= MAX_MUTATION,
-        String.format(
-            "Too many mutations, got %s, limit is %s",
-            mutation.getMutations().size(), MAX_MUTATION));
+        mutationCountSum <= MAX_MUTATION,
+        String.format("Too many mutations, got %s, limit is %s", mutationCountSum, MAX_MUTATION));
 
     builder.addEntries(
         MutateRowsRequest.Entry.newBuilder()
