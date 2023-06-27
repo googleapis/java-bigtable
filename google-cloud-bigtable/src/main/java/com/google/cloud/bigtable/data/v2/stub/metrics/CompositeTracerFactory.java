@@ -19,6 +19,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
+import com.google.api.gax.tracing.ClientMetricsTracer;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -41,5 +42,16 @@ public class CompositeTracerFactory extends BaseApiTracerFactory {
       children.add(factory.newTracer(parent, spanName, operationType));
     }
     return new CompositeTracer(children);
+  }
+
+  @Override
+  public ClientMetricsTracer newClientMetricsTracer() {
+    for (ApiTracerFactory factory : apiTracerFactories) {
+      ClientMetricsTracer clientMetricsTracer = factory.newClientMetricsTracer();
+      if (clientMetricsTracer != null) {
+        return clientMetricsTracer;
+      }
+    }
+    return null;
   }
 }
