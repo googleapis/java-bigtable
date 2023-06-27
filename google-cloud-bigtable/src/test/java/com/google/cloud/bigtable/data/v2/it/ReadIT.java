@@ -245,8 +245,8 @@ public class ReadIT {
     client.bulkMutateRows(
         BulkMutation.create(tableId)
             .add(RowMutationEntry.create(keyA).setCell(familyId, "", timestampMicros, "A"))
-            .add(RowMutationEntry.create(keyB).setCell(familyId, "", timestampMicros, "A"))
-            .add(RowMutationEntry.create(keyC).setCell(familyId, "", timestampMicros, "Z")));
+            .add(RowMutationEntry.create(keyB).setCell(familyId, "", timestampMicros, "B"))
+            .add(RowMutationEntry.create(keyC).setCell(familyId, "", timestampMicros, "C")));
 
     Row expectedRowA =
         Row.create(
@@ -271,7 +271,7 @@ public class ReadIT {
                     ByteString.copyFromUtf8("B"))));
     Row expectedRowC =
         Row.create(
-            ByteString.copyFromUtf8(keyB),
+            ByteString.copyFromUtf8(keyC),
             ImmutableList.of(
                 RowCell.create(
                     testEnvRule.env().getFamilyId(),
@@ -302,9 +302,9 @@ public class ReadIT {
                 client.readRows(
                     Query.create(tableId)
                         .reversed(true)
-                        .range(ByteStringRange.unbounded().endClosed(keyC))
+                        .range(ByteStringRange.unbounded().endOpen(keyC))
                         .limit(2))))
-        .containsExactly(expectedRowC, expectedRowB)
+        .containsExactly(expectedRowB, expectedRowA)
         .inOrder();
   }
 
