@@ -24,7 +24,6 @@ import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import java.io.IOException;
@@ -215,11 +214,12 @@ public class Reads {
     // once, and can be reused for multiple requests. After completing all of your requests, call
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      Query query = Query.create(tableId)
-          .reversed(true)
-          .limit(2)
-          .prefix("phone#4c410523")
-          .range("phone#5c10102", "phone#5c10103");
+      Query query =
+          Query.create(tableId)
+              .reversed(true)
+              .limit(2)
+              .prefix("phone#4c410523")
+              .range("phone#5c10102", "phone#5c10103");
       ServerStream<Row> rows = dataClient.readRows(query);
       for (Row row : rows) {
         printRow(row);
