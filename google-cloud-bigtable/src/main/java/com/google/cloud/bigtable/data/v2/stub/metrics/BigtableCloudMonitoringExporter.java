@@ -84,6 +84,9 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
             .allMatch(pd -> BigtableExporterUtils.getProjectId(pd).equals(projectId)),
         "Some metric data has unexpected projectId");
     for (MetricData metricData : collection) {
+      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
+        continue;
+      }
       List<TimeSeries> timeSeries =
           metricData.getData().getPoints().stream()
               .map(
