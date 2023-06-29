@@ -70,6 +70,13 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void operationSucceeded(Object response) {
+    for (ApiTracer child : children) {
+      child.operationSucceeded(response);
+    }
+  }
+
+  @Override
   public void operationCancelled() {
     for (ApiTracer child : children) {
       child.operationCancelled();
@@ -107,6 +114,13 @@ class CompositeTracer extends BigtableTracer {
   public void attemptSucceeded() {
     for (ApiTracer child : children) {
       child.attemptSucceeded();
+    }
+  }
+
+  @Override
+  public void attemptSucceeded(Object response) {
+    for (ApiTracer child : children) {
+      child.attemptSucceeded(response);
     }
   }
 
