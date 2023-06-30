@@ -383,8 +383,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    *       starts} at 10ms and {@link RetrySettings.Builder#setRetryDelayMultiplier increases
    *       exponentially} by a factor of 2 until a {@link RetrySettings.Builder#setMaxRetryDelay
    *       maximum of} 1 minute.
-   *   <li>The default timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each attempt} is 1
-   *       minute and the timeout for the {@link RetrySettings.Builder#setTotalTimeout entire
+   *   <li>The default timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each attempt} is 5
+   *       minutes and the timeout for the {@link RetrySettings.Builder#setTotalTimeout entire
    *       operation} across all of the attempts is 10 mins.
    * </ul>
    */
