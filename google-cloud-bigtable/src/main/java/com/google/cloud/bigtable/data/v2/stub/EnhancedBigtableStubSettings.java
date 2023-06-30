@@ -657,8 +657,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRetrySettings(
               IDEMPOTENT_RETRY_SETTINGS
                   .toBuilder()
-                  .setInitialRpcTimeout(Duration.ofMinutes(1))
-                  .setMaxRpcTimeout(Duration.ofMinutes(1))
+                  .setInitialRpcTimeout(Duration.ofMinutes(5))
+                  .setMaxRpcTimeout(Duration.ofMinutes(5))
                   .build());
 
       mutateRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
