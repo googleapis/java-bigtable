@@ -489,6 +489,12 @@ public class BuiltinMetricsTracerTest {
       // Blocking latency should be around server latency.
       assertThat(throttledTime.getAllValues().get(1)).isAtLeast(SERVER_LATENCY - 10);
       assertThat(throttledTime.getAllValues().get(2)).isAtLeast(SERVER_LATENCY - 10);
+
+      verify(statsRecorderWrapper, timeout(100).times(expectedNumRequests))
+          .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+
+      assertThat(zone.getAllValues()).containsExactly(ZONE, ZONE, ZONE);
+      assertThat(cluster.getAllValues()).containsExactly(CLUSTER, CLUSTER, CLUSTER);
     }
   }
 
