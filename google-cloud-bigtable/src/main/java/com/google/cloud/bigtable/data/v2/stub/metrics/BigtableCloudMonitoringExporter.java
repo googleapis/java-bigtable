@@ -47,6 +47,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final String projectId;
   private final String taskId;
   private final MonitoredResource monitoredResource;
+  private boolean isShutdown = false;
 
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
@@ -78,6 +79,9 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   @Override
   public CompletableResultCode export(Collection<MetricData> collection) {
+    if (isShutdown) {
+      return CompletableResultCode.ofFailure();
+    }
     Preconditions.checkArgument(
         collection.stream()
             .flatMap(metricData -> metricData.getData().getPoints().stream())
@@ -102,7 +106,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
               .addAllTimeSeries(timeSeries)
               .build();
 
-      this.client.createServiceTimeSeries(request);
+      this.client.createServiceTimeSeriesCallable().futureCall(request);
     }
 
     return CompletableResultCode.ofSuccess();
@@ -116,6 +120,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode shutdown() {
     client.shutdown();
+    isShutdown = true;
     return CompletableResultCode.ofSuccess();
   }
 
