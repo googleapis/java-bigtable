@@ -28,6 +28,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.Distribution;
 import com.google.api.MonitoredResource;
+import com.google.api.core.ApiFuture;
+import com.google.api.core.ApiFutures;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
@@ -114,7 +116,8 @@ public class BigtableCloudMonitoringExporterTest {
 
     UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
     when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
-    when(mockCallable.call(argumentCaptor.capture())).thenReturn(Empty.getDefaultInstance());
+    ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
+    when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
 
     long fakeValue = 11L;
 
@@ -160,7 +163,8 @@ public class BigtableCloudMonitoringExporterTest {
 
     UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
     when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
-    when(mockCallable.call(argumentCaptor.capture())).thenReturn(Empty.getDefaultInstance());
+    ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
+    when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
 
     HistogramPointData histogramPointData =
         ImmutableHistogramPointData.create(
