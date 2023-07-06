@@ -145,7 +145,7 @@
         <className>com/google/cloud/bigtable/data/v2/stub/readrows/RowMerger</className>
         <method>*</method>
     </difference>
-    <!-- InternalApi was renamed -->
+    <!-- InternalApi was removed -->
     <difference>
         <differenceType>8001</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/BigtableTracerBatchedUnaryCallable</className>

@@ -495,17 +495,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private <RowT> UnaryCallable<Query, List<RowT>> createBulkReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
-    ServerStreamingCallable<ReadRowsRequest, RowT> baseCallable =
-        createReadRowsBaseCallable(
-            ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
-                .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
-                .setRetrySettings(settings.readRowSettings().getRetrySettings())
-                .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
-                .build(),
-            rowAdapter);
+    ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
+        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
-        new ReadRowsUserCallable<>(baseCallable, requestContext);
+        new ReadRowsUserCallable<>(readRowsCallable, requestContext);
 
     SpanName span = getSpanName("ReadRows");
 
