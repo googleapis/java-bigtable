@@ -335,7 +335,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
       RowAdapter<RowT> rowAdapter) {
-    return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter)
+    return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter, false)
         .withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
@@ -356,7 +356,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public <RowT> ServerStreamingCallable<Query, RowT> createReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
-        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
+        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter, false);
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
@@ -391,7 +391,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .setRetrySettings(settings.readRowSettings().getRetrySettings())
                 .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
                 .build(),
-            rowAdapter);
+            rowAdapter,
+            false);
 
     ReadRowsUserCallable<RowT> readRowCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
@@ -421,7 +422,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * <p>NOTE: the caller is responsible for adding tracing & metrics.
    */
   private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
-      ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
+      ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
+      RowAdapter<RowT> rowAdapter,
+      boolean batch) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -464,8 +467,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched);
+    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer;
+
+    if (batch) {
+      withBigtableTracer = new BigtableTracerBatchedStreamingCallable<>(watched);
+    } else {
+      withBigtableTracer = new BigtableTracerStreamingCallable<>(watched);
+    }
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
@@ -496,65 +504,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private <RowT> UnaryCallable<Query, List<RowT>> createBulkReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
-    ServerStreamingCallSettings<Query, Row> readRowsSettings = settings.readRowsSettings();
-
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
-        GrpcRawCallableFactory.createServerStreamingCallable(
-            GrpcCallSettings.<ReadRowsRequest, ReadRowsResponse>newBuilder()
-                .setMethodDescriptor(BigtableGrpc.getReadRowsMethod())
-                .setParamsExtractor(
-                    new RequestParamsExtractor<ReadRowsRequest>() {
-                      @Override
-                      public Map<String, String> extract(ReadRowsRequest readRowsRequest) {
-                        return ImmutableMap.of(
-                            "table_name", readRowsRequest.getTableName(),
-                            "app_profile_id", readRowsRequest.getAppProfileId());
-                      }
-                    })
+    ServerStreamingCallable<ReadRowsRequest, RowT> baseCallable =
+        createReadRowsBaseCallable(
+            ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
+                .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
+                .setRetrySettings(settings.readRowSettings().getRetrySettings())
+                .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
                 .build(),
-            readRowsSettings.getRetryableCodes());
-
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
-        new StatsHeadersServerStreamingCallable<>(base);
-
-    // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
-    // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
-    // which by default is not retryable. Convert the exception so it can be retried in the client.
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ConvertExceptionCallable<>(withStatsHeaders);
-
-    ServerStreamingCallable<ReadRowsRequest, RowT> merging =
-        new RowMergingCallable<>(convertException, rowAdapter);
-
-    // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
-    // ReadRowsRequest -> ReadRowsResponse callable).
-    ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
-        ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
-            .setResumptionStrategy(new ReadRowsResumptionStrategy<>(rowAdapter))
-            .setRetryableCodes(readRowsSettings.getRetryableCodes())
-            .setRetrySettings(readRowsSettings.getRetrySettings())
-            .setIdleTimeout(readRowsSettings.getIdleTimeout())
-            .build();
-
-    ServerStreamingCallable<ReadRowsRequest, RowT> watched =
-        Callables.watched(merging, innerSettings, clientContext);
-
-    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-        new BigtableTracerBatchedStreamingCallable<>(watched);
-
-    // Retry logic is split into 2 parts to workaround a rare edge case described in
-    // ReadRowsRetryCompletedCallable
-    ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
-
-    ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
-        Callables.retrying(retrying1, innerSettings, clientContext);
-
-    ServerStreamingCallable<ReadRowsRequest, RowT> filterMarkerCallable =
-        new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
+            rowAdapter,
+            true);
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
-        new ReadRowsUserCallable<>(filterMarkerCallable, requestContext);
+        new ReadRowsUserCallable<>(baseCallable, requestContext);
 
     SpanName span = getSpanName("ReadRows");
 
