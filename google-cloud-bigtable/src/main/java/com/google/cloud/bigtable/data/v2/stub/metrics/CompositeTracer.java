@@ -77,6 +77,13 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void retryCount(int count) {
+    for (ApiTracer child : children) {
+      child.retryCount(count);
+    }
+  }
+
+  @Override
   public void operationCancelled() {
     for (ApiTracer child : children) {
       child.operationCancelled();
