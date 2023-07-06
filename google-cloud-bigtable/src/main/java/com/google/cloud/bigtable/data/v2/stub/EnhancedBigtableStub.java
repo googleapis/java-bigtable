@@ -87,7 +87,6 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMer
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerBatchedStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -335,7 +334,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
       RowAdapter<RowT> rowAdapter) {
-    return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter, false)
+    return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter)
         .withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
@@ -356,7 +355,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public <RowT> ServerStreamingCallable<Query, RowT> createReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
-        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter, false);
+        createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
@@ -391,8 +390,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .setRetrySettings(settings.readRowSettings().getRetrySettings())
                 .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
                 .build(),
-            rowAdapter,
-            false);
+            rowAdapter);
 
     ReadRowsUserCallable<RowT> readRowCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
@@ -422,9 +420,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * <p>NOTE: the caller is responsible for adding tracing & metrics.
    */
   private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
-      ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
-      RowAdapter<RowT> rowAdapter,
-      boolean batch) {
+      ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -467,13 +463,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer;
-
-    if (batch) {
-      withBigtableTracer = new BigtableTracerBatchedStreamingCallable<>(watched);
-    } else {
-      withBigtableTracer = new BigtableTracerStreamingCallable<>(watched);
-    }
+    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(watched);
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
@@ -511,8 +502,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .setRetrySettings(settings.readRowSettings().getRetrySettings())
                 .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
                 .build(),
-            rowAdapter,
-            true);
+            rowAdapter);
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(baseCallable, requestContext);
@@ -759,7 +749,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new ConvertExceptionCallable<>(callable);
 
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
-        new BigtableTracerBatchedStreamingCallable<>(convertException);
+        new BigtableTracerStreamingCallable<>(convertException);
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
