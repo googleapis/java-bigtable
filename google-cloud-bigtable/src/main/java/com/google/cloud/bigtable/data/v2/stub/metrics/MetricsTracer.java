@@ -140,6 +140,16 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void attemptSucceeded(Object response) {
+    attemptSucceeded();
+  }
+
+  @Override
+  public void operationSucceeded(Object response) {
+    operationSucceeded();
+  }
+
+  @Override
   public void attemptCancelled() {
     recordAttemptCompletion(new CancellationException());
   }
