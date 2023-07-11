@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
  * <p>This class is meant for manual batching.
  */
 public final class BulkMutation implements Serializable, Cloneable {
-
   private static final long serialVersionUID = 3522061250439399088L;
 
   private final String tableId;
