@@ -66,6 +66,8 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
+    // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
+    // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
     return new BigtableCloudMonitoringExporter(
         projectId,
