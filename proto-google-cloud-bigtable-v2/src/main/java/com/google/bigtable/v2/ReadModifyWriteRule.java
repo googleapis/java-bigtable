@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
     return new ReadModifyWriteRule();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto
         .internal_static_google_bigtable_v2_ReadModifyWriteRule_descriptor;
@@ -70,6 +65,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
   }
 
   private int ruleCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object rule_;
 
   public enum RuleCase
@@ -117,7 +114,9 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
   }
 
   public static final int FAMILY_NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object familyName_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object familyName_ = "";
   /**
    *
    *
@@ -168,7 +167,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
   }
 
   public static final int COLUMN_QUALIFIER_FIELD_NUMBER = 2;
-  private com.google.protobuf.ByteString columnQualifier_;
+  private com.google.protobuf.ByteString columnQualifier_ = com.google.protobuf.ByteString.EMPTY;
   /**
    *
    *
@@ -513,10 +512,9 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       familyName_ = "";
-
       columnQualifier_ = com.google.protobuf.ByteString.EMPTY;
-
       ruleCase_ = 0;
       rule_ = null;
       return this;
@@ -546,17 +544,27 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
     public com.google.bigtable.v2.ReadModifyWriteRule buildPartial() {
       com.google.bigtable.v2.ReadModifyWriteRule result =
           new com.google.bigtable.v2.ReadModifyWriteRule(this);
-      result.familyName_ = familyName_;
-      result.columnQualifier_ = columnQualifier_;
-      if (ruleCase_ == 3) {
-        result.rule_ = rule_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (ruleCase_ == 4) {
-        result.rule_ = rule_;
-      }
-      result.ruleCase_ = ruleCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadModifyWriteRule result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.familyName_ = familyName_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.columnQualifier_ = columnQualifier_;
+      }
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.ReadModifyWriteRule result) {
+      result.ruleCase_ = ruleCase_;
+      result.rule_ = this.rule_;
     }
 
     @java.lang.Override
@@ -606,6 +614,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
       if (other == com.google.bigtable.v2.ReadModifyWriteRule.getDefaultInstance()) return this;
       if (!other.getFamilyName().isEmpty()) {
         familyName_ = other.familyName_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (other.getColumnQualifier() != com.google.protobuf.ByteString.EMPTY) {
@@ -656,13 +665,13 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
             case 10:
               {
                 familyName_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 columnQualifier_ = input.readBytes();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 26:
@@ -707,6 +716,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object familyName_ = "";
     /**
@@ -772,8 +783,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
       if (value == null) {
         throw new NullPointerException();
       }
-
       familyName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -790,8 +801,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
      * @return This builder for chaining.
      */
     public Builder clearFamilyName() {
-
       familyName_ = getDefaultInstance().getFamilyName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -813,8 +824,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       familyName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -855,8 +866,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
       if (value == null) {
         throw new NullPointerException();
       }
-
       columnQualifier_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -874,7 +885,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
      * @return This builder for chaining.
      */
     public Builder clearColumnQualifier() {
-
+      bitField0_ = (bitField0_ & ~0x00000002);
       columnQualifier_ = getDefaultInstance().getColumnQualifier();
       onChanged();
       return this;
@@ -1013,6 +1024,7 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
      * @return This builder for chaining.
      */
     public Builder setIncrementAmount(long value) {
+
       ruleCase_ = 4;
       rule_ = value;
       onChanged();

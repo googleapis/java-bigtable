@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,7 @@ public interface InstanceOrBuilder
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -158,6 +159,7 @@ public interface InstanceOrBuilder
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -180,6 +182,7 @@ public interface InstanceOrBuilder
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -199,6 +202,7 @@ public interface InstanceOrBuilder
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -209,7 +213,6 @@ public interface InstanceOrBuilder
    *
    * <code>map&lt;string, string&gt; labels = 5;</code>
    */
-
   /* nullable */
   java.lang.String getLabelsOrDefault(
       java.lang.String key,
@@ -223,6 +226,7 @@ public interface InstanceOrBuilder
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to

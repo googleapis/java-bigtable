@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,6 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
     return new RequestLatencyStats();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.RequestStatsProto
         .internal_static_google_bigtable_v2_RequestLatencyStats_descriptor;
@@ -77,11 +72,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
    * when the request was received, to when this value is sent back in the
    * response. For more context on the component that is measuring this latency,
    * see: https://cloud.google.com/bigtable/docs/overview
+   *
    * Note: This value may be slightly shorter than the value reported into
    * aggregate latency metrics in Monitoring for this request
    * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
    * needs to be sent in the response before the latency measurement including
    * that transmission is finalized.
+   *
+   * Note: This value includes the end-to-end latency of contacting nodes in
+   * the targeted cluster, e.g. measuring from when the first byte arrives at
+   * the frontend server, to when this value is sent back as the last value in
+   * the response, including any latency incurred by contacting nodes, waiting
+   * for results from nodes, and finally sending results from nodes back to the
+   * caller.
    * </pre>
    *
    * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -100,11 +103,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
    * when the request was received, to when this value is sent back in the
    * response. For more context on the component that is measuring this latency,
    * see: https://cloud.google.com/bigtable/docs/overview
+   *
    * Note: This value may be slightly shorter than the value reported into
    * aggregate latency metrics in Monitoring for this request
    * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
    * needs to be sent in the response before the latency measurement including
    * that transmission is finalized.
+   *
+   * Note: This value includes the end-to-end latency of contacting nodes in
+   * the targeted cluster, e.g. measuring from when the first byte arrives at
+   * the frontend server, to when this value is sent back as the last value in
+   * the response, including any latency incurred by contacting nodes, waiting
+   * for results from nodes, and finally sending results from nodes back to the
+   * caller.
    * </pre>
    *
    * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -125,18 +136,28 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
    * when the request was received, to when this value is sent back in the
    * response. For more context on the component that is measuring this latency,
    * see: https://cloud.google.com/bigtable/docs/overview
+   *
    * Note: This value may be slightly shorter than the value reported into
    * aggregate latency metrics in Monitoring for this request
    * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
    * needs to be sent in the response before the latency measurement including
    * that transmission is finalized.
+   *
+   * Note: This value includes the end-to-end latency of contacting nodes in
+   * the targeted cluster, e.g. measuring from when the first byte arrives at
+   * the frontend server, to when this value is sent back as the last value in
+   * the response, including any latency incurred by contacting nodes, waiting
+   * for results from nodes, and finally sending results from nodes back to the
+   * caller.
    * </pre>
    *
    * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
    */
   @java.lang.Override
   public com.google.protobuf.DurationOrBuilder getFrontendServerLatencyOrBuilder() {
-    return getFrontendServerLatency();
+    return frontendServerLatency_ == null
+        ? com.google.protobuf.Duration.getDefaultInstance()
+        : frontendServerLatency_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -344,10 +365,10 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (frontendServerLatencyBuilder_ == null) {
-        frontendServerLatency_ = null;
-      } else {
-        frontendServerLatency_ = null;
+      bitField0_ = 0;
+      frontendServerLatency_ = null;
+      if (frontendServerLatencyBuilder_ != null) {
+        frontendServerLatencyBuilder_.dispose();
         frontendServerLatencyBuilder_ = null;
       }
       return this;
@@ -377,13 +398,21 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
     public com.google.bigtable.v2.RequestLatencyStats buildPartial() {
       com.google.bigtable.v2.RequestLatencyStats result =
           new com.google.bigtable.v2.RequestLatencyStats(this);
-      if (frontendServerLatencyBuilder_ == null) {
-        result.frontendServerLatency_ = frontendServerLatency_;
-      } else {
-        result.frontendServerLatency_ = frontendServerLatencyBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.RequestLatencyStats result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.frontendServerLatency_ =
+            frontendServerLatencyBuilder_ == null
+                ? frontendServerLatency_
+                : frontendServerLatencyBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -464,7 +493,7 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
               {
                 input.readMessage(
                     getFrontendServerLatencyFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             default:
@@ -484,6 +513,8 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
       return this;
     }
 
+    private int bitField0_;
+
     private com.google.protobuf.Duration frontendServerLatency_;
     private com.google.protobuf.SingleFieldBuilderV3<
             com.google.protobuf.Duration,
@@ -498,11 +529,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -510,7 +549,7 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * @return Whether the frontendServerLatency field is set.
      */
     public boolean hasFrontendServerLatency() {
-      return frontendServerLatencyBuilder_ != null || frontendServerLatency_ != null;
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      *
@@ -520,11 +559,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -548,11 +595,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -563,11 +618,11 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
           throw new NullPointerException();
         }
         frontendServerLatency_ = value;
-        onChanged();
       } else {
         frontendServerLatencyBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -578,11 +633,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -590,11 +653,11 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
     public Builder setFrontendServerLatency(com.google.protobuf.Duration.Builder builderForValue) {
       if (frontendServerLatencyBuilder_ == null) {
         frontendServerLatency_ = builderForValue.build();
-        onChanged();
       } else {
         frontendServerLatencyBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -605,30 +668,37 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
      */
     public Builder mergeFrontendServerLatency(com.google.protobuf.Duration value) {
       if (frontendServerLatencyBuilder_ == null) {
-        if (frontendServerLatency_ != null) {
-          frontendServerLatency_ =
-              com.google.protobuf.Duration.newBuilder(frontendServerLatency_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000001) != 0)
+            && frontendServerLatency_ != null
+            && frontendServerLatency_ != com.google.protobuf.Duration.getDefaultInstance()) {
+          getFrontendServerLatencyBuilder().mergeFrom(value);
         } else {
           frontendServerLatency_ = value;
         }
-        onChanged();
       } else {
         frontendServerLatencyBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -639,24 +709,31 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
      */
     public Builder clearFrontendServerLatency() {
-      if (frontendServerLatencyBuilder_ == null) {
-        frontendServerLatency_ = null;
-        onChanged();
-      } else {
-        frontendServerLatency_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      frontendServerLatency_ = null;
+      if (frontendServerLatencyBuilder_ != null) {
+        frontendServerLatencyBuilder_.dispose();
         frontendServerLatencyBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -667,17 +744,25 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
      */
     public com.google.protobuf.Duration.Builder getFrontendServerLatencyBuilder() {
-
+      bitField0_ |= 0x00000001;
       onChanged();
       return getFrontendServerLatencyFieldBuilder().getBuilder();
     }
@@ -689,11 +774,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>
@@ -715,11 +808,19 @@ public final class RequestLatencyStats extends com.google.protobuf.GeneratedMess
      * when the request was received, to when this value is sent back in the
      * response. For more context on the component that is measuring this latency,
      * see: https://cloud.google.com/bigtable/docs/overview
+     *
      * Note: This value may be slightly shorter than the value reported into
      * aggregate latency metrics in Monitoring for this request
      * (https://cloud.google.com/bigtable/docs/monitoring-instance) as this value
      * needs to be sent in the response before the latency measurement including
      * that transmission is finalized.
+     *
+     * Note: This value includes the end-to-end latency of contacting nodes in
+     * the targeted cluster, e.g. measuring from when the first byte arrives at
+     * the frontend server, to when this value is sent back as the last value in
+     * the response, including any latency incurred by contacting nodes, waiting
+     * for results from nodes, and finally sending results from nodes back to the
+     * caller.
      * </pre>
      *
      * <code>.google.protobuf.Duration frontend_server_latency = 1;</code>

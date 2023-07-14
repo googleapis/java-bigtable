@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ package com.google.bigtable.admin.v2;
  * <pre>
  * Response message for
  * [google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots][google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots]
+ *
  * Note: This is a private alpha release of Cloud Bigtable snapshots. This
  * feature is not currently available to most Cloud Bigtable customers. This
  * feature might be changed in backward-incompatible ways and is not recommended
@@ -53,11 +54,6 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
     return new ListSnapshotsResponse();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_ListSnapshotsResponse_descriptor;
@@ -74,6 +70,8 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
   }
 
   public static final int SNAPSHOTS_FIELD_NUMBER = 1;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.admin.v2.Snapshot> snapshots_;
   /**
    *
@@ -143,7 +141,9 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
   }
 
   public static final int NEXT_PAGE_TOKEN_FIELD_NUMBER = 2;
-  private volatile java.lang.Object nextPageToken_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object nextPageToken_ = "";
   /**
    *
    *
@@ -371,6 +371,7 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
    * <pre>
    * Response message for
    * [google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots][google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots]
+   *
    * Note: This is a private alpha release of Cloud Bigtable snapshots. This
    * feature is not currently available to most Cloud Bigtable customers. This
    * feature might be changed in backward-incompatible ways and is not recommended
@@ -408,6 +409,7 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       if (snapshotsBuilder_ == null) {
         snapshots_ = java.util.Collections.emptyList();
       } else {
@@ -416,7 +418,6 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
       }
       bitField0_ = (bitField0_ & ~0x00000001);
       nextPageToken_ = "";
-
       return this;
     }
 
@@ -444,7 +445,16 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
     public com.google.bigtable.admin.v2.ListSnapshotsResponse buildPartial() {
       com.google.bigtable.admin.v2.ListSnapshotsResponse result =
           new com.google.bigtable.admin.v2.ListSnapshotsResponse(this);
-      int from_bitField0_ = bitField0_;
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(
+        com.google.bigtable.admin.v2.ListSnapshotsResponse result) {
       if (snapshotsBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           snapshots_ = java.util.Collections.unmodifiableList(snapshots_);
@@ -454,9 +464,13 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
       } else {
         result.snapshots_ = snapshotsBuilder_.build();
       }
-      result.nextPageToken_ = nextPageToken_;
-      onBuilt();
-      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.ListSnapshotsResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.nextPageToken_ = nextPageToken_;
+      }
     }
 
     @java.lang.Override
@@ -534,6 +548,7 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
       }
       if (!other.getNextPageToken().isEmpty()) {
         nextPageToken_ = other.nextPageToken_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -578,7 +593,7 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
             case 18:
               {
                 nextPageToken_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             default:
@@ -1015,8 +1030,8 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
       if (value == null) {
         throw new NullPointerException();
       }
-
       nextPageToken_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1034,8 +1049,8 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
      * @return This builder for chaining.
      */
     public Builder clearNextPageToken() {
-
       nextPageToken_ = getDefaultInstance().getNextPageToken();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1058,8 +1073,8 @@ public final class ListSnapshotsResponse extends com.google.protobuf.GeneratedMe
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       nextPageToken_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }

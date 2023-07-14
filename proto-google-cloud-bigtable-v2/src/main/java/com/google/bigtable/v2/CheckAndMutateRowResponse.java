@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
     return new CheckAndMutateRowResponse();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.BigtableProto
         .internal_static_google_bigtable_v2_CheckAndMutateRowResponse_descriptor;
@@ -66,7 +61,7 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
   }
 
   public static final int PREDICATE_MATCHED_FIELD_NUMBER = 1;
-  private boolean predicateMatched_;
+  private boolean predicateMatched_ = false;
   /**
    *
    *
@@ -281,8 +276,8 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       predicateMatched_ = false;
-
       return this;
     }
 
@@ -310,9 +305,18 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
     public com.google.bigtable.v2.CheckAndMutateRowResponse buildPartial() {
       com.google.bigtable.v2.CheckAndMutateRowResponse result =
           new com.google.bigtable.v2.CheckAndMutateRowResponse(this);
-      result.predicateMatched_ = predicateMatched_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.CheckAndMutateRowResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.predicateMatched_ = predicateMatched_;
+      }
     }
 
     @java.lang.Override
@@ -393,7 +397,7 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
             case 8:
               {
                 predicateMatched_ = input.readBool();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 8
             default:
@@ -412,6 +416,8 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private boolean predicateMatched_;
     /**
@@ -446,6 +452,7 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
     public Builder setPredicateMatched(boolean value) {
 
       predicateMatched_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -462,7 +469,7 @@ public final class CheckAndMutateRowResponse extends com.google.protobuf.Generat
      * @return This builder for chaining.
      */
     public Builder clearPredicateMatched() {
-
+      bitField0_ = (bitField0_ & ~0x00000001);
       predicateMatched_ = false;
       onChanged();
       return this;

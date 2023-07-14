@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
-import com.google.common.base.Objects;
-import com.google.protobuf.util.FieldMaskUtil;
+import com.google.common.base.Preconditions;
+import java.util.Objects;
+import org.threeten.bp.Duration;
 
-/** Fluent wrapper for {@link com.google.bigtable.admin.v2.UpdateTableRequest} */
-public final class UpdateTableRequest {
+/**
+ * Wrapper for {@link com.google.bigtable.admin.v2.UpdateTableRequest}
+ *
+ * <p>Allows for updating table:
+ *
+ * <ul>
+ *   <li>Change stream retention period.
+ * </ul>
+ */
+public class UpdateTableRequest {
+
+  private final String tableId;
+
   private final com.google.bigtable.admin.v2.UpdateTableRequest.Builder requestBuilder =
       com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder();
-  private final com.google.bigtable.admin.v2.Table.Builder tableBuilder =
-      com.google.bigtable.admin.v2.Table.newBuilder();
-  private final String tableId;
 
   public static UpdateTableRequest of(String tableId) {
     return new UpdateTableRequest(tableId);
   }
 
-  /** Configures update table request with specified project, instance, and table id */
   private UpdateTableRequest(String tableId) {
     this.tableId = tableId;
+  }
+
+  /** Update change stream retention period between 1 day and 7 days. */
+  public UpdateTableRequest addChangeStreamRetention(Duration retention) {
+    Preconditions.checkNotNull(retention);
+    if (!retention.isZero()) {
+      requestBuilder
+          .getTableBuilder()
+          .setChangeStreamConfig(
+              ChangeStreamConfig.newBuilder()
+                  .setRetentionPeriod(
+                      com.google.protobuf.Duration.newBuilder()
+                          .setSeconds(retention.getSeconds())
+                          .setNanos(retention.getNano())
+                          .build())
+                  .build());
+      requestBuilder.getUpdateMaskBuilder().addPaths("change_stream_config.retention_period");
+    } else {
+      requestBuilder.getTableBuilder().clearChangeStreamConfig();
+      requestBuilder.getUpdateMaskBuilder().addPaths("change_stream_config");
+    }
+    return this;
+  }
+
+  /** Disable change stream for table */
+  public UpdateTableRequest disableChangeStreamRetention() {
+    return addChangeStreamRetention(Duration.ZERO);
   }
 
   /** Update the table's deletion protection setting * */
@@ -48,34 +85,25 @@ public final class UpdateTableRequest {
     return this;
   }
 
-  public String getTableId() {
-    return this.tableId;
+  @InternalApi
+  public com.google.bigtable.admin.v2.UpdateTableRequest toProto(
+      String projectId, String instanceId) {
+    requestBuilder
+        .getTableBuilder()
+        .setName(NameUtil.formatTableName(projectId, instanceId, tableId));
+    return requestBuilder.build();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+    if (this == o) return true;
+    if (!(o instanceof UpdateTableRequest)) return false;
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equal(requestBuilder.getUpdateMask(), that.requestBuilder.getUpdateMask())
-        && Objects.equal(this.tableId, that.tableId)
-        && Objects.equal(this.tableBuilder.build(), that.tableBuilder.build());
+    return Objects.equals(requestBuilder, that.requestBuilder);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(requestBuilder.getUpdateMask(), tableId, tableBuilder.build());
-  }
-
-  @InternalApi
-  public com.google.bigtable.admin.v2.UpdateTableRequest toProto(
-      String projectId, String instanceId) {
-    tableBuilder.setName(NameUtil.formatTableName(projectId, instanceId, tableId));
-    requestBuilder.setTable(tableBuilder.build());
-    return requestBuilder.build();
+    return Objects.hash(requestBuilder);
   }
 }

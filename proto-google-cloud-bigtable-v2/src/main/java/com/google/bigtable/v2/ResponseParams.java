@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,11 +51,6 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
     return new ResponseParams();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.ResponseParamsProto
         .internal_static_google_bigtable_v2_ResponseParams_descriptor;
@@ -73,7 +68,9 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
 
   private int bitField0_;
   public static final int ZONE_ID_FIELD_NUMBER = 1;
-  private volatile java.lang.Object zoneId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object zoneId_ = "";
   /**
    *
    *
@@ -137,7 +134,9 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
   }
 
   public static final int CLUSTER_ID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object clusterId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object clusterId_ = "";
   /**
    *
    *
@@ -420,10 +419,9 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       zoneId_ = "";
-      bitField0_ = (bitField0_ & ~0x00000001);
       clusterId_ = "";
-      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
 
@@ -451,19 +449,25 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
     public com.google.bigtable.v2.ResponseParams buildPartial() {
       com.google.bigtable.v2.ResponseParams result =
           new com.google.bigtable.v2.ResponseParams(this);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ResponseParams result) {
       int from_bitField0_ = bitField0_;
       int to_bitField0_ = 0;
       if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.zoneId_ = zoneId_;
         to_bitField0_ |= 0x00000001;
       }
-      result.zoneId_ = zoneId_;
       if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.clusterId_ = clusterId_;
         to_bitField0_ |= 0x00000002;
       }
-      result.clusterId_ = clusterId_;
-      result.bitField0_ = to_bitField0_;
-      onBuilt();
-      return result;
+      result.bitField0_ |= to_bitField0_;
     }
 
     @java.lang.Override
@@ -512,13 +516,13 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
     public Builder mergeFrom(com.google.bigtable.v2.ResponseParams other) {
       if (other == com.google.bigtable.v2.ResponseParams.getDefaultInstance()) return this;
       if (other.hasZoneId()) {
-        bitField0_ |= 0x00000001;
         zoneId_ = other.zoneId_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (other.hasClusterId()) {
-        bitField0_ |= 0x00000002;
         clusterId_ = other.clusterId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -653,8 +657,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-      bitField0_ |= 0x00000001;
       zoneId_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -670,8 +674,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearZoneId() {
-      bitField0_ = (bitField0_ & ~0x00000001);
       zoneId_ = getDefaultInstance().getZoneId();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -692,8 +696,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-      bitField0_ |= 0x00000001;
       zoneId_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -777,8 +781,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-      bitField0_ |= 0x00000002;
       clusterId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -795,8 +799,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearClusterId() {
-      bitField0_ = (bitField0_ & ~0x00000002);
       clusterId_ = getDefaultInstance().getClusterId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -818,8 +822,8 @@ public final class ResponseParams extends com.google.protobuf.GeneratedMessageV3
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-      bitField0_ |= 0x00000002;
       clusterId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }

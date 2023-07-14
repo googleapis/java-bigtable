@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -120,7 +120,6 @@ public interface TableOrBuilder
    * map&lt;string, .google.bigtable.admin.v2.Table.ClusterState&gt; cluster_states = 2 [(.google.api.field_behavior) = OUTPUT_ONLY];
    * </code>
    */
-
   /* nullable */
   com.google.bigtable.admin.v2.Table.ClusterState getClusterStatesOrDefault(
       java.lang.String key,
@@ -189,7 +188,6 @@ public interface TableOrBuilder
    *
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
    */
-
   /* nullable */
   com.google.bigtable.admin.v2.ColumnFamily getColumnFamiliesOrDefault(
       java.lang.String key,
@@ -285,6 +283,47 @@ public interface TableOrBuilder
    * </code>
    */
   com.google.bigtable.admin.v2.RestoreInfoOrBuilder getRestoreInfoOrBuilder();
+
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return Whether the changeStreamConfig field is set.
+   */
+  boolean hasChangeStreamConfig();
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return The changeStreamConfig.
+   */
+  com.google.bigtable.admin.v2.ChangeStreamConfig getChangeStreamConfig();
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   */
+  com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder getChangeStreamConfigOrBuilder();
 
   /**
    *

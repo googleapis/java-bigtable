@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,8 +60,8 @@ public interface ReadRowsRequestOrBuilder
    *
    *
    * <pre>
-   * This value specifies routing for replication. This API only accepts the
-   * empty value of app_profile_id.
+   * This value specifies routing for replication. If not specified, the
+   * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 5;</code>
@@ -73,8 +73,8 @@ public interface ReadRowsRequestOrBuilder
    *
    *
    * <pre>
-   * This value specifies routing for replication. This API only accepts the
-   * empty value of app_profile_id.
+   * This value specifies routing for replication. If not specified, the
+   * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 5;</code>
@@ -197,4 +197,28 @@ public interface ReadRowsRequestOrBuilder
    * @return The requestStatsView.
    */
   com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView();
+
+  /**
+   *
+   *
+   * <pre>
+   * Experimental API - Please note that this API is currently experimental
+   * and can change in the future.
+   *
+   * Return rows in lexiographical descending order of the row keys. The row
+   * contents will not be affected by this flag.
+   *
+   * Example result set:
+   *
+   *     [
+   *       {key: "k2", "f:col1": "v1", "f:col2": "v1"},
+   *       {key: "k1", "f:col1": "v2", "f:col2": "v2"}
+   *     ]
+   * </pre>
+   *
+   * <code>bool reversed = 7;</code>
+   *
+   * @return The reversed.
+   */
+  boolean getReversed();
 }

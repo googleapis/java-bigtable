@@ -21,6 +21,7 @@ import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -95,7 +96,8 @@ public class BigtableTableAdminClientIT {
             .addFamily("cf1")
             .addFamily("cf2", GCRULES.maxVersions(10))
             .addSplit(ByteString.copyFromUtf8("b"))
-            .addSplit(ByteString.copyFromUtf8("q"));
+            .addSplit(ByteString.copyFromUtf8("q"))
+            .addChangeStreamRetention(Duration.ofDays(2));
 
     Table tableResponse = tableAdmin.createTable(createTableReq);
     assertEquals(tableId, tableResponse.getId());
@@ -108,6 +110,39 @@ public class BigtableTableAdminClientIT {
     assertFalse(columnFamilyById.get("cf1").hasGCRule());
     assertTrue(columnFamilyById.get("cf2").hasGCRule());
     assertEquals(10, ((VersionRule) columnFamilyById.get("cf2").getGCRule()).getMaxVersions());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+
+    // Disable change stream so the table can be deleted.
+    UpdateTableRequest updateTableRequest =
+        UpdateTableRequest.of(tableId).disableChangeStreamRetention();
+    tableAdmin.updateTable(updateTableRequest);
+  }
+
+  @Test
+  public void updateTable() {
+    assume()
+        .withMessage("Emulator doesn't return proper responses for CreateTable")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    CreateTableRequest createTableReq =
+        CreateTableRequest.of(tableId)
+            .addFamily("cf1")
+            .addChangeStreamRetention(Duration.ofDays(2));
+    Table tableResponse = tableAdmin.createTable(createTableReq);
+    assertEquals(tableId, tableResponse.getId());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+
+    UpdateTableRequest updateTableRequest =
+        UpdateTableRequest.of(tableId).addChangeStreamRetention(Duration.ofDays(4));
+    tableResponse = tableAdmin.updateTable(updateTableRequest);
+    assertEquals(tableId, tableResponse.getId());
+    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetention());
+
+    updateTableRequest = UpdateTableRequest.of(tableId).disableChangeStreamRetention();
+    tableResponse = tableAdmin.updateTable(updateTableRequest);
+    assertEquals(tableId, tableResponse.getId());
+    assertNull(tableResponse.getChangeStreamRetention());
   }
 
   @Test

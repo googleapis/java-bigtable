@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new CreateTableRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -117,11 +112,6 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       return new Split();
     }
 
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.BigtableTableAdminProto
           .internal_static_google_bigtable_admin_v2_CreateTableRequest_Split_descriptor;
@@ -138,7 +128,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     }
 
     public static final int KEY_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString key_;
+    private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -355,8 +345,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         key_ = com.google.protobuf.ByteString.EMPTY;
-
         return this;
       }
 
@@ -384,9 +374,18 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       public com.google.bigtable.admin.v2.CreateTableRequest.Split buildPartial() {
         com.google.bigtable.admin.v2.CreateTableRequest.Split result =
             new com.google.bigtable.admin.v2.CreateTableRequest.Split(this);
-        result.key_ = key_;
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.admin.v2.CreateTableRequest.Split result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.key_ = key_;
+        }
       }
 
       @java.lang.Override
@@ -469,7 +468,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
               case 10:
                 {
                   key_ = input.readBytes();
-
+                  bitField0_ |= 0x00000001;
                   break;
                 } // case 10
               default:
@@ -488,6 +487,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         } // finally
         return this;
       }
+
+      private int bitField0_;
 
       private com.google.protobuf.ByteString key_ = com.google.protobuf.ByteString.EMPTY;
       /**
@@ -521,8 +522,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         if (value == null) {
           throw new NullPointerException();
         }
-
         key_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -538,7 +539,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
        * @return This builder for chaining.
        */
       public Builder clearKey() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         key_ = getDefaultInstance().getKey();
         onChanged();
         return this;
@@ -609,7 +610,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int PARENT_FIELD_NUMBER = 1;
-  private volatile java.lang.Object parent_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object parent_ = "";
   /**
    *
    *
@@ -664,7 +667,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int TABLE_ID_FIELD_NUMBER = 2;
-  private volatile java.lang.Object tableId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object tableId_ = "";
   /**
    *
    *
@@ -762,10 +767,12 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.TableOrBuilder getTableOrBuilder() {
-    return getTable();
+    return table_ == null ? com.google.bigtable.admin.v2.Table.getDefaultInstance() : table_;
   }
 
   public static final int INITIAL_SPLITS_FIELD_NUMBER = 4;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.admin.v2.CreateTableRequest.Split> initialSplits_;
   /**
    *
@@ -775,7 +782,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    * table into several tablets (tablets are similar to HBase regions).
    * Given two split keys, `s1` and `s2`, three tablets will be created,
    * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+   *
    * Example:
+   *
    * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
    *                `"other", "zz"]`
    * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -802,7 +811,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    * table into several tablets (tablets are similar to HBase regions).
    * Given two split keys, `s1` and `s2`, three tablets will be created,
    * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+   *
    * Example:
+   *
    * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
    *                `"other", "zz"]`
    * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -829,7 +840,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    * table into several tablets (tablets are similar to HBase regions).
    * Given two split keys, `s1` and `s2`, three tablets will be created,
    * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+   *
    * Example:
+   *
    * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
    *                `"other", "zz"]`
    * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -855,7 +868,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    * table into several tablets (tablets are similar to HBase regions).
    * Given two split keys, `s1` and `s2`, three tablets will be created,
    * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+   *
    * Example:
+   *
    * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
    *                `"other", "zz"]`
    * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -881,7 +896,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
    * table into several tablets (tablets are similar to HBase regions).
    * Given two split keys, `s1` and `s2`, three tablets will be created,
    * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+   *
    * Example:
+   *
    * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
    *                `"other", "zz"]`
    * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1133,14 +1150,12 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       parent_ = "";
-
       tableId_ = "";
-
-      if (tableBuilder_ == null) {
-        table_ = null;
-      } else {
-        table_ = null;
+      table_ = null;
+      if (tableBuilder_ != null) {
+        tableBuilder_.dispose();
         tableBuilder_ = null;
       }
       if (initialSplitsBuilder_ == null) {
@@ -1149,7 +1164,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         initialSplits_ = null;
         initialSplitsBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000001);
+      bitField0_ = (bitField0_ & ~0x00000008);
       return this;
     }
 
@@ -1177,25 +1192,38 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public com.google.bigtable.admin.v2.CreateTableRequest buildPartial() {
       com.google.bigtable.admin.v2.CreateTableRequest result =
           new com.google.bigtable.admin.v2.CreateTableRequest(this);
-      int from_bitField0_ = bitField0_;
-      result.parent_ = parent_;
-      result.tableId_ = tableId_;
-      if (tableBuilder_ == null) {
-        result.table_ = table_;
-      } else {
-        result.table_ = tableBuilder_.build();
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(
+        com.google.bigtable.admin.v2.CreateTableRequest result) {
       if (initialSplitsBuilder_ == null) {
-        if (((bitField0_ & 0x00000001) != 0)) {
+        if (((bitField0_ & 0x00000008) != 0)) {
           initialSplits_ = java.util.Collections.unmodifiableList(initialSplits_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000008);
         }
         result.initialSplits_ = initialSplits_;
       } else {
         result.initialSplits_ = initialSplitsBuilder_.build();
       }
-      onBuilt();
-      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.CreateTableRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.parent_ = parent_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.tableId_ = tableId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.table_ = tableBuilder_ == null ? table_ : tableBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -1246,10 +1274,12 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         return this;
       if (!other.getParent().isEmpty()) {
         parent_ = other.parent_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getTableId().isEmpty()) {
         tableId_ = other.tableId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasTable()) {
@@ -1259,7 +1289,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         if (!other.initialSplits_.isEmpty()) {
           if (initialSplits_.isEmpty()) {
             initialSplits_ = other.initialSplits_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000008);
           } else {
             ensureInitialSplitsIsMutable();
             initialSplits_.addAll(other.initialSplits_);
@@ -1272,7 +1302,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
             initialSplitsBuilder_.dispose();
             initialSplitsBuilder_ = null;
             initialSplits_ = other.initialSplits_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000008);
             initialSplitsBuilder_ =
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                     ? getInitialSplitsFieldBuilder()
@@ -1311,19 +1341,19 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
             case 10:
               {
                 parent_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 tableId_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 26:
               {
                 input.readMessage(getTableFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 26
             case 34:
@@ -1429,8 +1459,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (value == null) {
         throw new NullPointerException();
       }
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1449,8 +1479,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearParent() {
-
       parent_ = getDefaultInstance().getParent();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1474,8 +1504,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       parent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1547,8 +1577,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
       if (value == null) {
         throw new NullPointerException();
       }
-
       tableId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1566,8 +1596,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearTableId() {
-
       tableId_ = getDefaultInstance().getTableId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1590,8 +1620,8 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       tableId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1615,7 +1645,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * @return Whether the table field is set.
      */
     public boolean hasTable() {
-      return tableBuilder_ != null || table_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1652,11 +1682,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
           throw new NullPointerException();
         }
         table_ = value;
-        onChanged();
       } else {
         tableBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1672,11 +1702,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public Builder setTable(com.google.bigtable.admin.v2.Table.Builder builderForValue) {
       if (tableBuilder_ == null) {
         table_ = builderForValue.build();
-        onChanged();
       } else {
         tableBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1691,17 +1721,18 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      */
     public Builder mergeTable(com.google.bigtable.admin.v2.Table value) {
       if (tableBuilder_ == null) {
-        if (table_ != null) {
-          table_ =
-              com.google.bigtable.admin.v2.Table.newBuilder(table_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && table_ != null
+            && table_ != com.google.bigtable.admin.v2.Table.getDefaultInstance()) {
+          getTableBuilder().mergeFrom(value);
         } else {
           table_ = value;
         }
-        onChanged();
       } else {
         tableBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1715,14 +1746,13 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * </code>
      */
     public Builder clearTable() {
-      if (tableBuilder_ == null) {
-        table_ = null;
-        onChanged();
-      } else {
-        table_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      table_ = null;
+      if (tableBuilder_ != null) {
+        tableBuilder_.dispose();
         tableBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1736,7 +1766,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * </code>
      */
     public com.google.bigtable.admin.v2.Table.Builder getTableBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getTableFieldBuilder().getBuilder();
     }
@@ -1788,11 +1818,11 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
         java.util.Collections.emptyList();
 
     private void ensureInitialSplitsIsMutable() {
-      if (!((bitField0_ & 0x00000001) != 0)) {
+      if (!((bitField0_ & 0x00000008) != 0)) {
         initialSplits_ =
             new java.util.ArrayList<com.google.bigtable.admin.v2.CreateTableRequest.Split>(
                 initialSplits_);
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000008;
       }
     }
 
@@ -1810,7 +1840,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1840,7 +1872,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1869,7 +1903,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1898,7 +1934,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1934,7 +1972,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -1967,7 +2007,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2002,7 +2044,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2038,7 +2082,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2071,7 +2117,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2104,7 +2152,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2138,7 +2188,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2155,7 +2207,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
     public Builder clearInitialSplits() {
       if (initialSplitsBuilder_ == null) {
         initialSplits_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000008);
         onChanged();
       } else {
         initialSplitsBuilder_.clear();
@@ -2170,7 +2222,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2202,7 +2256,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2228,7 +2284,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2258,7 +2316,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2288,7 +2348,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2314,7 +2376,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2342,7 +2406,9 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
      * table into several tablets (tablets are similar to HBase regions).
      * Given two split keys, `s1` and `s2`, three tablets will be created,
      * spanning the key ranges: `[, s1), [s1, s2), [s2, )`.
+     *
      * Example:
+     *
      * * Row keys := `["a", "apple", "custom", "customer_1", "customer_2",`
      *                `"other", "zz"]`
      * * initial_split_keys := `["apple", "customer_1", "customer_2", "other"]`
@@ -2373,7 +2439,7 @@ public final class CreateTableRequest extends com.google.protobuf.GeneratedMessa
                 com.google.bigtable.admin.v2.CreateTableRequest.Split.Builder,
                 com.google.bigtable.admin.v2.CreateTableRequest.SplitOrBuilder>(
                 initialSplits_,
-                ((bitField0_ & 0x00000001) != 0),
+                ((bitField0_ & 0x00000008) != 0),
                 getParentForChildren(),
                 isClean());
         initialSplits_ = null;

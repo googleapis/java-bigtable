@@ -260,6 +260,72 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
+   * Update a table with the specified configuration.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // Alter change stream retention period.
+   * Table table = client.updateTable(
+   *   UpdateTableRequest.of("my-table")
+   *     .addChangeStreamRetention(Duration.ofHours(24))
+   * );
+   *
+   * // Disable change stream
+   * Table table = client.updateTable(
+   *   UpdateTableRequest.of("my-table")
+   *     .disableChangeStream()
+   * );
+   * }</pre>
+   *
+   * @see UpdateTableRequest for available options.
+   */
+  public Table updateTable(UpdateTableRequest request) {
+    return ApiExceptions.callAndTranslateApiException(updateTableAsync(request));
+  }
+
+  /**
+   * Asynchronously update a table with the specified configuration.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // Update table to 1 day change stream retention.
+   * ApiFuture<Table> tableFuture = client.createTableAsync(
+   *   UpdateTableRequest.of("my-table")
+   *     .addChangeStreamRetention(Duration.ofHours(24))
+   * );
+   *
+   * ApiFutures.addCallback(
+   *   tableFuture,
+   *   new ApiFutureCallback<Table>() {
+   *     public void onSuccess(Table table) {
+   *       System.out.println("Updated table: " + table.getTableName());
+   *     }
+   *
+   *     public void onFailure(Throwable t) {
+   *       t.printStackTrace();
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor()
+   * );
+   * }</pre>
+   *
+   * @see UpdateTableRequest for available options.
+   */
+  public ApiFuture<Table> updateTableAsync(UpdateTableRequest request) {
+    return ApiFutures.transform(
+        stub.updateTableOperationCallable().futureCall(request.toProto(projectId, instanceId)),
+        new ApiFunction<com.google.bigtable.admin.v2.Table, Table>() {
+          @Override
+          public Table apply(com.google.bigtable.admin.v2.Table tableProto) {
+            return Table.fromProto(tableProto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
    * Creates, updates and drops column families as specified in the request.
    *
    * <p>Sample code:
@@ -1267,7 +1333,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     awaitOptimizeRestoredTableAsync(token).get();
   }
 
-  /** Awaits a restored table is fully optimized asynchronously.
+  /**
+   * Awaits a restored table is fully optimized asynchronously.
    *
    * <p>Sample code
    *
@@ -1290,7 +1357,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *   },
    *   MoreExecutors.directExecutor()
    * );
-   * */
+   * }</pre>
+   */
   public ApiFuture<Void> awaitOptimizeRestoredTableAsync(
       OptimizeRestoredTableOperationToken token) {
     return transformToVoid(

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 /** Wrapper for {@link Table} protocol buffer object */
 public final class Table {
@@ -104,6 +105,8 @@ public final class Table {
   private final List<ColumnFamily> columnFamilies;
   private final boolean deletionProtection;
 
+  private final Duration changeStreamRetention;
+
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
     ImmutableMap.Builder<String, ReplicationState> replicationStates = ImmutableMap.builder();
@@ -121,10 +124,19 @@ public final class Table {
       columnFamilies.add(ColumnFamily.fromProto(entry.getKey(), entry.getValue()));
     }
 
+    Duration changeStreamConfig = null;
+    if (proto.hasChangeStreamConfig()) {
+      changeStreamConfig =
+          Duration.ofSeconds(
+              proto.getChangeStreamConfig().getRetentionPeriod().getSeconds(),
+              proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
+    }
+
     return new Table(
         TableName.parse(proto.getName()),
         replicationStates.build(),
         columnFamilies.build(),
+        changeStreamConfig,
         proto.getDeletionProtection());
   }
 
@@ -132,11 +144,13 @@ public final class Table {
       TableName tableName,
       Map<String, ReplicationState> replicationStatesByClusterId,
       List<ColumnFamily> columnFamilies,
+      Duration changeStreamRetention,
       boolean deletionProtection) {
     this.instanceId = tableName.getInstance();
     this.id = tableName.getTable();
     this.replicationStatesByClusterId = replicationStatesByClusterId;
     this.columnFamilies = columnFamilies;
+    this.changeStreamRetention = changeStreamRetention;
     this.deletionProtection = deletionProtection;
   }
 
@@ -158,6 +172,10 @@ public final class Table {
     return columnFamilies;
   }
 
+  public Duration getChangeStreamRetention() {
+    return changeStreamRetention;
+  }
+
   public boolean isProtected() {
     return deletionProtection;
   }
@@ -175,12 +193,13 @@ public final class Table {
         && Objects.equal(instanceId, table.instanceId)
         && Objects.equal(replicationStatesByClusterId, table.replicationStatesByClusterId)
         && Objects.equal(columnFamilies, table.columnFamilies)
+        && Objects.equal(changeStreamRetention, table.changeStreamRetention)
         && Objects.equal(deletionProtection, table.deletionProtection);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        id, instanceId, replicationStatesByClusterId, columnFamilies, deletionProtection);
+        id, instanceId, replicationStatesByClusterId, columnFamilies, changeStreamRetention, deletionProtection);
   }
 }

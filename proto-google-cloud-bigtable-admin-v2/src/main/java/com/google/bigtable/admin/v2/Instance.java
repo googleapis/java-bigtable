@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,11 +51,6 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new Instance();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -412,7 +407,9 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
 
   private int bitField0_;
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -463,7 +460,9 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   }
 
   public static final int DISPLAY_NAME_FIELD_NUMBER = 2;
-  private volatile java.lang.Object displayName_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object displayName_ = "";
   /**
    *
    *
@@ -516,7 +515,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
   }
 
   public static final int STATE_FIELD_NUMBER = 3;
-  private int state_;
+  private int state_ = 0;
   /**
    *
    *
@@ -547,14 +546,13 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.Instance.State getState() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.admin.v2.Instance.State result =
-        com.google.bigtable.admin.v2.Instance.State.valueOf(state_);
+        com.google.bigtable.admin.v2.Instance.State.forNumber(state_);
     return result == null ? com.google.bigtable.admin.v2.Instance.State.UNRECOGNIZED : result;
   }
 
   public static final int TYPE_FIELD_NUMBER = 4;
-  private int type_;
+  private int type_ = 0;
   /**
    *
    *
@@ -583,9 +581,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.Instance.Type getType() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.admin.v2.Instance.Type result =
-        com.google.bigtable.admin.v2.Instance.Type.valueOf(type_);
+        com.google.bigtable.admin.v2.Instance.Type.forNumber(type_);
     return result == null ? com.google.bigtable.admin.v2.Instance.Type.UNRECOGNIZED : result;
   }
 
@@ -602,6 +599,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
             "");
   }
 
+  @SuppressWarnings("serial")
   private com.google.protobuf.MapField<java.lang.String, java.lang.String> labels_;
 
   private com.google.protobuf.MapField<java.lang.String, java.lang.String> internalGetLabels() {
@@ -622,6 +620,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -653,6 +652,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -675,6 +675,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -686,7 +687,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * <code>map&lt;string, string&gt; labels = 5;</code>
    */
   @java.lang.Override
-  public java.lang.String getLabelsOrDefault(java.lang.String key, java.lang.String defaultValue) {
+  public /* nullable */ java.lang.String getLabelsOrDefault(
+      java.lang.String key,
+      /* nullable */
+      java.lang.String defaultValue) {
     if (key == null) {
       throw new NullPointerException("map key");
     }
@@ -701,6 +705,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    * resources into groups that reflect a customer's organizational needs and
    * deployment strategies. They can be used to filter resources and aggregate
    * metrics.
+   *
    * * Label keys must be between 1 and 63 characters long and must conform to
    *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
    * * Label values must be between 0 and 63 characters long and must conform to
@@ -775,11 +780,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.protobuf.TimestampOrBuilder getCreateTimeOrBuilder() {
-    return getCreateTime();
+    return createTime_ == null ? com.google.protobuf.Timestamp.getDefaultInstance() : createTime_;
   }
 
   public static final int SATISFIES_PZS_FIELD_NUMBER = 8;
-  private boolean satisfiesPzs_;
+  private boolean satisfiesPzs_ = false;
   /**
    *
    *
@@ -1101,23 +1106,18 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       displayName_ = "";
-
       state_ = 0;
-
       type_ = 0;
-
       internalGetMutableLabels().clear();
-      if (createTimeBuilder_ == null) {
-        createTime_ = null;
-      } else {
-        createTime_ = null;
+      createTime_ = null;
+      if (createTimeBuilder_ != null) {
+        createTimeBuilder_.dispose();
         createTimeBuilder_ = null;
       }
       satisfiesPzs_ = false;
-      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
 
@@ -1145,26 +1145,40 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     public com.google.bigtable.admin.v2.Instance buildPartial() {
       com.google.bigtable.admin.v2.Instance result =
           new com.google.bigtable.admin.v2.Instance(this);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.Instance result) {
       int from_bitField0_ = bitField0_;
-      int to_bitField0_ = 0;
-      result.name_ = name_;
-      result.displayName_ = displayName_;
-      result.state_ = state_;
-      result.type_ = type_;
-      result.labels_ = internalGetLabels();
-      result.labels_.makeImmutable();
-      if (createTimeBuilder_ == null) {
-        result.createTime_ = createTime_;
-      } else {
-        result.createTime_ = createTimeBuilder_.build();
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
       }
       if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.displayName_ = displayName_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.state_ = state_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.type_ = type_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.labels_ = internalGetLabels();
+        result.labels_.makeImmutable();
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.createTime_ = createTimeBuilder_ == null ? createTime_ : createTimeBuilder_.build();
+      }
+      int to_bitField0_ = 0;
+      if (((from_bitField0_ & 0x00000040) != 0)) {
         result.satisfiesPzs_ = satisfiesPzs_;
         to_bitField0_ |= 0x00000001;
       }
-      result.bitField0_ = to_bitField0_;
-      onBuilt();
-      return result;
+      result.bitField0_ |= to_bitField0_;
     }
 
     @java.lang.Override
@@ -1214,10 +1228,12 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (other == com.google.bigtable.admin.v2.Instance.getDefaultInstance()) return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getDisplayName().isEmpty()) {
         displayName_ = other.displayName_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.state_ != 0) {
@@ -1227,6 +1243,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
         setTypeValue(other.getTypeValue());
       }
       internalGetMutableLabels().mergeFrom(other.internalGetLabels());
+      bitField0_ |= 0x00000010;
       if (other.hasCreateTime()) {
         mergeCreateTime(other.getCreateTime());
       }
@@ -1262,25 +1279,25 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
             case 10:
               {
                 name_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 displayName_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 24:
               {
                 state_ = input.readEnum();
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 24
             case 32:
               {
                 type_ = input.readEnum();
-
+                bitField0_ |= 0x00000008;
                 break;
               } // case 32
             case 42:
@@ -1292,18 +1309,19 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
                 internalGetMutableLabels()
                     .getMutableMap()
                     .put(labels__.getKey(), labels__.getValue());
+                bitField0_ |= 0x00000010;
                 break;
               } // case 42
             case 58:
               {
                 input.readMessage(getCreateTimeFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000020;
                 break;
               } // case 58
             case 64:
               {
                 satisfiesPzs_ = input.readBool();
-                bitField0_ |= 0x00000002;
+                bitField0_ |= 0x00000040;
                 break;
               } // case 64
             default:
@@ -1389,8 +1407,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1407,8 +1425,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1430,8 +1448,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1503,8 +1521,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
       displayName_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1522,8 +1540,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearDisplayName() {
-
       displayName_ = getDefaultInstance().getDisplayName();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1546,8 +1564,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       displayName_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1583,8 +1601,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder setStateValue(int value) {
-
       state_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -1602,9 +1620,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     @java.lang.Override
     public com.google.bigtable.admin.v2.Instance.State getState() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.admin.v2.Instance.State result =
-          com.google.bigtable.admin.v2.Instance.State.valueOf(state_);
+          com.google.bigtable.admin.v2.Instance.State.forNumber(state_);
       return result == null ? com.google.bigtable.admin.v2.Instance.State.UNRECOGNIZED : result;
     }
     /**
@@ -1624,7 +1641,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000004;
       state_ = value.getNumber();
       onChanged();
       return this;
@@ -1642,7 +1659,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearState() {
-
+      bitField0_ = (bitField0_ & ~0x00000004);
       state_ = 0;
       onChanged();
       return this;
@@ -1677,8 +1694,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder setTypeValue(int value) {
-
       type_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1695,9 +1712,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     @java.lang.Override
     public com.google.bigtable.admin.v2.Instance.Type getType() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.admin.v2.Instance.Type result =
-          com.google.bigtable.admin.v2.Instance.Type.valueOf(type_);
+          com.google.bigtable.admin.v2.Instance.Type.forNumber(type_);
       return result == null ? com.google.bigtable.admin.v2.Instance.Type.UNRECOGNIZED : result;
     }
     /**
@@ -1716,7 +1732,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000008;
       type_ = value.getNumber();
       onChanged();
       return this;
@@ -1733,7 +1749,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearType() {
-
+      bitField0_ = (bitField0_ & ~0x00000008);
       type_ = 0;
       onChanged();
       return this;
@@ -1750,14 +1766,14 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
 
     private com.google.protobuf.MapField<java.lang.String, java.lang.String>
         internalGetMutableLabels() {
-      onChanged();
-      ;
       if (labels_ == null) {
         labels_ = com.google.protobuf.MapField.newMapField(LabelsDefaultEntryHolder.defaultEntry);
       }
       if (!labels_.isMutable()) {
         labels_ = labels_.copy();
       }
+      bitField0_ |= 0x00000010;
+      onChanged();
       return labels_;
     }
 
@@ -1772,6 +1788,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1803,6 +1820,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1825,6 +1843,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1836,8 +1855,10 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * <code>map&lt;string, string&gt; labels = 5;</code>
      */
     @java.lang.Override
-    public java.lang.String getLabelsOrDefault(
-        java.lang.String key, java.lang.String defaultValue) {
+    public /* nullable */ java.lang.String getLabelsOrDefault(
+        java.lang.String key,
+        /* nullable */
+        java.lang.String defaultValue) {
       if (key == null) {
         throw new NullPointerException("map key");
       }
@@ -1852,6 +1873,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1875,6 +1897,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     }
 
     public Builder clearLabels() {
+      bitField0_ = (bitField0_ & ~0x00000010);
       internalGetMutableLabels().getMutableMap().clear();
       return this;
     }
@@ -1886,6 +1909,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1906,6 +1930,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     /** Use alternate mutation accessors instead. */
     @java.lang.Deprecated
     public java.util.Map<java.lang.String, java.lang.String> getMutableLabels() {
+      bitField0_ |= 0x00000010;
       return internalGetMutableLabels().getMutableMap();
     }
     /**
@@ -1916,6 +1941,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1933,8 +1959,8 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException("map value");
       }
-
       internalGetMutableLabels().getMutableMap().put(key, value);
+      bitField0_ |= 0x00000010;
       return this;
     }
     /**
@@ -1945,6 +1971,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * resources into groups that reflect a customer's organizational needs and
      * deployment strategies. They can be used to filter resources and aggregate
      * metrics.
+     *
      * * Label keys must be between 1 and 63 characters long and must conform to
      *   the regular expression: `[&#92;p{Ll}&#92;p{Lo}][&#92;p{Ll}&#92;p{Lo}&#92;p{N}_-]{0,62}`.
      * * Label values must be between 0 and 63 characters long and must conform to
@@ -1957,6 +1984,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder putAllLabels(java.util.Map<java.lang.String, java.lang.String> values) {
       internalGetMutableLabels().getMutableMap().putAll(values);
+      bitField0_ |= 0x00000010;
       return this;
     }
 
@@ -1982,7 +2010,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the createTime field is set.
      */
     public boolean hasCreateTime() {
-      return createTimeBuilder_ != null || createTime_ != null;
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
      *
@@ -2027,11 +2055,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
           throw new NullPointerException();
         }
         createTime_ = value;
-        onChanged();
       } else {
         createTimeBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2050,11 +2078,11 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
     public Builder setCreateTime(com.google.protobuf.Timestamp.Builder builderForValue) {
       if (createTimeBuilder_ == null) {
         createTime_ = builderForValue.build();
-        onChanged();
       } else {
         createTimeBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2072,17 +2100,18 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeCreateTime(com.google.protobuf.Timestamp value) {
       if (createTimeBuilder_ == null) {
-        if (createTime_ != null) {
-          createTime_ =
-              com.google.protobuf.Timestamp.newBuilder(createTime_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000020) != 0)
+            && createTime_ != null
+            && createTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
+          getCreateTimeBuilder().mergeFrom(value);
         } else {
           createTime_ = value;
         }
-        onChanged();
       } else {
         createTimeBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000020;
+      onChanged();
       return this;
     }
     /**
@@ -2099,14 +2128,13 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public Builder clearCreateTime() {
-      if (createTimeBuilder_ == null) {
-        createTime_ = null;
-        onChanged();
-      } else {
-        createTime_ = null;
+      bitField0_ = (bitField0_ & ~0x00000020);
+      createTime_ = null;
+      if (createTimeBuilder_ != null) {
+        createTimeBuilder_.dispose();
         createTimeBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -2123,7 +2151,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public com.google.protobuf.Timestamp.Builder getCreateTimeBuilder() {
-
+      bitField0_ |= 0x00000020;
       onChanged();
       return getCreateTimeFieldBuilder().getBuilder();
     }
@@ -2193,7 +2221,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      */
     @java.lang.Override
     public boolean hasSatisfiesPzs() {
-      return ((bitField0_ & 0x00000002) != 0);
+      return ((bitField0_ & 0x00000040) != 0);
     }
     /**
      *
@@ -2223,8 +2251,9 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder setSatisfiesPzs(boolean value) {
-      bitField0_ |= 0x00000002;
+
       satisfiesPzs_ = value;
+      bitField0_ |= 0x00000040;
       onChanged();
       return this;
     }
@@ -2240,7 +2269,7 @@ public final class Instance extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearSatisfiesPzs() {
-      bitField0_ = (bitField0_ & ~0x00000002);
+      bitField0_ = (bitField0_ & ~0x00000040);
       satisfiesPzs_ = false;
       onChanged();
       return this;
