@@ -105,11 +105,11 @@ public class UpdateTableRequest {
       return false;
     }
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equals(requestBuilder, that.requestBuilder);
+    return Objects.equals(requestBuilder.build(), that.requestBuilder.build());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestBuilder);
+    return Objects.hash(requestBuilder.build());
   }
 }
