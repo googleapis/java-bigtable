@@ -205,7 +205,7 @@ public class TestEnvRule implements TestRule {
       }
       if (stalePrefix.compareTo(tableId) > 0) {
         try {
-          if (env().isCloud()) {
+          if (env() instanceof CloudEnv) {
             env()
                 .getTableAdminClient()
                 .updateTable(UpdateTableRequest.of(tableId).setDeletionProtection(false));

@@ -140,11 +140,6 @@ public class EmulatorEnv extends AbstractTestEnv {
     throw new UnsupportedOperationException("InstanceAdminClient is not supported with emulator");
   }
 
-  @Override
-  public boolean isCloud() {
-    return false;
-  }
-
   public String getKmsKeyName() {
     throw new UnsupportedOperationException("CMEK is not supported with emulator");
   }

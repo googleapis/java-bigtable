@@ -361,11 +361,6 @@ public class CloudEnv extends AbstractTestEnv {
     return kmsKeyName;
   }
 
-  @Override
-  public boolean isCloud() {
-    return true;
-  }
-
   private static String getOptionalProperty(String prop, String defaultValue) {
     return MoreObjects.firstNonNull(System.getProperty(prop), defaultValue);
   }

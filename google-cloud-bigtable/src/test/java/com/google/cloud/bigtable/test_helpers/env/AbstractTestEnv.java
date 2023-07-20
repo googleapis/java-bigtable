@@ -114,8 +114,6 @@ public abstract class AbstractTestEnv {
     return true;
   }
 
-  public abstract boolean isCloud();
-
   public ConnectionMode getConnectionMode() {
     String modeStr =
         MoreObjects.firstNonNull(

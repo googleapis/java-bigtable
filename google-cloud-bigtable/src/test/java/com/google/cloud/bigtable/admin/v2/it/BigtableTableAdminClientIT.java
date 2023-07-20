@@ -38,6 +38,7 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
+import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -72,7 +73,7 @@ public class BigtableTableAdminClientIT {
   @After
   public void tearDown() {
     try {
-      if (testEnvRule.env().isCloud()) {
+      if (testEnvRule.env() instanceof CloudEnv) {
         testEnvRule
             .env()
             .getTableAdminClient()
