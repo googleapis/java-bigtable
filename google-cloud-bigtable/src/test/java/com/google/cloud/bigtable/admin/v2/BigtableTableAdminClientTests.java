@@ -150,13 +150,6 @@ public class BigtableTableAdminClientTests {
       mockCreateBackupOperationCallable;
 
   @Mock
-  private OperationCallable<
-          com.google.bigtable.admin.v2.UpdateTableRequest,
-          com.google.bigtable.admin.v2.Table,
-          UpdateTableMetadata>
-      mockUpdateTableOperationCallable;
-
-  @Mock
   private UnaryCallable<GetBackupRequest, com.google.bigtable.admin.v2.Backup>
       mockGetBackupCallable;
 

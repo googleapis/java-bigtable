@@ -20,6 +20,7 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.util.FieldMaskUtil;
 import java.util.Objects;
 import org.threeten.bp.Duration;
 
@@ -30,6 +31,7 @@ import org.threeten.bp.Duration;
  *
  * <ul>
  *   <li>Change stream retention period.
+ *   <li>Table deletion protection</li>
  * </ul>
  */
 public class UpdateTableRequest {
@@ -81,7 +83,7 @@ public class UpdateTableRequest {
             requestBuilder.getUpdateMask(),
             FieldMaskUtil.fromString(
                 com.google.bigtable.admin.v2.Table.class, "deletion_protection")));
-    tableBuilder.setDeletionProtection(deletionProtection);
+    requestBuilder.getTableBuilder().setDeletionProtection(deletionProtection);
     return this;
   }
 
@@ -96,8 +98,12 @@ public class UpdateTableRequest {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof UpdateTableRequest)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof UpdateTableRequest)) {
+      return false;
+    }
     UpdateTableRequest that = (UpdateTableRequest) o;
     return Objects.equals(requestBuilder, that.requestBuilder);
   }
