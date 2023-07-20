@@ -200,6 +200,11 @@ public final class Table {
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        id, instanceId, replicationStatesByClusterId, columnFamilies, changeStreamRetention, deletionProtection);
+        id,
+        instanceId,
+        replicationStatesByClusterId,
+        columnFamilies,
+        changeStreamRetention,
+        deletionProtection);
   }
 }

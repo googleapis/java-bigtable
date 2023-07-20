@@ -31,7 +31,7 @@ import org.threeten.bp.Duration;
  *
  * <ul>
  *   <li>Change stream retention period.
- *   <li>Table deletion protection</li>
+ *   <li>Table deletion protection
  * </ul>
  */
 public class UpdateTableRequest {
