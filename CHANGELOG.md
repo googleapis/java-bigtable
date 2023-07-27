@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.23.4](https://github.com/googleapis/java-bigtable/compare/v2.23.3...v2.23.4) (2023-07-27)
+
+
+### Bug Fixes
+
+* Remove javadoc external link configuration ([#1815](https://github.com/googleapis/java-bigtable/issues/1815)) ([#1857](https://github.com/googleapis/java-bigtable/issues/1857)) ([686e919](https://github.com/googleapis/java-bigtable/commit/686e919b9a6a11f65d4c6a3703b7d5d02a041ac4))
+
 ## [2.23.3](https://github.com/googleapis/java-bigtable/compare/v2.23.2...v2.23.3) (2023-06-08)
 
 
