@@ -246,4 +246,22 @@ class CompositeTracer extends BigtableTracer {
       tracer.grpcChannelQueuedLatencies(queuedTimeMs);
     }
   }
+
+  @Override
+  public void grpcTargetResolutionDelay(long elapsed) {
+    for (ApiTracer child : children) {
+      child.grpcTargetResolutionDelay(elapsed);
+    }  }
+
+  @Override
+  public void grpcChannelReadinessDelay(long elapsed) {
+    for (ApiTracer child : children) {
+      child.grpcChannelReadinessDelay(elapsed);
+    }  }
+
+  @Override
+  public void grpcCallSendDelay(long elapsed) {
+    for (ApiTracer child : children) {
+      child.grpcCallSendDelay(elapsed);
+    }  }
 }
