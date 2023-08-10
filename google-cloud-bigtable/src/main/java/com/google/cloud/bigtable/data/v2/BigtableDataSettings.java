@@ -197,6 +197,19 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
+  /**
+   * Enable OpenCensus metric aggregations with extra tags: table_id, cluster_id, zone_id.
+   *
+   * <p>Table_id is the table the operation is accessing. Cluster and zone is where the bigtable
+   * resource is located. If the operation failed before its sent to a cluster, the cluster will be
+   * tagged with "unspecified" and zone will be tagged with "global".
+   */
+  @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
+  public static void enableAllStatsWithExtraTags() {
+    com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews
+        .registerAllBigtableClientViewsWithExtraTags();
+  }
+
   /** Register built in metrics. */
   public static void enableBuiltinMetrics() throws IOException {
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {

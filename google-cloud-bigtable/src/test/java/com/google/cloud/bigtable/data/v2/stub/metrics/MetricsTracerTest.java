@@ -34,6 +34,7 @@ import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
+import com.google.bigtable.v2.ResponseParams;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -51,7 +52,12 @@ import com.google.common.util.concurrent.SettableFuture;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+import io.grpc.ForwardingServerCall;
+import io.grpc.Metadata;
 import io.grpc.Server;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
@@ -85,6 +91,9 @@ public class MetricsTracerTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
+
+  private static final String ZONE = "us-east1";
+  private static final String CLUSTER = "fake-cluster";
   private static final long SLEEP_VARIABILITY = 15;
 
   private static final ReadRowsResponse DEFAULT_READ_ROWS_RESPONSES =
@@ -112,7 +121,29 @@ public class MetricsTracerTest {
 
   @Before
   public void setUp() throws Exception {
-    server = FakeServiceBuilder.create(mockService).start();
+    ServerInterceptor trailersInterceptor =
+        new ServerInterceptor() {
+          @Override
+          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+              ServerCall<ReqT, RespT> serverCall,
+              Metadata metadata,
+              ServerCallHandler<ReqT, RespT> serverCallHandler) {
+            return serverCallHandler.startCall(
+                new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                  @Override
+                  public void sendHeaders(Metadata headers) {
+                    ResponseParams params =
+                        ResponseParams.newBuilder().setZoneId(ZONE).setClusterId(CLUSTER).build();
+                    byte[] byteArray = params.toByteArray();
+                    headers.put(Util.LOCATION_METADATA_KEY, byteArray);
+                    super.sendHeaders(headers);
+                  }
+                },
+                metadata);
+          }
+        };
+
+    server = FakeServiceBuilder.create(mockService).intercept(trailersInterceptor).start();
 
     RpcViews.registerBigtableClientViews(localStats.getViewManager());
 
@@ -472,6 +503,64 @@ public class MetricsTracerTest {
   @SuppressWarnings("unchecked")
   private static <T> StreamObserver<T> anyObserver(Class<T> returnType) {
     return (StreamObserver<T>) any(returnType);
+  }
+
+  @Test
+  public void testExtraTags() throws Exception {
+    StatsComponent localStats = new SimpleStatsComponent();
+    RpcViews.registerViewsWithExtraTags(localStats.getViewManager());
+
+    BigtableDataSettings settings =
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
+            .setProjectId(PROJECT_ID)
+            .setInstanceId(INSTANCE_ID)
+            .setAppProfileId(APP_PROFILE_ID)
+            .build();
+    EnhancedBigtableStubSettings stubSettings =
+        EnhancedBigtableStub.finalizeSettings(
+            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+
+    EnhancedBigtableStub stub =
+        new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
+
+    final long sleepTime = 50;
+
+    doAnswer(
+            new Answer() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                @SuppressWarnings("unchecked")
+                StreamObserver<ReadRowsResponse> observer =
+                    (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
+                Thread.sleep(sleepTime);
+                observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
+                observer.onCompleted();
+                return null;
+              }
+            })
+        .when(mockService)
+        .readRows(any(ReadRowsRequest.class), any());
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
+    long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+    long opLatency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewsWithExtraTags.BIGTABLE_OP_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
+                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK"),
+                RpcMeasureConstants.BIGTABLE_TABLE_ID, TagValue.create(TABLE_ID),
+                RpcMeasureConstants.BIGTABLE_ZONE, TagValue.create(ZONE),
+                RpcMeasureConstants.BIGTABLE_CLUSTER, TagValue.create(CLUSTER)),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(opLatency).isIn(Range.closed(sleepTime, elapsed));
+
+    stub.close();
   }
 
   private class FakeBatchResource implements BatchResource {

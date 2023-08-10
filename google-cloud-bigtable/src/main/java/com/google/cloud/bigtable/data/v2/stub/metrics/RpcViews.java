@@ -39,6 +39,17 @@ public class RpcViews {
           RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
           RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
 
+  private static final ImmutableSet<View> BIGTABLE_CLIENT_VIEW_SET_WITH_EXTRA_TAGS =
+      ImmutableSet.of(
+          RpcViewsWithExtraTags.BIGTABLE_OP_LATENCY_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_COMPLETED_OP_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_ATTEMPT_LATENCY_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_GFE_LATENCY_VIEW,
+          RpcViewsWithExtraTags.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
+
   private static boolean gfeMetricsRegistered = false;
 
   /** Registers all Bigtable specific views. */
@@ -54,6 +65,10 @@ public class RpcViews {
    */
   public static void registerBigtableClientGfeViews() {
     registerBigtableClientGfeViews(Stats.getViewManager());
+  }
+
+  public static void registerAllBigtableClientViewsWithExtraTags() {
+    registerViewsWithExtraTags(Stats.getViewManager());
   }
 
   @VisibleForTesting
@@ -78,5 +93,11 @@ public class RpcViews {
   @VisibleForTesting
   static void setGfeMetricsRegistered(boolean gfeMetricsRegistered) {
     RpcViews.gfeMetricsRegistered = gfeMetricsRegistered;
+  }
+
+  static void registerViewsWithExtraTags(ViewManager viewManager) {
+    for (View view : BIGTABLE_CLIENT_VIEW_SET_WITH_EXTRA_TAGS) {
+      viewManager.registerView(view);
+    }
   }
 }

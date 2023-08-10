@@ -61,6 +61,10 @@ class MetricsTracer extends BigtableTracer {
 
   private String tableId = "unspecified";
 
+  private String zone = "global";
+
+  private String cluster = "unspecified";
+
   MetricsTracer(
       OperationType operationType,
       Tagger tagger,
@@ -233,12 +237,20 @@ class MetricsTracer extends BigtableTracer {
     measures.record(newTagCtxBuilder().build());
   }
 
+  @Override
+  public void setLocations(String zone, String cluster) {
+    this.zone = zone;
+    this.cluster = cluster;
+  }
+
   private TagContextBuilder newTagCtxBuilder() {
     TagContextBuilder tagCtx =
         tagger
             .toBuilder(parentContext)
             .putLocal(RpcMeasureConstants.BIGTABLE_TABLE_ID, TagValue.create(tableId))
-            .putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(spanName.toString()));
+            .putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(spanName.toString()))
+            .putLocal(RpcMeasureConstants.BIGTABLE_ZONE, TagValue.create(zone))
+            .putLocal(RpcMeasureConstants.BIGTABLE_CLUSTER, TagValue.create(cluster));
 
     // Copy client level tags in
     for (Entry<TagKey, TagValue> entry : statsAttributes.entrySet()) {
