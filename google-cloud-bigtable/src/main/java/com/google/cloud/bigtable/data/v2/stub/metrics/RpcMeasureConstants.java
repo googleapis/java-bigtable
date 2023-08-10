@@ -29,10 +29,10 @@ public class RpcMeasureConstants {
   public static final TagKey BIGTABLE_TABLE_ID = TagKey.create("bigtable_table_id");
 
   /** Tag key that represents a Bigtable operation name. */
-  static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
+  public static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
 
   /** Tag key that represents the final status of the Bigtable operation. */
-  static final TagKey BIGTABLE_STATUS = TagKey.create("bigtable_status");
+  public static final TagKey BIGTABLE_STATUS = TagKey.create("bigtable_status");
 
   // Units
   /** Unit to represent counts. */
