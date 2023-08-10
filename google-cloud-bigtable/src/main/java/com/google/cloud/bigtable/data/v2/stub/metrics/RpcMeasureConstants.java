@@ -26,6 +26,8 @@ public class RpcMeasureConstants {
   public static final TagKey BIGTABLE_INSTANCE_ID = TagKey.create("bigtable_instance_id");
   public static final TagKey BIGTABLE_APP_PROFILE_ID = TagKey.create("bigtable_app_profile_id");
 
+  public static final TagKey BIGTABLE_TABLE_ID = TagKey.create("bigtable_table_id");
+
   /** Tag key that represents a Bigtable operation name. */
   static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
 

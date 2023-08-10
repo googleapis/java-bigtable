@@ -59,6 +59,8 @@ class MetricsTracer extends BigtableTracer {
 
   private volatile int attempt = 0;
 
+  private String tableId = "unspecified";
+
   MetricsTracer(
       OperationType operationType,
       Tagger tagger,
@@ -127,11 +129,19 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void attemptStarted(int attemptNumber) {
+  public void attemptStarted(Object request, int attemptNumber) {
+    if (request != null) {
+      this.tableId = Util.extractTableId(request);
+    }
     attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
     attemptResponseCount = 0;
+  }
+
+  @Override
+  public void attemptStarted(int attemptNumber) {
+    super.attemptStarted(null, attemptNumber);
   }
 
   @Override
@@ -227,6 +237,7 @@ class MetricsTracer extends BigtableTracer {
     TagContextBuilder tagCtx =
         tagger
             .toBuilder(parentContext)
+            .putLocal(RpcMeasureConstants.BIGTABLE_TABLE_ID, TagValue.create(tableId))
             .putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(spanName.toString()));
 
     // Copy client level tags in
