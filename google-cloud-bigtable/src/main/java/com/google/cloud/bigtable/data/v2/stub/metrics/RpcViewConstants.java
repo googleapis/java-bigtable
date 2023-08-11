@@ -70,15 +70,7 @@ class RpcViewConstants {
                   4096.0, 8192.0, 16384.0, 32768.0, 65536.0, 131072.0, 262144.0, 524288.0,
                   1048576.0, 2097152.0)));
 
-  private static final List<TagKey> baseTags =
-      ImmutableList.of(
-          BIGTABLE_PROJECT_ID,
-          BIGTABLE_INSTANCE_ID,
-          BIGTABLE_APP_PROFILE_ID,
-          BIGTABLE_OP,
-          BIGTABLE_STATUS);
-
-  private static final List<TagKey> additionalTags =
+  private static final List<TagKey> ADDITIONAL_TAGS =
       ImmutableList.of(BIGTABLE_TABLE_ID, BIGTABLE_CLUSTER, BIGTABLE_ZONE);
 
   /**
@@ -86,9 +78,16 @@ class RpcViewConstants {
    * attempts.
    */
   static View createOpLatencyView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/op_latency"),
@@ -99,9 +98,16 @@ class RpcViewConstants {
   }
 
   static View createCompletedOpsView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/completed_ops"),
@@ -116,7 +122,7 @@ class RpcViewConstants {
         ImmutableList.<TagKey>builder()
             .add(BIGTABLE_PROJECT_ID, BIGTABLE_INSTANCE_ID, BIGTABLE_APP_PROFILE_ID);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/read_rows_first_row_latency"),
@@ -127,9 +133,16 @@ class RpcViewConstants {
   }
 
   static View createAttemptLatencyView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/attempt_latency"),
@@ -140,9 +153,16 @@ class RpcViewConstants {
   }
 
   static View createAttemptsPerOpView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/attempts_per_op"),
@@ -153,9 +173,16 @@ class RpcViewConstants {
   }
 
   static View createGfeLatencyView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/gfe_latency"),
@@ -166,9 +193,16 @@ class RpcViewConstants {
   }
 
   static View createGfeMissingHeaderView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
@@ -179,9 +213,16 @@ class RpcViewConstants {
   }
 
   static View createBatchThrottledTimeView(boolean extraTags) {
-    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(
+                BIGTABLE_PROJECT_ID,
+                BIGTABLE_INSTANCE_ID,
+                BIGTABLE_APP_PROFILE_ID,
+                BIGTABLE_OP,
+                BIGTABLE_STATUS);
     if (extraTags) {
-      allTags.addAll(additionalTags);
+      allTags.addAll(ADDITIONAL_TAGS);
     }
     return View.create(
         View.Name.create("cloud.google.com/java/bigtable/batch_throttled_time"),

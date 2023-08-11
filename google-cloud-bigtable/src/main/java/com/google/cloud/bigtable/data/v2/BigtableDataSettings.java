@@ -30,6 +30,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews;
 import com.google.cloud.bigtable.stats.BigtableStackdriverStatsExporter;
 import com.google.cloud.bigtable.stats.BuiltinViews;
 import com.google.common.base.MoreObjects;
@@ -198,16 +199,13 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Enable OpenCensus metric aggregations with extra tags: table_id, cluster_id, zone_id.
-   *
-   * <p>Table_id is the table the operation is accessing. Cluster and zone is where the bigtable
-   * resource is located. If the operation failed before its sent to a cluster, the cluster will be
-   * tagged with "unspecified" and zone will be tagged with "global".
+   * Enable OpenCensus Stats based on the metric version views. See {@link
+   * com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.MetricVersion} for details.
    */
   @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
-  public static void enableAllStatsWithExtraTags() {
-    com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews
-        .registerAllBigtableClientViewsWithExtraTags();
+  public static void enableOpenCensusStats(RpcViews.MetricVersion metricVersion) {
+    com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientViews(
+        metricVersion);
   }
 
   /** Register built in metrics. */

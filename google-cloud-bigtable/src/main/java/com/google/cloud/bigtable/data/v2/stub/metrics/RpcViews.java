@@ -23,11 +23,40 @@ import io.opencensus.stats.ViewManager;
 @BetaApi
 public class RpcViews {
 
+  /**
+   * Versions of the bigtable client stats.
+   * <li>CLASSIC: include operation latencies, attempt latencies, completed ops, read first row
+   *     latencies, attempts per op. Metrics are tagged with project id, instance id, app profile
+   *     id, operation name and status.
+   *
+   *     <p>GFE: include GFE related metrics, gfe latencies and missing gfe header count. Metrics
+   *     are tagged with project id, instance id, app profile id, operation name and status.
+   *
+   *     <p>ALL: include both BASIC and GFE metrics.
+   *
+   *     <p>CLASSIC_EXTRA_LABELS: same metrics as BASIC but tagged with extra labels including table
+   *     id, zone id and cluster id.
+   *
+   *     <p>GFE_EXTRA_LABELS: same metrics as GFE but tagged with extra labels including table id,
+   *     zone id and cluster id. When a request failed before it gets to the cluster, cluster id will be
+   *     tagged with "unspecified" and zone id will be "global".
+   *
+   *     <p>ALL_EXTRA_LABELS: include both BASIC_EXTRA_LABELS and GFE_EXTRA_LABELS metrics.
+   */
+  public enum MetricVersion {
+    BASIC,
+    GFE,
+    ALL,
+    BASIC_EXTRA_LABELS,
+    GFE_EXTRA_LABELS,
+    ALL_EXTRA_LABELS
+  }
+
   private static boolean gfeMetricsRegistered = false;
 
-  /** Registers all Bigtable specific views. */
+  /** Registers Bigtable specific BASIC views. */
   public static void registerBigtableClientViews() {
-    registerBigtableClientViews(Stats.getViewManager());
+    registerBigtableClientViews(Stats.getViewManager(), MetricVersion.BASIC);
   }
 
   /**
@@ -37,47 +66,58 @@ public class RpcViews {
    * server-timing header.
    */
   public static void registerBigtableClientGfeViews() {
-    registerBigtableClientGfeViews(Stats.getViewManager());
+    registerBigtableClientViews(Stats.getViewManager(), MetricVersion.GFE);
   }
 
-  public static void registerAllBigtableClientViewsWithExtraTags() {
-    registerViewsWithExtraTags(Stats.getViewManager());
-  }
-
-  @VisibleForTesting
-  static void registerBigtableClientViews(ViewManager viewManager) {
-    viewManager.registerView(RpcViewConstants.createOpLatencyView(false));
-    viewManager.registerView(RpcViewConstants.createCompletedOpsView(false));
-    viewManager.registerView(RpcViewConstants.createReadRowsFirstResponseView(false));
-    viewManager.registerView(RpcViewConstants.createAttemptLatencyView(false));
-    viewManager.registerView(RpcViewConstants.createAttemptsPerOpView(false));
-    viewManager.registerView(RpcViewConstants.createBatchThrottledTimeView(false));
+  /** Register Bigtable client OpenCensus views with the given {@link MetricVersion}. **/
+  public static void registerBigtableClientViews(MetricVersion metricVersion) {
+    registerBigtableClientViews(Stats.getViewManager(), metricVersion);
   }
 
   @VisibleForTesting
-  static void registerBigtableClientGfeViews(ViewManager viewManager) {
+  static void registerBigtableClientViews(ViewManager viewManager, MetricVersion metricVersion) {
+    switch (metricVersion) {
+      case BASIC:
+        registerBigtableClientBasicViews(viewManager, false);
+        break;
+      case BASIC_EXTRA_LABELS:
+        registerBigtableClientBasicViews(viewManager, true);
+        break;
+      case GFE:
+        registerBigtableClientGfeViews(viewManager, false);
+        break;
+      case GFE_EXTRA_LABELS:
+        registerBigtableClientGfeViews(viewManager, true);
+        break;
+      case ALL:
+        registerBigtableClientBasicViews(viewManager, false);
+        registerBigtableClientGfeViews(viewManager, false);
+        break;
+      case ALL_EXTRA_LABELS:
+        registerBigtableClientBasicViews(viewManager, true);
+        registerBigtableClientGfeViews(viewManager, true);
+        break;
+    }
+  }
+
+  private static void registerBigtableClientBasicViews(
+      ViewManager viewManager, boolean withExtraTags) {
+    viewManager.registerView(RpcViewConstants.createOpLatencyView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createCompletedOpsView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createReadRowsFirstResponseView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createAttemptLatencyView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createAttemptsPerOpView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createBatchThrottledTimeView(withExtraTags));
+  }
+
+  private static void registerBigtableClientGfeViews(
+      ViewManager viewManager, boolean withExtraTags) {
     gfeMetricsRegistered = true;
-    viewManager.registerView(RpcViewConstants.createGfeLatencyView(false));
-    viewManager.registerView(RpcViewConstants.createGfeMissingHeaderView(false));
+    viewManager.registerView(RpcViewConstants.createGfeLatencyView(withExtraTags));
+    viewManager.registerView(RpcViewConstants.createGfeMissingHeaderView(withExtraTags));
   }
 
   static boolean isGfeMetricsRegistered() {
     return gfeMetricsRegistered;
-  }
-
-  @VisibleForTesting
-  static void setGfeMetricsRegistered(boolean gfeMetricsRegistered) {
-    RpcViews.gfeMetricsRegistered = gfeMetricsRegistered;
-  }
-
-  static void registerViewsWithExtraTags(ViewManager viewManager) {
-    viewManager.registerView(RpcViewConstants.createOpLatencyView(true));
-    viewManager.registerView(RpcViewConstants.createCompletedOpsView(true));
-    viewManager.registerView(RpcViewConstants.createReadRowsFirstResponseView(true));
-    viewManager.registerView(RpcViewConstants.createAttemptLatencyView(true));
-    viewManager.registerView(RpcViewConstants.createAttemptsPerOpView(true));
-    viewManager.registerView(RpcViewConstants.createGfeLatencyView(true));
-    viewManager.registerView(RpcViewConstants.createGfeMissingHeaderView(true));
-    viewManager.registerView(RpcViewConstants.createBatchThrottledTimeView(true));
   }
 }

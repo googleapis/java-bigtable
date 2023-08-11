@@ -90,7 +90,7 @@ public class BigtableTracerCallableTest {
 
   @Before
   public void setUp() throws Exception {
-    RpcViews.registerBigtableClientGfeViews(localStats.getViewManager());
+    RpcViews.registerBigtableClientViews(localStats.getViewManager(), RpcViews.MetricVersion.GFE);
 
     // Create a server that'll inject a server-timing header with a random number and a stub that
     // connects to this server.

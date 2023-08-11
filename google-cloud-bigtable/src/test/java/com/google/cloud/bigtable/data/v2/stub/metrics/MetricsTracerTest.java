@@ -145,7 +145,7 @@ public class MetricsTracerTest {
 
     server = FakeServiceBuilder.create(mockService).intercept(trailersInterceptor).start();
 
-    RpcViews.registerBigtableClientViews(localStats.getViewManager());
+    RpcViews.registerBigtableClientViews(localStats.getViewManager(), RpcViews.MetricVersion.BASIC);
 
     settings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
@@ -508,7 +508,8 @@ public class MetricsTracerTest {
   @Test
   public void testExtraTags() throws Exception {
     StatsComponent localStats = new SimpleStatsComponent();
-    RpcViews.registerViewsWithExtraTags(localStats.getViewManager());
+    RpcViews.registerBigtableClientViews(
+        localStats.getViewManager(), RpcViews.MetricVersion.BASIC_EXTRA_LABELS);
 
     BigtableDataSettings settings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
