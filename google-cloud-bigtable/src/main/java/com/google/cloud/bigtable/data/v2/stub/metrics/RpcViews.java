@@ -38,8 +38,8 @@ public class RpcViews {
    *     id, zone id and cluster id.
    *
    *     <p>GFE_EXTRA_LABELS: same metrics as GFE but tagged with extra labels including table id,
-   *     zone id and cluster id. When a request failed before it gets to the cluster, cluster id will be
-   *     tagged with "unspecified" and zone id will be "global".
+   *     zone id and cluster id. When a request failed before it gets to the cluster, cluster id
+   *     will be tagged with "unspecified" and zone id will be "global".
    *
    *     <p>ALL_EXTRA_LABELS: include both BASIC_EXTRA_LABELS and GFE_EXTRA_LABELS metrics.
    */
@@ -69,7 +69,7 @@ public class RpcViews {
     registerBigtableClientViews(Stats.getViewManager(), MetricVersion.GFE);
   }
 
-  /** Register Bigtable client OpenCensus views with the given {@link MetricVersion}. **/
+  /** Register Bigtable client OpenCensus views with the given {@link MetricVersion}. * */
   public static void registerBigtableClientViews(MetricVersion metricVersion) {
     registerBigtableClientViews(Stats.getViewManager(), metricVersion);
   }

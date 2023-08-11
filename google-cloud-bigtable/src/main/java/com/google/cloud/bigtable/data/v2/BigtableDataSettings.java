@@ -199,7 +199,7 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * Enable OpenCensus Stats based on the metric version views. See {@link
+   * Enable OpenCensus Stats with the specified metricVersion. See {@link
    * com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.MetricVersion} for details.
    */
   @BetaApi("OpenCensus stats integration is currently unstable and may change in the future")
