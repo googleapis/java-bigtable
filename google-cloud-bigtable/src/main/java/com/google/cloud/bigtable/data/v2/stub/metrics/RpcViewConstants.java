@@ -46,7 +46,7 @@ class RpcViewConstants {
   private static final Aggregation COUNT = Count.create();
   private static final Aggregation SUM = Sum.create();
 
-  static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
+  private static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Distribution.create(
           BucketBoundaries.create(
               ImmutableList.of(
@@ -55,7 +55,7 @@ class RpcViewConstants {
                   250.0, 300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0,
                   20000.0, 50000.0, 100000.0)));
 
-  static final Aggregation AGGREGATION_ATTEMPT_COUNT =
+  private static final Aggregation AGGREGATION_ATTEMPT_COUNT =
       Distribution.create(
           BucketBoundaries.create(
               ImmutableList.of(
