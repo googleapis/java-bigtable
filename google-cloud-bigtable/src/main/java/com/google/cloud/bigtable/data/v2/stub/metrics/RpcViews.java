@@ -17,38 +17,11 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.BetaApi;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 
 @BetaApi
 public class RpcViews {
-  @VisibleForTesting
-  private static final ImmutableSet<View> BIGTABLE_CLIENT_VIEWS_SET =
-      ImmutableSet.of(
-          RpcViewConstants.BIGTABLE_OP_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW,
-          RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
-          RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW);
-
-  private static final ImmutableSet<View> GFE_VIEW_SET =
-      ImmutableSet.of(
-          RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
-
-  private static final ImmutableSet<View> BIGTABLE_CLIENT_VIEW_SET_WITH_EXTRA_TAGS =
-      ImmutableSet.of(
-          RpcViewsWithExtraTags.BIGTABLE_OP_LATENCY_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_COMPLETED_OP_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_GFE_LATENCY_VIEW,
-          RpcViewsWithExtraTags.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
 
   private static boolean gfeMetricsRegistered = false;
 
@@ -73,17 +46,19 @@ public class RpcViews {
 
   @VisibleForTesting
   static void registerBigtableClientViews(ViewManager viewManager) {
-    for (View view : BIGTABLE_CLIENT_VIEWS_SET) {
-      viewManager.registerView(view);
-    }
+    viewManager.registerView(RpcViewConstants.createOpLatencyView(false));
+    viewManager.registerView(RpcViewConstants.createCompletedOpsView(false));
+    viewManager.registerView(RpcViewConstants.createReadRowsFirstResponseView(false));
+    viewManager.registerView(RpcViewConstants.createAttemptLatencyView(false));
+    viewManager.registerView(RpcViewConstants.createAttemptsPerOpView(false));
+    viewManager.registerView(RpcViewConstants.createBatchThrottledTimeView(false));
   }
 
   @VisibleForTesting
   static void registerBigtableClientGfeViews(ViewManager viewManager) {
-    for (View view : GFE_VIEW_SET) {
-      viewManager.registerView(view);
-    }
     gfeMetricsRegistered = true;
+    viewManager.registerView(RpcViewConstants.createGfeLatencyView(false));
+    viewManager.registerView(RpcViewConstants.createGfeMissingHeaderView(false));
   }
 
   static boolean isGfeMetricsRegistered() {
@@ -96,8 +71,13 @@ public class RpcViews {
   }
 
   static void registerViewsWithExtraTags(ViewManager viewManager) {
-    for (View view : BIGTABLE_CLIENT_VIEW_SET_WITH_EXTRA_TAGS) {
-      viewManager.registerView(view);
-    }
+    viewManager.registerView(RpcViewConstants.createOpLatencyView(true));
+    viewManager.registerView(RpcViewConstants.createCompletedOpsView(true));
+    viewManager.registerView(RpcViewConstants.createReadRowsFirstResponseView(true));
+    viewManager.registerView(RpcViewConstants.createAttemptLatencyView(true));
+    viewManager.registerView(RpcViewConstants.createAttemptsPerOpView(true));
+    viewManager.registerView(RpcViewConstants.createGfeLatencyView(true));
+    viewManager.registerView(RpcViewConstants.createGfeMissingHeaderView(true));
+    viewManager.registerView(RpcViewConstants.createBatchThrottledTimeView(true));
   }
 }

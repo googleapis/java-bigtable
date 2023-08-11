@@ -192,7 +192,7 @@ public class MetricsTracerTest {
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_OP_LATENCY_VIEW,
+            RpcViewConstants.createOpLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -225,7 +225,7 @@ public class MetricsTracerTest {
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW,
+            RpcViewConstants.createCompletedOpsView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -278,7 +278,7 @@ public class MetricsTracerTest {
     long firstRowLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
+            RpcViewConstants.createReadRowsFirstResponseView(false),
             ImmutableMap.<TagKey, TagValue>of(),
             PROJECT_ID,
             INSTANCE_ID,
@@ -322,7 +322,7 @@ public class MetricsTracerTest {
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
+            RpcViewConstants.createAttemptsPerOpView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -368,7 +368,7 @@ public class MetricsTracerTest {
     long attemptLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
+            RpcViewConstants.createAttemptLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -390,7 +390,7 @@ public class MetricsTracerTest {
       long attemptLatency =
           StatsTestUtils.getAggregationValueAsLong(
               localStats,
-              RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
+              RpcViewConstants.createAttemptLatencyView(false),
               ImmutableMap.of(
                   RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows"),
                   RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("UNKNOWN")),
@@ -426,7 +426,7 @@ public class MetricsTracerTest {
       long throttledTimeMetric =
           StatsTestUtils.getAggregationValueAsLong(
               localStats,
-              RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
+              RpcViewConstants.createBatchThrottledTimeView(false),
               ImmutableMap.of(
                   RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
               PROJECT_ID,
@@ -491,7 +491,7 @@ public class MetricsTracerTest {
     long throttledTimeMetric =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
+            RpcViewConstants.createBatchThrottledTimeView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows")),
             PROJECT_ID,
@@ -548,7 +548,7 @@ public class MetricsTracerTest {
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewsWithExtraTags.BIGTABLE_OP_LATENCY_VIEW,
+            RpcViewConstants.createOpLatencyView(true),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK"),

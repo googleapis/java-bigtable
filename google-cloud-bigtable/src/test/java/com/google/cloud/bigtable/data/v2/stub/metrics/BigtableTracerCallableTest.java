@@ -164,7 +164,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.<TagKey, TagValue>of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -184,7 +184,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRow"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -207,7 +207,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -226,7 +226,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.SampleRowKeys"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -247,7 +247,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.CheckAndMutateRow"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -268,7 +268,7 @@ public class BigtableTracerCallableTest {
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            RpcViewConstants.createGfeLatencyView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadModifyWriteRow"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -289,7 +289,7 @@ public class BigtableTracerCallableTest {
     long mutateRowMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            RpcViewConstants.createGfeMissingHeaderView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP,
                 TagValue.create("Bigtable.MutateRow"),
@@ -301,7 +301,7 @@ public class BigtableTracerCallableTest {
     long readRowsMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            RpcViewConstants.createGfeMissingHeaderView(false),
             ImmutableMap.<TagKey, TagValue>of(
                 RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
                 RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
@@ -330,7 +330,7 @@ public class BigtableTracerCallableTest {
     mutateRowMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            RpcViewConstants.createGfeMissingHeaderView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP,
                 TagValue.create("Bigtable.MutateRow"),
@@ -342,7 +342,7 @@ public class BigtableTracerCallableTest {
     readRowsMissingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            RpcViewConstants.createGfeMissingHeaderView(false),
             ImmutableMap.<TagKey, TagValue>of(
                 RpcMeasureConstants.BIGTABLE_OP,
                 TagValue.create("Bigtable.ReadRows"),
@@ -369,7 +369,7 @@ public class BigtableTracerCallableTest {
     long missingCount =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
+            RpcViewConstants.createGfeMissingHeaderView(false),
             ImmutableMap.of(
                 RpcMeasureConstants.BIGTABLE_OP,
                 TagValue.create("Bigtable.ReadRows"),

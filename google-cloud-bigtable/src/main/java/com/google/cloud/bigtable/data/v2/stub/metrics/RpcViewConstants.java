@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_ATTEMPT_LATENCY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_CLUSTER;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_GFE_LATENCY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_INSTANCE_ID;
@@ -27,6 +28,8 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_PROJECT_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_STATUS;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_TABLE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_ZONE;
 
 import com.google.common.collect.ImmutableList;
 import io.opencensus.stats.Aggregation;
@@ -35,7 +38,8 @@ import io.opencensus.stats.Aggregation.Distribution;
 import io.opencensus.stats.Aggregation.Sum;
 import io.opencensus.stats.BucketBoundaries;
 import io.opencensus.stats.View;
-import java.util.Arrays;
+import io.opencensus.tags.TagKey;
+import java.util.List;
 
 class RpcViewConstants {
   // Aggregations
@@ -66,103 +70,124 @@ class RpcViewConstants {
                   4096.0, 8192.0, 16384.0, 32768.0, 65536.0, 131072.0, 262144.0, 524288.0,
                   1048576.0, 2097152.0)));
 
+  private static final List<TagKey> baseTags =
+      ImmutableList.of(
+          BIGTABLE_PROJECT_ID,
+          BIGTABLE_INSTANCE_ID,
+          BIGTABLE_APP_PROFILE_ID,
+          BIGTABLE_OP,
+          BIGTABLE_STATUS);
+
+  private static final List<TagKey> additionalTags =
+      ImmutableList.of(BIGTABLE_TABLE_ID, BIGTABLE_CLUSTER, BIGTABLE_ZONE);
+
   /**
    * {@link View} for Bigtable client roundtrip latency in milliseconds including all retry
    * attempts.
    */
-  static final View BIGTABLE_OP_LATENCY_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/op_latency"),
-          "Operation latency in msecs",
-          BIGTABLE_OP_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.of(
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createOpLatencyView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/op_latency"),
+        "Operation latency in msecs",
+        BIGTABLE_OP_LATENCY,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_COMPLETED_OP_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/completed_ops"),
-          "Number of completed Bigtable client operations",
-          BIGTABLE_OP_LATENCY,
-          COUNT,
-          Arrays.asList(
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createCompletedOpsView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/completed_ops"),
+        "Number of completed Bigtable client operations",
+        BIGTABLE_OP_LATENCY,
+        COUNT,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/read_rows_first_row_latency"),
-          "Latency to receive the first row in a ReadRows stream",
-          BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.of(BIGTABLE_PROJECT_ID, BIGTABLE_INSTANCE_ID, BIGTABLE_APP_PROFILE_ID));
+  static View createReadRowsFirstResponseView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags =
+        ImmutableList.<TagKey>builder()
+            .add(BIGTABLE_PROJECT_ID, BIGTABLE_INSTANCE_ID, BIGTABLE_APP_PROFILE_ID);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/read_rows_first_row_latency"),
+        "Latency to receive the first row in a ReadRows stream",
+        BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_ATTEMPT_LATENCY_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/attempt_latency"),
-          "Attempt latency in msecs",
-          BIGTABLE_ATTEMPT_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.of(
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createAttemptLatencyView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/attempt_latency"),
+        "Attempt latency in msecs",
+        BIGTABLE_ATTEMPT_LATENCY,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_ATTEMPTS_PER_OP_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/attempts_per_op"),
-          "Distribution of attempts per logical operation",
-          BIGTABLE_OP_ATTEMPT_COUNT,
-          AGGREGATION_ATTEMPT_COUNT,
-          ImmutableList.of(
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createAttemptsPerOpView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/attempts_per_op"),
+        "Distribution of attempts per logical operation",
+        BIGTABLE_OP_ATTEMPT_COUNT,
+        AGGREGATION_ATTEMPT_COUNT,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_GFE_LATENCY_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/gfe_latency"),
-          "Latency between Google's network receives an RPC and reads back the first byte of the response",
-          BIGTABLE_GFE_LATENCY,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.of(
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createGfeLatencyView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/gfe_latency"),
+        "Latency between Google's network receives an RPC and reads back the first byte of the response",
+        BIGTABLE_GFE_LATENCY,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        allTags.build());
+  }
 
-  static final View BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
-          "Number of RPC responses received without the server-timing header, most likely means that the RPC never reached Google's network",
-          BIGTABLE_GFE_HEADER_MISSING_COUNT,
-          SUM,
-          ImmutableList.of(
-              BIGTABLE_INSTANCE_ID,
-              BIGTABLE_PROJECT_ID,
-              BIGTABLE_APP_PROFILE_ID,
-              BIGTABLE_OP,
-              BIGTABLE_STATUS));
+  static View createGfeMissingHeaderView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/gfe_header_missing_count"),
+        "Number of RPC responses received without the server-timing header, most likely means that the RPC never reached Google's network",
+        BIGTABLE_GFE_HEADER_MISSING_COUNT,
+        SUM,
+        allTags.build());
+  }
 
-  // use distribution so we can correlate batch throttled time with op_latency
-  static final View BIGTABLE_BATCH_THROTTLED_TIME_VIEW =
-      View.create(
-          View.Name.create("cloud.google.com/java/bigtable/batch_throttled_time"),
-          "Total throttled time of a batch in msecs",
-          BIGTABLE_BATCH_THROTTLED_TIME,
-          AGGREGATION_WITH_MILLIS_HISTOGRAM,
-          ImmutableList.of(
-              BIGTABLE_INSTANCE_ID, BIGTABLE_PROJECT_ID, BIGTABLE_APP_PROFILE_ID, BIGTABLE_OP));
+  static View createBatchThrottledTimeView(boolean extraTags) {
+    ImmutableList.Builder<TagKey> allTags = ImmutableList.<TagKey>builder().addAll(baseTags);
+    if (extraTags) {
+      allTags.addAll(additionalTags);
+    }
+    return View.create(
+        View.Name.create("cloud.google.com/java/bigtable/batch_throttled_time"),
+        "Total throttled time of a batch in msecs",
+        BIGTABLE_BATCH_THROTTLED_TIME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        allTags.build());
+  }
 }
