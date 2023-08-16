@@ -329,7 +329,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             Duration.ofSeconds(10)) // wait this long before considering the connection dead
         // Attempts direct access to CBT service over gRPC to improve throughput,
         // whether the attempt is allowed is totally controlled by service owner.
-        .setAttemptDirectPath(true);
+        .setAttemptDirectPath(true)
+        .setInterceptorProvider(() -> ImmutableList.of(new CookieInterceptor()));
   }
 
   @SuppressWarnings("WeakerAccess")

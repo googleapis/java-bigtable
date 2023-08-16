@@ -365,7 +365,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    ServerStreamingCallable<Query, RowT> withCookie = new CookiesServerStreamingCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -401,7 +403,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    UnaryCallable<Query, RowT> withCookie = new CookiesUnaryCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -1017,7 +1021,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<RequestT, ResponseT> traced =
         new TracedUnaryCallable<>(inner, clientContext.getTracerFactory(), getSpanName(methodName));
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    UnaryCallable<RequestT, ResponseT> withCookie = new CookiesUnaryCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
