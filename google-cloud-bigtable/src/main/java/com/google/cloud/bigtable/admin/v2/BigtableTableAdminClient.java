@@ -1323,15 +1323,41 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * configuration.
    *
    * <p>Sample code
-   *
+   * Note: You want to create the client with project and instance where you want the new backup to
+   * be copied to.
    * <pre>{@code
+   * BigtableTableAdminClient client =  BigtableTableAdminClient.create("[PROJECT]", "[INSTANCE]");
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setBackupId(backupId)
-   *             .setClusterId(clusterId)
+   *             .setDestinationBackupId(backupId)
+   *             .setDestinationClusterId(clusterId)
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
+   *
+   * If the source backup is located in a different instance
+   * <pre>{@code
+   * CopyBackupRequest request =
+   *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
+   *             .setSourceInstanceId(sourceInstanceId)
+   *             .setDestinationBackupId(backupId)
+   *             .setDestinationClusterId(clusterId)
+   *             .setExpireTime(expireTime);
+   * Backup response = client.copyBackup(request);
+   * }</pre>
+   *
+   * If the source backup is located in a different instance and project
+   * <pre>{@code
+   * CopyBackupRequest request =
+   *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
+   *             .setSourceProjectId(sourceProjectId)
+   *             .setSourceInstanceId(sourceInstanceId)
+   *             .setDestinationBackupId(backupId)
+   *             .setDestinationClusterId(clusterId)
+   *             .setExpireTime(expireTime);
+   * Backup response = client.copyBackup(request);
+   * }</pre>
+   *
    */
   public Backup copyBackup(CopyBackupRequest request) {
     return ApiExceptions.callAndTranslateApiException(copyBackupAsync(request));
@@ -1339,15 +1365,15 @@ public final class BigtableTableAdminClient implements AutoCloseable {
 
   /**
    * Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the specified
-   * configuration.
+   * configuration asynchronously.
    *
    * <p>Sample code
    *
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setBackupId(backupId)
-   *             .setClusterId(clusterId)
+   *             .setDestBackupId(backupId)
+   *             .setDestClusterId(clusterId)
    *             .setExpireTime(expireTime);
    * ApiFuture<Backup> future = client.copyBackupAsync(request);
    *
