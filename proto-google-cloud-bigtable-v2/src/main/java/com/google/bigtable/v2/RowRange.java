@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
     return new RowRange();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto.internal_static_google_bigtable_v2_RowRange_descriptor;
   }
@@ -64,6 +59,8 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int startKeyCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object startKey_;
 
   public enum StartKeyCase
@@ -111,6 +108,8 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int endKeyCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object endKey_;
 
   public enum EndKeyCase
@@ -560,6 +559,7 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       startKeyCase_ = 0;
       startKey_ = null;
       endKeyCase_ = 0;
@@ -590,22 +590,23 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public com.google.bigtable.v2.RowRange buildPartial() {
       com.google.bigtable.v2.RowRange result = new com.google.bigtable.v2.RowRange(this);
-      if (startKeyCase_ == 1) {
-        result.startKey_ = startKey_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (startKeyCase_ == 2) {
-        result.startKey_ = startKey_;
-      }
-      if (endKeyCase_ == 3) {
-        result.endKey_ = endKey_;
-      }
-      if (endKeyCase_ == 4) {
-        result.endKey_ = endKey_;
-      }
-      result.startKeyCase_ = startKeyCase_;
-      result.endKeyCase_ = endKeyCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.RowRange result) {
+      int from_bitField0_ = bitField0_;
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.RowRange result) {
+      result.startKeyCase_ = startKeyCase_;
+      result.startKey_ = this.startKey_;
+      result.endKeyCase_ = endKeyCase_;
+      result.endKey_ = this.endKey_;
     }
 
     @java.lang.Override
@@ -779,6 +780,8 @@ public final class RowRange extends com.google.protobuf.GeneratedMessageV3
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     /**
      *

@@ -24,10 +24,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.api.client.util.Lists;
+import com.google.api.core.ApiFunction;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -55,8 +57,15 @@ import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingServerCall;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -100,6 +109,9 @@ public class BuiltinMetricsTracerTest {
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
+  private static final long SLEEP_VARIABILITY = 15;
+
+  private static final long CHANNEL_BLOCKING_LATENCY = 75;
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -148,6 +160,28 @@ public class BuiltinMetricsTracerTest {
           }
         };
 
+    ClientInterceptor clientInterceptor =
+        new ClientInterceptor() {
+          @Override
+          public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+              MethodDescriptor<ReqT, RespT> methodDescriptor,
+              CallOptions callOptions,
+              Channel channel) {
+            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
+                channel.newCall(methodDescriptor, callOptions)) {
+              @Override
+              public void sendMessage(ReqT message) {
+                try {
+                  Thread.sleep(CHANNEL_BLOCKING_LATENCY);
+                } catch (InterruptedException e) {
+                  throw new RuntimeException(e);
+                }
+                super.sendMessage(message);
+              }
+            };
+          }
+        };
+
     server = FakeServiceBuilder.create(fakeService).intercept(trailersInterceptor).start();
 
     BigtableDataSettings settings =
@@ -174,11 +208,28 @@ public class BuiltinMetricsTracerTest {
                 .setDelayThreshold(Duration.ofHours(1))
                 .setFlowControlSettings(
                     FlowControlSettings.newBuilder()
-                        .setMaxOutstandingElementCount((long) batchElementCount)
-                        .setMaxOutstandingRequestBytes(1000L)
+                        .setMaxOutstandingElementCount((long) batchElementCount + 1)
+                        .setMaxOutstandingRequestBytes(1001L)
                         .build())
                 .build());
     stubSettingsBuilder.setTracerFactory(mockFactory);
+
+    InstantiatingGrpcChannelProvider.Builder channelProvider =
+        ((InstantiatingGrpcChannelProvider) stubSettingsBuilder.getTransportChannelProvider())
+            .toBuilder();
+
+    @SuppressWarnings("rawtypes")
+    final ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldConfigurator =
+        channelProvider.getChannelConfigurator();
+
+    channelProvider.setChannelConfigurator(
+        (builder) -> {
+          if (oldConfigurator != null) {
+            builder = oldConfigurator.apply(builder);
+          }
+          return builder.intercept(clientInterceptor);
+        });
+    stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
 
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
@@ -244,7 +295,7 @@ public class BuiltinMetricsTracerTest {
     // The first time the request was retried, it'll increment missing header counter
     verify(statsRecorderWrapper, times(fakeService.getAttemptCounter().get()))
         .putGfeMissingHeaders(gfeMissingHeaders.capture());
-    assertThat(gfeMissingHeaders.getValue()).isEqualTo(1);
+    assertThat(gfeMissingHeaders.getAllValues()).containsExactly(1L, 0L);
 
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "OK");
     assertThat(tableId.getAllValues()).containsExactly(TABLE_ID, TABLE_ID);
@@ -303,7 +354,11 @@ public class BuiltinMetricsTracerTest {
         .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
 
     assertThat(counter.get()).isEqualTo(fakeService.getResponseCounter().get());
-    assertThat(applicationLatency.getValue()).isAtLeast(APPLICATION_LATENCY * counter.get());
+    // Thread.sleep might not sleep for the requested amount depending on the interrupt period
+    // defined by the OS.
+    // On linux this is ~1ms but on windows may be as high as 15-20ms.
+    assertThat(applicationLatency.getValue())
+        .isAtLeast((APPLICATION_LATENCY - SLEEP_VARIABILITY) * counter.get());
     assertThat(applicationLatency.getValue())
         .isAtMost(operationLatency.getValue() - SERVER_LATENCY);
   }
@@ -353,7 +408,7 @@ public class BuiltinMetricsTracerTest {
                 invocationOnMock ->
                     new BuiltinMetricsTracer(
                         OperationType.ServerStreaming,
-                        SpanName.of("Bigtable", "ReadRows"),
+                        SpanName.of("Bigtable", "MutateRow"),
                         statsRecorderWrapper));
 
     ArgumentCaptor<Integer> retryCount = ArgumentCaptor.forClass(Integer.class);
@@ -418,7 +473,7 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testClientBlockingLatencies() throws InterruptedException {
+  public void testBatchBlockingLatencies() throws InterruptedException {
     when(mockFactory.newTracer(any(), any(), any()))
         .thenReturn(
             new BuiltinMetricsTracer(
@@ -428,18 +483,61 @@ public class BuiltinMetricsTracerTest {
         batcher.add(RowMutationEntry.create("key").setCell("f", "q", "v"));
       }
 
+      // closing the batcher to trigger the third flush
+      batcher.close();
+
       int expectedNumRequests = 6 / batchElementCount;
       ArgumentCaptor<Long> throttledTime = ArgumentCaptor.forClass(Long.class);
-      verify(statsRecorderWrapper, times(expectedNumRequests))
-          .putBatchRequestThrottled(throttledTime.capture());
+      verify(statsRecorderWrapper, timeout(1000).times(expectedNumRequests))
+          .putClientBlockingLatencies(throttledTime.capture());
 
-      // Adding the first 2 elements should not get throttled since the batch is empty
-      assertThat(throttledTime.getAllValues().get(0)).isEqualTo(0);
       // After the first request is sent, batcher will block on add because of the server latency.
       // Blocking latency should be around server latency.
       assertThat(throttledTime.getAllValues().get(1)).isAtLeast(SERVER_LATENCY - 10);
       assertThat(throttledTime.getAllValues().get(2)).isAtLeast(SERVER_LATENCY - 10);
+
+      verify(statsRecorderWrapper, timeout(100).times(expectedNumRequests))
+          .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+
+      assertThat(zone.getAllValues()).containsExactly(ZONE, ZONE, ZONE);
+      assertThat(cluster.getAllValues()).containsExactly(CLUSTER, CLUSTER, CLUSTER);
     }
+  }
+
+  @Test
+  public void testQueuedOnChannelServerStreamLatencies() throws InterruptedException {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                statsRecorderWrapper));
+
+    stub.readRowsCallable().all().call(Query.create(TABLE_ID));
+
+    ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
+
+    verify(statsRecorderWrapper, timeout(1000).times(fakeService.attemptCounter.get()))
+        .putClientBlockingLatencies(blockedTime.capture());
+
+    assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
+  }
+
+  @Test
+  public void testQueuedOnChannelUnaryLatencies() throws InterruptedException {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRow"), statsRecorderWrapper));
+    stub.mutateRowCallable().call(RowMutation.create(TABLE_ID, "a-key").setCell("f", "q", "v"));
+
+    ArgumentCaptor<Long> blockedTime = ArgumentCaptor.forClass(Long.class);
+
+    verify(statsRecorderWrapper, timeout(1000).times(fakeService.attemptCounter.get()))
+        .putClientBlockingLatencies(blockedTime.capture());
+
+    assertThat(blockedTime.getAllValues().get(1)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
+    assertThat(blockedTime.getAllValues().get(2)).isAtLeast(CHANNEL_BLOCKING_LATENCY);
   }
 
   @Test

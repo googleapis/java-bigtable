@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
     return new CheckConsistencyRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_CheckConsistencyRequest_descriptor;
@@ -70,7 +65,9 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
   }
 
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -127,7 +124,9 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
   }
 
   public static final int CONSISTENCY_TOKEN_FIELD_NUMBER = 2;
-  private volatile java.lang.Object consistencyToken_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object consistencyToken_ = "";
   /**
    *
    *
@@ -382,10 +381,9 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       consistencyToken_ = "";
-
       return this;
     }
 
@@ -413,10 +411,21 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
     public com.google.bigtable.admin.v2.CheckConsistencyRequest buildPartial() {
       com.google.bigtable.admin.v2.CheckConsistencyRequest result =
           new com.google.bigtable.admin.v2.CheckConsistencyRequest(this);
-      result.name_ = name_;
-      result.consistencyToken_ = consistencyToken_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.CheckConsistencyRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.consistencyToken_ = consistencyToken_;
+      }
     }
 
     @java.lang.Override
@@ -467,10 +476,12 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
         return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getConsistencyToken().isEmpty()) {
         consistencyToken_ = other.consistencyToken_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       this.mergeUnknownFields(other.getUnknownFields());
@@ -502,13 +513,13 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
             case 10:
               {
                 name_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 consistencyToken_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             default:
@@ -527,6 +538,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object name_ = "";
     /**
@@ -601,8 +614,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -622,8 +635,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -648,8 +661,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -715,8 +728,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
       if (value == null) {
         throw new NullPointerException();
       }
-
       consistencyToken_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -732,8 +745,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
      * @return This builder for chaining.
      */
     public Builder clearConsistencyToken() {
-
       consistencyToken_ = getDefaultInstance().getConsistencyToken();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -754,8 +767,8 @@ public final class CheckConsistencyRequest extends com.google.protobuf.Generated
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       consistencyToken_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }

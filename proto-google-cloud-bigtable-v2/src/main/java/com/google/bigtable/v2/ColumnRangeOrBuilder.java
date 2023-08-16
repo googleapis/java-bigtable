@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ public interface ColumnRangeOrBuilder
    */
   com.google.protobuf.ByteString getEndQualifierOpen();
 
-  public com.google.bigtable.v2.ColumnRange.StartQualifierCase getStartQualifierCase();
+  com.google.bigtable.v2.ColumnRange.StartQualifierCase getStartQualifierCase();
 
-  public com.google.bigtable.v2.ColumnRange.EndQualifierCase getEndQualifierCase();
+  com.google.bigtable.v2.ColumnRange.EndQualifierCase getEndQualifierCase();
 }

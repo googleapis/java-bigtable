@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,6 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new ModifyColumnFamiliesRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -202,8 +197,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
      */
     boolean getDrop();
 
-    public com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification.ModCase
-        getModCase();
+    com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification.ModCase getModCase();
   }
   /**
    *
@@ -234,11 +228,6 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
       return new Modification();
     }
 
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.BigtableTableAdminProto
           .internal_static_google_bigtable_admin_v2_ModifyColumnFamiliesRequest_Modification_descriptor;
@@ -255,6 +244,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
     }
 
     private int modCase_ = 0;
+
+    @SuppressWarnings("serial")
     private java.lang.Object mod_;
 
     public enum ModCase
@@ -305,7 +296,9 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
     }
 
     public static final int ID_FIELD_NUMBER = 1;
-    private volatile java.lang.Object id_;
+
+    @SuppressWarnings("serial")
+    private volatile java.lang.Object id_ = "";
     /**
      *
      *
@@ -755,8 +748,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         id_ = "";
-
         if (createBuilder_ != null) {
           createBuilder_.clear();
         }
@@ -795,27 +788,32 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
       public com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification buildPartial() {
         com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification result =
             new com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification(this);
-        result.id_ = id_;
-        if (modCase_ == 2) {
-          if (createBuilder_ == null) {
-            result.mod_ = mod_;
-          } else {
-            result.mod_ = createBuilder_.build();
-          }
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
-        if (modCase_ == 3) {
-          if (updateBuilder_ == null) {
-            result.mod_ = mod_;
-          } else {
-            result.mod_ = updateBuilder_.build();
-          }
-        }
-        if (modCase_ == 4) {
-          result.mod_ = mod_;
-        }
-        result.modCase_ = modCase_;
+        buildPartialOneofs(result);
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(
+          com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.id_ = id_;
+        }
+      }
+
+      private void buildPartialOneofs(
+          com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification result) {
+        result.modCase_ = modCase_;
+        result.mod_ = this.mod_;
+        if (modCase_ == 2 && createBuilder_ != null) {
+          result.mod_ = createBuilder_.build();
+        }
+        if (modCase_ == 3 && updateBuilder_ != null) {
+          result.mod_ = updateBuilder_.build();
+        }
       }
 
       @java.lang.Override
@@ -872,6 +870,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
                 .getDefaultInstance()) return this;
         if (!other.getId().isEmpty()) {
           id_ = other.id_;
+          bitField0_ |= 0x00000001;
           onChanged();
         }
         switch (other.getModCase()) {
@@ -924,7 +923,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
               case 10:
                 {
                   id_ = input.readStringRequireUtf8();
-
+                  bitField0_ |= 0x00000001;
                   break;
                 } // case 10
               case 18:
@@ -975,6 +974,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         onChanged();
         return this;
       }
+
+      private int bitField0_;
 
       private java.lang.Object id_ = "";
       /**
@@ -1037,8 +1038,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         if (value == null) {
           throw new NullPointerException();
         }
-
         id_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -1054,8 +1055,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
        * @return This builder for chaining.
        */
       public Builder clearId() {
-
         id_ = getDefaultInstance().getId();
+        bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
@@ -1076,8 +1077,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
           throw new NullPointerException();
         }
         checkByteStringIsUtf8(value);
-
         id_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -1296,7 +1297,6 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         }
         modCase_ = 2;
         onChanged();
-        ;
         return createBuilder_;
       }
 
@@ -1514,7 +1514,6 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         }
         modCase_ = 3;
         onChanged();
-        ;
         return updateBuilder_;
       }
 
@@ -1565,6 +1564,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
        * @return This builder for chaining.
        */
       public Builder setDrop(boolean value) {
+
         modCase_ = 4;
         mod_ = value;
         onChanged();
@@ -1660,7 +1660,9 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
   }
 
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -1717,6 +1719,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
   }
 
   public static final int MODIFICATIONS_FIELD_NUMBER = 2;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification>
       modifications_;
   /**
@@ -2025,15 +2029,15 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       if (modificationsBuilder_ == null) {
         modifications_ = java.util.Collections.emptyList();
       } else {
         modifications_ = null;
         modificationsBuilder_.clear();
       }
-      bitField0_ = (bitField0_ & ~0x00000001);
+      bitField0_ = (bitField0_ & ~0x00000002);
       return this;
     }
 
@@ -2061,19 +2065,32 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
     public com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest buildPartial() {
       com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest result =
           new com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest(this);
-      int from_bitField0_ = bitField0_;
-      result.name_ = name_;
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(
+        com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest result) {
       if (modificationsBuilder_ == null) {
-        if (((bitField0_ & 0x00000001) != 0)) {
+        if (((bitField0_ & 0x00000002) != 0)) {
           modifications_ = java.util.Collections.unmodifiableList(modifications_);
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
         }
         result.modifications_ = modifications_;
       } else {
         result.modifications_ = modificationsBuilder_.build();
       }
-      onBuilt();
-      return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
+      }
     }
 
     @java.lang.Override
@@ -2124,13 +2141,14 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (modificationsBuilder_ == null) {
         if (!other.modifications_.isEmpty()) {
           if (modifications_.isEmpty()) {
             modifications_ = other.modifications_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           } else {
             ensureModificationsIsMutable();
             modifications_.addAll(other.modifications_);
@@ -2143,7 +2161,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
             modificationsBuilder_.dispose();
             modificationsBuilder_ = null;
             modifications_ = other.modifications_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
             modificationsBuilder_ =
                 com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                     ? getModificationsFieldBuilder()
@@ -2182,7 +2200,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
             case 10:
               {
                 name_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
@@ -2292,8 +2310,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -2313,8 +2331,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -2339,8 +2357,8 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -2349,12 +2367,12 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
         modifications_ = java.util.Collections.emptyList();
 
     private void ensureModificationsIsMutable() {
-      if (!((bitField0_ & 0x00000001) != 0)) {
+      if (!((bitField0_ & 0x00000002) != 0)) {
         modifications_ =
             new java.util.ArrayList<
                 com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification>(
                 modifications_);
-        bitField0_ |= 0x00000001;
+        bitField0_ |= 0x00000002;
       }
     }
 
@@ -2637,7 +2655,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
     public Builder clearModifications() {
       if (modificationsBuilder_ == null) {
         modifications_ = java.util.Collections.emptyList();
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
       } else {
         modificationsBuilder_.clear();
@@ -2807,7 +2825,7 @@ public final class ModifyColumnFamiliesRequest extends com.google.protobuf.Gener
                 com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification.Builder,
                 com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.ModificationOrBuilder>(
                 modifications_,
-                ((bitField0_ & 0x00000001) != 0),
+                ((bitField0_ & 0x00000002) != 0),
                 getParentForChildren(),
                 isClean());
         modifications_ = null;

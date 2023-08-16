@@ -20,6 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
+import com.google.api.gax.batching.BatchResource;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.batching.BatchingDescriptor;
@@ -54,7 +55,7 @@ import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
+import io.opencensus.stats.StatsComponent;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -84,6 +85,7 @@ public class MetricsTracerTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
+  private static final long SLEEP_VARIABILITY = 15;
 
   private static final ReadRowsResponse DEFAULT_READ_ROWS_RESPONSES =
       ReadRowsResponse.newBuilder()
@@ -104,7 +106,7 @@ public class MetricsTracerTest {
   @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
 
-  private final StatsComponentImpl localStats = new StatsComponentImpl();
+  private final StatsComponent localStats = new SimpleStatsComponent();
   private EnhancedBigtableStub stub;
   private BigtableDataSettings settings;
 
@@ -156,9 +158,6 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
-
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
@@ -191,9 +190,6 @@ public class MetricsTracerTest {
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
-
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -246,8 +242,6 @@ public class MetricsTracerTest {
     }
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
     executor.shutdown();
 
     long firstRowLatency =
@@ -259,7 +253,10 @@ public class MetricsTracerTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
 
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
+    assertThat(firstRowLatency)
+        .isIn(
+            Range.closed(
+                beforeSleep - SLEEP_VARIABILITY, elapsed - afterSleep + SLEEP_VARIABILITY));
   }
 
   @Test
@@ -290,9 +287,6 @@ public class MetricsTracerTest {
         .readRows(any(ReadRowsRequest.class), any());
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
-
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -340,9 +334,6 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
-
     long attemptLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
@@ -359,12 +350,11 @@ public class MetricsTracerTest {
   }
 
   @Test
-  public void testInvalidRequest() throws InterruptedException {
+  public void testInvalidRequest() {
     try {
       stub.bulkMutateRowsCallable().call(BulkMutation.create(TABLE_ID));
       Assert.fail("Invalid request should throw exception");
     } catch (IllegalStateException e) {
-      Thread.sleep(100);
       // Verify that the latency is recorded with an error code (in this case UNKNOWN)
       long attemptLatency =
           StatsTestUtils.getAggregationValueAsLong(
@@ -402,9 +392,6 @@ public class MetricsTracerTest {
       batcher.add(ByteString.copyFromUtf8("row1"));
       batcher.sendOutstanding();
 
-      // Give OpenCensus a chance to update the views asynchronously.
-      Thread.sleep(100);
-
       long throttledTimeMetric =
           StatsTestUtils.getAggregationValueAsLong(
               localStats,
@@ -422,6 +409,8 @@ public class MetricsTracerTest {
   public void testBatchMutateRowsThrottledTime() throws Exception {
     FlowController flowController = Mockito.mock(FlowController.class);
     BatchingDescriptor batchingDescriptor = Mockito.mock(MutateRowsBatchingDescriptor.class);
+    when(batchingDescriptor.createResource(any())).thenReturn(new FakeBatchResource());
+    when(batchingDescriptor.createEmptyResource()).thenReturn(new FakeBatchResource());
     // Mock throttling
     final long throttled = 50;
     doAnswer(
@@ -436,7 +425,6 @@ public class MetricsTracerTest {
         .reserve(any(Long.class), any(Long.class));
     when(flowController.getMaxElementCountLimit()).thenReturn(null);
     when(flowController.getMaxRequestBytesLimit()).thenReturn(null);
-    when(batchingDescriptor.countBytes(any())).thenReturn(1l);
     when(batchingDescriptor.newRequestBuilder(any())).thenCallRealMethod();
 
     doAnswer(
@@ -469,7 +457,6 @@ public class MetricsTracerTest {
     batcher.add(RowMutationEntry.create("key"));
     batcher.sendOutstanding();
 
-    Thread.sleep(100);
     long throttledTimeMetric =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
@@ -485,5 +472,30 @@ public class MetricsTracerTest {
   @SuppressWarnings("unchecked")
   private static <T> StreamObserver<T> anyObserver(Class<T> returnType) {
     return (StreamObserver<T>) any(returnType);
+  }
+
+  private class FakeBatchResource implements BatchResource {
+
+    FakeBatchResource() {}
+
+    @Override
+    public BatchResource add(BatchResource resource) {
+      return new FakeBatchResource();
+    }
+
+    @Override
+    public long getElementCount() {
+      return 1;
+    }
+
+    @Override
+    public long getByteCount() {
+      return 1;
+    }
+
+    @Override
+    public boolean shouldFlush(long maxElementThreshold, long maxBytesThreshold) {
+      return false;
+    }
   }
 }

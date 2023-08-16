@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new UpdateAppProfileRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -116,7 +111,9 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.AppProfileOrBuilder getAppProfileOrBuilder() {
-    return getAppProfile();
+    return appProfile_ == null
+        ? com.google.bigtable.admin.v2.AppProfile.getDefaultInstance()
+        : appProfile_;
   }
 
   public static final int UPDATE_MASK_FIELD_NUMBER = 2;
@@ -168,11 +165,11 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
    */
   @java.lang.Override
   public com.google.protobuf.FieldMaskOrBuilder getUpdateMaskOrBuilder() {
-    return getUpdateMask();
+    return updateMask_ == null ? com.google.protobuf.FieldMask.getDefaultInstance() : updateMask_;
   }
 
   public static final int IGNORE_WARNINGS_FIELD_NUMBER = 3;
-  private boolean ignoreWarnings_;
+  private boolean ignoreWarnings_ = false;
   /**
    *
    *
@@ -414,20 +411,18 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (appProfileBuilder_ == null) {
-        appProfile_ = null;
-      } else {
-        appProfile_ = null;
+      bitField0_ = 0;
+      appProfile_ = null;
+      if (appProfileBuilder_ != null) {
+        appProfileBuilder_.dispose();
         appProfileBuilder_ = null;
       }
-      if (updateMaskBuilder_ == null) {
-        updateMask_ = null;
-      } else {
-        updateMask_ = null;
+      updateMask_ = null;
+      if (updateMaskBuilder_ != null) {
+        updateMaskBuilder_.dispose();
         updateMaskBuilder_ = null;
       }
       ignoreWarnings_ = false;
-
       return this;
     }
 
@@ -455,19 +450,24 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
     public com.google.bigtable.admin.v2.UpdateAppProfileRequest buildPartial() {
       com.google.bigtable.admin.v2.UpdateAppProfileRequest result =
           new com.google.bigtable.admin.v2.UpdateAppProfileRequest(this);
-      if (appProfileBuilder_ == null) {
-        result.appProfile_ = appProfile_;
-      } else {
-        result.appProfile_ = appProfileBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (updateMaskBuilder_ == null) {
-        result.updateMask_ = updateMask_;
-      } else {
-        result.updateMask_ = updateMaskBuilder_.build();
-      }
-      result.ignoreWarnings_ = ignoreWarnings_;
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.UpdateAppProfileRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.appProfile_ = appProfileBuilder_ == null ? appProfile_ : appProfileBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.updateMask_ = updateMaskBuilder_ == null ? updateMask_ : updateMaskBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.ignoreWarnings_ = ignoreWarnings_;
+      }
     }
 
     @java.lang.Override
@@ -554,19 +554,19 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
             case 10:
               {
                 input.readMessage(getAppProfileFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 input.readMessage(getUpdateMaskFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 24:
               {
                 ignoreWarnings_ = input.readBool();
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 24
             default:
@@ -585,6 +585,8 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private com.google.bigtable.admin.v2.AppProfile appProfile_;
     private com.google.protobuf.SingleFieldBuilderV3<
@@ -606,7 +608,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * @return Whether the appProfile field is set.
      */
     public boolean hasAppProfile() {
-      return appProfileBuilder_ != null || appProfile_ != null;
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      *
@@ -647,11 +649,11 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
           throw new NullPointerException();
         }
         appProfile_ = value;
-        onChanged();
       } else {
         appProfileBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -668,11 +670,11 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
     public Builder setAppProfile(com.google.bigtable.admin.v2.AppProfile.Builder builderForValue) {
       if (appProfileBuilder_ == null) {
         appProfile_ = builderForValue.build();
-        onChanged();
       } else {
         appProfileBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -688,19 +690,18 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      */
     public Builder mergeAppProfile(com.google.bigtable.admin.v2.AppProfile value) {
       if (appProfileBuilder_ == null) {
-        if (appProfile_ != null) {
-          appProfile_ =
-              com.google.bigtable.admin.v2.AppProfile.newBuilder(appProfile_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000001) != 0)
+            && appProfile_ != null
+            && appProfile_ != com.google.bigtable.admin.v2.AppProfile.getDefaultInstance()) {
+          getAppProfileBuilder().mergeFrom(value);
         } else {
           appProfile_ = value;
         }
-        onChanged();
       } else {
         appProfileBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -715,14 +716,13 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * </code>
      */
     public Builder clearAppProfile() {
-      if (appProfileBuilder_ == null) {
-        appProfile_ = null;
-        onChanged();
-      } else {
-        appProfile_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      appProfile_ = null;
+      if (appProfileBuilder_ != null) {
+        appProfileBuilder_.dispose();
         appProfileBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -737,7 +737,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * </code>
      */
     public com.google.bigtable.admin.v2.AppProfile.Builder getAppProfileBuilder() {
-
+      bitField0_ |= 0x00000001;
       onChanged();
       return getAppProfileFieldBuilder().getBuilder();
     }
@@ -809,7 +809,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * @return Whether the updateMask field is set.
      */
     public boolean hasUpdateMask() {
-      return updateMaskBuilder_ != null || updateMask_ != null;
+      return ((bitField0_ & 0x00000002) != 0);
     }
     /**
      *
@@ -850,11 +850,11 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
           throw new NullPointerException();
         }
         updateMask_ = value;
-        onChanged();
       } else {
         updateMaskBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -871,11 +871,11 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
     public Builder setUpdateMask(com.google.protobuf.FieldMask.Builder builderForValue) {
       if (updateMaskBuilder_ == null) {
         updateMask_ = builderForValue.build();
-        onChanged();
       } else {
         updateMaskBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -891,17 +891,18 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      */
     public Builder mergeUpdateMask(com.google.protobuf.FieldMask value) {
       if (updateMaskBuilder_ == null) {
-        if (updateMask_ != null) {
-          updateMask_ =
-              com.google.protobuf.FieldMask.newBuilder(updateMask_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000002) != 0)
+            && updateMask_ != null
+            && updateMask_ != com.google.protobuf.FieldMask.getDefaultInstance()) {
+          getUpdateMaskBuilder().mergeFrom(value);
         } else {
           updateMask_ = value;
         }
-        onChanged();
       } else {
         updateMaskBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000002;
+      onChanged();
       return this;
     }
     /**
@@ -916,14 +917,13 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * </code>
      */
     public Builder clearUpdateMask() {
-      if (updateMaskBuilder_ == null) {
-        updateMask_ = null;
-        onChanged();
-      } else {
-        updateMask_ = null;
+      bitField0_ = (bitField0_ & ~0x00000002);
+      updateMask_ = null;
+      if (updateMaskBuilder_ != null) {
+        updateMaskBuilder_.dispose();
         updateMaskBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -938,7 +938,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * </code>
      */
     public com.google.protobuf.FieldMask.Builder getUpdateMaskBuilder() {
-
+      bitField0_ |= 0x00000002;
       onChanged();
       return getUpdateMaskFieldBuilder().getBuilder();
     }
@@ -1021,6 +1021,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
     public Builder setIgnoreWarnings(boolean value) {
 
       ignoreWarnings_ = value;
+      bitField0_ |= 0x00000004;
       onChanged();
       return this;
     }
@@ -1036,7 +1037,7 @@ public final class UpdateAppProfileRequest extends com.google.protobuf.Generated
      * @return This builder for chaining.
      */
     public Builder clearIgnoreWarnings() {
-
+      bitField0_ = (bitField0_ & ~0x00000004);
       ignoreWarnings_ = false;
       onChanged();
       return this;

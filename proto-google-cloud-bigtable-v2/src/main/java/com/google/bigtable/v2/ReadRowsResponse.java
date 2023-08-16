@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,11 +46,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new ReadRowsResponse();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -352,7 +347,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     boolean getCommitRow();
 
-    public com.google.bigtable.v2.ReadRowsResponse.CellChunk.RowStatusCase getRowStatusCase();
+    com.google.bigtable.v2.ReadRowsResponse.CellChunk.RowStatusCase getRowStatusCase();
   }
   /**
    *
@@ -376,7 +371,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
 
     private CellChunk() {
       rowKey_ = com.google.protobuf.ByteString.EMPTY;
-      labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
+      labels_ = com.google.protobuf.LazyStringArrayList.emptyList();
       value_ = com.google.protobuf.ByteString.EMPTY;
     }
 
@@ -384,11 +379,6 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new CellChunk();
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -407,6 +397,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     private int rowStatusCase_ = 0;
+
+    @SuppressWarnings("serial")
     private java.lang.Object rowStatus_;
 
     public enum RowStatusCase
@@ -454,7 +446,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int ROW_KEY_FIELD_NUMBER = 1;
-    private com.google.protobuf.ByteString rowKey_;
+    private com.google.protobuf.ByteString rowKey_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -534,7 +526,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     @java.lang.Override
     public com.google.protobuf.StringValueOrBuilder getFamilyNameOrBuilder() {
-      return getFamilyName();
+      return familyName_ == null
+          ? com.google.protobuf.StringValue.getDefaultInstance()
+          : familyName_;
     }
 
     public static final int QUALIFIER_FIELD_NUMBER = 3;
@@ -592,11 +586,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     @java.lang.Override
     public com.google.protobuf.BytesValueOrBuilder getQualifierOrBuilder() {
-      return getQualifier();
+      return qualifier_ == null ? com.google.protobuf.BytesValue.getDefaultInstance() : qualifier_;
     }
 
     public static final int TIMESTAMP_MICROS_FIELD_NUMBER = 4;
-    private long timestampMicros_;
+    private long timestampMicros_ = 0L;
     /**
      *
      *
@@ -621,7 +615,10 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int LABELS_FIELD_NUMBER = 5;
-    private com.google.protobuf.LazyStringList labels_;
+
+    @SuppressWarnings("serial")
+    private com.google.protobuf.LazyStringArrayList labels_ =
+        com.google.protobuf.LazyStringArrayList.emptyList();
     /**
      *
      *
@@ -690,7 +687,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int VALUE_FIELD_NUMBER = 6;
-    private com.google.protobuf.ByteString value_;
+    private com.google.protobuf.ByteString value_ = com.google.protobuf.ByteString.EMPTY;
     /**
      *
      *
@@ -712,7 +709,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     }
 
     public static final int VALUE_SIZE_FIELD_NUMBER = 7;
-    private int valueSize_;
+    private int valueSize_ = 0;
     /**
      *
      *
@@ -1116,28 +1113,22 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         rowKey_ = com.google.protobuf.ByteString.EMPTY;
-
-        if (familyNameBuilder_ == null) {
-          familyName_ = null;
-        } else {
-          familyName_ = null;
+        familyName_ = null;
+        if (familyNameBuilder_ != null) {
+          familyNameBuilder_.dispose();
           familyNameBuilder_ = null;
         }
-        if (qualifierBuilder_ == null) {
-          qualifier_ = null;
-        } else {
-          qualifier_ = null;
+        qualifier_ = null;
+        if (qualifierBuilder_ != null) {
+          qualifierBuilder_.dispose();
           qualifierBuilder_ = null;
         }
         timestampMicros_ = 0L;
-
-        labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        labels_ = com.google.protobuf.LazyStringArrayList.emptyList();
         value_ = com.google.protobuf.ByteString.EMPTY;
-
         valueSize_ = 0;
-
         rowStatusCase_ = 0;
         rowStatus_ = null;
         return this;
@@ -1167,35 +1158,44 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public com.google.bigtable.v2.ReadRowsResponse.CellChunk buildPartial() {
         com.google.bigtable.v2.ReadRowsResponse.CellChunk result =
             new com.google.bigtable.v2.ReadRowsResponse.CellChunk(this);
-        int from_bitField0_ = bitField0_;
-        result.rowKey_ = rowKey_;
-        if (familyNameBuilder_ == null) {
-          result.familyName_ = familyName_;
-        } else {
-          result.familyName_ = familyNameBuilder_.build();
+        if (bitField0_ != 0) {
+          buildPartial0(result);
         }
-        if (qualifierBuilder_ == null) {
-          result.qualifier_ = qualifier_;
-        } else {
-          result.qualifier_ = qualifierBuilder_.build();
-        }
-        result.timestampMicros_ = timestampMicros_;
-        if (((bitField0_ & 0x00000001) != 0)) {
-          labels_ = labels_.getUnmodifiableView();
-          bitField0_ = (bitField0_ & ~0x00000001);
-        }
-        result.labels_ = labels_;
-        result.value_ = value_;
-        result.valueSize_ = valueSize_;
-        if (rowStatusCase_ == 8) {
-          result.rowStatus_ = rowStatus_;
-        }
-        if (rowStatusCase_ == 9) {
-          result.rowStatus_ = rowStatus_;
-        }
-        result.rowStatusCase_ = rowStatusCase_;
+        buildPartialOneofs(result);
         onBuilt();
         return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.v2.ReadRowsResponse.CellChunk result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.rowKey_ = rowKey_;
+        }
+        if (((from_bitField0_ & 0x00000002) != 0)) {
+          result.familyName_ =
+              familyNameBuilder_ == null ? familyName_ : familyNameBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000004) != 0)) {
+          result.qualifier_ = qualifierBuilder_ == null ? qualifier_ : qualifierBuilder_.build();
+        }
+        if (((from_bitField0_ & 0x00000008) != 0)) {
+          result.timestampMicros_ = timestampMicros_;
+        }
+        if (((from_bitField0_ & 0x00000010) != 0)) {
+          labels_.makeImmutable();
+          result.labels_ = labels_;
+        }
+        if (((from_bitField0_ & 0x00000020) != 0)) {
+          result.value_ = value_;
+        }
+        if (((from_bitField0_ & 0x00000040) != 0)) {
+          result.valueSize_ = valueSize_;
+        }
+      }
+
+      private void buildPartialOneofs(com.google.bigtable.v2.ReadRowsResponse.CellChunk result) {
+        result.rowStatusCase_ = rowStatusCase_;
+        result.rowStatus_ = this.rowStatus_;
       }
 
       @java.lang.Override
@@ -1261,7 +1261,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (!other.labels_.isEmpty()) {
           if (labels_.isEmpty()) {
             labels_ = other.labels_;
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ |= 0x00000010;
           } else {
             ensureLabelsIsMutable();
             labels_.addAll(other.labels_);
@@ -1319,25 +1319,25 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               case 10:
                 {
                   rowKey_ = input.readBytes();
-
+                  bitField0_ |= 0x00000001;
                   break;
                 } // case 10
               case 18:
                 {
                   input.readMessage(getFamilyNameFieldBuilder().getBuilder(), extensionRegistry);
-
+                  bitField0_ |= 0x00000002;
                   break;
                 } // case 18
               case 26:
                 {
                   input.readMessage(getQualifierFieldBuilder().getBuilder(), extensionRegistry);
-
+                  bitField0_ |= 0x00000004;
                   break;
                 } // case 26
               case 32:
                 {
                   timestampMicros_ = input.readInt64();
-
+                  bitField0_ |= 0x00000008;
                   break;
                 } // case 32
               case 42:
@@ -1350,13 +1350,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
               case 50:
                 {
                   value_ = input.readBytes();
-
+                  bitField0_ |= 0x00000020;
                   break;
                 } // case 50
               case 56:
                 {
                   valueSize_ = input.readInt32();
-
+                  bitField0_ |= 0x00000040;
                   break;
                 } // case 56
               case 64:
@@ -1442,8 +1442,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (value == null) {
           throw new NullPointerException();
         }
-
         rowKey_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -1462,7 +1462,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearRowKey() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         rowKey_ = getDefaultInstance().getRowKey();
         onChanged();
         return this;
@@ -1491,7 +1491,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return Whether the familyName field is set.
        */
       public boolean hasFamilyName() {
-        return familyNameBuilder_ != null || familyName_ != null;
+        return ((bitField0_ & 0x00000002) != 0);
       }
       /**
        *
@@ -1538,11 +1538,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             throw new NullPointerException();
           }
           familyName_ = value;
-          onChanged();
         } else {
           familyNameBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1562,11 +1562,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setFamilyName(com.google.protobuf.StringValue.Builder builderForValue) {
         if (familyNameBuilder_ == null) {
           familyName_ = builderForValue.build();
-          onChanged();
         } else {
           familyNameBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1585,19 +1585,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        */
       public Builder mergeFamilyName(com.google.protobuf.StringValue value) {
         if (familyNameBuilder_ == null) {
-          if (familyName_ != null) {
-            familyName_ =
-                com.google.protobuf.StringValue.newBuilder(familyName_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000002) != 0)
+              && familyName_ != null
+              && familyName_ != com.google.protobuf.StringValue.getDefaultInstance()) {
+            getFamilyNameBuilder().mergeFrom(value);
           } else {
             familyName_ = value;
           }
-          onChanged();
         } else {
           familyNameBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000002;
+        onChanged();
         return this;
       }
       /**
@@ -1615,14 +1614,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.StringValue family_name = 2;</code>
        */
       public Builder clearFamilyName() {
-        if (familyNameBuilder_ == null) {
-          familyName_ = null;
-          onChanged();
-        } else {
-          familyName_ = null;
+        bitField0_ = (bitField0_ & ~0x00000002);
+        familyName_ = null;
+        if (familyNameBuilder_ != null) {
+          familyNameBuilder_.dispose();
           familyNameBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -1640,7 +1638,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.StringValue family_name = 2;</code>
        */
       public com.google.protobuf.StringValue.Builder getFamilyNameBuilder() {
-
+        bitField0_ |= 0x00000002;
         onChanged();
         return getFamilyNameFieldBuilder().getBuilder();
       }
@@ -1720,7 +1718,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return Whether the qualifier field is set.
        */
       public boolean hasQualifier() {
-        return qualifierBuilder_ != null || qualifier_ != null;
+        return ((bitField0_ & 0x00000004) != 0);
       }
       /**
        *
@@ -1765,11 +1763,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             throw new NullPointerException();
           }
           qualifier_ = value;
-          onChanged();
         } else {
           qualifierBuilder_.setMessage(value);
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1788,11 +1786,11 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setQualifier(com.google.protobuf.BytesValue.Builder builderForValue) {
         if (qualifierBuilder_ == null) {
           qualifier_ = builderForValue.build();
-          onChanged();
         } else {
           qualifierBuilder_.setMessage(builderForValue.build());
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1810,19 +1808,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        */
       public Builder mergeQualifier(com.google.protobuf.BytesValue value) {
         if (qualifierBuilder_ == null) {
-          if (qualifier_ != null) {
-            qualifier_ =
-                com.google.protobuf.BytesValue.newBuilder(qualifier_)
-                    .mergeFrom(value)
-                    .buildPartial();
+          if (((bitField0_ & 0x00000004) != 0)
+              && qualifier_ != null
+              && qualifier_ != com.google.protobuf.BytesValue.getDefaultInstance()) {
+            getQualifierBuilder().mergeFrom(value);
           } else {
             qualifier_ = value;
           }
-          onChanged();
         } else {
           qualifierBuilder_.mergeFrom(value);
         }
-
+        bitField0_ |= 0x00000004;
+        onChanged();
         return this;
       }
       /**
@@ -1839,14 +1836,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
        */
       public Builder clearQualifier() {
-        if (qualifierBuilder_ == null) {
-          qualifier_ = null;
-          onChanged();
-        } else {
-          qualifier_ = null;
+        bitField0_ = (bitField0_ & ~0x00000004);
+        qualifier_ = null;
+        if (qualifierBuilder_ != null) {
+          qualifierBuilder_.dispose();
           qualifierBuilder_ = null;
         }
-
+        onChanged();
         return this;
       }
       /**
@@ -1863,7 +1859,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * <code>.google.protobuf.BytesValue qualifier = 3;</code>
        */
       public com.google.protobuf.BytesValue.Builder getQualifierBuilder() {
-
+        bitField0_ |= 0x00000004;
         onChanged();
         return getQualifierFieldBuilder().getBuilder();
       }
@@ -1964,6 +1960,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setTimestampMicros(long value) {
 
         timestampMicros_ = value;
+        bitField0_ |= 0x00000008;
         onChanged();
         return this;
       }
@@ -1986,20 +1983,20 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearTimestampMicros() {
-
+        bitField0_ = (bitField0_ & ~0x00000008);
         timestampMicros_ = 0L;
         onChanged();
         return this;
       }
 
-      private com.google.protobuf.LazyStringList labels_ =
-          com.google.protobuf.LazyStringArrayList.EMPTY;
+      private com.google.protobuf.LazyStringArrayList labels_ =
+          com.google.protobuf.LazyStringArrayList.emptyList();
 
       private void ensureLabelsIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!labels_.isModifiable()) {
           labels_ = new com.google.protobuf.LazyStringArrayList(labels_);
-          bitField0_ |= 0x00000001;
         }
+        bitField0_ |= 0x00000010;
       }
       /**
        *
@@ -2015,7 +2012,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return A list containing the labels.
        */
       public com.google.protobuf.ProtocolStringList getLabelsList() {
-        return labels_.getUnmodifiableView();
+        labels_.makeImmutable();
+        return labels_;
       }
       /**
        *
@@ -2088,6 +2086,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         }
         ensureLabelsIsMutable();
         labels_.set(index, value);
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
@@ -2111,6 +2110,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         }
         ensureLabelsIsMutable();
         labels_.add(value);
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
@@ -2131,6 +2131,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder addAllLabels(java.lang.Iterable<java.lang.String> values) {
         ensureLabelsIsMutable();
         com.google.protobuf.AbstractMessageLite.Builder.addAll(values, labels_);
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
@@ -2148,8 +2149,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearLabels() {
-        labels_ = com.google.protobuf.LazyStringArrayList.EMPTY;
-        bitField0_ = (bitField0_ & ~0x00000001);
+        labels_ = com.google.protobuf.LazyStringArrayList.emptyList();
+        bitField0_ = (bitField0_ & ~0x00000010);
+        ;
         onChanged();
         return this;
       }
@@ -2174,6 +2176,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         checkByteStringIsUtf8(value);
         ensureLabelsIsMutable();
         labels_.add(value);
+        bitField0_ |= 0x00000010;
         onChanged();
         return this;
       }
@@ -2218,8 +2221,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
         if (value == null) {
           throw new NullPointerException();
         }
-
         value_ = value;
+        bitField0_ |= 0x00000020;
         onChanged();
         return this;
       }
@@ -2239,7 +2242,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearValue() {
-
+        bitField0_ = (bitField0_ & ~0x00000020);
         value_ = getDefaultInstance().getValue();
         onChanged();
         return this;
@@ -2282,6 +2285,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       public Builder setValueSize(int value) {
 
         valueSize_ = value;
+        bitField0_ |= 0x00000040;
         onChanged();
         return this;
       }
@@ -2300,7 +2304,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder clearValueSize() {
-
+        bitField0_ = (bitField0_ & ~0x00000040);
         valueSize_ = 0;
         onChanged();
         return this;
@@ -2353,6 +2357,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder setResetRow(boolean value) {
+
         rowStatusCase_ = 8;
         rowStatus_ = value;
         onChanged();
@@ -2426,6 +2431,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
        * @return This builder for chaining.
        */
       public Builder setCommitRow(boolean value) {
+
         rowStatusCase_ = 9;
         rowStatus_ = value;
         onChanged();
@@ -2517,6 +2523,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   }
 
   public static final int CHUNKS_FIELD_NUMBER = 1;
+
+  @SuppressWarnings("serial")
   private java.util.List<com.google.bigtable.v2.ReadRowsResponse.CellChunk> chunks_;
   /**
    *
@@ -2586,7 +2594,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
   }
 
   public static final int LAST_SCANNED_ROW_KEY_FIELD_NUMBER = 2;
-  private com.google.protobuf.ByteString lastScannedRowKey_;
+  private com.google.protobuf.ByteString lastScannedRowKey_ = com.google.protobuf.ByteString.EMPTY;
   /**
    *
    *
@@ -2615,6 +2623,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *
    *
    * <pre>
+   *
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:
    *   * request_stats is empty on every (streamed) response, except
@@ -2624,10 +2633,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *       * For example, if a read request would have returned an empty
    *         response instead a single ReadRowsResponse is streamed with empty
    *         chunks and request_stats filled.
+   *
    * Visually, response messages will stream as follows:
    *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
    *   &#92;______________________/  &#92;________________________________/
    *       Primary response         Trailer of RequestStats info
+   *
    * Or if the read did not return any values:
    *   {chunks: [], request_stats: {...}}
    *   &#92;________________________________/
@@ -2646,6 +2657,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *
    *
    * <pre>
+   *
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:
    *   * request_stats is empty on every (streamed) response, except
@@ -2655,10 +2667,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *       * For example, if a read request would have returned an empty
    *         response instead a single ReadRowsResponse is streamed with empty
    *         chunks and request_stats filled.
+   *
    * Visually, response messages will stream as follows:
    *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
    *   &#92;______________________/  &#92;________________________________/
    *       Primary response         Trailer of RequestStats info
+   *
    * Or if the read did not return any values:
    *   {chunks: [], request_stats: {...}}
    *   &#92;________________________________/
@@ -2679,6 +2693,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *
    *
    * <pre>
+   *
    * If requested, provide enhanced query performance statistics. The semantics
    * dictate:
    *   * request_stats is empty on every (streamed) response, except
@@ -2688,10 +2703,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    *       * For example, if a read request would have returned an empty
    *         response instead a single ReadRowsResponse is streamed with empty
    *         chunks and request_stats filled.
+   *
    * Visually, response messages will stream as follows:
    *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
    *   &#92;______________________/  &#92;________________________________/
    *       Primary response         Trailer of RequestStats info
+   *
    * Or if the read did not return any values:
    *   {chunks: [], request_stats: {...}}
    *   &#92;________________________________/
@@ -2702,7 +2719,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
    */
   @java.lang.Override
   public com.google.bigtable.v2.RequestStatsOrBuilder getRequestStatsOrBuilder() {
-    return getRequestStats();
+    return requestStats_ == null
+        ? com.google.bigtable.v2.RequestStats.getDefaultInstance()
+        : requestStats_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -2926,6 +2945,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       if (chunksBuilder_ == null) {
         chunks_ = java.util.Collections.emptyList();
       } else {
@@ -2934,11 +2954,9 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       }
       bitField0_ = (bitField0_ & ~0x00000001);
       lastScannedRowKey_ = com.google.protobuf.ByteString.EMPTY;
-
-      if (requestStatsBuilder_ == null) {
-        requestStats_ = null;
-      } else {
-        requestStats_ = null;
+      requestStats_ = null;
+      if (requestStatsBuilder_ != null) {
+        requestStatsBuilder_.dispose();
         requestStatsBuilder_ = null;
       }
       return this;
@@ -2968,7 +2986,15 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     public com.google.bigtable.v2.ReadRowsResponse buildPartial() {
       com.google.bigtable.v2.ReadRowsResponse result =
           new com.google.bigtable.v2.ReadRowsResponse(this);
-      int from_bitField0_ = bitField0_;
+      buildPartialRepeatedFields(result);
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
+      onBuilt();
+      return result;
+    }
+
+    private void buildPartialRepeatedFields(com.google.bigtable.v2.ReadRowsResponse result) {
       if (chunksBuilder_ == null) {
         if (((bitField0_ & 0x00000001) != 0)) {
           chunks_ = java.util.Collections.unmodifiableList(chunks_);
@@ -2978,14 +3004,17 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       } else {
         result.chunks_ = chunksBuilder_.build();
       }
-      result.lastScannedRowKey_ = lastScannedRowKey_;
-      if (requestStatsBuilder_ == null) {
-        result.requestStats_ = requestStats_;
-      } else {
-        result.requestStats_ = requestStatsBuilder_.build();
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadRowsResponse result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.lastScannedRowKey_ = lastScannedRowKey_;
       }
-      onBuilt();
-      return result;
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.requestStats_ =
+            requestStatsBuilder_ == null ? requestStats_ : requestStatsBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -3109,13 +3138,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
             case 18:
               {
                 lastScannedRowKey_ = input.readBytes();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 26:
               {
                 input.readMessage(getRequestStatsFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 26
             default:
@@ -3535,8 +3564,8 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
       if (value == null) {
         throw new NullPointerException();
       }
-
       lastScannedRowKey_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -3558,7 +3587,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * @return This builder for chaining.
      */
     public Builder clearLastScannedRowKey() {
-
+      bitField0_ = (bitField0_ & ~0x00000002);
       lastScannedRowKey_ = getDefaultInstance().getLastScannedRowKey();
       onChanged();
       return this;
@@ -3574,6 +3603,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3583,10 +3613,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3598,12 +3630,13 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * @return Whether the requestStats field is set.
      */
     public boolean hasRequestStats() {
-      return requestStatsBuilder_ != null || requestStats_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3613,10 +3646,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3640,6 +3675,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3649,10 +3685,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3667,17 +3705,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
           throw new NullPointerException();
         }
         requestStats_ = value;
-        onChanged();
       } else {
         requestStatsBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3687,10 +3726,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3702,17 +3743,18 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
     public Builder setRequestStats(com.google.bigtable.v2.RequestStats.Builder builderForValue) {
       if (requestStatsBuilder_ == null) {
         requestStats_ = builderForValue.build();
-        onChanged();
       } else {
         requestStatsBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3722,10 +3764,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3736,25 +3780,25 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      */
     public Builder mergeRequestStats(com.google.bigtable.v2.RequestStats value) {
       if (requestStatsBuilder_ == null) {
-        if (requestStats_ != null) {
-          requestStats_ =
-              com.google.bigtable.v2.RequestStats.newBuilder(requestStats_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && requestStats_ != null
+            && requestStats_ != com.google.bigtable.v2.RequestStats.getDefaultInstance()) {
+          getRequestStatsBuilder().mergeFrom(value);
         } else {
           requestStats_ = value;
         }
-        onChanged();
       } else {
         requestStatsBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3764,10 +3808,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3777,20 +3823,20 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
      */
     public Builder clearRequestStats() {
-      if (requestStatsBuilder_ == null) {
-        requestStats_ = null;
-        onChanged();
-      } else {
-        requestStats_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      requestStats_ = null;
+      if (requestStatsBuilder_ != null) {
+        requestStatsBuilder_.dispose();
         requestStatsBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3800,10 +3846,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3813,7 +3861,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      * <code>.google.bigtable.v2.RequestStats request_stats = 3;</code>
      */
     public com.google.bigtable.v2.RequestStats.Builder getRequestStatsBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getRequestStatsFieldBuilder().getBuilder();
     }
@@ -3821,6 +3869,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3830,10 +3879,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/
@@ -3855,6 +3906,7 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *
      *
      * <pre>
+     *
      * If requested, provide enhanced query performance statistics. The semantics
      * dictate:
      *   * request_stats is empty on every (streamed) response, except
@@ -3864,10 +3916,12 @@ public final class ReadRowsResponse extends com.google.protobuf.GeneratedMessage
      *       * For example, if a read request would have returned an empty
      *         response instead a single ReadRowsResponse is streamed with empty
      *         chunks and request_stats filled.
+     *
      * Visually, response messages will stream as follows:
      *    ... -&gt; {chunks: [...]} -&gt; {chunks: [], request_stats: {...}}
      *   &#92;______________________/  &#92;________________________________/
      *       Primary response         Trailer of RequestStats info
+     *
      * Or if the read did not return any values:
      *   {chunks: [], request_stats: {...}}
      *   &#92;________________________________/

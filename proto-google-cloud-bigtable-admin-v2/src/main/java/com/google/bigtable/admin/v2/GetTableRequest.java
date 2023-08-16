@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
     return new GetTableRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_GetTableRequest_descriptor;
@@ -70,7 +65,9 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -127,7 +124,7 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int VIEW_FIELD_NUMBER = 2;
-  private int view_;
+  private int view_ = 0;
   /**
    *
    *
@@ -158,9 +155,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.Table.View getView() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.admin.v2.Table.View result =
-        com.google.bigtable.admin.v2.Table.View.valueOf(view_);
+        com.google.bigtable.admin.v2.Table.View.forNumber(view_);
     return result == null ? com.google.bigtable.admin.v2.Table.View.UNRECOGNIZED : result;
   }
 
@@ -371,10 +367,9 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       view_ = 0;
-
       return this;
     }
 
@@ -402,10 +397,21 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
     public com.google.bigtable.admin.v2.GetTableRequest buildPartial() {
       com.google.bigtable.admin.v2.GetTableRequest result =
           new com.google.bigtable.admin.v2.GetTableRequest(this);
-      result.name_ = name_;
-      result.view_ = view_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.GetTableRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.view_ = view_;
+      }
     }
 
     @java.lang.Override
@@ -455,6 +461,7 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
       if (other == com.google.bigtable.admin.v2.GetTableRequest.getDefaultInstance()) return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (other.view_ != 0) {
@@ -489,13 +496,13 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
             case 10:
               {
                 name_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 16:
               {
                 view_ = input.readEnum();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 16
             default:
@@ -514,6 +521,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object name_ = "";
     /**
@@ -588,8 +597,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -609,8 +618,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -635,8 +644,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -672,8 +681,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder setViewValue(int value) {
-
       view_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -691,9 +700,8 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
      */
     @java.lang.Override
     public com.google.bigtable.admin.v2.Table.View getView() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.admin.v2.Table.View result =
-          com.google.bigtable.admin.v2.Table.View.valueOf(view_);
+          com.google.bigtable.admin.v2.Table.View.forNumber(view_);
       return result == null ? com.google.bigtable.admin.v2.Table.View.UNRECOGNIZED : result;
     }
     /**
@@ -713,7 +721,7 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000002;
       view_ = value.getNumber();
       onChanged();
       return this;
@@ -731,7 +739,7 @@ public final class GetTableRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearView() {
-
+      bitField0_ = (bitField0_ & ~0x00000002);
       view_ = 0;
       onChanged();
       return this;

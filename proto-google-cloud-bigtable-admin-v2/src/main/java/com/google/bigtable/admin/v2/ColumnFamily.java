@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
     return new ColumnFamily();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.TableProto
         .internal_static_google_bigtable_admin_v2_ColumnFamily_descriptor;
@@ -73,6 +68,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Garbage collection rule specified as a protobuf.
    * Must serialize to at most 500 bytes.
+   *
    * NOTE: Garbage collection executes opportunistically in the background, and
    * so it's possible for reads to return a cell even if it matches the active
    * GC expression for its family.
@@ -92,6 +88,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Garbage collection rule specified as a protobuf.
    * Must serialize to at most 500 bytes.
+   *
    * NOTE: Garbage collection executes opportunistically in the background, and
    * so it's possible for reads to return a cell even if it matches the active
    * GC expression for its family.
@@ -111,6 +108,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Garbage collection rule specified as a protobuf.
    * Must serialize to at most 500 bytes.
+   *
    * NOTE: Garbage collection executes opportunistically in the background, and
    * so it's possible for reads to return a cell even if it matches the active
    * GC expression for its family.
@@ -120,7 +118,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.GcRuleOrBuilder getGcRuleOrBuilder() {
-    return getGcRule();
+    return gcRule_ == null ? com.google.bigtable.admin.v2.GcRule.getDefaultInstance() : gcRule_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -325,10 +323,10 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
-      if (gcRuleBuilder_ == null) {
-        gcRule_ = null;
-      } else {
-        gcRule_ = null;
+      bitField0_ = 0;
+      gcRule_ = null;
+      if (gcRuleBuilder_ != null) {
+        gcRuleBuilder_.dispose();
         gcRuleBuilder_ = null;
       }
       return this;
@@ -358,13 +356,18 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
     public com.google.bigtable.admin.v2.ColumnFamily buildPartial() {
       com.google.bigtable.admin.v2.ColumnFamily result =
           new com.google.bigtable.admin.v2.ColumnFamily(this);
-      if (gcRuleBuilder_ == null) {
-        result.gcRule_ = gcRule_;
-      } else {
-        result.gcRule_ = gcRuleBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.ColumnFamily result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.gcRule_ = gcRuleBuilder_ == null ? gcRule_ : gcRuleBuilder_.build();
+      }
     }
 
     @java.lang.Override
@@ -444,7 +447,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
             case 10:
               {
                 input.readMessage(getGcRuleFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             default:
@@ -464,6 +467,8 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
 
+    private int bitField0_;
+
     private com.google.bigtable.admin.v2.GcRule gcRule_;
     private com.google.protobuf.SingleFieldBuilderV3<
             com.google.bigtable.admin.v2.GcRule,
@@ -476,6 +481,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -486,7 +492,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the gcRule field is set.
      */
     public boolean hasGcRule() {
-      return gcRuleBuilder_ != null || gcRule_ != null;
+      return ((bitField0_ & 0x00000001) != 0);
     }
     /**
      *
@@ -494,6 +500,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -516,6 +523,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -529,11 +537,11 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
           throw new NullPointerException();
         }
         gcRule_ = value;
-        onChanged();
       } else {
         gcRuleBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -542,6 +550,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -552,11 +561,11 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
     public Builder setGcRule(com.google.bigtable.admin.v2.GcRule.Builder builderForValue) {
       if (gcRuleBuilder_ == null) {
         gcRule_ = builderForValue.build();
-        onChanged();
       } else {
         gcRuleBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -565,6 +574,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -574,19 +584,18 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeGcRule(com.google.bigtable.admin.v2.GcRule value) {
       if (gcRuleBuilder_ == null) {
-        if (gcRule_ != null) {
-          gcRule_ =
-              com.google.bigtable.admin.v2.GcRule.newBuilder(gcRule_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000001) != 0)
+            && gcRule_ != null
+            && gcRule_ != com.google.bigtable.admin.v2.GcRule.getDefaultInstance()) {
+          getGcRuleBuilder().mergeFrom(value);
         } else {
           gcRule_ = value;
         }
-        onChanged();
       } else {
         gcRuleBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000001;
+      onChanged();
       return this;
     }
     /**
@@ -595,6 +604,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -603,14 +613,13 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <code>.google.bigtable.admin.v2.GcRule gc_rule = 1;</code>
      */
     public Builder clearGcRule() {
-      if (gcRuleBuilder_ == null) {
-        gcRule_ = null;
-        onChanged();
-      } else {
-        gcRule_ = null;
+      bitField0_ = (bitField0_ & ~0x00000001);
+      gcRule_ = null;
+      if (gcRuleBuilder_ != null) {
+        gcRuleBuilder_.dispose();
         gcRuleBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -619,6 +628,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -627,7 +637,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <code>.google.bigtable.admin.v2.GcRule gc_rule = 1;</code>
      */
     public com.google.bigtable.admin.v2.GcRule.Builder getGcRuleBuilder() {
-
+      bitField0_ |= 0x00000001;
       onChanged();
       return getGcRuleFieldBuilder().getBuilder();
     }
@@ -637,6 +647,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.
@@ -657,6 +668,7 @@ public final class ColumnFamily extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Garbage collection rule specified as a protobuf.
      * Must serialize to at most 500 bytes.
+     *
      * NOTE: Garbage collection executes opportunistically in the background, and
      * so it's possible for reads to return a cell even if it matches the active
      * GC expression for its family.

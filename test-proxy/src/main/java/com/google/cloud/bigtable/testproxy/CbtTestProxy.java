@@ -23,6 +23,7 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -49,10 +50,10 @@ import com.google.rpc.Code;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusException;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
 import io.grpc.stub.StreamObserver;
-import io.netty.handler.ssl.SslContext;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -60,6 +61,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,49 +147,32 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
    */
   private static BigtableDataSettings.Builder overrideTimeoutSetting(
       Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
-    // TODO(developer): remove the initialRpcTimeout update below by updating the client library.
-    Duration initialRpcTimeout =
-        settingsBuilder
-            .stubSettings()
-            .bulkMutateRowsSettings()
-            .getRetrySettings()
-            .getInitialRpcTimeout();
-    if (initialRpcTimeout.compareTo(newTimeout) > 0) {
-      // Total timeout is smaller than initialRpcTimeout, which will cause deadline-related problem.
-      initialRpcTimeout = newTimeout;
-    }
-    settingsBuilder
-        .stubSettings()
-        .bulkMutateRowsSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout)
-        .setInitialRpcTimeout(initialRpcTimeout);
 
-    settingsBuilder.stubSettings().mutateRowSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder.stubSettings().readRowSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder.stubSettings().readRowsSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .sampleRowKeysSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .checkAndMutateRowSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .readModifyWriteRowSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().mutateRowSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().readRowSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().readRowsSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().checkAndMutateRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().sampleRowKeysSettings().retrySettings(), newTimeout);
 
     return settingsBuilder;
+  }
+
+  private static void updateTimeout(RetrySettings.Builder settings, Duration newTimeout) {
+    Duration rpcTimeout = settings.getInitialRpcTimeout();
+
+    // TODO: this should happen in gax
+    // Clamp the rpcTimeout to the overall timeout
+    if (rpcTimeout != null && rpcTimeout.compareTo(newTimeout) > 0) {
+      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeout(newTimeout);
+    }
+
+    settings.setTotalTimeout(newTimeout);
   }
 
   /** Helper method to get a client object by its id. */
@@ -217,6 +202,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
     BigtableDataSettings.Builder settingsBuilder =
         BigtableDataSettings.newBuilder()
+            // disable channel refreshing when creating an emulator
+            .setRefreshingChannel(false)
             .setProjectId(request.getProjectId())
             .setInstanceId(request.getInstanceId())
             .setAppProfileId(request.getAppProfileId());
@@ -338,7 +325,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       MutateRowsResult.Builder resultBuilder = MutateRowsResult.newBuilder();
       for (MutateRowsException.FailedMutation failed : e.getFailedMutations()) {
         resultBuilder
-            .addEntryBuilder()
+            .addEntriesBuilder()
             .setIndex(failed.getIndex())
             .setStatus(
                 com.google.rpc.Status.newBuilder()
@@ -486,7 +473,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   /**
    * Helper method to convert row from type com.google.cloud.bigtable.data.v2.models.Row to type
    * com.google.bigtable.v2.Row. After conversion, row cells within the same column and family are
-   * grouped and ordered; but the ordering of family and qualifier is not preserved.
+   * grouped and ordered; the ordering of qualifiers within the same family is preserved; but the
+   * ordering of families is not (the original order is not specified after all).
    *
    * @param row Logical row of type com.google.cloud.bigtable.data.v2.models.Row
    * @return the converted row in RowResult Builder
@@ -500,7 +488,9 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
         row.getCells().stream()
             .collect(
                 Collectors.groupingBy(
-                    RowCell::getFamily, Collectors.groupingBy(RowCell::getQualifier)));
+                    RowCell::getFamily,
+                    Collectors.groupingBy(
+                        RowCell::getQualifier, LinkedHashMap::new, Collectors.toList())));
     for (Map.Entry<String, Map<ByteString, List<RowCell>>> e : grouped.entrySet()) {
       Family.Builder family = rowBuilder.addFamiliesBuilder().setName(e.getKey());
 
@@ -537,7 +527,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     for (com.google.cloud.bigtable.data.v2.models.Row row : rows) {
       rowCounter++;
       RowResult.Builder rowResultBuilder = convertRowResult(row);
-      resultBuilder.addRow(rowResultBuilder.getRow());
+      resultBuilder.addRows(rowResultBuilder.getRow());
 
       if (cancelAfterRows > 0 && rowCounter >= cancelAfterRows) {
         logger.info(
@@ -587,7 +577,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     SampleRowKeysResult.Builder resultBuilder = SampleRowKeysResult.newBuilder();
     for (KeyOffset keyOffset : keyOffsets) {
       resultBuilder
-          .addSampleBuilder()
+          .addSamplesBuilder()
           .setRowKey(keyOffset.getKey())
           .setOffsetBytes(keyOffset.getOffsetBytes());
     }

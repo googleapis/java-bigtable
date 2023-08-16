@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -193,7 +193,6 @@ public interface CreateInstanceRequestOrBuilder
    * map&lt;string, .google.bigtable.admin.v2.Cluster&gt; clusters = 4 [(.google.api.field_behavior) = REQUIRED];
    * </code>
    */
-
   /* nullable */
   com.google.bigtable.admin.v2.Cluster getClustersOrDefault(
       java.lang.String key,

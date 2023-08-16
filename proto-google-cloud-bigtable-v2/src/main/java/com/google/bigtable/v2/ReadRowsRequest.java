@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     return new ReadRowsRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.BigtableProto
         .internal_static_google_bigtable_v2_ReadRowsRequest_descriptor;
@@ -74,6 +69,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    *
    * <pre>
    * The desired view into RequestStats that should be returned in the response.
+   *
    * See also: RequestStats message.
    * </pre>
    *
@@ -234,7 +230,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int TABLE_NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object tableName_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object tableName_ = "";
   /**
    *
    *
@@ -291,13 +289,15 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int APP_PROFILE_ID_FIELD_NUMBER = 5;
-  private volatile java.lang.Object appProfileId_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object appProfileId_ = "";
   /**
    *
    *
    * <pre>
-   * This value specifies routing for replication. This API only accepts the
-   * empty value of app_profile_id.
+   * This value specifies routing for replication. If not specified, the
+   * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 5;</code>
@@ -320,8 +320,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    *
    *
    * <pre>
-   * This value specifies routing for replication. This API only accepts the
-   * empty value of app_profile_id.
+   * This value specifies routing for replication. If not specified, the
+   * "default" application profile will be used.
    * </pre>
    *
    * <code>string app_profile_id = 5;</code>
@@ -387,7 +387,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.RowSetOrBuilder getRowsOrBuilder() {
-    return getRows();
+    return rows_ == null ? com.google.bigtable.v2.RowSet.getDefaultInstance() : rows_;
   }
 
   public static final int FILTER_FIELD_NUMBER = 3;
@@ -436,11 +436,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.RowFilterOrBuilder getFilterOrBuilder() {
-    return getFilter();
+    return filter_ == null ? com.google.bigtable.v2.RowFilter.getDefaultInstance() : filter_;
   }
 
   public static final int ROWS_LIMIT_FIELD_NUMBER = 4;
-  private long rowsLimit_;
+  private long rowsLimit_ = 0L;
   /**
    *
    *
@@ -459,7 +459,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
   }
 
   public static final int REQUEST_STATS_VIEW_FIELD_NUMBER = 6;
-  private int requestStatsView_;
+  private int requestStatsView_ = 0;
   /**
    *
    *
@@ -488,12 +488,40 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
    */
   @java.lang.Override
   public com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.v2.ReadRowsRequest.RequestStatsView result =
-        com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.valueOf(requestStatsView_);
+        com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.forNumber(requestStatsView_);
     return result == null
         ? com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.UNRECOGNIZED
         : result;
+  }
+
+  public static final int REVERSED_FIELD_NUMBER = 7;
+  private boolean reversed_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Experimental API - Please note that this API is currently experimental
+   * and can change in the future.
+   *
+   * Return rows in lexiographical descending order of the row keys. The row
+   * contents will not be affected by this flag.
+   *
+   * Example result set:
+   *
+   *     [
+   *       {key: "k2", "f:col1": "v1", "f:col2": "v1"},
+   *       {key: "k1", "f:col1": "v2", "f:col2": "v2"}
+   *     ]
+   * </pre>
+   *
+   * <code>bool reversed = 7;</code>
+   *
+   * @return The reversed.
+   */
+  @java.lang.Override
+  public boolean getReversed() {
+    return reversed_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -530,6 +558,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
             .getNumber()) {
       output.writeEnum(6, requestStatsView_);
     }
+    if (reversed_ != false) {
+      output.writeBool(7, reversed_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -559,6 +590,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
             .getNumber()) {
       size += com.google.protobuf.CodedOutputStream.computeEnumSize(6, requestStatsView_);
     }
+    if (reversed_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(7, reversed_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -586,6 +620,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     }
     if (getRowsLimit() != other.getRowsLimit()) return false;
     if (requestStatsView_ != other.requestStatsView_) return false;
+    if (getReversed() != other.getReversed()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -613,6 +648,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     hash = (53 * hash) + com.google.protobuf.Internal.hashLong(getRowsLimit());
     hash = (37 * hash) + REQUEST_STATS_VIEW_FIELD_NUMBER;
     hash = (53 * hash) + requestStatsView_;
+    hash = (37 * hash) + REVERSED_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getReversed());
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -751,26 +788,22 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       tableName_ = "";
-
       appProfileId_ = "";
-
-      if (rowsBuilder_ == null) {
-        rows_ = null;
-      } else {
-        rows_ = null;
+      rows_ = null;
+      if (rowsBuilder_ != null) {
+        rowsBuilder_.dispose();
         rowsBuilder_ = null;
       }
-      if (filterBuilder_ == null) {
-        filter_ = null;
-      } else {
-        filter_ = null;
+      filter_ = null;
+      if (filterBuilder_ != null) {
+        filterBuilder_.dispose();
         filterBuilder_ = null;
       }
       rowsLimit_ = 0L;
-
       requestStatsView_ = 0;
-
+      reversed_ = false;
       return this;
     }
 
@@ -798,22 +831,36 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public com.google.bigtable.v2.ReadRowsRequest buildPartial() {
       com.google.bigtable.v2.ReadRowsRequest result =
           new com.google.bigtable.v2.ReadRowsRequest(this);
-      result.tableName_ = tableName_;
-      result.appProfileId_ = appProfileId_;
-      if (rowsBuilder_ == null) {
-        result.rows_ = rows_;
-      } else {
-        result.rows_ = rowsBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (filterBuilder_ == null) {
-        result.filter_ = filter_;
-      } else {
-        result.filter_ = filterBuilder_.build();
-      }
-      result.rowsLimit_ = rowsLimit_;
-      result.requestStatsView_ = requestStatsView_;
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ReadRowsRequest result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.tableName_ = tableName_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.appProfileId_ = appProfileId_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.rows_ = rowsBuilder_ == null ? rows_ : rowsBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.filter_ = filterBuilder_ == null ? filter_ : filterBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.rowsLimit_ = rowsLimit_;
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.requestStatsView_ = requestStatsView_;
+      }
+      if (((from_bitField0_ & 0x00000040) != 0)) {
+        result.reversed_ = reversed_;
+      }
     }
 
     @java.lang.Override
@@ -863,10 +910,12 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (other == com.google.bigtable.v2.ReadRowsRequest.getDefaultInstance()) return this;
       if (!other.getTableName().isEmpty()) {
         tableName_ = other.tableName_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       if (!other.getAppProfileId().isEmpty()) {
         appProfileId_ = other.appProfileId_;
+        bitField0_ |= 0x00000002;
         onChanged();
       }
       if (other.hasRows()) {
@@ -880,6 +929,9 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       }
       if (other.requestStatsView_ != 0) {
         setRequestStatsViewValue(other.getRequestStatsViewValue());
+      }
+      if (other.getReversed() != false) {
+        setReversed(other.getReversed());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -910,39 +962,45 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
             case 10:
               {
                 tableName_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
               {
                 input.readMessage(getRowsFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000004;
                 break;
               } // case 18
             case 26:
               {
                 input.readMessage(getFilterFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000008;
                 break;
               } // case 26
             case 32:
               {
                 rowsLimit_ = input.readInt64();
-
+                bitField0_ |= 0x00000010;
                 break;
               } // case 32
             case 42:
               {
                 appProfileId_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 42
             case 48:
               {
                 requestStatsView_ = input.readEnum();
-
+                bitField0_ |= 0x00000020;
                 break;
               } // case 48
+            case 56:
+              {
+                reversed_ = input.readBool();
+                bitField0_ |= 0x00000040;
+                break;
+              } // case 56
             default:
               {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
@@ -959,6 +1017,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private java.lang.Object tableName_ = "";
     /**
@@ -1033,8 +1093,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1054,8 +1114,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearTableName() {
-
       tableName_ = getDefaultInstance().getTableName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -1080,8 +1140,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       tableName_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -1091,8 +1151,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * This value specifies routing for replication. This API only accepts the
-     * empty value of app_profile_id.
+     * This value specifies routing for replication. If not specified, the
+     * "default" application profile will be used.
      * </pre>
      *
      * <code>string app_profile_id = 5;</code>
@@ -1114,8 +1174,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * This value specifies routing for replication. This API only accepts the
-     * empty value of app_profile_id.
+     * This value specifies routing for replication. If not specified, the
+     * "default" application profile will be used.
      * </pre>
      *
      * <code>string app_profile_id = 5;</code>
@@ -1137,8 +1197,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * This value specifies routing for replication. This API only accepts the
-     * empty value of app_profile_id.
+     * This value specifies routing for replication. If not specified, the
+     * "default" application profile will be used.
      * </pre>
      *
      * <code>string app_profile_id = 5;</code>
@@ -1150,8 +1210,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1159,8 +1219,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * This value specifies routing for replication. This API only accepts the
-     * empty value of app_profile_id.
+     * This value specifies routing for replication. If not specified, the
+     * "default" application profile will be used.
      * </pre>
      *
      * <code>string app_profile_id = 5;</code>
@@ -1168,8 +1228,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearAppProfileId() {
-
       appProfileId_ = getDefaultInstance().getAppProfileId();
+      bitField0_ = (bitField0_ & ~0x00000002);
       onChanged();
       return this;
     }
@@ -1177,8 +1237,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      *
      *
      * <pre>
-     * This value specifies routing for replication. This API only accepts the
-     * empty value of app_profile_id.
+     * This value specifies routing for replication. If not specified, the
+     * "default" application profile will be used.
      * </pre>
      *
      * <code>string app_profile_id = 5;</code>
@@ -1191,8 +1251,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       appProfileId_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -1216,7 +1276,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return Whether the rows field is set.
      */
     public boolean hasRows() {
-      return rowsBuilder_ != null || rows_ != null;
+      return ((bitField0_ & 0x00000004) != 0);
     }
     /**
      *
@@ -1253,11 +1313,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
           throw new NullPointerException();
         }
         rows_ = value;
-        onChanged();
       } else {
         rowsBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1273,11 +1333,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setRows(com.google.bigtable.v2.RowSet.Builder builderForValue) {
       if (rowsBuilder_ == null) {
         rows_ = builderForValue.build();
-        onChanged();
       } else {
         rowsBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1292,16 +1352,18 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     public Builder mergeRows(com.google.bigtable.v2.RowSet value) {
       if (rowsBuilder_ == null) {
-        if (rows_ != null) {
-          rows_ = com.google.bigtable.v2.RowSet.newBuilder(rows_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000004) != 0)
+            && rows_ != null
+            && rows_ != com.google.bigtable.v2.RowSet.getDefaultInstance()) {
+          getRowsBuilder().mergeFrom(value);
         } else {
           rows_ = value;
         }
-        onChanged();
       } else {
         rowsBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000004;
+      onChanged();
       return this;
     }
     /**
@@ -1315,14 +1377,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowSet rows = 2;</code>
      */
     public Builder clearRows() {
-      if (rowsBuilder_ == null) {
-        rows_ = null;
-        onChanged();
-      } else {
-        rows_ = null;
+      bitField0_ = (bitField0_ & ~0x00000004);
+      rows_ = null;
+      if (rowsBuilder_ != null) {
+        rowsBuilder_.dispose();
         rowsBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1336,7 +1397,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowSet rows = 2;</code>
      */
     public com.google.bigtable.v2.RowSet.Builder getRowsBuilder() {
-
+      bitField0_ |= 0x00000004;
       onChanged();
       return getRowsFieldBuilder().getBuilder();
     }
@@ -1403,7 +1464,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return Whether the filter field is set.
      */
     public boolean hasFilter() {
-      return filterBuilder_ != null || filter_ != null;
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      *
@@ -1440,11 +1501,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
           throw new NullPointerException();
         }
         filter_ = value;
-        onChanged();
       } else {
         filterBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1460,11 +1521,11 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setFilter(com.google.bigtable.v2.RowFilter.Builder builderForValue) {
       if (filterBuilder_ == null) {
         filter_ = builderForValue.build();
-        onChanged();
       } else {
         filterBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1479,17 +1540,18 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     public Builder mergeFilter(com.google.bigtable.v2.RowFilter value) {
       if (filterBuilder_ == null) {
-        if (filter_ != null) {
-          filter_ =
-              com.google.bigtable.v2.RowFilter.newBuilder(filter_).mergeFrom(value).buildPartial();
+        if (((bitField0_ & 0x00000008) != 0)
+            && filter_ != null
+            && filter_ != com.google.bigtable.v2.RowFilter.getDefaultInstance()) {
+          getFilterBuilder().mergeFrom(value);
         } else {
           filter_ = value;
         }
-        onChanged();
       } else {
         filterBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000008;
+      onChanged();
       return this;
     }
     /**
@@ -1503,14 +1565,13 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowFilter filter = 3;</code>
      */
     public Builder clearFilter() {
-      if (filterBuilder_ == null) {
-        filter_ = null;
-        onChanged();
-      } else {
-        filter_ = null;
+      bitField0_ = (bitField0_ & ~0x00000008);
+      filter_ = null;
+      if (filterBuilder_ != null) {
+        filterBuilder_.dispose();
         filterBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -1524,7 +1585,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * <code>.google.bigtable.v2.RowFilter filter = 3;</code>
      */
     public com.google.bigtable.v2.RowFilter.Builder getFilterBuilder() {
-
+      bitField0_ |= 0x00000008;
       onChanged();
       return getFilterFieldBuilder().getBuilder();
     }
@@ -1605,6 +1666,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
     public Builder setRowsLimit(long value) {
 
       rowsLimit_ = value;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1621,7 +1683,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearRowsLimit() {
-
+      bitField0_ = (bitField0_ & ~0x00000010);
       rowsLimit_ = 0L;
       onChanged();
       return this;
@@ -1656,8 +1718,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder setRequestStatsViewValue(int value) {
-
       requestStatsView_ = value;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1674,9 +1736,8 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      */
     @java.lang.Override
     public com.google.bigtable.v2.ReadRowsRequest.RequestStatsView getRequestStatsView() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.v2.ReadRowsRequest.RequestStatsView result =
-          com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.valueOf(requestStatsView_);
+          com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.forNumber(requestStatsView_);
       return result == null
           ? com.google.bigtable.v2.ReadRowsRequest.RequestStatsView.UNRECOGNIZED
           : result;
@@ -1698,7 +1759,7 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000020;
       requestStatsView_ = value.getNumber();
       onChanged();
       return this;
@@ -1715,8 +1776,94 @@ public final class ReadRowsRequest extends com.google.protobuf.GeneratedMessageV
      * @return This builder for chaining.
      */
     public Builder clearRequestStatsView() {
-
+      bitField0_ = (bitField0_ & ~0x00000020);
       requestStatsView_ = 0;
+      onChanged();
+      return this;
+    }
+
+    private boolean reversed_;
+    /**
+     *
+     *
+     * <pre>
+     * Experimental API - Please note that this API is currently experimental
+     * and can change in the future.
+     *
+     * Return rows in lexiographical descending order of the row keys. The row
+     * contents will not be affected by this flag.
+     *
+     * Example result set:
+     *
+     *     [
+     *       {key: "k2", "f:col1": "v1", "f:col2": "v1"},
+     *       {key: "k1", "f:col1": "v2", "f:col2": "v2"}
+     *     ]
+     * </pre>
+     *
+     * <code>bool reversed = 7;</code>
+     *
+     * @return The reversed.
+     */
+    @java.lang.Override
+    public boolean getReversed() {
+      return reversed_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Experimental API - Please note that this API is currently experimental
+     * and can change in the future.
+     *
+     * Return rows in lexiographical descending order of the row keys. The row
+     * contents will not be affected by this flag.
+     *
+     * Example result set:
+     *
+     *     [
+     *       {key: "k2", "f:col1": "v1", "f:col2": "v1"},
+     *       {key: "k1", "f:col1": "v2", "f:col2": "v2"}
+     *     ]
+     * </pre>
+     *
+     * <code>bool reversed = 7;</code>
+     *
+     * @param value The reversed to set.
+     * @return This builder for chaining.
+     */
+    public Builder setReversed(boolean value) {
+
+      reversed_ = value;
+      bitField0_ |= 0x00000040;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Experimental API - Please note that this API is currently experimental
+     * and can change in the future.
+     *
+     * Return rows in lexiographical descending order of the row keys. The row
+     * contents will not be affected by this flag.
+     *
+     * Example result set:
+     *
+     *     [
+     *       {key: "k2", "f:col1": "v1", "f:col2": "v1"},
+     *       {key: "k1", "f:col1": "v2", "f:col2": "v2"}
+     *     ]
+     * </pre>
+     *
+     * <code>bool reversed = 7;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearReversed() {
+      bitField0_ = (bitField0_ & ~0x00000040);
+      reversed_ = false;
       onChanged();
       return this;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public interface RowRangeOrBuilder
    */
   com.google.protobuf.ByteString getEndKeyClosed();
 
-  public com.google.bigtable.v2.RowRange.StartKeyCase getStartKeyCase();
+  com.google.bigtable.v2.RowRange.StartKeyCase getStartKeyCase();
 
-  public com.google.bigtable.v2.RowRange.EndKeyCase getEndKeyCase();
+  com.google.bigtable.v2.RowRange.EndKeyCase getEndKeyCase();
 }

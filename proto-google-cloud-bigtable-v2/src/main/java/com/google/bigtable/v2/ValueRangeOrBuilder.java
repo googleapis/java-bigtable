@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,7 +123,7 @@ public interface ValueRangeOrBuilder
    */
   com.google.protobuf.ByteString getEndValueOpen();
 
-  public com.google.bigtable.v2.ValueRange.StartValueCase getStartValueCase();
+  com.google.bigtable.v2.ValueRange.StartValueCase getStartValueCase();
 
-  public com.google.bigtable.v2.ValueRange.EndValueCase getEndValueCase();
+  com.google.bigtable.v2.ValueRange.EndValueCase getEndValueCase();
 }

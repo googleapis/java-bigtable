@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     return new AutoscalingTargets();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.InstanceProto
         .internal_static_google_bigtable_admin_v2_AutoscalingTargets_descriptor;
@@ -66,7 +61,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int CPU_UTILIZATION_PERCENT_FIELD_NUMBER = 2;
-  private int cpuUtilizationPercent_;
+  private int cpuUtilizationPercent_ = 0;
   /**
    *
    *
@@ -87,7 +82,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
   }
 
   public static final int STORAGE_UTILIZATION_GIB_PER_NODE_FIELD_NUMBER = 3;
-  private int storageUtilizationGibPerNode_;
+  private int storageUtilizationGibPerNode_ = 0;
   /**
    *
    *
@@ -316,10 +311,9 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       cpuUtilizationPercent_ = 0;
-
       storageUtilizationGibPerNode_ = 0;
-
       return this;
     }
 
@@ -347,10 +341,21 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     public com.google.bigtable.admin.v2.AutoscalingTargets buildPartial() {
       com.google.bigtable.admin.v2.AutoscalingTargets result =
           new com.google.bigtable.admin.v2.AutoscalingTargets(this);
-      result.cpuUtilizationPercent_ = cpuUtilizationPercent_;
-      result.storageUtilizationGibPerNode_ = storageUtilizationGibPerNode_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
+      }
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.AutoscalingTargets result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.cpuUtilizationPercent_ = cpuUtilizationPercent_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.storageUtilizationGibPerNode_ = storageUtilizationGibPerNode_;
+      }
     }
 
     @java.lang.Override
@@ -434,13 +439,13 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
             case 16:
               {
                 cpuUtilizationPercent_ = input.readInt32();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 16
             case 24:
               {
                 storageUtilizationGibPerNode_ = input.readInt32();
-
+                bitField0_ |= 0x00000002;
                 break;
               } // case 24
             default:
@@ -459,6 +464,8 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
       } // finally
       return this;
     }
+
+    private int bitField0_;
 
     private int cpuUtilizationPercent_;
     /**
@@ -497,6 +504,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     public Builder setCpuUtilizationPercent(int value) {
 
       cpuUtilizationPercent_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -515,7 +523,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearCpuUtilizationPercent() {
-
+      bitField0_ = (bitField0_ & ~0x00000001);
       cpuUtilizationPercent_ = 0;
       onChanged();
       return this;
@@ -562,6 +570,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
     public Builder setStorageUtilizationGibPerNode(int value) {
 
       storageUtilizationGibPerNode_ = value;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -582,7 +591,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * @return This builder for chaining.
      */
     public Builder clearStorageUtilizationGibPerNode() {
-
+      bitField0_ = (bitField0_ & ~0x00000002);
       storageUtilizationGibPerNode_ = 0;
       onChanged();
       return this;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return new ValueRange();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto
         .internal_static_google_bigtable_v2_ValueRange_descriptor;
@@ -66,6 +61,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int startValueCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object startValue_;
 
   public enum StartValueCase
@@ -113,6 +110,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int endValueCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object endValue_;
 
   public enum EndValueCase
@@ -563,6 +562,7 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       startValueCase_ = 0;
       startValue_ = null;
       endValueCase_ = 0;
@@ -593,22 +593,23 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public com.google.bigtable.v2.ValueRange buildPartial() {
       com.google.bigtable.v2.ValueRange result = new com.google.bigtable.v2.ValueRange(this);
-      if (startValueCase_ == 1) {
-        result.startValue_ = startValue_;
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      if (startValueCase_ == 2) {
-        result.startValue_ = startValue_;
-      }
-      if (endValueCase_ == 3) {
-        result.endValue_ = endValue_;
-      }
-      if (endValueCase_ == 4) {
-        result.endValue_ = endValue_;
-      }
-      result.startValueCase_ = startValueCase_;
-      result.endValueCase_ = endValueCase_;
+      buildPartialOneofs(result);
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.v2.ValueRange result) {
+      int from_bitField0_ = bitField0_;
+    }
+
+    private void buildPartialOneofs(com.google.bigtable.v2.ValueRange result) {
+      result.startValueCase_ = startValueCase_;
+      result.startValue_ = this.startValue_;
+      result.endValueCase_ = endValueCase_;
+      result.endValue_ = this.endValue_;
     }
 
     @java.lang.Override
@@ -782,6 +783,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
       onChanged();
       return this;
     }
+
+    private int bitField0_;
 
     /**
      *

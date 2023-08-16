@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new Table();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -594,11 +589,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       return new ClusterState();
     }
 
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.admin.v2.TableProto
           .internal_static_google_bigtable_admin_v2_Table_ClusterState_descriptor;
@@ -859,7 +849,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
 
     public static final int REPLICATION_STATE_FIELD_NUMBER = 1;
-    private int replicationState_;
+    private int replicationState_ = 0;
     /**
      *
      *
@@ -892,9 +882,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      */
     @java.lang.Override
     public com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState getReplicationState() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState result =
-          com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.valueOf(
+          com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.forNumber(
               replicationState_);
       return result == null
           ? com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.UNRECOGNIZED
@@ -902,6 +891,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
 
     public static final int ENCRYPTION_INFO_FIELD_NUMBER = 2;
+
+    @SuppressWarnings("serial")
     private java.util.List<com.google.bigtable.admin.v2.EncryptionInfo> encryptionInfo_;
     /**
      *
@@ -1215,15 +1206,15 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       @java.lang.Override
       public Builder clear() {
         super.clear();
+        bitField0_ = 0;
         replicationState_ = 0;
-
         if (encryptionInfoBuilder_ == null) {
           encryptionInfo_ = java.util.Collections.emptyList();
         } else {
           encryptionInfo_ = null;
           encryptionInfoBuilder_.clear();
         }
-        bitField0_ = (bitField0_ & ~0x00000001);
+        bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
 
@@ -1251,19 +1242,32 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       public com.google.bigtable.admin.v2.Table.ClusterState buildPartial() {
         com.google.bigtable.admin.v2.Table.ClusterState result =
             new com.google.bigtable.admin.v2.Table.ClusterState(this);
-        int from_bitField0_ = bitField0_;
-        result.replicationState_ = replicationState_;
+        buildPartialRepeatedFields(result);
+        if (bitField0_ != 0) {
+          buildPartial0(result);
+        }
+        onBuilt();
+        return result;
+      }
+
+      private void buildPartialRepeatedFields(
+          com.google.bigtable.admin.v2.Table.ClusterState result) {
         if (encryptionInfoBuilder_ == null) {
-          if (((bitField0_ & 0x00000001) != 0)) {
+          if (((bitField0_ & 0x00000002) != 0)) {
             encryptionInfo_ = java.util.Collections.unmodifiableList(encryptionInfo_);
-            bitField0_ = (bitField0_ & ~0x00000001);
+            bitField0_ = (bitField0_ & ~0x00000002);
           }
           result.encryptionInfo_ = encryptionInfo_;
         } else {
           result.encryptionInfo_ = encryptionInfoBuilder_.build();
         }
-        onBuilt();
-        return result;
+      }
+
+      private void buildPartial0(com.google.bigtable.admin.v2.Table.ClusterState result) {
+        int from_bitField0_ = bitField0_;
+        if (((from_bitField0_ & 0x00000001) != 0)) {
+          result.replicationState_ = replicationState_;
+        }
       }
 
       @java.lang.Override
@@ -1321,7 +1325,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           if (!other.encryptionInfo_.isEmpty()) {
             if (encryptionInfo_.isEmpty()) {
               encryptionInfo_ = other.encryptionInfo_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
             } else {
               ensureEncryptionInfoIsMutable();
               encryptionInfo_.addAll(other.encryptionInfo_);
@@ -1334,7 +1338,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
               encryptionInfoBuilder_.dispose();
               encryptionInfoBuilder_ = null;
               encryptionInfo_ = other.encryptionInfo_;
-              bitField0_ = (bitField0_ & ~0x00000001);
+              bitField0_ = (bitField0_ & ~0x00000002);
               encryptionInfoBuilder_ =
                   com.google.protobuf.GeneratedMessageV3.alwaysUseFieldBuilders
                       ? getEncryptionInfoFieldBuilder()
@@ -1373,7 +1377,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
               case 8:
                 {
                   replicationState_ = input.readEnum();
-
+                  bitField0_ |= 0x00000001;
                   break;
                 } // case 8
               case 18:
@@ -1441,8 +1445,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
        * @return This builder for chaining.
        */
       public Builder setReplicationStateValue(int value) {
-
         replicationState_ = value;
+        bitField0_ |= 0x00000001;
         onChanged();
         return this;
       }
@@ -1462,9 +1466,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       @java.lang.Override
       public com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState
           getReplicationState() {
-        @SuppressWarnings("deprecation")
         com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState result =
-            com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.valueOf(
+            com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.forNumber(
                 replicationState_);
         return result == null
             ? com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.UNRECOGNIZED
@@ -1489,7 +1492,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         if (value == null) {
           throw new NullPointerException();
         }
-
+        bitField0_ |= 0x00000001;
         replicationState_ = value.getNumber();
         onChanged();
         return this;
@@ -1508,7 +1511,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
        * @return This builder for chaining.
        */
       public Builder clearReplicationState() {
-
+        bitField0_ = (bitField0_ & ~0x00000001);
         replicationState_ = 0;
         onChanged();
         return this;
@@ -1518,10 +1521,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           java.util.Collections.emptyList();
 
       private void ensureEncryptionInfoIsMutable() {
-        if (!((bitField0_ & 0x00000001) != 0)) {
+        if (!((bitField0_ & 0x00000002) != 0)) {
           encryptionInfo_ =
               new java.util.ArrayList<com.google.bigtable.admin.v2.EncryptionInfo>(encryptionInfo_);
-          bitField0_ |= 0x00000001;
+          bitField0_ |= 0x00000002;
         }
       }
 
@@ -1805,7 +1808,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       public Builder clearEncryptionInfo() {
         if (encryptionInfoBuilder_ == null) {
           encryptionInfo_ = java.util.Collections.emptyList();
-          bitField0_ = (bitField0_ & ~0x00000001);
+          bitField0_ = (bitField0_ & ~0x00000002);
           onChanged();
         } else {
           encryptionInfoBuilder_.clear();
@@ -1973,7 +1976,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                   com.google.bigtable.admin.v2.EncryptionInfo.Builder,
                   com.google.bigtable.admin.v2.EncryptionInfoOrBuilder>(
                   encryptionInfo_,
-                  ((bitField0_ & 0x00000001) != 0),
+                  ((bitField0_ & 0x00000002) != 0),
                   getParentForChildren(),
                   isClean());
           encryptionInfo_ = null;
@@ -2046,7 +2049,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
   }
 
   public static final int NAME_FIELD_NUMBER = 1;
-  private volatile java.lang.Object name_;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object name_ = "";
   /**
    *
    *
@@ -2115,6 +2120,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                         com.google.bigtable.admin.v2.Table.ClusterState.getDefaultInstance());
   }
 
+  @SuppressWarnings("serial")
   private com.google.protobuf.MapField<
           java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState>
       clusterStates_;
@@ -2197,8 +2203,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    * </code>
    */
   @java.lang.Override
-  public com.google.bigtable.admin.v2.Table.ClusterState getClusterStatesOrDefault(
-      java.lang.String key, com.google.bigtable.admin.v2.Table.ClusterState defaultValue) {
+  public /* nullable */ com.google.bigtable.admin.v2.Table.ClusterState getClusterStatesOrDefault(
+      java.lang.String key,
+      /* nullable */
+      com.google.bigtable.admin.v2.Table.ClusterState defaultValue) {
     if (key == null) {
       throw new NullPointerException("map key");
     }
@@ -2251,6 +2259,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                     com.google.bigtable.admin.v2.ColumnFamily.getDefaultInstance());
   }
 
+  @SuppressWarnings("serial")
   private com.google.protobuf.MapField<java.lang.String, com.google.bigtable.admin.v2.ColumnFamily>
       columnFamilies_;
 
@@ -2316,8 +2325,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
    */
   @java.lang.Override
-  public com.google.bigtable.admin.v2.ColumnFamily getColumnFamiliesOrDefault(
-      java.lang.String key, com.google.bigtable.admin.v2.ColumnFamily defaultValue) {
+  public /* nullable */ com.google.bigtable.admin.v2.ColumnFamily getColumnFamiliesOrDefault(
+      java.lang.String key,
+      /* nullable */
+      com.google.bigtable.admin.v2.ColumnFamily defaultValue) {
     if (key == null) {
       throw new NullPointerException("map key");
     }
@@ -2349,7 +2360,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
   }
 
   public static final int GRANULARITY_FIELD_NUMBER = 4;
-  private int granularity_;
+  private int granularity_ = 0;
   /**
    *
    *
@@ -2388,9 +2399,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.Table.TimestampGranularity getGranularity() {
-    @SuppressWarnings("deprecation")
     com.google.bigtable.admin.v2.Table.TimestampGranularity result =
-        com.google.bigtable.admin.v2.Table.TimestampGranularity.valueOf(granularity_);
+        com.google.bigtable.admin.v2.Table.TimestampGranularity.forNumber(granularity_);
     return result == null
         ? com.google.bigtable.admin.v2.Table.TimestampGranularity.UNRECOGNIZED
         : result;
@@ -2450,11 +2460,69 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    */
   @java.lang.Override
   public com.google.bigtable.admin.v2.RestoreInfoOrBuilder getRestoreInfoOrBuilder() {
-    return getRestoreInfo();
+    return restoreInfo_ == null
+        ? com.google.bigtable.admin.v2.RestoreInfo.getDefaultInstance()
+        : restoreInfo_;
+  }
+
+  public static final int CHANGE_STREAM_CONFIG_FIELD_NUMBER = 8;
+  private com.google.bigtable.admin.v2.ChangeStreamConfig changeStreamConfig_;
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return Whether the changeStreamConfig field is set.
+   */
+  @java.lang.Override
+  public boolean hasChangeStreamConfig() {
+    return changeStreamConfig_ != null;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return The changeStreamConfig.
+   */
+  @java.lang.Override
+  public com.google.bigtable.admin.v2.ChangeStreamConfig getChangeStreamConfig() {
+    return changeStreamConfig_ == null
+        ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+        : changeStreamConfig_;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   */
+  @java.lang.Override
+  public com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder getChangeStreamConfigOrBuilder() {
+    return changeStreamConfig_ == null
+        ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+        : changeStreamConfig_;
   }
 
   public static final int DELETION_PROTECTION_FIELD_NUMBER = 9;
-  private boolean deletionProtection_;
+  private boolean deletionProtection_ = false;
   /**
    *
    *
@@ -2505,6 +2573,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (restoreInfo_ != null) {
       output.writeMessage(6, getRestoreInfo());
     }
+    if (changeStreamConfig_ != null) {
+      output.writeMessage(8, getChangeStreamConfig());
+    }
     if (deletionProtection_ != false) {
       output.writeBool(9, deletionProtection_);
     }
@@ -2551,6 +2622,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (restoreInfo_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(6, getRestoreInfo());
     }
+    if (changeStreamConfig_ != null) {
+      size += com.google.protobuf.CodedOutputStream.computeMessageSize(8, getChangeStreamConfig());
+    }
     if (deletionProtection_ != false) {
       size += com.google.protobuf.CodedOutputStream.computeBoolSize(9, deletionProtection_);
     }
@@ -2576,6 +2650,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (hasRestoreInfo() != other.hasRestoreInfo()) return false;
     if (hasRestoreInfo()) {
       if (!getRestoreInfo().equals(other.getRestoreInfo())) return false;
+    }
+    if (hasChangeStreamConfig() != other.hasChangeStreamConfig()) return false;
+    if (hasChangeStreamConfig()) {
+      if (!getChangeStreamConfig().equals(other.getChangeStreamConfig())) return false;
     }
     if (getDeletionProtection() != other.getDeletionProtection()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
@@ -2604,6 +2682,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (hasRestoreInfo()) {
       hash = (37 * hash) + RESTORE_INFO_FIELD_NUMBER;
       hash = (53 * hash) + getRestoreInfo().hashCode();
+    }
+    if (hasChangeStreamConfig()) {
+      hash = (37 * hash) + CHANGE_STREAM_CONFIG_FIELD_NUMBER;
+      hash = (53 * hash) + getChangeStreamConfig().hashCode();
     }
     hash = (37 * hash) + DELETION_PROTECTION_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getDeletionProtection());
@@ -2769,20 +2851,22 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public Builder clear() {
       super.clear();
+      bitField0_ = 0;
       name_ = "";
-
       internalGetMutableClusterStates().clear();
       internalGetMutableColumnFamilies().clear();
       granularity_ = 0;
-
-      if (restoreInfoBuilder_ == null) {
-        restoreInfo_ = null;
-      } else {
-        restoreInfo_ = null;
+      restoreInfo_ = null;
+      if (restoreInfoBuilder_ != null) {
+        restoreInfoBuilder_.dispose();
         restoreInfoBuilder_ = null;
       }
+      changeStreamConfig_ = null;
+      if (changeStreamConfigBuilder_ != null) {
+        changeStreamConfigBuilder_.dispose();
+        changeStreamConfigBuilder_ = null;
+      }
       deletionProtection_ = false;
-
       return this;
     }
 
@@ -2809,21 +2893,42 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Override
     public com.google.bigtable.admin.v2.Table buildPartial() {
       com.google.bigtable.admin.v2.Table result = new com.google.bigtable.admin.v2.Table(this);
-      int from_bitField0_ = bitField0_;
-      result.name_ = name_;
-      result.clusterStates_ = internalGetClusterStates();
-      result.clusterStates_.makeImmutable();
-      result.columnFamilies_ = internalGetColumnFamilies();
-      result.columnFamilies_.makeImmutable();
-      result.granularity_ = granularity_;
-      if (restoreInfoBuilder_ == null) {
-        result.restoreInfo_ = restoreInfo_;
-      } else {
-        result.restoreInfo_ = restoreInfoBuilder_.build();
+      if (bitField0_ != 0) {
+        buildPartial0(result);
       }
-      result.deletionProtection_ = deletionProtection_;
       onBuilt();
       return result;
+    }
+
+    private void buildPartial0(com.google.bigtable.admin.v2.Table result) {
+      int from_bitField0_ = bitField0_;
+      if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.name_ = name_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
+        result.clusterStates_ = internalGetClusterStates();
+        result.clusterStates_.makeImmutable();
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.columnFamilies_ = internalGetColumnFamilies();
+        result.columnFamilies_.makeImmutable();
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.granularity_ = granularity_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.restoreInfo_ =
+            restoreInfoBuilder_ == null ? restoreInfo_ : restoreInfoBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.changeStreamConfig_ =
+            changeStreamConfigBuilder_ == null
+                ? changeStreamConfig_
+                : changeStreamConfigBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000040) != 0)) {
+        result.deletionProtection_ = deletionProtection_;
+      }
     }
 
     @java.lang.Override
@@ -2873,15 +2978,21 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (other == com.google.bigtable.admin.v2.Table.getDefaultInstance()) return this;
       if (!other.getName().isEmpty()) {
         name_ = other.name_;
+        bitField0_ |= 0x00000001;
         onChanged();
       }
       internalGetMutableClusterStates().mergeFrom(other.internalGetClusterStates());
+      bitField0_ |= 0x00000002;
       internalGetMutableColumnFamilies().mergeFrom(other.internalGetColumnFamilies());
+      bitField0_ |= 0x00000004;
       if (other.granularity_ != 0) {
         setGranularityValue(other.getGranularityValue());
       }
       if (other.hasRestoreInfo()) {
         mergeRestoreInfo(other.getRestoreInfo());
+      }
+      if (other.hasChangeStreamConfig()) {
+        mergeChangeStreamConfig(other.getChangeStreamConfig());
       }
       if (other.getDeletionProtection() != false) {
         setDeletionProtection(other.getDeletionProtection());
@@ -2915,7 +3026,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
             case 10:
               {
                 name_ = input.readStringRequireUtf8();
-
+                bitField0_ |= 0x00000001;
                 break;
               } // case 10
             case 18:
@@ -2929,6 +3040,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                 internalGetMutableClusterStates()
                     .getMutableMap()
                     .put(clusterStates__.getKey(), clusterStates__.getValue());
+                bitField0_ |= 0x00000002;
                 break;
               } // case 18
             case 26:
@@ -2942,24 +3054,32 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                 internalGetMutableColumnFamilies()
                     .getMutableMap()
                     .put(columnFamilies__.getKey(), columnFamilies__.getValue());
+                bitField0_ |= 0x00000004;
                 break;
               } // case 26
             case 32:
               {
                 granularity_ = input.readEnum();
-
+                bitField0_ |= 0x00000008;
                 break;
               } // case 32
             case 50:
               {
                 input.readMessage(getRestoreInfoFieldBuilder().getBuilder(), extensionRegistry);
-
+                bitField0_ |= 0x00000010;
                 break;
               } // case 50
+            case 66:
+              {
+                input.readMessage(
+                    getChangeStreamConfigFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 66
             case 72:
               {
                 deletionProtection_ = input.readBool();
-
+                bitField0_ |= 0x00000040;
                 break;
               } // case 72
             default:
@@ -3048,8 +3168,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -3067,8 +3187,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearName() {
-
       name_ = getDefaultInstance().getName();
+      bitField0_ = (bitField0_ & ~0x00000001);
       onChanged();
       return this;
     }
@@ -3091,8 +3211,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         throw new NullPointerException();
       }
       checkByteStringIsUtf8(value);
-
       name_ = value;
+      bitField0_ |= 0x00000001;
       onChanged();
       return this;
     }
@@ -3114,8 +3234,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     private com.google.protobuf.MapField<
             java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState>
         internalGetMutableClusterStates() {
-      onChanged();
-      ;
       if (clusterStates_ == null) {
         clusterStates_ =
             com.google.protobuf.MapField.newMapField(ClusterStatesDefaultEntryHolder.defaultEntry);
@@ -3123,6 +3241,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (!clusterStates_.isMutable()) {
         clusterStates_ = clusterStates_.copy();
       }
+      bitField0_ |= 0x00000002;
+      onChanged();
       return clusterStates_;
     }
 
@@ -3194,8 +3314,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     @java.lang.Override
-    public com.google.bigtable.admin.v2.Table.ClusterState getClusterStatesOrDefault(
-        java.lang.String key, com.google.bigtable.admin.v2.Table.ClusterState defaultValue) {
+    public /* nullable */ com.google.bigtable.admin.v2.Table.ClusterState getClusterStatesOrDefault(
+        java.lang.String key,
+        /* nullable */
+        com.google.bigtable.admin.v2.Table.ClusterState defaultValue) {
       if (key == null) {
         throw new NullPointerException("map key");
       }
@@ -3233,6 +3355,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
 
     public Builder clearClusterStates() {
+      bitField0_ = (bitField0_ & ~0x00000002);
       internalGetMutableClusterStates().getMutableMap().clear();
       return this;
     }
@@ -3262,6 +3385,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Deprecated
     public java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState>
         getMutableClusterStates() {
+      bitField0_ |= 0x00000002;
       return internalGetMutableClusterStates().getMutableMap();
     }
     /**
@@ -3287,8 +3411,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException("map value");
       }
-
       internalGetMutableClusterStates().getMutableMap().put(key, value);
+      bitField0_ |= 0x00000002;
       return this;
     }
     /**
@@ -3309,6 +3433,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     public Builder putAllClusterStates(
         java.util.Map<java.lang.String, com.google.bigtable.admin.v2.Table.ClusterState> values) {
       internalGetMutableClusterStates().getMutableMap().putAll(values);
+      bitField0_ |= 0x00000002;
       return this;
     }
 
@@ -3329,8 +3454,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     private com.google.protobuf.MapField<
             java.lang.String, com.google.bigtable.admin.v2.ColumnFamily>
         internalGetMutableColumnFamilies() {
-      onChanged();
-      ;
       if (columnFamilies_ == null) {
         columnFamilies_ =
             com.google.protobuf.MapField.newMapField(ColumnFamiliesDefaultEntryHolder.defaultEntry);
@@ -3338,6 +3461,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (!columnFamilies_.isMutable()) {
         columnFamilies_ = columnFamilies_.copy();
       }
+      bitField0_ |= 0x00000004;
+      onChanged();
       return columnFamilies_;
     }
 
@@ -3394,8 +3519,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
      */
     @java.lang.Override
-    public com.google.bigtable.admin.v2.ColumnFamily getColumnFamiliesOrDefault(
-        java.lang.String key, com.google.bigtable.admin.v2.ColumnFamily defaultValue) {
+    public /* nullable */ com.google.bigtable.admin.v2.ColumnFamily getColumnFamiliesOrDefault(
+        java.lang.String key,
+        /* nullable */
+        com.google.bigtable.admin.v2.ColumnFamily defaultValue) {
       if (key == null) {
         throw new NullPointerException("map key");
       }
@@ -3428,6 +3555,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
 
     public Builder clearColumnFamilies() {
+      bitField0_ = (bitField0_ & ~0x00000004);
       internalGetMutableColumnFamilies().getMutableMap().clear();
       return this;
     }
@@ -3452,6 +3580,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     @java.lang.Deprecated
     public java.util.Map<java.lang.String, com.google.bigtable.admin.v2.ColumnFamily>
         getMutableColumnFamilies() {
+      bitField0_ |= 0x00000004;
       return internalGetMutableColumnFamilies().getMutableMap();
     }
     /**
@@ -3472,8 +3601,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException("map value");
       }
-
       internalGetMutableColumnFamilies().getMutableMap().put(key, value);
+      bitField0_ |= 0x00000004;
       return this;
     }
     /**
@@ -3489,6 +3618,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     public Builder putAllColumnFamilies(
         java.util.Map<java.lang.String, com.google.bigtable.admin.v2.ColumnFamily> values) {
       internalGetMutableColumnFamilies().getMutableMap().putAll(values);
+      bitField0_ |= 0x00000004;
       return this;
     }
 
@@ -3531,8 +3661,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder setGranularityValue(int value) {
-
       granularity_ = value;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -3554,9 +3684,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      */
     @java.lang.Override
     public com.google.bigtable.admin.v2.Table.TimestampGranularity getGranularity() {
-      @SuppressWarnings("deprecation")
       com.google.bigtable.admin.v2.Table.TimestampGranularity result =
-          com.google.bigtable.admin.v2.Table.TimestampGranularity.valueOf(granularity_);
+          com.google.bigtable.admin.v2.Table.TimestampGranularity.forNumber(granularity_);
       return result == null
           ? com.google.bigtable.admin.v2.Table.TimestampGranularity.UNRECOGNIZED
           : result;
@@ -3582,7 +3711,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-
+      bitField0_ |= 0x00000008;
       granularity_ = value.getNumber();
       onChanged();
       return this;
@@ -3604,7 +3733,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearGranularity() {
-
+      bitField0_ = (bitField0_ & ~0x00000008);
       granularity_ = 0;
       onChanged();
       return this;
@@ -3631,7 +3760,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the restoreInfo field is set.
      */
     public boolean hasRestoreInfo() {
-      return restoreInfoBuilder_ != null || restoreInfo_ != null;
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
      *
@@ -3674,11 +3803,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           throw new NullPointerException();
         }
         restoreInfo_ = value;
-        onChanged();
       } else {
         restoreInfoBuilder_.setMessage(value);
       }
-
+      bitField0_ |= 0x00000010;
+      onChanged();
       return this;
     }
     /**
@@ -3697,11 +3826,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         com.google.bigtable.admin.v2.RestoreInfo.Builder builderForValue) {
       if (restoreInfoBuilder_ == null) {
         restoreInfo_ = builderForValue.build();
-        onChanged();
       } else {
         restoreInfoBuilder_.setMessage(builderForValue.build());
       }
-
+      bitField0_ |= 0x00000010;
+      onChanged();
       return this;
     }
     /**
@@ -3718,19 +3847,18 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeRestoreInfo(com.google.bigtable.admin.v2.RestoreInfo value) {
       if (restoreInfoBuilder_ == null) {
-        if (restoreInfo_ != null) {
-          restoreInfo_ =
-              com.google.bigtable.admin.v2.RestoreInfo.newBuilder(restoreInfo_)
-                  .mergeFrom(value)
-                  .buildPartial();
+        if (((bitField0_ & 0x00000010) != 0)
+            && restoreInfo_ != null
+            && restoreInfo_ != com.google.bigtable.admin.v2.RestoreInfo.getDefaultInstance()) {
+          getRestoreInfoBuilder().mergeFrom(value);
         } else {
           restoreInfo_ = value;
         }
-        onChanged();
       } else {
         restoreInfoBuilder_.mergeFrom(value);
       }
-
+      bitField0_ |= 0x00000010;
+      onChanged();
       return this;
     }
     /**
@@ -3746,14 +3874,13 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public Builder clearRestoreInfo() {
-      if (restoreInfoBuilder_ == null) {
-        restoreInfo_ = null;
-        onChanged();
-      } else {
-        restoreInfo_ = null;
+      bitField0_ = (bitField0_ & ~0x00000010);
+      restoreInfo_ = null;
+      if (restoreInfoBuilder_ != null) {
+        restoreInfoBuilder_.dispose();
         restoreInfoBuilder_ = null;
       }
-
+      onChanged();
       return this;
     }
     /**
@@ -3769,7 +3896,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public com.google.bigtable.admin.v2.RestoreInfo.Builder getRestoreInfoBuilder() {
-
+      bitField0_ |= 0x00000010;
       onChanged();
       return getRestoreInfoFieldBuilder().getBuilder();
     }
@@ -3823,6 +3950,210 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       return restoreInfoBuilder_;
     }
 
+    private com.google.bigtable.admin.v2.ChangeStreamConfig changeStreamConfig_;
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.admin.v2.ChangeStreamConfig,
+            com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+            com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>
+        changeStreamConfigBuilder_;
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     *
+     * @return Whether the changeStreamConfig field is set.
+     */
+    public boolean hasChangeStreamConfig() {
+      return ((bitField0_ & 0x00000020) != 0);
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     *
+     * @return The changeStreamConfig.
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfig getChangeStreamConfig() {
+      if (changeStreamConfigBuilder_ == null) {
+        return changeStreamConfig_ == null
+            ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+            : changeStreamConfig_;
+      } else {
+        return changeStreamConfigBuilder_.getMessage();
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder setChangeStreamConfig(com.google.bigtable.admin.v2.ChangeStreamConfig value) {
+      if (changeStreamConfigBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        changeStreamConfig_ = value;
+      } else {
+        changeStreamConfigBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder setChangeStreamConfig(
+        com.google.bigtable.admin.v2.ChangeStreamConfig.Builder builderForValue) {
+      if (changeStreamConfigBuilder_ == null) {
+        changeStreamConfig_ = builderForValue.build();
+      } else {
+        changeStreamConfigBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder mergeChangeStreamConfig(com.google.bigtable.admin.v2.ChangeStreamConfig value) {
+      if (changeStreamConfigBuilder_ == null) {
+        if (((bitField0_ & 0x00000020) != 0)
+            && changeStreamConfig_ != null
+            && changeStreamConfig_
+                != com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()) {
+          getChangeStreamConfigBuilder().mergeFrom(value);
+        } else {
+          changeStreamConfig_ = value;
+        }
+      } else {
+        changeStreamConfigBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder clearChangeStreamConfig() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      changeStreamConfig_ = null;
+      if (changeStreamConfigBuilder_ != null) {
+        changeStreamConfigBuilder_.dispose();
+        changeStreamConfigBuilder_ = null;
+      }
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfig.Builder getChangeStreamConfigBuilder() {
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return getChangeStreamConfigFieldBuilder().getBuilder();
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder
+        getChangeStreamConfigOrBuilder() {
+      if (changeStreamConfigBuilder_ != null) {
+        return changeStreamConfigBuilder_.getMessageOrBuilder();
+      } else {
+        return changeStreamConfig_ == null
+            ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+            : changeStreamConfig_;
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.admin.v2.ChangeStreamConfig,
+            com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+            com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>
+        getChangeStreamConfigFieldBuilder() {
+      if (changeStreamConfigBuilder_ == null) {
+        changeStreamConfigBuilder_ =
+            new com.google.protobuf.SingleFieldBuilderV3<
+                com.google.bigtable.admin.v2.ChangeStreamConfig,
+                com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+                com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>(
+                getChangeStreamConfig(), getParentForChildren(), isClean());
+        changeStreamConfig_ = null;
+      }
+      return changeStreamConfigBuilder_;
+    }
+
     private boolean deletionProtection_;
     /**
      *
@@ -3864,6 +4195,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     public Builder setDeletionProtection(boolean value) {
 
       deletionProtection_ = value;
+      bitField0_ |= 0x00000040;
       onChanged();
       return this;
     }
@@ -3884,7 +4216,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearDeletionProtection() {
-
+      bitField0_ = (bitField0_ & ~0x00000040);
       deletionProtection_ = false;
       onChanged();
       return this;
