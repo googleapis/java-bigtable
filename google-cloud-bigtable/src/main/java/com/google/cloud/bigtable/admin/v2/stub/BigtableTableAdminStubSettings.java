@@ -551,7 +551,7 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
 
   /** Returns the default service endpoint. */
   public static String getDefaultEndpoint() {
-    return "bigtableadmin.apis-s3nscloud.io:443";
+    return "bigtableadmin.test-endpoint:443";
   }
 
   /** Returns the default mTLS service endpoint. */
