@@ -25,60 +25,49 @@ import javax.annotation.Nullable;
 
 import org.threeten.bp.Instant;
 
-/** Fluent wrapper for {@link com.google.bigtable.admin.v2.CopyBackupRequest} */
+/**
+ * Build CopyBackupRequest from configuration from the client and pass in argument.
+ */
 public final class CopyBackupRequest {
   private final com.google.bigtable.admin.v2.CopyBackupRequest.Builder requestBuilder =
       com.google.bigtable.admin.v2.CopyBackupRequest.newBuilder();
   private final String sourceBackupId;
   private final String sourceClusterId;
-  private final String sourceInstanceId;
-  private final String sourceProjectId;
+  private String sourceInstanceId;
+  private String sourceProjectId;
 
   private String destClusterId;
 
   /**
    * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
-   * instance as the destination backup. To copy from a backup in another instance, use {@link
-   * #of(String, String, String) of} method. To copy from a backup in another project, use {@link
-   * #of(String, String, String, String) of} method
+   * instance and project as the destination backup, which is where the BigtableTableAdminClient is created in.
+   * use setSourceInstanceId if the source backup is located in a different instance.
+   * use setSourceProjectId if the source backup is located in a different project.
    */
   public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId) {
-    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, null, null);
-    return request;
-  }
-
-  /**
-   * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
-   * project as the destination backup. To copy from a backup in another project, use {@link
-   * #of(String, String, String, String) of} method
-   */
-  public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId, String sourceInstanceId) {
-    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, sourceInstanceId, null) {
-, null);
-    return request;
-  }
-
-  /**
-   * Create a {@link CopyBackupRequest} object. The source backup could be located in the same or
-   * different cluster and/or instance and/or project.
-   */
-  public static CopyBackupRequest of(
-      String sourceClusterId, String sourceBackupId, String sourceInstanceId, String sourceProjectId) {
-    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId, sourceInstanceId, sourceProjectId);
+    CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId);
     return request;
   }
 
   private CopyBackupRequest(
       @Nonnull String sourceClusterId,
-      @Nonnull String sourceBackupId,
-      @Nullable String sourceInstanceId,
-      @Nullable String sourceProjectId) {
+      @Nonnull String sourceBackupId) {
     Preconditions.checkNotNull(sourceBackupId);
     Preconditions.checkNotNull(sourceClusterId);
     this.sourceClusterId = sourceClusterId;
     this.sourceBackupId = sourceBackupId;
-    this.sourceInstanceId = sourceInstanceId;
-    this.sourceProjectId = sourceProjectId;
+  }
+
+  public CopyBackupRequest setSourceInstanceId(String instanceId) {
+    Preconditions.checkNotNull(instanceId);
+    this.sourceInstanceId = instanceId;
+    return this;
+  }
+
+  public CopyBackupRequest setSourceProjectId(String projectId) {
+    Preconditions.checkNotNull(projectId);
+    this.sourceProjectId = projectId;
+    return this;
   }
 
   public CopyBackupRequest setDestinationBackupId(String backupId) {
