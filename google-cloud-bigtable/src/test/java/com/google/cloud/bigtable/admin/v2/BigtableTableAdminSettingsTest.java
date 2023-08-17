@@ -125,8 +125,6 @@ public class BigtableTableAdminSettingsTest {
     "getSnapshotSettings",
     "listSnapshotsSettings",
     "deleteSnapshotSettings",
-    "copyBackupSettings",
-    "copyBackupOperationSettings",
     "createBackupSettings",
     "createBackupOperationSettings",
     "getBackupSettings",

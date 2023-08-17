@@ -61,7 +61,8 @@ public class CopyBackupRequestTest {
   @Test
   public void testToProtoCrossInstance() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
@@ -81,7 +82,9 @@ public class CopyBackupRequestTest {
   @Test
   public void testToProtoCrossProject() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
+            .setSourceProjectId(SOURCE_PROJECT_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
@@ -123,20 +126,23 @@ public class CopyBackupRequestTest {
   @Test
   public void testEqualityCrossInstance() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
 
     assertThat(request)
         .isEqualTo(
-            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
                 .setDestinationBackupId(BACKUP_ID)
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME));
     assertThat(request)
         .isNotEqualTo(
-            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
                 .setDestinationBackupId("another-backup")
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME));
@@ -145,23 +151,26 @@ public class CopyBackupRequestTest {
   @Test
   public void testEqualityCrossProject() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(
-                SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
+            .setSourceProjectId(SOURCE_PROJECT_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
 
     assertThat(request)
         .isEqualTo(
-            CopyBackupRequest.of(
-                    SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
+                .setSourceProjectId(SOURCE_PROJECT_ID)
                 .setDestinationBackupId(BACKUP_ID)
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME));
     assertThat(request)
         .isNotEqualTo(
-            CopyBackupRequest.of(
-                    SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
+                .setSourceProjectId(SOURCE_PROJECT_ID)
                 .setDestinationBackupId("another-backup")
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME));
@@ -194,21 +203,24 @@ public class CopyBackupRequestTest {
   @Test
   public void testHashCodeCrossInstance() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
 
     assertThat(request.hashCode())
         .isEqualTo(
-            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
                 .setDestinationBackupId(BACKUP_ID)
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME)
                 .hashCode());
     assertThat(request.hashCode())
         .isNotEqualTo(
-            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
                 .setDestinationBackupId("another-backup")
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME)
@@ -218,24 +230,27 @@ public class CopyBackupRequestTest {
   @Test
   public void testHashCodeCrossProject() {
     CopyBackupRequest request =
-        CopyBackupRequest.of(
-                SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+        CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+            .setSourceInstanceId(SOURCE_INSTANCE_ID)
+            .setSourceProjectId(SOURCE_PROJECT_ID)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(EXPIRE_TIME);
 
     assertThat(request.hashCode())
         .isEqualTo(
-            CopyBackupRequest.of(
-                    SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
+                .setSourceProjectId(SOURCE_PROJECT_ID)
                 .setDestinationBackupId(BACKUP_ID)
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME)
                 .hashCode());
     assertThat(request.hashCode())
         .isNotEqualTo(
-            CopyBackupRequest.of(
-                    SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID, SOURCE_INSTANCE_ID, SOURCE_PROJECT_ID)
+            CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
+                .setSourceInstanceId(SOURCE_INSTANCE_ID)
+                .setSourceProjectId(SOURCE_PROJECT_ID)
                 .setDestinationBackupId("another-backup")
                 .setDestinationClusterId(CLUSTER_ID)
                 .setExpireTime(EXPIRE_TIME)

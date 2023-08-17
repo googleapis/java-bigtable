@@ -309,7 +309,7 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
 
     // Create the backup
     tableAdmin.createBackup(
@@ -351,7 +351,7 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
 
     // Create the backup
     tableAdmin.createBackup(
@@ -374,7 +374,8 @@ public class BigtableBackupIT {
 
       try {
         CopyBackupRequest req =
-            CopyBackupRequest.of(targetCluster, backupId, testEnvRule.env().getInstanceId())
+            CopyBackupRequest.of(targetCluster, backupId)
+                .setSourceInstanceId(testEnvRule.env().getInstanceId())
                 .setDestinationBackupId(copiedBackupId)
                 .setDestinationClusterId(destCluster)
                 .setExpireTime(expireTime);

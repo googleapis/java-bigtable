@@ -93,7 +93,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
@@ -800,7 +799,7 @@ public class BigtableTableAdminClientTests {
     String srcTableId = "src-table";
     String srcClusterId = "src-cluster";
     String srcBackupId = "src-backup";
-    Instant expireTime = Instant.now().plus(Duration.ofDays(15));
+    Instant expireTime = Instant.now().plus(org.threeten.bp.Duration.ofDays(15));
     long sizeBytes = 123456789;
 
     String dstBackupName =
@@ -811,7 +810,9 @@ public class BigtableTableAdminClientTests {
         NameUtil.formatTableName(srcProjectId, srcInstanceId, srcTableId);
 
     CopyBackupRequest req =
-        CopyBackupRequest.of(srcClusterId, srcBackupId, srcInstanceId, srcProjectId)
+        CopyBackupRequest.of(srcClusterId, srcBackupId)
+            .setSourceInstanceId(srcInstanceId)
+            .setSourceProjectId(srcProjectId)
             .setDestinationBackupId(BACKUP_ID)
             .setDestinationClusterId(CLUSTER_ID)
             .setExpireTime(expireTime);
