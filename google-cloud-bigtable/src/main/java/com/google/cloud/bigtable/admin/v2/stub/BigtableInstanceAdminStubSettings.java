@@ -463,7 +463,7 @@ public class BigtableInstanceAdminStubSettings
 
   /** Returns the default service endpoint. */
   public static String getDefaultEndpoint() {
-    return "bigtableadmin.googleapis.com:443";
+    return "bigtableadmin.apis-s3nscloud.io:443";
   }
 
   /** Returns the default mTLS service endpoint. */
