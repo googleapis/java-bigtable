@@ -80,12 +80,6 @@ public final class CopyBackupRequest {
     return this;
   }
 
-//  public CopyBackupRequest setDestinationClusterId(String clusterId) {
-//    Preconditions.checkNotNull(clusterId);
-//    this.destClusterId = clusterId;
-//    return this;
-//  }
-
   public CopyBackupRequest setExpireTime(Instant expireTime) {
     Preconditions.checkNotNull(expireTime);
     requestBuilder.setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()));
