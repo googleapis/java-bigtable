@@ -320,8 +320,7 @@ public class BigtableBackupIT {
     try {
       CopyBackupRequest req =
           CopyBackupRequest.of(targetCluster, backupId)
-              .setDestinationBackupId(copiedBackupId)
-              .setDestinationClusterId(targetCluster)
+              .setDestination(targetCluster, copiedBackupId)
               .setExpireTime(expireTime);
       Backup result = tableAdmin.copyBackup(req);
       assertWithMessage("Got wrong copied backup id in CopyBackup API")
@@ -375,9 +374,8 @@ public class BigtableBackupIT {
       try {
         CopyBackupRequest req =
             CopyBackupRequest.of(targetCluster, backupId)
-                .setSourceInstanceId(testEnvRule.env().getInstanceId())
-                .setDestinationBackupId(copiedBackupId)
-                .setDestinationClusterId(destCluster)
+                .setSourceInstance(testEnvRule.env().getInstanceId())
+                .setDestination(destCluster, copiedBackupId)
                 .setExpireTime(expireTime);
         Backup result = destTableAdmin.copyBackup(req);
         assertWithMessage("Got wrong copied backup id in CopyBackup API")

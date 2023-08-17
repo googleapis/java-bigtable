@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import org.threeten.bp.Instant;
 
 /**
- * Build CopyBackupRequest from configuration from the client and pass in argument.
+ * Build CopyBackupRequest for {@link com.google.bigtable.admin.v2.CopyBackupRequest}.
  */
 public final class CopyBackupRequest {
   private final com.google.bigtable.admin.v2.CopyBackupRequest.Builder requestBuilder =
@@ -41,8 +41,8 @@ public final class CopyBackupRequest {
   /**
    * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
    * instance and project as the destination backup, which is where the BigtableTableAdminClient is created in.
-   * use setSourceInstanceId if the source backup is located in a different instance.
-   * use setSourceProjectId if the source backup is located in a different project.
+   * use setSourceInstance("[INSTANCE]") if the source backup is located in a different instance.
+   * use setSourceInstance("[PROJECT]", "[INSTANCE]") if the source backup is located in a different project.
    */
   public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId) {
     CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId);
@@ -52,35 +52,39 @@ public final class CopyBackupRequest {
   private CopyBackupRequest(
       @Nonnull String sourceClusterId,
       @Nonnull String sourceBackupId) {
-    Preconditions.checkNotNull(sourceBackupId);
     Preconditions.checkNotNull(sourceClusterId);
+    Preconditions.checkNotNull(sourceBackupId);
     this.sourceClusterId = sourceClusterId;
     this.sourceBackupId = sourceBackupId;
   }
 
-  public CopyBackupRequest setSourceInstanceId(String instanceId) {
+  public CopyBackupRequest setSourceInstance(String instanceId) {
     Preconditions.checkNotNull(instanceId);
     this.sourceInstanceId = instanceId;
     return this;
   }
 
-  public CopyBackupRequest setSourceProjectId(String projectId) {
+  public CopyBackupRequest setSourceInstance(String projectId, String instanceId) {
     Preconditions.checkNotNull(projectId);
+    Preconditions.checkNotNull(instanceId);
     this.sourceProjectId = projectId;
+    this.sourceInstanceId = instanceId;
     return this;
   }
 
-  public CopyBackupRequest setDestinationBackupId(String backupId) {
+  public CopyBackupRequest setDestination(String clusterId, String backupId) {
     Preconditions.checkNotNull(backupId);
-    requestBuilder.setBackupId(backupId);
-    return this;
-  }
-
-  public CopyBackupRequest setDestinationClusterId(String clusterId) {
     Preconditions.checkNotNull(clusterId);
+    requestBuilder.setBackupId(backupId);
     this.destClusterId = clusterId;
     return this;
   }
+
+//  public CopyBackupRequest setDestinationClusterId(String clusterId) {
+//    Preconditions.checkNotNull(clusterId);
+//    this.destClusterId = clusterId;
+//    return this;
+//  }
 
   public CopyBackupRequest setExpireTime(Instant expireTime) {
     Preconditions.checkNotNull(expireTime);

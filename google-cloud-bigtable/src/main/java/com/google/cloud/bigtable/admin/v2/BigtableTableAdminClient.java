@@ -1329,8 +1329,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * BigtableTableAdminClient client =  BigtableTableAdminClient.create("[PROJECT]", "[INSTANCE]");
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setDestinationBackupId(backupId)
-   *             .setDestinationClusterId(clusterId)
+   *             .setDestination(clusterId, backupId)
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
@@ -1339,21 +1338,18 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setSourceInstanceId(sourceInstanceId)
-   *             .setDestinationBackupId(backupId)
-   *             .setDestinationClusterId(clusterId)
+   *             .setSourceInstance(sourceInstanceId)
+   *             .setDestination(clusterId, backupId)
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
    *
-   * If the source backup is located in a different instance and project
+   * If the source backup is located in a different project
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setSourceProjectId(sourceProjectId)
-   *             .setSourceInstanceId(sourceInstanceId)
-   *             .setDestinationBackupId(backupId)
-   *             .setDestinationClusterId(clusterId)
+   *             .setSourceInstance(sourceProjectId, sourceInstanceId)
+   *             .setDestination(clusterId, backupId)
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
@@ -1372,8 +1368,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
-   *             .setDestBackupId(backupId)
-   *             .setDestClusterId(clusterId)
+   *             .setDestination(clusterId, backupId)
    *             .setExpireTime(expireTime);
    * ApiFuture<Backup> future = client.copyBackupAsync(request);
    *
