@@ -806,8 +806,7 @@ public class BigtableTableAdminClientTests {
         NameUtil.formatBackupName(PROJECT_ID, INSTANCE_ID, CLUSTER_ID, BACKUP_ID);
     String srcBackupName =
         NameUtil.formatBackupName(srcProjectId, srcProjectId, srcClusterId, srcBackupId);
-    String srcTableName =
-        NameUtil.formatTableName(srcProjectId, srcInstanceId, srcTableId);
+    String srcTableName = NameUtil.formatTableName(srcProjectId, srcInstanceId, srcTableId);
 
     CopyBackupRequest req =
         CopyBackupRequest.of(srcClusterId, srcBackupId)

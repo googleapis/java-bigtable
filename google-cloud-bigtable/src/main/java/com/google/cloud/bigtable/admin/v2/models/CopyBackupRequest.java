@@ -21,13 +21,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.util.Timestamps;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import org.threeten.bp.Instant;
 
-/**
- * Build CopyBackupRequest for {@link com.google.bigtable.admin.v2.CopyBackupRequest}.
- */
+/** Build CopyBackupRequest for {@link com.google.bigtable.admin.v2.CopyBackupRequest}. */
 public final class CopyBackupRequest {
   private final com.google.bigtable.admin.v2.CopyBackupRequest.Builder requestBuilder =
       com.google.bigtable.admin.v2.CopyBackupRequest.newBuilder();
@@ -40,18 +36,17 @@ public final class CopyBackupRequest {
 
   /**
    * Create a {@link CopyBackupRequest} object. It assumes the source backup is located in the same
-   * instance and project as the destination backup, which is where the BigtableTableAdminClient is created in.
-   * use setSourceInstance("[INSTANCE]") if the source backup is located in a different instance.
-   * use setSourceInstance("[PROJECT]", "[INSTANCE]") if the source backup is located in a different project.
+   * instance and project as the destination backup, which is where the BigtableTableAdminClient is
+   * created in. use setSourceInstance("[INSTANCE]") if the source backup is located in a different
+   * instance. use setSourceInstance("[PROJECT]", "[INSTANCE]") if the source backup is located in a
+   * different project.
    */
   public static CopyBackupRequest of(String sourceClusterId, String sourceBackupId) {
     CopyBackupRequest request = new CopyBackupRequest(sourceClusterId, sourceBackupId);
     return request;
   }
 
-  private CopyBackupRequest(
-      @Nonnull String sourceClusterId,
-      @Nonnull String sourceBackupId) {
+  private CopyBackupRequest(@Nonnull String sourceClusterId, @Nonnull String sourceBackupId) {
     Preconditions.checkNotNull(sourceClusterId);
     Preconditions.checkNotNull(sourceBackupId);
     this.sourceClusterId = sourceClusterId;

@@ -112,7 +112,7 @@ public class CopyBackupRequestTest {
     assertThat(request)
         .isNotEqualTo(
             CopyBackupRequest.of(SOURCE_CLUSTER_ID, SOURCE_BACKUP_ID)
-                .setDestination(CLUSTER_ID,"another-backup")
+                .setDestination(CLUSTER_ID, "another-backup")
                 .setExpireTime(EXPIRE_TIME));
   }
 

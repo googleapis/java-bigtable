@@ -1322,9 +1322,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * Copy an existing backup to a new backup in a Cloud Bigtable cluster with the specified
    * configuration.
    *
-   * <p>Sample code
-   * Note: You want to create the client with project and instance where you want the new backup to
-   * be copied to.
+   * <p>Sample code Note: You want to create the client with project and instance where you want the
+   * new backup to be copied to.
+   *
    * <pre>{@code
    * BigtableTableAdminClient client =  BigtableTableAdminClient.create("[PROJECT]", "[INSTANCE]");
    * CopyBackupRequest request =
@@ -1335,6 +1335,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * If the source backup is located in a different instance
+   *
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
@@ -1345,6 +1346,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    *
    * If the source backup is located in a different project
+   *
    * <pre>{@code
    * CopyBackupRequest request =
    *         CopyBackupRequest.of(sourceClusterId, sourceBackupId)
@@ -1353,15 +1355,14 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *             .setExpireTime(expireTime);
    * Backup response = client.copyBackup(request);
    * }</pre>
-   *
    */
   public Backup copyBackup(CopyBackupRequest request) {
     return ApiExceptions.callAndTranslateApiException(copyBackupAsync(request));
   }
 
   /**
-   * Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the specified
-   * configuration asynchronously.
+   * Creates a copy of a backup from an existing backup in a Cloud Bigtable cluster with the
+   * specified configuration asynchronously.
    *
    * <p>Sample code
    *
