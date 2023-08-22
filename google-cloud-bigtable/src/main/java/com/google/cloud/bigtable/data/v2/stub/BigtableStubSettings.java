@@ -166,7 +166,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
 
   /** Returns the default service endpoint. */
   public static String getDefaultEndpoint() {
-    return "bigtable.test-endpoint:443";
+    return "bigtable.googleapis.com:443";
   }
 
   /** Returns the default mTLS service endpoint. */
@@ -407,7 +407,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       builder.setTransportChannelProvider(defaultTransportChannelProvider());
       builder.setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       builder.setInternalHeaderProvider(defaultApiClientHeaderProviderBuilder().build());
-      builder.setEndpoint(getDefaultEndpoint());
+      builder.setEndpoint("test-endpoint.com:443");
       builder.setMtlsEndpoint(getDefaultMtlsEndpoint());
       builder.setSwitchToMtlsEndpointAllowed(true);
 
