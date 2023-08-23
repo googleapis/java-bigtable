@@ -150,4 +150,10 @@
         <differenceType>8001</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/BigtableTracerBatchedUnaryCallable</className>
     </difference>
+    <!-- InternalApi constructor was updated -->
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsTracerFactory</className>
+        <method>*</method>
+    </difference>
 </differences>

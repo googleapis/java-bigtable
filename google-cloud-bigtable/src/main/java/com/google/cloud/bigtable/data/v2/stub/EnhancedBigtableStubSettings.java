@@ -52,6 +52,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.opentelemetry.api.OpenTelemetry;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -230,6 +231,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final boolean isBuiltinMetricsEnabled;
 
+  private final OpenTelemetry openTelemetry;
+
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
 
@@ -255,6 +258,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     primedTableIds = builder.primedTableIds;
     jwtAudienceMapping = builder.jwtAudienceMapping;
     isBuiltinMetricsEnabled = builder.isBuiltinMetricsEnabled;
+    openTelemetry = builder.openTelemetry;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -318,6 +322,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   public boolean isBuiltinMetricsEnabled() {
     return isBuiltinMetricsEnabled;
+  }
+
+  public OpenTelemetry getOpenTelemetry() {
+    return openTelemetry;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -622,6 +630,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private boolean isBuiltinMetricsEnabled;
 
+    private OpenTelemetry openTelemetry;
+
     /**
      * Initializes a new Builder with sane defaults for all settings.
      *
@@ -743,6 +753,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       featureFlags =
           FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
+
+      openTelemetry = null;
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -753,6 +765,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
       jwtAudienceMapping = settings.jwtAudienceMapping;
+      openTelemetry = settings.openTelemetry;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -907,6 +920,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
+    public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
+      this.openTelemetry = openTelemetry;
+      return this;
+    }
+
+    public OpenTelemetry getOpenTelemetry() {
+      return this.openTelemetry;
+    }
+
     @InternalApi("Used for internal testing")
     public Map<String, String> getJwtAudienceMapping() {
       return jwtAudienceMapping;
@@ -1051,6 +1073,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
         .add("isBuiltinMetricsEnabled", isBuiltinMetricsEnabled)
+        .add("openTelemetry", openTelemetry)
         .add("parent", super.toString())
         .toString();
   }

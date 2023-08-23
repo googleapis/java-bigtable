@@ -682,18 +682,16 @@ public class BuiltinMetricsTracerTest {
                   .map(a -> a.get(TABLE_ID))
                   .collect(Collectors.toList()))
           .containsExactly(TABLE, TABLE, TABLE);
-      // TODO: the order of batched tracer unary callable seems to be incorrect, causing the first
-      //  attempt returning global
       assertThat(
               attributes.getAllValues().stream()
                   .map(a -> a.get(ZONE_ID))
                   .collect(Collectors.toList()))
-          .containsExactly("global", ZONE, ZONE);
+          .containsExactly(ZONE, ZONE, ZONE);
       assertThat(
               attributes.getAllValues().stream()
                   .map(a -> a.get(CLUSTER_ID))
                   .collect(Collectors.toList()))
-          .containsExactly("unspecified", CLUSTER, CLUSTER);
+          .containsExactly(CLUSTER, CLUSTER, CLUSTER);
       assertThat(
               attributes.getAllValues().stream()
                   .map(a -> a.get(CLIENT_NAME))
