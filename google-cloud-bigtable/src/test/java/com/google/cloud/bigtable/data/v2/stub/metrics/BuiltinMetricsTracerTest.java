@@ -115,6 +115,7 @@ public class BuiltinMetricsTracerTest {
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
+  private static final long SLEEP_VARIABILITY = 15;
 
   private static final long CHANNEL_BLOCKING_LATENCY = 75;
 
@@ -211,8 +212,8 @@ public class BuiltinMetricsTracerTest {
                 .setDelayThreshold(Duration.ofHours(1))
                 .setFlowControlSettings(
                     FlowControlSettings.newBuilder()
-                        .setMaxOutstandingElementCount((long) batchElementCount)
-                        .setMaxOutstandingRequestBytes(1000L)
+                        .setMaxOutstandingElementCount((long) batchElementCount + 1)
+                        .setMaxOutstandingRequestBytes(1001L)
                         .build())
                 .build());
 
@@ -413,7 +414,11 @@ public class BuiltinMetricsTracerTest {
         .recordOperationLatencies(operationLatency.capture(), opLatencyAttributes.capture());
 
     assertThat(counter.get()).isEqualTo(fakeService.getResponseCounter().get());
-    assertThat(applicationLatency.getValue()).isAtLeast(APPLICATION_LATENCY * counter.get());
+    // Thread.sleep might not sleep for the requested amount depending on the interrupt period
+    // defined by the OS.
+    // On linux this is ~1ms but on windows may be as high as 15-20ms.
+    assertThat(applicationLatency.getValue())
+        .isAtLeast((APPLICATION_LATENCY - SLEEP_VARIABILITY) * counter.get());
     assertThat(applicationLatency.getValue())
         .isAtMost(operationLatency.getValue() - SERVER_LATENCY);
   }
@@ -642,6 +647,9 @@ public class BuiltinMetricsTracerTest {
         batcher.add(RowMutationEntry.create("key").setCell("f", "q", "v"));
       }
 
+      // closing the batcher to trigger the third flush
+      batcher.close();
+
       int expectedNumRequests = 6 / batchElementCount;
       ArgumentCaptor<Long> throttledTime = ArgumentCaptor.forClass(Long.class);
       ArgumentCaptor<Attributes> attributes = ArgumentCaptor.forClass(Attributes.class);
@@ -649,8 +657,6 @@ public class BuiltinMetricsTracerTest {
       verify(mockInstruments, timeout(5000).times(expectedNumRequests))
           .recordClientBlockingLatencies(throttledTime.capture(), attributes.capture());
 
-      // Adding the first 2 elements should not get throttled since the batch is empty
-      assertThat(throttledTime.getAllValues().get(0)).isEqualTo(0);
       // After the first request is sent, batcher will block on add because of the server latency.
       // Blocking latency should be around server latency.
       assertThat(throttledTime.getAllValues().get(1)).isAtLeast(SERVER_LATENCY - 10);

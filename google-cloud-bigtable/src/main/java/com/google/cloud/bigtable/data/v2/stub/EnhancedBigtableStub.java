@@ -87,7 +87,6 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMer
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerBatchedUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -503,11 +502,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<Query, List<RowT>> tracedBatcher =
         new TracedBatcherUnaryCallable<>(readRowsUserCallable.all());
 
-    UnaryCallable<Query, List<RowT>> withBigtableTracer =
-        new BigtableTracerBatchedUnaryCallable<>(tracedBatcher);
-
     UnaryCallable<Query, List<RowT>> traced =
-        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), span);
+        new TracedUnaryCallable<>(tracedBatcher, clientContext.getTracerFactory(), span);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -635,10 +631,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
         new TracedBatcherUnaryCallable<>(userFacing);
 
-    UnaryCallable<BulkMutation, Void> withBigtableTracer =
-        new BigtableTracerBatchedUnaryCallable<>(tracedBatcherUnaryCallable);
     UnaryCallable<BulkMutation, Void> traced =
-        new TracedUnaryCallable<>(withBigtableTracer, clientContext.getTracerFactory(), spanName);
+        new TracedUnaryCallable<>(
+            tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -741,6 +736,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> convertException =
         new ConvertExceptionCallable<>(callable);
 
+    ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(convertException);
+
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
             new ApiResultRetryAlgorithm<Void>(),
@@ -751,7 +749,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return new MutateRowsRetryingCallable(
         clientContext.getDefaultCallContext(),
-        convertException,
+        withBigtableTracer,
         retryingExecutor,
         settings.bulkMutateRowsSettings().getRetryableCodes());
   }

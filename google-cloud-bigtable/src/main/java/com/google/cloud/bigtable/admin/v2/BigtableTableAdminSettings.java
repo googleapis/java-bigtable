@@ -111,6 +111,8 @@ public final class BigtableTableAdminSettings {
         .add("getSnapshotSettings", stubSettings.getSnapshotSettings())
         .add("listSnapshotsSettings", stubSettings.listSnapshotsSettings())
         .add("deleteSnapshotSettings", stubSettings.deleteSnapshotSettings())
+        .add("copyBackupSettings", stubSettings.copyBackupSettings())
+        .add("copyBackupOperationSettings", stubSettings.copyBackupOperationSettings())
         .add("createBackupSettings", stubSettings.createBackupSettings())
         .add("createBackupOperationSettings", stubSettings.createBackupOperationSettings())
         .add("getBackupSettings", stubSettings.getBackupSettings())
@@ -124,6 +126,8 @@ public final class BigtableTableAdminSettings {
         .add("undeleteTableOperationSettings", stubSettings.undeleteTableOperationSettings())
         .add("updateTableSettings", stubSettings.updateTableSettings())
         .add("updateTableOperationSettings", stubSettings.updateTableOperationSettings())
+        .add("copyBackupSettings", stubSettings.copyBackupSettings())
+        .add("copyBackupOperationSettings", stubSettings.copyBackupOperationSettings())
         .toString();
   }
 

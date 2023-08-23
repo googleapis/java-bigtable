@@ -394,8 +394,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    *       starts} at 10ms and {@link RetrySettings.Builder#setRetryDelayMultiplier increases
    *       exponentially} by a factor of 2 until a {@link RetrySettings.Builder#setMaxRetryDelay
    *       maximum of} 1 minute.
-   *   <li>The default timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each attempt} is 20
-   *       seconds and the timeout for the {@link RetrySettings.Builder#setTotalTimeout entire
+   *   <li>The default timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each attempt} is 5
+   *       minutes and the timeout for the {@link RetrySettings.Builder#setTotalTimeout entire
    *       operation} across all of the attempts is 10 mins.
    * </ul>
    */
@@ -655,21 +655,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setIdleTimeout(Duration.ofMinutes(5))
           .setWaitTimeout(Duration.ofMinutes(5));
 
-      // Point reads should use same defaults as streaming reads, but with a shorter timeout
       readRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       readRowSettings
           .setRetryableCodes(readRowsSettings.getRetryableCodes())
-          .setRetrySettings(
-              readRowsSettings()
-                  .getRetrySettings()
-                  .toBuilder()
-                  .setTotalTimeout(IDEMPOTENT_RETRY_SETTINGS.getTotalTimeout())
-                  .build());
+          .setRetrySettings(IDEMPOTENT_RETRY_SETTINGS);
 
       sampleRowKeysSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       sampleRowKeysSettings
           .setRetryableCodes(IDEMPOTENT_RETRY_CODES)
-          .setRetrySettings(IDEMPOTENT_RETRY_SETTINGS);
+          .setRetrySettings(
+              IDEMPOTENT_RETRY_SETTINGS
+                  .toBuilder()
+                  .setInitialRpcTimeout(Duration.ofMinutes(5))
+                  .setMaxRpcTimeout(Duration.ofMinutes(5))
+                  .build());
 
       mutateRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       copyRetrySettings(baseDefaults.mutateRowSettings(), mutateRowSettings);
@@ -742,7 +741,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .setTotalTimeout(PRIME_REQUEST_TIMEOUT)
               .build());
 
-      featureFlags = FeatureFlags.newBuilder();
+      featureFlags =
+          FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -975,7 +975,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
       Preconditions.checkState(instanceId != null, "Instance id must be set");
-
       if (isRefreshingChannel) {
         Preconditions.checkArgument(
             getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,

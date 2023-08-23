@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,8 +79,8 @@ public interface ListBackupsResponseOrBuilder
    *
    * <pre>
    * `next_page_token` can be sent in a subsequent
-   * [ListBackups][google.bigtable.admin.v2.BigtableTableAdmin.ListBackups] call to fetch more
-   * of the matching backups.
+   * [ListBackups][google.bigtable.admin.v2.BigtableTableAdmin.ListBackups] call
+   * to fetch more of the matching backups.
    * </pre>
    *
    * <code>string next_page_token = 2;</code>
@@ -93,8 +93,8 @@ public interface ListBackupsResponseOrBuilder
    *
    * <pre>
    * `next_page_token` can be sent in a subsequent
-   * [ListBackups][google.bigtable.admin.v2.BigtableTableAdmin.ListBackups] call to fetch more
-   * of the matching backups.
+   * [ListBackups][google.bigtable.admin.v2.BigtableTableAdmin.ListBackups] call
+   * to fetch more of the matching backups.
    * </pre>
    *
    * <code>string next_page_token = 2;</code>
