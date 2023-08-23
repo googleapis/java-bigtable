@@ -20,11 +20,8 @@ import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
-import com.google.common.collect.ImmutableMap;
-import io.opencensus.stats.StatsRecorder;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
-import io.opencensus.tags.Tagger;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
 
 /**
  * {@link ApiTracerFactory} that will generate OpenCensus metrics by using the {@link ApiTracer}
@@ -32,24 +29,22 @@ import io.opencensus.tags.Tagger;
  */
 @InternalApi("For internal use only")
 public class MetricsTracerFactory extends BaseApiTracerFactory {
-  private final Tagger tagger;
-  private final StatsRecorder stats;
-  private final ImmutableMap<TagKey, TagValue> statsAttributes;
 
-  public static MetricsTracerFactory create(
-      Tagger tagger, StatsRecorder stats, ImmutableMap<TagKey, TagValue> statsAttributes) {
-    return new MetricsTracerFactory(tagger, stats, statsAttributes);
+  private final MetricsTracerRecorder recorder;
+  private final Attributes attributes;
+
+  public static MetricsTracerFactory create(OpenTelemetry openTelemetry, Attributes attributes) {
+    return new MetricsTracerFactory(openTelemetry, attributes);
   }
 
-  private MetricsTracerFactory(
-      Tagger tagger, StatsRecorder stats, ImmutableMap<TagKey, TagValue> statsAttributes) {
-    this.tagger = tagger;
-    this.stats = stats;
-    this.statsAttributes = statsAttributes;
+  private MetricsTracerFactory(OpenTelemetry openTelemetry, Attributes attributes) {
+    this.attributes = attributes;
+    this.recorder =
+        new MetricsTracerRecorder(openTelemetry.getMeterProvider().get(RpcViewConstants.SCOPE));
   }
 
   @Override
   public ApiTracer newTracer(ApiTracer parent, SpanName spanName, OperationType operationType) {
-    return new MetricsTracer(operationType, tagger, stats, spanName, statsAttributes);
+    return new MetricsTracer(operationType, spanName, recorder, attributes);
   }
 }

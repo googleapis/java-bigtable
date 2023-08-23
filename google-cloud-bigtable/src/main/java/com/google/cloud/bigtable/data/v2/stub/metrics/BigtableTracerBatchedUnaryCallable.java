@@ -21,6 +21,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.api.gax.tracing.ApiTracer;
 import com.google.common.util.concurrent.MoreExecutors;
 import javax.annotation.Nonnull;
 
@@ -44,6 +45,7 @@ public class BigtableTracerBatchedUnaryCallable<RequestT, ResponseT>
   @Override
   public ApiFuture futureCall(RequestT request, ApiCallContext context) {
     final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
+    ApiTracer tracer = context.getTracer();
     BigtableTracerUnaryCallback<ResponseT> callback =
         new BigtableTracerUnaryCallback<ResponseT>(
             (BigtableTracer) context.getTracer(), responseMetadata);

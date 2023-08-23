@@ -39,7 +39,9 @@ import io.opencensus.tags.TagMetadata.TagTtl;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.unsafe.ContextUtils;
+import io.opentelemetry.sdk.metrics.data.MetricData;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +54,15 @@ import javax.annotation.Nullable;
 
 class StatsTestUtils {
   private StatsTestUtils() {}
+
+  public static MetricData getMetric(Collection<MetricData> metrics, String name) {
+    for (MetricData metricData : metrics) {
+      if (metricData.getName().equals(name)) {
+        return metricData;
+      }
+    }
+    return null;
+  }
 
   public static class MetricsRecord {
     public final ImmutableMap<TagKey, TagValue> tags;

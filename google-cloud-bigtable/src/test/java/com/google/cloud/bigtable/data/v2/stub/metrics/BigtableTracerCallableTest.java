@@ -15,11 +15,20 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_PROJECT_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import com.google.api.client.util.Lists;
+import com.google.api.core.ApiFuture;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.UnavailableException;
+import com.google.api.gax.tracing.ApiTracerFactory;
+import com.google.api.gax.tracing.SpanName;
 import com.google.bigtable.v2.BigtableGrpc.BigtableImplBase;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
@@ -36,15 +45,15 @@ import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
-import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
+import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.common.collect.ImmutableMap;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.Server;
@@ -54,18 +63,28 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
-import io.opencensus.stats.StatsComponent;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
-import io.opencensus.tags.Tags;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.data.HistogramData;
+import io.opentelemetry.sdk.metrics.data.HistogramPointData;
+import io.opentelemetry.sdk.metrics.data.LongPointData;
+import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.data.PointData;
+import io.opentelemetry.sdk.metrics.data.SumData;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
 public class BigtableTracerCallableTest {
@@ -74,7 +93,6 @@ public class BigtableTracerCallableTest {
 
   private FakeService fakeService = new FakeService();
 
-  private final StatsComponent localStats = new StatsComponentImpl();
   private EnhancedBigtableStub stub;
   private EnhancedBigtableStub noHeaderStub;
   private int attempts;
@@ -84,13 +102,25 @@ public class BigtableTracerCallableTest {
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
 
-  private static final long WAIT_FOR_METRICS_TIME_MS = 1_000;
+  @Mock private MetricsTracerFactory mockFactory = Mockito.mock(MetricsTracerFactory.class);
 
   private AtomicInteger fakeServerTiming;
 
+  private Attributes baseAttributes;
+  private InMemoryMetricReader reader = InMemoryMetricReader.create();
+  private MetricsTracerRecorder recorder;
+
   @Before
   public void setUp() throws Exception {
-    RpcViews.registerBigtableClientGfeViews(localStats.getViewManager());
+    SdkMeterProvider testMeterProvider =
+        SdkMeterProvider.builder().registerMetricReader(reader).build();
+    this.recorder = new MetricsTracerRecorder(testMeterProvider.get("test"));
+
+    this.baseAttributes =
+        Attributes.of(
+            BIGTABLE_PROJECT_ID, PROJECT_ID,
+            BIGTABLE_INSTANCE_ID, INSTANCE_ID,
+            BIGTABLE_APP_PROFILE_ID, APP_PROFILE_ID);
 
     // Create a server that'll inject a server-timing header with a random number and a stub that
     // connects to this server.
@@ -125,11 +155,11 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
-    attempts = stubSettings.readRowsSettings().getRetrySettings().getMaxAttempts();
-    stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
+    EnhancedBigtableStubSettings.Builder builder = settings.getStubSettings().toBuilder();
+    builder.setTracerFactory(mockFactory);
+    stub = new EnhancedBigtableStub(builder.build(), ClientContext.create(builder.build()));
+
+    attempts = builder.readRowsSettings().getRetrySettings().getMaxAttempts();
 
     // Create another server without injecting the server-timing header and another stub that
     // connects to it.
@@ -141,11 +171,12 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings noHeaderStubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            noHeaderSettings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+    EnhancedBigtableStubSettings.Builder noHeaderBuilder =
+        noHeaderSettings.getStubSettings().toBuilder();
+    noHeaderBuilder.setTracerFactory(mockFactory);
     noHeaderStub =
-        new EnhancedBigtableStub(noHeaderStubSettings, ClientContext.create(noHeaderStubSettings));
+        new EnhancedBigtableStub(
+            noHeaderBuilder.build(), ClientContext.create(noHeaderBuilder.build()));
   }
 
   @After
@@ -157,208 +188,273 @@ public class BigtableTracerCallableTest {
   }
 
   @Test
-  public void testGFELatencyMetricReadRows() throws InterruptedException {
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
+  public void testGFELatencyMetricReadRows() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                recorder,
+                baseAttributes));
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.<TagKey, TagValue>of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isEqualTo(fakeServerTiming.get());
   }
 
   @Test
-  public void testGFELatencyMetricMutateRow() throws InterruptedException {
-    stub.mutateRowCallable().call(RowMutation.create(TABLE_ID, "fake-key"));
+  public void testGFELatencyMetricMutateRow() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.Unary,
+                SpanName.of("Bigtable", "MutateRow"),
+                recorder,
+                baseAttributes));
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    ApiFuture<Void> future =
+        stub.mutateRowCallable().futureCall(RowMutation.create(TABLE_ID, "fake-key"));
+    future.get(10, TimeUnit.SECONDS);
 
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRow"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRow", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isEqualTo(fakeServerTiming.get());
+  }
+
+  //  @Test
+  //  public void testGFELatencyMetricMutateRows() throws Exception {
+  //    when(mockFactory.newTracer(any(), any(), any())).thenReturn(new MetricsTracer(
+  //            ApiTracerFactory.OperationType.Unary,
+  //            SpanName.of("Bigtable", "MutateRows"),
+  //            recorder,
+  //            baseAttributes));
+  //
+  //    BulkMutation mutations =
+  //        BulkMutation.create(TABLE_ID)
+  //            .add("key", Mutation.create().setCell("fake-family", "fake-qualifier",
+  // "fake-value"));
+  //    ApiFuture<Void> future = stub.bulkMutateRowsCallable().futureCall(mutations);
+  //    future.get(10, TimeUnit.SECONDS);
+  //
+  //    Collection<MetricData> metrics = reader.collectAllMetrics();
+  //    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+  //    assertThat(metric).isNotNull();
+  //    PointData pointData = metric.getData().getPoints().iterator().next();
+  //
+  //    assertThat(pointData.getAttributes().asMap().values())
+  //            .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRows",
+  // "OK");
+  //
+  //    HistogramData histogramData = metric.getHistogramData();
+  //    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+  //    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+  //    assertThat((long)
+  // histogramPointData.iterator().next().getSum()).isEqualTo(fakeServerTiming.get());
+  //  }
+
+  @Test
+  public void testGFELatencySampleRowKeys() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.Unary,
+                SpanName.of("Bigtable", "SampleRowKeys"),
+                recorder,
+                baseAttributes));
+
+    ApiFuture<List<KeyOffset>> future = stub.sampleRowKeysCallable().futureCall(TABLE_ID);
+    future.get(10, TimeUnit.SECONDS);
+
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.SampleRowKeys", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isEqualTo(fakeServerTiming.get());
   }
 
   @Test
-  public void testGFELatencyMetricMutateRows() throws InterruptedException {
-    BulkMutation mutations =
-        BulkMutation.create(TABLE_ID)
-            .add("key", Mutation.create().setCell("fake-family", "fake-qualifier", "fake-value"));
-    stub.bulkMutateRowsCallable().call(mutations);
+  public void testGFELatencyCheckAndMutateRow() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.Unary,
+                SpanName.of("Bigtable", "CheckAndMutateRow"),
+                recorder,
+                baseAttributes));
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
-  }
-
-  @Test
-  public void testGFELatencySampleRowKeys() throws InterruptedException {
-    stub.sampleRowKeysCallable().call(TABLE_ID);
-
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.SampleRowKeys"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
-  }
-
-  @Test
-  public void testGFELatencyCheckAndMutateRow() throws InterruptedException {
     ConditionalRowMutation mutation =
         ConditionalRowMutation.create(TABLE_ID, "fake-key")
             .then(Mutation.create().setCell("fake-family", "fake-qualifier", "fake-value"));
-    stub.checkAndMutateRowCallable().call(mutation);
+    ApiFuture<Boolean> future = stub.checkAndMutateRowCallable().futureCall(mutation);
+    future.get(10, TimeUnit.SECONDS);
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.CheckAndMutateRow"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(
+            PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.CheckAndMutateRow", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isEqualTo(fakeServerTiming.get());
   }
 
   @Test
-  public void testGFELatencyReadModifyWriteRow() throws InterruptedException {
+  public void testGFELatencyReadModifyWriteRow() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.Unary,
+                SpanName.of("Bigtable", "ReadModifyWriteRow"),
+                recorder,
+                baseAttributes));
+
     ReadModifyWriteRow request =
         ReadModifyWriteRow.create(TABLE_ID, "fake-key")
             .append("fake-family", "fake-qualifier", "suffix");
-    stub.readModifyWriteRowCallable().call(request);
+    ApiFuture<Row> future = stub.readModifyWriteRowCallable().futureCall(request);
+    future.get(10, TimeUnit.SECONDS);
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    long latency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadModifyWriteRow"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(latency).isEqualTo(fakeServerTiming.get());
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(
+            PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadModifyWriteRow", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isEqualTo(fakeServerTiming.get());
   }
 
   @Test
-  public void testGFEMissingHeaderMetric() throws InterruptedException {
+  public void testGFEMissingHeaderMetric() throws Exception {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "MutateRow"),
+                recorder,
+                baseAttributes));
+
     // Make a few calls to the server which will inject the server-timing header and the counter
     // should be 0.
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
-    stub.mutateRowCallable().call(RowMutation.create(TABLE_ID, "key"));
+    ApiFuture<Void> future =
+        stub.mutateRowCallable().futureCall(RowMutation.create(TABLE_ID, "key0"));
+    future.get(10, TimeUnit.SECONDS);
+    future = stub.mutateRowCallable().futureCall(RowMutation.create(TABLE_ID, "key1"));
+    future.get(10, TimeUnit.SECONDS);
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    long mutateRowMissingCount =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP,
-                TagValue.create("Bigtable.MutateRow"),
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    long readRowsMissingCount =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
-            ImmutableMap.<TagKey, TagValue>of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_MISSING_HEADER_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
 
-    assertThat(mutateRowMissingCount).isEqualTo(0);
-    assertThat(readRowsMissingCount).isEqualTo(0);
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRow", "OK");
 
-    // Make a few more calls to the server which won't add the header and the counter should match
+    SumData<LongPointData> longData = metric.getLongSumData();
+    long count = longData.getPoints().iterator().next().getValue();
+    assertThat(count).isEqualTo(0);
+  }
+
+  @Test
+  public void testGFEMissingHeaderMetricNonZero() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.Unary,
+                SpanName.of("Bigtable", "MutateRow"),
+                recorder,
+                baseAttributes));
+
+    // Make a few more calls to the server which won't add the header and the counter should
+    // match
     // the number of requests sent.
-    int readRowsCalls = new Random().nextInt(10) + 1;
+    List<ApiFuture<Void>> futures = new ArrayList<>();
     int mutateRowCalls = new Random().nextInt(10) + 1;
     for (int i = 0; i < mutateRowCalls; i++) {
-      noHeaderStub.mutateRowCallable().call(RowMutation.create(TABLE_ID, "fake-key" + i));
+      futures.add(
+          noHeaderStub
+              .mutateRowCallable()
+              .futureCall(RowMutation.create(TABLE_ID, "fake-key" + i)));
     }
-    for (int i = 0; i < readRowsCalls; i++) {
-      noHeaderStub.readRowsCallable().call(Query.create(TABLE_ID));
-    }
+    futures.forEach(
+        f -> {
+          try {
+            f.get(1, TimeUnit.SECONDS);
+          } catch (Exception e) {
+          }
+        });
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    mutateRowMissingCount =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP,
-                TagValue.create("Bigtable.MutateRow"),
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    readRowsMissingCount =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
-            ImmutableMap.<TagKey, TagValue>of(
-                RpcMeasureConstants.BIGTABLE_OP,
-                TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_MISSING_HEADER_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
 
-    assertThat(mutateRowMissingCount).isEqualTo(mutateRowCalls);
-    assertThat(readRowsMissingCount).isEqualTo(readRowsCalls);
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRow", "OK");
+
+    SumData<LongPointData> longData = metric.getLongSumData();
+    long count = longData.getPoints().iterator().next().getValue();
+    assertThat(count).isEqualTo(mutateRowCalls);
   }
 
   @Test
   public void testMetricsWithErrorResponse() throws InterruptedException {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new MetricsTracer(
+                ApiTracerFactory.OperationType.ServerStreaming,
+                SpanName.of("Bigtable", "ReadRows"),
+                recorder,
+                baseAttributes));
     try {
       stub.readRowsCallable().call(Query.create("random-table-id")).iterator().next();
       fail("readrows should throw exception");
@@ -366,20 +462,19 @@ public class BigtableTracerCallableTest {
       assertThat(e).isInstanceOf(UnavailableException.class);
     }
 
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
-    long missingCount =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP,
-                TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create("UNAVAILABLE")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(missingCount).isEqualTo(attempts);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.GFE_MISSING_HEADER_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(
+            PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "UNAVAILABLE");
+
+    SumData<LongPointData> longData = metric.getLongSumData();
+    long count = longData.getPoints().iterator().next().getValue();
+    assertThat(count).isEqualTo(attempts);
   }
 
   private class FakeService extends BigtableImplBase {

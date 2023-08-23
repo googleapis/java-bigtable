@@ -15,19 +15,14 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_OP;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_STATUS;
+
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Stopwatch;
-import io.opencensus.stats.MeasureMap;
-import io.opencensus.stats.StatsRecorder;
-import io.opencensus.tags.TagContext;
-import io.opencensus.tags.TagContextBuilder;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
-import io.opencensus.tags.Tagger;
-import java.util.Map;
-import java.util.Map.Entry;
+import io.opentelemetry.api.common.Attributes;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,13 +33,11 @@ class MetricsTracer extends BigtableTracer {
 
   private final OperationType operationType;
 
-  private final Tagger tagger;
-  private final StatsRecorder stats;
+  private final MetricsTracerRecorder recorder;
 
   // Tags
-  private final TagContext parentContext;
   private final SpanName spanName;
-  private final Map<TagKey, TagValue> statsAttributes;
+  private final Attributes baseAttributes;
 
   // Operation level metrics
   private final AtomicBoolean opFinished = new AtomicBoolean();
@@ -61,16 +54,13 @@ class MetricsTracer extends BigtableTracer {
 
   MetricsTracer(
       OperationType operationType,
-      Tagger tagger,
-      StatsRecorder stats,
       SpanName spanName,
-      Map<TagKey, TagValue> statsAttributes) {
+      MetricsTracerRecorder recorder,
+      Attributes attributes) {
     this.operationType = operationType;
-    this.tagger = tagger;
-    this.stats = stats;
-    this.parentContext = tagger.getCurrentTagContext();
+    this.recorder = recorder;
     this.spanName = spanName;
-    this.statsAttributes = statsAttributes;
+    this.baseAttributes = attributes.toBuilder().put(BIGTABLE_OP, spanName.toString()).build();
   }
 
   @Override
@@ -102,28 +92,17 @@ class MetricsTracer extends BigtableTracer {
     }
     operationTimer.stop();
 
-    long elapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
-
-    MeasureMap measures =
-        stats
-            .newMeasureMap()
-            .put(RpcMeasureConstants.BIGTABLE_OP_LATENCY, elapsed)
-            .put(RpcMeasureConstants.BIGTABLE_OP_ATTEMPT_COUNT, attemptCount);
+    Attributes attributes =
+        baseAttributes.toBuilder().put(BIGTABLE_STATUS, Util.extractStatus(throwable)).build();
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
-      measures.put(
-          RpcMeasureConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY,
-          firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
+      recorder.recordFirstResponseLatencies(
+          firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS), attributes);
     }
 
-    TagContextBuilder tagCtx =
-        newTagCtxBuilder()
-            .putLocal(
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
-
-    measures.record(tagCtx.build());
+    recorder.recordOperationLatencies(operationTimer.elapsed(TimeUnit.MILLISECONDS), attributes);
+    recorder.recordRetryCount(attemptCount, attributes);
   }
 
   @Override
@@ -160,12 +139,7 @@ class MetricsTracer extends BigtableTracer {
   }
 
   private void recordAttemptCompletion(@Nullable Throwable throwable) {
-    MeasureMap measures =
-        stats
-            .newMeasureMap()
-            .put(
-                RpcMeasureConstants.BIGTABLE_ATTEMPT_LATENCY,
-                attemptTimer.elapsed(TimeUnit.MILLISECONDS));
+    long attemptLatency = attemptTimer.elapsed(TimeUnit.MILLISECONDS);
 
     // Patch the throwable until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
@@ -174,13 +148,9 @@ class MetricsTracer extends BigtableTracer {
       throwable = throwable.getCause();
     }
 
-    TagContextBuilder tagCtx =
-        newTagCtxBuilder()
-            .putLocal(
-                RpcMeasureConstants.BIGTABLE_STATUS,
-                TagValue.create(Util.extractStatus(throwable)));
-
-    measures.record(tagCtx.build());
+    recorder.recordAttemptLatencies(
+        attemptLatency,
+        baseAttributes.toBuilder().put(BIGTABLE_STATUS, Util.extractStatus(throwable)).build());
   }
 
   @Override
@@ -199,41 +169,18 @@ class MetricsTracer extends BigtableTracer {
 
   @Override
   public void recordGfeMetadata(@Nullable Long latency, @Nullable Throwable throwable) {
-    MeasureMap measures = stats.newMeasureMap();
+    Attributes attributes =
+        baseAttributes.toBuilder().put(BIGTABLE_STATUS, Util.extractStatus(throwable)).build();
     if (latency != null) {
-      measures
-          .put(RpcMeasureConstants.BIGTABLE_GFE_LATENCY, latency)
-          .put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 0L);
+      recorder.recordServerLatencies(latency, attributes);
+      recorder.recordConnectivityErrorCount(0, attributes);
     } else {
-      measures.put(RpcMeasureConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT, 1L);
+      recorder.recordConnectivityErrorCount(1L, attributes);
     }
-    measures.record(
-        newTagCtxBuilder()
-            .putLocal(
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create(Util.extractStatus(throwable)))
-            .build());
   }
 
   @Override
   public void batchRequestThrottled(long totalThrottledMs) {
-    MeasureMap measures =
-        stats
-            .newMeasureMap()
-            .put(RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME, totalThrottledMs);
-    measures.record(newTagCtxBuilder().build());
-  }
-
-  private TagContextBuilder newTagCtxBuilder() {
-    TagContextBuilder tagCtx =
-        tagger
-            .toBuilder(parentContext)
-            .putLocal(RpcMeasureConstants.BIGTABLE_OP, TagValue.create(spanName.toString()));
-
-    // Copy client level tags in
-    for (Entry<TagKey, TagValue> entry : statsAttributes.entrySet()) {
-      tagCtx.putLocal(entry.getKey(), entry.getValue());
-    }
-
-    return tagCtx;
+    recorder.recordClientBlockingLatencies(totalThrottledMs, baseAttributes);
   }
 }

@@ -15,6 +15,26 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APPLICATION_BLOCKING_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APPLICATION_BLOCKING_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APP_PROFILE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ATTEMPT_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ATTEMPT_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_BLOCKING_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_BLOCKING_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CONNECTIVITY_ERROR_COUNT_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CONNECTIVITY_ERROR_COUNT_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.FIRST_RESPONSE_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.FIRST_RESPONSE_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.OPERATION_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.OPERATION_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.RETRY_COUNT_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.RETRY_COUNT_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.SERVER_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.SERVER_LATENCIES_VIEW;
+
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
@@ -38,6 +58,7 @@ import com.google.api.gax.rpc.RequestParamsExtractor;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
@@ -87,6 +108,7 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMer
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerBatchedUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
@@ -115,10 +137,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -211,42 +237,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
               .build());
     }
 
-    ImmutableMap<TagKey, TagValue> attributes =
-        ImmutableMap.<TagKey, TagValue>builder()
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(settings.getProjectId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(settings.getInstanceId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
-                TagValue.create(settings.getAppProfileId()))
-            .build();
-    // Inject Opencensus instrumentation
-    builder.setTracerFactory(
-        new CompositeTracerFactory(
-            ImmutableList.of(
-                // Add OpenCensus Tracing
-                new OpencensusTracerFactory(
-                    ImmutableMap.<String, String>builder()
-                        // Annotate traces with the same tags as metrics
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(),
-                            settings.getProjectId())
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                            settings.getInstanceId())
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
-                            settings.getAppProfileId())
-                        // Also annotate traces with library versions
-                        .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
-                        .put("grpc", GaxGrpcProperties.getGrpcVersion())
-                        .put("gapic", Version.VERSION)
-                        .build()),
-                // Add OpenCensus Metrics
-                MetricsTracerFactory.create(tagger, stats, attributes),
-                BuiltinMetricsTracerFactory.create(settings),
-                // Add user configured tracer
-                settings.getTracerFactory())));
+    builder = setupTracerFactory(builder);
+
     return builder.build();
   }
 
@@ -283,6 +275,63 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
     JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
     settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
+  }
+
+  private static EnhancedBigtableStubSettings.Builder setupTracerFactory(
+      EnhancedBigtableStubSettings.Builder settings) throws IOException {
+    ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
+    // Set up OpenCensusTracerFactory and user provided tracer factory
+    tracerFactories
+        .add(
+            new OpencensusTracerFactory(
+                ImmutableMap.<String, String>builder()
+                    // Annotate traces with the same tags as metrics
+                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getKey(), settings.getProjectId())
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getKey(), settings.getInstanceId())
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getKey(),
+                        settings.getAppProfileId())
+                    // Also annotate traces with library versions
+                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
+                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
+                    .put("gapic", Version.VERSION)
+                    .build()))
+        .add(settings.getTracerFactory());
+
+    // By default, provide an otel instance and register builtin metrics
+    // customer can pass in their own OTEL instance and register builtin metrics with the meter
+    // provider
+    Attributes attributes =
+        Attributes.of(
+            PROJECT_ID, settings.getProjectId(),
+            INSTANCE_ID, settings.getInstanceId(),
+            APP_PROFILE, settings.getAppProfileId());
+    if (settings.getOpenTelemetry() != null) {
+      tracerFactories.add(MetricsTracerFactory.create(settings.getOpenTelemetry(), attributes));
+    } else if (settings.isBuiltinMetricsEnabled()) {
+      MetricExporter metricExporter =
+          BigtableCloudMonitoringExporter.create(
+              settings.getProjectId(), settings.getCredentialsProvider().getCredentials());
+      SdkMeterProvider sdkMeterProvider =
+          SdkMeterProvider.builder()
+              .registerMetricReader(PeriodicMetricReader.create(metricExporter))
+              .registerView(OPERATION_LATENCIES_SELECTOR, OPERATION_LATENCIES_VIEW)
+              .registerView(ATTEMPT_LATENCIES_SELECTOR, ATTEMPT_LATENCIES_VIEW)
+              .registerView(SERVER_LATENCIES_SELECTOR, SERVER_LATENCIES_VIEW)
+              .registerView(FIRST_RESPONSE_LATENCIES_SELECTOR, FIRST_RESPONSE_LATENCIES_VIEW)
+              .registerView(
+                  APPLICATION_BLOCKING_LATENCIES_SELECTOR, APPLICATION_BLOCKING_LATENCIES_VIEW)
+              .registerView(CLIENT_BLOCKING_LATENCIES_SELECTOR, CLIENT_BLOCKING_LATENCIES_VIEW)
+              .registerView(RETRY_COUNT_SELECTOR, RETRY_COUNT_VIEW)
+              .registerView(CONNECTIVITY_ERROR_COUNT_SELECTOR, CONNECTIVITY_ERROR_COUNT_VIEW)
+              .build();
+      OpenTelemetry openTelemetry =
+          OpenTelemetrySdk.builder().setMeterProvider(sdkMeterProvider).build();
+      tracerFactories.add(BuiltinMetricsTracerFactory.create(openTelemetry, attributes));
+    }
+    settings.setTracerFactory(new CompositeTracerFactory(tracerFactories.build()));
+    return settings;
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {

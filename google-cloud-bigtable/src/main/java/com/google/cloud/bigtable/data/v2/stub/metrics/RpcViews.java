@@ -15,29 +15,31 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.ATTEMPTS_PER_OP_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.ATTEMPT_LATENCY_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BATCH_THROTTLED_TIME_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_OP_LATENCY_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.COMPLETED_OP_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.GFE_LATENCY_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.GFE_MISSING_HEADER_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.OP_LATENCY_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcViewConstants.READ_ROWS_FIRST_ROW_LATENCY_SELECTOR;
+
 import com.google.api.core.BetaApi;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableSet;
 import io.opencensus.stats.Stats;
-import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 
 @BetaApi
 public class RpcViews {
-  @VisibleForTesting
-  private static final ImmutableSet<View> BIGTABLE_CLIENT_VIEWS_SET =
-      ImmutableSet.of(
-          RpcViewConstants.BIGTABLE_OP_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW,
-          RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
-          RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW);
-
-  private static final ImmutableSet<View> GFE_VIEW_SET =
-      ImmutableSet.of(
-          RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
-          RpcViewConstants.BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
 
   private static boolean gfeMetricsRegistered = false;
 
@@ -56,20 +58,28 @@ public class RpcViews {
     registerBigtableClientGfeViews(Stats.getViewManager());
   }
 
-  @VisibleForTesting
-  static void registerBigtableClientViews(ViewManager viewManager) {
-    for (View view : BIGTABLE_CLIENT_VIEWS_SET) {
-      viewManager.registerView(view);
-    }
+  public static void registerBigtableClientViews(SdkMeterProviderBuilder builder) {
+    builder
+        .registerView(OP_LATENCY_SELECTOR, BIGTABLE_OP_LATENCY_VIEW)
+        .registerView(ATTEMPT_LATENCY_SELECTOR, BIGTABLE_ATTEMPT_LATENCY_VIEW)
+        .registerView(
+            READ_ROWS_FIRST_ROW_LATENCY_SELECTOR, BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW)
+        .registerView(COMPLETED_OP_SELECTOR, BIGTABLE_COMPLETED_OP_VIEW)
+        .registerView(ATTEMPTS_PER_OP_SELECTOR, BIGTABLE_ATTEMPTS_PER_OP_VIEW)
+        .registerView(BATCH_THROTTLED_TIME_SELECTOR, BIGTABLE_BATCH_THROTTLED_TIME_VIEW);
+  }
+
+  public static void regsiterBigtableClientGfeViews(SdkMeterProviderBuilder builder) {
+    builder
+        .registerView(GFE_LATENCY_SELECTOR, BIGTABLE_GFE_LATENCY_VIEW)
+        .registerView(GFE_MISSING_HEADER_SELECTOR, BIGTABLE_GFE_HEADER_MISSING_COUNT_VIEW);
   }
 
   @VisibleForTesting
-  static void registerBigtableClientGfeViews(ViewManager viewManager) {
-    for (View view : GFE_VIEW_SET) {
-      viewManager.registerView(view);
-    }
-    gfeMetricsRegistered = true;
-  }
+  static void registerBigtableClientViews(ViewManager viewManager) {}
+
+  @VisibleForTesting
+  static void registerBigtableClientGfeViews(ViewManager viewManager) {}
 
   static boolean isGfeMetricsRegistered() {
     return gfeMetricsRegistered;

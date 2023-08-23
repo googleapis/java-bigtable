@@ -800,6 +800,7 @@ public class EnhancedBigtableStubSettingsTest {
     "readChangeStreamSettings",
     "pingAndWarmSettings",
     "isBuiltinMetricsEnabled",
+    "openTelemetry",
   };
 
   @Test

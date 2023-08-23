@@ -47,7 +47,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final OperationType operationType;
   private final SpanName spanName;
 
-  private final BigtableMetricsRecorder instruments;
+  private final BigtableMetricsRecorder recorder;
 
   // Operation level metrics
   private final AtomicBoolean opFinished = new AtomicBoolean();
@@ -87,12 +87,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
   BuiltinMetricsTracer(
       OperationType operationType,
       SpanName spanName,
-      BigtableMetricsRecorder instruments,
+      BigtableMetricsRecorder recorder,
       Attributes attributes) {
     this.operationType = operationType;
     this.spanName = spanName;
 
-    this.instruments = instruments;
+    this.recorder = recorder;
     this.baseAttributes = attributes;
   }
 
@@ -269,21 +269,21 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
     if (attemptCount > 1) {
-      instruments.recordRetryCount(
+      recorder.recordRetryCount(
           attemptCount - 1, attributes.toBuilder().put(STATUS, statusStr).build());
     }
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
-    instruments.recordOperationLatencies(
+    recorder.recordOperationLatencies(
         operationLatency,
         attributes.toBuilder().put(STREAMING, isStreaming).put(STATUS, statusStr).build());
-    instruments.recordApplicationBlockingLatencies(
+    recorder.recordApplicationBlockingLatencies(
         Duration.ofNanos(operationLatencyNano - totalServerLatencyNano.get()).toMillis(),
         attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
-      instruments.recordFirstResponseLatencies(
+      recorder.recordFirstResponseLatencies(
           firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS),
           attributes.toBuilder().put(STATUS, Util.extractStatus(status)).build());
     }
@@ -313,7 +313,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME, NAME)
             .build();
 
-    instruments.recordClientBlockingLatencies(totalClientBlockingTime.get(), attributes);
+    recorder.recordClientBlockingLatencies(totalClientBlockingTime.get(), attributes);
 
     // Patch the status until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
@@ -324,17 +324,17 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     String statusStr = Util.extractStatus(status);
 
-    instruments.recordAttemptLatencies(
+    recorder.recordAttemptLatencies(
         attemptTimer.elapsed(TimeUnit.MILLISECONDS),
         attributes.toBuilder().put(STREAMING, isStreaming).put(STATUS, statusStr).build());
 
     if (serverLatencies != null) {
-      instruments.recordServerLatencies(
+      recorder.recordServerLatencies(
           serverLatencies, attributes.toBuilder().put(STATUS, statusStr).build());
-      instruments.recordConnectivityErrorCount(
+      recorder.recordConnectivityErrorCount(
           0, attributes.toBuilder().put(STATUS, statusStr).build());
     } else {
-      instruments.recordConnectivityErrorCount(
+      recorder.recordConnectivityErrorCount(
           1, attributes.toBuilder().put(STATUS, statusStr).build());
     }
   }

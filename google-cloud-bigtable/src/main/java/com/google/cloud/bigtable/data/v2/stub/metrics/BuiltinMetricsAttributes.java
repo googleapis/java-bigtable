@@ -56,14 +56,14 @@ public class BuiltinMetricsAttributes {
 
   static final String SCOPE = "bigtable.googleapis.com";
 
-  static final InstrumentSelector OPERATION_LATENCIES_SELECTOR =
+  public static final InstrumentSelector OPERATION_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(OPERATION_LATENCIES_NAME)
           .setMeterName(SCOPE)
           .setType(InstrumentType.HISTOGRAM)
           .setUnit("ms")
           .build();
-  static final InstrumentSelector ATTEMPT_LATENCIES_SELECTOR =
+  public static final InstrumentSelector ATTEMPT_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(ATTEMPT_LATENCIES_NAME)
           .setMeterName(SCOPE)
@@ -71,7 +71,7 @@ public class BuiltinMetricsAttributes {
           .setUnit("ms")
           .build();
 
-  static final InstrumentSelector RETRY_COUNT_SELECTOR =
+  public static final InstrumentSelector RETRY_COUNT_SELECTOR =
       InstrumentSelector.builder()
           .setName(RETRY_COUNT_NAME)
           .setMeterName(SCOPE)
@@ -79,35 +79,35 @@ public class BuiltinMetricsAttributes {
           .setUnit("1")
           .build();
 
-  static final InstrumentSelector SERVER_LATENCIES_SELECTOR =
+  public static final InstrumentSelector SERVER_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(SERVER_LATENCIES_NAME)
           .setMeterName(SCOPE)
           .setType(InstrumentType.HISTOGRAM)
           .setUnit("ms")
           .build();
-  static final InstrumentSelector FIRST_RESPONSE_LATENCIES_SELECTOR =
+  public static final InstrumentSelector FIRST_RESPONSE_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(FIRST_RESPONSE_LATENCIES_NAME)
           .setMeterName(SCOPE)
           .setType(InstrumentType.HISTOGRAM)
           .setUnit("ms")
           .build();
-  static final InstrumentSelector CLIENT_BLOCKING_LATENCIES_SELECTOR =
+  public static final InstrumentSelector CLIENT_BLOCKING_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(CLIENT_BLOCKING_LATENCIES_NAME)
           .setMeterName(SCOPE)
           .setType(InstrumentType.HISTOGRAM)
           .setUnit("ms")
           .build();
-  static final InstrumentSelector APPLICATION_BLOCKING_LATENCIES_SELECTOR =
+  public static final InstrumentSelector APPLICATION_BLOCKING_LATENCIES_SELECTOR =
       InstrumentSelector.builder()
           .setName(APPLICATION_BLOCKING_LATENCIES_NAME)
           .setMeterName(SCOPE)
           .setType(InstrumentType.HISTOGRAM)
           .setUnit("ms")
           .build();
-  static final InstrumentSelector CONNECTIVITY_ERROR_COUNT_SELECTOR =
+  public static final InstrumentSelector CONNECTIVITY_ERROR_COUNT_SELECTOR =
       InstrumentSelector.builder()
           .setName(CONNECTIVITY_ERROR_COUNT_NAME)
           .setMeterName(SCOPE)
@@ -115,42 +115,42 @@ public class BuiltinMetricsAttributes {
           .setUnit("1")
           .build();
 
-  static final View OPERATION_LATENCIES_VIEW =
+  public static final View OPERATION_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/operation_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View ATTEMPT_LATENCIES_VIEW =
+  public static final View ATTEMPT_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/attempt_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View SERVER_LATENCIES_VIEW =
+  public static final View SERVER_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/server_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View FIRST_RESPONSE_LATENCIES_VIEW =
+  public static final View FIRST_RESPONSE_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/first_response_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View APPLICATION_BLOCKING_LATENCIES_VIEW =
+  public static final View APPLICATION_BLOCKING_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/application_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View CLIENT_BLOCKING_LATENCIES_VIEW =
+  public static final View CLIENT_BLOCKING_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/throttling_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
           .build();
-  static final View RETRY_COUNT_VIEW =
+  public static final View RETRY_COUNT_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/retry_count")
           .setAggregation(Aggregation.sum())
           .build();
-  static final View CONNECTIVITY_ERROR_COUNT_VIEW =
+  public static final View CONNECTIVITY_ERROR_COUNT_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/connectivity_error_count")
           .setAggregation(Aggregation.sum())

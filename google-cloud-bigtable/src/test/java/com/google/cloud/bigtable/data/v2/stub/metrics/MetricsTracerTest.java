@@ -15,6 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_OP;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants.BIGTABLE_STATUS;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -27,6 +32,8 @@ import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.tracing.ApiTracerFactory;
+import com.google.api.gax.tracing.SpanName;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
@@ -43,7 +50,6 @@ import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.util.concurrent.SettableFuture;
@@ -54,15 +60,24 @@ import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
-import io.opencensus.tags.TagKey;
-import io.opencensus.tags.TagValue;
-import io.opencensus.tags.Tags;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.data.HistogramData;
+import io.opentelemetry.sdk.metrics.data.HistogramPointData;
+import io.opentelemetry.sdk.metrics.data.LongPointData;
+import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.data.PointData;
+import io.opentelemetry.sdk.metrics.data.SumData;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -104,15 +119,23 @@ public class MetricsTracerTest {
   @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
 
-  private final StatsComponentImpl localStats = new StatsComponentImpl();
   private EnhancedBigtableStub stub;
   private BigtableDataSettings settings;
 
+  @Mock private MetricsTracerFactory mockFactory = Mockito.mock(MetricsTracerFactory.class);
+
+  private Attributes baseAttributes;
+
+  private InMemoryMetricReader reader = InMemoryMetricReader.create();
+  private MetricsTracerRecorder recorder;
+
   @Before
   public void setUp() throws Exception {
-    server = FakeServiceBuilder.create(mockService).start();
+    SdkMeterProvider testMeterProvider =
+        SdkMeterProvider.builder().registerMetricReader(reader).build();
+    this.recorder = new MetricsTracerRecorder(testMeterProvider.get("test"));
 
-    RpcViews.registerBigtableClientViews(localStats.getViewManager());
+    server = FakeServiceBuilder.create(mockService).start();
 
     settings =
         BigtableDataSettings.newBuilderForEmulator(server.getPort())
@@ -120,10 +143,15 @@ public class MetricsTracerTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
-    stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
+    EnhancedBigtableStubSettings.Builder builder = settings.getStubSettings().toBuilder();
+    builder.setTracerFactory(mockFactory);
+    stub = new EnhancedBigtableStub(builder.build(), ClientContext.create(builder.build()));
+
+    this.baseAttributes =
+        Attributes.of(
+            BIGTABLE_PROJECT_ID, PROJECT_ID,
+            BIGTABLE_INSTANCE_ID, INSTANCE_ID,
+            BIGTABLE_APP_PROFILE_ID, APP_PROFILE_ID);
   }
 
   @After
@@ -133,21 +161,28 @@ public class MetricsTracerTest {
   }
 
   @Test
-  public void testReadRowsLatency() throws InterruptedException {
+  public void testReadRowsLatency() {
     final long sleepTime = 50;
 
     doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                @SuppressWarnings("unchecked")
-                StreamObserver<ReadRowsResponse> observer =
-                    (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
-                Thread.sleep(sleepTime);
-                observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
-                observer.onCompleted();
-                return null;
-              }
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
+
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              StreamObserver<ReadRowsResponse> observer =
+                  (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
+              Thread.sleep(sleepTime);
+              observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
+              observer.onCompleted();
+              return null;
             })
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
@@ -156,35 +191,42 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    long opLatency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_OP_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(opLatency).isIn(Range.closed(sleepTime, elapsed));
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.OP_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "OK");
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isIn(Range.closed(sleepTime, elapsed));
   }
 
   @Test
-  public void testReadRowsOpCount() throws InterruptedException {
+  public void testReadRowsOpCount() {
     doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) {
-                @SuppressWarnings("unchecked")
-                StreamObserver<ReadRowsResponse> observer =
-                    (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
-                observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
-                observer.onCompleted();
-                return null;
-              }
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
+
+    doAnswer(
+            invocation -> {
+              @SuppressWarnings("unchecked")
+              StreamObserver<ReadRowsResponse> observer =
+                  (StreamObserver<ReadRowsResponse>) invocation.getArguments()[1];
+              observer.onNext(DEFAULT_READ_ROWS_RESPONSES);
+              observer.onCompleted();
+              return null;
             })
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
@@ -192,30 +234,39 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    long opLatency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_COMPLETED_OP_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(opLatency).isEqualTo(2);
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.COMPLETED_OPS_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "OK");
+
+    SumData<LongPointData> longData = metric.getLongSumData();
+    long count = longData.getPoints().iterator().next().getValue();
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
-  public void testReadRowsFirstRow() throws InterruptedException {
+  public void testReadRowsFirstRow() {
     final long beforeSleep = 50;
     final long afterSleep = 50;
 
     SettableFuture<Void> gotFirstRow = SettableFuture.create();
 
     ExecutorService executor = Executors.newCachedThreadPool();
+
+    doAnswer(
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
+
     doAnswer(
             invocation -> {
               StreamObserver<ReadRowsResponse> observer = invocation.getArgument(1);
@@ -246,25 +297,36 @@ public class MetricsTracerTest {
     }
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
     executor.shutdown();
 
-    long firstRowLatency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_READ_ROWS_FIRST_ROW_LATENCY_VIEW,
-            ImmutableMap.<TagKey, TagValue>of(),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+    MetricData metric =
+        StatsTestUtils.getMetric(metrics, RpcViewConstants.READ_ROWS_FIRST_ROW_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "OK");
 
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isIn(Range.closed(beforeSleep, elapsed - afterSleep));
   }
 
   @Test
-  public void testReadRowsAttemptsPerOp() throws InterruptedException {
+  public void testReadRowsAttemptsPerOp() {
     final AtomicInteger callCount = new AtomicInteger(0);
+
+    doAnswer(
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
 
     doAnswer(
             new Answer() {
@@ -291,26 +353,33 @@ public class MetricsTracerTest {
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.ATTEMPTS_PER_OP_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
 
-    long opLatency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_ATTEMPTS_PER_OP_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(opLatency).isEqualTo(2);
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows", "OK");
+
+    SumData<LongPointData> longData = metric.getLongSumData();
+    long count = longData.getPoints().iterator().next().getValue();
+    assertThat(count).isEqualTo(2);
   }
 
   @Test
-  public void testReadRowsAttemptLatency() throws InterruptedException {
+  public void testReadRowsAttemptLatency() {
     final long sleepTime = 50;
     final AtomicInteger callCount = new AtomicInteger(0);
+
+    doAnswer(
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
 
     doAnswer(
             new Answer() {
@@ -340,48 +409,91 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
+    Collection<MetricData> metrics = reader.collectAllMetrics();
 
-    long attemptLatency =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows"),
-                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.ATTEMPT_LATENCY_NAME);
+    assertThat(metric).isNotNull();
+    List<PointData> pointData = new ArrayList<>(metric.getData().getPoints());
+
+    Collection<Attributes> attributes =
+        pointData.stream().map(PointData::getAttributes).collect(Collectors.toList());
+    List<String> values = new ArrayList<>();
+    Attributes expected1 =
+        Attributes.of(
+            BIGTABLE_PROJECT_ID,
             PROJECT_ID,
+            BIGTABLE_INSTANCE_ID,
             INSTANCE_ID,
-            APP_PROFILE_ID);
+            BIGTABLE_APP_PROFILE_ID,
+            APP_PROFILE_ID,
+            BIGTABLE_OP,
+            "Bigtable.ReadRows",
+            BIGTABLE_STATUS,
+            "UNAVAILABLE");
+    Attributes expected2 =
+        Attributes.of(
+            BIGTABLE_PROJECT_ID,
+            PROJECT_ID,
+            BIGTABLE_INSTANCE_ID,
+            INSTANCE_ID,
+            BIGTABLE_APP_PROFILE_ID,
+            APP_PROFILE_ID,
+            BIGTABLE_OP,
+            "Bigtable.ReadRows",
+            BIGTABLE_STATUS,
+            "OK");
+    assertThat(attributes).containsExactly(expected1, expected2);
+
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
     // Average attempt latency will be just a single wait (as opposed to op latency which will be 2x
     // sleeptime)
-    assertThat(attemptLatency).isIn(Range.closed(sleepTime, elapsed - sleepTime));
+    assertThat((long) histogramPointData.iterator().next().getSum())
+        .isIn(Range.closed(sleepTime, elapsed - sleepTime));
   }
 
   @Test
-  public void testInvalidRequest() throws InterruptedException {
+  public void testInvalidRequest() {
     try {
+      doAnswer(
+              invocation ->
+                  new MetricsTracer(
+                      ApiTracerFactory.OperationType.ServerStreaming,
+                      SpanName.of("Bigtable", "MutateRows"),
+                      recorder,
+                      baseAttributes))
+          .when(mockFactory)
+          .newTracer(any(), any(), any());
+
       stub.bulkMutateRowsCallable().call(BulkMutation.create(TABLE_ID));
       Assert.fail("Invalid request should throw exception");
     } catch (IllegalStateException e) {
-      Thread.sleep(100);
       // Verify that the latency is recorded with an error code (in this case UNKNOWN)
-      long attemptLatency =
-          StatsTestUtils.getAggregationValueAsLong(
-              localStats,
-              RpcViewConstants.BIGTABLE_ATTEMPT_LATENCY_VIEW,
-              ImmutableMap.of(
-                  RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows"),
-                  RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("UNKNOWN")),
-              PROJECT_ID,
-              INSTANCE_ID,
-              APP_PROFILE_ID);
-      assertThat(attemptLatency).isAtLeast(0);
+      Collection<MetricData> metrics = reader.collectAllMetrics();
+
+      MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.ATTEMPT_LATENCY_NAME);
+      assertThat(metric).isNotNull();
+      PointData pointData = metric.getData().getPoints().iterator().next();
+
+      assertThat(pointData.getAttributes().asMap().values())
+          .containsExactly(
+              PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRows", "UNKNOWN");
     }
   }
 
   @Test
   public void testBatchReadRowsThrottledTime() throws Exception {
+    doAnswer(
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "ReadRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
+
     doAnswer(
             new Answer() {
               @Override
@@ -402,19 +514,17 @@ public class MetricsTracerTest {
       batcher.add(ByteString.copyFromUtf8("row1"));
       batcher.sendOutstanding();
 
-      // Give OpenCensus a chance to update the views asynchronously.
-      Thread.sleep(100);
+      Collection<MetricData> metrics = reader.collectAllMetrics();
+      MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.THROTTLED_TIME_NAME);
+      assertThat(metric).isNotNull();
+      PointData pointData = metric.getData().getPoints().iterator().next();
+      assertThat(pointData.getAttributes().asMap().values())
+          .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.ReadRows");
 
-      long throttledTimeMetric =
-          StatsTestUtils.getAggregationValueAsLong(
-              localStats,
-              RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
-              ImmutableMap.of(
-                  RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
-              PROJECT_ID,
-              INSTANCE_ID,
-              APP_PROFILE_ID);
-      assertThat(throttledTimeMetric).isEqualTo(0);
+      HistogramData histogramData = metric.getHistogramData();
+      Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+      assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+      assertThat((long) histogramPointData.iterator().next().getSum()).isEqualTo(0);
     }
   }
 
@@ -424,6 +534,16 @@ public class MetricsTracerTest {
     BatchingDescriptor batchingDescriptor = Mockito.mock(MutateRowsBatchingDescriptor.class);
     // Mock throttling
     final long throttled = 50;
+    doAnswer(
+            invocation ->
+                new MetricsTracer(
+                    ApiTracerFactory.OperationType.ServerStreaming,
+                    SpanName.of("Bigtable", "MutateRows"),
+                    recorder,
+                    baseAttributes))
+        .when(mockFactory)
+        .newTracer(any(), any(), any());
+
     doAnswer(
             new Answer() {
               @Override
@@ -469,21 +589,16 @@ public class MetricsTracerTest {
     batcher.add(RowMutationEntry.create("key"));
     batcher.sendOutstanding();
 
-    Thread.sleep(100);
-    long throttledTimeMetric =
-        StatsTestUtils.getAggregationValueAsLong(
-            localStats,
-            RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
-            ImmutableMap.of(
-                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.MutateRows")),
-            PROJECT_ID,
-            INSTANCE_ID,
-            APP_PROFILE_ID);
-    assertThat(throttledTimeMetric).isAtLeast(throttled);
-  }
+    Collection<MetricData> metrics = reader.collectAllMetrics();
+    MetricData metric = StatsTestUtils.getMetric(metrics, RpcViewConstants.THROTTLED_TIME_NAME);
+    assertThat(metric).isNotNull();
+    PointData pointData = metric.getData().getPoints().iterator().next();
+    assertThat(pointData.getAttributes().asMap().values())
+        .containsExactly(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID, "Bigtable.MutateRows");
 
-  @SuppressWarnings("unchecked")
-  private static <T> StreamObserver<T> anyObserver(Class<T> returnType) {
-    return (StreamObserver<T>) any(returnType);
+    HistogramData histogramData = metric.getHistogramData();
+    Collection<HistogramPointData> histogramPointData = histogramData.getPoints();
+    assertThat(histogramPointData.iterator().next().getCount()).isEqualTo(1);
+    assertThat((long) histogramPointData.iterator().next().getSum()).isAtLeast(throttled);
   }
 }

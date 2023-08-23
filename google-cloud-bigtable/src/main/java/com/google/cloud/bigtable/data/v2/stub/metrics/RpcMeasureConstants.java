@@ -17,20 +17,23 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import io.opencensus.stats.Measure.MeasureLong;
-import io.opencensus.tags.TagKey;
+import io.opentelemetry.api.common.AttributeKey;
 
 @InternalApi("For internal use only")
 public class RpcMeasureConstants {
   // TagKeys
-  public static final TagKey BIGTABLE_PROJECT_ID = TagKey.create("bigtable_project_id");
-  public static final TagKey BIGTABLE_INSTANCE_ID = TagKey.create("bigtable_instance_id");
-  public static final TagKey BIGTABLE_APP_PROFILE_ID = TagKey.create("bigtable_app_profile_id");
+  public static final AttributeKey<String> BIGTABLE_PROJECT_ID =
+      AttributeKey.stringKey("bigtable_project_id");
+  public static final AttributeKey<String> BIGTABLE_INSTANCE_ID =
+      AttributeKey.stringKey("bigtable_instance_id");
+  public static final AttributeKey<String> BIGTABLE_APP_PROFILE_ID =
+      AttributeKey.stringKey("bigtable_app_profile_id");
 
   /** Tag key that represents a Bigtable operation name. */
-  static final TagKey BIGTABLE_OP = TagKey.create("bigtable_op");
+  static final AttributeKey<String> BIGTABLE_OP = AttributeKey.stringKey("bigtable_op");
 
   /** Tag key that represents the final status of the Bigtable operation. */
-  static final TagKey BIGTABLE_STATUS = TagKey.create("bigtable_status");
+  static final AttributeKey<String> BIGTABLE_STATUS = AttributeKey.stringKey("bigtable_status");
 
   // Units
   /** Unit to represent counts. */
