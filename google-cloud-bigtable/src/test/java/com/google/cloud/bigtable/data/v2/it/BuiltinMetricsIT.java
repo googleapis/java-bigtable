@@ -22,7 +22,6 @@ import com.google.api.client.util.Lists;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
-import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -75,9 +74,6 @@ public class BuiltinMetricsIT {
         .withMessage("Builtin metrics integration test is not supported by emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-
-    // Enable built in metrics
-    BigtableDataSettings.enableBuiltinMetrics();
 
     // Create a cloud monitoring client
     metricClient = MetricServiceClient.create();

@@ -765,6 +765,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
       jwtAudienceMapping = settings.jwtAudienceMapping;
+      isBuiltinMetricsEnabled = settings.isBuiltinMetricsEnabled;
       openTelemetry = settings.openTelemetry;
 
       // Per method settings.
