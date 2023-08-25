@@ -19,4 +19,10 @@
         <className>com/google/cloud/bigtable/stats/StatsRecorderWrapper</className>
         <method>void putBatchRequestThrottled(long)</method>
     </difference>
+    <!-- Internal API is updated -->
+    <difference>
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/stats/StatsWrapper</className>
+        <method>*</method>
+    </difference>
 </differences>

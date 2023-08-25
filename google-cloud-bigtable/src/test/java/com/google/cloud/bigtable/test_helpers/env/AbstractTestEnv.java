@@ -25,6 +25,7 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -69,6 +70,8 @@ public abstract class AbstractTestEnv {
   public abstract String getProjectId();
 
   public abstract String getInstanceId();
+
+  public abstract InMemoryMetricReader getMetricReader();
 
   /** Try to guess the primary cluster id */
   public synchronized String getPrimaryClusterId() {

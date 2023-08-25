@@ -24,6 +24,7 @@ import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.emulator.v2.Emulator;
 import com.google.common.base.Strings;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 
@@ -138,6 +139,11 @@ public class EmulatorEnv extends AbstractTestEnv {
   @Override
   public BigtableInstanceAdminClient getInstanceAdminClient() {
     throw new UnsupportedOperationException("InstanceAdminClient is not supported with emulator");
+  }
+
+  @Override
+  public InMemoryMetricReader getMetricReader() {
+    throw new UnsupportedOperationException("Metric reader is not supported with emulator");
   }
 
   public String getKmsKeyName() {

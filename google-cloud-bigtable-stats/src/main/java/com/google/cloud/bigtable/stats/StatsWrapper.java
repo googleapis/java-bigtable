@@ -22,7 +22,6 @@ import com.google.api.gax.tracing.SpanName;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
 import io.opencensus.tags.TagKey;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,18 +37,6 @@ public class StatsWrapper {
       OperationType operationType, SpanName spanName, Map<String, String> statsAttributes) {
     return new StatsRecorderWrapper(
         operationType, spanName, statsAttributes, Stats.getStatsRecorder());
-  }
-
-  // This is used in integration tests to get the tag value strings from view manager because Stats
-  // is relocated to com.google.bigtable.veneer.repackaged.io.opencensus.
-  @InternalApi("Visible for testing")
-  public static List<String> getOperationLatencyViewTagValueStrings() {
-    return Stats.getViewManager().getView(BuiltinViewConstants.OPERATION_LATENCIES_VIEW.getName())
-        .getAggregationMap().entrySet().stream()
-        .map(Map.Entry::getKey)
-        .flatMap(x -> x.stream())
-        .map(x -> x.asString())
-        .collect(Collectors.toCollection(ArrayList::new));
   }
 
   // A workaround to run ITBuiltinViewConstantsTest as integration test. Integration test runs after
