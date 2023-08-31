@@ -30,6 +30,7 @@ import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.InstantiatingWatchdogProvider;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.WatchdogTimeoutException;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
@@ -104,6 +105,8 @@ public class EnhancedBigtableStubTest {
   private static final String TABLE_NAME =
       NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, "fake-table");
   private static final String APP_PROFILE_ID = "app-profile-id";
+  private static final String WAIT_TIME_TABLE_ID = "test-wait-timeout";
+  private static final Duration WATCHDOG_CHECK_DURATION = Duration.ofMillis(100);
 
   private Server server;
   private MetadataInterceptor metadataInterceptor;
@@ -550,10 +553,14 @@ public class EnhancedBigtableStubTest {
   @Test
   public void testWaitTimeoutIsSet() throws Exception {
     EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
-    settings.readRowsSettings().setWaitTimeout(Duration.ofMillis(100));
+    // Set a shorter wait timeout and make watchdog checks more frequently
+    settings.readRowsSettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.setStreamWatchdogProvider(
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
+
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
     Iterator<Row> iterator =
-        stub.readRowsCallable().call(Query.create("test-wait-timeout")).iterator();
+        stub.readRowsCallable().call(Query.create(WAIT_TIME_TABLE_ID)).iterator();
     try {
       iterator.next();
       Assert.fail("Should throw watchdog timeout exception");
@@ -611,9 +618,9 @@ public class EnhancedBigtableStubTest {
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
-      if (request.getTableName().contains("test-wait-timeout")) {
+      if (request.getTableName().contains(WAIT_TIME_TABLE_ID)) {
         try {
-          Thread.sleep(60 * 1000 * 6);
+          Thread.sleep(WATCHDOG_CHECK_DURATION.toMillis() * 2);
         } catch (Exception e) {
 
         }
