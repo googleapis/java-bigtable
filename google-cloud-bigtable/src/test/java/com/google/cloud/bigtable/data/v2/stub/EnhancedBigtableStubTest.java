@@ -31,6 +31,7 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.WatchdogTimeoutException;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.FeatureFlags;
@@ -82,11 +83,13 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -544,6 +547,21 @@ public class EnhancedBigtableStubTest {
     assertThat(featureFlags.getMutateRowsRateLimit()).isFalse();
   }
 
+  @Test
+  public void testWaitTimeoutIsSet() throws Exception {
+    EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
+    settings.readRowsSettings().setWaitTimeout(Duration.ofMillis(100));
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
+    Iterator<Row> iterator =
+        stub.readRowsCallable().call(Query.create("test-wait-timeout")).iterator();
+    try {
+      iterator.next();
+      Assert.fail("Should throw watchdog timeout exception");
+    } catch (WatchdogTimeoutException e) {
+      assertThat(e.getMessage()).contains("Canceled due to timeout waiting for next response");
+    }
+  }
+
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
 
@@ -593,6 +611,13 @@ public class EnhancedBigtableStubTest {
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
+      if (request.getTableName().contains("test-wait-timeout")) {
+        try {
+          Thread.sleep(60 * 1000 * 6);
+        } catch (Exception e) {
+
+        }
+      }
       requests.add(request);
       // Dummy row for stream
       responseObserver.onNext(
