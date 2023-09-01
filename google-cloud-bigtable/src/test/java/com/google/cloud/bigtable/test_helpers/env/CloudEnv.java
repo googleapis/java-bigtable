@@ -26,7 +26,7 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinViews;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
@@ -278,7 +278,7 @@ class CloudEnv extends AbstractTestEnv {
     SdkMeterProviderBuilder meterProvider =
         SdkMeterProvider.builder().registerMetricReader(metricReader);
     try {
-      BuiltinViews.registerBuiltinViews(projectId, meterProvider);
+      BuiltinMetricsView.registerBuiltinMetrics(projectId, meterProvider);
     } catch (IOException e) {
       throw new RuntimeException("Failed to register views");
     }

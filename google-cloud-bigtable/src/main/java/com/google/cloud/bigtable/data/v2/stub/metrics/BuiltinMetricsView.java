@@ -15,22 +15,22 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APPLICATION_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APPLICATION_BLOCKING_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ATTEMPT_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ATTEMPT_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_BLOCKING_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CONNECTIVITY_ERROR_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CONNECTIVITY_ERROR_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.FIRST_RESPONSE_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.FIRST_RESPONSE_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.OPERATION_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.OPERATION_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.RETRY_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.RETRY_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.SERVER_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.SERVER_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_VIEW;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_SELECTOR;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_VIEW;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -42,12 +42,17 @@ import java.io.IOException;
 /** Register built-in metrics on a custom OpenTelemetry instance. */
 public class BuiltinMetricsView {
 
+  /**
+   * Register built-in metrics on the {@link SdkMeterProviderBuilder} with application default
+   * credentials.
+   */
   public static void registerBuiltinMetrics(String projectId, SdkMeterProviderBuilder builder)
       throws IOException {
     BuiltinMetricsView.registerBuiltinMetrics(
         projectId, GoogleCredentials.getApplicationDefault(), builder);
   }
 
+  /** Register built-in metrics on the {@link SdkMeterProviderBuilder} with credentials. */
   public static void registerBuiltinMetrics(
       String projectId, Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {

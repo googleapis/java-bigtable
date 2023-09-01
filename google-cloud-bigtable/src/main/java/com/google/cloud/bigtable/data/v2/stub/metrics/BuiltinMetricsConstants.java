@@ -23,8 +23,9 @@ import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.View;
 
+/** Defining Bigtable builit-in metrics scope, attributes, metric names and views. */
 @InternalApi
-public class BuiltinMetricsAttributes {
+public class BuiltinMetricsConstants {
 
   public static final AttributeKey<String> PROJECT_ID = AttributeKey.stringKey("project_id");
   public static final AttributeKey<String> INSTANCE_ID = AttributeKey.stringKey("instance");

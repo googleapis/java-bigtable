@@ -532,7 +532,7 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
     }
 
-    /** Set if built-in metrics will be enabled. */
+    /** Set enable to true to enable builtin metrics. */
     public Builder setBuiltinMetricsEnabled(boolean enable) {
       stubSettings.setBuiltinMetricsEnabled(enable);
       return this;

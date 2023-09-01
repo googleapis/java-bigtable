@@ -15,13 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.METHOD;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.STATUS;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.STREAMING;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
@@ -241,9 +241,9 @@ public class BuiltinMetricsTracerTest {
 
     baseAttributes =
         Attributes.builder()
-            .put(BuiltinMetricsAttributes.PROJECT_ID, PROJECT_ID)
-            .put(BuiltinMetricsAttributes.INSTANCE_ID, INSTANCE_ID)
-            .put(BuiltinMetricsAttributes.APP_PROFILE, APP_PROFILE_ID)
+            .put(BuiltinMetricsConstants.PROJECT_ID, PROJECT_ID)
+            .put(BuiltinMetricsConstants.INSTANCE_ID, INSTANCE_ID)
+            .put(BuiltinMetricsConstants.APP_PROFILE, APP_PROFILE_ID)
             .build();
   }
 
@@ -516,17 +516,17 @@ public class BuiltinMetricsTracerTest {
         .recordAttemptLatencies(value.capture(), attributes.capture());
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.PROJECT_ID))
+                .map(a -> a.get(BuiltinMetricsConstants.PROJECT_ID))
                 .collect(Collectors.toList()))
         .containsExactly(PROJECT_ID, PROJECT_ID, PROJECT_ID);
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.INSTANCE_ID))
+                .map(a -> a.get(BuiltinMetricsConstants.INSTANCE_ID))
                 .collect(Collectors.toList()))
         .containsExactly(INSTANCE_ID, INSTANCE_ID, INSTANCE_ID);
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.APP_PROFILE))
+                .map(a -> a.get(BuiltinMetricsConstants.APP_PROFILE))
                 .collect(Collectors.toList()))
         .containsExactly(APP_PROFILE_ID, APP_PROFILE_ID, APP_PROFILE_ID);
     assertThat(
@@ -586,17 +586,17 @@ public class BuiltinMetricsTracerTest {
         .recordAttemptLatencies(value.capture(), attributes.capture());
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.PROJECT_ID))
+                .map(a -> a.get(BuiltinMetricsConstants.PROJECT_ID))
                 .collect(Collectors.toList()))
         .containsExactly(PROJECT_ID, PROJECT_ID);
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.INSTANCE_ID))
+                .map(a -> a.get(BuiltinMetricsConstants.INSTANCE_ID))
                 .collect(Collectors.toList()))
         .containsExactly(INSTANCE_ID, INSTANCE_ID);
     assertThat(
             attributes.getAllValues().stream()
-                .map(a -> a.get(BuiltinMetricsAttributes.APP_PROFILE))
+                .map(a -> a.get(BuiltinMetricsConstants.APP_PROFILE))
                 .collect(Collectors.toList()))
         .containsExactly(APP_PROFILE_ID, APP_PROFILE_ID);
     assertThat(
@@ -664,17 +664,17 @@ public class BuiltinMetricsTracerTest {
 
       assertThat(
               attributes.getAllValues().stream()
-                  .map(a -> a.get(BuiltinMetricsAttributes.PROJECT_ID))
+                  .map(a -> a.get(BuiltinMetricsConstants.PROJECT_ID))
                   .collect(Collectors.toList()))
           .containsExactly(PROJECT_ID, PROJECT_ID, PROJECT_ID);
       assertThat(
               attributes.getAllValues().stream()
-                  .map(a -> a.get(BuiltinMetricsAttributes.INSTANCE_ID))
+                  .map(a -> a.get(BuiltinMetricsConstants.INSTANCE_ID))
                   .collect(Collectors.toList()))
           .containsExactly(INSTANCE_ID, INSTANCE_ID, INSTANCE_ID);
       assertThat(
               attributes.getAllValues().stream()
-                  .map(a -> a.get(BuiltinMetricsAttributes.APP_PROFILE))
+                  .map(a -> a.get(BuiltinMetricsConstants.APP_PROFILE))
                   .collect(Collectors.toList()))
           .containsExactly(APP_PROFILE_ID, APP_PROFILE_ID, APP_PROFILE_ID);
       assertThat(

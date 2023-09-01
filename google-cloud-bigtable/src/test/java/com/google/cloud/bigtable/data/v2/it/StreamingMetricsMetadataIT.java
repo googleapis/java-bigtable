@@ -23,7 +23,7 @@ import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
@@ -71,8 +71,7 @@ public class StreamingMetricsMetadataIT {
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
             .filter(
-                m ->
-                    m.getName().equals(BuiltinMetricsAttributes.OPERATION_LATENCIES_VIEW.getName()))
+                m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW.getName()))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);
@@ -81,11 +80,11 @@ public class StreamingMetricsMetadataIT {
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsAttributes.CLUSTER_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID))
             .collect(Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsAttributes.ZONE_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID))
             .collect(Collectors.toList());
 
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
@@ -105,8 +104,7 @@ public class StreamingMetricsMetadataIT {
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
             .filter(
-                m ->
-                    m.getName().equals(BuiltinMetricsAttributes.OPERATION_LATENCIES_VIEW.getName()))
+                m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW.getName()))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);
@@ -115,11 +113,11 @@ public class StreamingMetricsMetadataIT {
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsAttributes.CLUSTER_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID))
             .collect(Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsAttributes.ZONE_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID))
             .collect(Collectors.toList());
 
     assertThat(clusterAttributes).contains("unspecified");

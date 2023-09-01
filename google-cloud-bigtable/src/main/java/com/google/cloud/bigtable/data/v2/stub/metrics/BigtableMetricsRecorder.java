@@ -17,7 +17,8 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import io.opentelemetry.api.common.Attributes;
 
-public class BigtableMetricsRecorder {
+/** A helper class to record Bigtable metrics. */
+class BigtableMetricsRecorder {
 
   void recordOperationLatencies(long value, Attributes attributes) {}
 

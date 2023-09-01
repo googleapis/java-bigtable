@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.SCOPE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SCOPE;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;

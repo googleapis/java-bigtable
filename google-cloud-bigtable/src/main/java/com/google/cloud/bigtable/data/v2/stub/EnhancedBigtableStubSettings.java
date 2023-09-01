@@ -62,6 +62,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -915,18 +916,43 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return isBuiltinMetricsEnabled;
     }
 
-    /** Set if builtin metrics will be enabled. */
+    /** Set enable to true to enable builtin metrics. */
     public Builder setBuiltinMetricsEnabled(boolean enable) {
       this.isBuiltinMetricsEnabled = enable;
       return this;
     }
 
+    /**
+     * Set a custom OpenTelemetry instance.
+     *
+     * <p>Register builtin metrics on the custom OpenTelemetry: <code>
+     * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
+     *
+     * // register Builtin metrics on your meter provider
+     * BuiltinMetricsViews.registerBuiltinMetrics("project-id", sdkMeterProvider);
+     *
+     * // register other metrics reader and views
+     * sdkMeterProvider.registerMetricReader(..);
+     * sdkMeterProvider.registerView(..);
+     *
+     * // create the OTEL instance
+     * OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().
+     *     setMeterProvider(sdkMeterProvider().build();
+     *
+     * stubSettings.setOpenTelemetry(openTelemetry);
+     * </code>
+     */
     public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
       this.openTelemetry = openTelemetry;
       return this;
     }
 
-    public OpenTelemetry getOpenTelemetry() {
+    /**
+     * Gets the custom OpenTelemetry instance. If no custom OTEL instance is set, the client uses a
+     * default instance with builtin metrics enabled. Use {@link #setBuiltinMetricsEnabled(boolean)}
+     * to disable the builtin metrics.
+     */
+    public @Nullable OpenTelemetry getOpenTelemetry() {
       return this.openTelemetry;
     }
 
