@@ -56,7 +56,6 @@ import io.opentelemetry.sdk.metrics.data.SumData;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.SecureRandom;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -79,7 +78,7 @@ class BigtableExporterUtils {
         logger.log(Level.INFO, "Unable to get the hostname.", e);
       }
       // Generate a random number and use the same format "random_number@hostname".
-      return "java-" + new SecureRandom().nextInt() + "@" + hostname;
+      return "java-" + UUID.randomUUID() + "@" + hostname;
     }
     return "java-" + UUID.randomUUID() + jvmName;
   }
