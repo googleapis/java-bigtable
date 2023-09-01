@@ -19,6 +19,7 @@ import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
@@ -45,7 +46,8 @@ import java.util.stream.Collectors;
 import org.threeten.bp.Duration;
 
 /** Bigtable Cloud Monitoring OpenTelemetry Exporter. */
-final class BigtableCloudMonitoringExporter implements MetricExporter {
+@InternalApi("For internal use only")
+public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
@@ -60,7 +62,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private CompletableResultCode lastCode;
 
-  static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
+  public static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
       throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
