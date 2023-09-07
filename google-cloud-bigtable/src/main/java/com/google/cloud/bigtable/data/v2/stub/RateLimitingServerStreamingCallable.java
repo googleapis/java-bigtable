@@ -31,6 +31,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.RateLimiter;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -64,6 +65,10 @@ class RateLimitingServerStreamingCallable
   // as the server side cap
   private static final double MAX_FACTOR = 1.3;
 
+  // Disabled by default, enabled if RateLimitInfo is present, which is set on server side when
+  // feature flag is present or low request priority is used.
+  private final AtomicBoolean rateLimitEnabled = new AtomicBoolean(false);
+
   private final RateLimiter limiter;
 
   private final AtomicReference<Instant> lastQpsChangeTime = new AtomicReference<>(Instant.now());
@@ -73,7 +78,7 @@ class RateLimitingServerStreamingCallable
       @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable) {
     this.limiter = RateLimiter.create(DEFAULT_QPS);
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
-    logger.info("Rate limiting is enabled with initial QPS of " + limiter.getRate());
+    logger.info("Rate limiting callable is created with initial QPS of " + limiter.getRate());
   }
 
   @Override
@@ -81,32 +86,25 @@ class RateLimitingServerStreamingCallable
       MutateRowsRequest request,
       ResponseObserver<MutateRowsResponse> responseObserver,
       ApiCallContext context) {
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    limiter.acquire();
-    stopwatch.stop();
-    if (context.getTracer() instanceof BigtableTracer) {
-      ((BigtableTracer) context.getTracer())
-          .batchRequestThrottled(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    if (rateLimitEnabled.get()) {
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      limiter.acquire();
+      stopwatch.stop();
+      if (context.getTracer() instanceof BigtableTracer) {
+        ((BigtableTracer) context.getTracer())
+            .batchRequestThrottled(stopwatch.elapsed(TimeUnit.MILLISECONDS));
+      }
     }
-    RateLimitingResponseObserver innerObserver =
-        new RateLimitingResponseObserver(limiter, lastQpsChangeTime, responseObserver);
+    RateLimitingResponseObserver innerObserver = new RateLimitingResponseObserver(responseObserver);
     innerCallable.call(request, innerObserver, context);
   }
 
   class RateLimitingResponseObserver extends SafeResponseObserver<MutateRowsResponse> {
     private final ResponseObserver<MutateRowsResponse> outerObserver;
-    private final RateLimiter rateLimiter;
 
-    private final AtomicReference<Instant> lastQpsChangeTime;
-
-    RateLimitingResponseObserver(
-        RateLimiter rateLimiter,
-        AtomicReference<Instant> lastQpsChangeTime,
-        ResponseObserver<MutateRowsResponse> observer) {
+    RateLimitingResponseObserver(ResponseObserver<MutateRowsResponse> observer) {
       super(observer);
       this.outerObserver = observer;
-      this.rateLimiter = rateLimiter;
-      this.lastQpsChangeTime = lastQpsChangeTime;
     }
 
     @Override
@@ -116,7 +114,13 @@ class RateLimitingServerStreamingCallable
 
     @Override
     protected void onResponseImpl(MutateRowsResponse response) {
+      // Must not limit rate if RateLimitInfo is not present.
+      // Must limit rate and update QPS if RateLimitInfo is present, regardless of client side flag
+      // setting.
       if (response.hasRateLimitInfo()) {
+        if (!rateLimitEnabled.getAndSet(true)) {
+          logger.info("Rate limiting is enabled with QPS of " + limiter.getRate());
+        }
         RateLimitInfo info = response.getRateLimitInfo();
         // RateLimitInfo is an optional field. However, proto3 sub-message field always
         // have presence even thought it's marked as "optional". Check the factor and
@@ -125,6 +129,11 @@ class RateLimitingServerStreamingCallable
           updateQps(
               info.getFactor(),
               Duration.ofSeconds(com.google.protobuf.util.Durations.toSeconds(info.getPeriod())));
+        }
+      } else {
+        // Disable in case customer switched from low to higher priorities.
+        if (rateLimitEnabled.getAndSet(false)) {
+          logger.info("Rate limiting is disabled");
         }
       }
     }
