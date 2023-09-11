@@ -135,6 +135,8 @@ class RateLimitingServerStreamingCallable
           logger.info("Rate limiting is disabled");
         }
       }
+
+      outerObserver.onResponse(response);
     }
 
     @Override
