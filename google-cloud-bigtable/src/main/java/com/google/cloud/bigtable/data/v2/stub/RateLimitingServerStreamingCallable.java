@@ -78,7 +78,6 @@ class RateLimitingServerStreamingCallable
       @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> innerCallable) {
     this.limiter = RateLimiter.create(DEFAULT_QPS);
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
-    logger.info("Rate limiting callable is created with initial QPS of " + limiter.getRate());
   }
 
   @Override
