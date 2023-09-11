@@ -975,6 +975,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         this.setTransportChannelProvider(channelProviderBuilder.build());
       }
 
+      // Will be deprecated once we migrate flow control user to use request priority
       if (this.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
         // only set mutate rows feature flag when this feature is enabled
         featureFlags.setMutateRowsRateLimit(true);
