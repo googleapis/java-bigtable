@@ -171,8 +171,7 @@ class MetricsTracer extends BigtableTracer {
                 attemptTimer.elapsed(TimeUnit.MILLISECONDS));
 
     if (reportBatchingLatency) {
-      measures
-          .put(RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME, batchThrottledLatency);
+      measures.put(RpcMeasureConstants.BIGTABLE_BATCH_THROTTLED_TIME, batchThrottledLatency);
 
       // Reset batch throttling latency for next attempt. This can't be done in attemptStarted
       // because batching flow control will add batching latency before the attempt has started.
