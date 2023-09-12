@@ -715,14 +715,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setRetryableCodes(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
           .setRetrySettings(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
           .setIdleTimeout(Duration.ofMinutes(5))
-          .setWaitTimeout(Duration.ofMinutes(5));
+          .setWaitTimeout(Duration.ofMinutes(1));
 
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
       readChangeStreamSettings
           .setRetryableCodes(READ_CHANGE_STREAM_RETRY_CODES)
           .setRetrySettings(READ_CHANGE_STREAM_RETRY_SETTINGS)
           .setIdleTimeout(Duration.ofMinutes(5))
-          .setWaitTimeout(Duration.ofMinutes(5));
+          .setWaitTimeout(Duration.ofMinutes(1));
 
       pingAndWarmSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       pingAndWarmSettings.setRetrySettings(
