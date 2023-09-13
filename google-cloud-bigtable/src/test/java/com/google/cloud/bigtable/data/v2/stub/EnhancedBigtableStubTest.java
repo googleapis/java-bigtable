@@ -40,6 +40,8 @@ import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
+import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowSet;
@@ -48,11 +50,8 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
-import com.google.cloud.bigtable.data.v2.models.BulkMutation;
-import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
-import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.*;
 import com.google.cloud.bigtable.data.v2.models.Row;
-import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
 import com.google.common.io.BaseEncoding;
@@ -569,6 +568,27 @@ public class EnhancedBigtableStubTest {
     }
   }
 
+  @Test
+  public void testReadChangeStreamWaitTimeoutIsSet() throws Exception {
+    EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
+    // Set a shorter wait timeout and make watchdog checks more frequently
+    settings.readChangeStreamSettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.setStreamWatchdogProvider(
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
+
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
+    Iterator<ChangeStreamRecord> iterator =
+        stub.readChangeStreamCallable()
+            .call(ReadChangeStreamQuery.create(WAIT_TIME_TABLE_ID))
+            .iterator();
+    try {
+      iterator.next();
+      Assert.fail("Should throw watchdog timeout exception");
+    } catch (WatchdogTimeoutException e) {
+      assertThat(e.getMessage()).contains("Canceled due to timeout waiting for next response");
+    }
+  }
+
   private static class MetadataInterceptor implements ServerInterceptor {
     final BlockingQueue<Metadata> headers = Queues.newLinkedBlockingDeque();
 
@@ -597,6 +617,8 @@ public class EnhancedBigtableStubTest {
 
   private static class FakeDataService extends BigtableGrpc.BigtableImplBase {
     final BlockingQueue<ReadRowsRequest> requests = Queues.newLinkedBlockingDeque();
+    final BlockingQueue<ReadChangeStreamRequest> readChangeReadStreamRequests =
+        Queues.newLinkedBlockingDeque();
     final BlockingQueue<PingAndWarmRequest> pingRequests = Queues.newLinkedBlockingDeque();
 
     @SuppressWarnings("unchecked")
@@ -637,6 +659,23 @@ public class EnhancedBigtableStubTest {
                       .setQualifier(BytesValue.getDefaultInstance())
                       .setValueSize(0))
               .build());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void readChangeStream(
+        ReadChangeStreamRequest request,
+        StreamObserver<ReadChangeStreamResponse> responseObserver) {
+      if (request.getTableName().contains(WAIT_TIME_TABLE_ID)) {
+        try {
+          Thread.sleep(WATCHDOG_CHECK_DURATION.toMillis() * 2);
+        } catch (Exception e) {
+
+        }
+      }
+      readChangeReadStreamRequests.add(request);
+      // Dummy row for stream
+      responseObserver.onNext(ReadChangeStreamResponse.getDefaultInstance());
       responseObserver.onCompleted();
     }
 
