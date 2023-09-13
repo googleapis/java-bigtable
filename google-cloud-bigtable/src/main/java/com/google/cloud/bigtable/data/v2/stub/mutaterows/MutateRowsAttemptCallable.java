@@ -294,29 +294,30 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     // Handle missing mutations
     for (int i = 0; i < seenIndices.length; i++) {
-      if (!seenIndices[i]) {
-
-        int origIndex = getOriginalIndex(i);
-        FailedMutation failedMutation =
-            FailedMutation.create(
-                origIndex,
-                ApiExceptionFactory.createException(
-                    "Missing entry response for entry " + origIndex,
-                    null,
-                    GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL),
-                    false));
-
-        allFailures.add(failedMutation);
-        permanentFailures.add(failedMutation);
+      if (seenIndices[i]) {
+        continue;
       }
 
-      currentRequest = builder.build();
-      originalIndexes = newOriginalIndexes;
+      int origIndex = getOriginalIndex(i);
+      FailedMutation failedMutation =
+          FailedMutation.create(
+              origIndex,
+              ApiExceptionFactory.createException(
+                  "Missing entry response for entry " + origIndex,
+                  null,
+                  GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL),
+                  false));
 
-      if (!allFailures.isEmpty()) {
-        boolean isRetryable = builder.getEntriesCount() > 0;
-        throw new MutateRowsException(null, allFailures, isRetryable);
-      }
+      allFailures.add(failedMutation);
+      permanentFailures.add(failedMutation);
+    }
+
+    currentRequest = builder.build();
+    originalIndexes = newOriginalIndexes;
+
+    if (!allFailures.isEmpty()) {
+      boolean isRetryable = builder.getEntriesCount() > 0;
+      throw new MutateRowsException(null, allFailures, isRetryable);
     }
   }
 
