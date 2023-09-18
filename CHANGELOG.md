@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.25.2](https://github.com/googleapis/java-bigtable/compare/v2.25.0...v2.25.2) (2023-09-18)
+
+
+### Bug Fixes
+
+* Check that all bulk mutation entries are accounted for ([#1907](https://github.com/googleapis/java-bigtable/issues/1907)) ([#1923](https://github.com/googleapis/java-bigtable/issues/1923)) ([e4db745](https://github.com/googleapis/java-bigtable/commit/e4db74534690eb090347c00047eecbd45f5a22b7))
+* Make sure to propagate the response when throttling is enabled ([#1908](https://github.com/googleapis/java-bigtable/issues/1908)) ([#1922](https://github.com/googleapis/java-bigtable/issues/1922)) ([7ec5dd5](https://github.com/googleapis/java-bigtable/commit/7ec5dd5bc9499b01f5e330c28c9c5ee8cfadad68))
+
+
+### Miscellaneous Chores
+
+* Update release tag to 2.25.2 ([#1926](https://github.com/googleapis/java-bigtable/issues/1926)) ([9d5868b](https://github.com/googleapis/java-bigtable/commit/9d5868b2350f2b24b5988ebe3adb2e77e36c8a5a))
+
 ## [2.25.0](https://github.com/googleapis/java-bigtable/compare/v2.24.1...v2.25.0) (2023-07-14)
 
 
