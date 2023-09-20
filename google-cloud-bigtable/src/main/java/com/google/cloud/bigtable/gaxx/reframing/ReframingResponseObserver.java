@@ -274,11 +274,6 @@ public class ReframingResponseObserver<InnerT, OuterT> extends SafeResponseObser
     }
 
     do {
-      // Optimization: the inner loop will eager process any accumulated state, so reset the lock
-      // for just this iteration. (If another event occurs during processing, it can increment the
-      // lock to enqueue another iteration).
-      lock.lazySet(1);
-
       // Process the upstream message if one exists.
       pollUpstream();
 
