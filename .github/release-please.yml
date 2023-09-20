@@ -43,6 +43,6 @@ branches:
     extraFiles:
       - >-
         google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
-    branch: 2.23.x
+    branch: 2.25.x
 extraFiles:
   - google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
