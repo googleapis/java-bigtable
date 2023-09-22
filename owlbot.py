@@ -99,7 +99,7 @@ java.common_templates(excludes=[
     '.kokoro/presubmit/integration.cfg',
     '.kokoro/presubmit/graalvm-native.cfg',
     '.kokoro/presubmit/graalvm-native-17.cfg',
-    '.kokoro/nightly/integration.cfg',
+    # '.kokoro/nightly/integration.cfg',
     '.kokoro/presubmit/samples.cfg',
     '.kokoro/nightly/samples.cfg',
     # todo remove once template is updated
@@ -111,3 +111,5 @@ java.common_templates(excludes=[
     '.github/release-please.yml',
     'renovate.json',
 ])
+
+java.load_partials(['.kokoro/nightly/integration.cfg.partials.yaml'])
