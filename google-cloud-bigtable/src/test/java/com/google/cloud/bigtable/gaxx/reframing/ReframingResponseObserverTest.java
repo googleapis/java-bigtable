@@ -438,9 +438,10 @@ public class ReframingResponseObserverTest {
     Truth.assertThat(finalError.getSuppressed()[0].getCause()).isSameInstanceAs(fakeCancelError);
   }
 
-  /** Test race between a request() and onComplete (b/295866356).
-   * This will stress the concurrency primitives in deliver() by running a many iterations across many threads.
-   * Some race conditions are very subtle and are very rare, so bugs in the implementation would present themselves as
+  /**
+   * Test race between a request() and onComplete (b/295866356). This will stress the concurrency
+   * primitives in deliver() by running a many iterations across many threads. Some race conditions
+   * are very subtle and are very rare, so bugs in the implementation would present themselves as
    * flakes in this test. All flakes of this test should be investigated as a failure.
    */
   @Test
