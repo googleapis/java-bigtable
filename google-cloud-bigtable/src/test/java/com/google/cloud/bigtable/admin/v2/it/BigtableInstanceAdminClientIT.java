@@ -37,7 +37,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -286,6 +285,43 @@ public class BigtableInstanceAdminClientIT {
   }
 
   @Test
+  public void createInstanceWithAutoscalingTest() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    try {
+      ClusterAutoscalingConfig clusterAutoscalingConfig =
+          ClusterAutoscalingConfig.of(newInstanceId, newClusterId)
+              .setMaxNodes(3)
+              .setMinNodes(1)
+              .setCpuUtilizationTargetPercent(30);
+      client.createInstance(
+          CreateInstanceRequest.of(newInstanceId)
+              .addCluster(
+                  newClusterId,
+                  testEnvRule.env().getPrimaryZone(),
+                  clusterAutoscalingConfig,
+                  StorageType.HDD)
+              .setDisplayName("Multi-Cluster-Instance-Test")
+              .addLabel("state", "readytodelete")
+              .setType(Type.PRODUCTION));
+
+      Cluster cluster = client.getCluster(newInstanceId, newClusterId);
+      assertThat(cluster.getId()).contains(newClusterId);
+      assertThat(cluster.getServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(1);
+      assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(3);
+      assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(30);
+    } catch (Exception e) {
+      throw new AssertionError(e);
+    } finally {
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
+    }
+  }
+
+  @Test
   public void createClusterWithAutoscalingTest() {
     String newInstanceId = prefixGenerator.newPrefix();
     String newClusterId = newInstanceId + "-c1";
@@ -318,9 +354,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
       assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(9200);
     } catch (Exception e) {
-      Assert.fail("error in the test" + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
@@ -453,9 +491,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
       assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2560);
     } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
@@ -486,9 +526,11 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(0);
       assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(0);
     } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
+      throw new AssertionError(e);
     } finally {
-      client.deleteInstance(newInstanceId);
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
     }
   }
 
