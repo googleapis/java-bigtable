@@ -714,13 +714,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       generateInitialChangeStreamPartitionsSettings
           .setRetryableCodes(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_CODES)
           .setRetrySettings(GENERATE_INITIAL_CHANGE_STREAM_PARTITIONS_RETRY_SETTINGS)
-          .setIdleTimeout(Duration.ofMinutes(5));
+          .setIdleTimeout(Duration.ofMinutes(5))
+          .setWaitTimeout(Duration.ofMinutes(1));
 
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
       readChangeStreamSettings
           .setRetryableCodes(READ_CHANGE_STREAM_RETRY_CODES)
           .setRetrySettings(READ_CHANGE_STREAM_RETRY_SETTINGS)
-          .setIdleTimeout(Duration.ofMinutes(5));
+          .setIdleTimeout(Duration.ofMinutes(5))
+          .setWaitTimeout(Duration.ofMinutes(1));
 
       pingAndWarmSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       pingAndWarmSettings.setRetrySettings(
@@ -731,7 +733,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .setTotalTimeout(PRIME_REQUEST_TIMEOUT)
               .build());
 
-      featureFlags = FeatureFlags.newBuilder().setReverseScans(true);
+      featureFlags =
+          FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -977,6 +980,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       if (this.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
         // only set mutate rows feature flag when this feature is enabled
         featureFlags.setMutateRowsRateLimit(true);
+        featureFlags.setMutateRowsRateLimit2(true);
       }
 
       // Serialize the web64 encode the bigtable feature flags
