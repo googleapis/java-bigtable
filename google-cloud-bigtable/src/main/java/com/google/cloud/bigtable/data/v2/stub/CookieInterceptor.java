@@ -16,11 +16,9 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.COOKIES_HOLDER_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.ROUTING_COOKIE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.ROUTING_COOKIE_METADATA_KEY;
 
 import com.google.protobuf.ByteString;
-import com.google.rpc.ErrorInfo;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -30,16 +28,12 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import io.grpc.protobuf.ProtoUtils;
 
 /**
  * A cookie interceptor that checks the cookie value from returned ErrorInfo, updates the cookie
  * holder, and inject it in the header of the next request.
  */
 class CookieInterceptor implements ClientInterceptor {
-
-  static final Metadata.Key<ErrorInfo> ERROR_INFO_KEY =
-      ProtoUtils.keyForProto(ErrorInfo.getDefaultInstance());
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -69,13 +63,10 @@ class CookieInterceptor implements ClientInterceptor {
 
     @Override
     public void onClose(Status status, Metadata trailers) {
-      if (status != Status.OK && trailers != null) {
-        ErrorInfo errorInfo = trailers.get(ERROR_INFO_KEY);
-        if (errorInfo != null) {
-          CookiesHolder cookieHolder = callOptions.getOption(COOKIES_HOLDER_KEY);
-          cookieHolder.setRoutingCookie(
-              ByteString.copyFromUtf8(errorInfo.getMetadataMap().get(ROUTING_COOKIE_KEY)));
-        }
+      if (trailers != null && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
+        byte[] cookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
+        CookiesHolder cookieHolder = callOptions.getOption(COOKIES_HOLDER_KEY);
+        cookieHolder.setRoutingCookie(ByteString.copyFrom(cookie));
       }
       super.onClose(status, trailers);
     }

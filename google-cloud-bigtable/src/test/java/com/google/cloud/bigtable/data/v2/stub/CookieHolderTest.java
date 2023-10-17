@@ -15,21 +15,21 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.CookieInterceptor.ERROR_INFO_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.ROUTING_COOKIE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.ROUTING_COOKIE_METADATA_KEY;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.bigtable.v2.BigtableGrpc;
-import com.google.bigtable.v2.MutateRowRequest;
-import com.google.bigtable.v2.MutateRowResponse;
+import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.bigtable.v2.ReadRowsResponse;
+import com.google.bigtable.v2.SampleRowKeysRequest;
+import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
-import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.common.collect.ImmutableList;
-import com.google.rpc.ErrorInfo;
+import com.google.protobuf.ByteString;
 import io.grpc.Metadata;
 import io.grpc.Server;
 import io.grpc.ServerCall;
@@ -92,11 +92,27 @@ public class CookieHolderTest {
   }
 
   @Test
-  public void testRetryCookieIsForwarded() {
-    client.mutateRow(RowMutation.create("fake-table", "fake-row").setCell("cf", "q", "v"));
+  public void testReadRowsRetryCookieIsForwarded() {
+    client.readRows(Query.create("fake-table")).iterator().hasNext();
 
+    assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
     byte[] bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
+    assertThat(bytes).isNotNull();
+    assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("test-routing-cookie");
+
+    serverMetadata.clear();
+  }
+
+  @Test
+  public void testSampleRowKeysRetryCookieIsForwarded() {
+
+    client.sampleRowKeys("fake-table");
+
+    assertThat(fakeService.count.get()).isGreaterThan(1);
+    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    byte[] bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
+    assertThat(bytes).isNotNull();
     assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("test-routing-cookie");
 
     serverMetadata.clear();
@@ -113,18 +129,34 @@ public class CookieHolderTest {
     private AtomicInteger count = new AtomicInteger();
 
     @Override
-    public void mutateRow(
-        MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
+    public void readRows(
+        ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        ErrorInfo errorInfo =
-            ErrorInfo.newBuilder().putMetadata(ROUTING_COOKIE_KEY, "test-routing-cookie").build();
-        trailers.put(ERROR_INFO_KEY, errorInfo);
+        trailers.put(
+            ROUTING_COOKIE_METADATA_KEY,
+            ByteString.copyFromUtf8("test-routing-cookie").toByteArray());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
       }
-      responseObserver.onNext(MutateRowResponse.getDefaultInstance());
+      responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void sampleRowKeys(
+        SampleRowKeysRequest request, StreamObserver<SampleRowKeysResponse> responseObserver) {
+      if (count.getAndIncrement() < 1) {
+        Metadata trailers = new Metadata();
+        trailers.put(
+            ROUTING_COOKIE_METADATA_KEY,
+            ByteString.copyFromUtf8("test-routing-cookie").toByteArray());
+        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        responseObserver.onError(exception);
+        return;
+      }
+      responseObserver.onNext(SampleRowKeysResponse.getDefaultInstance());
       responseObserver.onCompleted();
     }
   }

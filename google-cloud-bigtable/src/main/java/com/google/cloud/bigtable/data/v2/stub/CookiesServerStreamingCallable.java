@@ -22,7 +22,8 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 
-public class CookiesServerStreamingCallable<RequestT, ResponseT>
+/** Cookie callable injects a placeholder for bigtable retry cookie. */
+class CookiesServerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> callable;

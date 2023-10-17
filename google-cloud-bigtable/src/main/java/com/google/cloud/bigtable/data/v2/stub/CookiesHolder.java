@@ -26,10 +26,10 @@ class CookiesHolder {
   static final CallOptions.Key<CookiesHolder> COOKIES_HOLDER_KEY =
       CallOptions.Key.create("bigtable-cookies");
 
-  static final String ROUTING_COOKIE_KEY = "bigtable-routing-cookie";
+  static final String ROUTING_COOKIE_KEY = "x-goog-cbt-cookie-routing";
 
   static final Metadata.Key<byte[]> ROUTING_COOKIE_METADATA_KEY =
-      Metadata.Key.of("bigtable-routing-cookie-bin", Metadata.BINARY_BYTE_MARSHALLER);
+      Metadata.Key.of(ROUTING_COOKIE_KEY + "-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   @Nullable private ByteString routingCookie;
 
