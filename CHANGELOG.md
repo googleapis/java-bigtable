@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.28.0](https://github.com/googleapis/java-bigtable/compare/v2.27.4...v2.28.0) (2023-10-12)
+
+
+### Features
+
+* Add support for Cloud Bigtable Request Priorities in App Profiles ([#1954](https://github.com/googleapis/java-bigtable/issues/1954)) ([8822571](https://github.com/googleapis/java-bigtable/commit/88225717b870032b8892123262d2529ba1dbd481))
+* Add test profile to push metrics to test environment ([#1921](https://github.com/googleapis/java-bigtable/issues/1921)) ([2104315](https://github.com/googleapis/java-bigtable/commit/210431523ce54029db846a0d6777d5e417e039dd))
+
+
+### Dependencies
+
+* Update shared dependencies ([#1955](https://github.com/googleapis/java-bigtable/issues/1955)) ([f29717e](https://github.com/googleapis/java-bigtable/commit/f29717e3f1af03a78ce9468cdafa8c09dfb1b216))
+
+## [2.27.4](https://github.com/googleapis/java-bigtable/compare/v2.27.3...v2.27.4) (2023-09-29)
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.21.0 ([#1942](https://github.com/googleapis/java-bigtable/issues/1942)) ([f8d533f](https://github.com/googleapis/java-bigtable/commit/f8d533f4dcfd60a3eac9656bdc7339ac25f06fad))
+* Update dependency com.google.cloud:google-cloud-shared-dependencies to v3.16.1 ([#1933](https://github.com/googleapis/java-bigtable/issues/1933)) ([159636a](https://github.com/googleapis/java-bigtable/commit/159636ac82e7bb19b425075a006ee98a39af1d57))
+
+## [2.27.3](https://github.com/googleapis/java-bigtable/compare/v2.27.2...v2.27.3) (2023-09-29)
+
+
+### Bug Fixes
+
+* A rare race condition in the row merger ([#1939](https://github.com/googleapis/java-bigtable/issues/1939)) ([fccd710](https://github.com/googleapis/java-bigtable/commit/fccd7100578da3e2ee2a315c6e956c06dbf41668))
+
+
+### Dependencies
+
+* Update dependency org.graalvm.buildtools:junit-platform-native to v0.9.27 ([#1919](https://github.com/googleapis/java-bigtable/issues/1919)) ([56d6b40](https://github.com/googleapis/java-bigtable/commit/56d6b40b9f874ec4ad78618c1cf0d365ddc9276b))
+* Update dependency org.graalvm.buildtools:native-maven-plugin to v0.9.27 ([#1920](https://github.com/googleapis/java-bigtable/issues/1920)) ([ca1dd5b](https://github.com/googleapis/java-bigtable/commit/ca1dd5b258c7fa5cfd90811dc8b9492c19d1f104))
+* Update gapic-generator-java to 2.26.0 ([#1936](https://github.com/googleapis/java-bigtable/issues/1936)) ([15cd486](https://github.com/googleapis/java-bigtable/commit/15cd4868ff807513914095a3758134eaa14f0ea3))
+
 ## [2.27.2](https://github.com/googleapis/java-bigtable/compare/v2.27.1...v2.27.2) (2023-09-13)
 
 
