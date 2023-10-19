@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.protobuf.ByteString;
 import io.grpc.CallOptions;
 import io.grpc.Metadata;
 import javax.annotation.Nullable;
@@ -28,16 +27,16 @@ class CookiesHolder {
 
   static final String ROUTING_COOKIE_KEY = "x-goog-cbt-cookie-routing";
 
-  static final Metadata.Key<byte[]> ROUTING_COOKIE_METADATA_KEY =
-      Metadata.Key.of(ROUTING_COOKIE_KEY + "-bin", Metadata.BINARY_BYTE_MARSHALLER);
+  static final Metadata.Key<String> ROUTING_COOKIE_METADATA_KEY =
+      Metadata.Key.of(ROUTING_COOKIE_KEY, Metadata.ASCII_STRING_MARSHALLER);
 
-  @Nullable private ByteString routingCookie;
+  @Nullable private String routingCookie;
 
-  void setRoutingCookie(@Nullable ByteString routingCookie) {
+  void setRoutingCookie(@Nullable String routingCookie) {
     this.routingCookie = routingCookie;
   }
 
-  ByteString getRoutingCookie() {
+  String getRoutingCookie() {
     return this.routingCookie;
   }
 }

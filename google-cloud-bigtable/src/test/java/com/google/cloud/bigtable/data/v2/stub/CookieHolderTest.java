@@ -29,7 +29,6 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.common.collect.ImmutableList;
-import com.google.protobuf.ByteString;
 import io.grpc.Metadata;
 import io.grpc.Server;
 import io.grpc.ServerCall;
@@ -38,7 +37,6 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,10 +50,9 @@ import org.junit.runners.JUnit4;
 public class CookieHolderTest {
   private Server server;
   private FakeService fakeService = new FakeService();
-
   private BigtableDataClient client;
-
   private List<Metadata> serverMetadata = new ArrayList<>();
+  private String testCookie = "test-routing-cookie";
 
   @Before
   public void setup() throws Exception {
@@ -97,9 +94,9 @@ public class CookieHolderTest {
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    byte[] bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
+    String bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
     assertThat(bytes).isNotNull();
-    assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("test-routing-cookie");
+    assertThat(bytes).isEqualTo(testCookie);
 
     serverMetadata.clear();
   }
@@ -111,9 +108,10 @@ public class CookieHolderTest {
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    byte[] bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
+    String bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
+
     assertThat(bytes).isNotNull();
-    assertThat(new String(bytes, StandardCharsets.UTF_8)).isEqualTo("test-routing-cookie");
+    assertThat(bytes).isEqualTo(testCookie);
 
     serverMetadata.clear();
   }
@@ -133,9 +131,7 @@ public class CookieHolderTest {
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        trailers.put(
-            ROUTING_COOKIE_METADATA_KEY,
-            ByteString.copyFromUtf8("test-routing-cookie").toByteArray());
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, testCookie);
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -149,9 +145,7 @@ public class CookieHolderTest {
         SampleRowKeysRequest request, StreamObserver<SampleRowKeysResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        trailers.put(
-            ROUTING_COOKIE_METADATA_KEY,
-            ByteString.copyFromUtf8("test-routing-cookie").toByteArray());
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, testCookie);
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;

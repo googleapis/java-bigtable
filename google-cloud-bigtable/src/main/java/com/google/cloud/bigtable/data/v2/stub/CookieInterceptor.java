@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.COOKIES_HOLDER_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.ROUTING_COOKIE_METADATA_KEY;
 
-import com.google.protobuf.ByteString;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -44,7 +43,7 @@ class CookieInterceptor implements ClientInterceptor {
       public void start(Listener<RespT> responseListener, Metadata headers) {
         CookiesHolder cookie = callOptions.getOption(COOKIES_HOLDER_KEY);
         if (cookie != null && cookie.getRoutingCookie() != null) {
-          headers.put(ROUTING_COOKIE_METADATA_KEY, cookie.getRoutingCookie().toByteArray());
+          headers.put(ROUTING_COOKIE_METADATA_KEY, cookie.getRoutingCookie());
         }
         super.start(new UpdateCookieListener<>(responseListener, callOptions), headers);
       }
@@ -63,10 +62,12 @@ class CookieInterceptor implements ClientInterceptor {
 
     @Override
     public void onClose(Status status, Metadata trailers) {
-      if (trailers != null && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
-        byte[] cookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
-        CookiesHolder cookieHolder = callOptions.getOption(COOKIES_HOLDER_KEY);
-        cookieHolder.setRoutingCookie(ByteString.copyFrom(cookie));
+      CookiesHolder cookiesHolder = callOptions.getOption(COOKIES_HOLDER_KEY);
+      if (cookiesHolder != null
+          && trailers != null
+          && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
+        String cookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
+        cookiesHolder.setRoutingCookie(cookie);
       }
       super.onClose(status, trailers);
     }
