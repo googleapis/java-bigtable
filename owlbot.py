@@ -97,6 +97,8 @@ s.remove_staging_dirs()
 java.common_templates(excludes=[
     '.gitignore',
     '.kokoro/presubmit/samples.cfg',
+    '.kokoro/presubmit/graalvm-native.cfg',
+    '.kokoro/presubmit/graalvm-native-17.cfg',
     '.kokoro/nightly/samples.cfg',
     # todo remove once template is updated
     '.github/ISSUE_TEMPLATE/bug_report.md',
