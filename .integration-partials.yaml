@@ -6,5 +6,5 @@ integration_append: |
 
   env_vars: {
     key: "GCLOUD_PROJECT"
-      value: "gcloud-devel"
+    value: "gcloud-devel"
   }
