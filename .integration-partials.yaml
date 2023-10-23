@@ -8,3 +8,8 @@ integration_append: |
     key: "GCLOUD_PROJECT"
     value: "gcloud-devel"
   }
+  
+  env_vars: {
+    key: "GOOGLE_CLOUD_PROJECT"
+    value: "gcloud-devel"
+  }
