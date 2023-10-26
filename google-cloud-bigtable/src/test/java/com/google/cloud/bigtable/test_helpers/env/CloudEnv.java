@@ -127,6 +127,7 @@ class CloudEnv extends AbstractTestEnv {
 
     setupRemoteAddrInterceptor(dataSettings.stubSettings());
     configureUserAgent(dataSettings.stubSettings());
+    configureDirectPath(dataSettings.stubSettings());
 
     this.tableAdminSettings =
         BigtableTableAdminSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
@@ -159,6 +160,7 @@ class CloudEnv extends AbstractTestEnv {
             buildRemoteAddrInterceptor("DirectPath IPv4", Predicates.or(DIRECT_PATH_IPV4_MATCHER));
         break;
       case REQUIRE_CFE:
+      case REQUIRE_TRAFFIC_DIRECTOR_CFE:
         interceptor =
             buildRemoteAddrInterceptor(
                 "a CFE ip",
@@ -239,6 +241,7 @@ class CloudEnv extends AbstractTestEnv {
         // nothing special
         break;
       case REQUIRE_CFE:
+      case REQUIRE_TRAFFIC_DIRECTOR_CFE:
         parts.add("bigtable-directpath-disable");
         break;
       case REQUIRE_DIRECT_PATH:
@@ -263,6 +266,29 @@ class CloudEnv extends AbstractTestEnv {
     newHeaders.put("user-agent", newUserAgent);
 
     stubSettings.setHeaderProvider(FixedHeaderProvider.create(newHeaders));
+  }
+
+  private void configureDirectPath(EnhancedBigtableStubSettings.Builder stubSettings) {
+    InstantiatingGrpcChannelProvider transportChannelProvider =
+        (InstantiatingGrpcChannelProvider) stubSettings.getTransportChannelProvider();
+
+    switch (getConnectionMode()) {
+      case REQUIRE_DIRECT_PATH:
+      case REQUIRE_DIRECT_PATH_IPV4:
+      case REQUIRE_TRAFFIC_DIRECTOR_CFE:
+        transportChannelProvider =
+            transportChannelProvider
+                .toBuilder()
+                .setAttemptDirectPath(true)
+                .setAttemptDirectPathXds()
+                .build();
+        break;
+      case DEFAULT:
+      case REQUIRE_CFE:
+      default:
+        // noop
+    }
+    stubSettings.setTransportChannelProvider(transportChannelProvider);
   }
 
   @Override

@@ -41,6 +41,7 @@ public abstract class AbstractTestEnv {
   public enum ConnectionMode {
     DEFAULT,
     REQUIRE_CFE,
+    REQUIRE_TRAFFIC_DIRECTOR_CFE,
     REQUIRE_DIRECT_PATH,
     REQUIRE_DIRECT_PATH_IPV4
   }
