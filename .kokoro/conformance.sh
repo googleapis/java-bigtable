@@ -50,12 +50,10 @@ declare -a configs=("default" "enable_all")
 for config in "${configs[@]}"
 do
   # Start the proxy in a separate process
-  local proxyPID
   nohup java -Dport=9999 -jar test-proxy/target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
   proxyPID=$!
 
   # Run the conformance test
-  local configFlag
   if [[ ${config} = "enable_all" ]]
   then
     # In this mode, there will be "Permission monitoring.timeSeries.create
@@ -68,10 +66,11 @@ do
     configFlag=""
   fi
 
-  local returnCode
   pushd .
   cd cloud-bigtable-clients-test/tests
-  eval "go test -v -skip `cat ../../test-proxy/known_failures.txt` -proxy_addr=:9999 ${configFlag}"
+  # If there is known failures, please add
+  # "-skip `cat ../../test-proxy/known_failures.txt`" to the command below.
+  eval "go test -v -proxy_addr=:9999 ${configFlag}"
   returnCode=$?
   popd
 
