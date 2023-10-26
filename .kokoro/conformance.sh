@@ -56,9 +56,6 @@ do
   # Run the conformance test
   if [[ ${config} = "enable_all" ]]
   then
-    # In this mode, there will be "Permission monitoring.timeSeries.create
-    # denied" error message, but such error doesn't affect the correctness
-    # verification of the client itself.
     echo "Testing the client with all optional features enabled..."
     configFlag="--enable_features_all"
   else
