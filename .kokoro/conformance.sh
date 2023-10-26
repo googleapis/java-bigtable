@@ -78,7 +78,7 @@ do
   # Stop the proxy
   kill ${proxyPID}
 
-  if [[ ${returnCode} gt 0 ]]
+  if [[ ${returnCode} -gt 0 ]]
   then
     echo "Conformance test failed for config: ${config}"
     RETURN_CODE=${returnCode}
