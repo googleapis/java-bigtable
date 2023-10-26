@@ -40,26 +40,54 @@ retry_with_backoff 3 10 \
 RETURN_CODE=0
 set +e
 
-# Build and start the proxy in a separate process
+# Build the proxy
 pushd .
 cd test-proxy
 mvn clean install -DskipTests
-nohup java -Dport=9999 -jar target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
-proxyPID=$!
 popd
 
-# Run the conformance test
-pushd .
-cd cloud-bigtable-clients-test/tests
-eval "go test -v -skip `cat ../../test-proxy/known_failures.txt` -proxy_addr=:9999"
-RETURN_CODE=$?
-popd
+declare -a configs=("default" "enable_all")
+for config in "${configs[@]}"
+do
+  # Start the proxy in a separate process
+  local proxyPID
+  nohup java -Dport=9999 -jar test-proxy/target/google-cloud-bigtable-test-proxy-0.0.1-SNAPSHOT.jar &
+  proxyPID=$!
 
-# Stop the proxy
-kill $proxyPID
+  # Run the conformance test
+  local configFlag
+  if [[ ${config} = "enable_all" ]]
+  then
+    # In this mode, there will be "Permission monitoring.timeSeries.create
+    # denied" error message, but such error doesn't affect the correctness
+    # verification of the client itself.
+    echo "Testing the client with all optional features enabled..."
+    configFlag="--enable_features_all"
+  else
+    echo "Testing the client with default settings for optional features..."
+    configFlag=""
+  fi
+
+  local returnCode
+  pushd .
+  cd cloud-bigtable-clients-test/tests
+  eval "go test -v -skip `cat ../../test-proxy/known_failures.txt` -proxy_addr=:9999 ${configFlag}"
+  returnCode=$?
+  popd
+
+  # Stop the proxy
+  kill ${proxyPID}
+
+  if [[ ${returnCode} gt 0 ]]
+  then
+    echo "Conformance test failed for config: ${config}"
+    RETURN_CODE=${returnCode}
+  else
+    echo "Conformance test passed for config: ${config}"
+  fi
+done
 
 # fix output location of logs
 bash .kokoro/coerce_logs.sh
 
-echo "exiting with ${RETURN_CODE}"
 exit ${RETURN_CODE}
