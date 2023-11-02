@@ -409,6 +409,11 @@ public final class Query implements Serializable {
     }
   }
 
+  @InternalApi
+  int getPageSize() {
+    return this.pageSize;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
