@@ -408,6 +408,7 @@ public final class Query implements Serializable {
       return true;
     }
 
+    /** Get the page size of the current Pagniator. For internal use only. */
     @InternalApi
     public int getPageSize() {
       return this.pageSize;
