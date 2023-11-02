@@ -407,11 +407,11 @@ public final class Query implements Serializable {
       query.builder.setRows(remaining);
       return true;
     }
-  }
-
-  @InternalApi
-  int getPageSize() {
-    return this.pageSize;
+  
+    @InternalApi
+    public int getPageSize() {
+      return this.pageSize;
+    }
   }
 
   @Override
