@@ -29,7 +29,13 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.common.collect.ImmutableList;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -53,6 +59,8 @@ public class CookieHolderTest {
   private BigtableDataClient client;
   private List<Metadata> serverMetadata = new ArrayList<>();
   private String testCookie = "test-routing-cookie";
+
+  private List<MethodDescriptor> methods = new ArrayList<>();
 
   @Before
   public void setup() throws Exception {
@@ -120,6 +128,11 @@ public class CookieHolderTest {
   public void tearDown() throws Exception {
     client.close();
     server.shutdown();
+  }
+
+  @Test
+  public void responsesAreNotDropped() {
+
   }
 
   class FakeService extends BigtableGrpc.BigtableImplBase {

@@ -41,11 +41,12 @@ class CookieInterceptor implements ClientInterceptor {
         channel.newCall(methodDescriptor, callOptions)) {
       @Override
       public void start(Listener<RespT> responseListener, Metadata headers) {
-        CookiesHolder cookie = callOptions.getOption(COOKIES_HOLDER_KEY);
-        if (cookie != null && cookie.getRoutingCookie() != null) {
-          headers.put(ROUTING_COOKIE_METADATA_KEY, cookie.getRoutingCookie());
+        CookiesHolder cookie = CookiesHolder.fromCallOptions(callOptions);
+        if (cookie != null) {
+          cookie.addRoutingCookieToHeaders(headers);
+          responseListener = new UpdateCookieListener<>(responseListener, callOptions);
         }
-        super.start(new UpdateCookieListener<>(responseListener, callOptions), headers);
+        super.start(responseListener, headers);
       }
     };
   }
@@ -62,12 +63,9 @@ class CookieInterceptor implements ClientInterceptor {
 
     @Override
     public void onClose(Status status, Metadata trailers) {
-      CookiesHolder cookiesHolder = callOptions.getOption(COOKIES_HOLDER_KEY);
-      if (cookiesHolder != null
-          && trailers != null
-          && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
-        String cookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
-        cookiesHolder.setRoutingCookie(cookie);
+      CookiesHolder cookiesHolder = CookiesHolder.fromCallOptions(callOptions);
+      if (cookiesHolder != null) {
+        cookiesHolder.setRoutingCookieFromTrailers(trailers);
       }
       super.onClose(status, trailers);
     }

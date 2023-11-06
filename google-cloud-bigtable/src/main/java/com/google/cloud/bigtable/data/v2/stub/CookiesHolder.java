@@ -32,11 +32,23 @@ class CookiesHolder {
 
   @Nullable private String routingCookie;
 
-  void setRoutingCookie(@Nullable String routingCookie) {
-    this.routingCookie = routingCookie;
+  /** Returns CookiesHolder if presents in CallOptions. Otherwise returns null. */
+  static CookiesHolder fromCallOptions(CallOptions options) {
+    return options.getOption(COOKIES_HOLDER_KEY);
   }
 
-  String getRoutingCookie() {
-    return this.routingCookie;
+  /** Adds routing cookie to header if routing cookie is not null. */
+  Metadata addRoutingCookieToHeaders(Metadata headers) {
+    if (headers != null && routingCookie != null) {
+      headers.put(ROUTING_COOKIE_METADATA_KEY, routingCookie);
+    }
+    return headers;
+  }
+
+  /** Set the routing cookie from trailers to this CookiesHolder. */
+  void setRoutingCookieFromTrailers(Metadata trailers) {
+    if (trailers != null && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
+      this.routingCookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
+    }
   }
 }
