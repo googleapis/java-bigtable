@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.23.4](https://github.com/googleapis/java-bigtable/compare/v2.23.3...v2.23.4) (2023-11-06)
+
+
+### Bug Fixes
+
+* A rare race condition in the row merger ([#1939](https://github.com/googleapis/java-bigtable/issues/1939)) ([#1988](https://github.com/googleapis/java-bigtable/issues/1988)) ([31b084a](https://github.com/googleapis/java-bigtable/commit/31b084abc9c4d609314f232e616b59a4016b991f))
+
 ## [2.23.3](https://github.com/googleapis/java-bigtable/compare/v2.23.2...v2.23.3) (2023-06-08)
 
 
