@@ -20,6 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.MutateRowRequest;
+import com.google.bigtable.v2.MutateRowResponse;
+import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
@@ -29,13 +33,7 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.common.collect.ImmutableList;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
 import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -60,8 +58,6 @@ public class CookieHolderTest {
   private List<Metadata> serverMetadata = new ArrayList<>();
   private String testCookie = "test-routing-cookie";
 
-  private List<MethodDescriptor> methods = new ArrayList<>();
-
   @Before
   public void setup() throws Exception {
     ServerInterceptor serverInterceptor =
@@ -85,6 +81,7 @@ public class CookieHolderTest {
 
     InstantiatingGrpcChannelProvider channelProvider =
         (InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider();
+    // We need to add the interceptor manually for emulator grpc channel
     settings
         .stubSettings()
         .setTransportChannelProvider(
@@ -97,7 +94,7 @@ public class CookieHolderTest {
   }
 
   @Test
-  public void testReadRowsRetryCookieIsForwarded() {
+  public void testReadRows() {
     client.readRows(Query.create("fake-table")).iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
@@ -110,7 +107,13 @@ public class CookieHolderTest {
   }
 
   @Test
-  public void testSampleRowKeysRetryCookieIsForwarded() {
+  public void testMutateRows() {}
+
+  @Test
+  public void testMutateRow() {}
+
+  @Test
+  public void testSampleRowKeys() {
 
     client.sampleRowKeys("fake-table");
 
@@ -119,7 +122,7 @@ public class CookieHolderTest {
     String bytes = serverMetadata.get(1).get(ROUTING_COOKIE_METADATA_KEY);
 
     assertThat(bytes).isNotNull();
-    assertThat(bytes).isEqualTo(testCookie);
+    assertThat(bytes).isEqualTo("sampleRowKeys");
 
     serverMetadata.clear();
   }
@@ -128,11 +131,6 @@ public class CookieHolderTest {
   public void tearDown() throws Exception {
     client.close();
     server.shutdown();
-  }
-
-  @Test
-  public void responsesAreNotDropped() {
-
   }
 
   class FakeService extends BigtableGrpc.BigtableImplBase {
@@ -144,7 +142,7 @@ public class CookieHolderTest {
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        trailers.put(ROUTING_COOKIE_METADATA_KEY, testCookie);
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, "readRows");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -154,11 +152,39 @@ public class CookieHolderTest {
     }
 
     @Override
+    public void mutateRow(
+        MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
+      if (count.getAndIncrement() < 1) {
+        Metadata trailers = new Metadata();
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, "mutateRow");
+        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        responseObserver.onError(exception);
+        return;
+      }
+      responseObserver.onNext(MutateRowResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void mutateRows(
+        MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
+      if (count.getAndIncrement() < 1) {
+        Metadata trailers = new Metadata();
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, "mutateRows");
+        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        responseObserver.onError(exception);
+        return;
+      }
+      responseObserver.onNext(MutateRowsResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
     public void sampleRowKeys(
         SampleRowKeysRequest request, StreamObserver<SampleRowKeysResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        trailers.put(ROUTING_COOKIE_METADATA_KEY, testCookie);
+        trailers.put(ROUTING_COOKIE_METADATA_KEY, "sampleRowKeys");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
