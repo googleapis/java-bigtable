@@ -17,38 +17,47 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import io.grpc.CallOptions;
 import io.grpc.Metadata;
-import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-/** A cookie that holds information for the retry */
+/** A cookie that holds information for retry or routing */
 class CookiesHolder {
 
   static final CallOptions.Key<CookiesHolder> COOKIES_HOLDER_KEY =
       CallOptions.Key.create("bigtable-cookies");
 
-  static final String ROUTING_COOKIE_KEY = "x-goog-cbt-cookie-routing";
+  /** Routing cookie key prefix. */
+  static final String COOKIE_KEY_PREFIX = "x-goog-cbt-cookie";
 
-  static final Metadata.Key<String> ROUTING_COOKIE_METADATA_KEY =
-      Metadata.Key.of(ROUTING_COOKIE_KEY, Metadata.ASCII_STRING_MARSHALLER);
-
-  @Nullable private String routingCookie;
+  /** A map that stores all the routing cookies. */
+  private final Map<Metadata.Key<String>, String> cookies = new ConcurrentHashMap<>();
 
   /** Returns CookiesHolder if presents in CallOptions. Otherwise returns null. */
   static CookiesHolder fromCallOptions(CallOptions options) {
     return options.getOption(COOKIES_HOLDER_KEY);
   }
 
-  /** Adds routing cookie to header if routing cookie is not null. */
+  /** Add all the routing cookies to headers if any. */
   Metadata addRoutingCookieToHeaders(Metadata headers) {
-    if (headers != null && routingCookie != null) {
-      headers.put(ROUTING_COOKIE_METADATA_KEY, routingCookie);
+    if (headers != null && !cookies.isEmpty()) {
+      for (Metadata.Key<String> key : cookies.keySet()) headers.put(key, cookies.get(key));
     }
     return headers;
   }
 
-  /** Set the routing cookie from trailers to this CookiesHolder. */
+  /**
+   * Iterate through all the keys in trailing metadata, and add all the keys that match
+   * COOKIE_KEY_PREFIX to cookies.
+   */
   void setRoutingCookieFromTrailers(Metadata trailers) {
-    if (trailers != null && trailers.containsKey(ROUTING_COOKIE_METADATA_KEY)) {
-      this.routingCookie = trailers.get(ROUTING_COOKIE_METADATA_KEY);
+    if (trailers != null) {
+      for (String key : trailers.keys()) {
+        if (key.startsWith(COOKIE_KEY_PREFIX)) {
+          Metadata.Key<String> metadataKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
+          String value = trailers.get(metadataKey);
+          cookies.put(metadataKey, value);
+        }
+      }
     }
   }
 }

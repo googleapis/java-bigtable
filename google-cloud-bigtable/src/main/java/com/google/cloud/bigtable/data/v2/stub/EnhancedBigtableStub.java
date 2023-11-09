@@ -648,7 +648,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    UnaryCallable<BulkMutation, Void> withCookie = new CookiesUnaryCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
