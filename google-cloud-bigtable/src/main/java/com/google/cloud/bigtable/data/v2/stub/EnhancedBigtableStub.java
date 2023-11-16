@@ -185,6 +185,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // workaround JWT audience issues
     patchCredentials(builder);
 
+    // patch cookies interceptor
+    InstantiatingGrpcChannelProvider.Builder transportProvider = null;
+    if (builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
+      transportProvider =
+          ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder();
+      transportProvider.setInterceptorProvider(() -> ImmutableList.of(new CookiesInterceptor()));
+    }
+
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
       // Fix the credentials so that they can be shared
@@ -194,20 +202,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
       }
       builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
-      // Inject the primer
-      InstantiatingGrpcChannelProvider transportProvider =
-          (InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider();
+      if (transportProvider != null) {
+        transportProvider.setChannelPrimer(
+            BigtableChannelPrimer.create(
+                credentials,
+                settings.getProjectId(),
+                settings.getInstanceId(),
+                settings.getAppProfileId()));
+      }
+    }
 
-      builder.setTransportChannelProvider(
-          transportProvider
-              .toBuilder()
-              .setChannelPrimer(
-                  BigtableChannelPrimer.create(
-                      credentials,
-                      settings.getProjectId(),
-                      settings.getInstanceId(),
-                      settings.getAppProfileId()))
-              .build());
+    if (transportProvider != null) {
+      builder.setTransportChannelProvider(transportProvider.build());
     }
 
     ImmutableMap<TagKey, TagValue> attributes =

@@ -17,12 +17,17 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.RetrySettings;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.CheckAndMutateRowRequest;
+import com.google.bigtable.v2.CheckAndMutateRowResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.ReadModifyWriteRowRequest;
+import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
@@ -31,11 +36,14 @@ import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
+import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.common.collect.ImmutableList;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -44,27 +52,34 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
-public class CookieHolderTest {
+public class CookiesHolderTest {
   private Server server;
-  private FakeService fakeService = new FakeService();
+  private final FakeService fakeService = new FakeService();
   private BigtableDataClient client;
-  private List<Metadata> serverMetadata = new ArrayList<>();
-  private String testCookie = "test-routing-cookie";
+  private final List<Metadata> serverMetadata = new ArrayList<>();
+  private final String testCookie = "test-routing-cookie";
 
-  private Metadata.Key<String> ROUTING_COOKIE_1 =
+  private final Set<String> methods = new HashSet<>();
+
+  private final Metadata.Key<String> ROUTING_COOKIE_1 =
       Metadata.Key.of("x-goog-cbt-cookie-routing", Metadata.ASCII_STRING_MARSHALLER);
-  private Metadata.Key<String> ROUTING_COOKIE_2 =
+  private final Metadata.Key<String> ROUTING_COOKIE_2 =
       Metadata.Key.of("x-goog-cbt-cookie-random", Metadata.ASCII_STRING_MARSHALLER);
-  private Metadata.Key<String> BAD_KEY =
+  private final Metadata.Key<String> BAD_KEY =
       Metadata.Key.of("x-goog-cbt-not-cookie", Metadata.ASCII_STRING_MARSHALLER);
 
   @Before
@@ -77,6 +92,9 @@ public class CookieHolderTest {
               Metadata metadata,
               ServerCallHandler<ReqT, RespT> serverCallHandler) {
             serverMetadata.add(metadata);
+            if (metadata.containsKey(ROUTING_COOKIE_1)) {
+              methods.add(serverCall.getMethodDescriptor().getBareMethodName());
+            }
             return serverCallHandler.startCall(serverCall, metadata);
           }
         };
@@ -88,16 +106,27 @@ public class CookieHolderTest {
             .setProjectId("fake-project")
             .setInstanceId("fake-instance");
 
-    InstantiatingGrpcChannelProvider channelProvider =
-        (InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider();
-    // We need to add the interceptor manually for emulator grpc channel
     settings
         .stubSettings()
-        .setTransportChannelProvider(
-            channelProvider
-                .toBuilder()
-                .setInterceptorProvider(() -> ImmutableList.of(new CookieInterceptor()))
-                .build());
+        .checkAndMutateRowSettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                .setInitialRetryDelay(Duration.ofMillis(10))
+                .setMaxRetryDelay(Duration.ofMinutes(1))
+                .setMaxAttempts(2)
+                .build())
+        .setRetryableCodes(StatusCode.Code.UNAVAILABLE);
+
+    settings
+        .stubSettings()
+        .readModifyWriteRowSettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                .setInitialRetryDelay(Duration.ofMillis(10))
+                .setMaxRetryDelay(Duration.ofMinutes(1))
+                .setMaxAttempts(2)
+                .build())
+        .setRetryableCodes(StatusCode.Code.UNAVAILABLE);
 
     client = BigtableDataClient.create(settings.build());
   }
@@ -275,6 +304,37 @@ public class CookieHolderTest {
     serverMetadata.clear();
   }
 
+  @Test
+  public void testAllMethodsAreCalled() {
+    client.readRows(Query.create("fake-table")).iterator().hasNext();
+    fakeService.count.set(0);
+    client.mutateRow(RowMutation.create("fake-table", "key").setCell("cf", "q", "v"));
+    fakeService.count.set(0);
+    client.bulkMutateRows(
+        BulkMutation.create("fake-table")
+            .add(RowMutationEntry.create("key").setCell("cf", "q", "v")));
+    fakeService.count.set(0);
+    client.sampleRowKeys("fake-table");
+    fakeService.count.set(0);
+    client.checkAndMutateRow(
+        ConditionalRowMutation.create("fake-table", "key")
+            .then(Mutation.create().setCell("cf", "q", "v")));
+    fakeService.count.set(0);
+    client.readModifyWriteRow(
+        ReadModifyWriteRow.create("fake-table", "key").append("cf", "q", "v"));
+
+    Set<String> expected =
+        BigtableGrpc.getServiceDescriptor().getMethods().stream()
+            .map(MethodDescriptor::getBareMethodName)
+            .collect(Collectors.toSet());
+
+    // Exclude methods that are not supported by routing cookie
+    methods.addAll(
+        Arrays.asList("PingAndWarm", "GenerateInitialChangeStreamPartitions", "ReadChangeStream"));
+
+    assertThat(methods).containsExactlyElementsIn(expected);
+  }
+
   @After
   public void tearDown() throws Exception {
     client.close();
@@ -358,6 +418,44 @@ public class CookieHolderTest {
         return;
       }
       responseObserver.onNext(SampleRowKeysResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void checkAndMutateRow(
+        CheckAndMutateRowRequest request,
+        StreamObserver<CheckAndMutateRowResponse> responseObserver) {
+      if (count.getAndIncrement() < 1) {
+        Metadata trailers = new Metadata();
+        if (returnCookie) {
+          trailers.put(ROUTING_COOKIE_1, "checkAndMutate");
+          trailers.put(ROUTING_COOKIE_2, testCookie);
+          trailers.put(BAD_KEY, "bad-key");
+        }
+        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        responseObserver.onError(exception);
+        return;
+      }
+      responseObserver.onNext(CheckAndMutateRowResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void readModifyWriteRow(
+        ReadModifyWriteRowRequest request,
+        StreamObserver<ReadModifyWriteRowResponse> responseObserver) {
+      if (count.getAndIncrement() < 1) {
+        Metadata trailers = new Metadata();
+        if (returnCookie) {
+          trailers.put(ROUTING_COOKIE_1, "readModifyWrite");
+          trailers.put(ROUTING_COOKIE_2, testCookie);
+          trailers.put(BAD_KEY, "bad-key");
+        }
+        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        responseObserver.onError(exception);
+        return;
+      }
+      responseObserver.onNext(ReadModifyWriteRowResponse.getDefaultInstance());
       responseObserver.onCompleted();
     }
   }

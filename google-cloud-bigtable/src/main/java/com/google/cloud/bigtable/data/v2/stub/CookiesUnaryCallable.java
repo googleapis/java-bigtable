@@ -22,9 +22,12 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 
-/** Cookie callable injects a placeholder for bigtable retry cookie. */
+/**
+ * The cookie holder will act as operation scoped storage for all retry attempts. Each attempt's
+ * cookies will be merged into the value holder and will be sent out with the next retry attempt.
+ */
 class CookiesUnaryCallable<RequestT, ResponseT> extends UnaryCallable<RequestT, ResponseT> {
-  private UnaryCallable<RequestT, ResponseT> innerCallable;
+  private final UnaryCallable<RequestT, ResponseT> innerCallable;
 
   CookiesUnaryCallable(UnaryCallable<RequestT, ResponseT> callable) {
     this.innerCallable = callable;

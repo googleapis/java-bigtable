@@ -17,8 +17,8 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import io.grpc.CallOptions;
 import io.grpc.Metadata;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /** A cookie that holds information for retry or routing */
 class CookiesHolder {
@@ -30,7 +30,7 @@ class CookiesHolder {
   static final String COOKIE_KEY_PREFIX = "x-goog-cbt-cookie";
 
   /** A map that stores all the routing cookies. */
-  private final Map<Metadata.Key<String>, String> cookies = new ConcurrentHashMap<>();
+  private final Map<Metadata.Key<String>, String> cookies = new HashMap<>();
 
   /** Returns CookiesHolder if presents in CallOptions. Otherwise returns null. */
   static CookiesHolder fromCallOptions(CallOptions options) {
@@ -38,9 +38,9 @@ class CookiesHolder {
   }
 
   /** Add all the routing cookies to headers if any. */
-  Metadata addRoutingCookieToHeaders(Metadata headers) {
-    if (headers != null && !cookies.isEmpty()) {
-      for (Metadata.Key<String> key : cookies.keySet()) headers.put(key, cookies.get(key));
+  Metadata injectCookiesInRequestHeaders(Metadata headers) {
+    for (Metadata.Key<String> key : cookies.keySet()) {
+      headers.put(key, cookies.get(key));
     }
     return headers;
   }
@@ -49,14 +49,15 @@ class CookiesHolder {
    * Iterate through all the keys in trailing metadata, and add all the keys that match
    * COOKIE_KEY_PREFIX to cookies.
    */
-  void setRoutingCookieFromTrailers(Metadata trailers) {
-    if (trailers != null) {
-      for (String key : trailers.keys()) {
-        if (key.startsWith(COOKIE_KEY_PREFIX)) {
-          Metadata.Key<String> metadataKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
-          String value = trailers.get(metadataKey);
-          cookies.put(metadataKey, value);
-        }
+  void extractCookiesFromResponseTrailers(Metadata trailers) {
+    if (trailers == null) {
+      return;
+    }
+    for (String key : trailers.keys()) {
+      if (key.startsWith(COOKIE_KEY_PREFIX)) {
+        Metadata.Key<String> metadataKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
+        String value = trailers.get(metadataKey);
+        cookies.put(metadataKey, value);
       }
     }
   }

@@ -26,10 +26,10 @@ import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 
 /**
- * A cookie interceptor that checks the cookie value from returned ErrorInfo, updates the cookie
+ * A cookie interceptor that checks the cookie value from returned trailer, updates the cookie
  * holder, and inject it in the header of the next request.
  */
-class CookieInterceptor implements ClientInterceptor {
+class CookiesInterceptor implements ClientInterceptor {
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -38,32 +38,33 @@ class CookieInterceptor implements ClientInterceptor {
         channel.newCall(methodDescriptor, callOptions)) {
       @Override
       public void start(Listener<RespT> responseListener, Metadata headers) {
+        // Gets the CookiesHolder added from CookiesServerStreamingCallable and
+        // CookiesUnaryCallable.
+        // Add CookiesHolder content to request headers if there's any.
         CookiesHolder cookie = CookiesHolder.fromCallOptions(callOptions);
         if (cookie != null) {
-          cookie.addRoutingCookieToHeaders(headers);
-          responseListener = new UpdateCookieListener<>(responseListener, callOptions);
+          cookie.injectCookiesInRequestHeaders(headers);
+          responseListener = new UpdateCookieListener<>(responseListener, cookie);
         }
         super.start(responseListener, headers);
       }
     };
   }
 
+  /** Add trailers to CookiesHolder if there's any. * */
   static class UpdateCookieListener<RespT>
       extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> {
 
-    private final CallOptions callOptions;
+    private final CookiesHolder cookie;
 
-    UpdateCookieListener(ClientCall.Listener<RespT> delegate, CallOptions callOptions) {
+    UpdateCookieListener(ClientCall.Listener<RespT> delegate, CookiesHolder cookiesHolder) {
       super(delegate);
-      this.callOptions = callOptions;
+      this.cookie = cookiesHolder;
     }
 
     @Override
     public void onClose(Status status, Metadata trailers) {
-      CookiesHolder cookiesHolder = CookiesHolder.fromCallOptions(callOptions);
-      if (cookiesHolder != null) {
-        cookiesHolder.setRoutingCookieFromTrailers(trailers);
-      }
+      cookie.extractCookiesFromResponseTrailers(trailers);
       super.onClose(status, trailers);
     }
   }
