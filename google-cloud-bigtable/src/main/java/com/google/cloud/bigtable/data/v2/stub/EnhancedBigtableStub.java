@@ -938,7 +938,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<String, ByteStringRange> traced =
         new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    ServerStreamingCallable<String, ByteStringRange> withCookie =
+        new CookiesServerStreamingCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -1018,7 +1021,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
 
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> withCookie =
+        new CookiesServerStreamingCallable<>(traced);
+
+    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**

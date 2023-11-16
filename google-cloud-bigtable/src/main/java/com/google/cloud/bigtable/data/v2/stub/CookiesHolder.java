@@ -38,8 +38,7 @@ class CookiesHolder {
   static CookiesHolder fromCallOptions(CallOptions options) {
     // CookiesHolder should be added by CookiesServerStreamingCallable and
     // CookiesUnaryCallable for most methods. However, methods like PingAndWarm
-    // or ReadChangeStream doesn't support routing cookie, in which case this
-    // method will return null.
+    // doesn't support routing cookie, in which case this will return null.
     return options.getOption(COOKIES_HOLDER_KEY);
   }
 
