@@ -19,6 +19,7 @@ import io.grpc.CallOptions;
 import io.grpc.Metadata;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /** A cookie that holds information for retry or routing */
 class CookiesHolder {
@@ -32,8 +33,13 @@ class CookiesHolder {
   /** A map that stores all the routing cookies. */
   private final Map<Metadata.Key<String>, String> cookies = new HashMap<>();
 
-  /** Returns CookiesHolder if presents in CallOptions. Otherwise returns null. */
+  /** Returns CookiesHolder if presents in CallOptions, otherwise returns null. */
+  @Nullable
   static CookiesHolder fromCallOptions(CallOptions options) {
+    // CookiesHolder should be added by CookiesServerStreamingCallable and
+    // CookiesUnaryCallable for most methods. However, methods like PingAndWarm
+    // or ReadChangeStream doesn't support routing cookie, in which case this
+    // method will return null.
     return options.getOption(COOKIES_HOLDER_KEY);
   }
 
@@ -49,7 +55,7 @@ class CookiesHolder {
    * Iterate through all the keys in trailing metadata, and add all the keys that match
    * COOKIE_KEY_PREFIX to cookies.
    */
-  void extractCookiesFromResponseTrailers(Metadata trailers) {
+  void extractCookiesFromResponseTrailers(@Nullable Metadata trailers) {
     if (trailers == null) {
       return;
     }

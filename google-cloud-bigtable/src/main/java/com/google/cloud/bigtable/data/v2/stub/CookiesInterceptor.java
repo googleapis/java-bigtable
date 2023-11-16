@@ -24,12 +24,15 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import java.util.logging.Logger;
 
 /**
  * A cookie interceptor that checks the cookie value from returned trailer, updates the cookie
  * holder, and inject it in the header of the next request.
  */
 class CookiesInterceptor implements ClientInterceptor {
+
+  private static final Logger LOG = Logger.getLogger(CookiesInterceptor.class.getName());
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
@@ -41,12 +44,17 @@ class CookiesInterceptor implements ClientInterceptor {
         // Gets the CookiesHolder added from CookiesServerStreamingCallable and
         // CookiesUnaryCallable.
         // Add CookiesHolder content to request headers if there's any.
-        CookiesHolder cookie = CookiesHolder.fromCallOptions(callOptions);
-        if (cookie != null) {
-          cookie.injectCookiesInRequestHeaders(headers);
-          responseListener = new UpdateCookieListener<>(responseListener, cookie);
+        try {
+          CookiesHolder cookie = CookiesHolder.fromCallOptions(callOptions);
+          if (cookie != null) {
+            cookie.injectCookiesInRequestHeaders(headers);
+            responseListener = new UpdateCookieListener<>(responseListener, cookie);
+          }
+        } catch (Throwable e) {
+          LOG.warning("Failed to inject cookie to request headers: " + e);
+        } finally {
+          super.start(responseListener, headers);
         }
-        super.start(responseListener, headers);
       }
     };
   }
@@ -64,8 +72,13 @@ class CookiesInterceptor implements ClientInterceptor {
 
     @Override
     public void onClose(Status status, Metadata trailers) {
-      cookie.extractCookiesFromResponseTrailers(trailers);
-      super.onClose(status, trailers);
+      try {
+        cookie.extractCookiesFromResponseTrailers(trailers);
+      } catch (Throwable e) {
+        LOG.warning("Failed to extract cookie from response trailers: " + e);
+      } finally {
+        super.onClose(status, trailers);
+      }
     }
   }
 }

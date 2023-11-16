@@ -106,6 +106,10 @@ public class CookiesHolderTest {
             .setProjectId("fake-project")
             .setInstanceId("fake-instance");
 
+    // Override CheckAndMutate and ReadModifyWrite retry settings here. These operations
+    // are currently not retryable but this could change in the future after we
+    // have routing cookie sends back meaningful information and changes how retry works.
+    // Routing cookie still needs to be respected and handled by the callables.
     settings
         .stubSettings()
         .checkAndMutateRowSettings()
@@ -306,6 +310,10 @@ public class CookiesHolderTest {
 
   @Test
   public void testAllMethodsAreCalled() {
+    // This test ensures that all methods respect the retry cookie except for the ones that are
+    // explicitly added to the methods list. It requires that any newly method is exercised in this
+    // test.
+    // This is enforced by introspecting grpc method descriptors.
     client.readRows(Query.create("fake-table")).iterator().hasNext();
     fakeService.count.set(0);
     client.mutateRow(RowMutation.create("fake-table", "key").setCell("cf", "q", "v"));
@@ -351,11 +359,7 @@ public class CookiesHolderTest {
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "readRows");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "readRows");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -369,11 +373,7 @@ public class CookiesHolderTest {
         MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "mutateRow");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "mutateRow");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -387,11 +387,7 @@ public class CookiesHolderTest {
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "mutateRows");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "mutateRows");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -408,11 +404,7 @@ public class CookiesHolderTest {
         SampleRowKeysRequest request, StreamObserver<SampleRowKeysResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "sampleRowKeys");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "sampleRowKeys");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -427,11 +419,7 @@ public class CookiesHolderTest {
         StreamObserver<CheckAndMutateRowResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "checkAndMutate");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "checkAndMutate");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -446,17 +434,21 @@ public class CookiesHolderTest {
         StreamObserver<ReadModifyWriteRowResponse> responseObserver) {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
-        if (returnCookie) {
-          trailers.put(ROUTING_COOKIE_1, "readModifyWrite");
-          trailers.put(ROUTING_COOKIE_2, testCookie);
-          trailers.put(BAD_KEY, "bad-key");
-        }
+        maybePopulateCookie(trailers, "readModifyWrite");
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
       }
       responseObserver.onNext(ReadModifyWriteRowResponse.getDefaultInstance());
       responseObserver.onCompleted();
+    }
+
+    private void maybePopulateCookie(Metadata trailers, String label) {
+      if (returnCookie) {
+        trailers.put(ROUTING_COOKIE_1, label);
+        trailers.put(ROUTING_COOKIE_2, testCookie);
+        trailers.put(BAD_KEY, "bad-key");
+      }
     }
   }
 }
