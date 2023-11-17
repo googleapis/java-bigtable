@@ -24,6 +24,7 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -73,9 +74,9 @@ class CookiesInterceptor implements ClientInterceptor {
     @Override
     public void onHeaders(Metadata headers) {
       try {
-        cookie.extractCookiesFromResponseHeaders(headers);
+        cookie.extractCookiesFromMetadata(headers);
       } catch (Throwable e) {
-        LOG.warning("Failed to extract cookie from response headers: " + e);
+        LOG.log(Level.WARNING, "Failed to extract cookie from response headers.", e);
       } finally {
         super.onHeaders(headers);
       }
@@ -84,9 +85,9 @@ class CookiesInterceptor implements ClientInterceptor {
     @Override
     public void onClose(Status status, Metadata trailers) {
       try {
-        cookie.extractCookiesFromResponseTrailers(trailers);
+        cookie.extractCookiesFromMetadata(trailers);
       } catch (Throwable e) {
-        LOG.warning("Failed to extract cookie from response trailers: " + e);
+        LOG.log(Level.WARNING, "Failed to extract cookie from response trailers.", e);
       } finally {
         super.onClose(status, trailers);
       }

@@ -51,28 +51,11 @@ class CookiesHolder {
   }
 
   /**
-   * Iterate through all the keys in initial metadata, and add all the keys that match
-   * COOKIE_KEY_PREFIX to cookies.
-   */
-  void extractCookiesFromResponseHeaders(@Nullable Metadata headers) {
-    if (headers == null) {
-      return;
-    }
-    for (String key : headers.keys()) {
-      if (key.startsWith(COOKIE_KEY_PREFIX)) {
-        Metadata.Key<String> metadataKey = Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER);
-        String value = headers.get(metadataKey);
-        cookies.put(metadataKey, value);
-      }
-    }
-  }
-
-  /**
-   * Iterate through all the keys in trailing metadata, and add all the keys that match
+   * Iterate through all the keys in initial or trailing metadata, and add all the keys that match
    * COOKIE_KEY_PREFIX to cookies. Values in trailers will override the value set in initial
    * metadata for the same keys.
    */
-  void extractCookiesFromResponseTrailers(@Nullable Metadata trailers) {
+  void extractCookiesFromMetadata(@Nullable Metadata trailers) {
     if (trailers == null) {
       return;
     }
