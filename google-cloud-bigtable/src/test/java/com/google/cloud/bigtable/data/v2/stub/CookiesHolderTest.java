@@ -47,6 +47,7 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Server;
@@ -313,11 +314,59 @@ public class CookiesHolderTest {
   }
 
   @Test
+  public void testCookiesInHeaders() throws Exception {
+    // Send 2 cookies in the headers, with routingCookieKey and ROUTING_COOKIE_2. ROUTING_COOKIE_2
+    // is also sent in the trailers so the value should be overridden.
+    final Metadata.Key<String> routingCookieKey =
+        Metadata.Key.of("x-goog-cbt-cookie-no-override", Metadata.ASCII_STRING_MARSHALLER);
+    final String routingCookieValue = "no-override";
+    ServerInterceptor serverInterceptor =
+        new ServerInterceptor() {
+          @Override
+          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+              ServerCall<ReqT, RespT> serverCall,
+              Metadata metadata,
+              ServerCallHandler<ReqT, RespT> serverCallHandler) {
+            serverMetadata.add(metadata);
+
+            metadata.put(routingCookieKey, routingCookieValue);
+            return serverCallHandler.startCall(
+                new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                  @Override
+                  public void sendHeaders(Metadata headers) {
+                    headers.put(routingCookieKey, routingCookieValue);
+                    headers.put(ROUTING_COOKIE_2, "will-be-overridden");
+                    super.sendHeaders(headers);
+                  }
+                },
+                metadata);
+          }
+        };
+
+    Server newServer = FakeServiceBuilder.create(fakeService).intercept(serverInterceptor).start();
+
+    BigtableDataSettings.Builder settings =
+        BigtableDataSettings.newBuilderForEmulator(newServer.getPort())
+            .setProjectId("fake-project")
+            .setInstanceId("fake-instance");
+
+    BigtableDataClient client = BigtableDataClient.create(settings.build());
+
+    client.readRows(Query.create("table")).iterator().hasNext();
+
+    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
+    assertThat(bytes1).isEqualTo(testCookie);
+    String bytes2 = serverMetadata.get(1).get(routingCookieKey);
+    assertThat(bytes2).isEqualTo(routingCookieValue);
+
+    newServer.shutdown();
+  }
+
+  @Test
   public void testAllMethodsAreCalled() throws InterruptedException {
     // This test ensures that all methods respect the retry cookie except for the ones that are
     // explicitly added to the methods list. It requires that any newly method is exercised in this
-    // test.
-    // This is enforced by introspecting grpc method descriptors.
+    // test. This is enforced by introspecting grpc method descriptors.
     client.readRows(Query.create("fake-table")).iterator().hasNext();
 
     fakeService.count.set(0);
@@ -374,6 +423,7 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "readRows");
+        responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;

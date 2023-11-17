@@ -47,7 +47,7 @@ class CookiesInterceptor implements ClientInterceptor {
         try {
           CookiesHolder cookie = CookiesHolder.fromCallOptions(callOptions);
           if (cookie != null) {
-            cookie.injectCookiesInRequestHeaders(headers);
+            headers = cookie.injectCookiesInRequestHeaders(headers);
             responseListener = new UpdateCookieListener<>(responseListener, cookie);
           }
         } catch (Throwable e) {
@@ -59,7 +59,7 @@ class CookiesInterceptor implements ClientInterceptor {
     };
   }
 
-  /** Add trailers to CookiesHolder if there's any. * */
+  /** Add headers and trailers to CookiesHolder if there's any. * */
   static class UpdateCookieListener<RespT>
       extends ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT> {
 
@@ -68,6 +68,17 @@ class CookiesInterceptor implements ClientInterceptor {
     UpdateCookieListener(ClientCall.Listener<RespT> delegate, CookiesHolder cookiesHolder) {
       super(delegate);
       this.cookie = cookiesHolder;
+    }
+
+    @Override
+    public void onHeaders(Metadata headers) {
+      try {
+        cookie.extractCookiesFromResponseHeaders(headers);
+      } catch (Throwable e) {
+        LOG.warning("Failed to extract cookie from response headers: " + e);
+      } finally {
+        super.onHeaders(headers);
+      }
     }
 
     @Override
