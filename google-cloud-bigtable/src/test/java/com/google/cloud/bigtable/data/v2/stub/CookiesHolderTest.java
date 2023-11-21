@@ -145,16 +145,17 @@ public class CookiesHolderTest {
     client.readRows(Query.create("fake-table")).iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_1);
-    String bytes2 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
-    assertThat(bytes1).isNotNull();
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_1);
+    String bytes2 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo("readRows");
-    assertThat(bytes2).isNotNull();
     assertThat(bytes2).isEqualTo(testCookie);
 
     // make sure bad key is not added
-    assertThat(serverMetadata.get(1).get(BAD_KEY)).isNull();
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
 
     serverMetadata.clear();
   }
@@ -164,16 +165,17 @@ public class CookiesHolderTest {
     client.readRow("fake-table", "key");
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_1);
-    String bytes2 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
-    assertThat(bytes1).isNotNull();
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_1);
+    String bytes2 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo("readRows");
-    assertThat(bytes2).isNotNull();
     assertThat(bytes2).isEqualTo(testCookie);
 
     // make sure bad key is not added
-    assertThat(serverMetadata.get(1).get(BAD_KEY)).isNull();
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
 
     serverMetadata.clear();
   }
@@ -185,16 +187,17 @@ public class CookiesHolderTest {
             .add(RowMutationEntry.create("key").setCell("cf", "q", "v")));
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_1);
-    String bytes2 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
-    assertThat(bytes1).isNotNull();
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_1);
+    String bytes2 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo("mutateRows");
-    assertThat(bytes2).isNotNull();
     assertThat(bytes2).isEqualTo(testCookie);
 
     // make sure bad key is not added
-    assertThat(serverMetadata.get(1).get(BAD_KEY)).isNull();
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
 
     serverMetadata.clear();
   }
@@ -204,16 +207,17 @@ public class CookiesHolderTest {
     client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_1);
-    String bytes2 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
-    assertThat(bytes1).isNotNull();
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_1);
+    String bytes2 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo("mutateRow");
-    assertThat(bytes2).isNotNull();
     assertThat(bytes2).isEqualTo(testCookie);
 
     // make sure bad key is not added
-    assertThat(serverMetadata.get(1).get(BAD_KEY)).isNull();
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
 
     serverMetadata.clear();
   }
@@ -224,16 +228,17 @@ public class CookiesHolderTest {
     client.sampleRowKeys("fake-table");
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_1);
-    String bytes2 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
-    assertThat(bytes1).isNotNull();
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_1);
+    String bytes2 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo("sampleRowKeys");
-    assertThat(bytes2).isNotNull();
     assertThat(bytes2).isEqualTo(testCookie);
 
     // make sure bad key is not added
-    assertThat(serverMetadata.get(1).get(BAD_KEY)).isNull();
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
 
     serverMetadata.clear();
   }
@@ -245,10 +250,15 @@ public class CookiesHolderTest {
     client.readRows(Query.create("fake-table")).iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
 
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_1)).isNull();
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_2)).isNull();
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_1)).isFalse();
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_2)).isFalse();
+
+    // make sure bad key is not added
+    assertThat(lastMetadata.containsKey(BAD_KEY)).isFalse();
     serverMetadata.clear();
   }
 
@@ -259,10 +269,13 @@ public class CookiesHolderTest {
     client.readRow("fake-table", "key");
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
 
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_1)).isNull();
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_2)).isNull();
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_1)).isFalse();
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_2)).isFalse();
+
     serverMetadata.clear();
   }
 
@@ -275,10 +288,12 @@ public class CookiesHolderTest {
             .add(RowMutationEntry.create("key").setCell("cf", "q", "v")));
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
 
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_1)).isNull();
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_2)).isNull();
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_1)).isFalse();
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_2)).isFalse();
 
     serverMetadata.clear();
   }
@@ -290,10 +305,12 @@ public class CookiesHolderTest {
     client.mutateRow(RowMutation.create("fake-table", "key").setCell("cf", "q", "v"));
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
 
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_1)).isNull();
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_2)).isNull();
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_1)).isFalse();
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_2)).isFalse();
 
     serverMetadata.clear();
   }
@@ -305,10 +322,12 @@ public class CookiesHolderTest {
     client.sampleRowKeys("fake-table");
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
-    assertThat(serverMetadata.size()).isEqualTo(fakeService.count.get());
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
 
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_1)).isNull();
-    assertThat(serverMetadata.get(1).get(ROUTING_COOKIE_2)).isNull();
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_1)).isFalse();
+    assertThat(lastMetadata.containsKey(ROUTING_COOKIE_2)).isFalse();
 
     serverMetadata.clear();
   }
@@ -354,9 +373,10 @@ public class CookiesHolderTest {
 
     client.readRows(Query.create("table")).iterator().hasNext();
 
-    String bytes1 = serverMetadata.get(1).get(ROUTING_COOKIE_2);
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+    String bytes1 = lastMetadata.get(ROUTING_COOKIE_2);
     assertThat(bytes1).isEqualTo(testCookie);
-    String bytes2 = serverMetadata.get(1).get(routingCookieKey);
+    String bytes2 = lastMetadata.get(routingCookieKey);
     assertThat(bytes2).isEqualTo(routingCookieValue);
 
     newServer.shutdown();
