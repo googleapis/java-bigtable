@@ -58,7 +58,7 @@ public class Callables {
     }
 
     RetryAlgorithm<ResponseT> retryAlgorithm =
-        new RetryAlgorithm<>(
+        new UnaryRetryAlgorithm<>(
             new ApiResultRetryAlgorithm<ResponseT>(),
             new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
     ScheduledRetryingExecutor<ResponseT> retryingExecutor =
