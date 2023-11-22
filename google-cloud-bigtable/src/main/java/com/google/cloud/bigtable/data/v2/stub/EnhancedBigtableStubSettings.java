@@ -332,7 +332,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setAttemptDirectPath(true)
         // Allow using non-default service account in DirectPath.
         .setAllowNonDefaultServiceAccount(true);
-
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -657,8 +656,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       sampleRowKeysSettings
           .setRetryableCodes(IDEMPOTENT_RETRY_CODES)
           .setRetrySettings(
-              IDEMPOTENT_RETRY_SETTINGS
-                  .toBuilder()
+              IDEMPOTENT_RETRY_SETTINGS.toBuilder()
                   .setInitialRpcTimeout(Duration.ofMinutes(5))
                   .setMaxRpcTimeout(Duration.ofMinutes(5))
                   .build());
