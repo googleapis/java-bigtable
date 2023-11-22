@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.common.truth.Truth.assertAbout;
+import static com.google.cloud.bigtable.data.v2.stub.MetadataSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.retrying.RetrySettings;
@@ -48,8 +48,6 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.common.truth.FailureMetadata;
-import com.google.common.truth.Subject;
 import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
@@ -66,7 +64,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -153,9 +150,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -169,9 +166,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -187,9 +184,10 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
-        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    assertThat(lastMetadata)
+        .containsAtLeast(
+            ROUTING_COOKIE_1.name(), "mutateRows", ROUTING_COOKIE_2.name(), testCookie);
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -203,9 +201,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
-        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    assertThat(lastMetadata)
+        .containsAtLeast(ROUTING_COOKIE_1.name(), "mutateRow", ROUTING_COOKIE_2.name(), testCookie);
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -220,9 +218,10 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
-        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    assertThat(lastMetadata)
+        .containsAtLeast(
+            ROUTING_COOKIE_1.name(), "sampleRowKeys", ROUTING_COOKIE_2.name(), testCookie);
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -238,8 +237,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
-        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name());
+    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name());
 
     serverMetadata.clear();
   }
@@ -255,7 +253,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -274,7 +272,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -291,7 +289,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -308,7 +306,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -357,7 +355,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    MetadataSubject.assertThat(lastMetadata)
+    assertThat(lastMetadata)
         .containsAtLeast(
             ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
 
@@ -547,42 +545,6 @@ public class CookiesHolderTest {
         trailers.put(ROUTING_COOKIE_1, label);
         trailers.put(ROUTING_COOKIE_2, testCookie);
         trailers.put(BAD_KEY, "bad-key");
-      }
-    }
-  }
-
-  static final class MetadataSubject extends Subject {
-
-    @Nullable private final Metadata actual;
-
-    public static Factory<MetadataSubject, Metadata> metadata() {
-      return MetadataSubject::new;
-    }
-
-    private MetadataSubject(FailureMetadata metadata, @Nullable Metadata actual) {
-      super(metadata, actual);
-      this.actual = actual;
-    }
-
-    public static MetadataSubject assertThat(@Nullable Metadata actual) {
-      return assertAbout(metadata()).that(actual);
-    }
-
-    public void containsAtLeast(String... keyValuePairs) {
-      assert actual != null;
-      for (int i = 0; i < keyValuePairs.length; i += 2) {
-        check("containsAtLeast()")
-            .that(actual.get(Metadata.Key.of(keyValuePairs[i], Metadata.ASCII_STRING_MARSHALLER)))
-            .isEqualTo(keyValuePairs[i + 1]);
-      }
-    }
-
-    public void doesNotContainKeys(String... keys) {
-      assert actual != null;
-      for (String key : keys) {
-        check("doesNotContainKeys()")
-            .that(actual.containsKey(Metadata.Key.of(key, Metadata.ASCII_STRING_MARSHALLER)))
-            .isFalse();
       }
     }
   }

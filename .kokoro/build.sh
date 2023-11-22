@@ -27,8 +27,6 @@ source ${scriptDir}/common.sh
 mvn -version
 echo ${JOB_TYPE}
 
-mvn dependency:tree
-
 # attempt to install 3 times with exponential backoff (starting with 10 seconds)
 retry_with_backoff 3 10 \
   mvn install -B -V -ntp \
