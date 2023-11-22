@@ -361,15 +361,16 @@ public class CookiesHolderTest {
               .setProjectId("fake-project")
               .setInstanceId("fake-instance");
 
-      BigtableDataClient client = BigtableDataClient.create(settings.build());
+      try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
 
-      client.readRows(Query.create("table")).iterator().hasNext();
+        client.readRows(Query.create("table")).iterator().hasNext();
 
-      Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+        Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-      assertThat(lastMetadata)
-          .containsAtLeast(
-              ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
+        assertThat(lastMetadata)
+            .containsAtLeast(
+                ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
+      }
     } finally {
       if (newServer != null) {
         newServer.shutdown();
