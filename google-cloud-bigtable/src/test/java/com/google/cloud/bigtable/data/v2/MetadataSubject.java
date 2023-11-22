@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2;
 
 import static com.google.common.truth.Truth.assertAbout;
 
@@ -23,7 +23,7 @@ import io.grpc.Metadata;
 import javax.annotation.Nullable;
 
 /** Utility class to test key-value pairs in {@link io.grpc.Metadata}. */
-final class MetadataSubject extends Subject {
+public final class MetadataSubject extends Subject {
 
   @Nullable private final Metadata actual;
 

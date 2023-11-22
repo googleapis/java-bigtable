@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.MetadataSubject.assertThat;
+import static com.google.cloud.bigtable.data.v2.MetadataSubject.assertThat;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.retrying.RetrySettings;
@@ -73,20 +73,20 @@ import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class CookiesHolderTest {
+  private static final Metadata.Key<String> ROUTING_COOKIE_1 =
+      Metadata.Key.of("x-goog-cbt-cookie-routing", Metadata.ASCII_STRING_MARSHALLER);
+  private static final Metadata.Key<String> ROUTING_COOKIE_2 =
+      Metadata.Key.of("x-goog-cbt-cookie-random", Metadata.ASCII_STRING_MARSHALLER);
+  private static final Metadata.Key<String> BAD_KEY =
+      Metadata.Key.of("x-goog-cbt-not-cookie", Metadata.ASCII_STRING_MARSHALLER);
+  private static final String testCookie = "test-routing-cookie";
+
   private Server server;
   private final FakeService fakeService = new FakeService();
   private BigtableDataClient client;
   private final List<Metadata> serverMetadata = new ArrayList<>();
-  private final String testCookie = "test-routing-cookie";
 
   private final Set<String> methods = new HashSet<>();
-
-  private final Metadata.Key<String> ROUTING_COOKIE_1 =
-      Metadata.Key.of("x-goog-cbt-cookie-routing", Metadata.ASCII_STRING_MARSHALLER);
-  private final Metadata.Key<String> ROUTING_COOKIE_2 =
-      Metadata.Key.of("x-goog-cbt-cookie-random", Metadata.ASCII_STRING_MARSHALLER);
-  private final Metadata.Key<String> BAD_KEY =
-      Metadata.Key.of("x-goog-cbt-not-cookie", Metadata.ASCII_STRING_MARSHALLER);
 
   @Before
   public void setup() throws Exception {
@@ -139,6 +139,16 @@ public class CookiesHolderTest {
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE);
 
     client = BigtableDataClient.create(settings.build());
+  }
+
+  @After
+  public void tearDown() throws Exception {
+    if (client != null) {
+      client.close();
+    }
+    if (server != null) {
+      server.shutdown();
+    }
   }
 
   @Test
@@ -342,24 +352,29 @@ public class CookiesHolderTest {
           }
         };
 
-    Server newServer = FakeServiceBuilder.create(fakeService).intercept(serverInterceptor).start();
+    Server newServer = null;
+    try {
+      newServer = FakeServiceBuilder.create(fakeService).intercept(serverInterceptor).start();
 
-    BigtableDataSettings.Builder settings =
-        BigtableDataSettings.newBuilderForEmulator(newServer.getPort())
-            .setProjectId("fake-project")
-            .setInstanceId("fake-instance");
+      BigtableDataSettings.Builder settings =
+          BigtableDataSettings.newBuilderForEmulator(newServer.getPort())
+              .setProjectId("fake-project")
+              .setInstanceId("fake-instance");
 
-    BigtableDataClient client = BigtableDataClient.create(settings.build());
+      BigtableDataClient client = BigtableDataClient.create(settings.build());
 
-    client.readRows(Query.create("table")).iterator().hasNext();
+      client.readRows(Query.create("table")).iterator().hasNext();
 
-    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+      Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .containsAtLeast(
-            ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
-
-    newServer.shutdown();
+      assertThat(lastMetadata)
+          .containsAtLeast(
+              ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
+    } finally {
+      if (newServer != null) {
+        newServer.shutdown();
+      }
+    }
   }
 
   @Test
@@ -406,13 +421,7 @@ public class CookiesHolderTest {
     assertThat(methods).containsExactlyElementsIn(expected);
   }
 
-  @After
-  public void tearDown() throws Exception {
-    client.close();
-    server.shutdown();
-  }
-
-  class FakeService extends BigtableGrpc.BigtableImplBase {
+  static class FakeService extends BigtableGrpc.BigtableImplBase {
 
     private boolean returnCookie = true;
     private final AtomicInteger count = new AtomicInteger();
