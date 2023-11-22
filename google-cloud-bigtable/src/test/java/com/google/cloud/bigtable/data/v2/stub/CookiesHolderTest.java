@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.CookiesHolderTest.MetadataSubject.assertThat;
 import static com.google.common.truth.Truth.assertAbout;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -154,9 +153,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -170,9 +169,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
-    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -188,10 +187,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .containsAtLeast(
-            ROUTING_COOKIE_1.name(), "mutateRows", ROUTING_COOKIE_2.name(), testCookie);
-    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    MetadataSubject.assertThat(lastMetadata)
+        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
+    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -205,9 +203,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .containsAtLeast(ROUTING_COOKIE_1.name(), "mutateRow", ROUTING_COOKIE_2.name(), testCookie);
-    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    MetadataSubject.assertThat(lastMetadata)
+        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
+    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -222,10 +220,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .containsAtLeast(
-            ROUTING_COOKIE_1.name(), "sampleRowKeys", ROUTING_COOKIE_2.name(), testCookie);
-    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+    MetadataSubject.assertThat(lastMetadata)
+        .containsAtLeast(ROUTING_COOKIE_1.name(), "readRows", ROUTING_COOKIE_2.name(), testCookie);
+    MetadataSubject.assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -241,7 +238,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name());
+    MetadataSubject.assertThat(lastMetadata)
+        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name());
 
     serverMetadata.clear();
   }
@@ -257,7 +255,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -276,7 +274,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -293,7 +291,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -310,7 +308,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
@@ -359,7 +357,7 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
+    MetadataSubject.assertThat(lastMetadata)
         .containsAtLeast(
             ROUTING_COOKIE_2.name(), testCookie, routingCookieKey.name(), routingCookieValue);
 
