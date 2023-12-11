@@ -64,6 +64,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class ReadIT {
@@ -322,7 +323,7 @@ public class ReadIT {
   }
 
   @Test
-  public void reversedWithFocedResumption() throws IOException, InterruptedException {
+  public void reversedWithForcedResumption() throws IOException, InterruptedException {
     assume()
         .withMessage("reverse scans are not supported in the emulator")
         .that(testEnvRule.env())
@@ -363,6 +364,10 @@ public class ReadIT {
     BigtableDataSettings.Builder settingsBuilder =
         testEnvRule.env().getDataClientSettings().toBuilder();
 
+    settingsBuilder.stubSettings().readRowsSettings().retrySettings()
+            .setInitialRpcTimeout(Duration.ofMillis(10))
+            .setMaxAttempts(100);
+
     InstantiatingGrpcChannelProvider.Builder transport =
         ((InstantiatingGrpcChannelProvider)
                 settingsBuilder.stubSettings().getTransportChannelProvider())
@@ -398,9 +403,9 @@ public class ReadIT {
         for (Row row :
             patchedClient.readRows(Query.create(tableId).prefix(uniqueKey).reversed(true))) {
           actualResults.add(row);
+          Thread.sleep(1);
         }
         assertThat(actualResults).containsExactlyElementsIn(expectedResults).inOrder();
-        Thread.sleep(10);
       }
     }
   }
