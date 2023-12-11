@@ -64,7 +64,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class ReadIT {
@@ -364,11 +363,7 @@ public class ReadIT {
     BigtableDataSettings.Builder settingsBuilder =
         testEnvRule.env().getDataClientSettings().toBuilder();
 
-    settingsBuilder
-        .stubSettings()
-        .readRowsSettings()
-        .retrySettings()
-        .setMaxAttempts(100);
+    settingsBuilder.stubSettings().readRowsSettings().retrySettings().setMaxAttempts(100);
 
     InstantiatingGrpcChannelProvider.Builder transport =
         ((InstantiatingGrpcChannelProvider)
