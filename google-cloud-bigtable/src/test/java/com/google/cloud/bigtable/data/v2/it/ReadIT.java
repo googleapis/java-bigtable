@@ -364,9 +364,12 @@ public class ReadIT {
     BigtableDataSettings.Builder settingsBuilder =
         testEnvRule.env().getDataClientSettings().toBuilder();
 
-    settingsBuilder.stubSettings().readRowsSettings().retrySettings()
-            .setInitialRpcTimeout(Duration.ofMillis(10))
-            .setMaxAttempts(100);
+    settingsBuilder
+        .stubSettings()
+        .readRowsSettings()
+        .retrySettings()
+        .setInitialRpcTimeout(Duration.ofMillis(10))
+        .setMaxAttempts(100);
 
     InstantiatingGrpcChannelProvider.Builder transport =
         ((InstantiatingGrpcChannelProvider)
