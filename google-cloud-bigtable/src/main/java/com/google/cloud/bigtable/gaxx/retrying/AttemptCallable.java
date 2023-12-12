@@ -29,7 +29,7 @@ import org.threeten.bp.Duration;
 // TODO: remove this once ApiResultRetryAlgorithm is added to gax.
 /**
  * A callable representing an attempt to make an RPC call. This class is used from {@link
- * com.google.cloud.bigtable.gaxx.retrying.RetryingCallable}.
+ * RetryingCallable}.
  *
  * @param <RequestT> request type
  * @param <ResponseT> response type
