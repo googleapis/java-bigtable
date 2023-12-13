@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.gaxx.retrying;
 
-import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
@@ -36,7 +36,7 @@ import java.util.Collection;
  * <p>The callable objects wrap a given direct callable with features like retry and exception
  * translation.
  */
-@BetaApi
+@InternalApi
 public class Callables {
 
   private Callables() {}
