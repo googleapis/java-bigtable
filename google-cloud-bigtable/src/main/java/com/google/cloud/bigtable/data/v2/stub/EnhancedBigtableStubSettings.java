@@ -211,6 +211,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
   private final Map<String, String> jwtAudienceMapping;
+  private final boolean enableRoutingCookie;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -252,6 +253,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
     jwtAudienceMapping = builder.jwtAudienceMapping;
+    enableRoutingCookie = builder.enableRoutingCookie;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -311,6 +313,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @InternalApi("Used for internal testing")
   public Map<String, String> getJwtAudienceMapping() {
     return jwtAudienceMapping;
+  }
+
+  /**
+   * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
+   * server sent back.
+   */
+  public boolean getEnableRoutingCookie() {
+    return enableRoutingCookie;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -595,6 +605,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
     private Map<String, String> jwtAudienceMapping;
+    private boolean enableRoutingCookie;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -627,6 +638,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
+      this.enableRoutingCookie = true;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -745,6 +757,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
       jwtAudienceMapping = settings.jwtAudienceMapping;
+      enableRoutingCookie = settings.enableRoutingCookie;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -893,6 +906,23 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return jwtAudienceMapping;
     }
 
+    /**
+     * Sets if routing cookie is enabled. If true, client will retry a request with extra metadata
+     * server sent back.
+     */
+    public Builder setEnableRoutingCookie(boolean enableRoutingCookie) {
+      this.enableRoutingCookie = enableRoutingCookie;
+      return this;
+    }
+
+    /**
+     * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
+     * server sent back.
+     */
+    public boolean getEnableRoutingCookie() {
+      return enableRoutingCookie;
+    }
+
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
       return readRowsSettings;
@@ -1019,6 +1049,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
         .add("jwtAudienceMapping", jwtAudienceMapping)
+        .add("enableRoutingCookie", enableRoutingCookie)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)

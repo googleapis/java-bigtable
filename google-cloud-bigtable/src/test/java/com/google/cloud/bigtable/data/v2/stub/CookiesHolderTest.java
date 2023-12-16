@@ -58,6 +58,7 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -83,6 +84,7 @@ public class CookiesHolderTest {
 
   private Server server;
   private final FakeService fakeService = new FakeService();
+  private BigtableDataSettings.Builder settings;
   private BigtableDataClient client;
   private final List<Metadata> serverMetadata = new ArrayList<>();
 
@@ -137,6 +139,8 @@ public class CookiesHolderTest {
                 .setMaxAttempts(2)
                 .build())
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE);
+
+    this.settings = settings;
 
     client = BigtableDataClient.create(settings.build());
   }
@@ -379,7 +383,7 @@ public class CookiesHolderTest {
   }
 
   @Test
-  public void testAllMethodsAreCalled() throws InterruptedException {
+  public void testAllMethodsAreCalled() {
     // This test ensures that all methods respect the retry cookie except for the ones that are
     // explicitly added to the methods list. It requires that any newly method is exercised in this
     // test. This is enforced by introspecting grpc method descriptors.
@@ -420,6 +424,53 @@ public class CookiesHolderTest {
     methods.add("PingAndWarm");
 
     assertThat(methods).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  public void testDisableRoutingCookie() throws IOException {
+    // This test disables routing cookie in the client settings and ensures that none of the routing
+    // cookie
+    // is added.
+    settings.stubSettings().setEnableRoutingCookie(false);
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      client.readRows(Query.create("fake-table")).iterator().hasNext();
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.mutateRow(RowMutation.create("fake-table", "key").setCell("cf", "q", "v"));
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.bulkMutateRows(
+          BulkMutation.create("fake-table")
+              .add(RowMutationEntry.create("key").setCell("cf", "q", "v")));
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.sampleRowKeys("fake-table");
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.checkAndMutateRow(
+          ConditionalRowMutation.create("fake-table", "key")
+              .then(Mutation.create().setCell("cf", "q", "v")));
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.readModifyWriteRow(
+          ReadModifyWriteRow.create("fake-table", "key").append("cf", "q", "v"));
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.generateInitialChangeStreamPartitions("fake-table").iterator().hasNext();
+      assertThat(fakeService.count.get()).isEqualTo(2);
+      fakeService.count.set(0);
+
+      client.readChangeStream(ReadChangeStreamQuery.create("fake-table")).iterator().hasNext();
+      assertThat(fakeService.count.get()).isEqualTo(2);
+
+      assertThat(methods).isEmpty();
+    }
   }
 
   static class FakeService extends BigtableGrpc.BigtableImplBase {

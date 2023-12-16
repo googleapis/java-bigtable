@@ -185,11 +185,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // workaround JWT audience issues
     patchCredentials(builder);
 
-    // patch cookies interceptor
-    InstantiatingGrpcChannelProvider.Builder transportProvider = null;
-    if (builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
-      transportProvider =
-          ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder();
+    InstantiatingGrpcChannelProvider.Builder transportProvider =
+        builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
+            ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
+            : null;
+
+    if (builder.getEnableRoutingCookie() && transportProvider != null) {
+      // patch cookies interceptor
       transportProvider.setInterceptorProvider(() -> ImmutableList.of(new CookiesInterceptor()));
     }
 
@@ -371,9 +373,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
-    // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
-    // attempts won't see a CookieHolder.
-    ServerStreamingCallable<Query, RowT> withCookie = new CookiesServerStreamingCallable<>(traced);
+    ServerStreamingCallable<Query, RowT> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
+      // attempts won't see a CookieHolder.
+      withCookie = new CookiesServerStreamingCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -411,7 +416,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
 
-    UnaryCallable<Query, RowT> withCookie = new CookiesUnaryCallable<>(traced);
+    UnaryCallable<Query, RowT> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesUnaryCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -654,7 +662,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
-    UnaryCallable<BulkMutation, Void> withCookie = new CookiesUnaryCallable<>(traced);
+    UnaryCallable<BulkMutation, Void> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesUnaryCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -938,8 +949,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<String, ByteStringRange> traced =
         new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
 
-    ServerStreamingCallable<String, ByteStringRange> withCookie =
-        new CookiesServerStreamingCallable<>(traced);
+    ServerStreamingCallable<String, ByteStringRange> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesServerStreamingCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -1021,8 +1034,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readChangeStreamUserCallable, clientContext.getTracerFactory(), span);
 
-    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> withCookie =
-        new CookiesServerStreamingCallable<>(traced);
+    ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesServerStreamingCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -1037,9 +1052,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<RequestT, ResponseT> traced =
         new TracedUnaryCallable<>(inner, clientContext.getTracerFactory(), getSpanName(methodName));
 
-    // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
-    // attempts won't see a CookieHolder.
-    UnaryCallable<RequestT, ResponseT> withCookie = new CookiesUnaryCallable<>(traced);
+    UnaryCallable<RequestT, ResponseT> withCookie = traced;
+    if (settings.getEnableRoutingCookie()) {
+      // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
+      // attempts won't see a CookieHolder.
+      withCookie = new CookiesUnaryCallable<>(traced);
+    }
 
     return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
