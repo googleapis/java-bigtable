@@ -47,7 +47,7 @@ public class Callables {
 
     RetryAlgorithm<ResponseT> retryAlgorithm =
         new RetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<>(),
+            new RetryInfoRetryAlgorithm<>(),
             new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
     ScheduledRetryingExecutor<ResponseT> executor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
@@ -64,7 +64,7 @@ public class Callables {
 
     StreamingRetryAlgorithm<Void> retryAlgorithm =
         new StreamingRetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<Void>(),
+            new RetryInfoRetryAlgorithm<>(),
             new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
 
     ScheduledRetryingExecutor<Void> retryingExecutor =

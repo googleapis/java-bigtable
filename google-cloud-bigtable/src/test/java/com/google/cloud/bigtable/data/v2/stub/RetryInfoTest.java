@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import static com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm.RETRY_INFO_KEY;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.core.NoCredentialsProvider;
@@ -54,7 +55,6 @@ import com.google.rpc.RetryInfo;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.protobuf.ProtoUtils;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
@@ -70,9 +70,6 @@ import org.junit.runners.JUnit4;
 public class RetryInfoTest {
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
-
-  private static final Metadata.Key<RetryInfo> RETRY_INFO_KEY =
-      ProtoUtils.keyForProto(RetryInfo.getDefaultInstance());
 
   private FakeBigtableService service;
   private BigtableDataClient client;

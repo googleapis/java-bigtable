@@ -107,7 +107,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrateg
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
-import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
+import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -763,7 +763,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<Void>(),
+            new RetryInfoRetryAlgorithm<>(),
             new ExponentialRetryAlgorithm(
                 settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
     RetryingExecutorWithContext<Void> retryingExecutor =

@@ -18,46 +18,17 @@ package com.google.cloud.bigtable.gaxx.retrying;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
-import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
-import com.google.protobuf.util.Durations;
-import com.google.rpc.RetryInfo;
-import io.grpc.Metadata;
-import io.grpc.Status;
-import io.grpc.protobuf.ProtoUtils;
-import org.threeten.bp.Duration;
 
-/**
- * For internal use, public for technical reasons. This retry algorithm checks the metadata of an
- * exception for additional error details. If the metadata has a RetryInfo field, use the retry
- * delay to set the wait time between attempts.
- */
+/** For internal use, public for technical reasons. */
 @InternalApi
 public class ApiResultRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
-
-  private static final Metadata.Key<RetryInfo> KEY_RETRY_INFO =
-      ProtoUtils.keyForProto(RetryInfo.getDefaultInstance());
-
-  @Override
-  public TimedAttemptSettings createNextAttempt(
-      Throwable prevThrowable, ResponseT prevResponse, TimedAttemptSettings prevSettings) {
-    Duration retryDelay = extractRetryDelay(prevThrowable);
-    if (retryDelay != null) {
-      return prevSettings
-          .toBuilder()
-          .setRandomizedRetryDelay(retryDelay)
-          .setAttemptCount(prevSettings.getAttemptCount() + 1)
-          .build();
-    }
-    return null;
-  }
 
   /** Returns true if previousThrowable is an {@link ApiException} that is retryable. */
   @Override
   public boolean shouldRetry(Throwable previousThrowable, ResponseT previousResponse) {
-    return (extractRetryDelay(previousThrowable) != null)
-        || (previousThrowable instanceof ApiException
-            && ((ApiException) previousThrowable).isRetryable());
+    return (previousThrowable instanceof ApiException)
+        && ((ApiException) previousThrowable).isRetryable();
   }
 
   /**
@@ -72,30 +43,11 @@ public class ApiResultRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
     if (context.getRetryableCodes() != null) {
       // Ignore the isRetryable() value of the throwable if the RetryingContext has a specific list
       // of codes that should be retried.
-      return extractRetryDelay(previousThrowable) != null
-          || ((previousThrowable instanceof ApiException)
-              && context
-                  .getRetryableCodes()
-                  .contains(((ApiException) previousThrowable).getStatusCode().getCode()));
+      return (previousThrowable instanceof ApiException)
+          && context
+              .getRetryableCodes()
+              .contains(((ApiException) previousThrowable).getStatusCode().getCode());
     }
     return shouldRetry(previousThrowable, previousResponse);
-  }
-
-  public static Duration extractRetryDelay(Throwable throwable) {
-    if (throwable == null) {
-      return null;
-    }
-    Metadata trailers = Status.trailersFromThrowable(throwable);
-    if (trailers == null) {
-      return null;
-    }
-    RetryInfo retryInfo = trailers.get(KEY_RETRY_INFO);
-    if (retryInfo == null) {
-      return null;
-    }
-    if (!retryInfo.hasRetryDelay()) {
-      return null;
-    }
-    return Duration.ofMillis(Durations.toMillis(retryInfo.getRetryDelay()));
   }
 }

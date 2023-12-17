@@ -31,7 +31,6 @@ import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
-import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.NonCancellableFuture;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -236,7 +235,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      if (ApiResultRetryAlgorithm.extractRetryDelay(failedMutation.getError()) == null
+      if (!com.google.cloud.bigtable.gaxx.retrying.ApiException.isRetryable2(
+              failedMutation.getError())
           && !failedMutation.getError().isRetryable()) {
         permanentFailures.add(failedMutation);
       } else {
