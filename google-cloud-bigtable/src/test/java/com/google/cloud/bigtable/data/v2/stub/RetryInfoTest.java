@@ -28,10 +28,14 @@ import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.ReadChangeStreamRequest;
+import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
@@ -43,8 +47,10 @@ import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Filters;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -73,6 +79,7 @@ public class RetryInfoTest {
 
   private FakeBigtableService service;
   private BigtableDataClient client;
+  private BigtableDataSettings.Builder settings;
 
   private AtomicInteger attemptCounter = new AtomicInteger();
   private Duration delay = Duration.newBuilder().setSeconds(1).setNanos(0).build();
@@ -82,7 +89,7 @@ public class RetryInfoTest {
     service = new FakeBigtableService();
     serverRule.getServiceRegistry().addService(service);
 
-    BigtableDataSettings.Builder settings =
+    settings =
         BigtableDataSettings.newBuilder()
             .setProjectId("fake-project")
             .setInstanceId("fake-instance")
@@ -123,6 +130,30 @@ public class RetryInfoTest {
   }
 
   @Test
+  public void testReadRowDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.readRow("table", "row");
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.readRow("table", "row");
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void testReadRows() {
     createRetryableExceptionWithDelay(delay);
 
@@ -144,6 +175,30 @@ public class RetryInfoTest {
 
     assertThat(attemptCounter.get()).isEqualTo(2);
     assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testReadRowsDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.readRows(Query.create("table")).iterator().hasNext();
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.readRows(Query.create("table")).iterator().hasNext();
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
   }
 
   @Test
@@ -177,6 +232,35 @@ public class RetryInfoTest {
   }
 
   @Test
+  public void testMutateRowsDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.bulkMutateRows(
+          BulkMutation.create("fake-table")
+              .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.bulkMutateRows(
+            BulkMutation.create("fake-table")
+                .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
+      } catch (ApiException e) {
+        assertThat(((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
+            .isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void testMutateRow() {
     createRetryableExceptionWithDelay(delay);
 
@@ -198,6 +282,30 @@ public class RetryInfoTest {
 
     assertThat(attemptCounter.get()).isEqualTo(2);
     assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(1));
+  }
+
+  @Test
+  public void testMutateRowDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
   }
 
   @Test
@@ -227,6 +335,30 @@ public class RetryInfoTest {
   }
 
   @Test
+  public void testSampleRowKeysDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.sampleRowKeys("table");
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.sampleRowKeys("table");
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void testCheckAndMutateRow() {
     createRetryableExceptionWithDelay(delay);
 
@@ -242,6 +374,24 @@ public class RetryInfoTest {
   }
 
   @Test
+  public void testCheckAndMutateDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.checkAndMutateRow(
+            ConditionalRowMutation.create("table", "key")
+                .condition(Filters.FILTERS.value().regex("old-value"))
+                .then(Mutation.create().setCell("cf", "q", "v")));
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
   public void testReadModifyWrite() {
     createRetryableExceptionWithDelay(delay);
 
@@ -251,6 +401,117 @@ public class RetryInfoTest {
 
     assertThat(attemptCounter.get()).isEqualTo(2);
     assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testReadModifyWriteDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.readModifyWriteRow(ReadModifyWriteRow.create("table", "row").append("cf", "q", "v"));
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
+  public void testReadChangeStream() {
+    createRetryableExceptionWithDelay(delay);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+    stopwatch.stop();
+
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testReadChangeStreamNonRetryableErrorWithRetryInfo() {
+    createNonRetryableExceptionWithDelay(delay);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+    stopwatch.stop();
+
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testReadChangeStreamDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
+  }
+
+  @Test
+  public void testGenerateInitialChangeStreamPartition() {
+    createRetryableExceptionWithDelay(delay);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+    stopwatch.stop();
+
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testGenerateInitialChangeStreamPartitionNonRetryableError() {
+    createNonRetryableExceptionWithDelay(delay);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+    stopwatch.stop();
+
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  @Test
+  public void testGenerateInitialChangeStreamPartitionDisableRetryInfo() throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
+    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
+      createRetryableExceptionWithDelay(delay);
+      Stopwatch stopwatch = Stopwatch.createStarted();
+      client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+      stopwatch.stop();
+
+      assertThat(attemptCounter.get()).isEqualTo(2);
+      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+
+      attemptCounter.set(0);
+      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      try {
+        client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+      } catch (ApiException e) {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+      }
+      assertThat(attemptCounter.get()).isEqualTo(1);
+    }
   }
 
   private void createRetryableExceptionWithDelay(Duration delay) {
@@ -267,7 +528,7 @@ public class RetryInfoTest {
     service.expectations.add(exception);
   }
 
-  private void createNonRetryableExceptionWithDelay(Duration delay) {
+  private ApiException createNonRetryableExceptionWithDelay(Duration delay) {
     Metadata trailers = new Metadata();
     RetryInfo retryInfo =
         RetryInfo.newBuilder()
@@ -282,6 +543,8 @@ public class RetryInfoTest {
             false);
 
     service.expectations.add(exception);
+
+    return exception;
   }
 
   private class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
@@ -364,6 +627,37 @@ public class RetryInfoTest {
       attemptCounter.incrementAndGet();
       if (expectations.isEmpty()) {
         responseObserver.onNext(ReadModifyWriteRowResponse.getDefaultInstance());
+        responseObserver.onCompleted();
+      } else {
+        Exception expectedRpc = expectations.poll();
+        responseObserver.onError(expectedRpc);
+      }
+    }
+
+    @Override
+    public void generateInitialChangeStreamPartitions(
+        GenerateInitialChangeStreamPartitionsRequest request,
+        StreamObserver<GenerateInitialChangeStreamPartitionsResponse> responseObserver) {
+      attemptCounter.incrementAndGet();
+      if (expectations.isEmpty()) {
+        responseObserver.onNext(GenerateInitialChangeStreamPartitionsResponse.getDefaultInstance());
+        responseObserver.onCompleted();
+      } else {
+        Exception expectedRpc = expectations.poll();
+        responseObserver.onError(expectedRpc);
+      }
+    }
+
+    @Override
+    public void readChangeStream(
+        ReadChangeStreamRequest request,
+        StreamObserver<ReadChangeStreamResponse> responseObserver) {
+      attemptCounter.incrementAndGet();
+      if (expectations.isEmpty()) {
+        responseObserver.onNext(
+            ReadChangeStreamResponse.newBuilder()
+                .setCloseStream(ReadChangeStreamResponse.CloseStream.getDefaultInstance())
+                .build());
         responseObserver.onCompleted();
       } else {
         Exception expectedRpc = expectations.poll();

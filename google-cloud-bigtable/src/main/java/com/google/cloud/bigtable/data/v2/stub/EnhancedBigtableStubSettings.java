@@ -213,6 +213,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private ImmutableList<String> primedTableIds;
   private final Map<String, String> jwtAudienceMapping;
   private final boolean enableRoutingCookie;
+  private final boolean enableRetryInfo;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -255,6 +256,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     primedTableIds = builder.primedTableIds;
     jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
+    enableRetryInfo = builder.enableRetryInfo;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -323,6 +325,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @BetaApi("Routing cookie is not currently stable and may change in the future")
   public boolean getEnableRoutingCookie() {
     return enableRoutingCookie;
+  }
+
+  /**
+   * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on server
+   * returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+   */
+  public boolean getEnableRetryInfo() {
+    return enableRetryInfo;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -608,6 +618,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private ImmutableList<String> primedTableIds;
     private Map<String, String> jwtAudienceMapping;
     private boolean enableRoutingCookie;
+    private boolean enableRetryInfo;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -641,6 +652,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
+      this.enableRetryInfo = true;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -760,6 +772,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       primedTableIds = settings.primedTableIds;
       jwtAudienceMapping = settings.jwtAudienceMapping;
       enableRoutingCookie = settings.enableRoutingCookie;
+      enableRetryInfo = settings.enableRetryInfo;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -919,12 +932,29 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
+     * Sets if RetryInfo is enabled. If true, client bases retry decision and back off time on
+     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     */
+    public Builder setEnableRetryInfo(boolean enableRetryInfo) {
+      this.enableRetryInfo = enableRetryInfo;
+      return this;
+    }
+
+    /**
      * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
      * server sent back.
      */
     @BetaApi("Routing cookie is not currently stable and may change in the future")
     public boolean getEnableRoutingCookie() {
       return enableRoutingCookie;
+    }
+
+    /**
+     * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on
+     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     */
+    public boolean getEnableRetryInfo() {
+      return enableRetryInfo;
     }
 
     /** Returns the builder for the settings used for calls to readRows. */
@@ -1054,6 +1084,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("primedTableIds", primedTableIds)
         .add("jwtAudienceMapping", jwtAudienceMapping)
         .add("enableRoutingCookie", enableRoutingCookie)
+        .add("enableRetryInfo", enableRetryInfo)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)
