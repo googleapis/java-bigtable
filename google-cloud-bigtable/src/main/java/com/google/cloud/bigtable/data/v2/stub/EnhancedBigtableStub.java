@@ -1066,10 +1066,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       UnaryCallable<RequestT, ResponseT> innerCallable, UnaryCallSettings<?, ?> unaryCallSettings) {
     UnaryCallable<RequestT, ResponseT> retrying;
     if (settings.getEnableRetryInfo()) {
-      retrying = com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(innerCallable, unaryCallSettings, clientContext);
-    } else {
       retrying =
-              Callables.retrying(innerCallable, unaryCallSettings, clientContext);
+          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+              innerCallable, unaryCallSettings, clientContext);
+    } else {
+      retrying = Callables.retrying(innerCallable, unaryCallSettings, clientContext);
     }
     if (settings.getEnableRoutingCookie()) {
       return new CookiesUnaryCallable<>(retrying);
@@ -1084,7 +1085,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<RequestT, ResponseT> retrying;
     if (settings.getEnableRetryInfo()) {
       retrying =
-              com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+              innerCallable, serverStreamingCallSettings, clientContext);
     } else {
       retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
     }

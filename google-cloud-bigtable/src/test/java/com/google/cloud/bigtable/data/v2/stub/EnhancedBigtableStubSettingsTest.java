@@ -806,10 +806,10 @@ public class EnhancedBigtableStubSettingsTest {
     CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
     Mockito.when(credentialsProvider.getCredentials()).thenReturn(new FakeCredentials());
     EnhancedBigtableStubSettings.Builder builder =
-            EnhancedBigtableStubSettings.newBuilder()
-                    .setProjectId(dummyProjectId)
-                    .setInstanceId(dummyInstanceId)
-                    .setCredentialsProvider(credentialsProvider);
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setCredentialsProvider(credentialsProvider);
 
     assertThat(builder.getEnableRoutingCookie()).isTrue();
     assertThat(builder.build().getEnableRoutingCookie()).isTrue();
@@ -822,10 +822,10 @@ public class EnhancedBigtableStubSettingsTest {
     CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
     Mockito.when(credentialsProvider.getCredentials()).thenReturn(new FakeCredentials());
     EnhancedBigtableStubSettings.Builder builder =
-            EnhancedBigtableStubSettings.newBuilder()
-                    .setProjectId(dummyProjectId)
-                    .setInstanceId(dummyInstanceId)
-                    .setCredentialsProvider(credentialsProvider);
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setCredentialsProvider(credentialsProvider);
     assertThat(builder.getEnableRetryInfo()).isTrue();
     assertThat(builder.build().getEnableRetryInfo()).isTrue();
     assertThat(builder.build().toBuilder().getEnableRetryInfo()).isTrue();
@@ -838,11 +838,11 @@ public class EnhancedBigtableStubSettingsTest {
     CredentialsProvider credentialsProvider = Mockito.mock(CredentialsProvider.class);
     Mockito.when(credentialsProvider.getCredentials()).thenReturn(new FakeCredentials());
     EnhancedBigtableStubSettings.Builder builder =
-            EnhancedBigtableStubSettings.newBuilder()
-                    .setProjectId(dummyProjectId)
-                    .setInstanceId(dummyInstanceId)
-                    .setEnableRoutingCookie(false)
-                    .setCredentialsProvider(credentialsProvider);
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId(dummyProjectId)
+            .setInstanceId(dummyInstanceId)
+            .setEnableRoutingCookie(false)
+            .setCredentialsProvider(credentialsProvider);
     assertThat(builder.getEnableRoutingCookie()).isFalse();
     assertThat(builder.build().getEnableRoutingCookie()).isFalse();
     assertThat(builder.build().toBuilder().getEnableRoutingCookie()).isFalse();
