@@ -37,6 +37,7 @@ import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
@@ -373,14 +374,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
-    ServerStreamingCallable<Query, RowT> withCookie = traced;
-    if (settings.getEnableRoutingCookie()) {
-      // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
-      // attempts won't see a CookieHolder.
-      withCookie = new CookiesServerStreamingCallable<>(traced);
-    }
-
-    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -416,12 +410,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
 
-    UnaryCallable<Query, RowT> withCookie = traced;
-    if (settings.getEnableRoutingCookie()) {
-      withCookie = new CookiesUnaryCallable<>(traced);
-    }
-
-    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -493,7 +482,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
-        Callables.retrying(retrying1, innerSettings, clientContext);
+        withRetries(retrying1, innerSettings);
 
     return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
@@ -576,7 +565,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> retryable =
-        Callables.retrying(withBigtableTracer, settings.sampleRowKeysSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new SampleRowKeysCallable(retryable, requestContext));
@@ -615,7 +604,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
-        Callables.retrying(withBigtableTracer, settings.mutateRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.mutateRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new MutateRowCallable(retrying, requestContext));
@@ -639,11 +628,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable() {
     UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallable();
 
+    UnaryCallable<MutateRowsRequest, Void> withCookie = baseCallable;
+
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesUnaryCallable<>(baseCallable);
+    }
+
     UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
       flowControlCallable =
           new DynamicFlowControlCallable(
-              baseCallable,
+              withCookie,
               bulkMutationFlowController,
               bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
@@ -651,7 +646,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
     UnaryCallable<BulkMutation, Void> userFacing =
         new BulkMutateRowsUserFacingCallable(
-            flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
+            flowControlCallable != null ? flowControlCallable : withCookie, requestContext);
 
     SpanName spanName = getSpanName("MutateRows");
 
@@ -662,12 +657,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedUnaryCallable<>(
             tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
-    UnaryCallable<BulkMutation, Void> withCookie = traced;
-    if (settings.getEnableRoutingCookie()) {
-      withCookie = new CookiesUnaryCallable<>(traced);
-    }
-
-    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -821,7 +811,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> retrying =
-        Callables.retrying(withBigtableTracer, settings.checkAndMutateRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.checkAndMutateRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new CheckAndMutateRowCallable(retrying, requestContext));
@@ -862,8 +852,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> retrying =
-        Callables.retrying(
-            withBigtableTracer, settings.readModifyWriteRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.readModifyWriteRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new ReadModifyWriteRowCallable(retrying, requestContext));
@@ -943,18 +932,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<String, ByteStringRange> retrying =
-        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+        withRetries(withBigtableTracer, innerSettings);
 
     SpanName span = getSpanName("GenerateInitialChangeStreamPartitions");
     ServerStreamingCallable<String, ByteStringRange> traced =
         new TracedServerStreamingCallable<>(retrying, clientContext.getTracerFactory(), span);
 
-    ServerStreamingCallable<String, ByteStringRange> withCookie = traced;
-    if (settings.getEnableRoutingCookie()) {
-      withCookie = new CookiesServerStreamingCallable<>(traced);
-    }
-
-    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -1023,7 +1007,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
-        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+        withRetries(withBigtableTracer, innerSettings);
 
     ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
         readChangeStreamUserCallable =
@@ -1052,14 +1036,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<RequestT, ResponseT> traced =
         new TracedUnaryCallable<>(inner, clientContext.getTracerFactory(), getSpanName(methodName));
 
-    UnaryCallable<RequestT, ResponseT> withCookie = traced;
-    if (settings.getEnableRoutingCookie()) {
-      // CookieHolder needs to be injected to the CallOptions outside of retries, otherwise retry
-      // attempts won't see a CookieHolder.
-      withCookie = new CookiesUnaryCallable<>(traced);
-    }
-
-    return withCookie.withDefaultCallContext(clientContext.getDefaultCallContext());
+    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
@@ -1079,6 +1056,27 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             Collections.emptySet());
     return pingAndWarm.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
+      UnaryCallable<RequestT, ResponseT> innerCallable, UnaryCallSettings<?, ?> unaryCallSettings) {
+    UnaryCallable<RequestT, ResponseT> retrying =
+        Callables.retrying(innerCallable, unaryCallSettings, clientContext);
+    if (settings.getEnableRoutingCookie()) {
+      return new CookiesUnaryCallable<>(retrying);
+    }
+    return retrying;
+  }
+
+  private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> withRetries(
+      ServerStreamingCallable<RequestT, ResponseT> innerCallable,
+      ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
+    ServerStreamingCallable<RequestT, ResponseT> retrying =
+        Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+    if (settings.getEnableRoutingCookie()) {
+      return new CookiesServerStreamingCallable<>(retrying);
+    }
+    return retrying;
   }
   // </editor-fold>
 

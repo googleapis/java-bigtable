@@ -241,6 +241,43 @@ public class CookiesHolderTest {
   }
 
   @Test
+  public void testReadChangeStream() {
+    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+
+    assertThat(fakeService.count.get()).isGreaterThan(1);
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata)
+        .containsAtLeast(
+            ROUTING_COOKIE_1.name(), "readChangeStream", ROUTING_COOKIE_2.name(), testCookie);
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+
+    serverMetadata.clear();
+  }
+
+  @Test
+  public void testGenerateInitialChangeStreamParition() {
+    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+
+    assertThat(fakeService.count.get()).isGreaterThan(1);
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata)
+        .containsAtLeast(
+            ROUTING_COOKIE_1.name(),
+            "generateInitialChangeStreamPartitions",
+            ROUTING_COOKIE_2.name(),
+            testCookie);
+    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
+
+    serverMetadata.clear();
+  }
+
+  @Test
   public void testNoCookieSucceedReadRows() {
     fakeService.returnCookie = false;
 
@@ -314,6 +351,42 @@ public class CookiesHolderTest {
     fakeService.returnCookie = false;
 
     client.sampleRowKeys("fake-table");
+
+    assertThat(fakeService.count.get()).isGreaterThan(1);
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata)
+        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
+
+    serverMetadata.clear();
+  }
+
+  @Test
+  public void testNoCookieSucceedReadChangeStream() {
+    fakeService.returnCookie = false;
+
+    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+
+    assertThat(fakeService.count.get()).isGreaterThan(1);
+    assertThat(serverMetadata).hasSize(fakeService.count.get());
+
+    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
+
+    assertThat(lastMetadata)
+        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
+
+    serverMetadata.clear();
+
+    serverMetadata.clear();
+  }
+
+  @Test
+  public void testNoCookieSucceedGenerateInitialChangeStreamParition() {
+    fakeService.returnCookie = false;
+
+    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata).hasSize(fakeService.count.get());
