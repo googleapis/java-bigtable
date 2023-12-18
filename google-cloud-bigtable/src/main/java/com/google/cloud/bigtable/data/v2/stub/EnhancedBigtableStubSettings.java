@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingSettings;
@@ -319,6 +320,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
    * server sent back.
    */
+  @BetaApi("Routing cookie is not currently stable and may change in the future")
   public boolean getEnableRoutingCookie() {
     return enableRoutingCookie;
   }
@@ -910,6 +912,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * Sets if routing cookie is enabled. If true, client will retry a request with extra metadata
      * server sent back.
      */
+    @BetaApi("Routing cookie is not currently stable and may change in the future")
     public Builder setEnableRoutingCookie(boolean enableRoutingCookie) {
       this.enableRoutingCookie = enableRoutingCookie;
       return this;
@@ -919,6 +922,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
      * server sent back.
      */
+    @BetaApi("Routing cookie is not currently stable and may change in the future")
     public boolean getEnableRoutingCookie() {
       return enableRoutingCookie;
     }
