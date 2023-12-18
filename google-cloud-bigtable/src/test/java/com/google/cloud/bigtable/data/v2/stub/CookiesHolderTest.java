@@ -37,10 +37,12 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
+import com.google.bigtable.v2.StreamContinuationToken;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -171,7 +173,6 @@ public class CookiesHolderTest {
 
   @Test
   public void testReadRows() {
-    // Only server stream calls can return an initial metadata before the first response
     client.readRows(Query.create("fake-table")).iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
@@ -227,7 +228,12 @@ public class CookiesHolderTest {
 
     assertThat(lastMetadata)
         .containsAtLeast(
-            ROUTING_COOKIE_1.name(), "mutateRows", ROUTING_COOKIE_2.name(), testCookie);
+            ROUTING_COOKIE_1.name(),
+            "mutateRows",
+            ROUTING_COOKIE_2.name(),
+            testCookie,
+            ROUTING_COOKIE_HEADER.name(),
+            testHeaderCookie);
     assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
@@ -243,7 +249,13 @@ public class CookiesHolderTest {
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
     assertThat(lastMetadata)
-        .containsAtLeast(ROUTING_COOKIE_1.name(), "mutateRow", ROUTING_COOKIE_2.name(), testCookie);
+        .containsAtLeast(
+            ROUTING_COOKIE_1.name(),
+            "mutateRow",
+            ROUTING_COOKIE_2.name(),
+            testCookie,
+            ROUTING_COOKIE_HEADER.name(),
+            testHeaderCookie);
     assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
@@ -261,7 +273,12 @@ public class CookiesHolderTest {
 
     assertThat(lastMetadata)
         .containsAtLeast(
-            ROUTING_COOKIE_1.name(), "sampleRowKeys", ROUTING_COOKIE_2.name(), testCookie);
+            ROUTING_COOKIE_1.name(),
+            "sampleRowKeys",
+            ROUTING_COOKIE_2.name(),
+            testCookie,
+            ROUTING_COOKIE_HEADER.name(),
+            testHeaderCookie);
     assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
@@ -269,26 +286,29 @@ public class CookiesHolderTest {
 
   @Test
   public void testReadChangeStream() {
-    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+    for (ChangeStreamRecord record :
+        client.readChangeStream(ReadChangeStreamQuery.create("table"))) {}
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata).hasSize(fakeService.count.get());
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    // TODO: read change stream should have ROUTING_COOKIE_HEADER but the sequence is different from
-    // ReadRows.
-    // Debug the test failure.
     assertThat(lastMetadata)
         .containsAtLeast(
-            ROUTING_COOKIE_1.name(), "readChangeStream", ROUTING_COOKIE_2.name(), testCookie);
+            ROUTING_COOKIE_1.name(),
+            "readChangeStream",
+            ROUTING_COOKIE_2.name(),
+            testCookie,
+            ROUTING_COOKIE_HEADER.name(),
+            testHeaderCookie);
     assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
     serverMetadata.clear();
   }
 
   @Test
-  public void testGenerateInitialChangeStreamParition() {
+  public void testGenerateInitialChangeStreamPartition() {
     client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
@@ -296,9 +316,9 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    // TODO: read change stream should have ROUTING_COOKIE_HEADER but the sequence is different from
-    // ReadRows.
-    // Debug the test failure.
+    // generateInitialChangeStreamPartition uses SimpleStreamResumptionStrategy which means
+    // it can't resume from the middle of the stream. So we are not able to send a header
+    // for error responses.
     assertThat(lastMetadata)
         .containsAtLeast(
             ROUTING_COOKIE_1.name(),
@@ -358,8 +378,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
 
     serverMetadata.clear();
   }
@@ -375,8 +395,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
 
     serverMetadata.clear();
   }
@@ -392,8 +412,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
 
     serverMetadata.clear();
   }
@@ -402,7 +422,8 @@ public class CookiesHolderTest {
   public void testNoCookieSucceedReadChangeStream() {
     fakeService.returnCookie = false;
 
-    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
+    for (ChangeStreamRecord record :
+        client.readChangeStream(ReadChangeStreamQuery.create("table"))) {}
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata).hasSize(fakeService.count.get());
@@ -410,10 +431,7 @@ public class CookiesHolderTest {
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
     assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
-    // TODO: read change stream should have ROUTING_COOKIE_HEADER but the sequence is different from
-    // ReadRows.
-    // Debug the test failure.
-    // assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
+    assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
 
     serverMetadata.clear();
 
@@ -431,11 +449,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
-    // TODO: read change stream should have ROUTING_COOKIE_HEADER but the sequence is different from
-    // ReadRows.
-    // Debug the test failure.
-    // assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
+    assertThat(lastMetadata)
+        .doesNotContainKeys(ROUTING_COOKIE_1.name(), ROUTING_COOKIE_2.name(), BAD_KEY.name());
 
     serverMetadata.clear();
   }
@@ -527,7 +542,8 @@ public class CookiesHolderTest {
     client.generateInitialChangeStreamPartitions("fake-table").iterator().hasNext();
 
     fakeService.count.set(0);
-    client.readChangeStream(ReadChangeStreamQuery.create("fake-table")).iterator().hasNext();
+    for (ChangeStreamRecord record :
+        client.readChangeStream(ReadChangeStreamQuery.create("fake-table"))) {}
 
     Set<String> expected =
         BigtableGrpc.getServiceDescriptor().getMethods().stream()
@@ -580,7 +596,9 @@ public class CookiesHolderTest {
       assertThat(fakeService.count.get()).isEqualTo(2);
       fakeService.count.set(0);
 
-      client.readChangeStream(ReadChangeStreamQuery.create("fake-table")).iterator().hasNext();
+      for (ChangeStreamRecord record :
+          client.readChangeStream(ReadChangeStreamQuery.create("fake-table"))) {}
+
       assertThat(fakeService.count.get()).isEqualTo(2);
 
       assertThat(methods).isEmpty();
@@ -613,6 +631,7 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "mutateRow");
+        responseObserver.onNext(MutateRowResponse.getDefaultInstance());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -627,6 +646,7 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "mutateRows");
+        responseObserver.onNext(MutateRowsResponse.getDefaultInstance());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -644,6 +664,7 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "sampleRowKeys");
+        responseObserver.onNext(SampleRowKeysResponse.getDefaultInstance());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
@@ -689,6 +710,14 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "readChangeStream");
+        responseObserver.onNext(
+            ReadChangeStreamResponse.newBuilder()
+                .setHeartbeat(
+                    ReadChangeStreamResponse.Heartbeat.newBuilder()
+                        .setContinuationToken(
+                            StreamContinuationToken.newBuilder().setToken("a").build())
+                        .build())
+                .build());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;

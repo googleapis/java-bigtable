@@ -810,6 +810,7 @@ public class EnhancedBigtableStubSettingsTest {
                     .setProjectId(dummyProjectId)
                     .setInstanceId(dummyInstanceId)
                     .setCredentialsProvider(credentialsProvider);
+
     assertThat(builder.getEnableRoutingCookie()).isTrue();
     assertThat(builder.build().getEnableRoutingCookie()).isTrue();
     assertThat(builder.build().toBuilder().getEnableRoutingCookie()).isTrue();
