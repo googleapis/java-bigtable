@@ -192,6 +192,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             : null;
 
     if (builder.getEnableRoutingCookie() && transportProvider != null) {
+      // TODO: this also need to be added to BigtableClientFactory
       // patch cookies interceptor
       transportProvider.setInterceptorProvider(() -> ImmutableList.of(new CookiesInterceptor()));
     }
