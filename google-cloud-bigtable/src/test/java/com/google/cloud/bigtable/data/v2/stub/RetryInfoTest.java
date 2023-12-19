@@ -253,7 +253,6 @@ public class RetryInfoTest {
 
   @Test
   public void testReadModifyWrite() {
-
     verifyRetryInfoIsUsed(
         () ->
             client.readModifyWriteRow(
@@ -278,7 +277,6 @@ public class RetryInfoTest {
 
   @Test
   public void testReadChangeStream() {
-
     verifyRetryInfoIsUsed(
         () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
         true);
@@ -307,7 +305,6 @@ public class RetryInfoTest {
 
   @Test
   public void testGenerateInitialChangeStreamPartition() {
-
     verifyRetryInfoIsUsed(
         () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
   }
@@ -342,33 +339,28 @@ public class RetryInfoTest {
     assertThat(stopwatch.elapsed()).isAtLeast(Duration.ofSeconds(delay.getSeconds()));
   }
 
-  private void verifyRetryInfoCanBeDisabled(Runnable runnable) throws IOException {
-    settings.stubSettings().setEnableRetryInfo(false);
+  private void verifyRetryInfoCanBeDisabled(Runnable runnable) {
+    enqueueRetryableExceptionWithDelay(delay);
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    runnable.run();
+    stopwatch.stop();
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      enqueueRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(delay.getSeconds()));
+
+    attemptCounter.set(0);
+    ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
+    try {
       runnable.run();
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
-      try {
-        runnable.run();
-      } catch (ApiException e) {
-        if (e instanceof MutateRowsException) {
-          assertThat(
-                  ((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
-              .isEqualTo(exception.getStatusCode());
-        } else {
-          assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-        }
+    } catch (ApiException e) {
+      if (e instanceof MutateRowsException) {
+        assertThat(((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
+            .isEqualTo(exception.getStatusCode());
+      } else {
+        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
       }
-      assertThat(attemptCounter.get()).isEqualTo(1);
     }
+    assertThat(attemptCounter.get()).isEqualTo(1);
   }
 
   private void enqueueRetryableExceptionWithDelay(com.google.protobuf.Duration delay) {
