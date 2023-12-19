@@ -19,9 +19,9 @@ import com.google.api.core.InternalApi;
 
 // TODO: move this to gax later
 @InternalApi
-public class ApiException {
+public class ApiExceptions {
 
-  private ApiException() {}
+  private ApiExceptions() {}
 
   // TODO: this should replace the existing ApiException#isRetryable() method,
   //  but that cant be done in bigtable, so this lives here for now.
