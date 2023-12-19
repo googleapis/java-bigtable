@@ -56,7 +56,6 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Queues;
-import com.google.protobuf.Duration;
 import com.google.rpc.RetryInfo;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -64,6 +63,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.Before;
@@ -82,7 +82,8 @@ public class RetryInfoTest {
   private BigtableDataSettings.Builder settings;
 
   private AtomicInteger attemptCounter = new AtomicInteger();
-  private Duration delay = Duration.newBuilder().setSeconds(1).setNanos(0).build();
+  private com.google.protobuf.Duration delay =
+      com.google.protobuf.Duration.newBuilder().setSeconds(1).setNanos(0).build();
 
   @Before
   public void setUp() throws IOException {
@@ -109,268 +110,127 @@ public class RetryInfoTest {
 
   @Test
   public void testReadRow() {
-    createRetryableExceptionWithDelay(delay);
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readRow("table", "row");
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.readRow("table", "row"), true);
   }
 
   @Test
   public void testReadRowNonRetryableErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readRow("table", "row");
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.readRow("table", "row"), false);
   }
 
   @Test
   public void testReadRowDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.readRow("table", "row");
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.readRow("table", "row");
-      } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(() -> newClient.readRow("table", "row"));
     }
   }
 
   @Test
   public void testReadRows() {
-    createRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readRows(Query.create("table")).iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), true);
   }
 
   @Test
   public void testReadRowsNonRetraybleErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readRows(Query.create("table")).iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), false);
   }
 
   @Test
   public void testReadRowsDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.readRows(Query.create("table")).iterator().hasNext();
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.readRows(Query.create("table")).iterator().hasNext();
-      } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(
+          () -> newClient.readRows(Query.create("table")).iterator().hasNext());
     }
   }
 
   @Test
   public void testMutateRows() {
-    createRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    client.bulkMutateRows(
-        BulkMutation.create("fake-table")
-            .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create("fake-table")
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        true);
   }
 
   @Test
   public void testMutateRowsNonRetryableErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    client.bulkMutateRows(
-        BulkMutation.create("fake-table")
-            .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create("fake-table")
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        false);
   }
 
   @Test
   public void testMutateRowsDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.bulkMutateRows(
-          BulkMutation.create("fake-table")
-              .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.bulkMutateRows(
-            BulkMutation.create("fake-table")
-                .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v")));
-      } catch (ApiException e) {
-        assertThat(((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
-            .isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(
+          () ->
+              newClient.bulkMutateRows(
+                  BulkMutation.create("fake-table")
+                      .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))));
     }
   }
 
   @Test
   public void testMutateRow() {
-    createRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(1));
+    verifyRetryInfoIsUsed(
+        () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), true);
   }
 
   @Test
   public void testMutateRowNonRetryableErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(1));
+    verifyRetryInfoIsUsed(
+        () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), false);
   }
 
   @Test
   public void testMutateRowDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
-      stopwatch.stop();
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
 
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
-      } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+      verifyRetryInfoCanBeDisabled(
+          () -> newClient.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")));
     }
   }
 
   @Test
   public void testSampleRowKeys() {
-    createRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    client.sampleRowKeys("table");
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), true);
   }
 
   @Test
   public void testSampleRowKeysNonRetryableErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-
-    client.sampleRowKeys("table");
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), false);
   }
 
   @Test
   public void testSampleRowKeysDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.sampleRowKeys("table");
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.sampleRowKeys("table");
-      } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(() -> newClient.sampleRowKeys("table"));
     }
   }
 
   @Test
   public void testCheckAndMutateRow() {
-    createRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.checkAndMutateRow(
-        ConditionalRowMutation.create("table", "key")
-            .condition(Filters.FILTERS.value().regex("old-value"))
-            .then(Mutation.create().setCell("cf", "q", "v")));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () ->
+            client.checkAndMutateRow(
+                ConditionalRowMutation.create("table", "key")
+                    .condition(Filters.FILTERS.value().regex("old-value"))
+                    .then(Mutation.create().setCell("cf", "q", "v"))),
+        true);
   }
 
   @Test
@@ -378,7 +238,7 @@ public class RetryInfoTest {
     settings.stubSettings().setEnableRetryInfo(false);
 
     try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
       try {
         client.checkAndMutateRow(
             ConditionalRowMutation.create("table", "key")
@@ -393,14 +253,12 @@ public class RetryInfoTest {
 
   @Test
   public void testReadModifyWrite() {
-    createRetryableExceptionWithDelay(delay);
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readModifyWriteRow(ReadModifyWriteRow.create("table", "row").append("cf", "q", "v"));
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () ->
+            client.readModifyWriteRow(
+                ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
+        true);
   }
 
   @Test
@@ -408,7 +266,7 @@ public class RetryInfoTest {
     settings.stubSettings().setEnableRetryInfo(false);
 
     try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
       try {
         client.readModifyWriteRow(ReadModifyWriteRow.create("table", "row").append("cf", "q", "v"));
       } catch (ApiException e) {
@@ -420,101 +278,100 @@ public class RetryInfoTest {
 
   @Test
   public void testReadChangeStream() {
-    createRetryableExceptionWithDelay(delay);
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
+        true);
   }
 
   @Test
   public void testReadChangeStreamNonRetryableErrorWithRetryInfo() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
+        false);
   }
 
   @Test
   public void testReadChangeStreamDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
-    try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
-      Stopwatch stopwatch = Stopwatch.createStarted();
-      client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
-      stopwatch.stop();
-
-      assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
-
-      attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
-      try {
-        client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext();
-      } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
-      assertThat(attemptCounter.get()).isEqualTo(1);
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(
+          () ->
+              newClient
+                  .readChangeStream(ReadChangeStreamQuery.create("table"))
+                  .iterator()
+                  .hasNext());
     }
   }
 
   @Test
   public void testGenerateInitialChangeStreamPartition() {
-    createRetryableExceptionWithDelay(delay);
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
   }
 
   @Test
   public void testGenerateInitialChangeStreamPartitionNonRetryableError() {
-    createNonRetryableExceptionWithDelay(delay);
-
-    Stopwatch stopwatch = Stopwatch.createStarted();
-    client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
-    stopwatch.stop();
-
-    assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(java.time.Duration.ofSeconds(delay.getSeconds()));
+    verifyRetryInfoIsUsed(
+        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), false);
   }
 
   @Test
   public void testGenerateInitialChangeStreamPartitionDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(
+          () -> newClient.generateInitialChangeStreamPartitions("table").iterator().hasNext());
+    }
+  }
+
+  private void verifyRetryInfoIsUsed(Runnable runnable, boolean retryableError) {
+    if (retryableError) {
+      enqueueRetryableExceptionWithDelay(delay);
+    } else {
+      enqueueNonRetryableExceptionWithDelay(delay);
+    }
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    runnable.run();
+    stopwatch.stop();
+
+    assertThat(attemptCounter.get()).isEqualTo(2);
+    assertThat(stopwatch.elapsed()).isAtLeast(Duration.ofSeconds(delay.getSeconds()));
+  }
+
+  private void verifyRetryInfoCanBeDisabled(Runnable runnable) throws IOException {
+    settings.stubSettings().setEnableRetryInfo(false);
+
     try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      createRetryableExceptionWithDelay(delay);
+      enqueueRetryableExceptionWithDelay(delay);
       Stopwatch stopwatch = Stopwatch.createStarted();
-      client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+      runnable.run();
       stopwatch.stop();
 
       assertThat(attemptCounter.get()).isEqualTo(2);
-      assertThat(stopwatch.elapsed()).isLessThan(java.time.Duration.ofSeconds(delay.getSeconds()));
+      assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(delay.getSeconds()));
 
       attemptCounter.set(0);
-      ApiException exception = createNonRetryableExceptionWithDelay(delay);
+      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
       try {
-        client.generateInitialChangeStreamPartitions("table").iterator().hasNext();
+        runnable.run();
       } catch (ApiException e) {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+        if (e instanceof MutateRowsException) {
+          assertThat(
+                  ((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
+              .isEqualTo(exception.getStatusCode());
+        } else {
+          assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
+        }
       }
       assertThat(attemptCounter.get()).isEqualTo(1);
     }
   }
 
-  private void createRetryableExceptionWithDelay(Duration delay) {
+  private void enqueueRetryableExceptionWithDelay(com.google.protobuf.Duration delay) {
     Metadata trailers = new Metadata();
     RetryInfo retryInfo = RetryInfo.newBuilder().setRetryDelay(delay).build();
     trailers.put(RETRY_INFO_KEY, retryInfo);
@@ -528,12 +385,9 @@ public class RetryInfoTest {
     service.expectations.add(exception);
   }
 
-  private ApiException createNonRetryableExceptionWithDelay(Duration delay) {
+  private ApiException enqueueNonRetryableExceptionWithDelay(com.google.protobuf.Duration delay) {
     Metadata trailers = new Metadata();
-    RetryInfo retryInfo =
-        RetryInfo.newBuilder()
-            .setRetryDelay(Duration.newBuilder().setSeconds(1).setNanos(0).build())
-            .build();
+    RetryInfo retryInfo = RetryInfo.newBuilder().setRetryDelay(delay).build();
     trailers.put(RETRY_INFO_KEY, retryInfo);
 
     ApiException exception =

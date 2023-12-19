@@ -28,6 +28,7 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
@@ -763,17 +764,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(convertException);
 
-    RetryAlgorithm<Void> retryAlgorithm;
-    ExponentialRetryAlgorithm exponentialRetryAlgorithm =
-        new ExponentialRetryAlgorithm(
-            settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock());
+    BasicResultRetryAlgorithm<Void> resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
-      retryAlgorithm =
-          new RetryAlgorithm<>(new RetryInfoRetryAlgorithm<>(), exponentialRetryAlgorithm);
+      resultRetryAlgorithm = new RetryInfoRetryAlgorithm<>();
     } else {
-      retryAlgorithm =
-          new RetryAlgorithm<>(new ApiResultRetryAlgorithm<>(), exponentialRetryAlgorithm);
+      resultRetryAlgorithm = new ApiResultRetryAlgorithm<>();
     }
+
+    RetryAlgorithm<Void> retryAlgorithm =
+        new RetryAlgorithm<>(
+            resultRetryAlgorithm,
+            new ExponentialRetryAlgorithm(
+                settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
 
     RetryingExecutorWithContext<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());

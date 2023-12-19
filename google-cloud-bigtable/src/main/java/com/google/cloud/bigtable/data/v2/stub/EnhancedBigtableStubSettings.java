@@ -331,6 +331,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
    * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on server
    * returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
    */
+  @BetaApi("RetryInfo is not currently stable and may change in the future")
   public boolean getEnableRetryInfo() {
     return enableRetryInfo;
   }
@@ -932,15 +933,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * Sets if RetryInfo is enabled. If true, client bases retry decision and back off time on
-     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
-     */
-    public Builder setEnableRetryInfo(boolean enableRetryInfo) {
-      this.enableRetryInfo = enableRetryInfo;
-      return this;
-    }
-
-    /**
      * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
      * server sent back.
      */
@@ -950,9 +942,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
+     * Sets if RetryInfo is enabled. If true, client bases retry decision and back off time on
+     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     */
+    @BetaApi("RetryInfo is not currently stable and may change in the future")
+    public Builder setEnableRetryInfo(boolean enableRetryInfo) {
+      this.enableRetryInfo = enableRetryInfo;
+      return this;
+    }
+
+    /**
      * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on
      * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
      */
+    @BetaApi("RetryInfo is not currently stable and may change in the future")
     public boolean getEnableRetryInfo() {
       return enableRetryInfo;
     }

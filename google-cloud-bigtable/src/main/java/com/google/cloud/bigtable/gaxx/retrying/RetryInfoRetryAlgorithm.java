@@ -26,6 +26,7 @@ import com.google.rpc.RetryInfo;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.protobuf.ProtoUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.threeten.bp.Duration;
 
 // TODO move this algorithm to gax
@@ -57,13 +58,7 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
   /** Returns true if previousThrowable is an {@link ApiException} that is retryable. */
   @Override
   public boolean shouldRetry(Throwable previousThrowable, ResponseT previousResponse) {
-    if (extractRetryDelay(previousThrowable) != null) {
-      // First check if server wants us to retry
-      return true;
-    }
-    // Server didn't have retry information, use the local status code config.
-    return (previousThrowable instanceof ApiException
-        && ((ApiException) previousThrowable).isRetryable());
+    return shouldRetry(null, previousThrowable, previousResponse);
   }
 
   /**
@@ -74,12 +69,12 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
    */
   @Override
   public boolean shouldRetry(
-      RetryingContext context, Throwable previousThrowable, ResponseT previousResponse) {
+      @Nullable RetryingContext context, Throwable previousThrowable, ResponseT previousResponse) {
     if (extractRetryDelay(previousThrowable) != null) {
       // First check if server wants us to retry
       return true;
     }
-    if (context.getRetryableCodes() != null) {
+    if (context != null && context.getRetryableCodes() != null) {
       // Ignore the isRetryable() value of the throwable if the RetryingContext has a specific list
       // of codes that should be retried.
       return ((previousThrowable instanceof ApiException)
@@ -87,10 +82,14 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
               .getRetryableCodes()
               .contains(((ApiException) previousThrowable).getStatusCode().getCode()));
     }
-    return shouldRetry(previousThrowable, previousResponse);
+    // Server didn't have retry information and there's no retry context, use the local status
+    // code config.
+    return previousThrowable instanceof ApiException
+        && ((ApiException) previousThrowable).isRetryable();
   }
 
-  static Duration extractRetryDelay(Throwable throwable) {
+  @Nullable
+  static Duration extractRetryDelay(@Nullable Throwable throwable) {
     if (throwable == null) {
       return null;
     }
