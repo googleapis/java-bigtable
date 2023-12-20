@@ -22,3 +22,4 @@ jobs:
       uses: googleapis/sdk-platform-java@feat/unmanaged-dependency-check
       with:
         bom-path: google-cloud-bigtable-bom/pom.xml
+      working-directory: java-shared-dependencies/unmanaged-dependency-check
