@@ -11,6 +11,7 @@ jobs:
         distribution: temurin
         java-version: 11
     - name: Install modules
+      shell: bash
       run: |
         mvn -B -V -ntp -DskipTests=true \
         -Dclirr.skip=true \
