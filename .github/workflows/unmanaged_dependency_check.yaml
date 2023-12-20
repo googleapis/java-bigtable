@@ -11,13 +11,14 @@ jobs:
         distribution: temurin
         java-version: 11
     - name: Install modules
-      run: mvn install -B -V -ntp \
-            -DskipTests=true \
-            -Dclirr.skip=true \
-            -Denforcer.skip=true \
-            -Dmaven.javadoc.skip=true \
-            -Dgcloud.download.skip=true \
-            -T 1C
+      run: |
+        mvn -B -V -ntp -DskipTests=true \
+        -Dclirr.skip=true \
+        -Denforcer.skip=true \
+        -Dmaven.javadoc.skip=true \
+        -Dgcloud.download.skip=true \
+        -T 1C \
+        clean install
     - name: Unmanaged dependency check
       uses: googleapis/sdk-platform-java/java-shared-dependencies/unmanaged-dependency-check@feat/unmanaged-dependency-check
       with:
