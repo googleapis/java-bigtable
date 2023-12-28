@@ -958,16 +958,6 @@ public class EnhancedBigtableStubSettingsTest {
             .setRefreshingChannel(true)
             .setCredentialsProvider(credentialsProvider);
     assertThat(builder.isRefreshingChannel()).isTrue();
-    // Verify that isRefreshing setting is not lost and stubSettings will always return the same
-    // credential
-    EnhancedBigtableStubSettings stubSettings = builder.build();
-    assertThat(stubSettings.isRefreshingChannel()).isTrue();
-    assertThat(stubSettings.getCredentialsProvider()).isInstanceOf(FixedCredentialsProvider.class);
-    assertThat(stubSettings.getCredentialsProvider().getCredentials())
-        .isEqualTo(expectedCredentials);
-    assertThat(stubSettings.toBuilder().isRefreshingChannel()).isTrue();
-    assertThat(stubSettings.toBuilder().getCredentialsProvider().getCredentials())
-        .isEqualTo(expectedCredentials);
   }
 
   private static class FakeCredentials extends Credentials {

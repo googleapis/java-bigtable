@@ -1023,26 +1023,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
       Preconditions.checkState(instanceId != null, "Instance id must be set");
-      if (isRefreshingChannel) {
-        Preconditions.checkArgument(
-            getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,
-            "refreshingChannel only works with InstantiatingGrpcChannelProviders");
-        InstantiatingGrpcChannelProvider.Builder channelProviderBuilder =
-            ((InstantiatingGrpcChannelProvider) getTransportChannelProvider()).toBuilder();
-        Credentials credentials = null;
-        if (getCredentialsProvider() != null) {
-          try {
-            credentials = getCredentialsProvider().getCredentials();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        }
-        // Use shared credentials
-        this.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-        channelProviderBuilder.setChannelPrimer(
-            BigtableChannelPrimer.create(credentials, projectId, instanceId, appProfileId));
-        this.setTransportChannelProvider(channelProviderBuilder.build());
-      }
 
       if (this.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
         // only set mutate rows feature flag when this feature is enabled

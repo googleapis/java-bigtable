@@ -121,7 +121,7 @@ public class MetricsTracerTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
+        EnhancedBigtableStub.injectTracer(
             settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
   }

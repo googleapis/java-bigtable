@@ -172,14 +172,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
-    settings = finalizeSettings(settings, Tags.getTagger(), Stats.getStatsRecorder());
+
+    settings = finalizeTransportSettings(settings);
+    settings = injectTracer(settings, Tags.getTagger(), Stats.getStatsRecorder());
 
     return new EnhancedBigtableStub(settings, ClientContext.create(settings));
   }
 
-  public static EnhancedBigtableStubSettings finalizeSettings(
-      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
-      throws IOException {
+  public static EnhancedBigtableStubSettings finalizeTransportSettings(EnhancedBigtableStubSettings settings)
+          throws IOException{
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
@@ -189,9 +190,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     patchCredentials(builder);
 
     InstantiatingGrpcChannelProvider.Builder transportProvider =
-        builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
-            ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
-            : null;
+            builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
+                    ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
+                    : null;
 
     if (builder.getEnableRoutingCookie() && transportProvider != null) {
       // TODO: this also need to be added to BigtableClientFactory
@@ -210,17 +211,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
       if (transportProvider != null) {
         transportProvider.setChannelPrimer(
-            BigtableChannelPrimer.create(
-                credentials,
-                settings.getProjectId(),
-                settings.getInstanceId(),
-                settings.getAppProfileId()));
+                BigtableChannelPrimer.create(
+                        credentials,
+                        settings.getProjectId(),
+                        settings.getInstanceId(),
+                        settings.getAppProfileId()));
       }
     }
 
     if (transportProvider != null) {
       builder.setTransportChannelProvider(transportProvider.build());
     }
+
+    return builder.build();
+  }
+
+  public static EnhancedBigtableStubSettings injectTracer(
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
+      throws IOException {
+    EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     ImmutableMap<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
