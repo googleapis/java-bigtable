@@ -23,6 +23,7 @@ import com.google.api.gax.retrying.RetryingFuture;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ApiExceptionFactory;
+import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -250,7 +251,12 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
-    throw new MutateRowsException(rpcError, allFailures.build(), entryError.isRetryable());
+    ErrorDetails errorDetails = null;
+    if (rpcError instanceof ApiException) {
+      errorDetails = ((ApiException) rpcError).getErrorDetails();
+    }
+    throw new MutateRowsException(
+        rpcError, allFailures.build(), entryError.isRetryable(), errorDetails);
   }
 
   /**
@@ -268,6 +274,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     List<Integer> newOriginalIndexes = Lists.newArrayList();
     boolean[] seenIndices = new boolean[currentRequest.getEntriesCount()];
 
+    ErrorDetails errorDetails = null;
+
     for (MutateRowsResponse response : responses) {
       for (Entry entry : response.getEntriesList()) {
         seenIndices[Ints.checkedCast(entry.getIndex())] = true;
@@ -283,13 +291,15 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
         allFailures.add(failedMutation);
 
-        if (!failedMutation.getError().isRetryable()) {
+        if (!ApiExceptions.isRetryable2(failedMutation.getError())
+            && !failedMutation.getError().isRetryable()) {
           permanentFailures.add(failedMutation);
         } else {
           // Schedule the mutation entry for the next RPC by adding it to the request builder and
           // recording it's original index
           newOriginalIndexes.add(origIndex);
           builder.addEntries(lastRequest.getEntries((int) entry.getIndex()));
+          errorDetails = failedMutation.getError().getErrorDetails();
         }
       }
     }
@@ -319,7 +329,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      throw new MutateRowsException(null, allFailures, isRetryable);
+      throw new MutateRowsException(null, allFailures, isRetryable, errorDetails);
     }
   }
 
@@ -338,10 +348,14 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     StatusCode gaxStatusCode = GrpcStatusCode.of(grpcStatus.getCode());
 
+    ErrorDetails errorDetails =
+        ErrorDetails.builder().setRawErrorMessages(protoStatus.getDetailsList()).build();
+
     return ApiExceptionFactory.createException(
         grpcStatus.asRuntimeException(),
         gaxStatusCode,
-        retryableCodes.contains(gaxStatusCode.getCode()));
+        retryableCodes.contains(gaxStatusCode.getCode()),
+        errorDetails);
   }
 
   /**
@@ -354,10 +368,10 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       ApiException requestApiException = (ApiException) overallRequestError;
 
       return ApiExceptionFactory.createException(
-          "Didn't receive a result for this mutation entry",
           overallRequestError,
           requestApiException.getStatusCode(),
-          requestApiException.isRetryable());
+          requestApiException.isRetryable(),
+          requestApiException.getErrorDetails());
     }
 
     return ApiExceptionFactory.createException(

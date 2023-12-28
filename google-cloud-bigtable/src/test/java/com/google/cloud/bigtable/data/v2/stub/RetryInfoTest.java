@@ -15,13 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm.RETRY_INFO_KEY;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
@@ -55,7 +55,9 @@ import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
+import com.google.protobuf.Any;
 import com.google.rpc.RetryInfo;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -76,6 +78,9 @@ import org.junit.runners.JUnit4;
 public class RetryInfoTest {
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
+
+  private static final Metadata.Key<byte[]> ERROR_DETAILS_KEY =
+      Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   private FakeBigtableService service;
   private BigtableDataClient client;
@@ -165,6 +170,42 @@ public class RetryInfoTest {
                 BulkMutation.create("fake-table")
                     .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
         false);
+  }
+
+  @Test
+  public void testMutateRowsPartialFailure() {
+    service.partial = true;
+
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create("fake-table")
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        true);
+  }
+
+  @Test
+  public void testMutateRowsPartialFailureNonRetryableError() {
+    service.partial = true;
+
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create("fake-table")
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        false);
+  }
+
+  // TODO: add this test back
+  //  @Test
+  public void testMutateRowsPartialFailureCanBeDisabled() {
+    service.partial = true;
+
+    verifyRetryInfoCanBeDisabled(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create("fake-table")
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))));
   }
 
   @Test
@@ -366,13 +407,18 @@ public class RetryInfoTest {
   private void enqueueRetryableExceptionWithDelay(com.google.protobuf.Duration delay) {
     Metadata trailers = new Metadata();
     RetryInfo retryInfo = RetryInfo.newBuilder().setRetryDelay(delay).build();
-    trailers.put(RETRY_INFO_KEY, retryInfo);
+    ErrorDetails errorDetails =
+        ErrorDetails.builder().setRawErrorMessages(ImmutableList.of(Any.pack(retryInfo))).build();
+    byte[] status =
+        com.google.rpc.Status.newBuilder().addDetails(Any.pack(retryInfo)).build().toByteArray();
+    trailers.put(ERROR_DETAILS_KEY, status);
 
     ApiException exception =
         new UnavailableException(
             new StatusRuntimeException(Status.UNAVAILABLE, trailers),
             GrpcStatusCode.of(Status.Code.UNAVAILABLE),
-            true);
+            true,
+            errorDetails);
 
     service.expectations.add(exception);
   }
@@ -380,13 +426,18 @@ public class RetryInfoTest {
   private ApiException enqueueNonRetryableExceptionWithDelay(com.google.protobuf.Duration delay) {
     Metadata trailers = new Metadata();
     RetryInfo retryInfo = RetryInfo.newBuilder().setRetryDelay(delay).build();
-    trailers.put(RETRY_INFO_KEY, retryInfo);
+    ErrorDetails errorDetails =
+        ErrorDetails.builder().setRawErrorMessages(ImmutableList.of(Any.pack(retryInfo))).build();
+    byte[] status =
+        com.google.rpc.Status.newBuilder().addDetails(Any.pack(retryInfo)).build().toByteArray();
+    trailers.put(ERROR_DETAILS_KEY, status);
 
     ApiException exception =
         new InternalException(
             new StatusRuntimeException(Status.INTERNAL, trailers),
             GrpcStatusCode.of(Status.Code.INTERNAL),
-            false);
+            false,
+            errorDetails);
 
     service.expectations.add(exception);
 
@@ -395,6 +446,7 @@ public class RetryInfoTest {
 
   private class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> expectations = Queues.newArrayDeque();
+    boolean partial = false;
 
     @Override
     public void readRows(
@@ -434,8 +486,26 @@ public class RetryInfoTest {
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
       } else {
-        Exception expectedRpc = expectations.poll();
-        responseObserver.onError(expectedRpc);
+        if (partial) {
+          ApiException expectedRpc = (ApiException) expectations.poll();
+          MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
+          builder.addEntries(
+              0,
+              MutateRowsResponse.Entry.newBuilder()
+                  .setStatus(
+                      com.google.rpc.Status.newBuilder()
+                          .setCode(expectedRpc.getStatusCode().getCode().getHttpStatusCode())
+                          .addDetails(Any.pack(expectedRpc.getErrorDetails().getRetryInfo())))
+                  .build());
+          for (int i = 1; i < request.getEntriesCount(); i++) {
+            builder.addEntriesBuilder().setIndex(i);
+          }
+          responseObserver.onNext(builder.build());
+          responseObserver.onCompleted();
+        } else {
+          Exception expectedRpc = expectations.poll();
+          responseObserver.onError(expectedRpc);
+        }
       }
     }
 

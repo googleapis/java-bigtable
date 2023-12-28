@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -56,11 +57,28 @@ public final class MutateRowsException extends ApiException {
   public MutateRowsException(
       @Nullable Throwable rpcError,
       @Nonnull List<FailedMutation> failedMutations,
-      boolean retryable) {
-    super("Some mutations failed to apply", rpcError, LOCAL_STATUS, retryable);
+      boolean retryable,
+      @Nullable ErrorDetails errorDetails) {
+    super(
+        new Throwable("Some mutations failed to apply", rpcError),
+        LOCAL_STATUS,
+        retryable,
+        errorDetails);
     Preconditions.checkNotNull(failedMutations);
     Preconditions.checkArgument(!failedMutations.isEmpty(), "failedMutations can't be empty");
     this.failedMutations = failedMutations;
+  }
+
+  /**
+   * This constructor is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  public MutateRowsException(
+      @Nullable Throwable rpcError,
+      @Nonnull List<FailedMutation> failedMutations,
+      boolean retryable) {
+    this(rpcError, failedMutations, retryable, null);
   }
 
   /**

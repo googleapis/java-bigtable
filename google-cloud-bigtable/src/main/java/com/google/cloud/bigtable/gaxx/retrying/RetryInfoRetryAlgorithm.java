@@ -24,7 +24,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
 import io.grpc.Metadata;
-import io.grpc.Status;
 import io.grpc.protobuf.ProtoUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.threeten.bp.Duration;
@@ -93,17 +92,17 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
     if (throwable == null) {
       return null;
     }
-    Metadata trailers = Status.trailersFromThrowable(throwable);
-    if (trailers == null) {
+    if (!(throwable instanceof ApiException)) {
       return null;
     }
-    RetryInfo retryInfo = trailers.get(RETRY_INFO_KEY);
-    if (retryInfo == null) {
+    ApiException exception = (ApiException) throwable;
+    if (exception.getErrorDetails() == null) {
       return null;
     }
-    if (!retryInfo.hasRetryDelay()) {
+    if (exception.getErrorDetails().getRetryInfo() == null) {
       return null;
     }
+    RetryInfo retryInfo = exception.getErrorDetails().getRetryInfo();
     return Duration.ofMillis(Durations.toMillis(retryInfo.getRetryDelay()));
   }
 }
