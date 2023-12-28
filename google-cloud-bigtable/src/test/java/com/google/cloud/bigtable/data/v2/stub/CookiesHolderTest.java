@@ -560,8 +560,8 @@ public class CookiesHolderTest {
   @Test
   public void testCookieSetWithBigtableClientFactory() throws Exception {
     try (BigtableDataClientFactory factory = BigtableDataClientFactory.create(settings.build())) {
-       BigtableDataClient client1 = factory.createDefault();
-       BigtableDataClient client2 = factory.createForAppProfile("app-profile");
+      BigtableDataClient client1 = factory.createDefault();
+      BigtableDataClient client2 = factory.createForAppProfile("app-profile");
 
       client1.readRows(Query.create("fake-table")).iterator().hasNext();
 
@@ -571,13 +571,13 @@ public class CookiesHolderTest {
       Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
       assertThat(lastMetadata)
-              .containsAtLeast(
-                      ROUTING_COOKIE_1.name(),
-                      "readRows",
-                      ROUTING_COOKIE_2.name(),
-                      testCookie,
-                      ROUTING_COOKIE_HEADER.name(),
-                      testHeaderCookie);
+          .containsAtLeast(
+              ROUTING_COOKIE_1.name(),
+              "readRows",
+              ROUTING_COOKIE_2.name(),
+              testCookie,
+              ROUTING_COOKIE_HEADER.name(),
+              testHeaderCookie);
       assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
       // Reset fake service status
@@ -592,13 +592,13 @@ public class CookiesHolderTest {
       lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
       assertThat(lastMetadata)
-              .containsAtLeast(
-                      ROUTING_COOKIE_1.name(),
-                      "readRows",
-                      ROUTING_COOKIE_2.name(),
-                      testCookie,
-                      ROUTING_COOKIE_HEADER.name(),
-                      testHeaderCookie);
+          .containsAtLeast(
+              ROUTING_COOKIE_1.name(),
+              "readRows",
+              ROUTING_COOKIE_2.name(),
+              testCookie,
+              ROUTING_COOKIE_HEADER.name(),
+              testHeaderCookie);
       assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
 
       serverMetadata.clear();
