@@ -49,6 +49,7 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
           .toBuilder()
           .setRandomizedRetryDelay(retryDelay)
           .setAttemptCount(prevSettings.getAttemptCount() + 1)
+          .setOverallAttemptCount(prevSettings.getAttemptCount() + 1)
           .build();
     }
     return null;
