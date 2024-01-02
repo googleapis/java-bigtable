@@ -1050,6 +1050,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         featureFlags.setMutateRowsRateLimit2(true);
       }
 
+      if (this.getEnableRoutingCookie()) {
+        featureFlags.setRoutingCookie(true);
+      }
+
+      if (this.getEnableRetryInfo()) {
+        featureFlags.setRetryInfo(true);
+      }
+
       // Serialize the web64 encode the bigtable feature flags
       ByteArrayOutputStream boas = new ByteArrayOutputStream();
       try {
