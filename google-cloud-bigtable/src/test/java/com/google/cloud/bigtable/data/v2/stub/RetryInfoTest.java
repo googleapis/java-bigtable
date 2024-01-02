@@ -196,16 +196,18 @@ public class RetryInfoTest {
         false);
   }
 
-  // TODO: add this test back
-  //  @Test
-  public void testMutateRowsPartialFailureCanBeDisabled() {
+  @Test
+  public void testMutateRowsPartialFailureDisableRetryInfo() throws IOException {
     service.partial = true;
+    settings.stubSettings().setEnableRetryInfo(false);
 
-    verifyRetryInfoCanBeDisabled(
-        () ->
-            client.bulkMutateRows(
-                BulkMutation.create("fake-table")
-                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))));
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      verifyRetryInfoCanBeDisabled(
+          () ->
+              newClient.bulkMutateRows(
+                  BulkMutation.create("fake-table")
+                      .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))));
+    }
   }
 
   @Test
@@ -494,7 +496,9 @@ public class RetryInfoTest {
               MutateRowsResponse.Entry.newBuilder()
                   .setStatus(
                       com.google.rpc.Status.newBuilder()
-                          .setCode(expectedRpc.getStatusCode().getCode().getHttpStatusCode())
+                          .setCode(
+                              Status.Code.valueOf(expectedRpc.getStatusCode().getCode().name())
+                                  .value())
                           .addDetails(Any.pack(expectedRpc.getErrorDetails().getRetryInfo())))
                   .build());
           for (int i = 1; i < request.getEntriesCount(); i++) {

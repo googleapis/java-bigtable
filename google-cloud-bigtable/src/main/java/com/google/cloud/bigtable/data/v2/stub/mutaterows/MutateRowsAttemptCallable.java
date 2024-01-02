@@ -19,7 +19,9 @@ import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingFuture;
+import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ApiExceptionFactory;
@@ -32,7 +34,6 @@ import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.MutateRowsResponse.Entry;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
-import com.google.cloud.bigtable.gaxx.retrying.ApiExceptions;
 import com.google.cloud.bigtable.gaxx.retrying.NonCancellableFuture;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -112,6 +113,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
   @Nullable private List<Integer> originalIndexes;
   @Nonnull private final Set<StatusCode.Code> retryableCodes;
   @Nullable private final List<FailedMutation> permanentFailures;
+  @Nonnull private final RetryAlgorithm retryAlgorithm;
+  @Nonnull private final TimedAttemptSettings attemptSettings;
 
   // Parent controller
   private RetryingFuture<Void> externalFuture;
@@ -139,11 +142,14 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       @Nonnull UnaryCallable<MutateRowsRequest, List<MutateRowsResponse>> innerCallable,
       @Nonnull MutateRowsRequest originalRequest,
       @Nonnull ApiCallContext callContext,
-      @Nonnull Set<StatusCode.Code> retryableCodes) {
+      @Nonnull Set<StatusCode.Code> retryableCodes,
+      @Nonnull RetryAlgorithm<MutateRowsRequest> retryAlgorithm) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "innerCallable");
     this.currentRequest = Preconditions.checkNotNull(originalRequest, "currentRequest");
     this.callContext = Preconditions.checkNotNull(callContext, "callContext");
     this.retryableCodes = Preconditions.checkNotNull(retryableCodes, "retryableCodes");
+    this.retryAlgorithm = retryAlgorithm;
+    this.attemptSettings = retryAlgorithm.createFirstAttempt();
 
     permanentFailures = Lists.newArrayList();
   }
@@ -237,8 +243,9 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      if (!ApiExceptions.isRetryable2(failedMutation.getError())
-          && !failedMutation.getError().isRetryable()) {
+      TimedAttemptSettings nextAttemptSettings =
+          retryAlgorithm.createNextAttempt(null, failedMutation.getError(), null, attemptSettings);
+      if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, nextAttemptSettings)) {
         permanentFailures.add(failedMutation);
       } else {
         // Schedule the mutation entry for the next RPC by adding it to the request builder and
@@ -291,8 +298,11 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
         allFailures.add(failedMutation);
 
-        if (!ApiExceptions.isRetryable2(failedMutation.getError())
-            && !failedMutation.getError().isRetryable()) {
+        TimedAttemptSettings nextAttemptSettings =
+            retryAlgorithm.createNextAttempt(
+                null, failedMutation.getError(), null, attemptSettings);
+        if (!retryAlgorithm.shouldRetry(
+            null, failedMutation.getError(), null, nextAttemptSettings)) {
           permanentFailures.add(failedMutation);
         } else {
           // Schedule the mutation entry for the next RPC by adding it to the request builder and
