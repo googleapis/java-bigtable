@@ -25,6 +25,8 @@ import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.FixedWatchdogProvider;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import io.opencensus.stats.Stats;
+import io.opencensus.tags.Tags;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
@@ -79,9 +81,10 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    */
   public static BigtableDataClientFactory create(BigtableDataSettings defaultSettings)
       throws IOException {
-    EnhancedBigtableStubSettings settings =
-        EnhancedBigtableStub.finalizeTransportSettings(defaultSettings.getStubSettings());
-    ClientContext sharedClientContext = ClientContext.create(settings);
+    EnhancedBigtableStubSettings stubSettings =
+        EnhancedBigtableStub.injectTracer(
+            defaultSettings.getStubSettings(), Tags.getTagger(), Stats.getStatsRecorder());
+    ClientContext sharedClientContext = EnhancedBigtableStub.createClientContext(stubSettings);
     return new BigtableDataClientFactory(sharedClientContext, defaultSettings);
   }
 

@@ -173,14 +173,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
 
-    settings = finalizeTransportSettings(settings);
     settings = injectTracer(settings, Tags.getTagger(), Stats.getStatsRecorder());
+    ClientContext clientContext = createClientContext(settings);
 
-    return new EnhancedBigtableStub(settings, ClientContext.create(settings));
+    return new EnhancedBigtableStub(settings, clientContext);
   }
 
-  public static EnhancedBigtableStubSettings finalizeTransportSettings(
-      EnhancedBigtableStubSettings settings) throws IOException {
+  public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
+      throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
@@ -223,12 +223,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       builder.setTransportChannelProvider(transportProvider.build());
     }
 
-    return builder.build();
+    return ClientContext.create(builder.build());
   }
 
   public static EnhancedBigtableStubSettings injectTracer(
-      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
-      throws IOException {
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     ImmutableMap<TagKey, TagValue> attributes =
