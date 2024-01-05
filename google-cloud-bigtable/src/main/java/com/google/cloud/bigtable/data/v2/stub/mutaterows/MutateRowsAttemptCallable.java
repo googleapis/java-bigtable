@@ -112,8 +112,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
   @Nullable private List<Integer> originalIndexes;
   @Nonnull private final Set<StatusCode.Code> retryableCodes;
   @Nullable private final List<FailedMutation> permanentFailures;
-  @Nonnull private final RetryAlgorithm retryAlgorithm;
-  @Nonnull private final TimedAttemptSettings attemptSettings;
+  @Nonnull private final RetryAlgorithm<MutateRowsRequest> retryAlgorithm;
+  @Nonnull private TimedAttemptSettings attemptSettings;
 
   // Parent controller
   private RetryingFuture<Void> externalFuture;
@@ -236,14 +236,15 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
 
+    TimedAttemptSettings nextAttemptSettings =
+        retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
+
     for (int i = 0; i < currentRequest.getEntriesCount(); i++) {
       int origIndex = getOriginalIndex(i);
 
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      TimedAttemptSettings nextAttemptSettings =
-          retryAlgorithm.createNextAttempt(null, failedMutation.getError(), null, attemptSettings);
       if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, nextAttemptSettings)) {
         permanentFailures.add(failedMutation);
       } else {
@@ -256,6 +257,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
+    attemptSettings = nextAttemptSettings;
 
     throw MutateRowsException.create(rpcError, allFailures.build(), builder.getEntriesCount() > 0);
   }
@@ -290,11 +292,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
         allFailures.add(failedMutation);
 
-        TimedAttemptSettings nextAttemptSettings =
-            retryAlgorithm.createNextAttempt(
-                null, failedMutation.getError(), null, attemptSettings);
-        if (!retryAlgorithm.shouldRetry(
-            null, failedMutation.getError(), null, nextAttemptSettings)) {
+        if (!failedMutation.getError().isRetryable()) {
           permanentFailures.add(failedMutation);
         } else {
           // Schedule the mutation entry for the next RPC by adding it to the request builder and

@@ -71,14 +71,17 @@ public final class MutateRowsException extends ApiException {
       @Nonnull List<FailedMutation> failedMutations,
       boolean retryable,
       @Nullable ErrorDetails errorDetails) {
-    super(
-        new Throwable("Some mutations failed to apply", rpcError),
-        LOCAL_STATUS,
-        retryable,
-        errorDetails);
+    super(rpcError, LOCAL_STATUS, retryable, errorDetails);
     Preconditions.checkNotNull(failedMutations);
     Preconditions.checkArgument(!failedMutations.isEmpty(), "failedMutations can't be empty");
     this.failedMutations = failedMutations;
+  }
+
+  // TODO: remove this after we add a ctor in gax to pass in a Throwable, a message and error
+  // details.
+  @Override
+  public String getMessage() {
+    return "Some mutations failed to apply";
   }
 
   /**
