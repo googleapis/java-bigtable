@@ -258,12 +258,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
-    ErrorDetails errorDetails = null;
-    if (rpcError instanceof ApiException) {
-      errorDetails = ((ApiException) rpcError).getErrorDetails();
-    }
-    throw new MutateRowsException(
-        rpcError, allFailures.build(), builder.getEntriesCount() > 0, errorDetails);
+    throw MutateRowsException.create(rpcError, allFailures.build(), builder.getEntriesCount() > 0);
   }
 
   /**
@@ -271,7 +266,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
    * transient failures are found, their corresponding mutations are scheduled for the next RPC. The
    * caller is notified of both new found errors and pre-existing permanent errors in the thrown
    * {@link MutateRowsException}. If no errors exist, then the attempt future is successfully
-   * completed.
+   * completed. We don't currently handle RetryInfo on entry level failures.
    */
   private void handleAttemptSuccess(List<MutateRowsResponse> responses) {
     List<FailedMutation> allFailures = Lists.newArrayList(permanentFailures);
@@ -280,8 +275,6 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
     boolean[] seenIndices = new boolean[currentRequest.getEntriesCount()];
-
-    ErrorDetails errorDetails = null;
 
     for (MutateRowsResponse response : responses) {
       for (Entry entry : response.getEntriesList()) {
@@ -309,7 +302,6 @@ class MutateRowsAttemptCallable implements Callable<Void> {
           // recording it's original index
           newOriginalIndexes.add(origIndex);
           builder.addEntries(lastRequest.getEntries((int) entry.getIndex()));
-          errorDetails = failedMutation.getError().getErrorDetails();
         }
       }
     }
@@ -339,7 +331,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      throw new MutateRowsException(null, allFailures, isRetryable, errorDetails);
+      throw MutateRowsException.create(null, allFailures, isRetryable);
     }
   }
 

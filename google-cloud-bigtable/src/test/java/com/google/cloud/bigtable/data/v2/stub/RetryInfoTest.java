@@ -173,44 +173,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testMutateRowsPartialFailure() {
-    service.partial = true;
-
-    verifyRetryInfoIsUsed(
-        () ->
-            client.bulkMutateRows(
-                BulkMutation.create("fake-table")
-                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
-        true);
-  }
-
-  @Test
-  public void testMutateRowsPartialFailureNonRetryableError() {
-    service.partial = true;
-
-    verifyRetryInfoIsUsed(
-        () ->
-            client.bulkMutateRows(
-                BulkMutation.create("fake-table")
-                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
-        false);
-  }
-
-  @Test
-  public void testMutateRowsPartialFailureDisableRetryInfo() throws IOException {
-    service.partial = true;
-    settings.stubSettings().setEnableRetryInfo(false);
-
-    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
-      verifyRetryInfoCanBeDisabled(
-          () ->
-              newClient.bulkMutateRows(
-                  BulkMutation.create("fake-table")
-                      .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))));
-    }
-  }
-
-  @Test
   public void testMutateRowsDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
@@ -448,7 +410,6 @@ public class RetryInfoTest {
 
   private class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> expectations = Queues.newArrayDeque();
-    boolean partial = false;
 
     @Override
     public void readRows(
@@ -488,28 +449,8 @@ public class RetryInfoTest {
         responseObserver.onNext(builder.build());
         responseObserver.onCompleted();
       } else {
-        if (partial) {
-          ApiException expectedRpc = (ApiException) expectations.poll();
-          MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
-          builder.addEntries(
-              0,
-              MutateRowsResponse.Entry.newBuilder()
-                  .setStatus(
-                      com.google.rpc.Status.newBuilder()
-                          .setCode(
-                              Status.Code.valueOf(expectedRpc.getStatusCode().getCode().name())
-                                  .value())
-                          .addDetails(Any.pack(expectedRpc.getErrorDetails().getRetryInfo())))
-                  .build());
-          for (int i = 1; i < request.getEntriesCount(); i++) {
-            builder.addEntriesBuilder().setIndex(i);
-          }
-          responseObserver.onNext(builder.build());
-          responseObserver.onCompleted();
-        } else {
-          Exception expectedRpc = expectations.poll();
-          responseObserver.onError(expectedRpc);
-        }
+        Exception expectedRpc = expectations.poll();
+        responseObserver.onError(expectedRpc);
       }
     }
 

@@ -49,12 +49,24 @@ public final class MutateRowsException extends ApiException {
 
   private final List<FailedMutation> failedMutations;
 
+  public static MutateRowsException create(
+      @Nullable Throwable rpcError,
+      @Nonnull List<FailedMutation> failedMutations,
+      boolean retryable) {
+    ErrorDetails errorDetails = null;
+    if (rpcError instanceof ApiException) {
+      errorDetails = ((ApiException) rpcError).getErrorDetails();
+    }
+
+    return new MutateRowsException(rpcError, failedMutations, retryable, errorDetails);
+  }
+
   /**
    * This constructor is considered an internal implementation detail and not meant to be used by
    * applications.
    */
   @InternalApi
-  public MutateRowsException(
+  private MutateRowsException(
       @Nullable Throwable rpcError,
       @Nonnull List<FailedMutation> failedMutations,
       boolean retryable,
@@ -67,18 +79,6 @@ public final class MutateRowsException extends ApiException {
     Preconditions.checkNotNull(failedMutations);
     Preconditions.checkArgument(!failedMutations.isEmpty(), "failedMutations can't be empty");
     this.failedMutations = failedMutations;
-  }
-
-  /**
-   * This constructor is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
-  public MutateRowsException(
-      @Nullable Throwable rpcError,
-      @Nonnull List<FailedMutation> failedMutations,
-      boolean retryable) {
-    this(rpcError, failedMutations, retryable, null);
   }
 
   /**

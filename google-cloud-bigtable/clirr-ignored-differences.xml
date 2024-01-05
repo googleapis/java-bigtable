@@ -159,7 +159,19 @@
     <!-- InternalApi was updated -->
     <difference>
         <differenceType>7004</differenceType>
-        <className> com/google/cloud/bigtable/data/v2/stub/mutaterows/MutateRowsRetryingCallable</className>
+        <className>com/google/cloud/bigtable/data/v2/stub/mutaterows/MutateRowsRetryingCallable</className>
+        <method>*</method>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/MutateRowsException</className>
+        <method>*</method>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7009</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/MutateRowsException</className>
         <method>*</method>
     </difference>
 </differences>
