@@ -263,7 +263,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       errorDetails = ((ApiException) rpcError).getErrorDetails();
     }
     throw new MutateRowsException(
-        rpcError, allFailures.build(), entryError.isRetryable(), errorDetails);
+        rpcError, allFailures.build(), builder.getEntriesCount() > 0, errorDetails);
   }
 
   /**

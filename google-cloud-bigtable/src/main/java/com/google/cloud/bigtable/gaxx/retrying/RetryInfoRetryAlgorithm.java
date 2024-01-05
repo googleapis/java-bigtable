@@ -20,11 +20,8 @@ import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
-import io.grpc.Metadata;
-import io.grpc.protobuf.ProtoUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.threeten.bp.Duration;
 
@@ -35,10 +32,6 @@ import org.threeten.bp.Duration;
  */
 @InternalApi
 public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
-
-  @VisibleForTesting
-  public static final Metadata.Key<RetryInfo> RETRY_INFO_KEY =
-      ProtoUtils.keyForProto(RetryInfo.getDefaultInstance());
 
   @Override
   public TimedAttemptSettings createNextAttempt(
