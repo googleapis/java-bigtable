@@ -25,7 +25,6 @@ import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ApiExceptionFactory;
-import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -350,14 +349,10 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     StatusCode gaxStatusCode = GrpcStatusCode.of(grpcStatus.getCode());
 
-    ErrorDetails errorDetails =
-        ErrorDetails.builder().setRawErrorMessages(protoStatus.getDetailsList()).build();
-
     return ApiExceptionFactory.createException(
         grpcStatus.asRuntimeException(),
         gaxStatusCode,
-        retryableCodes.contains(gaxStatusCode.getCode()),
-        errorDetails);
+        retryableCodes.contains(gaxStatusCode.getCode()));
   }
 
   /**

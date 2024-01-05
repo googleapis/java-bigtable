@@ -49,6 +49,11 @@ public final class MutateRowsException extends ApiException {
 
   private final List<FailedMutation> failedMutations;
 
+  /**
+   * This constructor is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
   public static MutateRowsException create(
       @Nullable Throwable rpcError,
       @Nonnull List<FailedMutation> failedMutations,
@@ -61,11 +66,6 @@ public final class MutateRowsException extends ApiException {
     return new MutateRowsException(rpcError, failedMutations, retryable, errorDetails);
   }
 
-  /**
-   * This constructor is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
   private MutateRowsException(
       @Nullable Throwable rpcError,
       @Nonnull List<FailedMutation> failedMutations,
