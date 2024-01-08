@@ -19,8 +19,6 @@ import com.google.api.core.BetaApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
-import io.opencensus.stats.Stats;
-import io.opencensus.tags.Tags;
 import java.io.IOException;
 import javax.annotation.Nonnull;
 
@@ -114,9 +112,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
               .toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
-                      defaultSettings.getStubSettings(),
-                      Tags.getTagger(),
-                      Stats.getStatsRecorder()))
+                      defaultSettings.getStubSettings()))
               .build();
 
       return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
@@ -137,19 +133,16 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    * release all resources, first close all of the created clients and then this factory instance.
    */
   public BigtableDataClient createForAppProfile(@Nonnull String appProfileId) throws IOException {
-    BigtableDataSettings.Builder settingsBuilder =
-        defaultSettings.toBuilder().setAppProfileId(appProfileId);
+    BigtableDataSettings settings =
+        defaultSettings.toBuilder().setAppProfileId(appProfileId).build();
 
     ClientContext clientContext =
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(
-                    settingsBuilder.stubSettings().build(),
-                    Tags.getTagger(),
-                    Stats.getStatsRecorder()))
+                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
             .build();
-    return BigtableDataClient.createWithClientContext(settingsBuilder.build(), clientContext);
+    return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
 
   /**
@@ -163,24 +156,22 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    */
   public BigtableDataClient createForInstance(@Nonnull String projectId, @Nonnull String instanceId)
       throws IOException {
-    BigtableDataSettings.Builder settingsBuilder =
+    BigtableDataSettings settings =
         defaultSettings
             .toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
-            .setDefaultAppProfileId();
+            .setDefaultAppProfileId()
+            .build();
 
     ClientContext clientContext =
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(
-                    settingsBuilder.stubSettings().build(),
-                    Tags.getTagger(),
-                    Stats.getStatsRecorder()))
+                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
             .build();
 
-    return BigtableDataClient.createWithClientContext(settingsBuilder.build(), clientContext);
+    return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
 
   /**
@@ -195,21 +186,19 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   public BigtableDataClient createForInstance(
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String appProfileId)
       throws IOException {
-    BigtableDataSettings.Builder settingsBuilder =
+    BigtableDataSettings settings =
         defaultSettings
             .toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
-            .setAppProfileId(appProfileId);
+            .setAppProfileId(appProfileId)
+            .build();
     ClientContext clientContext =
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(
-                    settingsBuilder.stubSettings().build(),
-                    Tags.getTagger(),
-                    Stats.getStatsRecorder()))
+                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
             .build();
-    return BigtableDataClient.createWithClientContext(settingsBuilder.build(), clientContext);
+    return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
 }

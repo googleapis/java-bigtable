@@ -111,6 +111,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -176,12 +177,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
 
-    settings =
-        settings
-            .toBuilder()
-            .setTracerFactory(
-                createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder()))
-            .build();
+    settings = settings.toBuilder().setTracerFactory(createBigtableTracerFactory(settings)).build();
     ClientContext clientContext = createClientContext(settings);
 
     return new EnhancedBigtableStub(settings, clientContext);
@@ -240,6 +236,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return ClientContext.create(builder.build());
   }
 
+  public static ApiTracerFactory createBigtableTracerFactory(
+      EnhancedBigtableStubSettings settings) {
+    return createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder());
+  }
+
+  @VisibleForTesting
   public static ApiTracerFactory createBigtableTracerFactory(
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) {
     String projectId = settings.getProjectId();
