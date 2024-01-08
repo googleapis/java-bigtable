@@ -40,6 +40,7 @@ import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
@@ -150,6 +151,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
+
+  private final boolean closeClientContext;
   private final RequestContext requestContext;
   private final FlowController bulkMutationFlowController;
   private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
@@ -173,10 +176,21 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
 
-    settings = injectTracer(settings, Tags.getTagger(), Stats.getStatsRecorder());
+    settings =
+        settings
+            .toBuilder()
+            .setTracerFactory(
+                createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder()))
+            .build();
     ClientContext clientContext = createClientContext(settings);
 
     return new EnhancedBigtableStub(settings, clientContext);
+  }
+
+  public static EnhancedBigtableStub createWithClientContext(
+      EnhancedBigtableStubSettings settings, ClientContext clientContext) throws IOException {
+
+    return new EnhancedBigtableStub(settings, clientContext, false);
   }
 
   public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
@@ -226,53 +240,44 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return ClientContext.create(builder.build());
   }
 
-  public static EnhancedBigtableStubSettings injectTracer(
+  public static ApiTracerFactory createBigtableTracerFactory(
       EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) {
-    EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
+    String projectId = settings.getProjectId();
+    String instanceId = settings.getInstanceId();
+    String appProfileId = settings.getAppProfileId();
 
     ImmutableMap<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(settings.getProjectId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(settings.getInstanceId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
-                TagValue.create(settings.getAppProfileId()))
+            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(projectId))
+            .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(instanceId))
+            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId))
             .build();
     ImmutableMap<String, String> builtinAttributes =
         ImmutableMap.<String, String>builder()
-            .put("project_id", settings.getProjectId())
-            .put("instance", settings.getInstanceId())
-            .put("app_profile", settings.getAppProfileId())
+            .put("project_id", projectId)
+            .put("instance", instanceId)
+            .put("app_profile", appProfileId)
             .build();
-    // Inject Opencensus instrumentation
-    builder.setTracerFactory(
-        new CompositeTracerFactory(
-            ImmutableList.of(
-                // Add OpenCensus Tracing
-                new OpencensusTracerFactory(
-                    ImmutableMap.<String, String>builder()
-                        // Annotate traces with the same tags as metrics
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(),
-                            settings.getProjectId())
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                            settings.getInstanceId())
-                        .put(
-                            RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
-                            settings.getAppProfileId())
-                        // Also annotate traces with library versions
-                        .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
-                        .put("grpc", GaxGrpcProperties.getGrpcVersion())
-                        .put("gapic", Version.VERSION)
-                        .build()),
-                // Add OpenCensus Metrics
-                MetricsTracerFactory.create(tagger, stats, attributes),
-                BuiltinMetricsTracerFactory.create(builtinAttributes),
-                // Add user configured tracer
-                settings.getTracerFactory())));
-    return builder.build();
+
+    return new CompositeTracerFactory(
+        ImmutableList.of(
+            // Add OpenCensus Tracing
+            new OpencensusTracerFactory(
+                ImmutableMap.<String, String>builder()
+                    // Annotate traces with the same tags as metrics
+                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), projectId)
+                    .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), instanceId)
+                    .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), appProfileId)
+                    // Also annotate traces with library versions
+                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
+                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
+                    .put("gapic", Version.VERSION)
+                    .build()),
+            // Add OpenCensus Metrics
+            MetricsTracerFactory.create(tagger, stats, attributes),
+            BuiltinMetricsTracerFactory.create(builtinAttributes),
+            // Add user configured tracer
+            settings.getTracerFactory()));
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
@@ -311,8 +316,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
+    this(settings, clientContext, true);
+  }
+
+  public EnhancedBigtableStub(
+      EnhancedBigtableStubSettings settings,
+      ClientContext clientContext,
+      boolean closeClientContext) {
     this.settings = settings;
     this.clientContext = clientContext;
+    this.closeClientContext = closeClientContext;
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
@@ -1173,11 +1186,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   @Override
   public void close() {
-    for (BackgroundResource backgroundResource : clientContext.getBackgroundResources()) {
-      try {
-        backgroundResource.close();
-      } catch (Exception e) {
-        throw new IllegalStateException("Failed to close resource", e);
+    if (closeClientContext) {
+      for (BackgroundResource backgroundResource : clientContext.getBackgroundResources()) {
+        try {
+          backgroundResource.close();
+        } catch (Exception e) {
+          throw new IllegalStateException("Failed to close resource", e);
+        }
       }
     }
   }
