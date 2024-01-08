@@ -25,7 +25,6 @@ import com.google.api.gax.core.ExecutorProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.WatchdogProvider;
-import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.InstanceName;
