@@ -88,7 +88,7 @@ public class RetryInfoTest {
 
   private AtomicInteger attemptCounter = new AtomicInteger();
   private com.google.protobuf.Duration delay =
-      com.google.protobuf.Duration.newBuilder().setSeconds(1).setNanos(0).build();
+      com.google.protobuf.Duration.newBuilder().setSeconds(2).setNanos(0).build();
 
   @Before
   public void setUp() throws IOException {

@@ -236,8 +236,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
 
-    TimedAttemptSettings nextAttemptSettings =
-        retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
+    attemptSettings = retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
 
     for (int i = 0; i < currentRequest.getEntriesCount(); i++) {
       int origIndex = getOriginalIndex(i);
@@ -245,7 +244,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, nextAttemptSettings)) {
+      if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, attemptSettings)) {
         permanentFailures.add(failedMutation);
       } else {
         // Schedule the mutation entry for the next RPC by adding it to the request builder and
@@ -257,7 +256,6 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
-    attemptSettings = nextAttemptSettings;
 
     throw MutateRowsException.create(rpcError, allFailures.build(), builder.getEntriesCount() > 0);
   }
