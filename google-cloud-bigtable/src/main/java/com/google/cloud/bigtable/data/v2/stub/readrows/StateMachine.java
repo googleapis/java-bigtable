@@ -263,7 +263,12 @@ final class StateMachine<RowT> {
               direction = "decreasing";
             }
 
-            validate(cmp < 0, "AWAITING_NEW_ROW: key must be strictly " + direction);
+            validate(
+                cmp < 0,
+                "AWAITING_NEW_ROW: last scanned key must be strictly "
+                    + direction
+                    + ". New last scanned key="
+                    + rowKey);
           }
           completeRow = adapter.createScanMarkerRow(rowKey);
           lastCompleteRowKey = rowKey;
