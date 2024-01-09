@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
 import com.google.api.gax.grpc.GrpcStatusCode;
-import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.InternalException;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.cloud.bigtable.data.v2.internal.ByteStringComparator;
@@ -26,7 +25,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.EvictingQueue;
 import com.google.protobuf.ByteString;
 import io.grpc.Status;
-
 import java.util.List;
 
 /**
