@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
@@ -68,7 +69,6 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -530,17 +530,19 @@ public class RetryInfoTest {
     assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(delay.getSeconds()));
 
     attemptCounter.set(0);
-    ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
-    try {
-      runnable.run();
-      Assert.fail("non retryable operation should fail");
-    } catch (ApiException e) {
-      if (e instanceof MutateRowsException) {
-        assertThat(((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
-            .isEqualTo(exception.getStatusCode());
-      } else {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
+    ApiException expectedApiException = enqueueNonRetryableExceptionWithDelay(delay);
+    ApiException actualException =
+        assertThrows("non retryable operations should fail", ApiException.class, runnable::run);
+    if (actualException instanceof MutateRowsException) {
+      assertThat(
+              ((MutateRowsException) actualException)
+                  .getFailedMutations()
+                  .get(0)
+                  .getError()
+                  .getStatusCode())
+          .isEqualTo(expectedApiException.getStatusCode());
+    } else {
+      assertThat(actualException.getStatusCode()).isEqualTo(expectedApiException.getStatusCode());
     }
     assertThat(attemptCounter.get()).isEqualTo(1);
   }
@@ -550,12 +552,8 @@ public class RetryInfoTest {
     enqueueRetryableExceptionNoRetryInfo();
 
     if (!operationRetryable) {
-      try {
-        runnable.run();
-        Assert.fail("non retryable operation should fail");
-      } catch (ApiException e) {
-        assertThat(attemptCounter.get()).isEqualTo(1);
-      }
+      assertThrows("non retryable operation should fail", ApiException.class, runnable::run);
+      assertThat(attemptCounter.get()).isEqualTo(1);
     } else {
       Stopwatch stopwatch = Stopwatch.createStarted();
       runnable.run();
@@ -567,18 +565,21 @@ public class RetryInfoTest {
 
     attemptCounter.set(0);
 
-    ApiException exception = enqueueNonRetryableExceptionNoRetryInfo();
+    ApiException expectedApiException = enqueueNonRetryableExceptionNoRetryInfo();
 
-    try {
-      runnable.run();
-      Assert.fail("non retryable error should fail");
-    } catch (ApiException e) {
-      if (e instanceof MutateRowsException) {
-        assertThat(((MutateRowsException) e).getFailedMutations().get(0).getError().getStatusCode())
-            .isEqualTo(exception.getStatusCode());
-      } else {
-        assertThat(e.getStatusCode()).isEqualTo(exception.getStatusCode());
-      }
+    ApiException actualApiException =
+        assertThrows("non retryable error should fail", ApiException.class, runnable::run);
+    if (actualApiException instanceof MutateRowsException) {
+      assertThat(
+              ((MutateRowsException) actualApiException)
+                  .getFailedMutations()
+                  .get(0)
+                  .getError()
+                  .getStatusCode())
+          .isEqualTo(expectedApiException.getStatusCode());
+    } else {
+      assertThat(actualApiException.getStatusCode())
+          .isEqualTo(expectedApiException.getStatusCode());
     }
 
     assertThat(attemptCounter.get()).isEqualTo(1);
