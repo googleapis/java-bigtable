@@ -56,10 +56,14 @@ import io.opentelemetry.sdk.metrics.data.SumData;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /** Utils to convert OpenTelemetry types to Cloud Monitoring API types. */
 class BigtableExporterUtils {
@@ -86,7 +90,28 @@ class BigtableExporterUtils {
   private static final Set<AttributeKey<String>> PROMOTED_RESOURCE_LABELS =
       ImmutableSet.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, CLUSTER_ID, ZONE_ID);
 
-  static TimeSeries convertPointToTimeSeries(
+  static List<TimeSeries> convertCollectionToListOfTimeSeries(
+      Collection<MetricData> collection, String taskId, MonitoredResource monitoredResource) {
+    List<TimeSeries> allTimeSeries = new ArrayList<>();
+
+    for (MetricData metricData : collection) {
+      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
+        continue;
+      }
+
+      List<TimeSeries> timeSeries =
+          metricData.getData().getPoints().stream()
+              .map(
+                  pointData ->
+                      convertPointToTimeSeries(metricData, pointData, taskId, monitoredResource))
+              .collect(Collectors.toList());
+      allTimeSeries.addAll(timeSeries);
+    }
+
+    return allTimeSeries;
+  }
+
+  private static TimeSeries convertPointToTimeSeries(
       MetricData metricData,
       PointData pointData,
       String taskId,

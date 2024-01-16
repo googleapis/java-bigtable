@@ -35,13 +35,11 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import org.threeten.bp.Duration;
 
 /** Bigtable Cloud Monitoring OpenTelemetry Exporter. */
@@ -54,11 +52,11 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final String projectId;
   private final String taskId;
   private final MonitoredResource monitoredResource;
-  private AtomicBoolean isShutdown = new AtomicBoolean(false);
+  private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
-  private CompletableResultCode lastCode;
+  private CompletableResultCode lastExportCode;
 
   static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
       throws IOException {
@@ -91,6 +89,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode export(Collection<MetricData> collection) {
     if (isShutdown.get()) {
+      logger.log(Level.WARNING, "Exporter is shutting down");
       return CompletableResultCode.ofFailure();
     }
     if (!collection.stream()
@@ -100,25 +99,9 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
-    lastCode = new CompletableResultCode();
-
-    List<TimeSeries> allTimeSeries = new ArrayList<>();
-    for (MetricData metricData : collection) {
-      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
-        continue;
-      }
-
-      CompletableResultCode code = new CompletableResultCode();
-
-      List<TimeSeries> timeSeries =
-          metricData.getData().getPoints().stream()
-              .map(
-                  pointData ->
-                      BigtableExporterUtils.convertPointToTimeSeries(
-                          metricData, pointData, taskId, monitoredResource))
-              .collect(Collectors.toList());
-      allTimeSeries.addAll(timeSeries);
-    }
+    List<TimeSeries> allTimeSeries =
+        BigtableExporterUtils.convertCollectionToListOfTimeSeries(
+            collection, taskId, monitoredResource);
 
     ProjectName projectName = ProjectName.of(projectId);
     CreateTimeSeriesRequest request =
@@ -129,28 +112,30 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     ApiFuture<Empty> future = this.client.createServiceTimeSeriesCallable().futureCall(request);
 
+    lastExportCode = new CompletableResultCode();
+
     ApiFutures.addCallback(
         future,
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            lastCode.fail();
+            lastExportCode.fail();
           }
 
           @Override
           public void onSuccess(Empty empty) {
-            lastCode.succeed();
+            lastExportCode.succeed();
           }
         },
         MoreExecutors.directExecutor());
 
-    return lastCode;
+    return lastExportCode;
   }
 
   @Override
   public CompletableResultCode flush() {
-    if (lastCode != null) {
-      return lastCode;
+    if (lastExportCode != null) {
+      return lastExportCode;
     }
     return CompletableResultCode.ofSuccess();
   }
