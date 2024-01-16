@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public interface CheckConsistencyRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the Table for which to check replication consistency.
-   * Values are of the form
+   * Required. The unique name of the Table for which to check replication
+   * consistency. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{table}`.
    * </pre>
    *
@@ -43,8 +43,8 @@ public interface CheckConsistencyRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the Table for which to check replication consistency.
-   * Values are of the form
+   * Required. The unique name of the Table for which to check replication
+   * consistency. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{table}`.
    * </pre>
    *

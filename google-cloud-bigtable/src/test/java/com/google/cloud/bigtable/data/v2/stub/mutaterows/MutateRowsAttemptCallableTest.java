@@ -16,16 +16,19 @@
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.any;
 
 import com.google.api.core.AbstractApiFuture;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.RetryingFuture;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
+import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.rpc.UnavailableException;
@@ -41,10 +44,13 @@ import com.google.rpc.Status;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
@@ -62,6 +68,8 @@ public class MutateRowsAttemptCallableTest {
   private Set<Code> retryCodes;
   private ApiCallContext callContext;
   private MockRetryingFuture parentFuture;
+  private final RetryAlgorithm<MutateRowsRequest> mockRetryAlgorithm =
+      Mockito.mock(RetryAlgorithm.class);
 
   @Before
   public void setUp() {
@@ -69,6 +77,12 @@ public class MutateRowsAttemptCallableTest {
     retryCodes = ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
     callContext = GrpcCallContext.createDefault();
     parentFuture = new MockRetryingFuture();
+    Mockito.when(mockRetryAlgorithm.shouldRetry(any(), any(), any(), any()))
+        .thenAnswer(
+            input -> {
+              Throwable throwable = input.getArgument(1);
+              return ((ApiException) throwable).isRetryable();
+            });
   }
 
   @Test
@@ -82,7 +96,8 @@ public class MutateRowsAttemptCallableTest {
             .build());
 
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
     attemptCallable.call();
 
@@ -90,6 +105,38 @@ public class MutateRowsAttemptCallableTest {
     assertThat(parentFuture.attemptFuture.get()).isNull();
     // innerCallable received the request
     assertThat(innerCallable.lastRequest).isEqualTo(request);
+  }
+
+  @Test
+  public void missingEntry() {
+    MutateRowsRequest request =
+        MutateRowsRequest.newBuilder()
+            .addEntries(Entry.getDefaultInstance())
+            .addEntries(Entry.getDefaultInstance())
+            .build();
+    innerCallable.response.add(
+        MutateRowsResponse.newBuilder()
+            .addEntries(MutateRowsResponse.Entry.newBuilder().setIndex(0))
+            .build());
+
+    MutateRowsAttemptCallable attemptCallable =
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
+    attemptCallable.setExternalFuture(parentFuture);
+    attemptCallable.call();
+
+    ExecutionException executionException =
+        Assert.assertThrows(ExecutionException.class, () -> parentFuture.attemptFuture.get());
+    assertThat(executionException).hasCauseThat().isInstanceOf(MutateRowsException.class);
+    MutateRowsException e = (MutateRowsException) executionException.getCause();
+
+    assertThat(e).hasMessageThat().contains("Some mutations failed to apply");
+    assertThat(e.getFailedMutations()).hasSize(1);
+    FailedMutation failedMutation = e.getFailedMutations().get(0);
+    assertThat(failedMutation.getIndex()).isEqualTo(1);
+    assertThat(failedMutation.getError())
+        .hasMessageThat()
+        .contains("Missing entry response for entry 1");
   }
 
   @Test
@@ -107,7 +154,8 @@ public class MutateRowsAttemptCallableTest {
             .build());
 
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
     attemptCallable.call();
 
@@ -139,7 +187,8 @@ public class MutateRowsAttemptCallableTest {
             .build());
 
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
 
     // Make the only call
@@ -197,7 +246,8 @@ public class MutateRowsAttemptCallableTest {
             .build());
 
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
 
     // Make the first call
@@ -262,7 +312,8 @@ public class MutateRowsAttemptCallableTest {
 
     // Make the call
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
     attemptCallable.call();
 
@@ -314,7 +365,8 @@ public class MutateRowsAttemptCallableTest {
 
     // Make the call
     MutateRowsAttemptCallable attemptCallable =
-        new MutateRowsAttemptCallable(innerCallable, request, callContext, retryCodes);
+        new MutateRowsAttemptCallable(
+            innerCallable, request, callContext, retryCodes, mockRetryAlgorithm);
     attemptCallable.setExternalFuture(parentFuture);
     attemptCallable.call();
 

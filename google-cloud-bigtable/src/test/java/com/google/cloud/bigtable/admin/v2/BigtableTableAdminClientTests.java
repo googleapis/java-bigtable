@@ -29,7 +29,9 @@ import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.rpc.testing.FakeOperationSnapshot;
 import com.google.bigtable.admin.v2.Backup.State;
 import com.google.bigtable.admin.v2.BackupInfo;
+import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.bigtable.admin.v2.ColumnFamily;
+import com.google.bigtable.admin.v2.CopyBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.DeleteBackupRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
@@ -45,6 +47,7 @@ import com.google.bigtable.admin.v2.RestoreTableMetadata;
 import com.google.bigtable.admin.v2.Table.ClusterState;
 import com.google.bigtable.admin.v2.Table.View;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.UpdateTableMetadata;
 import com.google.cloud.Identity;
 import com.google.cloud.Policy;
 import com.google.cloud.Role;
@@ -54,6 +57,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTable
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
+import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.EncryptionInfo;
@@ -68,6 +72,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.BaseEncoding;
 import com.google.longrunning.Operation;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Duration;
 import com.google.protobuf.Empty;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
@@ -118,6 +123,13 @@ public class BigtableTableAdminClientTests {
       mockCreateTableCallable;
 
   @Mock
+  private OperationCallable<
+          com.google.bigtable.admin.v2.UpdateTableRequest,
+          com.google.bigtable.admin.v2.Table,
+          UpdateTableMetadata>
+      mockUpdateTableOperationCallable;
+
+  @Mock
   private UnaryCallable<
           com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest,
           com.google.bigtable.admin.v2.Table>
@@ -163,6 +175,13 @@ public class BigtableTableAdminClientTests {
       mockRestoreTableOperationCallable;
 
   @Mock
+  private OperationCallable<
+          com.google.bigtable.admin.v2.CopyBackupRequest,
+          com.google.bigtable.admin.v2.Backup,
+          CopyBackupMetadata>
+      mockCopyBackupOperationCallable;
+
+  @Mock
   private UnaryCallable<com.google.iam.v1.GetIamPolicyRequest, com.google.iam.v1.Policy>
       mockGetIamPolicyCallable;
 
@@ -202,6 +221,40 @@ public class BigtableTableAdminClientTests {
 
     // Verify
     assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testUpdateTable() {
+    // Setup
+    Mockito.when(mockStub.updateTableOperationCallable())
+        .thenReturn(mockUpdateTableOperationCallable);
+
+    com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest request =
+        com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest.of(TABLE_ID)
+            .addChangeStreamRetention(org.threeten.bp.Duration.ofHours(24));
+
+    com.google.bigtable.admin.v2.Table expectedResponse =
+        com.google.bigtable.admin.v2.Table.newBuilder()
+            .setName(TABLE_NAME)
+            .setChangeStreamConfig(
+                ChangeStreamConfig.newBuilder()
+                    .setRetentionPeriod(Duration.newBuilder().setSeconds(86400).build())
+                    .build())
+            .build();
+
+    mockOperationResult(
+        mockUpdateTableOperationCallable,
+        request.toProto(PROJECT_ID, INSTANCE_ID),
+        expectedResponse,
+        UpdateTableMetadata.newBuilder().setName(TABLE_NAME).build());
+
+    // Execute
+    Table actualResult = adminClient.updateTable(request);
+
+    // Verify
+    assertThat(actualResult.getId()).isEqualTo(TABLE_ID);
+    assertThat(actualResult.getChangeStreamRetention())
+        .isEqualTo(org.threeten.bp.Duration.ofHours(24));
   }
 
   @Test
@@ -729,6 +782,73 @@ public class BigtableTableAdminClientTests {
     }
 
     assertThat(actualResults).containsExactlyElementsIn(expectedResults);
+  }
+
+  @Test
+  public void testCopyBackup() {
+    // Setup
+    Mockito.when(mockStub.copyBackupOperationCallable())
+        .thenReturn(mockCopyBackupOperationCallable);
+
+    Timestamp startTime = Timestamp.newBuilder().setSeconds(1234).build();
+    Timestamp endTime = Timestamp.newBuilder().setSeconds(5678).build();
+
+    // Create CopyBackupRequest from different source project:
+    String srcProjectId = "src-project";
+    String srcInstanceId = "src-instance";
+    String srcTableId = "src-table";
+    String srcClusterId = "src-cluster";
+    String srcBackupId = "src-backup";
+    Instant expireTime = Instant.now().plus(org.threeten.bp.Duration.ofDays(15));
+    long sizeBytes = 123456789;
+
+    String dstBackupName =
+        NameUtil.formatBackupName(PROJECT_ID, INSTANCE_ID, CLUSTER_ID, BACKUP_ID);
+    String srcBackupName =
+        NameUtil.formatBackupName(srcProjectId, srcProjectId, srcClusterId, srcBackupId);
+    String srcTableName = NameUtil.formatTableName(srcProjectId, srcInstanceId, srcTableId);
+
+    CopyBackupRequest req =
+        CopyBackupRequest.of(srcClusterId, srcBackupId)
+            .setSourceInstance(srcProjectId, srcInstanceId)
+            .setDestination(CLUSTER_ID, BACKUP_ID)
+            .setExpireTime(expireTime);
+    mockOperationResult(
+        mockCopyBackupOperationCallable,
+        req.toProto(PROJECT_ID, INSTANCE_ID),
+        com.google.bigtable.admin.v2.Backup.newBuilder()
+            .setName(dstBackupName)
+            .setSourceTable(srcTableName)
+            .setSourceBackup(srcBackupName)
+            .setStartTime(startTime)
+            .setEndTime(endTime)
+            .setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()))
+            .setSizeBytes(sizeBytes)
+            .build(),
+        CopyBackupMetadata.newBuilder()
+            .setName(dstBackupName)
+            .setSourceBackupInfo(
+                BackupInfo.newBuilder()
+                    .setBackup(srcBackupId)
+                    .setSourceTable(srcTableName)
+                    .setStartTime(startTime)
+                    .setEndTime(endTime)
+                    .build())
+            .build());
+
+    // Execute
+    Backup actualResult = adminClient.copyBackup(req);
+
+    // Verify
+    assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
+    assertThat(actualResult.getSourceTableId()).isEqualTo(srcTableId);
+    assertThat(actualResult.getSourceBackupId()).isEqualTo(srcBackupId);
+    assertThat(actualResult.getStartTime())
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+    assertThat(actualResult.getEndTime())
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(actualResult.getExpireTime()).isEqualTo(expireTime);
+    assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
   @Test

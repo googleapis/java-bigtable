@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
+import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.rpc.InternalException;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.cloud.bigtable.data.v2.internal.ByteStringComparator;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter.RowBuilder;
@@ -22,6 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.EvictingQueue;
 import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import java.util.List;
 
 /**
@@ -76,6 +79,7 @@ import java.util.List;
  */
 final class StateMachine<RowT> {
   private final RowBuilder<RowT> adapter;
+  private boolean reversed;
   private State currentState;
   private ByteString lastCompleteRowKey;
 
@@ -102,9 +106,11 @@ final class StateMachine<RowT> {
    * Initialize a new state machine that's ready for a new row.
    *
    * @param adapter The adapter that will build the final row.
+   * @param reversed
    */
-  StateMachine(RowBuilder<RowT> adapter) {
+  StateMachine(RowBuilder<RowT> adapter, boolean reversed) {
     this.adapter = adapter;
+    this.reversed = reversed;
     reset();
   }
 
@@ -249,6 +255,21 @@ final class StateMachine<RowT> {
       new State() {
         @Override
         State handleLastScannedRow(ByteString rowKey) {
+          if (lastCompleteRowKey != null) {
+            int cmp = ByteStringComparator.INSTANCE.compare(lastCompleteRowKey, rowKey);
+            String direction = "increasing";
+            if (reversed) {
+              cmp *= -1;
+              direction = "decreasing";
+            }
+
+            validate(
+                cmp < 0,
+                "AWAITING_NEW_ROW: last scanned key must be strictly "
+                    + direction
+                    + ". New last scanned key="
+                    + rowKey);
+          }
           completeRow = adapter.createScanMarkerRow(rowKey);
           lastCompleteRowKey = rowKey;
           return AWAITING_ROW_CONSUME;
@@ -256,14 +277,24 @@ final class StateMachine<RowT> {
 
         @Override
         State handleChunk(CellChunk chunk) {
+          // Make sure to populate the rowKey before validations so that validation failures include
+          // the new key
+          rowKey = chunk.getRowKey();
+
           validate(!chunk.getResetRow(), "AWAITING_NEW_ROW: can't reset");
           validate(!chunk.getRowKey().isEmpty(), "AWAITING_NEW_ROW: rowKey missing");
           validate(chunk.hasFamilyName(), "AWAITING_NEW_ROW: family missing");
           validate(chunk.hasQualifier(), "AWAITING_NEW_ROW: qualifier missing");
           if (lastCompleteRowKey != null) {
-            validate(
-                ByteStringComparator.INSTANCE.compare(lastCompleteRowKey, chunk.getRowKey()) < 0,
-                "AWAITING_NEW_ROW: key must be strictly increasing");
+
+            int cmp = ByteStringComparator.INSTANCE.compare(lastCompleteRowKey, chunk.getRowKey());
+            String direction = "increasing";
+            if (reversed) {
+              cmp *= -1;
+              direction = "decreasing";
+            }
+
+            validate(cmp < 0, "AWAITING_NEW_ROW: key must be strictly " + direction);
           }
 
           rowKey = chunk.getRowKey();
@@ -459,9 +490,9 @@ final class StateMachine<RowT> {
     }
   }
 
-  static class InvalidInputException extends RuntimeException {
+  static class InvalidInputException extends InternalException {
     InvalidInputException(String message) {
-      super(message);
+      super(message, null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
     }
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,7 @@ public interface RestoreTableRequestOrBuilder
    *
    * <pre>
    * Required. The name of the instance in which to create the restored
-   * table. This instance must be in the same project as the source backup.
-   * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>
@@ -44,8 +43,7 @@ public interface RestoreTableRequestOrBuilder
    *
    * <pre>
    * Required. The name of the instance in which to create the restored
-   * table. This instance must be in the same project as the source backup.
-   * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>

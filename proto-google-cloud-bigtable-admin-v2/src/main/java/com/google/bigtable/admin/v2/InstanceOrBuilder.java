@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -243,9 +243,9 @@ public interface InstanceOrBuilder
    *
    *
    * <pre>
-   * Output only. A server-assigned timestamp representing when this Instance was created.
-   * For instances created before this field was added (August 2021), this value
-   * is `seconds: 0, nanos: 1`.
+   * Output only. A server-assigned timestamp representing when this Instance
+   * was created. For instances created before this field was added (August
+   * 2021), this value is `seconds: 0, nanos: 1`.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp create_time = 7 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -258,9 +258,9 @@ public interface InstanceOrBuilder
    *
    *
    * <pre>
-   * Output only. A server-assigned timestamp representing when this Instance was created.
-   * For instances created before this field was added (August 2021), this value
-   * is `seconds: 0, nanos: 1`.
+   * Output only. A server-assigned timestamp representing when this Instance
+   * was created. For instances created before this field was added (August
+   * 2021), this value is `seconds: 0, nanos: 1`.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp create_time = 7 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -273,9 +273,9 @@ public interface InstanceOrBuilder
    *
    *
    * <pre>
-   * Output only. A server-assigned timestamp representing when this Instance was created.
-   * For instances created before this field was added (August 2021), this value
-   * is `seconds: 0, nanos: 1`.
+   * Output only. A server-assigned timestamp representing when this Instance
+   * was created. For instances created before this field was added (August
+   * 2021), this value is `seconds: 0, nanos: 1`.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp create_time = 7 [(.google.api.field_behavior) = OUTPUT_ONLY];

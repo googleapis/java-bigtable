@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ public interface CreateTableRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The name by which the new table should be referred to within the parent
-   * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+   * Required. The name by which the new table should be referred to within the
+   * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
    * Maximum 50 characters.
    * </pre>
    *
@@ -72,8 +72,8 @@ public interface CreateTableRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The name by which the new table should be referred to within the parent
-   * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+   * Required. The name by which the new table should be referred to within the
+   * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
    * Maximum 50 characters.
    * </pre>
    *

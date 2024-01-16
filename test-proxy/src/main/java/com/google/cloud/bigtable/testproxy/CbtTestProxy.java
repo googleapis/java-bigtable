@@ -202,11 +202,14 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
     BigtableDataSettings.Builder settingsBuilder =
         BigtableDataSettings.newBuilder()
-            // disable channel refreshing when creating an emulator
+            // Disable channel refreshing when not using the real server
             .setRefreshingChannel(false)
             .setProjectId(request.getProjectId())
             .setInstanceId(request.getInstanceId())
             .setAppProfileId(request.getAppProfileId());
+
+    settingsBuilder.stubSettings().setEnableRoutingCookie(false);
+    settingsBuilder.stubSettings().setEnableRetryInfo(false);
 
     if (request.hasPerOperationTimeout()) {
       Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
@@ -215,6 +218,24 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
           String.format(
               "Total timeout is set to %s for all the methods",
               Durations.toString(request.getPerOperationTimeout())));
+    }
+
+    if (request.getOptionalFeatureConfig()
+        == OptionalFeatureConfig.OPTIONAL_FEATURE_CONFIG_ENABLE_ALL) {
+      logger.info("Enabling all the optional features");
+      try {
+        BigtableDataSettings.enableBuiltinMetrics();
+      } catch (IOException e) {
+        // Exception will be raised if Application Default Credentials is not found.
+        // We can ignore it as it doesn't impact the client correctness testing.
+        if (!e.getMessage().toUpperCase().contains("APPLICATION DEFAULT CREDENTIALS")) {
+          responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asException());
+          return;
+        }
+      }
+      settingsBuilder.stubSettings().bulkMutateRowsSettings().setServerInitiatedFlowControl(true);
+      settingsBuilder.stubSettings().setEnableRoutingCookie(true);
+      settingsBuilder.stubSettings().setEnableRetryInfo(true);
     }
 
     // Create and store CbtClient for later use

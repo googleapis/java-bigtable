@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ package com.google.bigtable.v2;
  *
  *
  * <pre>
- * Feature flags supported by a client.
+ * Feature flags supported or enabled by a client.
  * This is intended to be sent as part of request metadata to assure the server
  * that certain behaviors are safe to enable. This proto is meant to be
  * serialized and websafe-base64 encoded under the `bigtable-features` metadata
  * key. The value will remain constant for the lifetime of a client and due to
  * HTTP2's HPACK compression, the request overhead will be tiny.
- * This is an internal implementation detail and should not be used by endusers
+ * This is an internal implementation detail and should not be used by end users
  * directly.
  * </pre>
  *
@@ -67,6 +67,25 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
             com.google.bigtable.v2.FeatureFlags.Builder.class);
   }
 
+  public static final int REVERSE_SCANS_FIELD_NUMBER = 1;
+  private boolean reverseScans_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports reverse scans. The server will
+   * reject ReadRowsRequests with the reverse bit set when this is absent.
+   * </pre>
+   *
+   * <code>bool reverse_scans = 1;</code>
+   *
+   * @return The reverseScans.
+   */
+  @java.lang.Override
+  public boolean getReverseScans() {
+    return reverseScans_;
+  }
+
   public static final int MUTATE_ROWS_RATE_LIMIT_FIELD_NUMBER = 3;
   private boolean mutateRowsRateLimit_ = false;
   /**
@@ -74,7 +93,8 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * Notify the server that the client enables batch write flow control by
-   * requesting RateLimitInfo from MutateRowsResponse.
+   * requesting RateLimitInfo from MutateRowsResponse. Due to technical reasons,
+   * this disables partial retries.
    * </pre>
    *
    * <code>bool mutate_rows_rate_limit = 3;</code>
@@ -84,6 +104,83 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
   @java.lang.Override
   public boolean getMutateRowsRateLimit() {
     return mutateRowsRateLimit_;
+  }
+
+  public static final int MUTATE_ROWS_RATE_LIMIT2_FIELD_NUMBER = 5;
+  private boolean mutateRowsRateLimit2_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client enables batch write flow control by
+   * requesting RateLimitInfo from MutateRowsResponse. With partial retries
+   * enabled.
+   * </pre>
+   *
+   * <code>bool mutate_rows_rate_limit2 = 5;</code>
+   *
+   * @return The mutateRowsRateLimit2.
+   */
+  @java.lang.Override
+  public boolean getMutateRowsRateLimit2() {
+    return mutateRowsRateLimit2_;
+  }
+
+  public static final int LAST_SCANNED_ROW_RESPONSES_FIELD_NUMBER = 4;
+  private boolean lastScannedRowResponses_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports the last_scanned_row field
+   * in ReadRowsResponse for long-running scans.
+   * </pre>
+   *
+   * <code>bool last_scanned_row_responses = 4;</code>
+   *
+   * @return The lastScannedRowResponses.
+   */
+  @java.lang.Override
+  public boolean getLastScannedRowResponses() {
+    return lastScannedRowResponses_;
+  }
+
+  public static final int ROUTING_COOKIE_FIELD_NUMBER = 6;
+  private boolean routingCookie_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports using encoded routing cookie
+   * strings to retry requests with.
+   * </pre>
+   *
+   * <code>bool routing_cookie = 6;</code>
+   *
+   * @return The routingCookie.
+   */
+  @java.lang.Override
+  public boolean getRoutingCookie() {
+    return routingCookie_;
+  }
+
+  public static final int RETRY_INFO_FIELD_NUMBER = 7;
+  private boolean retryInfo_ = false;
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports using retry info back off
+   * durations to retry requests with.
+   * </pre>
+   *
+   * <code>bool retry_info = 7;</code>
+   *
+   * @return The retryInfo.
+   */
+  @java.lang.Override
+  public boolean getRetryInfo() {
+    return retryInfo_;
   }
 
   private byte memoizedIsInitialized = -1;
@@ -100,8 +197,23 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
 
   @java.lang.Override
   public void writeTo(com.google.protobuf.CodedOutputStream output) throws java.io.IOException {
+    if (reverseScans_ != false) {
+      output.writeBool(1, reverseScans_);
+    }
     if (mutateRowsRateLimit_ != false) {
       output.writeBool(3, mutateRowsRateLimit_);
+    }
+    if (lastScannedRowResponses_ != false) {
+      output.writeBool(4, lastScannedRowResponses_);
+    }
+    if (mutateRowsRateLimit2_ != false) {
+      output.writeBool(5, mutateRowsRateLimit2_);
+    }
+    if (routingCookie_ != false) {
+      output.writeBool(6, routingCookie_);
+    }
+    if (retryInfo_ != false) {
+      output.writeBool(7, retryInfo_);
     }
     getUnknownFields().writeTo(output);
   }
@@ -112,8 +224,23 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     if (size != -1) return size;
 
     size = 0;
+    if (reverseScans_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(1, reverseScans_);
+    }
     if (mutateRowsRateLimit_ != false) {
       size += com.google.protobuf.CodedOutputStream.computeBoolSize(3, mutateRowsRateLimit_);
+    }
+    if (lastScannedRowResponses_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(4, lastScannedRowResponses_);
+    }
+    if (mutateRowsRateLimit2_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(5, mutateRowsRateLimit2_);
+    }
+    if (routingCookie_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(6, routingCookie_);
+    }
+    if (retryInfo_ != false) {
+      size += com.google.protobuf.CodedOutputStream.computeBoolSize(7, retryInfo_);
     }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
@@ -130,7 +257,12 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     }
     com.google.bigtable.v2.FeatureFlags other = (com.google.bigtable.v2.FeatureFlags) obj;
 
+    if (getReverseScans() != other.getReverseScans()) return false;
     if (getMutateRowsRateLimit() != other.getMutateRowsRateLimit()) return false;
+    if (getMutateRowsRateLimit2() != other.getMutateRowsRateLimit2()) return false;
+    if (getLastScannedRowResponses() != other.getLastScannedRowResponses()) return false;
+    if (getRoutingCookie() != other.getRoutingCookie()) return false;
+    if (getRetryInfo() != other.getRetryInfo()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
     return true;
   }
@@ -142,8 +274,18 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     }
     int hash = 41;
     hash = (19 * hash) + getDescriptor().hashCode();
+    hash = (37 * hash) + REVERSE_SCANS_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getReverseScans());
     hash = (37 * hash) + MUTATE_ROWS_RATE_LIMIT_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getMutateRowsRateLimit());
+    hash = (37 * hash) + MUTATE_ROWS_RATE_LIMIT2_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getMutateRowsRateLimit2());
+    hash = (37 * hash) + LAST_SCANNED_ROW_RESPONSES_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getLastScannedRowResponses());
+    hash = (37 * hash) + ROUTING_COOKIE_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getRoutingCookie());
+    hash = (37 * hash) + RETRY_INFO_FIELD_NUMBER;
+    hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getRetryInfo());
     hash = (29 * hash) + getUnknownFields().hashCode();
     memoizedHashCode = hash;
     return hash;
@@ -247,13 +389,13 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Feature flags supported by a client.
+   * Feature flags supported or enabled by a client.
    * This is intended to be sent as part of request metadata to assure the server
    * that certain behaviors are safe to enable. This proto is meant to be
    * serialized and websafe-base64 encoded under the `bigtable-features` metadata
    * key. The value will remain constant for the lifetime of a client and due to
    * HTTP2's HPACK compression, the request overhead will be tiny.
-   * This is an internal implementation detail and should not be used by endusers
+   * This is an internal implementation detail and should not be used by end users
    * directly.
    * </pre>
    *
@@ -289,7 +431,12 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     public Builder clear() {
       super.clear();
       bitField0_ = 0;
+      reverseScans_ = false;
       mutateRowsRateLimit_ = false;
+      mutateRowsRateLimit2_ = false;
+      lastScannedRowResponses_ = false;
+      routingCookie_ = false;
+      retryInfo_ = false;
       return this;
     }
 
@@ -326,7 +473,22 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     private void buildPartial0(com.google.bigtable.v2.FeatureFlags result) {
       int from_bitField0_ = bitField0_;
       if (((from_bitField0_ & 0x00000001) != 0)) {
+        result.reverseScans_ = reverseScans_;
+      }
+      if (((from_bitField0_ & 0x00000002) != 0)) {
         result.mutateRowsRateLimit_ = mutateRowsRateLimit_;
+      }
+      if (((from_bitField0_ & 0x00000004) != 0)) {
+        result.mutateRowsRateLimit2_ = mutateRowsRateLimit2_;
+      }
+      if (((from_bitField0_ & 0x00000008) != 0)) {
+        result.lastScannedRowResponses_ = lastScannedRowResponses_;
+      }
+      if (((from_bitField0_ & 0x00000010) != 0)) {
+        result.routingCookie_ = routingCookie_;
+      }
+      if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.retryInfo_ = retryInfo_;
       }
     }
 
@@ -375,8 +537,23 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
 
     public Builder mergeFrom(com.google.bigtable.v2.FeatureFlags other) {
       if (other == com.google.bigtable.v2.FeatureFlags.getDefaultInstance()) return this;
+      if (other.getReverseScans() != false) {
+        setReverseScans(other.getReverseScans());
+      }
       if (other.getMutateRowsRateLimit() != false) {
         setMutateRowsRateLimit(other.getMutateRowsRateLimit());
+      }
+      if (other.getMutateRowsRateLimit2() != false) {
+        setMutateRowsRateLimit2(other.getMutateRowsRateLimit2());
+      }
+      if (other.getLastScannedRowResponses() != false) {
+        setLastScannedRowResponses(other.getLastScannedRowResponses());
+      }
+      if (other.getRoutingCookie() != false) {
+        setRoutingCookie(other.getRoutingCookie());
+      }
+      if (other.getRetryInfo() != false) {
+        setRetryInfo(other.getRetryInfo());
       }
       this.mergeUnknownFields(other.getUnknownFields());
       onChanged();
@@ -404,12 +581,42 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
             case 0:
               done = true;
               break;
+            case 8:
+              {
+                reverseScans_ = input.readBool();
+                bitField0_ |= 0x00000001;
+                break;
+              } // case 8
             case 24:
               {
                 mutateRowsRateLimit_ = input.readBool();
-                bitField0_ |= 0x00000001;
+                bitField0_ |= 0x00000002;
                 break;
               } // case 24
+            case 32:
+              {
+                lastScannedRowResponses_ = input.readBool();
+                bitField0_ |= 0x00000008;
+                break;
+              } // case 32
+            case 40:
+              {
+                mutateRowsRateLimit2_ = input.readBool();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 40
+            case 48:
+              {
+                routingCookie_ = input.readBool();
+                bitField0_ |= 0x00000010;
+                break;
+              } // case 48
+            case 56:
+              {
+                retryInfo_ = input.readBool();
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 56
             default:
               {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
@@ -429,13 +636,70 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
 
     private int bitField0_;
 
+    private boolean reverseScans_;
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports reverse scans. The server will
+     * reject ReadRowsRequests with the reverse bit set when this is absent.
+     * </pre>
+     *
+     * <code>bool reverse_scans = 1;</code>
+     *
+     * @return The reverseScans.
+     */
+    @java.lang.Override
+    public boolean getReverseScans() {
+      return reverseScans_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports reverse scans. The server will
+     * reject ReadRowsRequests with the reverse bit set when this is absent.
+     * </pre>
+     *
+     * <code>bool reverse_scans = 1;</code>
+     *
+     * @param value The reverseScans to set.
+     * @return This builder for chaining.
+     */
+    public Builder setReverseScans(boolean value) {
+
+      reverseScans_ = value;
+      bitField0_ |= 0x00000001;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports reverse scans. The server will
+     * reject ReadRowsRequests with the reverse bit set when this is absent.
+     * </pre>
+     *
+     * <code>bool reverse_scans = 1;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearReverseScans() {
+      bitField0_ = (bitField0_ & ~0x00000001);
+      reverseScans_ = false;
+      onChanged();
+      return this;
+    }
+
     private boolean mutateRowsRateLimit_;
     /**
      *
      *
      * <pre>
      * Notify the server that the client enables batch write flow control by
-     * requesting RateLimitInfo from MutateRowsResponse.
+     * requesting RateLimitInfo from MutateRowsResponse. Due to technical reasons,
+     * this disables partial retries.
      * </pre>
      *
      * <code>bool mutate_rows_rate_limit = 3;</code>
@@ -451,7 +715,8 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Notify the server that the client enables batch write flow control by
-     * requesting RateLimitInfo from MutateRowsResponse.
+     * requesting RateLimitInfo from MutateRowsResponse. Due to technical reasons,
+     * this disables partial retries.
      * </pre>
      *
      * <code>bool mutate_rows_rate_limit = 3;</code>
@@ -462,7 +727,7 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
     public Builder setMutateRowsRateLimit(boolean value) {
 
       mutateRowsRateLimit_ = value;
-      bitField0_ |= 0x00000001;
+      bitField0_ |= 0x00000002;
       onChanged();
       return this;
     }
@@ -471,7 +736,8 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Notify the server that the client enables batch write flow control by
-     * requesting RateLimitInfo from MutateRowsResponse.
+     * requesting RateLimitInfo from MutateRowsResponse. Due to technical reasons,
+     * this disables partial retries.
      * </pre>
      *
      * <code>bool mutate_rows_rate_limit = 3;</code>
@@ -479,8 +745,235 @@ public final class FeatureFlags extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearMutateRowsRateLimit() {
-      bitField0_ = (bitField0_ & ~0x00000001);
+      bitField0_ = (bitField0_ & ~0x00000002);
       mutateRowsRateLimit_ = false;
+      onChanged();
+      return this;
+    }
+
+    private boolean mutateRowsRateLimit2_;
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client enables batch write flow control by
+     * requesting RateLimitInfo from MutateRowsResponse. With partial retries
+     * enabled.
+     * </pre>
+     *
+     * <code>bool mutate_rows_rate_limit2 = 5;</code>
+     *
+     * @return The mutateRowsRateLimit2.
+     */
+    @java.lang.Override
+    public boolean getMutateRowsRateLimit2() {
+      return mutateRowsRateLimit2_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client enables batch write flow control by
+     * requesting RateLimitInfo from MutateRowsResponse. With partial retries
+     * enabled.
+     * </pre>
+     *
+     * <code>bool mutate_rows_rate_limit2 = 5;</code>
+     *
+     * @param value The mutateRowsRateLimit2 to set.
+     * @return This builder for chaining.
+     */
+    public Builder setMutateRowsRateLimit2(boolean value) {
+
+      mutateRowsRateLimit2_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client enables batch write flow control by
+     * requesting RateLimitInfo from MutateRowsResponse. With partial retries
+     * enabled.
+     * </pre>
+     *
+     * <code>bool mutate_rows_rate_limit2 = 5;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearMutateRowsRateLimit2() {
+      bitField0_ = (bitField0_ & ~0x00000004);
+      mutateRowsRateLimit2_ = false;
+      onChanged();
+      return this;
+    }
+
+    private boolean lastScannedRowResponses_;
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports the last_scanned_row field
+     * in ReadRowsResponse for long-running scans.
+     * </pre>
+     *
+     * <code>bool last_scanned_row_responses = 4;</code>
+     *
+     * @return The lastScannedRowResponses.
+     */
+    @java.lang.Override
+    public boolean getLastScannedRowResponses() {
+      return lastScannedRowResponses_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports the last_scanned_row field
+     * in ReadRowsResponse for long-running scans.
+     * </pre>
+     *
+     * <code>bool last_scanned_row_responses = 4;</code>
+     *
+     * @param value The lastScannedRowResponses to set.
+     * @return This builder for chaining.
+     */
+    public Builder setLastScannedRowResponses(boolean value) {
+
+      lastScannedRowResponses_ = value;
+      bitField0_ |= 0x00000008;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports the last_scanned_row field
+     * in ReadRowsResponse for long-running scans.
+     * </pre>
+     *
+     * <code>bool last_scanned_row_responses = 4;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearLastScannedRowResponses() {
+      bitField0_ = (bitField0_ & ~0x00000008);
+      lastScannedRowResponses_ = false;
+      onChanged();
+      return this;
+    }
+
+    private boolean routingCookie_;
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using encoded routing cookie
+     * strings to retry requests with.
+     * </pre>
+     *
+     * <code>bool routing_cookie = 6;</code>
+     *
+     * @return The routingCookie.
+     */
+    @java.lang.Override
+    public boolean getRoutingCookie() {
+      return routingCookie_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using encoded routing cookie
+     * strings to retry requests with.
+     * </pre>
+     *
+     * <code>bool routing_cookie = 6;</code>
+     *
+     * @param value The routingCookie to set.
+     * @return This builder for chaining.
+     */
+    public Builder setRoutingCookie(boolean value) {
+
+      routingCookie_ = value;
+      bitField0_ |= 0x00000010;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using encoded routing cookie
+     * strings to retry requests with.
+     * </pre>
+     *
+     * <code>bool routing_cookie = 6;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearRoutingCookie() {
+      bitField0_ = (bitField0_ & ~0x00000010);
+      routingCookie_ = false;
+      onChanged();
+      return this;
+    }
+
+    private boolean retryInfo_;
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using retry info back off
+     * durations to retry requests with.
+     * </pre>
+     *
+     * <code>bool retry_info = 7;</code>
+     *
+     * @return The retryInfo.
+     */
+    @java.lang.Override
+    public boolean getRetryInfo() {
+      return retryInfo_;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using retry info back off
+     * durations to retry requests with.
+     * </pre>
+     *
+     * <code>bool retry_info = 7;</code>
+     *
+     * @param value The retryInfo to set.
+     * @return This builder for chaining.
+     */
+    public Builder setRetryInfo(boolean value) {
+
+      retryInfo_ = value;
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Notify the server that the client supports using retry info back off
+     * durations to retry requests with.
+     * </pre>
+     *
+     * <code>bool retry_info = 7;</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearRetryInfo() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      retryInfo_ = false;
       onChanged();
       return this;
     }
