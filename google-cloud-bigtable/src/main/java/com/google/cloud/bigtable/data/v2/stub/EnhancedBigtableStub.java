@@ -48,6 +48,7 @@ import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
@@ -57,6 +58,7 @@ import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.OpencensusTracerFactory;
@@ -129,6 +131,8 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
+import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -176,6 +180,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
+
+  private final boolean closeClientContext;
   private final RequestContext requestContext;
   private final FlowController bulkMutationFlowController;
   private final DynamicFlowControlStats bulkMutationDynamicFlowControlStats;
@@ -198,13 +204,20 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
-    settings = finalizeSettings(settings, Tags.getTagger(), Stats.getStatsRecorder());
 
-    return new EnhancedBigtableStub(settings, ClientContext.create(settings));
+    settings = settings.toBuilder().setTracerFactory(createBigtableTracerFactory(settings)).build();
+    ClientContext clientContext = createClientContext(settings);
+
+    return new EnhancedBigtableStub(settings, clientContext);
   }
 
-  public static EnhancedBigtableStubSettings finalizeSettings(
-      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
+  public static EnhancedBigtableStub createWithClientContext(
+      EnhancedBigtableStubSettings settings, ClientContext clientContext) throws IOException {
+
+    return new EnhancedBigtableStub(settings, clientContext, false);
+  }
+
+  public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
@@ -213,6 +226,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // workaround JWT audience issues
     patchCredentials(builder);
+
+    InstantiatingGrpcChannelProvider.Builder transportProvider =
+        builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
+            ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
+            : null;
+
+    if (builder.getEnableRoutingCookie() && transportProvider != null) {
+      // TODO: this also need to be added to BigtableClientFactory
+      // patch cookies interceptor
+      transportProvider.setInterceptorProvider(() -> ImmutableList.of(new CookiesInterceptor()));
+    }
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
@@ -223,67 +247,77 @@ public class EnhancedBigtableStub implements AutoCloseable {
       }
       builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
-      // Inject the primer
-      InstantiatingGrpcChannelProvider transportProvider =
-          (InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider();
-
-      builder.setTransportChannelProvider(
-          transportProvider
-              .toBuilder()
-              .setChannelPrimer(
-                  BigtableChannelPrimer.create(
-                      credentials,
-                      settings.getProjectId(),
-                      settings.getInstanceId(),
-                      settings.getAppProfileId()))
-              .build());
+      if (transportProvider != null) {
+        transportProvider.setChannelPrimer(
+            BigtableChannelPrimer.create(
+                credentials,
+                settings.getProjectId(),
+                settings.getInstanceId(),
+                settings.getAppProfileId()));
+      }
     }
+
+    if (transportProvider != null) {
+      builder.setTransportChannelProvider(transportProvider.build());
+    }
+
+    return ClientContext.create(builder.build());
+  }
+
+  public static ApiTracerFactory createBigtableTracerFactory(
+      EnhancedBigtableStubSettings settings) throws IOException {
+    return createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder());
+  }
+
+  @VisibleForTesting
+  public static ApiTracerFactory createBigtableTracerFactory(
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) throws IOException {
+    String projectId = settings.getProjectId();
+    String instanceId = settings.getInstanceId();
+    String appProfileId = settings.getAppProfileId();
 
     ImmutableMap<TagKey, TagValue> attributes =
         ImmutableMap.<TagKey, TagValue>builder()
-            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(settings.getProjectId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(settings.getInstanceId()))
-            .put(
-                RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID,
-                TagValue.create(settings.getAppProfileId()))
+            .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID, TagValue.create(projectId))
+            .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(instanceId))
+            .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId))
             .build();
 
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
-        .add(
-            // Add OpenCensus Tracing
-            new OpencensusTracerFactory(
-                ImmutableMap.<String, String>builder()
-                    // Annotate traces with the same tags as metrics
-                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), settings.getProjectId())
-                    .put(
-                        RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                        settings.getInstanceId())
-                    .put(
-                        RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
-                        settings.getAppProfileId())
-                    // Also annotate traces with library versions
-                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
-                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
-                    .put("gapic", Version.VERSION)
-                    .build()))
-        // Add OpenCensus Metrics
-        .add(MetricsTracerFactory.create(tagger, stats, attributes))
-        // Add user configured tracer
-        .add(settings.getTracerFactory());
+            .add(
+                    // Add OpenCensus Tracing
+                    new OpencensusTracerFactory(
+                            ImmutableMap.<String, String>builder()
+                                    // Annotate traces with the same tags as metrics
+                                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), settings.getProjectId())
+                                    .put(
+                                            RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
+                                            settings.getInstanceId())
+                                    .put(
+                                            RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
+                                            settings.getAppProfileId())
+                                    // Also annotate traces with library versions
+                                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
+                                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
+                                    .put("gapic", Version.VERSION)
+                                    .build()))
+            // Add OpenCensus Metrics
+            .add(MetricsTracerFactory.create(tagger, stats, attributes))
+            // Add user configured tracer
+            .add(settings.getTracerFactory());
     Attributes otelAttributes =
-        Attributes.of(
-            PROJECT_ID,
-            settings.getProjectId(),
-            INSTANCE_ID,
-            settings.getInstanceId(),
-            APP_PROFILE,
-            settings.getAppProfileId());
-    setupBuiltinMetricsTracerFactory(builder, tracerFactories, otelAttributes);
+            Attributes.of(
+                    PROJECT_ID,
+                    settings.getProjectId(),
+                    INSTANCE_ID,
+                    settings.getInstanceId(),
+                    APP_PROFILE,
+                    settings.getAppProfileId());
+    setupBuiltinMetricsTracerFactory(settings.toBuilder(), tracerFactories, otelAttributes);
     // Inject Opencensus instrumentation
-    builder.setTracerFactory(new CompositeTracerFactory(tracerFactories.build()));
-    return builder.build();
+    settings.toBuilder().setTracerFactory(new CompositeTracerFactory(tracerFactories.build()));
+    return new CompositeTracerFactory(tracerFactories.build());
   }
 
   private static void setupBuiltinMetricsTracerFactory(
@@ -355,8 +389,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
+    this(settings, clientContext, true);
+  }
+
+  public EnhancedBigtableStub(
+      EnhancedBigtableStubSettings settings,
+      ClientContext clientContext,
+      boolean closeClientContext) {
     this.settings = settings;
     this.clientContext = clientContext;
+    this.closeClientContext = closeClientContext;
     this.requestContext =
         RequestContext.create(
             settings.getProjectId(), settings.getInstanceId(), settings.getAppProfileId());
@@ -522,6 +564,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .setRetryableCodes(readRowsSettings.getRetryableCodes())
             .setRetrySettings(readRowsSettings.getRetrySettings())
             .setIdleTimeout(readRowsSettings.getIdleTimeout())
+            .setWaitTimeout(readRowsSettings.getWaitTimeout())
             .build();
 
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
@@ -536,7 +579,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
-        Callables.retrying(retrying1, innerSettings, clientContext);
+        withRetries(retrying1, innerSettings);
 
     return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
@@ -619,7 +662,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> retryable =
-        Callables.retrying(withBigtableTracer, settings.sampleRowKeysSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new SampleRowKeysCallable(retryable, requestContext));
@@ -658,7 +701,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
-        Callables.retrying(withBigtableTracer, settings.mutateRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.mutateRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new MutateRowCallable(retrying, requestContext));
@@ -682,11 +725,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable() {
     UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallable();
 
+    UnaryCallable<MutateRowsRequest, Void> withCookie = baseCallable;
+
+    if (settings.getEnableRoutingCookie()) {
+      withCookie = new CookiesUnaryCallable<>(baseCallable);
+    }
+
     UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
       flowControlCallable =
           new DynamicFlowControlCallable(
-              baseCallable,
+              withCookie,
               bulkMutationFlowController,
               bulkMutationDynamicFlowControlStats,
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
@@ -694,7 +743,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
     UnaryCallable<BulkMutation, Void> userFacing =
         new BulkMutateRowsUserFacingCallable(
-            flowControlCallable != null ? flowControlCallable : baseCallable, requestContext);
+            flowControlCallable != null ? flowControlCallable : withCookie, requestContext);
 
     SpanName spanName = getSpanName("MutateRows");
 
@@ -809,11 +858,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(convertException);
 
+    BasicResultRetryAlgorithm<Void> resultRetryAlgorithm;
+    if (settings.getEnableRetryInfo()) {
+      resultRetryAlgorithm = new RetryInfoRetryAlgorithm<>();
+    } else {
+      resultRetryAlgorithm = new ApiResultRetryAlgorithm<>();
+    }
+
     RetryAlgorithm<Void> retryAlgorithm =
         new RetryAlgorithm<>(
-            new ApiResultRetryAlgorithm<Void>(),
+            resultRetryAlgorithm,
             new ExponentialRetryAlgorithm(
                 settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
+
     RetryingExecutorWithContext<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
@@ -821,7 +878,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext.getDefaultCallContext(),
         withBigtableTracer,
         retryingExecutor,
-        settings.bulkMutateRowsSettings().getRetryableCodes());
+        settings.bulkMutateRowsSettings().getRetryableCodes(),
+        retryAlgorithm);
   }
 
   /**
@@ -859,7 +917,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> retrying =
-        Callables.retrying(withBigtableTracer, settings.checkAndMutateRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.checkAndMutateRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new CheckAndMutateRowCallable(retrying, requestContext));
@@ -900,8 +958,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> retrying =
-        Callables.retrying(
-            withBigtableTracer, settings.readModifyWriteRowSettings(), clientContext);
+        withRetries(withBigtableTracer, settings.readModifyWriteRowSettings());
 
     return createUserFacingUnaryCallable(
         methodName, new ReadModifyWriteRowCallable(retrying, requestContext));
@@ -970,6 +1027,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 settings.generateInitialChangeStreamPartitionsSettings().getRetrySettings())
             .setIdleTimeout(
                 settings.generateInitialChangeStreamPartitionsSettings().getIdleTimeout())
+            .setWaitTimeout(
+                settings.generateInitialChangeStreamPartitionsSettings().getWaitTimeout())
             .build();
 
     ServerStreamingCallable<String, ByteStringRange> watched =
@@ -979,7 +1038,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<String, ByteStringRange> retrying =
-        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+        withRetries(withBigtableTracer, innerSettings);
 
     SpanName span = getSpanName("GenerateInitialChangeStreamPartitions");
     ServerStreamingCallable<String, ByteStringRange> traced =
@@ -1044,6 +1103,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .setRetryableCodes(settings.readChangeStreamSettings().getRetryableCodes())
             .setRetrySettings(settings.readChangeStreamSettings().getRetrySettings())
             .setIdleTimeout(settings.readChangeStreamSettings().getIdleTimeout())
+            .setWaitTimeout(settings.readChangeStreamSettings().getWaitTimeout())
             .build();
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> watched =
@@ -1053,7 +1113,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
-        Callables.retrying(withBigtableTracer, innerSettings, clientContext);
+        withRetries(withBigtableTracer, innerSettings);
 
     ServerStreamingCallable<ReadChangeStreamQuery, ChangeStreamRecordT>
         readChangeStreamUserCallable =
@@ -1097,6 +1157,40 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             Collections.emptySet());
     return pingAndWarm.withDefaultCallContext(clientContext.getDefaultCallContext());
+  }
+
+  private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
+      UnaryCallable<RequestT, ResponseT> innerCallable, UnaryCallSettings<?, ?> unaryCallSettings) {
+    UnaryCallable<RequestT, ResponseT> retrying;
+    if (settings.getEnableRetryInfo()) {
+      retrying =
+          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+              innerCallable, unaryCallSettings, clientContext);
+    } else {
+      retrying = Callables.retrying(innerCallable, unaryCallSettings, clientContext);
+    }
+    if (settings.getEnableRoutingCookie()) {
+      return new CookiesUnaryCallable<>(retrying);
+    }
+    return retrying;
+  }
+
+  private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> withRetries(
+      ServerStreamingCallable<RequestT, ResponseT> innerCallable,
+      ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
+
+    ServerStreamingCallable<RequestT, ResponseT> retrying;
+    if (settings.getEnableRetryInfo()) {
+      retrying =
+          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+              innerCallable, serverStreamingCallSettings, clientContext);
+    } else {
+      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+    }
+    if (settings.getEnableRoutingCookie()) {
+      return new CookiesServerStreamingCallable<>(retrying);
+    }
+    return retrying;
   }
   // </editor-fold>
 
@@ -1166,11 +1260,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   @Override
   public void close() {
-    for (BackgroundResource backgroundResource : clientContext.getBackgroundResources()) {
-      try {
-        backgroundResource.close();
-      } catch (Exception e) {
-        throw new IllegalStateException("Failed to close resource", e);
+    if (closeClientContext) {
+      for (BackgroundResource backgroundResource : clientContext.getBackgroundResources()) {
+        try {
+          backgroundResource.close();
+        } catch (Exception e) {
+          throw new IllegalStateException("Failed to close resource", e);
+        }
       }
     }
   }

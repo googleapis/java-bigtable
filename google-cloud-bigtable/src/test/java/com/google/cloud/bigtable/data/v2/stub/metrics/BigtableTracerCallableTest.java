@@ -126,8 +126,13 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+        settings
+            .getStubSettings()
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder()))
+            .build();
     attempts = stubSettings.readRowsSettings().getRetrySettings().getMaxAttempts();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
 
@@ -142,8 +147,15 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings noHeaderStubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            noHeaderSettings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+        noHeaderSettings
+            .getStubSettings()
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    noHeaderSettings.getStubSettings(),
+                    Tags.getTagger(),
+                    localStats.getStatsRecorder()))
+            .build();
     noHeaderStub =
         new EnhancedBigtableStub(noHeaderStubSettings, ClientContext.create(noHeaderStubSettings));
   }
@@ -403,7 +415,11 @@ public class BigtableTracerCallableTest {
 
     @Override
     public void mutateRows(MutateRowsRequest request, StreamObserver<MutateRowsResponse> observer) {
-      observer.onNext(MutateRowsResponse.getDefaultInstance());
+      MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
+      for (int i = 0; i < request.getEntriesCount(); i++) {
+        builder.addEntries(MutateRowsResponse.Entry.newBuilder().setIndex(i));
+      }
+      observer.onNext(builder.build());
       observer.onCompleted();
     }
 

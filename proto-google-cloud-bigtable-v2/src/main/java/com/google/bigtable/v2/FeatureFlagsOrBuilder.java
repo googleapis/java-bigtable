@@ -42,7 +42,8 @@ public interface FeatureFlagsOrBuilder
    *
    * <pre>
    * Notify the server that the client enables batch write flow control by
-   * requesting RateLimitInfo from MutateRowsResponse.
+   * requesting RateLimitInfo from MutateRowsResponse. Due to technical reasons,
+   * this disables partial retries.
    * </pre>
    *
    * <code>bool mutate_rows_rate_limit = 3;</code>
@@ -55,8 +56,23 @@ public interface FeatureFlagsOrBuilder
    *
    *
    * <pre>
+   * Notify the server that the client enables batch write flow control by
+   * requesting RateLimitInfo from MutateRowsResponse. With partial retries
+   * enabled.
+   * </pre>
+   *
+   * <code>bool mutate_rows_rate_limit2 = 5;</code>
+   *
+   * @return The mutateRowsRateLimit2.
+   */
+  boolean getMutateRowsRateLimit2();
+
+  /**
+   *
+   *
+   * <pre>
    * Notify the server that the client supports the last_scanned_row field
-   * in ReadRowsResponse for long-running sparse scans.
+   * in ReadRowsResponse for long-running scans.
    * </pre>
    *
    * <code>bool last_scanned_row_responses = 4;</code>
@@ -64,4 +80,32 @@ public interface FeatureFlagsOrBuilder
    * @return The lastScannedRowResponses.
    */
   boolean getLastScannedRowResponses();
+
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports using encoded routing cookie
+   * strings to retry requests with.
+   * </pre>
+   *
+   * <code>bool routing_cookie = 6;</code>
+   *
+   * @return The routingCookie.
+   */
+  boolean getRoutingCookie();
+
+  /**
+   *
+   *
+   * <pre>
+   * Notify the server that the client supports using retry info back off
+   * durations to retry requests with.
+   * </pre>
+   *
+   * <code>bool retry_info = 7;</code>
+   *
+   * @return The retryInfo.
+   */
+  boolean getRetryInfo();
 }

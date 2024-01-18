@@ -19,7 +19,9 @@ import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingFuture;
+import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ApiExceptionFactory;
@@ -35,6 +37,7 @@ import com.google.cloud.bigtable.gaxx.retrying.NonCancellableFuture;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.rpc.Code;
 import java.util.List;
@@ -109,6 +112,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
   @Nullable private List<Integer> originalIndexes;
   @Nonnull private final Set<StatusCode.Code> retryableCodes;
   @Nullable private final List<FailedMutation> permanentFailures;
+  @Nonnull private final RetryAlgorithm<MutateRowsRequest> retryAlgorithm;
+  @Nonnull private TimedAttemptSettings attemptSettings;
 
   // Parent controller
   private RetryingFuture<Void> externalFuture;
@@ -136,11 +141,14 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       @Nonnull UnaryCallable<MutateRowsRequest, List<MutateRowsResponse>> innerCallable,
       @Nonnull MutateRowsRequest originalRequest,
       @Nonnull ApiCallContext callContext,
-      @Nonnull Set<StatusCode.Code> retryableCodes) {
+      @Nonnull Set<StatusCode.Code> retryableCodes,
+      @Nonnull RetryAlgorithm<MutateRowsRequest> retryAlgorithm) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "innerCallable");
     this.currentRequest = Preconditions.checkNotNull(originalRequest, "currentRequest");
     this.callContext = Preconditions.checkNotNull(callContext, "callContext");
     this.retryableCodes = Preconditions.checkNotNull(retryableCodes, "retryableCodes");
+    this.retryAlgorithm = retryAlgorithm;
+    this.attemptSettings = retryAlgorithm.createFirstAttempt();
 
     permanentFailures = Lists.newArrayList();
   }
@@ -228,13 +236,15 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
 
+    attemptSettings = retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
+
     for (int i = 0; i < currentRequest.getEntriesCount(); i++) {
       int origIndex = getOriginalIndex(i);
 
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      if (!failedMutation.getError().isRetryable()) {
+      if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, attemptSettings)) {
         permanentFailures.add(failedMutation);
       } else {
         // Schedule the mutation entry for the next RPC by adding it to the request builder and
@@ -247,7 +257,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
-    throw new MutateRowsException(rpcError, allFailures.build(), entryError.isRetryable());
+    throw MutateRowsException.create(rpcError, allFailures.build(), builder.getEntriesCount() > 0);
   }
 
   /**
@@ -255,7 +265,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
    * transient failures are found, their corresponding mutations are scheduled for the next RPC. The
    * caller is notified of both new found errors and pre-existing permanent errors in the thrown
    * {@link MutateRowsException}. If no errors exist, then the attempt future is successfully
-   * completed.
+   * completed. We don't currently handle RetryInfo on entry level failures.
    */
   private void handleAttemptSuccess(List<MutateRowsResponse> responses) {
     List<FailedMutation> allFailures = Lists.newArrayList(permanentFailures);
@@ -263,9 +273,12 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
+    boolean[] seenIndices = new boolean[currentRequest.getEntriesCount()];
 
     for (MutateRowsResponse response : responses) {
       for (Entry entry : response.getEntriesList()) {
+        seenIndices[Ints.checkedCast(entry.getIndex())] = true;
+
         if (entry.getStatus().getCode() == Code.OK_VALUE) {
           continue;
         }
@@ -288,12 +301,32 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       }
     }
 
+    // Handle missing mutations
+    for (int i = 0; i < seenIndices.length; i++) {
+      if (seenIndices[i]) {
+        continue;
+      }
+
+      int origIndex = getOriginalIndex(i);
+      FailedMutation failedMutation =
+          FailedMutation.create(
+              origIndex,
+              ApiExceptionFactory.createException(
+                  "Missing entry response for entry " + origIndex,
+                  null,
+                  GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL),
+                  false));
+
+      allFailures.add(failedMutation);
+      permanentFailures.add(failedMutation);
+    }
+
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      throw new MutateRowsException(null, allFailures, isRetryable);
+      throw MutateRowsException.create(null, allFailures, isRetryable);
     }
   }
 
@@ -328,10 +361,10 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       ApiException requestApiException = (ApiException) overallRequestError;
 
       return ApiExceptionFactory.createException(
-          "Didn't receive a result for this mutation entry",
           overallRequestError,
           requestApiException.getStatusCode(),
-          requestApiException.isRetryable());
+          requestApiException.isRetryable(),
+          requestApiException.getErrorDetails());
     }
 
     return ApiExceptionFactory.createException(

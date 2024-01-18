@@ -34,6 +34,12 @@
         <className>com/google/cloud/bigtable/data/v2/stub/EnhancedBigtableStub</className>
         <method>*</method>
     </difference>
+    <difference>
+        <!-- method name change is ok because EnhancedBigtableStub is InternalApi -->
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/EnhancedBigtableStub</className>
+        <method>*</method>
+    </difference>
     <!-- InternalApi that was renamed -->
     <difference>
         <differenceType>8001</differenceType>
@@ -154,6 +160,29 @@
     <difference>
         <differenceType>7004</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/BuiltinMetricsTracerFactory</className>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>6001</differenceType>
+        <className>com/google/cloud/bigtable/gaxx/retrying/ApiResultRetryAlgorithm</className>
+        <field>*</field>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/mutaterows/MutateRowsRetryingCallable</className>
+        <method>*</method>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/MutateRowsException</className>
+        <method>*</method>
+    </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7009</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/MutateRowsException</className>
         <method>*</method>
     </difference>
 </differences>
