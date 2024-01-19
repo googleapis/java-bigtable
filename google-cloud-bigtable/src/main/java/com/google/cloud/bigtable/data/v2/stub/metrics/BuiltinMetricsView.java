@@ -15,31 +15,24 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_VIEW;
-
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
+import java.util.Map;
 
-/** Register built-in metrics on a custom OpenTelemetry instance. */
+/**
+ * Register built-in metrics on a custom OpenTelemetry instance. This is for advanced usage, and is
+ * only necessary when wanting to write built-in metrics to cloud monitoring and custom sinks.
+ * Please refer to {@link
+ * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setOpenTelemetry(OpenTelemetry)}
+ * for example usage.
+ */
 public class BuiltinMetricsView {
 
   /**
@@ -57,15 +50,10 @@ public class BuiltinMetricsView {
       String projectId, Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
     MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(projectId, credentials);
-    builder
-        .registerMetricReader(PeriodicMetricReader.create(metricExporter))
-        .registerView(OPERATION_LATENCIES_SELECTOR, OPERATION_LATENCIES_VIEW)
-        .registerView(ATTEMPT_LATENCIES_SELECTOR, ATTEMPT_LATENCIES_VIEW)
-        .registerView(SERVER_LATENCIES_SELECTOR, SERVER_LATENCIES_VIEW)
-        .registerView(FIRST_RESPONSE_LATENCIES_SELECTOR, FIRST_RESPONSE_LATENCIES_VIEW)
-        .registerView(APPLICATION_BLOCKING_LATENCIES_SELECTOR, APPLICATION_BLOCKING_LATENCIES_VIEW)
-        .registerView(CLIENT_BLOCKING_LATENCIES_SELECTOR, CLIENT_BLOCKING_LATENCIES_VIEW)
-        .registerView(RETRY_COUNT_SELECTOR, RETRY_COUNT_VIEW)
-        .registerView(CONNECTIVITY_ERROR_COUNT_SELECTOR, CONNECTIVITY_ERROR_COUNT_VIEW);
+    for (Map.Entry<InstrumentSelector, View> entry :
+        BuiltinMetricsConstants.getAllViews().entrySet()) {
+      builder.registerView(entry.getKey(), entry.getValue());
+    }
+    builder.registerMetricReader(PeriodicMetricReader.create(metricExporter));
   }
 }

@@ -169,10 +169,14 @@ public class BigtableDataClientFactoryTest {
 
   @Test
   public void testNewClientsShareTransportChannel() throws Exception {
-
     // Create 3 lightweight clients
 
-    try (BigtableDataClientFactory factory = BigtableDataClientFactory.create(defaultSettings);
+    // Builtin metrics will call getCredentialsProvider at which point it'll be a
+    // FixedCredentialProvider.
+    // So disabling in the test code it's fine.
+    try (BigtableDataClientFactory factory =
+            BigtableDataClientFactory.create(
+                defaultSettings.toBuilder().setBuiltinMetricsEnabled(false).build());
         BigtableDataClient ignored1 = factory.createForInstance("project1", "instance1");
         BigtableDataClient ignored2 = factory.createForInstance("project2", "instance2");
         BigtableDataClient ignored3 = factory.createForInstance("project3", "instance3")) {
@@ -249,6 +253,10 @@ public class BigtableDataClientFactoryTest {
             .setProjectId(DEFAULT_PROJECT_ID)
             .setInstanceId(DEFAULT_INSTANCE_ID)
             .setAppProfileId(DEFAULT_APP_PROFILE_ID)
+            // Builtin metrics will call getCredentialsProvider at which point it'll be a
+            // FixedCredentialProvider.
+            // So disabling in the test code it's fine.
+            .setBuiltinMetricsEnabled(false)
             .setRefreshingChannel(true);
     builder
         .stubSettings()

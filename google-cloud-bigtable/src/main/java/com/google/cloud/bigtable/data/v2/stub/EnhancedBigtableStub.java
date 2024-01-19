@@ -264,14 +264,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return ClientContext.create(builder.build());
   }
 
-  public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings) throws IOException {
+  public static ApiTracerFactory createBigtableTracerFactory(EnhancedBigtableStubSettings settings)
+      throws IOException {
     return createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder());
   }
 
   @VisibleForTesting
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) throws IOException {
+      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats)
+      throws IOException {
     String projectId = settings.getProjectId();
     String instanceId = settings.getInstanceId();
     String appProfileId = settings.getAppProfileId();
@@ -285,49 +286,47 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
-            .add(
-                    // Add OpenCensus Tracing
-                    new OpencensusTracerFactory(
-                            ImmutableMap.<String, String>builder()
-                                    // Annotate traces with the same tags as metrics
-                                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), settings.getProjectId())
-                                    .put(
-                                            RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                                            settings.getInstanceId())
-                                    .put(
-                                            RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
-                                            settings.getAppProfileId())
-                                    // Also annotate traces with library versions
-                                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
-                                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
-                                    .put("gapic", Version.VERSION)
-                                    .build()))
-            // Add OpenCensus Metrics
-            .add(MetricsTracerFactory.create(tagger, stats, attributes))
-            // Add user configured tracer
-            .add(settings.getTracerFactory());
+        .add(
+            // Add OpenCensus Tracing
+            new OpencensusTracerFactory(
+                ImmutableMap.<String, String>builder()
+                    // Annotate traces with the same tags as metrics
+                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), settings.getProjectId())
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
+                        settings.getInstanceId())
+                    .put(
+                        RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
+                        settings.getAppProfileId())
+                    // Also annotate traces with library versions
+                    .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
+                    .put("grpc", GaxGrpcProperties.getGrpcVersion())
+                    .put("gapic", Version.VERSION)
+                    .build()))
+        // Add OpenCensus Metrics
+        .add(MetricsTracerFactory.create(tagger, stats, attributes))
+        // Add user configured tracer
+        .add(settings.getTracerFactory());
     Attributes otelAttributes =
-            Attributes.of(
-                    PROJECT_ID,
-                    settings.getProjectId(),
-                    INSTANCE_ID,
-                    settings.getInstanceId(),
-                    APP_PROFILE,
-                    settings.getAppProfileId());
-    setupBuiltinMetricsTracerFactory(settings.toBuilder(), tracerFactories, otelAttributes);
-    // Inject Opencensus instrumentation
-    settings.toBuilder().setTracerFactory(new CompositeTracerFactory(tracerFactories.build()));
+        Attributes.of(
+            PROJECT_ID,
+            settings.getProjectId(),
+            INSTANCE_ID,
+            settings.getInstanceId(),
+            APP_PROFILE,
+            settings.getAppProfileId());
+    BuiltinMetricsTracerFactory builtinMetricsTracerFactory =
+        setupBuiltinMetricsTracerFactory(settings.toBuilder(), otelAttributes);
+    if (builtinMetricsTracerFactory != null) {
+      tracerFactories.add(builtinMetricsTracerFactory);
+    }
     return new CompositeTracerFactory(tracerFactories.build());
   }
 
-  private static void setupBuiltinMetricsTracerFactory(
-      EnhancedBigtableStubSettings.Builder settings,
-      ImmutableList.Builder<ApiTracerFactory> tracerFactories,
-      Attributes attributes)
-      throws IOException {
+  private static BuiltinMetricsTracerFactory setupBuiltinMetricsTracerFactory(
+      EnhancedBigtableStubSettings.Builder settings, Attributes attributes) throws IOException {
     if (settings.getOpenTelemetry() != null) {
-      tracerFactories.add(
-          BuiltinMetricsTracerFactory.create(settings.getOpenTelemetry(), attributes));
+      return BuiltinMetricsTracerFactory.create(settings.getOpenTelemetry(), attributes);
     } else if (settings.isBuiltinMetricsEnabled()) {
       MetricExporter metricExporter =
           BigtableCloudMonitoringExporter.create(
@@ -349,8 +348,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
               .build();
       OpenTelemetry openTelemetry =
           OpenTelemetrySdk.builder().setMeterProvider(meterProvider).build();
-      tracerFactories.add(BuiltinMetricsTracerFactory.create(openTelemetry, attributes));
+      return BuiltinMetricsTracerFactory.create(openTelemetry, attributes);
     }
+    return null;
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

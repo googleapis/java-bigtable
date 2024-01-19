@@ -17,11 +17,13 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.metrics.Aggregation;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.View;
+import java.util.Map;
 
 /** Defining Bigtable builit-in metrics scope, attributes, metric names and views. */
 @InternalApi
@@ -158,4 +160,17 @@ public class BuiltinMetricsConstants {
           .setName("bigtable.googleapis.com/internal/client/connectivity_error_count")
           .setAggregation(Aggregation.sum())
           .build();
+
+  public static Map<InstrumentSelector, View> getAllViews() {
+    return new ImmutableMap.Builder<InstrumentSelector, View>()
+        .put(OPERATION_LATENCIES_SELECTOR, OPERATION_LATENCIES_VIEW)
+        .put(ATTEMPT_LATENCIES_SELECTOR, ATTEMPT_LATENCIES_VIEW)
+        .put(SERVER_LATENCIES_SELECTOR, SERVER_LATENCIES_VIEW)
+        .put(FIRST_RESPONSE_LATENCIES_SELECTOR, FIRST_RESPONSE_LATENCIES_VIEW)
+        .put(APPLICATION_BLOCKING_LATENCIES_SELECTOR, APPLICATION_BLOCKING_LATENCIES_VIEW)
+        .put(CLIENT_BLOCKING_LATENCIES_SELECTOR, CLIENT_BLOCKING_LATENCIES_VIEW)
+        .put(RETRY_COUNT_SELECTOR, RETRY_COUNT_VIEW)
+        .put(CONNECTIVITY_ERROR_COUNT_SELECTOR, CONNECTIVITY_ERROR_COUNT_VIEW)
+        .build();
+  }
 }

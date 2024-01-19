@@ -26,7 +26,6 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.common.base.Joiner;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
@@ -42,11 +41,6 @@ import io.grpc.Grpc;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
-import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -103,8 +97,6 @@ class CloudEnv extends AbstractTestEnv {
   private BigtableTableAdminClient tableAdminClient;
   private BigtableInstanceAdminClient instanceAdminClient;
 
-  private final InMemoryMetricReader metricReader = InMemoryMetricReader.create();
-
   static CloudEnv fromSystemProperties() {
     return new CloudEnv(
         getOptionalProperty(DATA_ENDPOINT_PROPERTY_NAME, ""),
@@ -135,7 +127,6 @@ class CloudEnv extends AbstractTestEnv {
 
     setupRemoteAddrInterceptor(dataSettings.stubSettings());
     configureUserAgent(dataSettings.stubSettings());
-    configureMetricsReader(dataSettings.stubSettings());
 
     this.tableAdminSettings =
         BigtableTableAdminSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
@@ -274,20 +265,6 @@ class CloudEnv extends AbstractTestEnv {
     stubSettings.setHeaderProvider(FixedHeaderProvider.create(newHeaders));
   }
 
-  private void configureMetricsReader(EnhancedBigtableStubSettings.Builder stubSettings) {
-    SdkMeterProviderBuilder meterProvider =
-        SdkMeterProvider.builder().registerMetricReader(metricReader);
-    try {
-      BuiltinMetricsView.registerBuiltinMetrics(projectId, meterProvider);
-    } catch (IOException e) {
-      throw new RuntimeException("Failed to register views");
-    }
-    OpenTelemetry openTelemetry =
-        OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
-
-    stubSettings.setOpenTelemetry(openTelemetry);
-  }
-
   @Override
   void start() throws IOException {
     dataClient = BigtableDataClient.create(dataSettings.build());
@@ -363,11 +340,6 @@ class CloudEnv extends AbstractTestEnv {
     } catch (IOException e) {
       throw new IllegalStateException("Caught unexpected error building table admin settings", e);
     }
-  }
-
-  @Override
-  public InMemoryMetricReader getMetricReader() {
-    return this.metricReader;
   }
 
   @Override

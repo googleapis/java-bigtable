@@ -265,7 +265,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     isBuiltinMetricsEnabled = builder.isBuiltinMetricsEnabled;
     openTelemetry = builder.openTelemetry;
 
-
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
     readRowSettings = builder.readRowSettings.build();
@@ -801,7 +800,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isBuiltinMetricsEnabled = settings.isBuiltinMetricsEnabled;
       openTelemetry = settings.openTelemetry;
 
-
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
       readRowSettings = settings.readRowSettings.toBuilder();
@@ -956,24 +954,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * Set a custom OpenTelemetry instance.
-     *
-     * <p>Register builtin metrics on the custom OpenTelemetry: <code>
-     * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
-     *
-     * // register Builtin metrics on your meter provider
-     * BuiltinMetricsViews.registerBuiltinMetrics("project-id", sdkMeterProvider);
-     *
-     * // register other metrics reader and views
-     * sdkMeterProvider.registerMetricReader(..);
-     * sdkMeterProvider.registerView(..);
-     *
-     * // create the OTEL instance
-     * OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().
-     *     setMeterProvider(sdkMeterProvider().build();
-     *
-     * stubSettings.setOpenTelemetry(openTelemetry);
-     * </code>
+     * Set a custom OpenTelemetry instance. See {@link
+     * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setOpenTelemetry(OpenTelemetry)}
+     * on how to register built-in metrics on your custom OTEL instance.
      */
     public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
       this.openTelemetry = openTelemetry;

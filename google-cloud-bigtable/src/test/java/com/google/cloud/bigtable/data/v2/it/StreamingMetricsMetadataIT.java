@@ -21,44 +21,75 @@ import static com.google.common.truth.TruthJUnit.assume;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
+import com.google.cloud.bigtable.data.v2.BigtableDataClient;
+import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.PointData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.junit.BeforeClass;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 public class StreamingMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  @BeforeClass
-  public static void setUpClass() {
+  private BigtableDataClient client;
+  private InMemoryMetricReader metricReader;
+
+  @Before
+  public void setup() throws IOException {
     assume()
         .withMessage("StreamingMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
+
+    BigtableDataSettings.Builder settings = testEnvRule.env().getDataClientSettings().toBuilder();
+
+    metricReader = InMemoryMetricReader.create();
+
+    SdkMeterProviderBuilder meterProvider =
+        SdkMeterProvider.builder().registerMetricReader(metricReader);
+    BuiltinMetricsView.registerBuiltinMetrics(testEnvRule.env().getProjectId(), meterProvider);
+    OpenTelemetry openTelemetry =
+        OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+
+    settings.setOpenTelemetry(openTelemetry);
+
+    client = BigtableDataClient.create(settings.build());
+  }
+
+  @After
+  public void tearDown() throws IOException {
+    if (client != null) {
+      client.close();
+    }
   }
 
   @Test
   public void testSuccess() throws Exception {
-    InMemoryMetricReader metricReader = testEnvRule.env().getMetricReader();
-
     String prefix = UUID.randomUUID().toString();
     String uniqueKey = prefix + "-read";
 
     Query query = Query.create(testEnvRule.env().getTableId()).rowKey(uniqueKey);
-    ArrayList<Row> rows = Lists.newArrayList(testEnvRule.env().getDataClient().readRows(query));
+    ArrayList<Row> rows = Lists.newArrayList(client.readRows(query));
 
     ApiFuture<List<Cluster>> clustersFuture =
         testEnvRule
@@ -93,11 +124,9 @@ public class StreamingMetricsMetadataIT {
 
   @Test
   public void testFailure() {
-    InMemoryMetricReader metricReader = testEnvRule.env().getMetricReader();
-
     Query query = Query.create("non-exist-table");
     try {
-      Lists.newArrayList(testEnvRule.env().getDataClient().readRows(query));
+      Lists.newArrayList(client.readRows(query));
     } catch (NotFoundException e) {
     }
 
