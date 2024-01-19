@@ -52,6 +52,9 @@ public class StatsRecorderWrapperTest {
   private final String ZONE = "fake-zone";
   private final String CLUSTER = "fake-cluster";
 
+  private final String VERSION = "fake-version";
+  private final String CLIENT_AND_VERSION = "bigtable-java/fake-version";
+
   private final StatsComponent statsComponent = new StatsComponentImpl();
 
   @Before
@@ -93,8 +96,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putClientBlockingLatencies(throttlingLatency);
 
-    recorderWrapper.recordOperation("OK", TABLE_ID, ZONE, CLUSTER);
-    recorderWrapper.recordAttempt("OK", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordOperation("OK", TABLE_ID, ZONE, CLUSTER, VERSION);
+    recorderWrapper.recordAttempt("OK", TABLE_ID, ZONE, CLUSTER, VERSION);
 
     Thread.sleep(100);
 
@@ -107,7 +110,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.TABLE, TABLE_ID,
                     BuiltinMeasureConstants.ZONE, ZONE,
                     BuiltinMeasureConstants.CLUSTER, CLUSTER,
-                    BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java",
+                    BuiltinMeasureConstants.CLIENT_NAME, CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING, "true"),
                 PROJECT_ID,
                 INSTANCE_ID,
@@ -129,7 +132,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "true"),
                 PROJECT_ID,
@@ -152,7 +155,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java"),
+                    CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,
@@ -167,7 +170,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "OK",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "true",
                     BuiltinMeasureConstants.TABLE,
@@ -196,7 +199,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "true"),
                 PROJECT_ID,
@@ -213,7 +216,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "OK",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -233,7 +236,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.TABLE, TABLE_ID,
                     BuiltinMeasureConstants.ZONE, ZONE,
                     BuiltinMeasureConstants.CLUSTER, CLUSTER,
-                    BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java"),
+                    BuiltinMeasureConstants.CLIENT_NAME, CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,
@@ -254,7 +257,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "OK",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java"),
+                    CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,
@@ -292,8 +295,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putClientBlockingLatencies(throttlingLatency);
 
-    recorderWrapper.recordOperation("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
-    recorderWrapper.recordAttempt("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordOperation("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER, VERSION);
+    recorderWrapper.recordAttempt("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER, VERSION);
 
     Thread.sleep(100);
 
@@ -312,7 +315,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "false"),
                 PROJECT_ID,
@@ -335,7 +338,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "false"),
                 PROJECT_ID,
@@ -358,7 +361,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java"),
+                    CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,
@@ -373,7 +376,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "false",
                     BuiltinMeasureConstants.TABLE,
@@ -402,7 +405,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.CLUSTER,
                     CLUSTER,
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.STREAMING,
                     "false"),
                 PROJECT_ID,
@@ -419,7 +422,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java",
+                    CLIENT_AND_VERSION,
                     BuiltinMeasureConstants.TABLE,
                     TABLE_ID,
                     BuiltinMeasureConstants.ZONE,
@@ -439,7 +442,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.TABLE, TABLE_ID,
                     BuiltinMeasureConstants.ZONE, ZONE,
                     BuiltinMeasureConstants.CLUSTER, CLUSTER,
-                    BuiltinMeasureConstants.CLIENT_NAME, "bigtable-java"),
+                    BuiltinMeasureConstants.CLIENT_NAME, CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,
@@ -460,7 +463,7 @@ public class StatsRecorderWrapperTest {
                     BuiltinMeasureConstants.STATUS,
                     "UNAVAILABLE",
                     BuiltinMeasureConstants.CLIENT_NAME,
-                    "bigtable-java"),
+                    CLIENT_AND_VERSION),
                 PROJECT_ID,
                 INSTANCE_ID,
                 APP_PROFILE_ID,

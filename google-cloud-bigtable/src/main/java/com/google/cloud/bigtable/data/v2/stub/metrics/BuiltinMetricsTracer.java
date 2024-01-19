@@ -20,6 +20,7 @@ import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
+import com.google.cloud.bigtable.Version;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
@@ -258,7 +259,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       recorder.putFirstResponseLatencies(firstResponsePerOpTimer.elapsed(TimeUnit.MILLISECONDS));
     }
 
-    recorder.recordOperation(Util.extractStatus(status), tableId, zone, cluster);
+    recorder.recordOperation(Util.extractStatus(status), tableId, zone, cluster, Version.VERSION);
   }
 
   private void recordAttemptCompletion(@Nullable Throwable status) {
@@ -284,6 +285,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
 
     recorder.putAttemptLatencies(attemptTimer.elapsed(TimeUnit.MILLISECONDS));
-    recorder.recordAttempt(Util.extractStatus(status), tableId, zone, cluster);
+    recorder.recordAttempt(Util.extractStatus(status), tableId, zone, cluster, Version.VERSION);
   }
 }

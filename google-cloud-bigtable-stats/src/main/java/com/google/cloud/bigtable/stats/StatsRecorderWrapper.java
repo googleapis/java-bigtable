@@ -59,9 +59,9 @@ public class StatsRecorderWrapper {
     this.operationMeasureMap = statsRecorder.newMeasureMap();
   }
 
-  public void recordOperation(String status, String tableId, String zone, String cluster) {
+  public void recordOperation(String status, String tableId, String zone, String cluster, String clientVersion) {
     TagContextBuilder tagCtx =
-        newTagContextBuilder(tableId, zone, cluster)
+        newTagContextBuilder(tableId, zone, cluster, clientVersion)
             .putLocal(BuiltinMeasureConstants.STATUS, TagValue.create(status));
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
@@ -73,9 +73,9 @@ public class StatsRecorderWrapper {
     operationMeasureMap = statsRecorder.newMeasureMap();
   }
 
-  public void recordAttempt(String status, String tableId, String zone, String cluster) {
+  public void recordAttempt(String status, String tableId, String zone, String cluster, String clientVersion) {
     TagContextBuilder tagCtx =
-        newTagContextBuilder(tableId, zone, cluster)
+        newTagContextBuilder(tableId, zone, cluster, clientVersion)
             .putLocal(BuiltinMeasureConstants.STATUS, TagValue.create(status));
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
@@ -119,11 +119,12 @@ public class StatsRecorderWrapper {
     operationMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, clientBlockingLatency);
   }
 
-  private TagContextBuilder newTagContextBuilder(String tableId, String zone, String cluster) {
+  private TagContextBuilder newTagContextBuilder(String tableId, String zone, String cluster, String clientVersion) {
     TagContextBuilder tagContextBuilder =
         tagger
             .toBuilder(parentContext)
-            .putLocal(BuiltinMeasureConstants.CLIENT_NAME, TagValue.create("bigtable-java"))
+            .putLocal(BuiltinMeasureConstants.CLIENT_NAME, TagValue.create(
+              "bigtable-java/" + clientVersion))
             .putLocal(BuiltinMeasureConstants.METHOD, TagValue.create(spanName.toString()))
             .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
             .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))

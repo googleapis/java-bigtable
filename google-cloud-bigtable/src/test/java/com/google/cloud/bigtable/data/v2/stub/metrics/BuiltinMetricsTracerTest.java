@@ -106,6 +106,7 @@ public class BuiltinMetricsTracerTest {
   private static final String BAD_TABLE_ID = "non-exist-table";
   private static final String ZONE = "us-west-1";
   private static final String CLUSTER = "cluster-0";
+  private static final String VERSION = "fake-version";
   private static final long FAKE_SERVER_TIMING = 50;
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
@@ -260,7 +261,7 @@ public class BuiltinMetricsTracerTest {
     verify(statsRecorderWrapper).putOperationLatencies(operationLatency.capture());
     // verify record operation is only called once
     verify(statsRecorderWrapper)
-        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
     assertThat(operationLatency.getValue()).isIn(Range.closed(SERVER_LATENCY, elapsed));
     assertThat(status.getAllValues()).containsExactly("OK");
@@ -286,7 +287,7 @@ public class BuiltinMetricsTracerTest {
 
     // Verify record attempt are called multiple times
     verify(statsRecorderWrapper, times(fakeService.getAttemptCounter().get()))
-        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
     // The request was retried and gfe latency is only recorded in the retry attempt
     verify(statsRecorderWrapper).putGfeLatencies(gfeLatency.capture());
@@ -351,7 +352,7 @@ public class BuiltinMetricsTracerTest {
     verify(statsRecorderWrapper).putApplicationLatencies(applicationLatency.capture());
     verify(statsRecorderWrapper).putOperationLatencies(operationLatency.capture());
     verify(statsRecorderWrapper)
-        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
     assertThat(counter.get()).isEqualTo(fakeService.getResponseCounter().get());
     // Thread.sleep might not sleep for the requested amount depending on the interrupt period
@@ -389,7 +390,7 @@ public class BuiltinMetricsTracerTest {
     verify(statsRecorderWrapper).putApplicationLatencies(applicationLatency.capture());
     verify(statsRecorderWrapper).putOperationLatencies(operationLatency.capture());
     verify(statsRecorderWrapper)
-        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
     // For manual flow control, the last application latency shouldn't count, because at that point
     // the server already sent back all the responses.
@@ -442,7 +443,7 @@ public class BuiltinMetricsTracerTest {
     // called after the mutateRow call is returned. So there's a race between when the call returns
     // and when the record() is called in onOperationCompletion().
     verify(statsRecorderWrapper, timeout(50).times(fakeService.getAttemptCounter().get()))
-        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
     assertThat(zone.getAllValues()).containsExactly("global", "global", ZONE);
     assertThat(cluster.getAllValues()).containsExactly("unspecified", "unspecified", CLUSTER);
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "UNAVAILABLE", "OK");
@@ -466,7 +467,7 @@ public class BuiltinMetricsTracerTest {
     // called after the mutateRow call is returned. So there's a race between when the call returns
     // and when the record() is called in onOperationCompletion().
     verify(statsRecorderWrapper, timeout(50).times(fakeService.getAttemptCounter().get()))
-        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
     assertThat(zone.getAllValues()).containsExactly("global", ZONE);
     assertThat(cluster.getAllValues()).containsExactly("unspecified", CLUSTER);
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "OK");
@@ -497,7 +498,7 @@ public class BuiltinMetricsTracerTest {
       assertThat(throttledTime.getAllValues().get(2)).isAtLeast(SERVER_LATENCY - 10);
 
       verify(statsRecorderWrapper, timeout(100).times(expectedNumRequests))
-          .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+          .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
       assertThat(zone.getAllValues()).containsExactly(ZONE, ZONE, ZONE);
       assertThat(cluster.getAllValues()).containsExactly(CLUSTER, CLUSTER, CLUSTER);
@@ -561,7 +562,7 @@ public class BuiltinMetricsTracerTest {
     verify(statsRecorderWrapper, timeout(50)).putAttemptLatencies(attemptLatency.capture());
     verify(statsRecorderWrapper, timeout(50)).putOperationLatencies(operationLatency.capture());
     verify(statsRecorderWrapper, timeout(50))
-        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture(), VERSION);
 
     assertThat(status.getValue()).isEqualTo("NOT_FOUND");
     assertThat(tableId.getValue()).isEqualTo(BAD_TABLE_ID);
