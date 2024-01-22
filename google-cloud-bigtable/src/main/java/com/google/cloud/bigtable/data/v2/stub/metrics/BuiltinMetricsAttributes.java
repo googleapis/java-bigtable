@@ -24,11 +24,11 @@ class BuiltinMetricsAttributes {
   static final AttributeKey<String> TABLE_ID = AttributeKey.stringKey("table");
   static final AttributeKey<String> CLUSTER_ID = AttributeKey.stringKey("cluster");
   static final AttributeKey<String> ZONE_ID = AttributeKey.stringKey("zone");
-  static final AttributeKey<String> CLIENT_UID = AttributeKey.stringKey("client_uid");
 
   static final AttributeKey<String> APP_PROFILE = AttributeKey.stringKey("app_profile");
   static final AttributeKey<Boolean> STREAMING = AttributeKey.booleanKey("streaming");
   static final AttributeKey<String> METHOD = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_NAME = AttributeKey.stringKey("client_name");
+  static final AttributeKey<String> CLIENT_UID = AttributeKey.stringKey("client_uid");
 }

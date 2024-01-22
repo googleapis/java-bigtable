@@ -76,12 +76,12 @@ class BigtableExporterUtils {
 
   /**
    * In most cases this should look like java-${UUID}@${hostname}. The hostname will be retrieved
-   * from the jvm name but fallback on the local hostname.
+   * from the jvm name and fallback to the local hostname.
    */
   static String getDefaultTaskValue() {
     // Something like '<pid>@<hostname>'
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-    // If not the expected format then fallback to localhost
+    // If jvm doesn't have the expected format, fallback to the local hostname
     if (jvmName.indexOf('@') < 1) {
       String hostname = "localhost";
       try {
@@ -93,6 +93,10 @@ class BigtableExporterUtils {
       return "java-" + UUID.randomUUID() + "@" + hostname;
     }
     return "java-" + UUID.randomUUID() + jvmName;
+  }
+
+  static String getProjectId(PointData pointData) {
+    return pointData.getAttributes().get(PROJECT_ID);
   }
 
   static List<TimeSeries> convertCollectionToListOfTimeSeries(
@@ -120,7 +124,6 @@ class BigtableExporterUtils {
       MonitoredResource monitoredResource) {
     Attributes attributes = pointData.getAttributes();
     MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
-
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
 
     for (AttributeKey<?> key : attributes.asMap().keySet()) {
@@ -148,10 +151,6 @@ class BigtableExporterUtils {
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
 
     return builder.build();
-  }
-
-  static String getProjectId(PointData pointData) {
-    return pointData.getAttributes().get(PROJECT_ID);
   }
 
   private static MetricKind convertMetricKind(MetricData metricData) {

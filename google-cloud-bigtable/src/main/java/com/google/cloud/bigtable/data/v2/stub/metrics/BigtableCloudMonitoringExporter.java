@@ -125,6 +125,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
+            logger.log(Level.WARNING, "createServiceTimeSeries request failed. ", throwable);
             lastExportCode.fail();
           }
 
@@ -149,14 +150,14 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode shutdown() {
     if (!isShutdown.compareAndSet(false, true)) {
-      logger.log(Level.INFO, "shutdown is called multiple times");
+      logger.log(Level.WARNING, "shutdown is called multiple times");
       return CompletableResultCode.ofSuccess();
     }
     CompletableResultCode resultCode = flush();
     try {
       client.shutdown();
     } catch (Throwable e) {
-      logger.log(Level.WARNING, "failed to shutdown the client", e);
+      logger.log(Level.WARNING, "failed to shutdown the monitoring client", e);
       return CompletableResultCode.ofFailure();
     }
     return resultCode;
