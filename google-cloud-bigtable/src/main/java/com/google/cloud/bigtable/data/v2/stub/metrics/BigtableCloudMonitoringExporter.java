@@ -47,7 +47,7 @@ import org.threeten.bp.Duration;
  * Bigtable Cloud Monitoring OpenTelemetry Exporter.
  *
  * <p>The exporter will look for all bigtable owned metrics under bigtable.googleapis.com
- * instrumentation scope and upload it via the Google Cloud Monitoring api.
+ * instrumentation scope and upload it via the Google Cloud Monitoring API.
  */
 final class BigtableCloudMonitoringExporter implements MetricExporter {
 

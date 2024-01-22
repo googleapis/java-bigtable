@@ -63,7 +63,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Utils to convert OpenTelemetry types to Google Cloud Monitoring API types. */
+/** Utils to convert OpenTelemetry types to Google Cloud Monitoring types. */
 class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
