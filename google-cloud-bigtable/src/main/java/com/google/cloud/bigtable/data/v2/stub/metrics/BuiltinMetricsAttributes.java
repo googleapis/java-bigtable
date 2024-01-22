@@ -19,11 +19,11 @@ import io.opentelemetry.api.common.AttributeKey;
 
 class BuiltinMetricsAttributes {
 
-  public static final AttributeKey<String> PROJECT_ID = AttributeKey.stringKey("project_id");
-  public static final AttributeKey<String> INSTANCE_ID = AttributeKey.stringKey("instance");
-  public static final AttributeKey<String> TABLE_ID = AttributeKey.stringKey("table");
-  public static final AttributeKey<String> CLUSTER_ID = AttributeKey.stringKey("cluster");
-  public static final AttributeKey<String> ZONE_ID = AttributeKey.stringKey("zone");
+  static final AttributeKey<String> PROJECT_ID = AttributeKey.stringKey("project_id");
+  static final AttributeKey<String> INSTANCE_ID = AttributeKey.stringKey("instance");
+  static final AttributeKey<String> TABLE_ID = AttributeKey.stringKey("table");
+  static final AttributeKey<String> CLUSTER_ID = AttributeKey.stringKey("cluster");
+  static final AttributeKey<String> ZONE_ID = AttributeKey.stringKey("zone");
   static final AttributeKey<String> CLIENT_UID = AttributeKey.stringKey("client_uid");
 
   static final AttributeKey<String> APP_PROFILE = AttributeKey.stringKey("app_profile");

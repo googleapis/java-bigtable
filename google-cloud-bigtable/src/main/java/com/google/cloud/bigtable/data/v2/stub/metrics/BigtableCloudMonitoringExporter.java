@@ -94,14 +94,20 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
     if (!collection.stream()
         .flatMap(metricData -> metricData.getData().getPoints().stream())
-        .allMatch(pd -> BigtableExporterUtils.getProjectId(pd).equals(projectId))) {
+        .allMatch(pd -> projectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
       logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
       return CompletableResultCode.ofFailure();
     }
 
-    List<TimeSeries> allTimeSeries =
-        BigtableExporterUtils.convertCollectionToListOfTimeSeries(
-            collection, taskId, monitoredResource);
+    List<TimeSeries> allTimeSeries;
+    try {
+      allTimeSeries =
+          BigtableExporterUtils.convertCollectionToListOfTimeSeries(
+              collection, taskId, monitoredResource);
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "Failed to convert metric data to cloud monitoring timeseries.", e);
+      return CompletableResultCode.ofFailure();
+    }
 
     ProjectName projectName = ProjectName.of(projectId);
     CreateTimeSeriesRequest request =
@@ -146,10 +152,20 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
       logger.log(Level.INFO, "shutdown is called multiple times");
       return CompletableResultCode.ofSuccess();
     }
-    client.shutdown();
-    return flush();
+    CompletableResultCode resultCode = flush();
+    try {
+      client.shutdown();
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "failed to shutdown the client", e);
+      return CompletableResultCode.ofFailure();
+    }
+    return resultCode;
   }
 
+  /**
+   * For cloud monarch always return CUMULATIVE to keep track of the cumulative value of a metric
+   * over time.
+   */
   @Override
   public AggregationTemporality getAggregationTemporality(InstrumentType instrumentType) {
     return AggregationTemporality.CUMULATIVE;
