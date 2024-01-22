@@ -63,7 +63,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Utils to convert OpenTelemetry types to Cloud Monitoring API types. */
+/** Utils to convert OpenTelemetry types to Google Cloud Monitoring API types. */
 class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
@@ -104,6 +104,8 @@ class BigtableExporterUtils {
     List<TimeSeries> allTimeSeries = new ArrayList<>();
 
     for (MetricData metricData : collection) {
+      // TODO: scope will be defined in BuiltinMetricsConstants. Update this field in the following
+      // PR.
       if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
         continue;
       }

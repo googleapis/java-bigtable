@@ -43,7 +43,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.threeten.bp.Duration;
 
-/** Bigtable Cloud Monitoring OpenTelemetry Exporter. */
+/**
+ * Bigtable Cloud Monitoring OpenTelemetry Exporter.
+ *
+ * <p>The exporter will look for all bigtable owned metrics under bigtable.googleapis.com
+ * instrumentation scope and upload it via the Google Cloud Monitoring api.
+ */
 final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
