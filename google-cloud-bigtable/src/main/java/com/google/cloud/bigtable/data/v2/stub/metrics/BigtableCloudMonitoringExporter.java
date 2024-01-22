@@ -37,6 +37,7 @@ import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -154,6 +155,11 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofSuccess();
     }
     CompletableResultCode resultCode = flush();
+    // wait 1 minute for flush
+    resultCode.join(1, TimeUnit.MINUTES);
+    if (!resultCode.isSuccess()) {
+      logger.log(Level.WARNING, "Timed out waiting for exporter flush.");
+    }
     try {
       client.shutdown();
     } catch (Throwable e) {
@@ -164,8 +170,8 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
   }
 
   /**
-   * For cloud monarch always return CUMULATIVE to keep track of the cumulative value of a metric
-   * over time.
+   * For Google Cloud Monitoring always return CUMULATIVE to keep track of the cumulative value of a
+   * metric over time.
    */
   @Override
   public AggregationTemporality getAggregationTemporality(InstrumentType instrumentType) {
