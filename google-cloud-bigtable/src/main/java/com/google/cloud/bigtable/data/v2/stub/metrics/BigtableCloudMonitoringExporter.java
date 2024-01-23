@@ -19,7 +19,6 @@ import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
-import com.google.api.core.InternalApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
@@ -36,18 +35,21 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 import org.threeten.bp.Duration;
 
-/** Bigtable Cloud Monitoring OpenTelemetry Exporter. */
-@InternalApi("For internal use only")
-public final class BigtableCloudMonitoringExporter implements MetricExporter {
+/**
+ * Bigtable Cloud Monitoring OpenTelemetry Exporter.
+ *
+ * <p>The exporter will look for all bigtable owned metrics under bigtable.googleapis.com
+ * instrumentation scope and upload it via the Google Cloud Monitoring API.
+ */
+final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
@@ -56,13 +58,13 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final String projectId;
   private final String taskId;
   private final MonitoredResource monitoredResource;
-  private AtomicBoolean isShutdown = new AtomicBoolean(false);
+  private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private static final String RESOURCE_TYPE = "bigtable_client_raw";
 
-  private CompletableResultCode lastCode;
+  private CompletableResultCode lastExportCode;
 
-  public static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
+  static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
       throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
@@ -93,33 +95,24 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode export(Collection<MetricData> collection) {
     if (isShutdown.get()) {
+      logger.log(Level.WARNING, "Exporter is shutting down");
       return CompletableResultCode.ofFailure();
     }
     if (!collection.stream()
         .flatMap(metricData -> metricData.getData().getPoints().stream())
-        .allMatch(pd -> BigtableExporterUtils.getProjectId(pd).equals(projectId))) {
+        .allMatch(pd -> projectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
       logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
       return CompletableResultCode.ofFailure();
     }
 
-    lastCode = new CompletableResultCode();
-
-    List<TimeSeries> allTimeSeries = new ArrayList<>();
-    for (MetricData metricData : collection) {
-      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
-        continue;
-      }
-
-      CompletableResultCode code = new CompletableResultCode();
-
-      List<TimeSeries> timeSeries =
-          metricData.getData().getPoints().stream()
-              .map(
-                  pointData ->
-                      BigtableExporterUtils.convertPointToTimeSeries(
-                          metricData, pointData, taskId, monitoredResource))
-              .collect(Collectors.toList());
-      allTimeSeries.addAll(timeSeries);
+    List<TimeSeries> allTimeSeries;
+    try {
+      allTimeSeries =
+          BigtableExporterUtils.convertCollectionToListOfTimeSeries(
+              collection, taskId, monitoredResource);
+    } catch (Throwable e) {
+      logger.log(Level.WARNING, "Failed to convert metric data to cloud monitoring timeseries.", e);
+      return CompletableResultCode.ofFailure();
     }
 
     ProjectName projectName = ProjectName.of(projectId);
@@ -131,28 +124,31 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     ApiFuture<Empty> future = this.client.createServiceTimeSeriesCallable().futureCall(request);
 
+    lastExportCode = new CompletableResultCode();
+
     ApiFutures.addCallback(
         future,
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            lastCode.fail();
+            logger.log(Level.WARNING, "createServiceTimeSeries request failed. ", throwable);
+            lastExportCode.fail();
           }
 
           @Override
           public void onSuccess(Empty empty) {
-            lastCode.succeed();
+            lastExportCode.succeed();
           }
         },
         MoreExecutors.directExecutor());
 
-    return lastCode;
+    return lastExportCode;
   }
 
   @Override
   public CompletableResultCode flush() {
-    if (lastCode != null) {
-      return lastCode;
+    if (lastExportCode != null) {
+      return lastExportCode;
     }
     return CompletableResultCode.ofSuccess();
   }
@@ -160,13 +156,33 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public CompletableResultCode shutdown() {
     if (!isShutdown.compareAndSet(false, true)) {
-      logger.log(Level.INFO, "shutdown is called multiple times");
+      logger.log(Level.WARNING, "shutdown is called multiple times");
       return CompletableResultCode.ofSuccess();
     }
-    client.shutdown();
-    return flush();
+    CompletableResultCode flushResult = flush();
+    CompletableResultCode shutdownResult = new CompletableResultCode();
+    flushResult.whenComplete(
+        () -> {
+          Throwable throwable = null;
+          try {
+            client.shutdown();
+          } catch (Throwable e) {
+            logger.log(Level.WARNING, "failed to shutdown the monitoring client", e);
+            throwable = e;
+          }
+          if (throwable != null) {
+            shutdownResult.fail();
+          } else {
+            shutdownResult.succeed();
+          }
+        });
+    return CompletableResultCode.ofAll(Arrays.asList(flushResult, shutdownResult));
   }
 
+  /**
+   * For Google Cloud Monitoring always return CUMULATIVE to keep track of the cumulative value of a
+   * metric over time.
+   */
   @Override
   public AggregationTemporality getAggregationTemporality(InstrumentType instrumentType) {
     return AggregationTemporality.CUMULATIVE;

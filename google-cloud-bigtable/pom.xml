@@ -67,7 +67,6 @@
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-bigtable-stats</artifactId>
-      <scope>test</scope>
       <!-- Exclude all dependencies that have been shaded. This is to workaround maven's immutable project structure:
            after shading, the maven-shade-plugin tries to remove shaded dependencies, but it can't since the project
            structure is immutable. So we have to manually exclude the shaded transitive dependencies manually. -->
@@ -339,15 +338,6 @@
     <dependency>
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.opentelemetry</groupId>
-      <artifactId>opentelemetry-sdk-testing</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>

@@ -25,17 +25,16 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_UID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
 
 import com.google.api.Distribution;
 import com.google.api.Metric;
 import com.google.api.MonitoredResource;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -56,20 +55,33 @@ import io.opentelemetry.sdk.metrics.data.SumData;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/** Utils to convert OpenTelemetry types to Cloud Monitoring API types. */
+/** Utils to convert OpenTelemetry types to Google Cloud Monitoring types. */
 class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
 
+  // These metric labels will be promoted to the bigtable_table monitored resource fields
+  private static final Set<AttributeKey<String>> PROMOTED_RESOURCE_LABELS =
+      ImmutableSet.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, CLUSTER_ID, ZONE_ID);
+
+  private BigtableExporterUtils() {}
+
+  /**
+   * In most cases this should look like java-${UUID}@${hostname}. The hostname will be retrieved
+   * from the jvm name and fallback to the local hostname.
+   */
   static String getDefaultTaskValue() {
     // Something like '<pid>@<hostname>'
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
-    // If not the expected format then generate a random number.
+    // If jvm doesn't have the expected format, fallback to the local hostname
     if (jvmName.indexOf('@') < 1) {
       String hostname = "localhost";
       try {
@@ -83,42 +95,53 @@ class BigtableExporterUtils {
     return "java-" + UUID.randomUUID() + jvmName;
   }
 
-  private static final Set<AttributeKey<String>> PROMOTED_RESOURCE_LABELS =
-      ImmutableSet.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, CLUSTER_ID, ZONE_ID);
+  static String getProjectId(PointData pointData) {
+    return pointData.getAttributes().get(PROJECT_ID);
+  }
 
-  static TimeSeries convertPointToTimeSeries(
+  static List<TimeSeries> convertCollectionToListOfTimeSeries(
+      Collection<MetricData> collection, String taskId, MonitoredResource monitoredResource) {
+    List<TimeSeries> allTimeSeries = new ArrayList<>();
+
+    for (MetricData metricData : collection) {
+      // TODO: scope will be defined in BuiltinMetricsConstants. Update this field in the following
+      // PR.
+      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
+        continue;
+      }
+      metricData.getData().getPoints().stream()
+          .map(
+              pointData ->
+                  convertPointToTimeSeries(metricData, pointData, taskId, monitoredResource))
+          .forEach(allTimeSeries::add);
+    }
+
+    return allTimeSeries;
+  }
+
+  private static TimeSeries convertPointToTimeSeries(
       MetricData metricData,
       PointData pointData,
       String taskId,
       MonitoredResource monitoredResource) {
     Attributes attributes = pointData.getAttributes();
     MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
-    ImmutableMap.Builder<String, String> metricLabels = new ImmutableMap.Builder<>();
+    Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
 
-    // Populated monitored resource schema
-    for (AttributeKey<?> attributeKey : PROMOTED_RESOURCE_LABELS) {
-      monitoredResourceBuilder.putLabels(
-          attributeKey.getKey(), String.valueOf(attributes.get(attributeKey)));
+    for (AttributeKey<?> key : attributes.asMap().keySet()) {
+      if (PROMOTED_RESOURCE_LABELS.contains(key)) {
+        monitoredResourceBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+      } else {
+        metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+      }
     }
-
-    // Populate the rest of the metric labels
-    attributes.forEach(
-        (key, value) -> {
-          if (!PROMOTED_RESOURCE_LABELS.contains(key) && value != null) {
-            metricLabels.put(key.getKey(), String.valueOf(value));
-          }
-        });
-    metricLabels.put(CLIENT_UID.getKey(), taskId);
+    metricBuilder.putLabels(CLIENT_UID.getKey(), taskId);
 
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
             .setResource(monitoredResourceBuilder.build())
             .setMetricKind(convertMetricKind(metricData))
-            .setMetric(
-                Metric.newBuilder()
-                    .setType(metricData.getName())
-                    .putAllLabels(metricLabels.build())
-                    .build())
+            .setMetric(metricBuilder.build())
             .setValueType(convertValueType(metricData.getType()));
 
     TimeInterval timeInterval =
@@ -130,10 +153,6 @@ class BigtableExporterUtils {
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
 
     return builder.build();
-  }
-
-  static String getProjectId(PointData pointData) {
-    return pointData.getAttributes().get(PROJECT_ID);
   }
 
   private static MetricKind convertMetricKind(MetricData metricData) {

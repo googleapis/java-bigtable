@@ -15,13 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APP_PROFILE;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_UID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.INSTANCE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,14 +54,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
-@RunWith(JUnit4.class)
 public class BigtableCloudMonitoringExporterTest {
   private static final String projectId = "fake-project";
   private static final String instanceId = "fake-instance";
@@ -124,7 +121,10 @@ public class BigtableCloudMonitoringExporterTest {
 
     long fakeValue = 11L;
 
-    LongPointData longPointData = ImmutableLongPointData.create(0, 1, attributes, fakeValue);
+    long startEpoch = 10;
+    long endEpoch = 15;
+    LongPointData longPointData =
+        ImmutableLongPointData.create(startEpoch, endEpoch, attributes, fakeValue);
 
     MetricData longData =
         ImmutableMetricData.createLongSum(
@@ -157,6 +157,9 @@ public class BigtableCloudMonitoringExporterTest {
         .containsAtLeast(APP_PROFILE.getKey(), appProfileId);
     assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_UID.getKey(), taskId);
     assertThat(timeSeries.getPoints(0).getValue().getInt64Value()).isEqualTo(fakeValue);
+    assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
+        .isEqualTo(startEpoch);
+    assertThat(timeSeries.getPoints(0).getInterval().getEndTime().getNanos()).isEqualTo(endEpoch);
   }
 
   @Test
@@ -169,10 +172,12 @@ public class BigtableCloudMonitoringExporterTest {
     ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
     when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
 
+    long startEpoch = 10;
+    long endEpoch = 15;
     HistogramPointData histogramPointData =
         ImmutableHistogramPointData.create(
-            0,
-            1,
+            startEpoch,
+            endEpoch,
             attributes,
             3d,
             true,
@@ -214,6 +219,9 @@ public class BigtableCloudMonitoringExporterTest {
     assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_UID.getKey(), taskId);
     Distribution distribution = timeSeries.getPoints(0).getValue().getDistributionValue();
     assertThat(distribution.getCount()).isEqualTo(3);
+    assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
+        .isEqualTo(startEpoch);
+    assertThat(timeSeries.getPoints(0).getInterval().getEndTime().getNanos()).isEqualTo(endEpoch);
   }
 
   private static class FakeMetricServiceClient extends MetricServiceClient {
