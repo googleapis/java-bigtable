@@ -35,9 +35,9 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -159,19 +159,24 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
       logger.log(Level.WARNING, "shutdown is called multiple times");
       return CompletableResultCode.ofSuccess();
     }
-    CompletableResultCode resultCode = flush();
-    // wait 1 minute for flush
-    resultCode.join(1, TimeUnit.MINUTES);
-    if (!resultCode.isSuccess()) {
-      logger.log(Level.WARNING, "Timed out waiting for exporter flush.");
-    }
-    try {
-      client.shutdown();
-    } catch (Throwable e) {
-      logger.log(Level.WARNING, "failed to shutdown the monitoring client", e);
-      return CompletableResultCode.ofFailure();
-    }
-    return resultCode;
+    CompletableResultCode flushResult = flush();
+    CompletableResultCode shutdownResult = new CompletableResultCode();
+    flushResult.whenComplete(
+        () -> {
+          Throwable throwable = null;
+          try {
+            client.shutdown();
+          } catch (Throwable e) {
+            logger.log(Level.WARNING, "failed to shutdown the monitoring client", e);
+            throwable = e;
+          }
+          if (throwable != null) {
+            shutdownResult.fail();
+          } else {
+            shutdownResult.succeed();
+          }
+        });
+    return CompletableResultCode.ofAll(Arrays.asList(flushResult, shutdownResult));
   }
 
   /**
