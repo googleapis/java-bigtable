@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
     return new CreateInstanceRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_CreateInstanceRequest_descriptor;
@@ -87,8 +82,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    *
    *
    * <pre>
-   * Required. The unique name of the project in which to create the new instance.
-   * Values are of the form `projects/{project}`.
+   * Required. The unique name of the project in which to create the new
+   * instance. Values are of the form `projects/{project}`.
    * </pre>
    *
    * <code>
@@ -113,8 +108,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    *
    *
    * <pre>
-   * Required. The unique name of the project in which to create the new instance.
-   * Values are of the form `projects/{project}`.
+   * Required. The unique name of the project in which to create the new
+   * instance. Values are of the form `projects/{project}`.
    * </pre>
    *
    * <code>
@@ -144,8 +139,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new instance within its project,
-   * e.g., just `myinstance` rather than
+   * Required. The ID to be used when referring to the new instance within its
+   * project, e.g., just `myinstance` rather than
    * `projects/myproject/instances/myinstance`.
    * </pre>
    *
@@ -169,8 +164,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new instance within its project,
-   * e.g., just `myinstance` rather than
+   * Required. The ID to be used when referring to the new instance within its
+   * project, e.g., just `myinstance` rather than
    * `projects/myproject/instances/myinstance`.
    * </pre>
    *
@@ -843,8 +838,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The unique name of the project in which to create the new instance.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project in which to create the new
+     * instance. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -868,8 +863,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The unique name of the project in which to create the new instance.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project in which to create the new
+     * instance. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -893,8 +888,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The unique name of the project in which to create the new instance.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project in which to create the new
+     * instance. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -917,8 +912,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The unique name of the project in which to create the new instance.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project in which to create the new
+     * instance. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -937,8 +932,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The unique name of the project in which to create the new instance.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project in which to create the new
+     * instance. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -964,8 +959,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new instance within its project,
-     * e.g., just `myinstance` rather than
+     * Required. The ID to be used when referring to the new instance within its
+     * project, e.g., just `myinstance` rather than
      * `projects/myproject/instances/myinstance`.
      * </pre>
      *
@@ -988,8 +983,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new instance within its project,
-     * e.g., just `myinstance` rather than
+     * Required. The ID to be used when referring to the new instance within its
+     * project, e.g., just `myinstance` rather than
      * `projects/myproject/instances/myinstance`.
      * </pre>
      *
@@ -1012,8 +1007,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new instance within its project,
-     * e.g., just `myinstance` rather than
+     * Required. The ID to be used when referring to the new instance within its
+     * project, e.g., just `myinstance` rather than
      * `projects/myproject/instances/myinstance`.
      * </pre>
      *
@@ -1035,8 +1030,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new instance within its project,
-     * e.g., just `myinstance` rather than
+     * Required. The ID to be used when referring to the new instance within its
+     * project, e.g., just `myinstance` rather than
      * `projects/myproject/instances/myinstance`.
      * </pre>
      *
@@ -1054,8 +1049,8 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new instance within its project,
-     * e.g., just `myinstance` rather than
+     * Required. The ID to be used when referring to the new instance within its
+     * project, e.g., just `myinstance` rather than
      * `projects/myproject/instances/myinstance`.
      * </pre>
      *

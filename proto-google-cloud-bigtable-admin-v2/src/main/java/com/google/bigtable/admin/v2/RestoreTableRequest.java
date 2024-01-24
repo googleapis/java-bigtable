@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
     return new RestoreTableRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_RestoreTableRequest_descriptor;
@@ -70,6 +65,8 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
   }
 
   private int sourceCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object source_;
 
   public enum SourceCase
@@ -122,8 +119,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
    *
    * <pre>
    * Required. The name of the instance in which to create the restored
-   * table. This instance must be in the same project as the source backup.
-   * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>
@@ -149,8 +145,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
    *
    * <pre>
    * Required. The name of the instance in which to create the restored
-   * table. This instance must be in the same project as the source backup.
-   * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+   * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
    * </pre>
    *
    * <code>
@@ -739,8 +734,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
      *
      * <pre>
      * Required. The name of the instance in which to create the restored
-     * table. This instance must be in the same project as the source backup.
-     * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -765,8 +759,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
      *
      * <pre>
      * Required. The name of the instance in which to create the restored
-     * table. This instance must be in the same project as the source backup.
-     * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -791,8 +784,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
      *
      * <pre>
      * Required. The name of the instance in which to create the restored
-     * table. This instance must be in the same project as the source backup.
-     * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -816,8 +808,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
      *
      * <pre>
      * Required. The name of the instance in which to create the restored
-     * table. This instance must be in the same project as the source backup.
-     * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>
@@ -837,8 +828,7 @@ public final class RestoreTableRequest extends com.google.protobuf.GeneratedMess
      *
      * <pre>
      * Required. The name of the instance in which to create the restored
-     * table. This instance must be in the same project as the source backup.
-     * Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
+     * table. Values are of the form `projects/&lt;project&gt;/instances/&lt;instance&gt;`.
      * </pre>
      *
      * <code>

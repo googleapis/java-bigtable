@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,8 @@ public interface DeleteAppProfileRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the app profile to be deleted. Values are of the form
+   * Required. The unique name of the app profile to be deleted. Values are of
+   * the form
    * `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
    * </pre>
    *
@@ -42,7 +43,8 @@ public interface DeleteAppProfileRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the app profile to be deleted. Values are of the form
+   * Required. The unique name of the app profile to be deleted. Values are of
+   * the form
    * `projects/{project}/instances/{instance}/appProfiles/{app_profile}`.
    * </pre>
    *

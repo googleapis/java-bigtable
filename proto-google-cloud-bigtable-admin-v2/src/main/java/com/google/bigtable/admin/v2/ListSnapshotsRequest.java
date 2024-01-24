@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ package com.google.bigtable.admin.v2;
  * <pre>
  * Request message for
  * [google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots][google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots]
+ *
  * Note: This is a private alpha release of Cloud Bigtable snapshots. This
  * feature is not currently available to most Cloud Bigtable customers. This
  * feature might be changed in backward-incompatible ways and is not recommended
@@ -53,11 +54,6 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
     return new ListSnapshotsRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_ListSnapshotsRequest_descriptor;
@@ -81,8 +77,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The unique name of the cluster for which snapshots should be listed.
-   * Values are of the form
+   * Required. The unique name of the cluster for which snapshots should be
+   * listed. Values are of the form
    * `projects/{project}/instances/{instance}/clusters/{cluster}`.
    * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
    * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -110,8 +106,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The unique name of the cluster for which snapshots should be listed.
-   * Values are of the form
+   * Required. The unique name of the cluster for which snapshots should be
+   * listed. Values are of the form
    * `projects/{project}/instances/{instance}/clusters/{cluster}`.
    * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
    * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -389,6 +385,7 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
    * <pre>
    * Request message for
    * [google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots][google.bigtable.admin.v2.BigtableTableAdmin.ListSnapshots]
+   *
    * Note: This is a private alpha release of Cloud Bigtable snapshots. This
    * feature is not currently available to most Cloud Bigtable customers. This
    * feature might be changed in backward-incompatible ways and is not recommended
@@ -604,8 +601,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the cluster for which snapshots should be listed.
-     * Values are of the form
+     * Required. The unique name of the cluster for which snapshots should be
+     * listed. Values are of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
      * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
      * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -632,8 +629,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the cluster for which snapshots should be listed.
-     * Values are of the form
+     * Required. The unique name of the cluster for which snapshots should be
+     * listed. Values are of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
      * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
      * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -660,8 +657,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the cluster for which snapshots should be listed.
-     * Values are of the form
+     * Required. The unique name of the cluster for which snapshots should be
+     * listed. Values are of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
      * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
      * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -687,8 +684,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the cluster for which snapshots should be listed.
-     * Values are of the form
+     * Required. The unique name of the cluster for which snapshots should be
+     * listed. Values are of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
      * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
      * e.g., `projects/{project}/instances/{instance}/clusters/-`.
@@ -710,8 +707,8 @@ public final class ListSnapshotsRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the cluster for which snapshots should be listed.
-     * Values are of the form
+     * Required. The unique name of the cluster for which snapshots should be
+     * listed. Values are of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
      * Use `{cluster} = '-'` to list snapshots for all clusters in an instance,
      * e.g., `projects/{project}/instances/{instance}/clusters/-`.

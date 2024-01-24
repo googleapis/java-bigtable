@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
     return new ReadModifyWriteRule();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto
         .internal_static_google_bigtable_v2_ReadModifyWriteRule_descriptor;
@@ -70,6 +65,8 @@ public final class ReadModifyWriteRule extends com.google.protobuf.GeneratedMess
   }
 
   private int ruleCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object rule_;
 
   public enum RuleCase

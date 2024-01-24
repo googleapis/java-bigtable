@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public interface PartialUpdateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];
@@ -41,8 +41,8 @@ public interface PartialUpdateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];
@@ -55,8 +55,8 @@ public interface PartialUpdateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];

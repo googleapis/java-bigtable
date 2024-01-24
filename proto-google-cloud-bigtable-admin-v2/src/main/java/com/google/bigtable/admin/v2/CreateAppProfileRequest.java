@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
     return new CreateAppProfileRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_CreateAppProfileRequest_descriptor;
@@ -76,9 +71,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
    *
    *
    * <pre>
-   * Required. The unique name of the instance in which to create the new app profile.
-   * Values are of the form
-   * `projects/{project}/instances/{instance}`.
+   * Required. The unique name of the instance in which to create the new app
+   * profile. Values are of the form `projects/{project}/instances/{instance}`.
    * </pre>
    *
    * <code>
@@ -103,9 +97,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
    *
    *
    * <pre>
-   * Required. The unique name of the instance in which to create the new app profile.
-   * Values are of the form
-   * `projects/{project}/instances/{instance}`.
+   * Required. The unique name of the instance in which to create the new app
+   * profile. Values are of the form `projects/{project}/instances/{instance}`.
    * </pre>
    *
    * <code>
@@ -135,8 +128,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new app profile within its
-   * instance, e.g., just `myprofile` rather than
+   * Required. The ID to be used when referring to the new app profile within
+   * its instance, e.g., just `myprofile` rather than
    * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
    * </pre>
    *
@@ -160,8 +153,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new app profile within its
-   * instance, e.g., just `myprofile` rather than
+   * Required. The ID to be used when referring to the new app profile within
+   * its instance, e.g., just `myprofile` rather than
    * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
    * </pre>
    *
@@ -683,9 +676,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The unique name of the instance in which to create the new app profile.
-     * Values are of the form
-     * `projects/{project}/instances/{instance}`.
+     * Required. The unique name of the instance in which to create the new app
+     * profile. Values are of the form `projects/{project}/instances/{instance}`.
      * </pre>
      *
      * <code>
@@ -709,9 +701,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The unique name of the instance in which to create the new app profile.
-     * Values are of the form
-     * `projects/{project}/instances/{instance}`.
+     * Required. The unique name of the instance in which to create the new app
+     * profile. Values are of the form `projects/{project}/instances/{instance}`.
      * </pre>
      *
      * <code>
@@ -735,9 +726,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The unique name of the instance in which to create the new app profile.
-     * Values are of the form
-     * `projects/{project}/instances/{instance}`.
+     * Required. The unique name of the instance in which to create the new app
+     * profile. Values are of the form `projects/{project}/instances/{instance}`.
      * </pre>
      *
      * <code>
@@ -760,9 +750,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The unique name of the instance in which to create the new app profile.
-     * Values are of the form
-     * `projects/{project}/instances/{instance}`.
+     * Required. The unique name of the instance in which to create the new app
+     * profile. Values are of the form `projects/{project}/instances/{instance}`.
      * </pre>
      *
      * <code>
@@ -781,9 +770,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The unique name of the instance in which to create the new app profile.
-     * Values are of the form
-     * `projects/{project}/instances/{instance}`.
+     * Required. The unique name of the instance in which to create the new app
+     * profile. Values are of the form `projects/{project}/instances/{instance}`.
      * </pre>
      *
      * <code>
@@ -809,8 +797,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new app profile within its
-     * instance, e.g., just `myprofile` rather than
+     * Required. The ID to be used when referring to the new app profile within
+     * its instance, e.g., just `myprofile` rather than
      * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
      * </pre>
      *
@@ -833,8 +821,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new app profile within its
-     * instance, e.g., just `myprofile` rather than
+     * Required. The ID to be used when referring to the new app profile within
+     * its instance, e.g., just `myprofile` rather than
      * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
      * </pre>
      *
@@ -857,8 +845,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new app profile within its
-     * instance, e.g., just `myprofile` rather than
+     * Required. The ID to be used when referring to the new app profile within
+     * its instance, e.g., just `myprofile` rather than
      * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
      * </pre>
      *
@@ -880,8 +868,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new app profile within its
-     * instance, e.g., just `myprofile` rather than
+     * Required. The ID to be used when referring to the new app profile within
+     * its instance, e.g., just `myprofile` rather than
      * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
      * </pre>
      *
@@ -899,8 +887,8 @@ public final class CreateAppProfileRequest extends com.google.protobuf.Generated
      *
      *
      * <pre>
-     * Required. The ID to be used when referring to the new app profile within its
-     * instance, e.g., just `myprofile` rather than
+     * Required. The ID to be used when referring to the new app profile within
+     * its instance, e.g., just `myprofile` rather than
      * `projects/myproject/instances/myinstance/appProfiles/myprofile`.
      * </pre>
      *

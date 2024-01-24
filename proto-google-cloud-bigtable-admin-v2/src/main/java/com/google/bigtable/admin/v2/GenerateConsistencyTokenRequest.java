@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,11 +49,6 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
     return new GenerateConsistencyTokenRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_GenerateConsistencyTokenRequest_descriptor;
@@ -77,8 +72,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
    *
    *
    * <pre>
-   * Required. The unique name of the Table for which to create a consistency token.
-   * Values are of the form
+   * Required. The unique name of the Table for which to create a consistency
+   * token. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{table}`.
    * </pre>
    *
@@ -104,8 +99,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
    *
    *
    * <pre>
-   * Required. The unique name of the Table for which to create a consistency token.
-   * Values are of the form
+   * Required. The unique name of the Table for which to create a consistency
+   * token. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{table}`.
    * </pre>
    *
@@ -480,8 +475,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
      *
      *
      * <pre>
-     * Required. The unique name of the Table for which to create a consistency token.
-     * Values are of the form
+     * Required. The unique name of the Table for which to create a consistency
+     * token. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{table}`.
      * </pre>
      *
@@ -506,8 +501,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
      *
      *
      * <pre>
-     * Required. The unique name of the Table for which to create a consistency token.
-     * Values are of the form
+     * Required. The unique name of the Table for which to create a consistency
+     * token. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{table}`.
      * </pre>
      *
@@ -532,8 +527,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
      *
      *
      * <pre>
-     * Required. The unique name of the Table for which to create a consistency token.
-     * Values are of the form
+     * Required. The unique name of the Table for which to create a consistency
+     * token. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{table}`.
      * </pre>
      *
@@ -557,8 +552,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
      *
      *
      * <pre>
-     * Required. The unique name of the Table for which to create a consistency token.
-     * Values are of the form
+     * Required. The unique name of the Table for which to create a consistency
+     * token. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{table}`.
      * </pre>
      *
@@ -578,8 +573,8 @@ public final class GenerateConsistencyTokenRequest extends com.google.protobuf.G
      *
      *
      * <pre>
-     * Required. The unique name of the Table for which to create a consistency token.
-     * Values are of the form
+     * Required. The unique name of the Table for which to create a consistency
+     * token. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{table}`.
      * </pre>
      *

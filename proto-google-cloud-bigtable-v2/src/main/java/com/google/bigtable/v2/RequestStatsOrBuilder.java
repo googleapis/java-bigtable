@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,5 +61,5 @@ public interface RequestStatsOrBuilder
    */
   com.google.bigtable.v2.FullReadStatsViewOrBuilder getFullReadStatsViewOrBuilder();
 
-  public com.google.bigtable.v2.RequestStats.StatsViewCase getStatsViewCase();
+  com.google.bigtable.v2.RequestStats.StatsViewCase getStatsViewCase();
 }

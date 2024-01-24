@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ package com.google.bigtable.admin.v2;
  * <pre>
  * Request message for
  * [google.bigtable.admin.v2.BigtableTableAdmin.CreateTableFromSnapshot][google.bigtable.admin.v2.BigtableTableAdmin.CreateTableFromSnapshot]
+ *
  * Note: This is a private alpha release of Cloud Bigtable snapshots. This
  * feature is not currently available to most Cloud Bigtable customers. This
  * feature might be changed in backward-incompatible ways and is not recommended
@@ -53,11 +54,6 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new CreateTableFromSnapshotRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -140,8 +136,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
    *
    *
    * <pre>
-   * Required. The name by which the new table should be referred to within the parent
-   * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+   * Required. The name by which the new table should be referred to within the
+   * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
    * </pre>
    *
    * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -164,8 +160,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
    *
    *
    * <pre>
-   * Required. The name by which the new table should be referred to within the parent
-   * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+   * Required. The name by which the new table should be referred to within the
+   * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
    * </pre>
    *
    * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -193,9 +189,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
    *
    *
    * <pre>
-   * Required. The unique name of the snapshot from which to restore the table. The
-   * snapshot and the table must be in the same instance.
-   * Values are of the form
+   * Required. The unique name of the snapshot from which to restore the table.
+   * The snapshot and the table must be in the same instance. Values are of the
+   * form
    * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * </pre>
    *
@@ -221,9 +217,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
    *
    *
    * <pre>
-   * Required. The unique name of the snapshot from which to restore the table. The
-   * snapshot and the table must be in the same instance.
-   * Values are of the form
+   * Required. The unique name of the snapshot from which to restore the table.
+   * The snapshot and the table must be in the same instance. Values are of the
+   * form
    * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
    * </pre>
    *
@@ -430,6 +426,7 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
    * <pre>
    * Request message for
    * [google.bigtable.admin.v2.BigtableTableAdmin.CreateTableFromSnapshot][google.bigtable.admin.v2.BigtableTableAdmin.CreateTableFromSnapshot]
+   *
    * Note: This is a private alpha release of Cloud Bigtable snapshots. This
    * feature is not currently available to most Cloud Bigtable customers. This
    * feature might be changed in backward-incompatible ways and is not recommended
@@ -768,8 +765,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The name by which the new table should be referred to within the parent
-     * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+     * Required. The name by which the new table should be referred to within the
+     * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
      * </pre>
      *
      * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -791,8 +788,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The name by which the new table should be referred to within the parent
-     * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+     * Required. The name by which the new table should be referred to within the
+     * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
      * </pre>
      *
      * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -814,8 +811,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The name by which the new table should be referred to within the parent
-     * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+     * Required. The name by which the new table should be referred to within the
+     * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
      * </pre>
      *
      * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -836,8 +833,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The name by which the new table should be referred to within the parent
-     * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+     * Required. The name by which the new table should be referred to within the
+     * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
      * </pre>
      *
      * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -854,8 +851,8 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The name by which the new table should be referred to within the parent
-     * instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
+     * Required. The name by which the new table should be referred to within the
+     * parent instance, e.g., `foobar` rather than `{parent}/tables/foobar`.
      * </pre>
      *
      * <code>string table_id = 2 [(.google.api.field_behavior) = REQUIRED];</code>
@@ -879,9 +876,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The unique name of the snapshot from which to restore the table. The
-     * snapshot and the table must be in the same instance.
-     * Values are of the form
+     * Required. The unique name of the snapshot from which to restore the table.
+     * The snapshot and the table must be in the same instance. Values are of the
+     * form
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
      * </pre>
      *
@@ -906,9 +903,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The unique name of the snapshot from which to restore the table. The
-     * snapshot and the table must be in the same instance.
-     * Values are of the form
+     * Required. The unique name of the snapshot from which to restore the table.
+     * The snapshot and the table must be in the same instance. Values are of the
+     * form
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
      * </pre>
      *
@@ -933,9 +930,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The unique name of the snapshot from which to restore the table. The
-     * snapshot and the table must be in the same instance.
-     * Values are of the form
+     * Required. The unique name of the snapshot from which to restore the table.
+     * The snapshot and the table must be in the same instance. Values are of the
+     * form
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
      * </pre>
      *
@@ -959,9 +956,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The unique name of the snapshot from which to restore the table. The
-     * snapshot and the table must be in the same instance.
-     * Values are of the form
+     * Required. The unique name of the snapshot from which to restore the table.
+     * The snapshot and the table must be in the same instance. Values are of the
+     * form
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
      * </pre>
      *
@@ -981,9 +978,9 @@ public final class CreateTableFromSnapshotRequest extends com.google.protobuf.Ge
      *
      *
      * <pre>
-     * Required. The unique name of the snapshot from which to restore the table. The
-     * snapshot and the table must be in the same instance.
-     * Values are of the form
+     * Required. The unique name of the snapshot from which to restore the table.
+     * The snapshot and the table must be in the same instance. Values are of the
+     * form
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/{snapshot}`.
      * </pre>
      *

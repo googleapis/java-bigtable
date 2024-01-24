@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -174,6 +174,7 @@ public interface ReadChangeStreamRequestOrBuilder
    * previously left off. If specified, changes will be read starting at the
    * the position. Tokens are delivered on the stream as part of `Heartbeat`
    * and `CloseStream` messages.
+   *
    * If a single token is provided, the token’s partition must exactly match
    * the request’s partition. If multiple tokens are provided, as in the case
    * of a partition merge, the union of the token partitions must exactly
@@ -194,6 +195,7 @@ public interface ReadChangeStreamRequestOrBuilder
    * previously left off. If specified, changes will be read starting at the
    * the position. Tokens are delivered on the stream as part of `Heartbeat`
    * and `CloseStream` messages.
+   *
    * If a single token is provided, the token’s partition must exactly match
    * the request’s partition. If multiple tokens are provided, as in the case
    * of a partition merge, the union of the token partitions must exactly
@@ -214,6 +216,7 @@ public interface ReadChangeStreamRequestOrBuilder
    * previously left off. If specified, changes will be read starting at the
    * the position. Tokens are delivered on the stream as part of `Heartbeat`
    * and `CloseStream` messages.
+   *
    * If a single token is provided, the token’s partition must exactly match
    * the request’s partition. If multiple tokens are provided, as in the case
    * of a partition merge, the union of the token partitions must exactly
@@ -304,5 +307,5 @@ public interface ReadChangeStreamRequestOrBuilder
    */
   com.google.protobuf.DurationOrBuilder getHeartbeatDurationOrBuilder();
 
-  public com.google.bigtable.v2.ReadChangeStreamRequest.StartFromCase getStartFromCase();
+  com.google.bigtable.v2.ReadChangeStreamRequest.StartFromCase getStartFromCase();
 }

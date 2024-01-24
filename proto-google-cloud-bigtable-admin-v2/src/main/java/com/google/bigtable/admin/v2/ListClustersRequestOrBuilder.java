@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,10 +27,11 @@ public interface ListClustersRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the instance for which a list of clusters is requested.
-   * Values are of the form `projects/{project}/instances/{instance}`.
-   * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-   * e.g., `projects/myproject/instances/-`.
+   * Required. The unique name of the instance for which a list of clusters is
+   * requested. Values are of the form
+   * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+   * Clusters for all Instances in a project, e.g.,
+   * `projects/myproject/instances/-`.
    * </pre>
    *
    * <code>
@@ -44,10 +45,11 @@ public interface ListClustersRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the instance for which a list of clusters is requested.
-   * Values are of the form `projects/{project}/instances/{instance}`.
-   * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-   * e.g., `projects/myproject/instances/-`.
+   * Required. The unique name of the instance for which a list of clusters is
+   * requested. Values are of the form
+   * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+   * Clusters for all Instances in a project, e.g.,
+   * `projects/myproject/instances/-`.
    * </pre>
    *
    * <code>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
     return new ListInstancesRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_ListInstancesRequest_descriptor;
@@ -76,8 +71,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The unique name of the project for which a list of instances is requested.
-   * Values are of the form `projects/{project}`.
+   * Required. The unique name of the project for which a list of instances is
+   * requested. Values are of the form `projects/{project}`.
    * </pre>
    *
    * <code>
@@ -102,8 +97,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The unique name of the project for which a list of instances is requested.
-   * Values are of the form `projects/{project}`.
+   * Required. The unique name of the project for which a list of instances is
+   * requested. Values are of the form `projects/{project}`.
    * </pre>
    *
    * <code>
@@ -547,8 +542,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the project for which a list of instances is requested.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project for which a list of instances is
+     * requested. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -572,8 +567,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the project for which a list of instances is requested.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project for which a list of instances is
+     * requested. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -597,8 +592,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the project for which a list of instances is requested.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project for which a list of instances is
+     * requested. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -621,8 +616,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the project for which a list of instances is requested.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project for which a list of instances is
+     * requested. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>
@@ -641,8 +636,8 @@ public final class ListInstancesRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The unique name of the project for which a list of instances is requested.
-     * Values are of the form `projects/{project}`.
+     * Required. The unique name of the project for which a list of instances is
+     * requested. Values are of the form `projects/{project}`.
      * </pre>
      *
      * <code>

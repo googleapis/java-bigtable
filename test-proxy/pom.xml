@@ -12,11 +12,11 @@
   <parent>
     <artifactId>google-cloud-bigtable-parent</artifactId>
     <groupId>com.google.cloud</groupId>
-    <version>2.20.5-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.31.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
 
   <properties>
-    <bigtable.client.version>2.20.5-SNAPSHOT</bigtable.client.version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <bigtable.client.version>2.31.1-SNAPSHOT</bigtable.client.version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </properties>
 
   <dependencyManagement>
@@ -71,7 +71,7 @@
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
         <configuration>
-          <protocArtifact>com.google.protobuf:protoc:3.9.0:exe:${os.detected.classifier}</protocArtifact>
+          <protocArtifact>com.google.protobuf:protoc:3.22.3:exe:${os.detected.classifier}</protocArtifact>
           <pluginId>grpc-java</pluginId>
           <pluginArtifact>io.grpc:protoc-gen-grpc-java:1.24.0:exe:${os.detected.classifier}</pluginArtifact>
         </configuration>

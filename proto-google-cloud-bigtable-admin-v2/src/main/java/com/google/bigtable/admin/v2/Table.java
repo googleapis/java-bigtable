@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,11 +47,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new Table();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -592,11 +587,6 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new ClusterState();
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -2290,7 +2280,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * The column families configured for this table, mapped by column family ID.
-   * Views: `SCHEMA_VIEW`, `FULL`
+   * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
    * </pre>
    *
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -2314,7 +2304,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * The column families configured for this table, mapped by column family ID.
-   * Views: `SCHEMA_VIEW`, `FULL`
+   * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
    * </pre>
    *
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -2329,7 +2319,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * The column families configured for this table, mapped by column family ID.
-   * Views: `SCHEMA_VIEW`, `FULL`
+   * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
    * </pre>
    *
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -2351,7 +2341,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * The column families configured for this table, mapped by column family ID.
-   * Views: `SCHEMA_VIEW`, `FULL`
+   * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
    * </pre>
    *
    * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -2375,10 +2365,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-   * table. Timestamps not matching the granularity will be rejected.
-   * If unspecified at creation time, the value will be set to `MILLIS`.
-   * Views: `SCHEMA_VIEW`, `FULL`.
+   * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+   * in this table. Timestamps not matching the granularity will be rejected. If
+   * unspecified at creation time, the value will be set to `MILLIS`. Views:
+   * `SCHEMA_VIEW`, `FULL`.
    * </pre>
    *
    * <code>
@@ -2395,10 +2385,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-   * table. Timestamps not matching the granularity will be rejected.
-   * If unspecified at creation time, the value will be set to `MILLIS`.
-   * Views: `SCHEMA_VIEW`, `FULL`.
+   * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+   * in this table. Timestamps not matching the granularity will be rejected. If
+   * unspecified at creation time, the value will be set to `MILLIS`. Views:
+   * `SCHEMA_VIEW`, `FULL`.
    * </pre>
    *
    * <code>
@@ -2422,8 +2412,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Output only. If this table was restored from another data source (e.g. a backup), this
-   * field will be populated with information about the restore.
+   * Output only. If this table was restored from another data source (e.g. a
+   * backup), this field will be populated with information about the restore.
    * </pre>
    *
    * <code>
@@ -2440,8 +2430,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Output only. If this table was restored from another data source (e.g. a backup), this
-   * field will be populated with information about the restore.
+   * Output only. If this table was restored from another data source (e.g. a
+   * backup), this field will be populated with information about the restore.
    * </pre>
    *
    * <code>
@@ -2460,8 +2450,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Output only. If this table was restored from another data source (e.g. a backup), this
-   * field will be populated with information about the restore.
+   * Output only. If this table was restored from another data source (e.g. a
+   * backup), this field will be populated with information about the restore.
    * </pre>
    *
    * <code>
@@ -2475,6 +2465,62 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         : restoreInfo_;
   }
 
+  public static final int CHANGE_STREAM_CONFIG_FIELD_NUMBER = 8;
+  private com.google.bigtable.admin.v2.ChangeStreamConfig changeStreamConfig_;
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return Whether the changeStreamConfig field is set.
+   */
+  @java.lang.Override
+  public boolean hasChangeStreamConfig() {
+    return changeStreamConfig_ != null;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   *
+   * @return The changeStreamConfig.
+   */
+  @java.lang.Override
+  public com.google.bigtable.admin.v2.ChangeStreamConfig getChangeStreamConfig() {
+    return changeStreamConfig_ == null
+        ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+        : changeStreamConfig_;
+  }
+  /**
+   *
+   *
+   * <pre>
+   * If specified, enable the change stream on this table.
+   * Otherwise, the change stream is disabled and the change stream is not
+   * retained.
+   * </pre>
+   *
+   * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+   */
+  @java.lang.Override
+  public com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder getChangeStreamConfigOrBuilder() {
+    return changeStreamConfig_ == null
+        ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+        : changeStreamConfig_;
+  }
+
   public static final int DELETION_PROTECTION_FIELD_NUMBER = 9;
   private boolean deletionProtection_ = false;
   /**
@@ -2483,9 +2529,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Set to true to make the table protected against data loss. i.e. deleting
    * the following resources through Admin APIs are prohibited:
-   *   - The table.
-   *   - The column families in the table.
-   *   - The instance containing the table.
+   *
+   * * The table.
+   * * The column families in the table.
+   * * The instance containing the table.
+   *
    * Note one can still delete the data stored in the table through Data APIs.
    * </pre>
    *
@@ -2526,6 +2574,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     }
     if (restoreInfo_ != null) {
       output.writeMessage(6, getRestoreInfo());
+    }
+    if (changeStreamConfig_ != null) {
+      output.writeMessage(8, getChangeStreamConfig());
     }
     if (deletionProtection_ != false) {
       output.writeBool(9, deletionProtection_);
@@ -2573,6 +2624,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (restoreInfo_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(6, getRestoreInfo());
     }
+    if (changeStreamConfig_ != null) {
+      size += com.google.protobuf.CodedOutputStream.computeMessageSize(8, getChangeStreamConfig());
+    }
     if (deletionProtection_ != false) {
       size += com.google.protobuf.CodedOutputStream.computeBoolSize(9, deletionProtection_);
     }
@@ -2598,6 +2652,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (hasRestoreInfo() != other.hasRestoreInfo()) return false;
     if (hasRestoreInfo()) {
       if (!getRestoreInfo().equals(other.getRestoreInfo())) return false;
+    }
+    if (hasChangeStreamConfig() != other.hasChangeStreamConfig()) return false;
+    if (hasChangeStreamConfig()) {
+      if (!getChangeStreamConfig().equals(other.getChangeStreamConfig())) return false;
     }
     if (getDeletionProtection() != other.getDeletionProtection()) return false;
     if (!getUnknownFields().equals(other.getUnknownFields())) return false;
@@ -2626,6 +2684,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     if (hasRestoreInfo()) {
       hash = (37 * hash) + RESTORE_INFO_FIELD_NUMBER;
       hash = (53 * hash) + getRestoreInfo().hashCode();
+    }
+    if (hasChangeStreamConfig()) {
+      hash = (37 * hash) + CHANGE_STREAM_CONFIG_FIELD_NUMBER;
+      hash = (53 * hash) + getChangeStreamConfig().hashCode();
     }
     hash = (37 * hash) + DELETION_PROTECTION_FIELD_NUMBER;
     hash = (53 * hash) + com.google.protobuf.Internal.hashBoolean(getDeletionProtection());
@@ -2801,6 +2863,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
         restoreInfoBuilder_.dispose();
         restoreInfoBuilder_ = null;
       }
+      changeStreamConfig_ = null;
+      if (changeStreamConfigBuilder_ != null) {
+        changeStreamConfigBuilder_.dispose();
+        changeStreamConfigBuilder_ = null;
+      }
       deletionProtection_ = false;
       return this;
     }
@@ -2856,6 +2923,12 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
             restoreInfoBuilder_ == null ? restoreInfo_ : restoreInfoBuilder_.build();
       }
       if (((from_bitField0_ & 0x00000020) != 0)) {
+        result.changeStreamConfig_ =
+            changeStreamConfigBuilder_ == null
+                ? changeStreamConfig_
+                : changeStreamConfigBuilder_.build();
+      }
+      if (((from_bitField0_ & 0x00000040) != 0)) {
         result.deletionProtection_ = deletionProtection_;
       }
     }
@@ -2919,6 +2992,9 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       }
       if (other.hasRestoreInfo()) {
         mergeRestoreInfo(other.getRestoreInfo());
+      }
+      if (other.hasChangeStreamConfig()) {
+        mergeChangeStreamConfig(other.getChangeStreamConfig());
       }
       if (other.getDeletionProtection() != false) {
         setDeletionProtection(other.getDeletionProtection());
@@ -2995,10 +3071,17 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
                 bitField0_ |= 0x00000010;
                 break;
               } // case 50
+            case 66:
+              {
+                input.readMessage(
+                    getChangeStreamConfigFieldBuilder().getBuilder(), extensionRegistry);
+                bitField0_ |= 0x00000020;
+                break;
+              } // case 66
             case 72:
               {
                 deletionProtection_ = input.readBool();
-                bitField0_ |= 0x00000020;
+                bitField0_ |= 0x00000040;
                 break;
               } // case 72
             default:
@@ -3393,7 +3476,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3417,7 +3500,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3432,7 +3515,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3454,7 +3537,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3483,7 +3566,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3507,7 +3590,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3529,7 +3612,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * The column families configured for this table, mapped by column family ID.
-     * Views: `SCHEMA_VIEW`, `FULL`
+     * Views: `SCHEMA_VIEW`, `STATS_VIEW`, `FULL`
      * </pre>
      *
      * <code>map&lt;string, .google.bigtable.admin.v2.ColumnFamily&gt; column_families = 3;</code>
@@ -3546,10 +3629,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-     * table. Timestamps not matching the granularity will be rejected.
-     * If unspecified at creation time, the value will be set to `MILLIS`.
-     * Views: `SCHEMA_VIEW`, `FULL`.
+     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+     * in this table. Timestamps not matching the granularity will be rejected. If
+     * unspecified at creation time, the value will be set to `MILLIS`. Views:
+     * `SCHEMA_VIEW`, `FULL`.
      * </pre>
      *
      * <code>
@@ -3566,10 +3649,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-     * table. Timestamps not matching the granularity will be rejected.
-     * If unspecified at creation time, the value will be set to `MILLIS`.
-     * Views: `SCHEMA_VIEW`, `FULL`.
+     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+     * in this table. Timestamps not matching the granularity will be rejected. If
+     * unspecified at creation time, the value will be set to `MILLIS`. Views:
+     * `SCHEMA_VIEW`, `FULL`.
      * </pre>
      *
      * <code>
@@ -3589,10 +3672,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-     * table. Timestamps not matching the granularity will be rejected.
-     * If unspecified at creation time, the value will be set to `MILLIS`.
-     * Views: `SCHEMA_VIEW`, `FULL`.
+     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+     * in this table. Timestamps not matching the granularity will be rejected. If
+     * unspecified at creation time, the value will be set to `MILLIS`. Views:
+     * `SCHEMA_VIEW`, `FULL`.
      * </pre>
      *
      * <code>
@@ -3613,10 +3696,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-     * table. Timestamps not matching the granularity will be rejected.
-     * If unspecified at creation time, the value will be set to `MILLIS`.
-     * Views: `SCHEMA_VIEW`, `FULL`.
+     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+     * in this table. Timestamps not matching the granularity will be rejected. If
+     * unspecified at creation time, the value will be set to `MILLIS`. Views:
+     * `SCHEMA_VIEW`, `FULL`.
      * </pre>
      *
      * <code>
@@ -3639,10 +3722,10 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored in this
-     * table. Timestamps not matching the granularity will be rejected.
-     * If unspecified at creation time, the value will be set to `MILLIS`.
-     * Views: `SCHEMA_VIEW`, `FULL`.
+     * Immutable. The granularity (i.e. `MILLIS`) at which timestamps are stored
+     * in this table. Timestamps not matching the granularity will be rejected. If
+     * unspecified at creation time, the value will be set to `MILLIS`. Views:
+     * `SCHEMA_VIEW`, `FULL`.
      * </pre>
      *
      * <code>
@@ -3668,8 +3751,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3685,8 +3768,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3708,8 +3791,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3733,8 +3816,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3756,8 +3839,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3784,8 +3867,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3806,8 +3889,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3823,8 +3906,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3844,8 +3927,8 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Output only. If this table was restored from another data source (e.g. a backup), this
-     * field will be populated with information about the restore.
+     * Output only. If this table was restored from another data source (e.g. a
+     * backup), this field will be populated with information about the restore.
      * </pre>
      *
      * <code>
@@ -3869,6 +3952,210 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
       return restoreInfoBuilder_;
     }
 
+    private com.google.bigtable.admin.v2.ChangeStreamConfig changeStreamConfig_;
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.admin.v2.ChangeStreamConfig,
+            com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+            com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>
+        changeStreamConfigBuilder_;
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     *
+     * @return Whether the changeStreamConfig field is set.
+     */
+    public boolean hasChangeStreamConfig() {
+      return ((bitField0_ & 0x00000020) != 0);
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     *
+     * @return The changeStreamConfig.
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfig getChangeStreamConfig() {
+      if (changeStreamConfigBuilder_ == null) {
+        return changeStreamConfig_ == null
+            ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+            : changeStreamConfig_;
+      } else {
+        return changeStreamConfigBuilder_.getMessage();
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder setChangeStreamConfig(com.google.bigtable.admin.v2.ChangeStreamConfig value) {
+      if (changeStreamConfigBuilder_ == null) {
+        if (value == null) {
+          throw new NullPointerException();
+        }
+        changeStreamConfig_ = value;
+      } else {
+        changeStreamConfigBuilder_.setMessage(value);
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder setChangeStreamConfig(
+        com.google.bigtable.admin.v2.ChangeStreamConfig.Builder builderForValue) {
+      if (changeStreamConfigBuilder_ == null) {
+        changeStreamConfig_ = builderForValue.build();
+      } else {
+        changeStreamConfigBuilder_.setMessage(builderForValue.build());
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder mergeChangeStreamConfig(com.google.bigtable.admin.v2.ChangeStreamConfig value) {
+      if (changeStreamConfigBuilder_ == null) {
+        if (((bitField0_ & 0x00000020) != 0)
+            && changeStreamConfig_ != null
+            && changeStreamConfig_
+                != com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()) {
+          getChangeStreamConfigBuilder().mergeFrom(value);
+        } else {
+          changeStreamConfig_ = value;
+        }
+      } else {
+        changeStreamConfigBuilder_.mergeFrom(value);
+      }
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public Builder clearChangeStreamConfig() {
+      bitField0_ = (bitField0_ & ~0x00000020);
+      changeStreamConfig_ = null;
+      if (changeStreamConfigBuilder_ != null) {
+        changeStreamConfigBuilder_.dispose();
+        changeStreamConfigBuilder_ = null;
+      }
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfig.Builder getChangeStreamConfigBuilder() {
+      bitField0_ |= 0x00000020;
+      onChanged();
+      return getChangeStreamConfigFieldBuilder().getBuilder();
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    public com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder
+        getChangeStreamConfigOrBuilder() {
+      if (changeStreamConfigBuilder_ != null) {
+        return changeStreamConfigBuilder_.getMessageOrBuilder();
+      } else {
+        return changeStreamConfig_ == null
+            ? com.google.bigtable.admin.v2.ChangeStreamConfig.getDefaultInstance()
+            : changeStreamConfig_;
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * If specified, enable the change stream on this table.
+     * Otherwise, the change stream is disabled and the change stream is not
+     * retained.
+     * </pre>
+     *
+     * <code>.google.bigtable.admin.v2.ChangeStreamConfig change_stream_config = 8;</code>
+     */
+    private com.google.protobuf.SingleFieldBuilderV3<
+            com.google.bigtable.admin.v2.ChangeStreamConfig,
+            com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+            com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>
+        getChangeStreamConfigFieldBuilder() {
+      if (changeStreamConfigBuilder_ == null) {
+        changeStreamConfigBuilder_ =
+            new com.google.protobuf.SingleFieldBuilderV3<
+                com.google.bigtable.admin.v2.ChangeStreamConfig,
+                com.google.bigtable.admin.v2.ChangeStreamConfig.Builder,
+                com.google.bigtable.admin.v2.ChangeStreamConfigOrBuilder>(
+                getChangeStreamConfig(), getParentForChildren(), isClean());
+        changeStreamConfig_ = null;
+      }
+      return changeStreamConfigBuilder_;
+    }
+
     private boolean deletionProtection_;
     /**
      *
@@ -3876,9 +4163,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Set to true to make the table protected against data loss. i.e. deleting
      * the following resources through Admin APIs are prohibited:
-     *   - The table.
-     *   - The column families in the table.
-     *   - The instance containing the table.
+     *
+     * * The table.
+     * * The column families in the table.
+     * * The instance containing the table.
+     *
      * Note one can still delete the data stored in the table through Data APIs.
      * </pre>
      *
@@ -3896,9 +4185,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Set to true to make the table protected against data loss. i.e. deleting
      * the following resources through Admin APIs are prohibited:
-     *   - The table.
-     *   - The column families in the table.
-     *   - The instance containing the table.
+     *
+     * * The table.
+     * * The column families in the table.
+     * * The instance containing the table.
+     *
      * Note one can still delete the data stored in the table through Data APIs.
      * </pre>
      *
@@ -3910,7 +4201,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
     public Builder setDeletionProtection(boolean value) {
 
       deletionProtection_ = value;
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00000040;
       onChanged();
       return this;
     }
@@ -3920,9 +4211,11 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Set to true to make the table protected against data loss. i.e. deleting
      * the following resources through Admin APIs are prohibited:
-     *   - The table.
-     *   - The column families in the table.
-     *   - The instance containing the table.
+     *
+     * * The table.
+     * * The column families in the table.
+     * * The instance containing the table.
+     *
      * Note one can still delete the data stored in the table through Data APIs.
      * </pre>
      *
@@ -3931,7 +4224,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearDeletionProtection() {
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00000040);
       deletionProtection_ = false;
       onChanged();
       return this;

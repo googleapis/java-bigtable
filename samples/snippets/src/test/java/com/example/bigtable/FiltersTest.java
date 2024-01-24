@@ -43,7 +43,7 @@ public class FiltersTest extends MobileTimeSeriesBaseTest {
     Filters.filterLimitRowSample(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
-    assertThat(output).contains("Reading data for");
+    assertThat(output).contains("Table filter completed.");
   }
 
   @Test

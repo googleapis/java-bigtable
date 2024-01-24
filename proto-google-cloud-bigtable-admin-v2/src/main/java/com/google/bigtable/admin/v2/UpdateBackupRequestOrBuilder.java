@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public interface UpdateBackupRequestOrBuilder
    * Required. The backup to update. `backup.name`, and the fields to be updated
    * as specified by `update_mask` are required. Other fields are ignored.
    * Update is only supported for the following fields:
+   *
    *  * `backup.expire_time`.
    * </pre>
    *
@@ -46,6 +47,7 @@ public interface UpdateBackupRequestOrBuilder
    * Required. The backup to update. `backup.name`, and the fields to be updated
    * as specified by `update_mask` are required. Other fields are ignored.
    * Update is only supported for the following fields:
+   *
    *  * `backup.expire_time`.
    * </pre>
    *
@@ -62,6 +64,7 @@ public interface UpdateBackupRequestOrBuilder
    * Required. The backup to update. `backup.name`, and the fields to be updated
    * as specified by `update_mask` are required. Other fields are ignored.
    * Update is only supported for the following fields:
+   *
    *  * `backup.expire_time`.
    * </pre>
    *

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public interface DeleteClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the cluster to be deleted. Values are of the form
-   * `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * Required. The unique name of the cluster to be deleted. Values are of the
+   * form `projects/{project}/instances/{instance}/clusters/{cluster}`.
    * </pre>
    *
    * <code>
@@ -42,8 +42,8 @@ public interface DeleteClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the cluster to be deleted. Values are of the form
-   * `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * Required. The unique name of the cluster to be deleted. Values are of the
+   * form `projects/{project}/instances/{instance}/clusters/{cluster}`.
    * </pre>
    *
    * <code>

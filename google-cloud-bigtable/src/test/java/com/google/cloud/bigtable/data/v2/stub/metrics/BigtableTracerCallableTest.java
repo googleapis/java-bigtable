@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc.BigtableImplBase;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
@@ -54,7 +55,6 @@ import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
 import io.opencensus.stats.StatsComponent;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
@@ -74,7 +74,7 @@ public class BigtableTracerCallableTest {
 
   private FakeService fakeService = new FakeService();
 
-  private final StatsComponent localStats = new StatsComponentImpl();
+  private final StatsComponent localStats = new SimpleStatsComponent();
   private EnhancedBigtableStub stub;
   private EnhancedBigtableStub noHeaderStub;
   private int attempts;
@@ -126,8 +126,13 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+        settings
+            .getStubSettings()
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder()))
+            .build();
     attempts = stubSettings.readRowsSettings().getRetrySettings().getMaxAttempts();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
 
@@ -142,8 +147,15 @@ public class BigtableTracerCallableTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings noHeaderStubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            noHeaderSettings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+        noHeaderSettings
+            .getStubSettings()
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    noHeaderSettings.getStubSettings(),
+                    Tags.getTagger(),
+                    localStats.getStatsRecorder()))
+            .build();
     noHeaderStub =
         new EnhancedBigtableStub(noHeaderStubSettings, ClientContext.create(noHeaderStubSettings));
   }
@@ -157,10 +169,9 @@ public class BigtableTracerCallableTest {
   }
 
   @Test
-  public void testGFELatencyMetricReadRows() throws InterruptedException {
-    stub.readRowsCallable().call(Query.create(TABLE_ID));
-
-    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+  public void testGFELatencyMetricReadRows() {
+    ServerStream<?> call = stub.readRowsCallable().call(Query.create(TABLE_ID));
+    call.forEach(r -> {});
 
     long latency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -404,7 +415,11 @@ public class BigtableTracerCallableTest {
 
     @Override
     public void mutateRows(MutateRowsRequest request, StreamObserver<MutateRowsResponse> observer) {
-      observer.onNext(MutateRowsResponse.getDefaultInstance());
+      MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
+      for (int i = 0; i < request.getEntriesCount(); i++) {
+        builder.addEntries(MutateRowsResponse.Entry.newBuilder().setIndex(i));
+      }
+      observer.onNext(builder.build());
       observer.onCompleted();
     }
 

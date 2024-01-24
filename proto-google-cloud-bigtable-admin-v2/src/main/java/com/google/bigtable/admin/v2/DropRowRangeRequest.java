@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class DropRowRangeRequest extends com.google.protobuf.GeneratedMess
     return new DropRowRangeRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableTableAdminProto
         .internal_static_google_bigtable_admin_v2_DropRowRangeRequest_descriptor;
@@ -69,6 +64,8 @@ public final class DropRowRangeRequest extends com.google.protobuf.GeneratedMess
   }
 
   private int targetCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object target_;
 
   public enum TargetCase

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
   private Backup() {
     name_ = "";
     sourceTable_ = "";
+    sourceBackup_ = "";
     state_ = 0;
   }
 
@@ -47,11 +48,6 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new Backup();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -242,6 +238,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
    * The final segment of the name must be between 1 and 50 characters
    * in length.
+   *
    * The backup is stored in the cluster identified by the prefix of the backup
    * name of the form
    * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -273,6 +270,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
    * The final segment of the name must be between 1 and 50 characters
    * in length.
+   *
    * The backup is stored in the cluster identified by the prefix of the backup
    * name of the form
    * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -303,8 +301,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Required. Immutable. Name of the table from which this backup was created. This needs
-   * to be in the same instance as the backup. Values are of the form
+   * Required. Immutable. Name of the table from which this backup was created.
+   * This needs to be in the same instance as the backup. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{source_table}`.
    * </pre>
    *
@@ -330,8 +328,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Required. Immutable. Name of the table from which this backup was created. This needs
-   * to be in the same instance as the backup. Values are of the form
+   * Required. Immutable. Name of the table from which this backup was created.
+   * This needs to be in the same instance as the backup. Values are of the form
    * `projects/{project}/instances/{instance}/tables/{source_table}`.
    * </pre>
    *
@@ -354,6 +352,61 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
     }
   }
 
+  public static final int SOURCE_BACKUP_FIELD_NUMBER = 10;
+
+  @SuppressWarnings("serial")
+  private volatile java.lang.Object sourceBackup_ = "";
+  /**
+   *
+   *
+   * <pre>
+   * Output only. Name of the backup from which this backup was copied. If a
+   * backup is not created by copying a backup, this field will be empty. Values
+   * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+   * </pre>
+   *
+   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   *
+   * @return The sourceBackup.
+   */
+  @java.lang.Override
+  public java.lang.String getSourceBackup() {
+    java.lang.Object ref = sourceBackup_;
+    if (ref instanceof java.lang.String) {
+      return (java.lang.String) ref;
+    } else {
+      com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+      java.lang.String s = bs.toStringUtf8();
+      sourceBackup_ = s;
+      return s;
+    }
+  }
+  /**
+   *
+   *
+   * <pre>
+   * Output only. Name of the backup from which this backup was copied. If a
+   * backup is not created by copying a backup, this field will be empty. Values
+   * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+   * </pre>
+   *
+   * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+   *
+   * @return The bytes for sourceBackup.
+   */
+  @java.lang.Override
+  public com.google.protobuf.ByteString getSourceBackupBytes() {
+    java.lang.Object ref = sourceBackup_;
+    if (ref instanceof java.lang.String) {
+      com.google.protobuf.ByteString b =
+          com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+      sourceBackup_ = b;
+      return b;
+    } else {
+      return (com.google.protobuf.ByteString) ref;
+    }
+  }
+
   public static final int EXPIRE_TIME_FIELD_NUMBER = 3;
   private com.google.protobuf.Timestamp expireTime_;
   /**
@@ -361,7 +414,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * Required. The expiration time of the backup, with microseconds
-   * granularity that must be at least 6 hours and at most 30 days
+   * granularity that must be at least 6 hours and at most 90 days
    * from the time the request is received. Once the `expire_time`
    * has passed, Cloud Bigtable will delete the backup and free the
    * resources used by the backup.
@@ -381,7 +434,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * Required. The expiration time of the backup, with microseconds
-   * granularity that must be at least 6 hours and at most 30 days
+   * granularity that must be at least 6 hours and at most 90 days
    * from the time the request is received. Once the `expire_time`
    * has passed, Cloud Bigtable will delete the backup and free the
    * resources used by the backup.
@@ -401,7 +454,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    *
    * <pre>
    * Required. The expiration time of the backup, with microseconds
-   * granularity that must be at least 6 hours and at most 30 days
+   * granularity that must be at least 6 hours and at most 90 days
    * from the time the request is received. Once the `expire_time`
    * has passed, Cloud Bigtable will delete the backup and free the
    * resources used by the backup.
@@ -423,8 +476,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Output only. `start_time` is the time that the backup was started
    * (i.e. approximately the time the
-   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-   * row data in this backup will be no older than this timestamp.
+   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+   * request is received).  The row data in this backup will be no older than
+   * this timestamp.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -442,8 +496,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Output only. `start_time` is the time that the backup was started
    * (i.e. approximately the time the
-   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-   * row data in this backup will be no older than this timestamp.
+   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+   * request is received).  The row data in this backup will be no older than
+   * this timestamp.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -461,8 +516,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
    * <pre>
    * Output only. `start_time` is the time that the backup was started
    * (i.e. approximately the time the
-   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-   * row data in this backup will be no older than this timestamp.
+   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+   * request is received).  The row data in this backup will be no older than
+   * this timestamp.
    * </pre>
    *
    * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -676,6 +732,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
     if (encryptionInfo_ != null) {
       output.writeMessage(9, getEncryptionInfo());
     }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
+      com.google.protobuf.GeneratedMessageV3.writeString(output, 10, sourceBackup_);
+    }
     getUnknownFields().writeTo(output);
   }
 
@@ -709,6 +768,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
     if (encryptionInfo_ != null) {
       size += com.google.protobuf.CodedOutputStream.computeMessageSize(9, getEncryptionInfo());
     }
+    if (!com.google.protobuf.GeneratedMessageV3.isStringEmpty(sourceBackup_)) {
+      size += com.google.protobuf.GeneratedMessageV3.computeStringSize(10, sourceBackup_);
+    }
     size += getUnknownFields().getSerializedSize();
     memoizedSize = size;
     return size;
@@ -726,6 +788,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
 
     if (!getName().equals(other.getName())) return false;
     if (!getSourceTable().equals(other.getSourceTable())) return false;
+    if (!getSourceBackup().equals(other.getSourceBackup())) return false;
     if (hasExpireTime() != other.hasExpireTime()) return false;
     if (hasExpireTime()) {
       if (!getExpireTime().equals(other.getExpireTime())) return false;
@@ -759,6 +822,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
     hash = (53 * hash) + getName().hashCode();
     hash = (37 * hash) + SOURCE_TABLE_FIELD_NUMBER;
     hash = (53 * hash) + getSourceTable().hashCode();
+    hash = (37 * hash) + SOURCE_BACKUP_FIELD_NUMBER;
+    hash = (53 * hash) + getSourceBackup().hashCode();
     if (hasExpireTime()) {
       hash = (37 * hash) + EXPIRE_TIME_FIELD_NUMBER;
       hash = (53 * hash) + getExpireTime().hashCode();
@@ -919,6 +984,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       bitField0_ = 0;
       name_ = "";
       sourceTable_ = "";
+      sourceBackup_ = "";
       expireTime_ = null;
       if (expireTimeBuilder_ != null) {
         expireTimeBuilder_.dispose();
@@ -983,21 +1049,24 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
         result.sourceTable_ = sourceTable_;
       }
       if (((from_bitField0_ & 0x00000004) != 0)) {
-        result.expireTime_ = expireTimeBuilder_ == null ? expireTime_ : expireTimeBuilder_.build();
+        result.sourceBackup_ = sourceBackup_;
       }
       if (((from_bitField0_ & 0x00000008) != 0)) {
-        result.startTime_ = startTimeBuilder_ == null ? startTime_ : startTimeBuilder_.build();
+        result.expireTime_ = expireTimeBuilder_ == null ? expireTime_ : expireTimeBuilder_.build();
       }
       if (((from_bitField0_ & 0x00000010) != 0)) {
-        result.endTime_ = endTimeBuilder_ == null ? endTime_ : endTimeBuilder_.build();
+        result.startTime_ = startTimeBuilder_ == null ? startTime_ : startTimeBuilder_.build();
       }
       if (((from_bitField0_ & 0x00000020) != 0)) {
-        result.sizeBytes_ = sizeBytes_;
+        result.endTime_ = endTimeBuilder_ == null ? endTime_ : endTimeBuilder_.build();
       }
       if (((from_bitField0_ & 0x00000040) != 0)) {
-        result.state_ = state_;
+        result.sizeBytes_ = sizeBytes_;
       }
       if (((from_bitField0_ & 0x00000080) != 0)) {
+        result.state_ = state_;
+      }
+      if (((from_bitField0_ & 0x00000100) != 0)) {
         result.encryptionInfo_ =
             encryptionInfoBuilder_ == null ? encryptionInfo_ : encryptionInfoBuilder_.build();
       }
@@ -1056,6 +1125,11 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       if (!other.getSourceTable().isEmpty()) {
         sourceTable_ = other.sourceTable_;
         bitField0_ |= 0x00000002;
+        onChanged();
+      }
+      if (!other.getSourceBackup().isEmpty()) {
+        sourceBackup_ = other.sourceBackup_;
+        bitField0_ |= 0x00000004;
         onChanged();
       }
       if (other.hasExpireTime()) {
@@ -1117,39 +1191,45 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
             case 26:
               {
                 input.readMessage(getExpireTimeFieldBuilder().getBuilder(), extensionRegistry);
-                bitField0_ |= 0x00000004;
+                bitField0_ |= 0x00000008;
                 break;
               } // case 26
             case 34:
               {
                 input.readMessage(getStartTimeFieldBuilder().getBuilder(), extensionRegistry);
-                bitField0_ |= 0x00000008;
+                bitField0_ |= 0x00000010;
                 break;
               } // case 34
             case 42:
               {
                 input.readMessage(getEndTimeFieldBuilder().getBuilder(), extensionRegistry);
-                bitField0_ |= 0x00000010;
+                bitField0_ |= 0x00000020;
                 break;
               } // case 42
             case 48:
               {
                 sizeBytes_ = input.readInt64();
-                bitField0_ |= 0x00000020;
+                bitField0_ |= 0x00000040;
                 break;
               } // case 48
             case 56:
               {
                 state_ = input.readEnum();
-                bitField0_ |= 0x00000040;
+                bitField0_ |= 0x00000080;
                 break;
               } // case 56
             case 74:
               {
                 input.readMessage(getEncryptionInfoFieldBuilder().getBuilder(), extensionRegistry);
-                bitField0_ |= 0x00000080;
+                bitField0_ |= 0x00000100;
                 break;
               } // case 74
+            case 82:
+              {
+                sourceBackup_ = input.readStringRequireUtf8();
+                bitField0_ |= 0x00000004;
+                break;
+              } // case 82
             default:
               {
                 if (!super.parseUnknownField(input, extensionRegistry, tag)) {
@@ -1180,6 +1260,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
      * The final segment of the name must be between 1 and 50 characters
      * in length.
+     *
      * The backup is stored in the cluster identified by the prefix of the backup
      * name of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1210,6 +1291,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
      * The final segment of the name must be between 1 and 50 characters
      * in length.
+     *
      * The backup is stored in the cluster identified by the prefix of the backup
      * name of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1240,6 +1322,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
      * The final segment of the name must be between 1 and 50 characters
      * in length.
+     *
      * The backup is stored in the cluster identified by the prefix of the backup
      * name of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1269,6 +1352,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
      * The final segment of the name must be between 1 and 50 characters
      * in length.
+     *
      * The backup is stored in the cluster identified by the prefix of the backup
      * name of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1294,6 +1378,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *    backups/[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
      * The final segment of the name must be between 1 and 50 characters
      * in length.
+     *
      * The backup is stored in the cluster identified by the prefix of the backup
      * name of the form
      * `projects/{project}/instances/{instance}/clusters/{cluster}`.
@@ -1320,8 +1405,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Required. Immutable. Name of the table from which this backup was created. This needs
-     * to be in the same instance as the backup. Values are of the form
+     * Required. Immutable. Name of the table from which this backup was created.
+     * This needs to be in the same instance as the backup. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{source_table}`.
      * </pre>
      *
@@ -1346,8 +1431,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Required. Immutable. Name of the table from which this backup was created. This needs
-     * to be in the same instance as the backup. Values are of the form
+     * Required. Immutable. Name of the table from which this backup was created.
+     * This needs to be in the same instance as the backup. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{source_table}`.
      * </pre>
      *
@@ -1372,8 +1457,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Required. Immutable. Name of the table from which this backup was created. This needs
-     * to be in the same instance as the backup. Values are of the form
+     * Required. Immutable. Name of the table from which this backup was created.
+     * This needs to be in the same instance as the backup. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{source_table}`.
      * </pre>
      *
@@ -1397,8 +1482,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Required. Immutable. Name of the table from which this backup was created. This needs
-     * to be in the same instance as the backup. Values are of the form
+     * Required. Immutable. Name of the table from which this backup was created.
+     * This needs to be in the same instance as the backup. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{source_table}`.
      * </pre>
      *
@@ -1418,8 +1503,8 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Required. Immutable. Name of the table from which this backup was created. This needs
-     * to be in the same instance as the backup. Values are of the form
+     * Required. Immutable. Name of the table from which this backup was created.
+     * This needs to be in the same instance as the backup. Values are of the form
      * `projects/{project}/instances/{instance}/tables/{source_table}`.
      * </pre>
      *
@@ -1441,6 +1526,122 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       return this;
     }
 
+    private java.lang.Object sourceBackup_ = "";
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a
+     * backup is not created by copying a backup, this field will be empty. Values
+     * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return The sourceBackup.
+     */
+    public java.lang.String getSourceBackup() {
+      java.lang.Object ref = sourceBackup_;
+      if (!(ref instanceof java.lang.String)) {
+        com.google.protobuf.ByteString bs = (com.google.protobuf.ByteString) ref;
+        java.lang.String s = bs.toStringUtf8();
+        sourceBackup_ = s;
+        return s;
+      } else {
+        return (java.lang.String) ref;
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a
+     * backup is not created by copying a backup, this field will be empty. Values
+     * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return The bytes for sourceBackup.
+     */
+    public com.google.protobuf.ByteString getSourceBackupBytes() {
+      java.lang.Object ref = sourceBackup_;
+      if (ref instanceof String) {
+        com.google.protobuf.ByteString b =
+            com.google.protobuf.ByteString.copyFromUtf8((java.lang.String) ref);
+        sourceBackup_ = b;
+        return b;
+      } else {
+        return (com.google.protobuf.ByteString) ref;
+      }
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a
+     * backup is not created by copying a backup, this field will be empty. Values
+     * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @param value The sourceBackup to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSourceBackup(java.lang.String value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      sourceBackup_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a
+     * backup is not created by copying a backup, this field will be empty. Values
+     * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @return This builder for chaining.
+     */
+    public Builder clearSourceBackup() {
+      sourceBackup_ = getDefaultInstance().getSourceBackup();
+      bitField0_ = (bitField0_ & ~0x00000004);
+      onChanged();
+      return this;
+    }
+    /**
+     *
+     *
+     * <pre>
+     * Output only. Name of the backup from which this backup was copied. If a
+     * backup is not created by copying a backup, this field will be empty. Values
+     * are of the form: projects/&lt;project&gt;/instances/&lt;instance&gt;/backups/&lt;backup&gt;.
+     * </pre>
+     *
+     * <code>string source_backup = 10 [(.google.api.field_behavior) = OUTPUT_ONLY];</code>
+     *
+     * @param value The bytes for sourceBackup to set.
+     * @return This builder for chaining.
+     */
+    public Builder setSourceBackupBytes(com.google.protobuf.ByteString value) {
+      if (value == null) {
+        throw new NullPointerException();
+      }
+      checkByteStringIsUtf8(value);
+      sourceBackup_ = value;
+      bitField0_ |= 0x00000004;
+      onChanged();
+      return this;
+    }
+
     private com.google.protobuf.Timestamp expireTime_;
     private com.google.protobuf.SingleFieldBuilderV3<
             com.google.protobuf.Timestamp,
@@ -1452,7 +1653,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1464,14 +1665,14 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the expireTime field is set.
      */
     public boolean hasExpireTime() {
-      return ((bitField0_ & 0x00000004) != 0);
+      return ((bitField0_ & 0x00000008) != 0);
     }
     /**
      *
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1496,7 +1697,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1514,7 +1715,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         expireTimeBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1523,7 +1724,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1538,7 +1739,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         expireTimeBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1547,7 +1748,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1558,7 +1759,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeExpireTime(com.google.protobuf.Timestamp value) {
       if (expireTimeBuilder_ == null) {
-        if (((bitField0_ & 0x00000004) != 0)
+        if (((bitField0_ & 0x00000008) != 0)
             && expireTime_ != null
             && expireTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
           getExpireTimeBuilder().mergeFrom(value);
@@ -1568,7 +1769,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         expireTimeBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000008;
       onChanged();
       return this;
     }
@@ -1577,7 +1778,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1587,7 +1788,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public Builder clearExpireTime() {
-      bitField0_ = (bitField0_ & ~0x00000004);
+      bitField0_ = (bitField0_ & ~0x00000008);
       expireTime_ = null;
       if (expireTimeBuilder_ != null) {
         expireTimeBuilder_.dispose();
@@ -1601,7 +1802,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1611,7 +1812,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public com.google.protobuf.Timestamp.Builder getExpireTimeBuilder() {
-      bitField0_ |= 0x00000004;
+      bitField0_ |= 0x00000008;
       onChanged();
       return getExpireTimeFieldBuilder().getBuilder();
     }
@@ -1620,7 +1821,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1643,7 +1844,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      *
      * <pre>
      * Required. The expiration time of the backup, with microseconds
-     * granularity that must be at least 6 hours and at most 30 days
+     * granularity that must be at least 6 hours and at most 90 days
      * from the time the request is received. Once the `expire_time`
      * has passed, Cloud Bigtable will delete the backup and free the
      * resources used by the backup.
@@ -1681,8 +1882,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1691,7 +1893,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the startTime field is set.
      */
     public boolean hasStartTime() {
-      return ((bitField0_ & 0x00000008) != 0);
+      return ((bitField0_ & 0x00000010) != 0);
     }
     /**
      *
@@ -1699,8 +1901,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1721,8 +1924,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1737,7 +1941,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         startTimeBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1747,8 +1951,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1760,7 +1965,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         startTimeBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1770,8 +1975,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1779,7 +1985,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeStartTime(com.google.protobuf.Timestamp value) {
       if (startTimeBuilder_ == null) {
-        if (((bitField0_ & 0x00000008) != 0)
+        if (((bitField0_ & 0x00000010) != 0)
             && startTime_ != null
             && startTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
           getStartTimeBuilder().mergeFrom(value);
@@ -1789,7 +1995,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         startTimeBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       onChanged();
       return this;
     }
@@ -1799,15 +2005,16 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
      * </code>
      */
     public Builder clearStartTime() {
-      bitField0_ = (bitField0_ & ~0x00000008);
+      bitField0_ = (bitField0_ & ~0x00000010);
       startTime_ = null;
       if (startTimeBuilder_ != null) {
         startTimeBuilder_.dispose();
@@ -1822,15 +2029,16 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
      * </code>
      */
     public com.google.protobuf.Timestamp.Builder getStartTimeBuilder() {
-      bitField0_ |= 0x00000008;
+      bitField0_ |= 0x00000010;
       onChanged();
       return getStartTimeFieldBuilder().getBuilder();
     }
@@ -1840,8 +2048,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1860,8 +2069,9 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * <pre>
      * Output only. `start_time` is the time that the backup was started
      * (i.e. approximately the time the
-     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup] request is received).  The
-     * row data in this backup will be no older than this timestamp.
+     * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup]
+     * request is received).  The row data in this backup will be no older than
+     * this timestamp.
      * </pre>
      *
      * <code>.google.protobuf.Timestamp start_time = 4 [(.google.api.field_behavior) = OUTPUT_ONLY];
@@ -1904,7 +2114,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the endTime field is set.
      */
     public boolean hasEndTime() {
-      return ((bitField0_ & 0x00000010) != 0);
+      return ((bitField0_ & 0x00000020) != 0);
     }
     /**
      *
@@ -1946,7 +2156,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         endTimeBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1967,7 +2177,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         endTimeBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -1984,7 +2194,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeEndTime(com.google.protobuf.Timestamp value) {
       if (endTimeBuilder_ == null) {
-        if (((bitField0_ & 0x00000010) != 0)
+        if (((bitField0_ & 0x00000020) != 0)
             && endTime_ != null
             && endTime_ != com.google.protobuf.Timestamp.getDefaultInstance()) {
           getEndTimeBuilder().mergeFrom(value);
@@ -1994,7 +2204,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         endTimeBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       onChanged();
       return this;
     }
@@ -2010,7 +2220,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public Builder clearEndTime() {
-      bitField0_ = (bitField0_ & ~0x00000010);
+      bitField0_ = (bitField0_ & ~0x00000020);
       endTime_ = null;
       if (endTimeBuilder_ != null) {
         endTimeBuilder_.dispose();
@@ -2031,7 +2241,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public com.google.protobuf.Timestamp.Builder getEndTimeBuilder() {
-      bitField0_ |= 0x00000010;
+      bitField0_ |= 0x00000020;
       onChanged();
       return getEndTimeFieldBuilder().getBuilder();
     }
@@ -2112,7 +2322,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
     public Builder setSizeBytes(long value) {
 
       sizeBytes_ = value;
-      bitField0_ |= 0x00000020;
+      bitField0_ |= 0x00000040;
       onChanged();
       return this;
     }
@@ -2128,7 +2338,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearSizeBytes() {
-      bitField0_ = (bitField0_ & ~0x00000020);
+      bitField0_ = (bitField0_ & ~0x00000040);
       sizeBytes_ = 0L;
       onChanged();
       return this;
@@ -2168,7 +2378,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder setStateValue(int value) {
       state_ = value;
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       onChanged();
       return this;
     }
@@ -2209,7 +2419,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       if (value == null) {
         throw new NullPointerException();
       }
-      bitField0_ |= 0x00000040;
+      bitField0_ |= 0x00000080;
       state_ = value.getNumber();
       onChanged();
       return this;
@@ -2228,7 +2438,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return This builder for chaining.
      */
     public Builder clearState() {
-      bitField0_ = (bitField0_ & ~0x00000040);
+      bitField0_ = (bitField0_ & ~0x00000080);
       state_ = 0;
       onChanged();
       return this;
@@ -2254,7 +2464,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * @return Whether the encryptionInfo field is set.
      */
     public boolean hasEncryptionInfo() {
-      return ((bitField0_ & 0x00000080) != 0);
+      return ((bitField0_ & 0x00000100) != 0);
     }
     /**
      *
@@ -2298,7 +2508,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         encryptionInfoBuilder_.setMessage(value);
       }
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
@@ -2320,7 +2530,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         encryptionInfoBuilder_.setMessage(builderForValue.build());
       }
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
@@ -2337,7 +2547,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      */
     public Builder mergeEncryptionInfo(com.google.bigtable.admin.v2.EncryptionInfo value) {
       if (encryptionInfoBuilder_ == null) {
-        if (((bitField0_ & 0x00000080) != 0)
+        if (((bitField0_ & 0x00000100) != 0)
             && encryptionInfo_ != null
             && encryptionInfo_
                 != com.google.bigtable.admin.v2.EncryptionInfo.getDefaultInstance()) {
@@ -2348,7 +2558,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
       } else {
         encryptionInfoBuilder_.mergeFrom(value);
       }
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000100;
       onChanged();
       return this;
     }
@@ -2364,7 +2574,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public Builder clearEncryptionInfo() {
-      bitField0_ = (bitField0_ & ~0x00000080);
+      bitField0_ = (bitField0_ & ~0x00000100);
       encryptionInfo_ = null;
       if (encryptionInfoBuilder_ != null) {
         encryptionInfoBuilder_.dispose();
@@ -2385,7 +2595,7 @@ public final class Backup extends com.google.protobuf.GeneratedMessageV3
      * </code>
      */
     public com.google.bigtable.admin.v2.EncryptionInfo.Builder getEncryptionInfoBuilder() {
-      bitField0_ |= 0x00000080;
+      bitField0_ |= 0x00000100;
       onChanged();
       return getEncryptionInfoFieldBuilder().getBuilder();
     }

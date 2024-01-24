@@ -23,6 +23,7 @@ import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -146,49 +147,32 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
    */
   private static BigtableDataSettings.Builder overrideTimeoutSetting(
       Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
-    // TODO(developer): remove the initialRpcTimeout update below by updating the client library.
-    Duration initialRpcTimeout =
-        settingsBuilder
-            .stubSettings()
-            .bulkMutateRowsSettings()
-            .getRetrySettings()
-            .getInitialRpcTimeout();
-    if (initialRpcTimeout.compareTo(newTimeout) > 0) {
-      // Total timeout is smaller than initialRpcTimeout, which will cause deadline-related problem.
-      initialRpcTimeout = newTimeout;
-    }
-    settingsBuilder
-        .stubSettings()
-        .bulkMutateRowsSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout)
-        .setInitialRpcTimeout(initialRpcTimeout);
 
-    settingsBuilder.stubSettings().mutateRowSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder.stubSettings().readRowSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder.stubSettings().readRowsSettings().retrySettings().setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .sampleRowKeysSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .checkAndMutateRowSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
-
-    settingsBuilder
-        .stubSettings()
-        .readModifyWriteRowSettings()
-        .retrySettings()
-        .setTotalTimeout(newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().mutateRowSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().readRowSettings().retrySettings(), newTimeout);
+    updateTimeout(settingsBuilder.stubSettings().readRowsSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().checkAndMutateRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().sampleRowKeysSettings().retrySettings(), newTimeout);
 
     return settingsBuilder;
+  }
+
+  private static void updateTimeout(RetrySettings.Builder settings, Duration newTimeout) {
+    Duration rpcTimeout = settings.getInitialRpcTimeout();
+
+    // TODO: this should happen in gax
+    // Clamp the rpcTimeout to the overall timeout
+    if (rpcTimeout != null && rpcTimeout.compareTo(newTimeout) > 0) {
+      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeout(newTimeout);
+    }
+
+    settings.setTotalTimeout(newTimeout);
   }
 
   /** Helper method to get a client object by its id. */
@@ -218,11 +202,14 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
     BigtableDataSettings.Builder settingsBuilder =
         BigtableDataSettings.newBuilder()
-            // disable channel refreshing when creating an emulator
+            // Disable channel refreshing when not using the real server
             .setRefreshingChannel(false)
             .setProjectId(request.getProjectId())
             .setInstanceId(request.getInstanceId())
             .setAppProfileId(request.getAppProfileId());
+
+    settingsBuilder.stubSettings().setEnableRoutingCookie(false);
+    settingsBuilder.stubSettings().setEnableRetryInfo(false);
 
     if (request.hasPerOperationTimeout()) {
       Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
@@ -231,6 +218,24 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
           String.format(
               "Total timeout is set to %s for all the methods",
               Durations.toString(request.getPerOperationTimeout())));
+    }
+
+    if (request.getOptionalFeatureConfig()
+        == OptionalFeatureConfig.OPTIONAL_FEATURE_CONFIG_ENABLE_ALL) {
+      logger.info("Enabling all the optional features");
+      try {
+        BigtableDataSettings.enableBuiltinMetrics();
+      } catch (IOException e) {
+        // Exception will be raised if Application Default Credentials is not found.
+        // We can ignore it as it doesn't impact the client correctness testing.
+        if (!e.getMessage().toUpperCase().contains("APPLICATION DEFAULT CREDENTIALS")) {
+          responseObserver.onError(Status.INTERNAL.withDescription(e.getMessage()).asException());
+          return;
+        }
+      }
+      settingsBuilder.stubSettings().bulkMutateRowsSettings().setServerInitiatedFlowControl(true);
+      settingsBuilder.stubSettings().setEnableRoutingCookie(true);
+      settingsBuilder.stubSettings().setEnableRetryInfo(true);
     }
 
     // Create and store CbtClient for later use
@@ -341,7 +346,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       MutateRowsResult.Builder resultBuilder = MutateRowsResult.newBuilder();
       for (MutateRowsException.FailedMutation failed : e.getFailedMutations()) {
         resultBuilder
-            .addEntryBuilder()
+            .addEntriesBuilder()
             .setIndex(failed.getIndex())
             .setStatus(
                 com.google.rpc.Status.newBuilder()
@@ -543,7 +548,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     for (com.google.cloud.bigtable.data.v2.models.Row row : rows) {
       rowCounter++;
       RowResult.Builder rowResultBuilder = convertRowResult(row);
-      resultBuilder.addRow(rowResultBuilder.getRow());
+      resultBuilder.addRows(rowResultBuilder.getRow());
 
       if (cancelAfterRows > 0 && rowCounter >= cancelAfterRows) {
         logger.info(
@@ -593,7 +598,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     SampleRowKeysResult.Builder resultBuilder = SampleRowKeysResult.newBuilder();
     for (KeyOffset keyOffset : keyOffsets) {
       resultBuilder
-          .addSampleBuilder()
+          .addSamplesBuilder()
           .setRowKey(keyOffset.getKey())
           .setOffsetBytes(keyOffset.getOffsetBytes());
     }

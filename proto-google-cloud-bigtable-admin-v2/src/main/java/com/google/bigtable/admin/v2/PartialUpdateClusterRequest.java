@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
     return new PartialUpdateClusterRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_PartialUpdateClusterRequest_descriptor;
@@ -71,8 +66,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];
@@ -88,8 +83,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];
@@ -105,8 +100,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
    *
    *
    * <pre>
-   * Required. The Cluster which contains the partial updates to be applied, subject to
-   * the update_mask.
+   * Required. The Cluster which contains the partial updates to be applied,
+   * subject to the update_mask.
    * </pre>
    *
    * <code>.google.bigtable.admin.v2.Cluster cluster = 1 [(.google.api.field_behavior) = REQUIRED];
@@ -557,8 +552,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -574,8 +569,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -597,8 +592,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -622,8 +617,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -644,8 +639,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -672,8 +667,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -694,8 +689,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -711,8 +706,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>
@@ -732,8 +727,8 @@ public final class PartialUpdateClusterRequest extends com.google.protobuf.Gener
      *
      *
      * <pre>
-     * Required. The Cluster which contains the partial updates to be applied, subject to
-     * the update_mask.
+     * Required. The Cluster which contains the partial updates to be applied,
+     * subject to the update_mask.
      * </pre>
      *
      * <code>

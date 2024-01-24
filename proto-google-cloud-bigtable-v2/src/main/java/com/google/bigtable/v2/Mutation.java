@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new Mutation();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -168,11 +163,6 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new SetCell();
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -1176,11 +1166,6 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new DeleteFromColumn();
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -2198,11 +2183,6 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
       return new DeleteFromFamily();
     }
 
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.DataProto
           .internal_static_google_bigtable_v2_Mutation_DeleteFromFamily_descriptor;
@@ -2823,11 +2803,6 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
       return new DeleteFromRow();
     }
 
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
-    }
-
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
       return com.google.bigtable.v2.DataProto
           .internal_static_google_bigtable_v2_Mutation_DeleteFromRow_descriptor;
@@ -3220,6 +3195,8 @@ public final class Mutation extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int mutationCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object mutation_;
 
   public enum MutationCase

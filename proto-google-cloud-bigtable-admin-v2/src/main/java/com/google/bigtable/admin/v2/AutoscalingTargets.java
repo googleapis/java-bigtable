@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new AutoscalingTargets();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -94,7 +89,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
    * <pre>
    * The storage utilization that the Autoscaler should be trying to achieve.
    * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
-   * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+   * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster,
    * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
    * it will be treated as if it were set to the default value: 2560 for SSD,
    * 8192 for HDD.
@@ -541,7 +536,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * <pre>
      * The storage utilization that the Autoscaler should be trying to achieve.
      * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
-     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster,
      * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
      * it will be treated as if it were set to the default value: 2560 for SSD,
      * 8192 for HDD.
@@ -561,7 +556,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * <pre>
      * The storage utilization that the Autoscaler should be trying to achieve.
      * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
-     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster,
      * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
      * it will be treated as if it were set to the default value: 2560 for SSD,
      * 8192 for HDD.
@@ -585,7 +580,7 @@ public final class AutoscalingTargets extends com.google.protobuf.GeneratedMessa
      * <pre>
      * The storage utilization that the Autoscaler should be trying to achieve.
      * This number is limited between 2560 (2.5TiB) and 5120 (5TiB) for a SSD
-     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster;
+     * cluster and between 8192 (8TiB) and 16384 (16TiB) for an HDD cluster,
      * otherwise it will return INVALID_ARGUMENT error. If this value is set to 0,
      * it will be treated as if it were set to the default value: 2560 for SSD,
      * 8192 for HDD.

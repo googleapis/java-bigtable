@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,8 @@ package com.google.bigtable.admin.v2;
  *
  *
  * <pre>
- * The request for [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup].
+ * The request for
+ * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup].
  * </pre>
  *
  * Protobuf type {@code google.bigtable.admin.v2.CreateBackupRequest}
@@ -46,11 +47,6 @@ public final class CreateBackupRequest extends com.google.protobuf.GeneratedMess
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new CreateBackupRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -423,7 +419,8 @@ public final class CreateBackupRequest extends com.google.protobuf.GeneratedMess
    *
    *
    * <pre>
-   * The request for [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup].
+   * The request for
+   * [CreateBackup][google.bigtable.admin.v2.BigtableTableAdmin.CreateBackup].
    * </pre>
    *
    * Protobuf type {@code google.bigtable.admin.v2.CreateBackupRequest}

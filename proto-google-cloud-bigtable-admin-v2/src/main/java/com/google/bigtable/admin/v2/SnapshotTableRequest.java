@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ package com.google.bigtable.admin.v2;
  * <pre>
  * Request message for
  * [google.bigtable.admin.v2.BigtableTableAdmin.SnapshotTable][google.bigtable.admin.v2.BigtableTableAdmin.SnapshotTable]
+ *
  * Note: This is a private alpha release of Cloud Bigtable snapshots. This
  * feature is not currently available to most Cloud Bigtable customers. This
  * feature might be changed in backward-incompatible ways and is not recommended
@@ -53,11 +54,6 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new SnapshotTableRequest();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -201,9 +197,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The ID by which the new snapshot should be referred to within the parent
-   * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-   * rather than
+   * Required. The ID by which the new snapshot should be referred to within the
+   * parent cluster, e.g., `mysnapshot` of the form:
+   * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
    * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * </pre>
    *
@@ -227,9 +223,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
    *
    *
    * <pre>
-   * Required. The ID by which the new snapshot should be referred to within the parent
-   * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-   * rather than
+   * Required. The ID by which the new snapshot should be referred to within the
+   * parent cluster, e.g., `mysnapshot` of the form:
+   * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
    * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
    * </pre>
    *
@@ -562,6 +558,7 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
    * <pre>
    * Request message for
    * [google.bigtable.admin.v2.BigtableTableAdmin.SnapshotTable][google.bigtable.admin.v2.BigtableTableAdmin.SnapshotTable]
+   *
    * Note: This is a private alpha release of Cloud Bigtable snapshots. This
    * feature is not currently available to most Cloud Bigtable customers. This
    * feature might be changed in backward-incompatible ways and is not recommended
@@ -1063,9 +1060,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The ID by which the new snapshot should be referred to within the parent
-     * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-     * rather than
+     * Required. The ID by which the new snapshot should be referred to within the
+     * parent cluster, e.g., `mysnapshot` of the form:
+     * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
      * </pre>
      *
@@ -1088,9 +1085,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The ID by which the new snapshot should be referred to within the parent
-     * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-     * rather than
+     * Required. The ID by which the new snapshot should be referred to within the
+     * parent cluster, e.g., `mysnapshot` of the form:
+     * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
      * </pre>
      *
@@ -1113,9 +1110,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The ID by which the new snapshot should be referred to within the parent
-     * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-     * rather than
+     * Required. The ID by which the new snapshot should be referred to within the
+     * parent cluster, e.g., `mysnapshot` of the form:
+     * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
      * </pre>
      *
@@ -1137,9 +1134,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The ID by which the new snapshot should be referred to within the parent
-     * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-     * rather than
+     * Required. The ID by which the new snapshot should be referred to within the
+     * parent cluster, e.g., `mysnapshot` of the form:
+     * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
      * </pre>
      *
@@ -1157,9 +1154,9 @@ public final class SnapshotTableRequest extends com.google.protobuf.GeneratedMes
      *
      *
      * <pre>
-     * Required. The ID by which the new snapshot should be referred to within the parent
-     * cluster, e.g., `mysnapshot` of the form: `[_a-zA-Z0-9][-_.a-zA-Z0-9]*`
-     * rather than
+     * Required. The ID by which the new snapshot should be referred to within the
+     * parent cluster, e.g., `mysnapshot` of the form:
+     * `[_a-zA-Z0-9][-_.a-zA-Z0-9]*` rather than
      * `projects/{project}/instances/{instance}/clusters/{cluster}/snapshots/mysnapshot`.
      * </pre>
      *

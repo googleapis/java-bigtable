@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2;
 
 import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.CredentialsProvider;
@@ -196,13 +197,7 @@ public final class BigtableDataSettings {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
 
-  /**
-   * Register built in metrics.
-   *
-   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
-   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
-   */
-  @BetaApi("Built in metric is not currently stable and may change in the future")
+  /** Register built in metrics. */
   public static void enableBuiltinMetrics() throws IOException {
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
@@ -213,11 +208,7 @@ public final class BigtableDataSettings {
   /**
    * Register built in metrics with credentials. The credentials need to have metric write access
    * for all the projects you're publishing to.
-   *
-   * <p>This is an experimental feature. Please fill up this form to have your project allow listed
-   * for the private preview: https://forms.gle/xuhu6vCunn2MjV2m9
    */
-  @BetaApi("Built in metric is not currently stable and may change in the future")
   public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
     if (BUILTIN_METRICS_REGISTERED.compareAndSet(false, true)) {
       BuiltinViews.registerBigtableBuiltinViews();
@@ -276,6 +267,15 @@ public final class BigtableDataSettings {
   @Nullable
   public Long getBatchMutationsTargetRpcLatencyMs() {
     return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+  }
+
+  /**
+   * Gets if flow control is enabled for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+   * based on the load of the Bigtable server.
+   */
+  @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+  public boolean isBulkMutationFlowControlEnabled() {
+    return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
   }
 
   /** Returns the underlying RPC settings. */
@@ -503,6 +503,28 @@ public final class BigtableDataSettings {
     @Nullable
     public Long getTargetRpcLatencyMsForBatchMutation() {
       return stubSettings.bulkMutateRowsSettings().getTargetRpcLatencyMs();
+    }
+
+    /**
+     * Configure flow control for {@link BigtableDataClient#newBulkMutationBatcher(String)} based on
+     * the current load on the Bigtable cluster.
+     *
+     * <p>This is different from the {@link FlowController} that's always enabled on batch reads and
+     * batch writes, which limits the number of outstanding requests to the Bigtable server.
+     */
+    @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+    public Builder setBulkMutationFlowControl(boolean isEnableFlowControl) {
+      stubSettings.bulkMutateRowsSettings().setServerInitiatedFlowControl(isEnableFlowControl);
+      return this;
+    }
+
+    /**
+     * Gets if flow control is enabled for {@link BigtableDataClient#newBulkMutationBatcher(String)}
+     * based on the load of the Bigtable server.
+     */
+    @InternalApi("Intended for use by the Bigtable dataflow connectors only")
+    public boolean isBulkMutationFlowControlEnabled() {
+      return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
     }
 
     /**

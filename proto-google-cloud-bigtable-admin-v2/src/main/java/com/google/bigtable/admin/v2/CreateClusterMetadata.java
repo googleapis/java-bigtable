@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,11 +43,6 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
   @SuppressWarnings({"unused"})
   protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
     return new CreateClusterMetadata();
-  }
-
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
   }
 
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -149,11 +144,6 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
     @SuppressWarnings({"unused"})
     protected java.lang.Object newInstance(UnusedPrivateParameter unused) {
       return new TableProgress();
-    }
-
-    @java.lang.Override
-    public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-      return this.unknownFields;
     }
 
     public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
@@ -1250,6 +1240,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
    * to the instance by a later API call will be created in the new cluster by
    * that API call, not this one.
+   *
    * Values: information on how much of a table's data has been copied to the
    * newly-created cluster so far.
    * </pre>
@@ -1282,6 +1273,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
    * to the instance by a later API call will be created in the new cluster by
    * that API call, not this one.
+   *
    * Values: information on how much of a table's data has been copied to the
    * newly-created cluster so far.
    * </pre>
@@ -1305,6 +1297,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
    * to the instance by a later API call will be created in the new cluster by
    * that API call, not this one.
+   *
    * Values: information on how much of a table's data has been copied to the
    * newly-created cluster so far.
    * </pre>
@@ -1336,6 +1329,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
    * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
    * to the instance by a later API call will be created in the new cluster by
    * that API call, not this one.
+   *
    * Values: information on how much of a table's data has been copied to the
    * newly-created cluster so far.
    * </pre>
@@ -2425,6 +2419,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2457,6 +2452,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2480,6 +2476,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2511,6 +2508,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2548,6 +2546,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2580,6 +2579,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>
@@ -2610,6 +2610,7 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
      * `projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;`. Any table added
      * to the instance by a later API call will be created in the new cluster by
      * that API call, not this one.
+     *
      * Values: information on how much of a table's data has been copied to the
      * newly-created cluster so far.
      * </pre>

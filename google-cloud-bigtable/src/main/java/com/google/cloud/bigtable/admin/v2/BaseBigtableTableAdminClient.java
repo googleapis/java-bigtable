@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ import com.google.bigtable.admin.v2.BackupName;
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.ClusterName;
+import com.google.bigtable.admin.v2.CopyBackupMetadata;
+import com.google.bigtable.admin.v2.CopyBackupRequest;
 import com.google.bigtable.admin.v2.CreateBackupMetadata;
 import com.google.bigtable.admin.v2.CreateBackupRequest;
 import com.google.bigtable.admin.v2.CreateTableFromSnapshotMetadata;
@@ -80,6 +82,7 @@ import com.google.longrunning.Operation;
 import com.google.longrunning.OperationsClient;
 import com.google.protobuf.Empty;
 import com.google.protobuf.FieldMask;
+import com.google.protobuf.Timestamp;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -924,11 +927,15 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    * @param table Required. The table to update. The table's `name` field is used to identify the
    *     table to update.
    * @param updateMask Required. The list of fields to update. A mask specifying which fields (e.g.
-   *     `deletion_protection`) in the `table` field should be updated. This mask is relative to the
-   *     `table` field, not to the request message. The wildcard (&#42;) path is currently not
-   *     supported. Currently UpdateTable is only supported for the following field: &#42;
-   *     `deletion_protection` If `column_families` is set in `update_mask`, it will return an
-   *     UNIMPLEMENTED error.
+   *     `change_stream_config`) in the `table` field should be updated. This mask is relative to
+   *     the `table` field, not to the request message. The wildcard (&#42;) path is currently not
+   *     supported. Currently UpdateTable is only supported for the following fields:
+   *     <ul>
+   *       <li>`change_stream_config`
+   *       <li>`change_stream_config.retention_period`
+   *       <li>`deletion_protection`
+   *     </ul>
+   *     <p>If `column_families` is set in `update_mask`, it will return an UNIMPLEMENTED error.
    * @throws com.google.api.gax.rpc.ApiException if the remote call fails
    */
   public final OperationFuture<Table, UpdateTableMetadata> updateTableAsync(
@@ -1389,6 +1396,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *       ModifyColumnFamiliesRequest.newBuilder()
    *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
    *           .addAllModifications(new ArrayList<ModifyColumnFamiliesRequest.Modification>())
+   *           .setIgnoreWarnings(true)
    *           .build();
    *   Table response = baseBigtableTableAdminClient.modifyColumnFamilies(request);
    * }
@@ -1421,6 +1429,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *       ModifyColumnFamiliesRequest.newBuilder()
    *           .setName(TableName.of("[PROJECT]", "[INSTANCE]", "[TABLE]").toString())
    *           .addAllModifications(new ArrayList<ModifyColumnFamiliesRequest.Modification>())
+   *           .setIgnoreWarnings(true)
    *           .build();
    *   ApiFuture<Table> future =
    *       baseBigtableTableAdminClient.modifyColumnFamiliesCallable().futureCall(request);
@@ -2919,7 +2928,8 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    *
    * @param backup Required. The backup to update. `backup.name`, and the fields to be updated as
    *     specified by `update_mask` are required. Other fields are ignored. Update is only supported
-   *     for the following fields: &#42; `backup.expire_time`.
+   *     for the following fields:
+   *     <p>&#42; `backup.expire_time`.
    * @param updateMask Required. A mask specifying which fields (e.g. `expire_time`) in the Backup
    *     resource should be updated. This mask is relative to the Backup resource, not to the
    *     request message. The field mask must always be specified; this prevents any future fields
@@ -3289,8 +3299,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Create a new table by restoring from a completed backup. The new table must be in the same
-   * project as the instance containing the backup. The returned table [long-running
+   * Create a new table by restoring from a completed backup. The returned table [long-running
    * operation][google.longrunning.Operation] can be used to track the progress of the operation,
    * and to cancel it. The [metadata][google.longrunning.Operation.metadata] field type is
    * [RestoreTableMetadata][google.bigtable.admin.RestoreTableMetadata]. The
@@ -3326,8 +3335,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Create a new table by restoring from a completed backup. The new table must be in the same
-   * project as the instance containing the backup. The returned table [long-running
+   * Create a new table by restoring from a completed backup. The returned table [long-running
    * operation][google.longrunning.Operation] can be used to track the progress of the operation,
    * and to cancel it. The [metadata][google.longrunning.Operation.metadata] field type is
    * [RestoreTableMetadata][google.bigtable.admin.RestoreTableMetadata]. The
@@ -3363,8 +3371,7 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.
   /**
-   * Create a new table by restoring from a completed backup. The new table must be in the same
-   * project as the instance containing the backup. The returned table [long-running
+   * Create a new table by restoring from a completed backup. The returned table [long-running
    * operation][google.longrunning.Operation] can be used to track the progress of the operation,
    * and to cancel it. The [metadata][google.longrunning.Operation.metadata] field type is
    * [RestoreTableMetadata][google.bigtable.admin.RestoreTableMetadata]. The
@@ -3395,6 +3402,340 @@ public class BaseBigtableTableAdminClient implements BackgroundResource {
    */
   public final UnaryCallable<RestoreTableRequest, Operation> restoreTableCallable() {
     return stub.restoreTableCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String backupId = "backupId2121930365";
+   *   BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exists. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as {parent}/backups/{backup_id} to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     [_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      ClusterName parent, String backupId, BackupName sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent == null ? null : parent.toString())
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup == null ? null : sourceBackup.toString())
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   ClusterName parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]");
+   *   String backupId = "backupId2121930365";
+   *   String sourceBackup =
+   *       BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exists. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as {parent}/backups/{backup_id} to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     [_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      ClusterName parent, String backupId, String sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent == null ? null : parent.toString())
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup)
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String backupId = "backupId2121930365";
+   *   BackupName sourceBackup = BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]");
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exists. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as {parent}/backups/{backup_id} to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     [_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      String parent, String backupId, BackupName sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent)
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup == null ? null : sourceBackup.toString())
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   String parent = ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString();
+   *   String backupId = "backupId2121930365";
+   *   String sourceBackup =
+   *       BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString();
+   *   Timestamp expireTime = Timestamp.newBuilder().build();
+   *   Backup response =
+   *       baseBigtableTableAdminClient
+   *           .copyBackupAsync(parent, backupId, sourceBackup, expireTime)
+   *           .get();
+   * }
+   * }</pre>
+   *
+   * @param parent Required. The name of the destination cluster that will contain the backup copy.
+   *     The cluster must already exists. Values are of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}`.
+   * @param backupId Required. The id of the new backup. The `backup_id` along with `parent` are
+   *     combined as {parent}/backups/{backup_id} to create the full backup name, of the form:
+   *     `projects/{project}/instances/{instance}/clusters/{cluster}/backups/{backup_id}`. This
+   *     string must be between 1 and 50 characters in length and match the regex
+   *     [_a-zA-Z0-9][-_.a-zA-Z0-9]&#42;.
+   * @param sourceBackup Required. The source backup to be copied from. The source backup needs to
+   *     be in READY state for it to be copied. Copying a copied backup is not allowed. Once
+   *     CopyBackup is in progress, the source backup cannot be deleted or cleaned up on expiration
+   *     until CopyBackup is finished. Values are of the form:
+   *     `projects/&lt;project&gt;/instances/&lt;instance&gt;/clusters/&lt;cluster&gt;/backups/&lt;backup&gt;`.
+   * @param expireTime Required. Required. The expiration time of the copied backup with microsecond
+   *     granularity that must be at least 6 hours and at most 30 days from the time the request is
+   *     received. Once the `expire_time` has passed, Cloud Bigtable will delete the backup and free
+   *     the resources used by the backup.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      String parent, String backupId, String sourceBackup, Timestamp expireTime) {
+    CopyBackupRequest request =
+        CopyBackupRequest.newBuilder()
+            .setParent(parent)
+            .setBackupId(backupId)
+            .setSourceBackup(sourceBackup)
+            .setExpireTime(expireTime)
+            .build();
+    return copyBackupAsync(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   Backup response = baseBigtableTableAdminClient.copyBackupAsync(request).get();
+   * }
+   * }</pre>
+   *
+   * @param request The request object containing all of the parameters for the API call.
+   * @throws com.google.api.gax.rpc.ApiException if the remote call fails
+   */
+  public final OperationFuture<Backup, CopyBackupMetadata> copyBackupAsync(
+      CopyBackupRequest request) {
+    return copyBackupOperationCallable().futureCall(request);
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   OperationFuture<Backup, CopyBackupMetadata> future =
+   *       baseBigtableTableAdminClient.copyBackupOperationCallable().futureCall(request);
+   *   // Do something.
+   *   Backup response = future.get();
+   * }
+   * }</pre>
+   */
+  public final OperationCallable<CopyBackupRequest, Backup, CopyBackupMetadata>
+      copyBackupOperationCallable() {
+    return stub.copyBackupOperationCallable();
+  }
+
+  // AUTO-GENERATED DOCUMENTATION AND METHOD.
+  /**
+   * Copy a Cloud Bigtable backup to a new backup in the destination cluster located in the
+   * destination instance and project.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * // This snippet has been automatically generated and should be regarded as a code template only.
+   * // It will require modifications to work:
+   * // - It may require correct/in-range values for request initialization.
+   * // - It may require specifying regional endpoints when creating the service client as shown in
+   * // https://cloud.google.com/java/docs/setup#configure_endpoints_for_the_client_library
+   * try (BaseBigtableTableAdminClient baseBigtableTableAdminClient =
+   *     BaseBigtableTableAdminClient.create()) {
+   *   CopyBackupRequest request =
+   *       CopyBackupRequest.newBuilder()
+   *           .setParent(ClusterName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]").toString())
+   *           .setBackupId("backupId2121930365")
+   *           .setSourceBackup(
+   *               BackupName.of("[PROJECT]", "[INSTANCE]", "[CLUSTER]", "[BACKUP]").toString())
+   *           .setExpireTime(Timestamp.newBuilder().build())
+   *           .build();
+   *   ApiFuture<Operation> future =
+   *       baseBigtableTableAdminClient.copyBackupCallable().futureCall(request);
+   *   // Do something.
+   *   Operation response = future.get();
+   * }
+   * }</pre>
+   */
+  public final UnaryCallable<CopyBackupRequest, Operation> copyBackupCallable() {
+    return stub.copyBackupCallable();
   }
 
   // AUTO-GENERATED DOCUMENTATION AND METHOD.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,6 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
     return new ListClustersRequest();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.admin.v2.BigtableInstanceAdminProto
         .internal_static_google_bigtable_admin_v2_ListClustersRequest_descriptor;
@@ -76,10 +71,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
    *
    *
    * <pre>
-   * Required. The unique name of the instance for which a list of clusters is requested.
-   * Values are of the form `projects/{project}/instances/{instance}`.
-   * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-   * e.g., `projects/myproject/instances/-`.
+   * Required. The unique name of the instance for which a list of clusters is
+   * requested. Values are of the form
+   * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+   * Clusters for all Instances in a project, e.g.,
+   * `projects/myproject/instances/-`.
    * </pre>
    *
    * <code>
@@ -104,10 +100,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
    *
    *
    * <pre>
-   * Required. The unique name of the instance for which a list of clusters is requested.
-   * Values are of the form `projects/{project}/instances/{instance}`.
-   * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-   * e.g., `projects/myproject/instances/-`.
+   * Required. The unique name of the instance for which a list of clusters is
+   * requested. Values are of the form
+   * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+   * Clusters for all Instances in a project, e.g.,
+   * `projects/myproject/instances/-`.
    * </pre>
    *
    * <code>
@@ -551,10 +548,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
      *
      *
      * <pre>
-     * Required. The unique name of the instance for which a list of clusters is requested.
-     * Values are of the form `projects/{project}/instances/{instance}`.
-     * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-     * e.g., `projects/myproject/instances/-`.
+     * Required. The unique name of the instance for which a list of clusters is
+     * requested. Values are of the form
+     * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+     * Clusters for all Instances in a project, e.g.,
+     * `projects/myproject/instances/-`.
      * </pre>
      *
      * <code>
@@ -578,10 +576,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
      *
      *
      * <pre>
-     * Required. The unique name of the instance for which a list of clusters is requested.
-     * Values are of the form `projects/{project}/instances/{instance}`.
-     * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-     * e.g., `projects/myproject/instances/-`.
+     * Required. The unique name of the instance for which a list of clusters is
+     * requested. Values are of the form
+     * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+     * Clusters for all Instances in a project, e.g.,
+     * `projects/myproject/instances/-`.
      * </pre>
      *
      * <code>
@@ -605,10 +604,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
      *
      *
      * <pre>
-     * Required. The unique name of the instance for which a list of clusters is requested.
-     * Values are of the form `projects/{project}/instances/{instance}`.
-     * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-     * e.g., `projects/myproject/instances/-`.
+     * Required. The unique name of the instance for which a list of clusters is
+     * requested. Values are of the form
+     * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+     * Clusters for all Instances in a project, e.g.,
+     * `projects/myproject/instances/-`.
      * </pre>
      *
      * <code>
@@ -631,10 +631,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
      *
      *
      * <pre>
-     * Required. The unique name of the instance for which a list of clusters is requested.
-     * Values are of the form `projects/{project}/instances/{instance}`.
-     * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-     * e.g., `projects/myproject/instances/-`.
+     * Required. The unique name of the instance for which a list of clusters is
+     * requested. Values are of the form
+     * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+     * Clusters for all Instances in a project, e.g.,
+     * `projects/myproject/instances/-`.
      * </pre>
      *
      * <code>
@@ -653,10 +654,11 @@ public final class ListClustersRequest extends com.google.protobuf.GeneratedMess
      *
      *
      * <pre>
-     * Required. The unique name of the instance for which a list of clusters is requested.
-     * Values are of the form `projects/{project}/instances/{instance}`.
-     * Use `{instance} = '-'` to list Clusters for all Instances in a project,
-     * e.g., `projects/myproject/instances/-`.
+     * Required. The unique name of the instance for which a list of clusters is
+     * requested. Values are of the form
+     * `projects/{project}/instances/{instance}`. Use `{instance} = '-'` to list
+     * Clusters for all Instances in a project, e.g.,
+     * `projects/myproject/instances/-`.
      * </pre>
      *
      * <code>

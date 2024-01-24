@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,6 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
     return new ValueRange();
   }
 
-  @java.lang.Override
-  public final com.google.protobuf.UnknownFieldSet getUnknownFields() {
-    return this.unknownFields;
-  }
-
   public static final com.google.protobuf.Descriptors.Descriptor getDescriptor() {
     return com.google.bigtable.v2.DataProto
         .internal_static_google_bigtable_v2_ValueRange_descriptor;
@@ -66,6 +61,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int startValueCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object startValue_;
 
   public enum StartValueCase
@@ -113,6 +110,8 @@ public final class ValueRange extends com.google.protobuf.GeneratedMessageV3
   }
 
   private int endValueCase_ = 0;
+
+  @SuppressWarnings("serial")
   private java.lang.Object endValue_;
 
   public enum EndValueCase

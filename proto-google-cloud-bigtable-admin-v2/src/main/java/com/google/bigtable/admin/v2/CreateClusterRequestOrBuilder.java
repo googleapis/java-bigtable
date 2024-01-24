@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Google LLC
+ * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,9 +27,8 @@ public interface CreateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the instance in which to create the new cluster.
-   * Values are of the form
-   * `projects/{project}/instances/{instance}`.
+   * Required. The unique name of the instance in which to create the new
+   * cluster. Values are of the form `projects/{project}/instances/{instance}`.
    * </pre>
    *
    * <code>
@@ -43,9 +42,8 @@ public interface CreateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The unique name of the instance in which to create the new cluster.
-   * Values are of the form
-   * `projects/{project}/instances/{instance}`.
+   * Required. The unique name of the instance in which to create the new
+   * cluster. Values are of the form `projects/{project}/instances/{instance}`.
    * </pre>
    *
    * <code>
@@ -60,8 +58,8 @@ public interface CreateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new cluster within its instance,
-   * e.g., just `mycluster` rather than
+   * Required. The ID to be used when referring to the new cluster within its
+   * instance, e.g., just `mycluster` rather than
    * `projects/myproject/instances/myinstance/clusters/mycluster`.
    * </pre>
    *
@@ -74,8 +72,8 @@ public interface CreateClusterRequestOrBuilder
    *
    *
    * <pre>
-   * Required. The ID to be used when referring to the new cluster within its instance,
-   * e.g., just `mycluster` rather than
+   * Required. The ID to be used when referring to the new cluster within its
+   * instance, e.g., just `mycluster` rather than
    * `projects/myproject/instances/myinstance/clusters/mycluster`.
    * </pre>
    *

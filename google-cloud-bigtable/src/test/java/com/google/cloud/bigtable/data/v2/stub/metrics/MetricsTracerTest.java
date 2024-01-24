@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
-import com.google.api.gax.batching.BatchingDescriptor;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.rpc.ApiCallContext;
@@ -54,7 +53,7 @@ import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.impl.stats.StatsComponentImpl;
+import io.opencensus.stats.StatsComponent;
 import io.opencensus.tags.TagKey;
 import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tags;
@@ -84,6 +83,7 @@ public class MetricsTracerTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
+  private static final long SLEEP_VARIABILITY = 15;
 
   private static final ReadRowsResponse DEFAULT_READ_ROWS_RESPONSES =
       ReadRowsResponse.newBuilder()
@@ -104,7 +104,7 @@ public class MetricsTracerTest {
   @Mock(answer = Answers.CALLS_REAL_METHODS)
   private BigtableGrpc.BigtableImplBase mockService;
 
-  private final StatsComponentImpl localStats = new StatsComponentImpl();
+  private final StatsComponent localStats = new SimpleStatsComponent();
   private EnhancedBigtableStub stub;
   private BigtableDataSettings settings;
 
@@ -121,8 +121,13 @@ public class MetricsTracerTest {
             .setAppProfileId(APP_PROFILE_ID)
             .build();
     EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+        settings
+            .getStubSettings()
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder()))
+            .build();
     stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
   }
 
@@ -156,9 +161,6 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
-
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
@@ -191,9 +193,6 @@ public class MetricsTracerTest {
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
-
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -246,8 +245,6 @@ public class MetricsTracerTest {
     }
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
     executor.shutdown();
 
     long firstRowLatency =
@@ -259,7 +256,10 @@ public class MetricsTracerTest {
             INSTANCE_ID,
             APP_PROFILE_ID);
 
-    assertThat(firstRowLatency).isIn(Range.closed(beforeSleep, elapsed - afterSleep));
+    assertThat(firstRowLatency)
+        .isIn(
+            Range.closed(
+                beforeSleep - SLEEP_VARIABILITY, elapsed - afterSleep + SLEEP_VARIABILITY));
   }
 
   @Test
@@ -290,9 +290,6 @@ public class MetricsTracerTest {
         .readRows(any(ReadRowsRequest.class), any());
 
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
-
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
 
     long opLatency =
         StatsTestUtils.getAggregationValueAsLong(
@@ -340,9 +337,6 @@ public class MetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)));
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
-    // Give OpenCensus a chance to update the views asynchronously.
-    Thread.sleep(100);
-
     long attemptLatency =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
@@ -359,12 +353,11 @@ public class MetricsTracerTest {
   }
 
   @Test
-  public void testInvalidRequest() throws InterruptedException {
+  public void testInvalidRequest() {
     try {
       stub.bulkMutateRowsCallable().call(BulkMutation.create(TABLE_ID));
       Assert.fail("Invalid request should throw exception");
     } catch (IllegalStateException e) {
-      Thread.sleep(100);
       // Verify that the latency is recorded with an error code (in this case UNKNOWN)
       long attemptLatency =
           StatsTestUtils.getAggregationValueAsLong(
@@ -397,56 +390,52 @@ public class MetricsTracerTest {
         .when(mockService)
         .readRows(any(ReadRowsRequest.class), any());
 
-    try (Batcher batcher =
+    try (Batcher<ByteString, Row> batcher =
         stub.newBulkReadRowsBatcher(Query.create(TABLE_ID), GrpcCallContext.createDefault())) {
       batcher.add(ByteString.copyFromUtf8("row1"));
-      batcher.sendOutstanding();
-
-      // Give OpenCensus a chance to update the views asynchronously.
-      Thread.sleep(100);
-
-      long throttledTimeMetric =
-          StatsTestUtils.getAggregationValueAsLong(
-              localStats,
-              RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
-              ImmutableMap.of(
-                  RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
-              PROJECT_ID,
-              INSTANCE_ID,
-              APP_PROFILE_ID);
-      assertThat(throttledTimeMetric).isEqualTo(0);
     }
+
+    long throttledTimeMetric =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_BATCH_THROTTLED_TIME_VIEW,
+            ImmutableMap.of(RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.ReadRows")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(throttledTimeMetric).isEqualTo(0);
   }
 
   @Test
   public void testBatchMutateRowsThrottledTime() throws Exception {
     FlowController flowController = Mockito.mock(FlowController.class);
-    BatchingDescriptor batchingDescriptor = Mockito.mock(MutateRowsBatchingDescriptor.class);
+    MutateRowsBatchingDescriptor batchingDescriptor = new MutateRowsBatchingDescriptor();
+
     // Mock throttling
     final long throttled = 50;
     doAnswer(
-            new Answer() {
-              @Override
-              public Object answer(InvocationOnMock invocation) throws Throwable {
-                Thread.sleep(throttled);
-                return null;
-              }
+            invocation -> {
+              Thread.sleep(throttled);
+              return null;
             })
         .when(flowController)
         .reserve(any(Long.class), any(Long.class));
     when(flowController.getMaxElementCountLimit()).thenReturn(null);
     when(flowController.getMaxRequestBytesLimit()).thenReturn(null);
-    when(batchingDescriptor.countBytes(any())).thenReturn(1l);
-    when(batchingDescriptor.newRequestBuilder(any())).thenCallRealMethod();
 
     doAnswer(
             new Answer() {
               @Override
               public Object answer(InvocationOnMock invocation) {
+                MutateRowsRequest request = (MutateRowsRequest) invocation.getArguments()[0];
                 @SuppressWarnings("unchecked")
                 StreamObserver<MutateRowsResponse> observer =
                     (StreamObserver<MutateRowsResponse>) invocation.getArguments()[1];
-                observer.onNext(MutateRowsResponse.getDefaultInstance());
+                MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
+                for (int i = 0; i < request.getEntriesCount(); i++) {
+                  builder.addEntriesBuilder().setIndex(i);
+                }
+                observer.onNext(builder.build());
                 observer.onCompleted();
                 return null;
               }
@@ -456,20 +445,19 @@ public class MetricsTracerTest {
 
     ApiCallContext defaultContext = GrpcCallContext.createDefault();
 
-    Batcher batcher =
-        new BatcherImpl(
+    try (Batcher<RowMutationEntry, Void> batcher =
+        new BatcherImpl<>(
             batchingDescriptor,
             stub.bulkMutateRowsCallable().withDefaultCallContext(defaultContext),
             BulkMutation.create(TABLE_ID),
             settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings(),
             Executors.newSingleThreadScheduledExecutor(),
             flowController,
-            defaultContext);
+            defaultContext)) {
 
-    batcher.add(RowMutationEntry.create("key"));
-    batcher.sendOutstanding();
+      batcher.add(RowMutationEntry.create("key").deleteRow());
+    }
 
-    Thread.sleep(100);
     long throttledTimeMetric =
         StatsTestUtils.getAggregationValueAsLong(
             localStats,
