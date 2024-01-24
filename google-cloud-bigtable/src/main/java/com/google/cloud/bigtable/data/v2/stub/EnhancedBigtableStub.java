@@ -133,7 +133,6 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
-import io.opentelemetry.sdk.resources.Resource;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -311,8 +310,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     if (settings.getOpenTelemetry() != null) {
       return BuiltinMetricsTracerFactory.create(settings.getOpenTelemetry(), attributes);
     } else if (settings.isBuiltinMetricsEnabled()) {
-      Resource resource = Resource.create(attributes);
-      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder().setResource(resource);
+      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
       BuiltinMetricsView.registerBuiltinMetrics(
           settings.getProjectId(),
           settings.getCredentialsProvider().getCredentials(),

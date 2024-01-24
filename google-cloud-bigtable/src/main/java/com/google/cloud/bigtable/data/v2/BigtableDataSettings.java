@@ -554,7 +554,9 @@ public final class BigtableDataSettings {
     /**
      * Set a custom OpenTelemetry instance.
      *
-     * <p>To register builtin metrics on the custom OpenTelemetry: <code>
+     * <p>To register builtin metrics on the custom OpenTelemetry:
+     *
+     * <pre>{@code
      * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
      *
      * // register Builtin metrics on your meter provider
@@ -565,11 +567,12 @@ public final class BigtableDataSettings {
      * sdkMeterProvider.registerView(..);
      *
      * // create the OTEL instance
-     * OpenTelemetry openTelemetry = OpenTelemetrySdk.builder().
-     *     setMeterProvider(sdkMeterProvider().build();
+     * OpenTelemetry openTelemetry = OpenTelemetrySdk
+     *     .builder()
+     *     .setMeterProvider(sdkMeterProvider().build());
      *
      * settings.setOpenTelemetry(openTelemetry);
-     * </code>
+     * }</pre>
      */
     public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
       stubSettings.setOpenTelemetry(openTelemetry);
