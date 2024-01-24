@@ -162,6 +162,8 @@ public class BuiltinMetricsIT {
     if (instanceAdminClient != null) {
       instanceAdminClient.deleteAppProfile(
           testEnvRule.env().getInstanceId(), appProfileCustomOtel, true);
+      instanceAdminClient.deleteAppProfile(
+          testEnvRule.env().getInstanceId(), appProfileDefault, true);
     }
     if (clientCustomOtel != null) {
       clientCustomOtel.close();
@@ -353,8 +355,15 @@ public class BuiltinMetricsIT {
             ts.getPointsList().stream()
                 .filter(
                     p ->
-                        Timestamps.between(p.getInterval().getStartTime(), startTime).getSeconds()
-                            < 60)
+                        Timestamps.compare(p.getInterval().getStartTime(), startTime) >= 0
+                            && Timestamps.compare(
+                                    p.getInterval().getStartTime(),
+                                    Timestamps.add(
+                                        startTime,
+                                        com.google.protobuf.Duration.newBuilder()
+                                            .setSeconds(60)
+                                            .build()))
+                                < 0)
                 .collect(Collectors.toList());
         if (point.size() > 0) {
           long actualValue = (long) point.get(0).getValue().getDistributionValue().getMean();

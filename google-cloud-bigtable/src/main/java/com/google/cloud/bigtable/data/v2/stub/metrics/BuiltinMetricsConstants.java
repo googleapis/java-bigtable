@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.core.InternalApi;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.metrics.Aggregation;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
@@ -57,8 +58,7 @@ public class BuiltinMetricsConstants {
               0.0, 0.01, 0.05, 0.1, 0.3, 0.6, 0.8, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0,
               16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0,
               300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
-              100000.0, 200000.0, 300000.0, 600000.0, 900000.0, 1200000.0,
-              1800000.0)); // max is 30 minutes
+              100000.0, 200000.0, 400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
 
   static final String SCOPE = "bigtable.googleapis.com";
 
@@ -125,41 +125,130 @@ public class BuiltinMetricsConstants {
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/operation_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  STREAMING.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View ATTEMPT_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/attempt_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  STREAMING.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View SERVER_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/server_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  STREAMING.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View FIRST_RESPONSE_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/first_response_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View APPLICATION_BLOCKING_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/application_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  METHOD.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View CLIENT_BLOCKING_LATENCIES_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/throttling_latencies")
           .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  METHOD.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View RETRY_COUNT_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/retry_count")
           .setAggregation(Aggregation.sum())
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
   static final View CONNECTIVITY_ERROR_COUNT_VIEW =
       View.builder()
           .setName("bigtable.googleapis.com/internal/client/connectivity_error_count")
           .setAggregation(Aggregation.sum())
+          .setAttributeFilter(
+              ImmutableSet.of(
+                  PROJECT_ID.getKey(),
+                  INSTANCE_ID.getKey(),
+                  TABLE_ID.getKey(),
+                  CLUSTER_ID.getKey(),
+                  ZONE_ID.getKey(),
+                  APP_PROFILE.getKey(),
+                  METHOD.getKey(),
+                  STATUS.getKey(),
+                  CLIENT_NAME.getKey()))
           .build();
 
   public static Map<InstrumentSelector, View> getAllViews() {
