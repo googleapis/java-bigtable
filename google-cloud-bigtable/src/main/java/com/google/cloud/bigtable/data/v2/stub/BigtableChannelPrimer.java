@@ -134,7 +134,8 @@ class BigtableChannelPrimer implements ChannelPrimer {
         LOG.warning(String.format("Failed to prime channel: %s", e));
         if (responseMetadata.getMetadata() != null) {
           LOG.warning(
-              "Encrypted debug header is "
+              "Channel priming failed, which implies a connection issue. When opening a support case, "
+                  + "include this encrypted debug values in the support case: "
                   + responseMetadata.getMetadata().get(ENCRYPTED_HEADERS_KEY));
         }
       }
