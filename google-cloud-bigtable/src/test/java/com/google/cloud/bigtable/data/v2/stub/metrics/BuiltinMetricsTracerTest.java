@@ -30,6 +30,9 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getAggregatedValue;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.verifyAttributes;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.client.util.Lists;
@@ -85,8 +88,6 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.data.HistogramPointData;
-import io.opentelemetry.sdk.metrics.data.LongPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
@@ -98,7 +99,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -650,55 +650,6 @@ public class BuiltinMetricsTracerTest {
 
     MetricData opLatency = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
     verifyAttributes(opLatency, expected);
-  }
-
-  private MetricData getMetricData(Collection<MetricData> allMetricData, String metricName) {
-    List<MetricData> metricDataList =
-        allMetricData.stream()
-            .filter(md -> md.getName().equals(metricName))
-            .collect(Collectors.toList());
-    assertThat(metricDataList.size()).isEqualTo(1);
-
-    return metricDataList.get(0);
-  }
-
-  private long getAggregatedValue(MetricData metricData, Attributes attributes) {
-    switch (metricData.getType()) {
-      case HISTOGRAM:
-        HistogramPointData hd =
-            metricData.getHistogramData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList())
-                .get(0);
-        return (long) hd.getSum() / hd.getCount();
-      case LONG_SUM:
-        LongPointData ld =
-            metricData.getLongSumData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList())
-                .get(0);
-        return ld.getValue();
-    }
-    return 0;
-  }
-
-  private void verifyAttributes(MetricData metricData, Attributes attributes) {
-    switch (metricData.getType()) {
-      case HISTOGRAM:
-        List<HistogramPointData> hd =
-            metricData.getHistogramData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList());
-        assertThat(hd.size()).isGreaterThan(0);
-        break;
-      case LONG_SUM:
-        List<LongPointData> ld =
-            metricData.getLongSumData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList());
-        assertThat(ld.size()).isGreaterThan(0);
-        break;
-    }
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

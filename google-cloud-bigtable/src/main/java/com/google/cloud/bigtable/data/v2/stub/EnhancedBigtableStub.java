@@ -15,25 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_VIEW;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_VIEW;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_VIEW;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_SELECTOR;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_VIEW;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
@@ -110,10 +94,10 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMer
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
@@ -148,8 +132,7 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.export.MetricExporter;
-import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.resources.Resource;
 import java.io.IOException;
 import java.net.URI;
@@ -328,26 +311,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
     if (settings.getOpenTelemetry() != null) {
       return BuiltinMetricsTracerFactory.create(settings.getOpenTelemetry(), attributes);
     } else if (settings.isBuiltinMetricsEnabled()) {
-      MetricExporter metricExporter =
-          BigtableCloudMonitoringExporter.create(
-              settings.getProjectId(), settings.getCredentialsProvider().getCredentials());
       Resource resource = Resource.create(attributes);
-      SdkMeterProvider meterProvider =
-          SdkMeterProvider.builder()
-              .setResource(resource)
-              .registerMetricReader(PeriodicMetricReader.create(metricExporter))
-              .registerView(OPERATION_LATENCIES_SELECTOR, OPERATION_LATENCIES_VIEW)
-              .registerView(ATTEMPT_LATENCIES_SELECTOR, ATTEMPT_LATENCIES_VIEW)
-              .registerView(SERVER_LATENCIES_SELECTOR, SERVER_LATENCIES_VIEW)
-              .registerView(FIRST_RESPONSE_LATENCIES_SELECTOR, FIRST_RESPONSE_LATENCIES_VIEW)
-              .registerView(
-                  APPLICATION_BLOCKING_LATENCIES_SELECTOR, APPLICATION_BLOCKING_LATENCIES_VIEW)
-              .registerView(CLIENT_BLOCKING_LATENCIES_SELECTOR, CLIENT_BLOCKING_LATENCIES_VIEW)
-              .registerView(RETRY_COUNT_SELECTOR, RETRY_COUNT_VIEW)
-              .registerView(CONNECTIVITY_ERROR_COUNT_SELECTOR, CONNECTIVITY_ERROR_COUNT_VIEW)
-              .build();
+      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder().setResource(resource);
+      BuiltinMetricsView.registerBuiltinMetrics(
+          settings.getProjectId(),
+          settings.getCredentialsProvider().getCredentials(),
+          meterProvider);
       OpenTelemetry openTelemetry =
-          OpenTelemetrySdk.builder().setMeterProvider(meterProvider).build();
+          OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
       return BuiltinMetricsTracerFactory.create(openTelemetry, attributes);
     }
     return null;

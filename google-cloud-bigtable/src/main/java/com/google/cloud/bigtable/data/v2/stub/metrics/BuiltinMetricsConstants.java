@@ -37,7 +37,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> CLIENT_UID = AttributeKey.stringKey("client_uid");
 
   public static final AttributeKey<String> APP_PROFILE = AttributeKey.stringKey("app_profile");
-  static final AttributeKey<Boolean> STREAMING = AttributeKey.booleanKey("streaming");
+  public static final AttributeKey<Boolean> STREAMING = AttributeKey.booleanKey("streaming");
   static final AttributeKey<String> METHOD = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_NAME = AttributeKey.stringKey("client_name");
@@ -57,7 +57,7 @@ public class BuiltinMetricsConstants {
               0.0, 0.01, 0.05, 0.1, 0.3, 0.6, 0.8, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0,
               16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0,
               300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
-              100000.0));
+              100000.0, 200000.0, 400000.0, 800000.0, 1600000.0));
 
   static final String SCOPE = "bigtable.googleapis.com";
 

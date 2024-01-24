@@ -19,6 +19,7 @@ import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
@@ -49,7 +50,8 @@ import org.threeten.bp.Duration;
  * <p>The exporter will look for all bigtable owned metrics under bigtable.googleapis.com
  * instrumentation scope and upload it via the Google Cloud Monitoring API.
  */
-final class BigtableCloudMonitoringExporter implements MetricExporter {
+@InternalApi
+public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
@@ -64,7 +66,7 @@ final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private CompletableResultCode lastExportCode;
 
-  static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
+  public static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
       throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
