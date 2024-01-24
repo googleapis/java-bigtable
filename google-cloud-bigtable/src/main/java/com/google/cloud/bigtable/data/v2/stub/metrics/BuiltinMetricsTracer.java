@@ -19,8 +19,8 @@ import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
