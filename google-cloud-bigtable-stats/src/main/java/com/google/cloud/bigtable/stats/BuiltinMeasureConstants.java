@@ -34,7 +34,7 @@ class BuiltinMeasureConstants {
   static final TagKey METHOD = TagKey.create("method");
   static final TagKey STREAMING = TagKey.create("streaming");
   static final TagKey STATUS = TagKey.create("status");
-  public static final TagKey CLIENT_NAME = TagKey.create("client_name");
+  static final TagKey CLIENT_NAME = TagKey.create("client_name");
 
   // Units
   private static final String COUNT = "1";
