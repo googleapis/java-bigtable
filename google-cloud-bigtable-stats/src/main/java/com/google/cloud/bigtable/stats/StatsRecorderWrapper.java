@@ -27,7 +27,6 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import java.util.Map;
-import java.util.Objects;
 
 /** A wrapper to record built-in metrics */
 @InternalApi("For internal use only")
@@ -124,21 +123,12 @@ public class StatsRecorderWrapper {
     TagContextBuilder tagContextBuilder =
         tagger
             .toBuilder(parentContext)
-            .putLocal(
-                BuiltinMeasureConstants.CLIENT_NAME,
-                TagValue.create(
-                    "bigtable-java/"
-                        + statsAttributes.get(BuiltinMeasureConstants.CLIENT_VERSION.getName())))
             .putLocal(BuiltinMeasureConstants.METHOD, TagValue.create(spanName.toString()))
             .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
             .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
             .putLocal(BuiltinMeasureConstants.CLUSTER, TagValue.create(cluster));
     for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
-      // Client version is appended to the client name to keep metric attributes constant.
-      if (!Objects.equals(entry.getKey(), BuiltinMeasureConstants.CLIENT_VERSION.getName())) {
-        tagContextBuilder.putLocal(
-            TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
-      }
+      tagContextBuilder.putLocal(TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
     }
     return tagContextBuilder;
   }

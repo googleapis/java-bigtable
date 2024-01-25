@@ -20,8 +20,6 @@ import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
-import com.google.cloud.bigtable.Version;
-import com.google.cloud.bigtable.stats.BuiltinMeasureConstants;
 import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.collect.ImmutableMap;
 
@@ -39,16 +37,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   }
 
   private BuiltinMetricsTracerFactory(ImmutableMap<String, String> statsAttributes) {
-    this.statsAttributes = addClientVersionToAttributes(statsAttributes);
-  }
-
-  private ImmutableMap<String, String> addClientVersionToAttributes(
-      ImmutableMap<String, String> statsAttributes) {
-    String clientVersionKey = BuiltinMeasureConstants.CLIENT_VERSION.getName();
-    return new ImmutableMap.Builder<String, String>()
-        .putAll(statsAttributes)
-        .put(clientVersionKey, Version.VERSION)
-        .build();
+    this.statsAttributes = statsAttributes;
   }
 
   @Override

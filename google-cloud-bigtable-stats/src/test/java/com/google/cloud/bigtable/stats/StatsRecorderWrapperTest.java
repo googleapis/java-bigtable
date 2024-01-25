@@ -51,8 +51,6 @@ public class StatsRecorderWrapperTest {
   private final String TABLE_ID = "fake-table-id";
   private final String ZONE = "fake-zone";
   private final String CLUSTER = "fake-cluster";
-
-  private final String VERSION = "fake-version";
   private final String CLIENT_AND_VERSION = "bigtable-java/fake-version";
 
   private final StatsComponent statsComponent = new StatsComponentImpl();
@@ -76,8 +74,8 @@ public class StatsRecorderWrapperTest {
                 INSTANCE_ID,
                 BuiltinMeasureConstants.APP_PROFILE.getName(),
                 APP_PROFILE_ID,
-                BuiltinMeasureConstants.CLIENT_VERSION.getName(),
-                VERSION),
+                BuiltinMeasureConstants.CLIENT_NAME.getName(),
+                CLIENT_AND_VERSION),
             statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
@@ -277,7 +275,7 @@ public class StatsRecorderWrapperTest {
                 BuiltinMeasureConstants.PROJECT_ID.getName(), PROJECT_ID,
                 BuiltinMeasureConstants.INSTANCE_ID.getName(), INSTANCE_ID,
                 BuiltinMeasureConstants.APP_PROFILE.getName(), APP_PROFILE_ID,
-                BuiltinMeasureConstants.CLIENT_VERSION.getName(), VERSION),
+                BuiltinMeasureConstants.CLIENT_NAME.getName(), CLIENT_AND_VERSION),
             statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
