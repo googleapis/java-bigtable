@@ -20,8 +20,10 @@ import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
+import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.collect.ImmutableMap;
+import com.google.cloud.bigtable.stats.BuiltinMeasureConstants;
 
 /**
  * {@link ApiTracerFactory} that will generate OpenCensus metrics by using the {@link ApiTracer}
@@ -37,7 +39,13 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   }
 
   private BuiltinMetricsTracerFactory(ImmutableMap<String, String> statsAttributes) {
-    this.statsAttributes = statsAttributes;
+    this.statsAttributes = addClientVersionToAttributes(statsAttributes);
+  }
+
+  private ImmutableMap<String, String> addClientVersionToAttributes(
+      ImmutableMap<String, String> statsAttributes) {
+    return new ImmutableMap.Builder<String, String>().putAll(statsAttributes).put(
+        BuiltinMeasureConstants.CLIENT_VERSION.getName(), Version.VERSION).build();
   }
 
   @Override

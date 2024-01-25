@@ -20,7 +20,7 @@ import static io.opencensus.stats.Measure.MeasureLong;
 import io.opencensus.tags.TagKey;
 
 /** Built-in metrics that will be readable under bigtable.googleapis.com/client namespace */
-class BuiltinMeasureConstants {
+public class BuiltinMeasureConstants {
   // Monitored resource TagKeys
   static final TagKey PROJECT_ID = TagKey.create("project_id");
   static final TagKey INSTANCE_ID = TagKey.create("instance");
@@ -35,6 +35,7 @@ class BuiltinMeasureConstants {
   static final TagKey STREAMING = TagKey.create("streaming");
   static final TagKey STATUS = TagKey.create("status");
   static final TagKey CLIENT_NAME = TagKey.create("client_name");
+  public static final TagKey CLIENT_VERSION = TagKey.create("client_version");
 
   // Units
   private static final String COUNT = "1";

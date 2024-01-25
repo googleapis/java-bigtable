@@ -27,6 +27,7 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import java.util.Map;
+import java.util.Objects;
 
 /** A wrapper to record built-in metrics */
 @InternalApi("For internal use only")
@@ -59,10 +60,9 @@ public class StatsRecorderWrapper {
     this.operationMeasureMap = statsRecorder.newMeasureMap();
   }
 
-  public void recordOperation(
-      String status, String tableId, String zone, String cluster, String clientVersion) {
+  public void recordOperation(String status, String tableId, String zone, String cluster) {
     TagContextBuilder tagCtx =
-        newTagContextBuilder(tableId, zone, cluster, clientVersion)
+        newTagContextBuilder(tableId, zone, cluster)
             .putLocal(BuiltinMeasureConstants.STATUS, TagValue.create(status));
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
@@ -74,10 +74,9 @@ public class StatsRecorderWrapper {
     operationMeasureMap = statsRecorder.newMeasureMap();
   }
 
-  public void recordAttempt(
-      String status, String tableId, String zone, String cluster, String clientVersion) {
+  public void recordAttempt(String status, String tableId, String zone, String cluster) {
     TagContextBuilder tagCtx =
-        newTagContextBuilder(tableId, zone, cluster, clientVersion)
+        newTagContextBuilder(tableId, zone, cluster)
             .putLocal(BuiltinMeasureConstants.STATUS, TagValue.create(status));
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
@@ -121,20 +120,24 @@ public class StatsRecorderWrapper {
     operationMeasureMap.put(BuiltinMeasureConstants.THROTTLING_LATENCIES, clientBlockingLatency);
   }
 
-  private TagContextBuilder newTagContextBuilder(
-      String tableId, String zone, String cluster, String clientVersion) {
+  private TagContextBuilder newTagContextBuilder(String tableId, String zone, String cluster) {
     TagContextBuilder tagContextBuilder =
         tagger
             .toBuilder(parentContext)
             .putLocal(
                 BuiltinMeasureConstants.CLIENT_NAME,
-                TagValue.create("bigtable-java/" + clientVersion))
+                TagValue.create("bigtable-java/" + statsAttributes.get(
+                    BuiltinMeasureConstants.CLIENT_VERSION.getName())))
             .putLocal(BuiltinMeasureConstants.METHOD, TagValue.create(spanName.toString()))
             .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
             .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
             .putLocal(BuiltinMeasureConstants.CLUSTER, TagValue.create(cluster));
     for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
-      tagContextBuilder.putLocal(TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
+      // Client version is appended to the client name to keep metric attributes constant.
+      if (!Objects.equals(entry.getKey(), BuiltinMeasureConstants.CLIENT_VERSION.getName())) {
+        tagContextBuilder.putLocal(TagKey.create(entry.getKey()),
+            TagValue.create(entry.getValue()));
+      }
     }
     return tagContextBuilder;
   }

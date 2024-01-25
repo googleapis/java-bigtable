@@ -75,7 +75,9 @@ public class StatsRecorderWrapperTest {
                 BuiltinMeasureConstants.INSTANCE_ID.getName(),
                 INSTANCE_ID,
                 BuiltinMeasureConstants.APP_PROFILE.getName(),
-                APP_PROFILE_ID),
+                APP_PROFILE_ID,
+                BuiltinMeasureConstants.CLIENT_VERSION.getName(),
+                VERSION),
             statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
@@ -96,8 +98,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putClientBlockingLatencies(throttlingLatency);
 
-    recorderWrapper.recordOperation("OK", TABLE_ID, ZONE, CLUSTER, VERSION);
-    recorderWrapper.recordAttempt("OK", TABLE_ID, ZONE, CLUSTER, VERSION);
+    recorderWrapper.recordOperation("OK", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordAttempt("OK", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
@@ -274,7 +276,8 @@ public class StatsRecorderWrapperTest {
             ImmutableMap.of(
                 BuiltinMeasureConstants.PROJECT_ID.getName(), PROJECT_ID,
                 BuiltinMeasureConstants.INSTANCE_ID.getName(), INSTANCE_ID,
-                BuiltinMeasureConstants.APP_PROFILE.getName(), APP_PROFILE_ID),
+                BuiltinMeasureConstants.APP_PROFILE.getName(), APP_PROFILE_ID,
+                BuiltinMeasureConstants.CLIENT_VERSION.getName(), VERSION),
             statsComponent.getStatsRecorder());
 
     long operationLatency = 1234;
@@ -295,8 +298,8 @@ public class StatsRecorderWrapperTest {
     recorderWrapper.putFirstResponseLatencies(firstResponseLatency);
     recorderWrapper.putClientBlockingLatencies(throttlingLatency);
 
-    recorderWrapper.recordOperation("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER, VERSION);
-    recorderWrapper.recordAttempt("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER, VERSION);
+    recorderWrapper.recordOperation("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
+    recorderWrapper.recordAttempt("UNAVAILABLE", TABLE_ID, ZONE, CLUSTER);
 
     Thread.sleep(100);
 
