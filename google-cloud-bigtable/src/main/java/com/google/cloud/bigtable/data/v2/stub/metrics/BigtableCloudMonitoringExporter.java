@@ -25,6 +25,7 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -55,6 +56,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
+
+  private static final String MONITORING_ENDPOINT =
+      MoreObjects.firstNonNull(
+          System.getProperty("bigtable.test-monitoring-endpoint"),
+          MetricServiceSettings.getDefaultEndpoint());
+
   private final MetricServiceClient client;
 
   private final String projectId;
@@ -70,6 +77,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
