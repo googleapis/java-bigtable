@@ -44,9 +44,10 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
 
   private ImmutableMap<String, String> addClientVersionToAttributes(
       ImmutableMap<String, String> statsAttributes) {
+    String clientVersionKey = BuiltinMeasureConstants.CLIENT_VERSION.getName();
     return new ImmutableMap.Builder<String, String>()
         .putAll(statsAttributes)
-        .put(BuiltinMeasureConstants.CLIENT_VERSION.getName(), Version.VERSION)
+        .put(clientVersionKey, Version.VERSION)
         .build();
   }
 
