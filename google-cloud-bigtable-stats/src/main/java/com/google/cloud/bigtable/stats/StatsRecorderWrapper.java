@@ -126,8 +126,9 @@ public class StatsRecorderWrapper {
             .toBuilder(parentContext)
             .putLocal(
                 BuiltinMeasureConstants.CLIENT_NAME,
-                TagValue.create("bigtable-java/" + statsAttributes.get(
-                    BuiltinMeasureConstants.CLIENT_VERSION.getName())))
+                TagValue.create(
+                    "bigtable-java/"
+                        + statsAttributes.get(BuiltinMeasureConstants.CLIENT_VERSION.getName())))
             .putLocal(BuiltinMeasureConstants.METHOD, TagValue.create(spanName.toString()))
             .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
             .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
@@ -135,8 +136,8 @@ public class StatsRecorderWrapper {
     for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
       // Client version is appended to the client name to keep metric attributes constant.
       if (!Objects.equals(entry.getKey(), BuiltinMeasureConstants.CLIENT_VERSION.getName())) {
-        tagContextBuilder.putLocal(TagKey.create(entry.getKey()),
-            TagValue.create(entry.getValue()));
+        tagContextBuilder.putLocal(
+            TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
       }
     }
     return tagContextBuilder;
