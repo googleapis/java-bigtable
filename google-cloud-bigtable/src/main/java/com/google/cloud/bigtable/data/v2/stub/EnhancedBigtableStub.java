@@ -261,9 +261,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .put("app_profile", appProfileId)
             .build();
 
-    return new CompositeTracerFactory(
-        ImmutableList.of(
-            // Add OpenCensus Tracing
+    ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
+    tracerFactories
+        .add(
             new OpencensusTracerFactory(
                 ImmutableMap.<String, String>builder()
                     // Annotate traces with the same tags as metrics
@@ -274,12 +274,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
                     .put("grpc", GaxGrpcProperties.getGrpcVersion())
                     .put("gapic", Version.VERSION)
-                    .build()),
-            // Add OpenCensus Metrics
-            MetricsTracerFactory.create(tagger, stats, attributes),
-            BuiltinMetricsTracerFactory.create(builtinAttributes),
-            // Add user configured tracer
-            settings.getTracerFactory()));
+                    .build()))
+        // Add OpenCensus Metrics
+        .add(MetricsTracerFactory.create(tagger, stats, attributes))
+        .add(BuiltinMetricsTracerFactory.create(builtinAttributes))
+        // Add user configured tracer
+        .add(settings.getTracerFactory());
+
+    return new CompositeTracerFactory(tracerFactories.build());
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
