@@ -27,6 +27,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
@@ -71,8 +72,7 @@ public class StreamingMetricsMetadataIT {
     OpenTelemetry openTelemetry =
         OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
 
-    settings.setOpenTelemetry(openTelemetry);
-
+    settings.setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry));
     client = BigtableDataClient.create(settings.build());
   }
 
@@ -101,8 +101,7 @@ public class StreamingMetricsMetadataIT {
 
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
-            .filter(
-                m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW.getName()))
+            .filter(m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);
@@ -132,8 +131,7 @@ public class StreamingMetricsMetadataIT {
 
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
-            .filter(
-                m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_VIEW.getName()))
+            .filter(m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);

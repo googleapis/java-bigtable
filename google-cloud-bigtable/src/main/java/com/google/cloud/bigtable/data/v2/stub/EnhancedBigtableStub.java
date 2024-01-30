@@ -99,6 +99,8 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallabl
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
@@ -307,9 +309,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private static BuiltinMetricsTracerFactory setupBuiltinMetricsTracerFactory(
       EnhancedBigtableStubSettings.Builder settings, Attributes attributes) throws IOException {
-    if (settings.getOpenTelemetry() != null) {
-      return BuiltinMetricsTracerFactory.create(settings.getOpenTelemetry(), attributes);
-    } else if (settings.isBuiltinMetricsEnabled()) {
+    if (settings.getMetricsProvider() instanceof CustomOpenTelemetryMetricsProvider) {
+      CustomOpenTelemetryMetricsProvider customMetricsProvider =
+          (CustomOpenTelemetryMetricsProvider) settings.getMetricsProvider();
+      return BuiltinMetricsTracerFactory.create(
+          customMetricsProvider.getOpenTelemetry(), attributes);
+    } else if (settings.getMetricsProvider() instanceof DefaultMetricsProvider) {
       SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
       BuiltinMetricsView.registerBuiltinMetrics(
           settings.getProjectId(),

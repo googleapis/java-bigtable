@@ -37,6 +37,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -144,7 +145,10 @@ public class BuiltinMetricsIT {
 
     clientCustomOtel =
         BigtableDataClient.create(
-            settings.setOpenTelemetry(openTelemetry).setAppProfileId(appProfileCustomOtel).build());
+            settings
+                .setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry))
+                .setAppProfileId(appProfileCustomOtel)
+                .build());
     clientDefault = BigtableDataClient.create(settings.setAppProfileId(appProfileDefault).build());
   }
 

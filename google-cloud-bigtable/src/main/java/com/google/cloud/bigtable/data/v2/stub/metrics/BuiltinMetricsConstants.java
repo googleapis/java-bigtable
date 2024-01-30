@@ -25,6 +25,7 @@ import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.View;
 import java.util.Map;
+import java.util.Set;
 
 /** Defining Bigtable builit-in metrics scope, attributes, metric names and views. */
 @InternalApi
@@ -43,7 +44,7 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> STATUS = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_NAME = AttributeKey.stringKey("client_name");
 
-  static final String OPERATION_LATENCIES_NAME = "operation_latencies";
+  public static final String OPERATION_LATENCIES_NAME = "operation_latencies";
   static final String ATTEMPT_LATENCIES_NAME = "attempt_latencies";
   static final String RETRY_COUNT_NAME = "retry_count";
   static final String CONNECTIVITY_ERROR_COUNT_NAME = "connectivity_error_count";
@@ -62,205 +63,103 @@ public class BuiltinMetricsConstants {
 
   static final String SCOPE = "bigtable.googleapis.com";
 
-  static final InstrumentSelector OPERATION_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(OPERATION_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
-  static final InstrumentSelector ATTEMPT_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(ATTEMPT_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
+  static final Set<String> COMMON_ATTRIBUTES =
+      ImmutableSet.of(
+          PROJECT_ID.getKey(),
+          INSTANCE_ID.getKey(),
+          TABLE_ID.getKey(),
+          APP_PROFILE.getKey(),
+          CLUSTER_ID.getKey(),
+          ZONE_ID.getKey(),
+          METHOD.getKey(),
+          CLIENT_NAME.getKey());
 
-  static final InstrumentSelector RETRY_COUNT_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(RETRY_COUNT_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.COUNTER)
-          .setUnit("1")
-          .build();
+  static void defineView(
+      ImmutableMap.Builder<InstrumentSelector, View> viewMap,
+      String id,
+      Aggregation aggregation,
+      InstrumentType type,
+      String unit,
+      Set<String> extraAttributes) {
+    InstrumentSelector selector =
+        InstrumentSelector.builder()
+            .setName(id)
+            .setMeterName(SCOPE)
+            .setType(type)
+            .setUnit(unit)
+            .build();
+    Set<String> attributesFilter =
+        ImmutableSet.<String>builder().addAll(COMMON_ATTRIBUTES).addAll(extraAttributes).build();
+    View view =
+        View.builder()
+            .setName(SCOPE + "/internal/client/" + id)
+            .setAggregation(aggregation)
+            .setAttributeFilter(attributesFilter)
+            .build();
 
-  static final InstrumentSelector SERVER_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(SERVER_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
-  static final InstrumentSelector FIRST_RESPONSE_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(FIRST_RESPONSE_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
-  static final InstrumentSelector CLIENT_BLOCKING_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(CLIENT_BLOCKING_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
-  static final InstrumentSelector APPLICATION_BLOCKING_LATENCIES_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(APPLICATION_BLOCKING_LATENCIES_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.HISTOGRAM)
-          .setUnit("ms")
-          .build();
-  static final InstrumentSelector CONNECTIVITY_ERROR_COUNT_SELECTOR =
-      InstrumentSelector.builder()
-          .setName(CONNECTIVITY_ERROR_COUNT_NAME)
-          .setMeterName(SCOPE)
-          .setType(InstrumentType.COUNTER)
-          .setUnit("1")
-          .build();
-
-  public static final View OPERATION_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/operation_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  STREAMING.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View ATTEMPT_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/attempt_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  STREAMING.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View SERVER_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/server_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  STREAMING.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View FIRST_RESPONSE_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/first_response_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View APPLICATION_BLOCKING_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/application_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  METHOD.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View CLIENT_BLOCKING_LATENCIES_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/throttling_latencies")
-          .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  METHOD.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View RETRY_COUNT_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/retry_count")
-          .setAggregation(Aggregation.sum())
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
-  static final View CONNECTIVITY_ERROR_COUNT_VIEW =
-      View.builder()
-          .setName("bigtable.googleapis.com/internal/client/connectivity_error_count")
-          .setAggregation(Aggregation.sum())
-          .setAttributeFilter(
-              ImmutableSet.of(
-                  PROJECT_ID.getKey(),
-                  INSTANCE_ID.getKey(),
-                  TABLE_ID.getKey(),
-                  CLUSTER_ID.getKey(),
-                  ZONE_ID.getKey(),
-                  APP_PROFILE.getKey(),
-                  METHOD.getKey(),
-                  STATUS.getKey(),
-                  CLIENT_NAME.getKey()))
-          .build();
+    viewMap.put(selector, view);
+  }
 
   public static Map<InstrumentSelector, View> getAllViews() {
-    return new ImmutableMap.Builder<InstrumentSelector, View>()
-        .put(OPERATION_LATENCIES_SELECTOR, OPERATION_LATENCIES_VIEW)
-        .put(ATTEMPT_LATENCIES_SELECTOR, ATTEMPT_LATENCIES_VIEW)
-        .put(SERVER_LATENCIES_SELECTOR, SERVER_LATENCIES_VIEW)
-        .put(FIRST_RESPONSE_LATENCIES_SELECTOR, FIRST_RESPONSE_LATENCIES_VIEW)
-        .put(APPLICATION_BLOCKING_LATENCIES_SELECTOR, APPLICATION_BLOCKING_LATENCIES_VIEW)
-        .put(CLIENT_BLOCKING_LATENCIES_SELECTOR, CLIENT_BLOCKING_LATENCIES_VIEW)
-        .put(RETRY_COUNT_SELECTOR, RETRY_COUNT_VIEW)
-        .put(CONNECTIVITY_ERROR_COUNT_SELECTOR, CONNECTIVITY_ERROR_COUNT_VIEW)
-        .build();
+    ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
+
+    defineView(
+        views,
+        OPERATION_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+    defineView(
+        views,
+        ATTEMPT_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+    defineView(
+        views,
+        SERVER_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+    defineView(
+        views,
+        FIRST_RESPONSE_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of(STATUS.getKey()));
+    defineView(
+        views,
+        APPLICATION_BLOCKING_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of());
+    defineView(
+        views,
+        CLIENT_BLOCKING_LATENCIES_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.of());
+    defineView(
+        views,
+        RETRY_COUNT_NAME,
+        Aggregation.sum(),
+        InstrumentType.COUNTER,
+        "1",
+        ImmutableSet.of(STATUS.getKey()));
+    defineView(
+        views,
+        CONNECTIVITY_ERROR_COUNT_NAME,
+        Aggregation.sum(),
+        InstrumentType.COUNTER,
+        "1",
+        ImmutableSet.of(STATUS.getKey()));
+
+    return views.build();
   }
 }

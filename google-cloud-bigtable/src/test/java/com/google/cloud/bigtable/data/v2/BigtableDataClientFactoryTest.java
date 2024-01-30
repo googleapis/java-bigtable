@@ -175,8 +175,7 @@ public class BigtableDataClientFactoryTest {
     // FixedCredentialProvider.
     // So disabling in the test code it's fine.
     try (BigtableDataClientFactory factory =
-            BigtableDataClientFactory.create(
-                defaultSettings.toBuilder().setBuiltinMetricsEnabled(false).build());
+            BigtableDataClientFactory.create(defaultSettings.toBuilder().build());
         BigtableDataClient ignored1 = factory.createForInstance("project1", "instance1");
         BigtableDataClient ignored2 = factory.createForInstance("project2", "instance2");
         BigtableDataClient ignored3 = factory.createForInstance("project3", "instance3")) {
@@ -256,7 +255,6 @@ public class BigtableDataClientFactoryTest {
             // Builtin metrics will call getCredentialsProvider at which point it'll be a
             // FixedCredentialProvider.
             // So disabling in the test code it's fine.
-            .setBuiltinMetricsEnabled(false)
             .setRefreshingChannel(true);
     builder
         .stubSettings()

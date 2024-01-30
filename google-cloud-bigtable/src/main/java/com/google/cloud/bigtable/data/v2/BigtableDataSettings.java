@@ -29,10 +29,10 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.stub.BigtableBatchingCallSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
-import io.opentelemetry.api.OpenTelemetry;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -199,8 +199,9 @@ public final class BigtableDataSettings {
    * Register built in metrics.
    *
    * @deprecated This is a no-op that doesn't do anything. Builtin metrics are enabled by default
-   *     now. Please use {@link BigtableDataSettings.Builder#setBuiltinMetricsEnabled(boolean)} to
-   *     enable or disable built-in metrics.
+   *     now. Please refer to {@link
+   *     BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)} on how to enable or
+   *     disable built-in metrics.
    */
   @Deprecated
   public static void enableBuiltinMetrics() throws IOException {}
@@ -210,8 +211,8 @@ public final class BigtableDataSettings {
    * for all the projects you're publishing to.
    *
    * @deprecated This is a no-op that doesn't do anything. Builtin metrics are enabled by default
-   *     now. Please use {@link BigtableDataSettings.Builder#setBuiltinMetricsEnabled(boolean)} to
-   *     enable or disable built-in metrics.
+   *     now. Please refer {@link BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)}
+   *     on how to enable or disable built-in metrics.
    */
   public static void enableBuiltinMetrics(Credentials credentials) throws IOException {}
 
@@ -277,18 +278,9 @@ public final class BigtableDataSettings {
     return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
   }
 
-  /** Gets if built-in metrics is enabled. */
-  public boolean isBuiltinMetricsEnabled() {
-    return stubSettings.isBuiltinMetricsEnabled();
-  }
-
-  /**
-   * Gets the custom OpenTelemetry instance. If no custom OTEL instance is set, the client uses a
-   * default instance with builtin metrics enabled. Use {@link
-   * Builder#setBuiltinMetricsEnabled(boolean)} to disable the builtin metrics.
-   */
-  public OpenTelemetry getOpenTelemetry() {
-    return stubSettings.getOpenTelemetry();
+  /** Gets the {@link MetricsProvider}. * */
+  public MetricsProvider getMetricsProvider() {
+    return stubSettings.getMetricsProvider();
   }
 
   /** Returns the underlying RPC settings. */
@@ -540,52 +532,23 @@ public final class BigtableDataSettings {
       return stubSettings.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled();
     }
 
-    /** Set enable to true to enable builtin metrics. */
-    public Builder setBuiltinMetricsEnabled(boolean enable) {
-      stubSettings.setBuiltinMetricsEnabled(enable);
+    /**
+     * Sets the {@link MetricsProvider}. By default, this is set to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider} which will collect and
+     * export built-in metrics. To disable built-in metrics, set it to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider}. To use a custom
+     * OpenTelemetry, refer to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider} on how to
+     * set it up.
+     */
+    public Builder setMetricsProvider(MetricsProvider metricsProvider) {
+      stubSettings.setMetricsProvider(metricsProvider);
       return this;
     }
 
-    /** Gets if built-in metrics is enabled. */
-    public boolean isBuiltinMetricsEnabled() {
-      return stubSettings.isBuiltinMetricsEnabled();
-    }
-
-    /**
-     * Set a custom OpenTelemetry instance.
-     *
-     * <p>To register builtin metrics on the custom OpenTelemetry:
-     *
-     * <pre>{@code
-     * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
-     *
-     * // register Builtin metrics on your meter provider
-     * BuiltinMetricsViews.registerBuiltinMetrics("project-id", sdkMeterProvider);
-     *
-     * // register other metrics reader and views
-     * sdkMeterProvider.registerMetricReader(..);
-     * sdkMeterProvider.registerView(..);
-     *
-     * // create the OTEL instance
-     * OpenTelemetry openTelemetry = OpenTelemetrySdk
-     *     .builder()
-     *     .setMeterProvider(sdkMeterProvider().build());
-     *
-     * settings.setOpenTelemetry(openTelemetry);
-     * }</pre>
-     */
-    public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
-      stubSettings.setOpenTelemetry(openTelemetry);
-      return this;
-    }
-
-    /**
-     * Gets the custom OpenTelemetry instance. If no custom OTEL instance is set, the client uses a
-     * default instance with builtin metrics enabled. Use {@link #setBuiltinMetricsEnabled(boolean)}
-     * to disable the builtin metrics.
-     */
-    public OpenTelemetry getOpenTelemetry() {
-      return stubSettings.getOpenTelemetry();
+    /** Gets the {@link MetricsProvider}. */
+    public MetricsProvider getMetricsProvider() {
+      return stubSettings.getMetricsProvider();
     }
 
     /**

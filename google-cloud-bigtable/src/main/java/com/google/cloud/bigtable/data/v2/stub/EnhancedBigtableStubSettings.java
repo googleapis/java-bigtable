@@ -44,6 +44,8 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.base.MoreObjects;
@@ -51,7 +53,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import io.opentelemetry.api.OpenTelemetry;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +62,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -231,9 +231,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final FeatureFlags featureFlags;
 
-  private final boolean isBuiltinMetricsEnabled;
-
-  private final OpenTelemetry openTelemetry;
+  private MetricsProvider metricsProvider;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -261,9 +259,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
-
-    isBuiltinMetricsEnabled = builder.isBuiltinMetricsEnabled;
-    openTelemetry = builder.openTelemetry;
+    metricsProvider = builder.metricsProvider;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -325,12 +321,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return jwtAudienceMapping;
   }
 
-  public boolean isBuiltinMetricsEnabled() {
-    return isBuiltinMetricsEnabled;
-  }
-
-  public OpenTelemetry getOpenTelemetry() {
-    return openTelemetry;
+  public MetricsProvider getMetricsProvider() {
+    return metricsProvider;
   }
 
   /**
@@ -653,9 +645,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private FeatureFlags.Builder featureFlags;
 
-    private boolean isBuiltinMetricsEnabled;
-
-    private OpenTelemetry openTelemetry;
+    private MetricsProvider metricsProvider;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -668,12 +658,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Builder() {
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
-      this.isBuiltinMetricsEnabled = true;
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
+
+      metricsProvider = new DefaultMetricsProvider();
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -782,8 +773,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       featureFlags =
           FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
-
-      openTelemetry = null;
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -796,9 +785,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       jwtAudienceMapping = settings.jwtAudienceMapping;
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
-
-      isBuiltinMetricsEnabled = settings.isBuiltinMetricsEnabled;
-      openTelemetry = settings.openTelemetry;
+      metricsProvider = settings.metricsProvider;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -942,34 +929,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
-    /** Returns true if builtin metrics is enabled. */
-    public boolean isBuiltinMetricsEnabled() {
-      return isBuiltinMetricsEnabled;
-    }
-
-    /** Set enable to true to enable builtin metrics. */
-    public Builder setBuiltinMetricsEnabled(boolean enable) {
-      this.isBuiltinMetricsEnabled = enable;
+    public Builder setMetricsProvider(MetricsProvider metricsProvider) {
+      this.metricsProvider = metricsProvider;
       return this;
     }
 
-    /**
-     * Set a custom OpenTelemetry instance. See {@link
-     * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setOpenTelemetry(OpenTelemetry)}
-     * on how to register built-in metrics on your custom OTEL instance.
-     */
-    public Builder setOpenTelemetry(OpenTelemetry openTelemetry) {
-      this.openTelemetry = openTelemetry;
-      return this;
-    }
-
-    /**
-     * Gets the custom OpenTelemetry instance. If no custom OTEL instance is set, the client uses a
-     * default instance with builtin metrics enabled. Use {@link #setBuiltinMetricsEnabled(boolean)}
-     * to disable the builtin metrics.
-     */
-    public @Nullable OpenTelemetry getOpenTelemetry() {
-      return this.openTelemetry;
+    public MetricsProvider getMetricsProvider() {
+      return this.metricsProvider;
     }
 
     @InternalApi("Used for internal testing")
@@ -1139,8 +1105,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
-        .add("isBuiltinMetricsEnabled", isBuiltinMetricsEnabled)
-        .add("openTelemetry", openTelemetry)
+        .add("metricsProvider", metricsProvider)
         .add("parent", super.toString())
         .toString();
   }

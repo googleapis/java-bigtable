@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
@@ -29,9 +28,7 @@ import java.util.Map;
 /**
  * Register built-in metrics on a custom OpenTelemetry instance. This is for advanced usage, and is
  * only necessary when wanting to write built-in metrics to cloud monitoring and custom sinks.
- * Please refer to {@link
- * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setOpenTelemetry(OpenTelemetry)}
- * for example usage.
+ * Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
  */
 public class BuiltinMetricsView {
 
