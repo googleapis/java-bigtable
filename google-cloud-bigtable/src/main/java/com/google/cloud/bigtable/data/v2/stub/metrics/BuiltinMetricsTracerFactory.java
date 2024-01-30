@@ -20,9 +20,9 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SCOPE;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 
 import com.google.api.core.InternalApi;
@@ -65,7 +65,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
 
   BuiltinMetricsTracerFactory(OpenTelemetry openTelemetry, Attributes attributes) {
     this.attributes = attributes;
-    Meter meter = openTelemetry.getMeter(SCOPE);
+    Meter meter = openTelemetry.getMeter(METER_NAME);
 
     operationLatenciesHistogram =
         meter

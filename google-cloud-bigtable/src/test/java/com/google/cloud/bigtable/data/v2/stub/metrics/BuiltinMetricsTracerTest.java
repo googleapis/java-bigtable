@@ -21,10 +21,10 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SCOPE;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING;
@@ -159,7 +159,7 @@ public class BuiltinMetricsTracerTest {
             .setResource(Resource.create(baseAttributes))
             .build();
 
-    Meter meter = meterProvider.get(SCOPE);
+    Meter meter = meterProvider.get(METER_NAME);
 
     OpenTelemetrySdk otel = OpenTelemetrySdk.builder().setMeterProvider(meterProvider).build();
     facotry = BuiltinMetricsTracerFactory.create(otel, baseAttributes);

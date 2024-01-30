@@ -884,8 +884,7 @@ public class EnhancedBigtableStubSettingsTest {
     "generateInitialChangeStreamPartitionsSettings",
     "readChangeStreamSettings",
     "pingAndWarmSettings",
-    "isBuiltinMetricsEnabled",
-    "openTelemetry",
+    "metricsProvider",
   };
 
   @Test

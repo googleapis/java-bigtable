@@ -664,7 +664,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
 
-      metricsProvider = new DefaultMetricsProvider();
+      metricsProvider = DefaultMetricsProvider.INSTANCE;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();

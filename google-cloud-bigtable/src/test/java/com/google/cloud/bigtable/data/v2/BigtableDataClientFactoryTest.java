@@ -36,6 +36,7 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.common.base.Preconditions;
 import com.google.common.io.BaseEncoding;
 import io.grpc.Attributes;
@@ -175,7 +176,11 @@ public class BigtableDataClientFactoryTest {
     // FixedCredentialProvider.
     // So disabling in the test code it's fine.
     try (BigtableDataClientFactory factory =
-            BigtableDataClientFactory.create(defaultSettings.toBuilder().build());
+            BigtableDataClientFactory.create(
+                defaultSettings
+                    .toBuilder()
+                    .setMetricsProvider(NoopMetricsProvider.INSTANCE)
+                    .build());
         BigtableDataClient ignored1 = factory.createForInstance("project1", "instance1");
         BigtableDataClient ignored2 = factory.createForInstance("project2", "instance2");
         BigtableDataClient ignored3 = factory.createForInstance("project3", "instance3")) {
@@ -255,6 +260,7 @@ public class BigtableDataClientFactoryTest {
             // Builtin metrics will call getCredentialsProvider at which point it'll be a
             // FixedCredentialProvider.
             // So disabling in the test code it's fine.
+            .setMetricsProvider(NoopMetricsProvider.INSTANCE)
             .setRefreshingChannel(true);
     builder
         .stubSettings()

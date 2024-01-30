@@ -299,9 +299,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
     operationLatenciesHistogram.record(
         operationLatency,
         attributes.toBuilder().put(STREAMING, isStreaming).put(STATUS, statusStr).build());
+
+    long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
     applicationBlockingLatenciesHistogram.record(
-        Duration.ofNanos(operationLatencyNano - totalServerLatencyNano.get()).toMillis(),
-        attributes);
+        Duration.ofNanos(applicationLatencyNano).toMillis(), attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {

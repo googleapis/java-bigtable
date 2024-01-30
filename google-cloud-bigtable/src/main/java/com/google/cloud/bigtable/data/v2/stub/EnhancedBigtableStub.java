@@ -102,6 +102,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
@@ -275,13 +276,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
             new OpencensusTracerFactory(
                 ImmutableMap.<String, String>builder()
                     // Annotate traces with the same tags as metrics
-                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), settings.getProjectId())
-                    .put(
-                        RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(),
-                        settings.getInstanceId())
-                    .put(
-                        RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(),
-                        settings.getAppProfileId())
+                    .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), projectId)
+                    .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), instanceId)
+                    .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), appProfileId)
                     // Also annotate traces with library versions
                     .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
                     .put("grpc", GaxGrpcProperties.getGrpcVersion())
@@ -292,13 +289,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         // Add user configured tracer
         .add(settings.getTracerFactory());
     Attributes otelAttributes =
-        Attributes.of(
-            PROJECT_ID,
-            settings.getProjectId(),
-            INSTANCE_ID,
-            settings.getInstanceId(),
-            APP_PROFILE,
-            settings.getAppProfileId());
+        Attributes.of(PROJECT_ID, projectId, INSTANCE_ID, instanceId, APP_PROFILE, appProfileId);
     BuiltinMetricsTracerFactory builtinMetricsTracerFactory =
         setupBuiltinMetricsTracerFactory(settings.toBuilder(), otelAttributes);
     if (builtinMetricsTracerFactory != null) {
@@ -323,8 +314,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       OpenTelemetry openTelemetry =
           OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
       return BuiltinMetricsTracerFactory.create(openTelemetry, attributes);
+    } else if (settings.getMetricsProvider() instanceof NoopMetricsProvider) {
+      return null;
     }
-    return null;
+    throw new IOException(
+        "Invalid MetricsProvider type " + settings.getMetricsProvider().getClass());
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

@@ -15,7 +15,16 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+/**
+ * Set {@link
+ * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)},
+ * to {@link this#INSTANCE} to enable collecting and export client side metrics
+ * https://cloud.google.com/bigtable/docs/client-side-metrics. This is the default setting in {@link
+ * com.google.cloud.bigtable.data.v2.BigtableDataSettings}.
+ */
 public final class DefaultMetricsProvider implements MetricsProvider {
 
-  public DefaultMetricsProvider() {}
+  public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
+
+  private DefaultMetricsProvider() {}
 }

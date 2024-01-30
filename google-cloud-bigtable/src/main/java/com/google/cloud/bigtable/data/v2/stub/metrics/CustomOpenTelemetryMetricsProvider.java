@@ -37,7 +37,7 @@ import io.opentelemetry.api.OpenTelemetry;
  *     .builder()
  *     .setMeterProvider(sdkMeterProvider().build());
  *
- *
+ * // Override MetricsProvider in BigtableDataSettings
  * BigtableDataSettings settings = BigtableDataSettings.newBuilder()
  *   .setProjectId("my-project")
  *   .setInstanceId("my-instance-id")

@@ -103,7 +103,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     resource = Resource.create(Attributes.empty());
 
-    scope = InstrumentationScopeInfo.create("bigtable.googleapis.com");
+    scope = InstrumentationScopeInfo.create(BuiltinMetricsConstants.METER_NAME);
   }
 
   @After

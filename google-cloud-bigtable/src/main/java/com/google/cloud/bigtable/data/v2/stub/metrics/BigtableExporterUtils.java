@@ -107,7 +107,7 @@ class BigtableExporterUtils {
       if (!metricData
           .getInstrumentationScopeInfo()
           .getName()
-          .equals(BuiltinMetricsConstants.SCOPE)) {
+          .equals(BuiltinMetricsConstants.METER_NAME)) {
         continue;
       }
       metricData.getData().getPoints().stream()

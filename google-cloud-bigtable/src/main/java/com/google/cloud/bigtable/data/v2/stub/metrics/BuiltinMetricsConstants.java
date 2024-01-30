@@ -61,7 +61,7 @@ public class BuiltinMetricsConstants {
               300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
               100000.0, 200000.0, 400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
 
-  static final String SCOPE = "bigtable.googleapis.com";
+  public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
   static final Set<String> COMMON_ATTRIBUTES =
       ImmutableSet.of(
@@ -84,7 +84,7 @@ public class BuiltinMetricsConstants {
     InstrumentSelector selector =
         InstrumentSelector.builder()
             .setName(id)
-            .setMeterName(SCOPE)
+            .setMeterName(METER_NAME)
             .setType(type)
             .setUnit(unit)
             .build();
@@ -92,7 +92,7 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<String>builder().addAll(COMMON_ATTRIBUTES).addAll(extraAttributes).build();
     View view =
         View.builder()
-            .setName(SCOPE + "/internal/client/" + id)
+            .setName(METER_NAME + id)
             .setAggregation(aggregation)
             .setAttributeFilter(attributesFilter)
             .build();

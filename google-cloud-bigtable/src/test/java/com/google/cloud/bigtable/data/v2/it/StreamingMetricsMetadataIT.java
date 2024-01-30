@@ -101,7 +101,7 @@ public class StreamingMetricsMetadataIT {
 
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
-            .filter(m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
+            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);
@@ -131,7 +131,7 @@ public class StreamingMetricsMetadataIT {
 
     List<MetricData> metrics =
         metricReader.collectAllMetrics().stream()
-            .filter(m -> m.getName().equals(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
+            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
             .collect(Collectors.toList());
 
     assertThat(metrics.size()).isEqualTo(1);
