@@ -15,4 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.InternalExtensionOnly;
+
+/**
+ * Provide client side metrics https://cloud.google.com/bigtable/docs/client-side-metrics
+ * implementations.
+ */
+@InternalExtensionOnly
 public interface MetricsProvider {}

@@ -317,8 +317,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     } else if (settings.getMetricsProvider() instanceof NoopMetricsProvider) {
       return null;
     }
-    throw new IOException(
-        "Invalid MetricsProvider type " + settings.getMetricsProvider().getClass());
+    throw new IOException("Invalid MetricsProvider type " + settings.getMetricsProvider());
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

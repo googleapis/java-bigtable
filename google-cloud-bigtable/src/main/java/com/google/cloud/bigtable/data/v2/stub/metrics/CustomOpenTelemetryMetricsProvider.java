@@ -20,7 +20,7 @@ import io.opentelemetry.api.OpenTelemetry;
 /**
  * Set a custom OpenTelemetry instance.
  *
- * <p>To register builtin metrics on the custom OpenTelemetry:
+ * <p>To register client side metrics on the custom OpenTelemetry:
  *
  * <pre>{@code
  * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();

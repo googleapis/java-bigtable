@@ -929,11 +929,26 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
+    /**
+     * Sets the {@link MetricsProvider}.
+     *
+     * <p>By default, this is set to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider#INSTANCE} which will
+     * collect and export client side metrics.
+     *
+     * <p>To disable client side metrics, set it to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider#INSTANCE}.
+     *
+     * <p>To use a custom OpenTelemetry instance, refer to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider} on how to
+     * set it up.
+     */
     public Builder setMetricsProvider(MetricsProvider metricsProvider) {
       this.metricsProvider = metricsProvider;
       return this;
     }
 
+    /** Gets the {@link MetricsProvider}. */
     public MetricsProvider getMetricsProvider() {
       return this.metricsProvider;
     }
