@@ -46,8 +46,27 @@ class BuiltinViewConstants {
       Distribution.create(
           BucketBoundaries.create(
               ImmutableList.of(
-                  1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 125.0, 250.0, 500.0, 1_000.0, 2_000.0, 4_000.0,
-                  8_000.0, 16_000.0, 32_000.0, 64_000.0, 128_000.0, 250_000.0, 500_000.0, 1_000_000.0)));
+                  1.0,
+                  2.0,
+                  4.0,
+                  8.0,
+                  16.0,
+                  32.0,
+                  64.0,
+                  125.0,
+                  250.0,
+                  500.0,
+                  1_000.0,
+                  2_000.0,
+                  4_000.0,
+                  8_000.0,
+                  16_000.0,
+                  32_000.0,
+                  64_000.0,
+                  128_000.0,
+                  250_000.0,
+                  500_000.0,
+                  1_000_000.0)));
 
   private static final Aggregation AGGREGATION_COUNT = Sum.create();
 
@@ -180,9 +199,5 @@ class BuiltinViewConstants {
           "Distribution of counts of channels per 'error count per minute'.",
           PER_CONNECTION_ERROR_COUNT,
           PER_CONNECTION_ERROR_COUNT_AGGREGATION,
-          ImmutableList.of(
-              PROJECT_ID,
-              INSTANCE_ID,
-              APP_PROFILE,
-              CLIENT_NAME));
+          ImmutableList.of(PROJECT_ID, INSTANCE_ID, APP_PROFILE, CLIENT_NAME));
 }
