@@ -29,20 +29,6 @@ class BuiltinMeasureConstants {
   static final TagKey ZONE = TagKey.create("zone");
   static final TagKey CLIENT_UID = TagKey.create("client_uid");
 
-  // Monitored resource TagKeys for gce_instance
-  static final TagKey GCE_PROJECT_ID = TagKey.create("gce_project_id");
-  static final TagKey GCE_INSTANCE_ID = TagKey.create("gce_instance_id");
-  static final TagKey GCE_ZONE = TagKey.create("gce_zone");
-
-  // Monitored resource TagKeys for gke_container
-  static final TagKey GKE_PROJECT_ID = TagKey.create("gke_project_id");
-  static final TagKey GKE_CLUSTER_NAME = TagKey.create("gke_cluster_name");
-  static final TagKey GKE_NAMESPACE_ID = TagKey.create("gke_namespace_id");
-  static final TagKey GKE_INSTANCE_ID = TagKey.create("gke_instance_id");
-  static final TagKey GKE_POD_ID = TagKey.create("gke_pod_id");
-  static final TagKey GKE_CONTAINER_NAME = TagKey.create("gke_container_name");
-  static final TagKey GKE_ZONE = TagKey.create("gke_zone");
-
   // Metrics TagKeys
   static final TagKey APP_PROFILE = TagKey.create("app_profile");
   static final TagKey METHOD = TagKey.create("method");

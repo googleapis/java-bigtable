@@ -46,8 +46,8 @@ class BuiltinViewConstants {
       Distribution.create(
           BucketBoundaries.create(
               ImmutableList.of(
-                  1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0, 4096.0,
-                  8192.0, 16384.0, 32768.0)));
+                  1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 125.0, 250.0, 500.0, 1_000.0, 2_000.0, 4_000.0,
+                  8_000.0, 16_000.0, 32_000.0, 64_000.0, 128_000.0, 250_000.0, 500_000.0, 1_000_000.0)));
 
   private static final Aggregation AGGREGATION_COUNT = Sum.create();
 
@@ -181,21 +181,8 @@ class BuiltinViewConstants {
           PER_CONNECTION_ERROR_COUNT,
           PER_CONNECTION_ERROR_COUNT_AGGREGATION,
           ImmutableList.of(
-              // Metric TagKeys
               PROJECT_ID,
               INSTANCE_ID,
               APP_PROFILE,
-              CLIENT_NAME,
-              // gce_instance TagKeys
-              GCE_PROJECT_ID,
-              GCE_INSTANCE_ID,
-              GCE_ZONE,
-              // gke_container TagKeys
-              GKE_PROJECT_ID,
-              GKE_CLUSTER_NAME,
-              GKE_NAMESPACE_ID,
-              GKE_INSTANCE_ID,
-              GKE_POD_ID,
-              GKE_CONTAINER_NAME,
-              GKE_ZONE));
+              CLIENT_NAME));
 }
