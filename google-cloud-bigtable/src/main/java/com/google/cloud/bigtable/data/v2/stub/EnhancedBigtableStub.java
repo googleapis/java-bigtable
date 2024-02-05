@@ -127,7 +127,11 @@ import io.opencensus.tags.Tags;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -206,8 +210,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
+    Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors =
+        Collections.newSetFromMap(new WeakHashMap<>());
+    setupConnectionErrorCountTask(builder, connectionErrorCountInterceptors);
+
     if (transportProvider != null) {
-      transportProvider.setInterceptorProvider(() -> getInterceptors(builder));
+      transportProvider.setInterceptorProvider(
+          () -> getInterceptors(builder, connectionErrorCountInterceptors));
     }
 
     // Inject channel priming
@@ -237,9 +246,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   private static ImmutableList<ClientInterceptor> getInterceptors(
-      EnhancedBigtableStubSettings.Builder settings) {
-    Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors =
-        setupConnectionErrorCountInterceptors(settings);
+      EnhancedBigtableStubSettings.Builder settings,
+      Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors) {
     ConnectionErrorCountInterceptor connectionErrorCountInterceptor =
         new ConnectionErrorCountInterceptor();
     connectionErrorCountInterceptors.add(connectionErrorCountInterceptor);
@@ -254,10 +262,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return builder.build();
   }
 
-  private static Set<ConnectionErrorCountInterceptor> setupConnectionErrorCountInterceptors(
-      EnhancedBigtableStubSettings.Builder settings) {
-    Set<ConnectionErrorCountInterceptor> interceptors =
-        Collections.newSetFromMap(new WeakHashMap<>());
+  private static void setupConnectionErrorCountTask(
+      EnhancedBigtableStubSettings.Builder settings,
+      Set<ConnectionErrorCountInterceptor> interceptors) {
     ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
     scheduler.scheduleAtFixedRate(
@@ -265,7 +272,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         0,
         PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS,
         TimeUnit.SECONDS);
-    return interceptors;
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
