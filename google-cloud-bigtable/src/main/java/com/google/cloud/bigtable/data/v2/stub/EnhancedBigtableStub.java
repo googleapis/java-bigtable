@@ -117,6 +117,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import io.grpc.ClientInterceptor;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -205,7 +206,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    setInterceptors(transportProvider, builder);
+    if (transportProvider != null) {
+      transportProvider.setInterceptorProvider(() -> getInterceptors(builder));
+    }
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
@@ -233,23 +236,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return ClientContext.create(builder.build());
   }
 
-  private static void setInterceptors(
-      InstantiatingGrpcChannelProvider.Builder transportProvider,
+  private static ImmutableList<ClientInterceptor> getInterceptors(
       EnhancedBigtableStubSettings.Builder settings) {
-    Set<ConnectionErrorCountInterceptor> interceptors =
+    Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors =
         setupConnectionErrorCountInterceptors(settings);
-    if (transportProvider != null) {
-      if (settings.getEnableRoutingCookie()) {
-        // TODO: this also need to be added to BigtableClientFactory
-        transportProvider.setInterceptorProvider(
-            () ->
-                ImmutableList.of(
-                    new CookiesInterceptor(), new ConnectionErrorCountInterceptor(interceptors)));
-      } else {
-        transportProvider.setInterceptorProvider(
-            () -> ImmutableList.of(new ConnectionErrorCountInterceptor(interceptors)));
-      }
+    ConnectionErrorCountInterceptor connectionErrorCountInterceptor =
+        new ConnectionErrorCountInterceptor();
+    connectionErrorCountInterceptors.add(connectionErrorCountInterceptor);
+    ImmutableList.Builder<ClientInterceptor> builder =
+        ImmutableList.<ClientInterceptor>builder().add(connectionErrorCountInterceptor);
+
+    if (settings.getEnableRoutingCookie()) {
+      // TODO: this also need to be added to BigtableClientFactory
+      builder.add(new CookiesInterceptor());
     }
+
+    return builder.build();
   }
 
   private static Set<ConnectionErrorCountInterceptor> setupConnectionErrorCountInterceptors(

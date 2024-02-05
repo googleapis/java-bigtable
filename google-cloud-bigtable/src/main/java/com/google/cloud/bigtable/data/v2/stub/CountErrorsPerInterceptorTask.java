@@ -28,7 +28,7 @@ class CountErrorsPerInterceptorTask implements Runnable {
       Set<ConnectionErrorCountInterceptor> interceptors,
       ImmutableMap<String, String> builtinAttributes) {
     this.interceptors = interceptors;
-    this.statsRecorderWrapper = StatsWrapper.createRecorder(builtinAttributes);
+    this.statsRecorderWrapper = StatsWrapper.createRecorder(null, null, builtinAttributes);
   }
 
   @Override

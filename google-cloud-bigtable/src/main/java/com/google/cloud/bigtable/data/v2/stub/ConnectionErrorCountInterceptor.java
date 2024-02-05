@@ -24,7 +24,6 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /** An interceptor which counts the number of failed responses for a channel. */
@@ -32,10 +31,9 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
   private final AtomicInteger numOfErrors;
   private final AtomicInteger numOfSuccesses;
 
-  public ConnectionErrorCountInterceptor(Set<ConnectionErrorCountInterceptor> interceptors) {
+  public ConnectionErrorCountInterceptor() {
     numOfErrors = new AtomicInteger(0);
     numOfSuccesses = new AtomicInteger(0);
-    interceptors.add(this);
   }
 
   @Override

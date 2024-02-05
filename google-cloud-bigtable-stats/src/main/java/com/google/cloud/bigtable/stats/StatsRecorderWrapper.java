@@ -32,12 +32,12 @@ import java.util.Map;
 @InternalApi("For internal use only")
 public class StatsRecorderWrapper {
 
-  private OperationType operationType;
+  private final OperationType operationType;
 
   private final Tagger tagger;
   private final StatsRecorder statsRecorder;
   private final TagContext parentContext;
-  private SpanName spanName;
+  private final SpanName spanName;
   private final Map<String, String> statsAttributes;
 
   private MeasureMap attemptMeasureMap;
@@ -58,13 +58,6 @@ public class StatsRecorderWrapper {
 
     this.attemptMeasureMap = statsRecorder.newMeasureMap();
     this.operationMeasureMap = statsRecorder.newMeasureMap();
-  }
-
-  public StatsRecorderWrapper(Map<String, String> statsAttributes, StatsRecorder statsRecorder) {
-    this.tagger = Tags.getTagger();
-    this.statsRecorder = statsRecorder;
-    this.parentContext = tagger.getCurrentTagContext();
-    this.statsAttributes = statsAttributes;
     this.perConnectionErrorCountMeasureMap = statsRecorder.newMeasureMap();
   }
 
