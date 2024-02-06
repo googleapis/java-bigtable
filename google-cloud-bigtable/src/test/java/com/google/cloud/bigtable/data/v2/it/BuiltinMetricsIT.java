@@ -80,6 +80,7 @@ import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BuiltinMetricsIT {
@@ -198,12 +199,12 @@ public class BuiltinMetricsIT {
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
     // Restrict time to last minutes and 5 minutes after the request
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(1).toMillis();
-    long endMillis = startMillis + Duration.ofMinutes(6).toMillis();
+    Instant start = Instant.now().minus(Duration.ofMinutes(1));
+    Instant end = start.plus(Duration.ofMinutes(6));
     TimeInterval interval =
         TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromMillis(startMillis))
-            .setEndTime(Timestamps.fromMillis(endMillis))
+            .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
+            .setEndTime(Timestamps.fromMillis(end.toEpochMilli()))
             .build();
 
     for (String view : VIEWS) {
@@ -259,13 +260,13 @@ public class BuiltinMetricsIT {
 
     Collection<MetricData> fromMetricReader = metricReader.collectAllMetrics();
 
-    // Restrict time to last 10 minutes and 5 minutes after the request
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(1).toMillis();
-    long endMillis = startMillis + Duration.ofMinutes(6).toMillis();
+    // Restrict time to last minutes and 5 minutes after the request
+    Instant start = Instant.now().minus(Duration.ofMinutes(1));
+    Instant end = start.plus(Duration.ofMinutes(6));
     TimeInterval interval =
         TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromMillis(startMillis))
-            .setEndTime(Timestamps.fromMillis(endMillis))
+            .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
+            .setEndTime(Timestamps.fromMillis(end.toEpochMilli()))
             .build();
 
     for (String view : VIEWS) {
