@@ -268,9 +268,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
       EnhancedBigtableStubSettings.Builder settings,
       Set<ConnectionErrorCountInterceptor> interceptors) {
 //    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//    ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
-    ScheduledExecutorService scheduler = settings.getMyExecutorProvider().getExecutor();
+//    NOTE: when replacing this line with the one below, the stub creation hangs.
+    ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
+//    ScheduledExecutorService scheduler = settings.getMyExecutorProvider().getExecutor();
+    System.out.println("reza using ScheduledExecutorService = " + scheduler);
     ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
+//    scheduler.scheduleWithFixedDelay()
     scheduler.scheduleAtFixedRate(
         new CountErrorsPerInterceptorTask(interceptors, builtinAttributes),
         0,

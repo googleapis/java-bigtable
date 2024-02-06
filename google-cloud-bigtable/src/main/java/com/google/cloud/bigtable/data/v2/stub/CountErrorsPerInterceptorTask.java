@@ -40,7 +40,7 @@ class CountErrorsPerInterceptorTask implements Runnable {
     for (ConnectionErrorCountInterceptor interceptor : interceptors) {
       int errors = interceptor.getAndResetNumOfErrors();
       int successes = interceptor.getAndResetNumOfSuccesses();
-      System.out.println("reza running run()" + errors + ", " + successes);
+      System.out.println("reza running run(), e = " + errors + ", s = " + successes);
       // We avoid keeping track of inactive connections (i.e., without any failed or successful
       // requests).
       if (errors > 0 || successes > 0) {

@@ -90,13 +90,13 @@ public class ErrorCountPerConnectionTest {
     server = FakeServiceBuilder.create(fakeService).start();
 
 //    new
-    System.out.println("reza start");
+    System.out.println("rezaa start");
     ScheduledExecutorService executors = Mockito.mock(ScheduledExecutorService.class);
     EnhancedBigtableStubSettings.Builder builder =
             BigtableDataSettings.newBuilderForEmulator(server.getPort()).stubSettings()
 //                    NOTE: when replacing this line with the one below, the stub creation hangs.
-//                    .setBackgroundExecutorProvider(FixedExecutorProvider.create(executors))
-                    .setMyExecutorProvider(FixedExecutorProvider.create(executors))
+                    .setBackgroundExecutorProvider(FixedExecutorProvider.create(executors))
+//                    .setMyExecutorProvider(FixedExecutorProvider.create(executors))
                     .setProjectId("fake-project")
                     .setInstanceId("fake-instance");
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -136,12 +136,18 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void testReadRows() {
-    System.out.println("rezaar");
+    System.out.println("rezaaaar");
     Query query = Query.create("fake-table");
 
-    ServerStream<Row> responses = stub.readRowsCallable().call(query);
-    for (Row row : responses) {
-      System.out.println("row = " + row);
+    for (int i = 0; i < 4; i++) {
+      try {
+        ServerStream<Row> responses = stub.readRowsCallable().call(query);
+        for (Row row : responses) {
+          System.out.println("row = " + row);
+        }
+      } catch (Exception e) {
+        System.out.println("reza got exception = " + e.getMessage());
+      }
     }
 //    System.out.println("reza hasNext = " + stub.readRowsCallable().call(query).iterator().hasNext());
     ArgumentCaptor<Long> longCaptor = ArgumentCaptor.forClass(long.class);
@@ -185,19 +191,21 @@ public class ErrorCountPerConnectionTest {
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
-      if (count.getAndIncrement() > 3) {
-        System.out.println("reza in server = " + count.get());
+      count.getAndIncrement();
+      if (count.get() > 2) {
+        System.out.println("reza in server bad = " + count.get());
         Metadata trailers = new Metadata();
         //        maybePopulateCookie(trailers, "readRows");
         responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
-        StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
+        StatusRuntimeException exception = new StatusRuntimeException(Status.DEADLINE_EXCEEDED, trailers);
         responseObserver.onError(exception);
-//        responseObserver.onCompleted();
-        return;
+      } else {
+        System.out.println("reza in server good = " + count.get());
+        responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+        responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+        responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
+        responseObserver.onCompleted();
       }
-      System.out.println("reza in server = " + count.get());
-      responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
-      responseObserver.onCompleted();
     }
   }
 }
