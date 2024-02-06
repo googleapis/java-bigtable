@@ -22,7 +22,11 @@ import java.util.Set;
 
 class CountErrorsPerInterceptorTask implements Runnable {
   private final Set<ConnectionErrorCountInterceptor> interceptors;
-  private final StatsRecorderWrapper statsRecorderWrapper;
+  private StatsRecorderWrapper statsRecorderWrapper;
+
+  public void setStatsRecorderWrapper(StatsRecorderWrapper statsRecorderWrapper) {
+    this.statsRecorderWrapper = statsRecorderWrapper;
+  }
 
   public CountErrorsPerInterceptorTask(
       Set<ConnectionErrorCountInterceptor> interceptors,
@@ -36,11 +40,13 @@ class CountErrorsPerInterceptorTask implements Runnable {
     for (ConnectionErrorCountInterceptor interceptor : interceptors) {
       int errors = interceptor.getAndResetNumOfErrors();
       int successes = interceptor.getAndResetNumOfSuccesses();
+      System.out.println("reza running run()" + errors + ", " + successes);
       // We avoid keeping track of inactive connections (i.e., without any failed or successful
       // requests).
       if (errors > 0 || successes > 0) {
         // TODO: add a metric to also keep track of the number of successful requests per each
         // connection.
+        System.out.println("reza gonna call putAndRecordPerConnectionErrorCount w/ " + errors);
         this.statsRecorderWrapper.putAndRecordPerConnectionErrorCount(errors);
       }
     }

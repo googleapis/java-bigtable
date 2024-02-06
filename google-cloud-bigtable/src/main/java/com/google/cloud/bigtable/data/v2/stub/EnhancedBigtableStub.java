@@ -182,6 +182,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
+    System.out.println("reza in create()");
 
     settings = settings.toBuilder().setTracerFactory(createBigtableTracerFactory(settings)).build();
     ClientContext clientContext = createClientContext(settings);
@@ -197,6 +198,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
       throws IOException {
+    System.out.println("reza in createClientContext");
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
@@ -265,7 +267,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private static void setupConnectionErrorCountTask(
       EnhancedBigtableStubSettings.Builder settings,
       Set<ConnectionErrorCountInterceptor> interceptors) {
-    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+//    ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
+    ScheduledExecutorService scheduler = settings.getMyExecutorProvider().getExecutor();
     ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
     scheduler.scheduleAtFixedRate(
         new CountErrorsPerInterceptorTask(interceptors, builtinAttributes),

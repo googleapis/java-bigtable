@@ -32,7 +32,7 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
   private final AtomicInteger numOfSuccesses;
 
   public ConnectionErrorCountInterceptor() {
-    numOfErrors = new AtomicInteger(0);
+    numOfErrors = new AtomicInteger(36);
     numOfSuccesses = new AtomicInteger(0);
   }
 
