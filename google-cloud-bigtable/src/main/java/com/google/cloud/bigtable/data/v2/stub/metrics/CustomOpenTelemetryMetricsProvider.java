@@ -35,7 +35,8 @@ import io.opentelemetry.api.OpenTelemetry;
  * // create the OTEL instance
  * OpenTelemetry openTelemetry = OpenTelemetrySdk
  *     .builder()
- *     .setMeterProvider(sdkMeterProvider().build());
+ *     .setMeterProvider(sdkMeterProvider.build())
+ *     .build();
  *
  * // Override MetricsProvider in BigtableDataSettings
  * BigtableDataSettings settings = BigtableDataSettings.newBuilder()

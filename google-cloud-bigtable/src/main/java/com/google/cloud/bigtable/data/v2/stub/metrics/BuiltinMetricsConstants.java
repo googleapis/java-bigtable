@@ -31,19 +31,22 @@ import java.util.Set;
 @InternalApi
 public class BuiltinMetricsConstants {
 
-  public static final AttributeKey<String> PROJECT_ID = AttributeKey.stringKey("project_id");
-  public static final AttributeKey<String> INSTANCE_ID = AttributeKey.stringKey("instance");
-  public static final AttributeKey<String> TABLE_ID = AttributeKey.stringKey("table");
-  public static final AttributeKey<String> CLUSTER_ID = AttributeKey.stringKey("cluster");
-  public static final AttributeKey<String> ZONE_ID = AttributeKey.stringKey("zone");
-  static final AttributeKey<String> CLIENT_UID = AttributeKey.stringKey("client_uid");
+  // Metric attribute keys for monitored resource
+  public static final AttributeKey<String> PROJECT_ID_KEY = AttributeKey.stringKey("project_id");
+  public static final AttributeKey<String> INSTANCE_ID_KEY = AttributeKey.stringKey("instance");
+  public static final AttributeKey<String> TABLE_ID_KEY = AttributeKey.stringKey("table");
+  public static final AttributeKey<String> CLUSTER_ID_KEY = AttributeKey.stringKey("cluster");
+  public static final AttributeKey<String> ZONE_ID_KEY = AttributeKey.stringKey("zone");
 
-  public static final AttributeKey<String> APP_PROFILE = AttributeKey.stringKey("app_profile");
-  public static final AttributeKey<Boolean> STREAMING = AttributeKey.booleanKey("streaming");
-  static final AttributeKey<String> METHOD = AttributeKey.stringKey("method");
-  static final AttributeKey<String> STATUS = AttributeKey.stringKey("status");
-  static final AttributeKey<String> CLIENT_NAME = AttributeKey.stringKey("client_name");
+  // Metric attribute keys for labels
+  public static final AttributeKey<String> APP_PROFILE_KEY = AttributeKey.stringKey("app_profile");
+  public static final AttributeKey<Boolean> STREAMING_KEY = AttributeKey.booleanKey("streaming");
+  static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
+  static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
+  static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
+  static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
 
+  // Metric names
   public static final String OPERATION_LATENCIES_NAME = "operation_latencies";
   static final String ATTEMPT_LATENCIES_NAME = "attempt_latencies";
   static final String RETRY_COUNT_NAME = "retry_count";
@@ -53,6 +56,8 @@ public class BuiltinMetricsConstants {
   static final String APPLICATION_BLOCKING_LATENCIES_NAME = "application_latencies";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
 
+  // Buckets under 100,000 are identical to buckets for server side metrics handler_latencies.
+  // Extending client side bucket to up to 3,200,000.
   private static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Aggregation.explicitBucketHistogram(
           ImmutableList.of(
@@ -65,14 +70,14 @@ public class BuiltinMetricsConstants {
 
   static final Set<String> COMMON_ATTRIBUTES =
       ImmutableSet.of(
-          PROJECT_ID.getKey(),
-          INSTANCE_ID.getKey(),
-          TABLE_ID.getKey(),
-          APP_PROFILE.getKey(),
-          CLUSTER_ID.getKey(),
-          ZONE_ID.getKey(),
-          METHOD.getKey(),
-          CLIENT_NAME.getKey());
+          PROJECT_ID_KEY.getKey(),
+          INSTANCE_ID_KEY.getKey(),
+          TABLE_ID_KEY.getKey(),
+          APP_PROFILE_KEY.getKey(),
+          CLUSTER_ID_KEY.getKey(),
+          ZONE_ID_KEY.getKey(),
+          METHOD_KEY.getKey(),
+          CLIENT_NAME_KEY.getKey());
 
   static void defineView(
       ImmutableMap.Builder<InstrumentSelector, View> viewMap,
@@ -109,28 +114,28 @@ public class BuiltinMetricsConstants {
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
     defineView(
         views,
         ATTEMPT_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
     defineView(
         views,
         SERVER_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING.getKey(), STATUS.getKey()));
+        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
     defineView(
         views,
         FIRST_RESPONSE_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STATUS.getKey()));
+        ImmutableSet.of(STATUS_KEY.getKey()));
     defineView(
         views,
         APPLICATION_BLOCKING_LATENCIES_NAME,
@@ -151,14 +156,14 @@ public class BuiltinMetricsConstants {
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS.getKey()));
+        ImmutableSet.of(STATUS_KEY.getKey()));
     defineView(
         views,
         CONNECTIVITY_ERROR_COUNT_NAME,
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS.getKey()));
+        ImmutableSet.of(STATUS_KEY.getKey()));
 
     return views.build();
   }

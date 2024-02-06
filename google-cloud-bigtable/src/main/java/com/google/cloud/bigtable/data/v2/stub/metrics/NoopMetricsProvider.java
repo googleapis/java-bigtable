@@ -21,7 +21,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
  * to {@link this#INSTANCE} to disable collecting and export client side metrics
  * https://cloud.google.com/bigtable/docs/client-side-metrics.
  */
-public class NoopMetricsProvider implements MetricsProvider {
+public final class NoopMetricsProvider implements MetricsProvider {
 
   public static NoopMetricsProvider INSTANCE = new NoopMetricsProvider();
 

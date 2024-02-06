@@ -18,18 +18,18 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getAggregatedValue;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.verifyAttributes;
@@ -148,9 +148,9 @@ public class BuiltinMetricsTracerTest {
 
     baseAttributes =
         Attributes.builder()
-            .put(BuiltinMetricsConstants.PROJECT_ID, PROJECT_ID)
-            .put(BuiltinMetricsConstants.INSTANCE_ID, INSTANCE_ID)
-            .put(BuiltinMetricsConstants.APP_PROFILE, APP_PROFILE_ID)
+            .put(BuiltinMetricsConstants.PROJECT_ID_KEY, PROJECT_ID)
+            .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
+            .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
             .build();
 
     SdkMeterProvider meterProvider =
@@ -283,13 +283,13 @@ public class BuiltinMetricsTracerTest {
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "OK")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(STREAMING, true)
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(STREAMING_KEY, true)
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
 
     Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
@@ -307,12 +307,12 @@ public class BuiltinMetricsTracerTest {
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "OK")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(METHOD, "Bigtable.ReadRows")
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
 
     Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
@@ -327,22 +327,22 @@ public class BuiltinMetricsTracerTest {
     Attributes expected1 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "UNAVAILABLE")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, "global")
-            .put(CLUSTER_ID, "unspecified")
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(STATUS_KEY, "UNAVAILABLE")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, "global")
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
     Attributes expected2 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "OK")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
 
     verifyAttributes(connectivityErrorCountMetricData, expected1);
@@ -394,11 +394,11 @@ public class BuiltinMetricsTracerTest {
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(METHOD, "Bigtable.ReadRows")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
     long value = getAggregatedValue(applicationLatency, expectedAttributes);
 
@@ -408,7 +408,7 @@ public class BuiltinMetricsTracerTest {
     long operationLatencyValue =
         getAggregatedValue(
             operationLatency,
-            expectedAttributes.toBuilder().put(STATUS, "OK").put(STREAMING, true).build());
+            expectedAttributes.toBuilder().put(STATUS_KEY, "OK").put(STREAMING_KEY, true).build());
     assertThat(value).isAtMost(operationLatencyValue - SERVER_LATENCY);
   }
 
@@ -431,11 +431,11 @@ public class BuiltinMetricsTracerTest {
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(METHOD, "Bigtable.ReadRows")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
 
     long value = getAggregatedValue(applicationLatency, expectedAttributes);
@@ -448,7 +448,7 @@ public class BuiltinMetricsTracerTest {
     long operationLatencyValue =
         getAggregatedValue(
             operationLatency,
-            expectedAttributes.toBuilder().put(STATUS, "OK").put(STREAMING, true).build());
+            expectedAttributes.toBuilder().put(STATUS_KEY, "OK").put(STREAMING_KEY, true).build());
     assertThat(value).isAtMost(operationLatencyValue - SERVER_LATENCY);
   }
 
@@ -462,12 +462,12 @@ public class BuiltinMetricsTracerTest {
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(METHOD, "Bigtable.MutateRow")
-            .put(STATUS, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(METHOD_KEY, "Bigtable.MutateRow")
+            .put(STATUS_KEY, "OK")
             .build();
 
     long value = getAggregatedValue(metricData, expectedAttributes);
@@ -485,25 +485,25 @@ public class BuiltinMetricsTracerTest {
     Attributes expected1 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "UNAVAILABLE")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, "global")
-            .put(CLUSTER_ID, "unspecified")
-            .put(METHOD, "Bigtable.MutateRow")
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(STREAMING, false)
+            .put(STATUS_KEY, "UNAVAILABLE")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, "global")
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(METHOD_KEY, "Bigtable.MutateRow")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(STREAMING_KEY, false)
             .build();
 
     Attributes expected2 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "OK")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(METHOD, "Bigtable.MutateRow")
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(STREAMING, false)
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.MutateRow")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(STREAMING_KEY, false)
             .build();
 
     verifyAttributes(metricData, expected1);
@@ -520,25 +520,25 @@ public class BuiltinMetricsTracerTest {
     Attributes expected1 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "UNAVAILABLE")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, "global")
-            .put(CLUSTER_ID, "unspecified")
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(STREAMING, true)
+            .put(STATUS_KEY, "UNAVAILABLE")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, "global")
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(STREAMING_KEY, true)
             .build();
 
     Attributes expected2 =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "OK")
-            .put(TABLE_ID, TABLE)
-            .put(ZONE_ID, ZONE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
-            .put(STREAMING, true)
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(STREAMING_KEY, true)
             .build();
 
     verifyAttributes(metricData, expected1);
@@ -563,11 +563,11 @@ public class BuiltinMetricsTracerTest {
       Attributes expectedAttributes =
           baseAttributes
               .toBuilder()
-              .put(TABLE_ID, TABLE)
-              .put(ZONE_ID, ZONE)
-              .put(CLUSTER_ID, CLUSTER)
-              .put(METHOD, "Bigtable.MutateRows")
-              .put(CLIENT_NAME, "java-bigtable")
+              .put(TABLE_ID_KEY, TABLE)
+              .put(ZONE_ID_KEY, ZONE)
+              .put(CLUSTER_ID_KEY, CLUSTER)
+              .put(METHOD_KEY, "Bigtable.MutateRows")
+              .put(CLIENT_NAME_KEY, "java-bigtable")
               .build();
 
       long value = getAggregatedValue(applicationLatency, expectedAttributes);
@@ -589,11 +589,11 @@ public class BuiltinMetricsTracerTest {
     Attributes attributes =
         baseAttributes
             .toBuilder()
-            .put(TABLE_ID, TABLE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(ZONE_ID, ZONE)
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
 
     long value = getAggregatedValue(clientLatency, attributes);
@@ -611,11 +611,11 @@ public class BuiltinMetricsTracerTest {
     Attributes attributes =
         baseAttributes
             .toBuilder()
-            .put(TABLE_ID, TABLE)
-            .put(CLUSTER_ID, CLUSTER)
-            .put(ZONE_ID, ZONE)
-            .put(METHOD, "Bigtable.MutateRow")
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(METHOD_KEY, "Bigtable.MutateRow")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
 
     long expected = CHANNEL_BLOCKING_LATENCY * 2 / 3;
@@ -637,13 +637,13 @@ public class BuiltinMetricsTracerTest {
     Attributes expected =
         baseAttributes
             .toBuilder()
-            .put(STATUS, "NOT_FOUND")
-            .put(TABLE_ID, BAD_TABLE_ID)
-            .put(CLUSTER_ID, "unspecified")
-            .put(ZONE_ID, "global")
-            .put(STREAMING, true)
-            .put(METHOD, "Bigtable.ReadRows")
-            .put(CLIENT_NAME, "java-bigtable")
+            .put(STATUS_KEY, "NOT_FOUND")
+            .put(TABLE_ID_KEY, BAD_TABLE_ID)
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(ZONE_ID_KEY, "global")
+            .put(STREAMING_KEY, true)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, "java-bigtable")
             .build();
 
     verifyAttributes(attemptLatency, expected);

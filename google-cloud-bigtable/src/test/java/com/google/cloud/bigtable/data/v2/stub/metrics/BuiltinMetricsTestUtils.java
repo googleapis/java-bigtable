@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.api.core.InternalApi;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.opentelemetry.api.common.Attributes;
@@ -27,7 +28,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@InternalApi
 public class BuiltinMetricsTestUtils {
+
+  private BuiltinMetricsTestUtils() {}
 
   public static MetricData getMetricData(Collection<MetricData> allMetricData, String metricName) {
     List<MetricData> metricDataList =

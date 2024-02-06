@@ -231,7 +231,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final FeatureFlags featureFlags;
 
-  private MetricsProvider metricsProvider;
+  private final MetricsProvider metricsProvider;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -944,7 +944,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * set it up.
      */
     public Builder setMetricsProvider(MetricsProvider metricsProvider) {
-      this.metricsProvider = metricsProvider;
+      this.metricsProvider = Preconditions.checkNotNull(metricsProvider);
       return this;
     }
 

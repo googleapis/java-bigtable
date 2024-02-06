@@ -110,11 +110,11 @@ public class StreamingMetricsMetadataIT {
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
 
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
@@ -140,11 +140,11 @@ public class StreamingMetricsMetadataIT {
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
-            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID))
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
 
     assertThat(clusterAttributes).contains("unspecified");

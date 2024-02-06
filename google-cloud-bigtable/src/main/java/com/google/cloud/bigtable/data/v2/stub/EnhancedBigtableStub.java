@@ -15,9 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
@@ -72,6 +72,7 @@ import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -289,7 +290,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         // Add user configured tracer
         .add(settings.getTracerFactory());
     Attributes otelAttributes =
-        Attributes.of(PROJECT_ID, projectId, INSTANCE_ID, instanceId, APP_PROFILE, appProfileId);
+        Attributes.of(
+            PROJECT_ID_KEY, projectId, INSTANCE_ID_KEY, instanceId, APP_PROFILE_KEY, appProfileId);
     BuiltinMetricsTracerFactory builtinMetricsTracerFactory =
         setupBuiltinMetricsTracerFactory(settings.toBuilder(), otelAttributes);
     if (builtinMetricsTracerFactory != null) {
@@ -307,10 +309,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
           customMetricsProvider.getOpenTelemetry(), attributes);
     } else if (settings.getMetricsProvider() instanceof DefaultMetricsProvider) {
       SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
+      Credentials credentials =
+          BigtableDataSettings.getMetricsCredentials() != null
+              ? BigtableDataSettings.getMetricsCredentials()
+              : settings.getCredentialsProvider().getCredentials();
       BuiltinMetricsView.registerBuiltinMetrics(
-          settings.getProjectId(),
-          settings.getCredentialsProvider().getCredentials(),
-          meterProvider);
+          settings.getProjectId(), credentials, meterProvider);
       OpenTelemetry openTelemetry =
           OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
       return BuiltinMetricsTracerFactory.create(openTelemetry, attributes);

@@ -57,6 +57,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
 
+  // This system property can be used to override the monitoring endpoint
+  // to a different environment. It's meant for internal testing only.
   private static final String MONITORING_ENDPOINT =
       MoreObjects.firstNonNull(
           System.getProperty("bigtable.test-monitoring-endpoint"),

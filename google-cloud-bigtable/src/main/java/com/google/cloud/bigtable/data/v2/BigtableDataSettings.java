@@ -35,7 +35,6 @@ import com.google.common.base.Strings;
 import io.grpc.ManagedChannelBuilder;
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -75,7 +74,7 @@ public final class BigtableDataSettings {
 
   private static final Logger LOGGER = Logger.getLogger(BigtableDataSettings.class.getName());
   private static final String BIGTABLE_EMULATOR_HOST_ENV_VAR = "BIGTABLE_EMULATOR_HOST";
-  private static final AtomicBoolean BUILTIN_METRICS_REGISTERED = new AtomicBoolean(false);
+  @Nullable private static Credentials credentials;
 
   private final EnhancedBigtableStubSettings stubSettings;
 
@@ -214,7 +213,15 @@ public final class BigtableDataSettings {
    *     now. Please refer {@link BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)}
    *     on how to enable or disable built-in metrics.
    */
-  public static void enableBuiltinMetrics(Credentials credentials) throws IOException {}
+  public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
+    BigtableDataSettings.credentials = credentials;
+  }
+
+  /** Get the metrics credentials if it's set by {@link #enableBuiltinMetrics(Credentials)}. */
+  @InternalApi
+  public static Credentials getMetricsCredentials() {
+    return credentials;
+  }
 
   /** Returns the target project id. */
   public String getProjectId() {

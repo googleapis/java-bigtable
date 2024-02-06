@@ -185,20 +185,21 @@ public class BuiltinMetricsIT {
             CreateTableRequest.of(PrefixGenerator.newPrefix("BuiltinMetricsIT#test1"))
                 .addFamily("cf"));
     logger.info("Create default table: " + tableDefault.getId());
+
+    // Send a MutateRow and ReadRows request and measure the latencies for these requests.
     clientDefault.mutateRow(
         RowMutation.create(tableDefault.getId(), "a-new-key").setCell("cf", "q", "abc"));
     ArrayList<Row> rows =
         Lists.newArrayList(clientDefault.readRows(Query.create(tableDefault.getId()).limit(10)));
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    // This stopwatch is used for to limit fetching of metric data in verifyMetrics
+    Stopwatch metricsPollingStopwatch = Stopwatch.createStarted();
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
-    Collection<MetricData> fromMetricReader = metricReader.collectAllMetrics();
-
-    // Restrict time to last 10 minutes and 5 minutes after the request
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(10).toMillis();
-    long endMillis = startMillis + Duration.ofMinutes(15).toMillis();
+    // Restrict time to last minutes and 5 minutes after the request
+    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(1).toMillis();
+    long endMillis = startMillis + Duration.ofMinutes(6).toMillis();
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(startMillis))
@@ -220,7 +221,7 @@ public class BuiltinMetricsIT {
               .setFilter(metricFilter)
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
-      verifyMetrics(requestBuilder.build(), stopwatch, view, null);
+      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, null);
 
       // Verify that metrics are published for ReadRows request
       metricFilter =
@@ -231,7 +232,7 @@ public class BuiltinMetricsIT {
               view, testEnvRule.env().getInstanceId(), tableDefault.getId(), appProfileDefault);
       requestBuilder.setFilter(metricFilter);
 
-      verifyMetrics(requestBuilder.build(), stopwatch, view, null);
+      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, null);
     }
   }
 
@@ -243,22 +244,24 @@ public class BuiltinMetricsIT {
             CreateTableRequest.of(PrefixGenerator.newPrefix("BuiltinMetricsIT#test2"))
                 .addFamily("cf"));
     logger.info("Create custom table: " + tableCustomOtel.getId());
-    // Send a MutateRow and ReadRows request
+
+    // Send a MutateRow and ReadRows request and measure the latencies for these requests.
     clientCustomOtel.mutateRow(
         RowMutation.create(tableCustomOtel.getId(), "a-new-key").setCell("cf", "q", "abc"));
     ArrayList<Row> rows =
         Lists.newArrayList(
             clientCustomOtel.readRows(Query.create(tableCustomOtel.getId()).limit(10)));
 
-    Stopwatch stopwatch = Stopwatch.createStarted();
+    // This stopwatch is used for to limit fetching of metric data in verifyMetrics
+    Stopwatch metricsPollingStopwatch = Stopwatch.createStarted();
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
     Collection<MetricData> fromMetricReader = metricReader.collectAllMetrics();
 
     // Restrict time to last 10 minutes and 5 minutes after the request
-    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(10).toMillis();
-    long endMillis = startMillis + Duration.ofMinutes(15).toMillis();
+    long startMillis = System.currentTimeMillis() - Duration.ofMinutes(1).toMillis();
+    long endMillis = startMillis + Duration.ofMinutes(6).toMillis();
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(startMillis))
@@ -290,7 +293,7 @@ public class BuiltinMetricsIT {
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
 
-      verifyMetrics(requestBuilder.build(), stopwatch, view, dataFromReader);
+      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, dataFromReader);
 
       // Verify that metrics are correct for ReadRows request
       metricFilter =
@@ -304,12 +307,15 @@ public class BuiltinMetricsIT {
               appProfileCustomOtel);
       requestBuilder.setFilter(metricFilter);
 
-      verifyMetrics(requestBuilder.build(), stopwatch, view, dataFromReader);
+      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, dataFromReader);
     }
   }
 
   private void verifyMetrics(
-      ListTimeSeriesRequest request, Stopwatch stopwatch, String view, MetricData dataFromReader)
+      ListTimeSeriesRequest request,
+      Stopwatch metricsPollingStopwatch,
+      String view,
+      MetricData dataFromReader)
       throws Exception {
     ListTimeSeriesResponse response = metricClient.listTimeSeriesCallable().call(request);
     logger.log(
@@ -319,8 +325,9 @@ public class BuiltinMetricsIT {
             + ", has timeseries="
             + response.getTimeSeriesCount()
             + " stopwatch elapsed "
-            + stopwatch.elapsed(TimeUnit.MINUTES));
-    while (response.getTimeSeriesCount() == 0 && stopwatch.elapsed(TimeUnit.MINUTES) < 10) {
+            + metricsPollingStopwatch.elapsed(TimeUnit.MINUTES));
+    while (response.getTimeSeriesCount() == 0
+        && metricsPollingStopwatch.elapsed(TimeUnit.MINUTES) < 10) {
       // Call listTimeSeries every minute
       Thread.sleep(Duration.ofMinutes(1).toMillis());
       response = metricClient.listTimeSeriesCallable().call(request);
@@ -339,7 +346,7 @@ public class BuiltinMetricsIT {
                 .putAll(ts.getMetric().getLabelsMap())
                 .build();
         AttributesBuilder attributesBuilder = Attributes.builder();
-        String streamingKey = BuiltinMetricsConstants.STREAMING.getKey();
+        String streamingKey = BuiltinMetricsConstants.STREAMING_KEY.getKey();
         attributesMap.forEach(
             (k, v) -> {
               if (!k.equals(streamingKey)) {
