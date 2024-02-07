@@ -270,7 +270,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 //    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 //    NOTE: when replacing this line with the one below, the stub creation hangs.
     ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
-//    ScheduledExecutorService scheduler = settings.getMyExecutorProvider().getExecutor();
     System.out.println("reza using ScheduledExecutorService = " + scheduler);
     ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
 //    scheduler.scheduleWithFixedDelay()
@@ -325,7 +324,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private static ImmutableMap<String, String> createBuiltinAttributes(
       EnhancedBigtableStubSettings.Builder settings) {
     return ImmutableMap.<String, String>builder()
-        .put("project", settings.getProjectId())
+        .put("project_id", settings.getProjectId())
         .put("instance", settings.getInstanceId())
         .put("app_profile", settings.getAppProfileId())
         .put("client_name", "bigtable-java/" + Version.VERSION)

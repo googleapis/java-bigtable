@@ -214,7 +214,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final Map<String, String> jwtAudienceMapping;
   private final boolean enableRoutingCookie;
   private final boolean enableRetryInfo;
-  private final ExecutorProvider myExecutorProvider;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -258,8 +257,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
-    System.out.println("reza setting good provider");
-    myExecutorProvider = builder.getMyExecutorProvider();
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -337,10 +334,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @BetaApi("RetryInfo is not currently stable and may change in the future")
   public boolean getEnableRetryInfo() {
     return enableRetryInfo;
-  }
-
-  public ExecutorProvider getMyExecutorProvider() {
-    return myExecutorProvider;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -644,7 +637,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
 
     private FeatureFlags.Builder featureFlags;
-    private ExecutorProvider myExecutorProvider;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -662,9 +654,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
-      System.out.println("reza setting myExecutor1");
-      myExecutorProvider = InstantiatingExecutorProvider.newBuilder().build();
-
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
@@ -784,9 +773,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       jwtAudienceMapping = settings.jwtAudienceMapping;
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
-      System.out.println("reza setting myExecutorProvider 2");
-      myExecutorProvider = settings.getMyExecutorProvider();
-
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
       readRowSettings = settings.readRowSettings.toBuilder();
@@ -961,15 +947,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     public Builder setEnableRetryInfo(boolean enableRetryInfo) {
       this.enableRetryInfo = enableRetryInfo;
       return this;
-    }
-
-    public Builder setMyExecutorProvider(ExecutorProvider myExecutorProvider) {
-      this.myExecutorProvider = myExecutorProvider;
-      return this;
-    }
-
-    public ExecutorProvider getMyExecutorProvider() {
-      return myExecutorProvider;
     }
 
     /**

@@ -60,32 +60,6 @@ public class ErrorCountPerConnectionTest {
 
   @Before
   public void setup() throws Exception {
-//    ServerInterceptor serverInterceptor =
-//        new ServerInterceptor() {
-//          @Override
-//          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
-//              ServerCall<ReqT, RespT> serverCall,
-//              Metadata metadata,
-//              ServerCallHandler<ReqT, RespT> serverCallHandler) {
-//            serverMetadata.add(metadata);
-//            //            if (metadata.containsKey(ROUTING_COOKIE_1)) {
-//            //              methods.add(serverCall.getMethodDescriptor().getBareMethodName());
-//            //            }
-//            return serverCallHandler.startCall(
-//                new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
-//                  @Override
-//                  public void sendHeaders(Metadata responseHeaders) {
-//                    //                    responseHeaders.put(ROUTING_COOKIE_HEADER,
-//                    // testHeaderCookie);
-//                    //                    responseHeaders.put(ROUTING_COOKIE_1,
-//                    // routingCookie1Header);
-//                    super.sendHeaders(responseHeaders);
-//                  }
-//                },
-//                metadata);
-//          }
-//        };
-
 //    server = FakeServiceBuilder.create(fakeService).intercept(serverInterceptor).start();
     server = FakeServiceBuilder.create(fakeService).start();
 
@@ -96,7 +70,6 @@ public class ErrorCountPerConnectionTest {
             BigtableDataSettings.newBuilderForEmulator(server.getPort()).stubSettings()
 //                    NOTE: when replacing this line with the one below, the stub creation hangs.
                     .setBackgroundExecutorProvider(FixedExecutorProvider.create(executors))
-//                    .setMyExecutorProvider(FixedExecutorProvider.create(executors))
                     .setProjectId("fake-project")
                     .setInstanceId("fake-instance");
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -113,15 +86,6 @@ public class ErrorCountPerConnectionTest {
       }
     }
 //    end new
-
-//    BigtableDataSettings.Builder settings =
-//        BigtableDataSettings.newBuilderForEmulator(server.getPort())
-//            .setProjectId("fake-project")
-//            .setInstanceId("fake-instance");
-//
-//    this.settings = settings;
-//
-//    client = BigtableDataClient.create(settings.build());
   }
 
   @After
@@ -139,7 +103,7 @@ public class ErrorCountPerConnectionTest {
     System.out.println("rezaaaar");
     Query query = Query.create("fake-table");
 
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 6; i++) {
       try {
         ServerStream<Row> responses = stub.readRowsCallable().call(query);
         for (Row row : responses) {
@@ -162,25 +126,6 @@ public class ErrorCountPerConnectionTest {
     for (long longVal : longCaptor.getAllValues()) {
       System.out.println("REZA got long = " + longVal);
     }
-
-//    client.readRows(Query.create("fake-table")).iterator().hasNext();
-//
-//    assertThat(fakeService.count.get()).isGreaterThan(1);
-//    assertThat(serverMetadata).hasSize(fakeService.count.get());
-//
-//    Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
-//
-//    //    assertThat(lastMetadata)
-//    //        .containsAtLeast(
-//    //            ROUTING_COOKIE_1.name(),
-//    //            "readRows",
-//    //            ROUTING_COOKIE_2.name(),
-//    //            testCookie,
-//    //            ROUTING_COOKIE_HEADER.name(),
-//    //            testHeaderCookie);
-//    //    assertThat(lastMetadata).doesNotContainKeys(BAD_KEY.name());
-//
-//    serverMetadata.clear();
   }
 
   static class FakeService extends BigtableGrpc.BigtableImplBase {
@@ -197,7 +142,7 @@ public class ErrorCountPerConnectionTest {
         Metadata trailers = new Metadata();
         //        maybePopulateCookie(trailers, "readRows");
         responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
-        StatusRuntimeException exception = new StatusRuntimeException(Status.DEADLINE_EXCEEDED, trailers);
+        StatusRuntimeException exception = new StatusRuntimeException(Status.INTERNAL, trailers);
         responseObserver.onError(exception);
       } else {
         System.out.println("reza in server good = " + count.get());
