@@ -29,8 +29,8 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
-import io.opentelemetry.api.metrics.LongHistogram;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,25 +71,27 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private boolean flowControlIsDisabled = false;
 
-  private AtomicInteger requestLeft = new AtomicInteger(0);
+  private final AtomicInteger requestLeft = new AtomicInteger(0);
 
   // Monitored resource labels
   private String tableId = "unspecified";
   private String zone = "global";
   private String cluster = "unspecified";
 
-  private AtomicLong totalClientBlockingTime = new AtomicLong(0);
+  private final AtomicLong totalClientBlockingTime = new AtomicLong(0);
 
   private final Attributes baseAttributes;
 
   private Long serverLatencies = null;
 
-  private final LongHistogram operationLatenciesHistogram;
-  private final LongHistogram attemptLatenciesHistogram;
-  private final LongHistogram serverLatenciesHistogram;
-  private final LongHistogram firstResponseLatenciesHistogram;
-  private final LongHistogram clientBlockingLatenciesHistogram;
-  private final LongHistogram applicationBlockingLatenciesHistogram;
+  private final double toMs = 1e-6;
+
+  private final DoubleHistogram operationLatenciesHistogram;
+  private final DoubleHistogram attemptLatenciesHistogram;
+  private final DoubleHistogram serverLatenciesHistogram;
+  private final DoubleHistogram firstResponseLatenciesHistogram;
+  private final DoubleHistogram clientBlockingLatenciesHistogram;
+  private final DoubleHistogram applicationBlockingLatenciesHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -97,12 +99,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
       OperationType operationType,
       SpanName spanName,
       Attributes attributes,
-      LongHistogram operationLatenciesHistogram,
-      LongHistogram attemptLatenciesHistogram,
-      LongHistogram serverLatenciesHistogram,
-      LongHistogram firstResponseLatenciesHistogram,
-      LongHistogram clientBlockingLatenciesHistogram,
-      LongHistogram applicationBlockingLatenciesHistogram,
+      DoubleHistogram operationLatenciesHistogram,
+      DoubleHistogram attemptLatenciesHistogram,
+      DoubleHistogram serverLatenciesHistogram,
+      DoubleHistogram firstResponseLatenciesHistogram,
+      DoubleHistogram clientBlockingLatenciesHistogram,
+      DoubleHistogram applicationBlockingLatenciesHistogram,
       LongCounter connectivityErrorCounter,
       LongCounter retryCounter) {
     this.operationType = operationType;
@@ -300,13 +302,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
         attributes.toBuilder().put(STREAMING_KEY, isStreaming).put(STATUS_KEY, statusStr).build());
 
     long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
-    applicationBlockingLatenciesHistogram.record(
-        Duration.ofNanos(applicationLatencyNano).toMillis(), attributes);
+    applicationBlockingLatenciesHistogram.record(applicationLatencyNano * toMs, attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
       firstResponseLatenciesHistogram.record(
-          Duration.ofNanos(firstResponsePerOpTimer.elapsed(TimeUnit.NANOSECONDS)).toMillis(),
+          firstResponsePerOpTimer.elapsed(TimeUnit.NANOSECONDS) * toMs,
           attributes.toBuilder().put(STATUS_KEY, Util.extractStatus(status)).build());
     }
   }
@@ -335,8 +336,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME_KEY, NAME)
             .build();
 
-    clientBlockingLatenciesHistogram.record(
-        Duration.ofNanos(totalClientBlockingTime.get()).toMillis(), attributes);
+    clientBlockingLatenciesHistogram.record(totalClientBlockingTime.get() * toMs, attributes);
 
     // Patch the status until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
@@ -348,7 +348,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     String statusStr = Util.extractStatus(status);
 
     attemptLatenciesHistogram.record(
-        Duration.ofNanos(attemptTimer.elapsed(TimeUnit.NANOSECONDS)).toMillis(),
+        attemptTimer.elapsed(TimeUnit.NANOSECONDS) * toMs,
         attributes.toBuilder().put(STREAMING_KEY, isStreaming).put(STATUS_KEY, statusStr).build());
 
     if (serverLatencies != null) {

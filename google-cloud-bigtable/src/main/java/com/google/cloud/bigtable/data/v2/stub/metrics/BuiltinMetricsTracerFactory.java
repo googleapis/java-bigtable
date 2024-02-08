@@ -32,8 +32,8 @@ import com.google.api.gax.tracing.BaseApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
-import io.opentelemetry.api.metrics.LongHistogram;
 import io.opentelemetry.api.metrics.Meter;
 import java.io.IOException;
 
@@ -49,12 +49,12 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   private static final String MILLISECOND = "ms";
   private static final String COUNT = "1";
 
-  private final LongHistogram operationLatenciesHistogram;
-  private final LongHistogram attemptLatenciesHistogram;
-  private final LongHistogram serverLatenciesHistogram;
-  private final LongHistogram firstResponseLatenciesHistogram;
-  private final LongHistogram clientBlockingLatenciesHistogram;
-  private final LongHistogram applicationBlockingLatenciesHistogram;
+  private final DoubleHistogram operationLatenciesHistogram;
+  private final DoubleHistogram attemptLatenciesHistogram;
+  private final DoubleHistogram serverLatenciesHistogram;
+  private final DoubleHistogram firstResponseLatenciesHistogram;
+  private final DoubleHistogram clientBlockingLatenciesHistogram;
+  private final DoubleHistogram applicationBlockingLatenciesHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -70,7 +70,6 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     operationLatenciesHistogram =
         meter
             .histogramBuilder(OPERATION_LATENCIES_NAME)
-            .ofLongs()
             .setDescription(
                 "Total time until final operation success or failure, including retries and backoff.")
             .setUnit(MILLISECOND)
@@ -78,14 +77,12 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     attemptLatenciesHistogram =
         meter
             .histogramBuilder(ATTEMPT_LATENCIES_NAME)
-            .ofLongs()
             .setDescription("Client observed latency per RPC attempt.")
             .setUnit(MILLISECOND)
             .build();
     serverLatenciesHistogram =
         meter
             .histogramBuilder(SERVER_LATENCIES_NAME)
-            .ofLongs()
             .setDescription(
                 "The latency measured from the moment that the RPC entered the Google data center until the RPC was completed.")
             .setUnit(MILLISECOND)
@@ -93,7 +90,6 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     firstResponseLatenciesHistogram =
         meter
             .histogramBuilder(FIRST_RESPONSE_LATENCIES_NAME)
-            .ofLongs()
             .setDescription(
                 "Latency from operation start until the response headers were received. The publishing of the measurement will be delayed until the attempt response has been received.")
             .setUnit(MILLISECOND)
@@ -101,7 +97,6 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     clientBlockingLatenciesHistogram =
         meter
             .histogramBuilder(CLIENT_BLOCKING_LATENCIES_NAME)
-            .ofLongs()
             .setDescription(
                 "The artificial latency introduced by the client to limit the number of outstanding requests. The publishing of the measurement will be delayed until the attempt trailers have been received.")
             .setUnit(MILLISECOND)
@@ -109,7 +104,6 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     applicationBlockingLatenciesHistogram =
         meter
             .histogramBuilder(APPLICATION_BLOCKING_LATENCIES_NAME)
-            .ofLongs()
             .setDescription(
                 "The latency of the client application consuming available response data.")
             .setUnit(MILLISECOND)

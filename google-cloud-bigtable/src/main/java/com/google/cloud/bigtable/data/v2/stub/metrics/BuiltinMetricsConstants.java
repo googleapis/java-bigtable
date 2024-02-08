@@ -26,6 +26,7 @@ import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.View;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Defining Bigtable builit-in metrics scope, attributes, metric names and views. */
 @InternalApi
@@ -39,6 +40,8 @@ public class BuiltinMetricsConstants {
   public static final AttributeKey<String> ZONE_ID_KEY = AttributeKey.stringKey("zone");
 
   // Metric attribute keys for labels
+  // We need to access APP_PROFILE_KEY in EnhancedBigtableStubSettings and STREAMING_KEY in
+  // IT tests, so they're public.
   public static final AttributeKey<String> APP_PROFILE_KEY = AttributeKey.stringKey("app_profile");
   public static final AttributeKey<Boolean> STREAMING_KEY = AttributeKey.booleanKey("streaming");
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
@@ -61,23 +64,23 @@ public class BuiltinMetricsConstants {
   private static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
       Aggregation.explicitBucketHistogram(
           ImmutableList.of(
-              0.0, 0.01, 0.05, 0.1, 0.3, 0.6, 0.8, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0,
-              16.0, 20.0, 25.0, 30.0, 40.0, 50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0,
-              300.0, 400.0, 500.0, 650.0, 800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0,
-              100000.0, 200000.0, 400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
+              0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0,
+              50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
+              800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0, 200000.0,
+              400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
 
   public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
-  static final Set<String> COMMON_ATTRIBUTES =
+  static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
-          PROJECT_ID_KEY.getKey(),
-          INSTANCE_ID_KEY.getKey(),
-          TABLE_ID_KEY.getKey(),
-          APP_PROFILE_KEY.getKey(),
-          CLUSTER_ID_KEY.getKey(),
-          ZONE_ID_KEY.getKey(),
-          METHOD_KEY.getKey(),
-          CLIENT_NAME_KEY.getKey());
+          PROJECT_ID_KEY,
+          INSTANCE_ID_KEY,
+          TABLE_ID_KEY,
+          APP_PROFILE_KEY,
+          CLUSTER_ID_KEY,
+          ZONE_ID_KEY,
+          METHOD_KEY,
+          CLIENT_NAME_KEY);
 
   static void defineView(
       ImmutableMap.Builder<InstrumentSelector, View> viewMap,
@@ -85,7 +88,7 @@ public class BuiltinMetricsConstants {
       Aggregation aggregation,
       InstrumentType type,
       String unit,
-      Set<String> extraAttributes) {
+      Set<AttributeKey> extraAttributes) {
     InstrumentSelector selector =
         InstrumentSelector.builder()
             .setName(id)
@@ -94,7 +97,11 @@ public class BuiltinMetricsConstants {
             .setUnit(unit)
             .build();
     Set<String> attributesFilter =
-        ImmutableSet.<String>builder().addAll(COMMON_ATTRIBUTES).addAll(extraAttributes).build();
+        ImmutableSet.<String>builder()
+            .addAll(
+                COMMON_ATTRIBUTES.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
+            .addAll(extraAttributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
+            .build();
     View view =
         View.builder()
             .setName(METER_NAME + id)
@@ -114,28 +121,28 @@ public class BuiltinMetricsConstants {
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
+        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
     defineView(
         views,
         ATTEMPT_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
+        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
     defineView(
         views,
         SERVER_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY.getKey(), STATUS_KEY.getKey()));
+        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
     defineView(
         views,
         FIRST_RESPONSE_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STATUS_KEY.getKey()));
+        ImmutableSet.of(STATUS_KEY));
     defineView(
         views,
         APPLICATION_BLOCKING_LATENCIES_NAME,
@@ -156,14 +163,14 @@ public class BuiltinMetricsConstants {
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS_KEY.getKey()));
+        ImmutableSet.of(STATUS_KEY));
     defineView(
         views,
         CONNECTIVITY_ERROR_COUNT_NAME,
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS_KEY.getKey()));
+        ImmutableSet.of(STATUS_KEY));
 
     return views.build();
   }

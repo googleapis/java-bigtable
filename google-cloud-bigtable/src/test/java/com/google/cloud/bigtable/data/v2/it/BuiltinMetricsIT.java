@@ -111,6 +111,9 @@ public class BuiltinMetricsIT {
 
   @Before
   public void setup() throws IOException {
+    // This test tests 2 things. End-to-end test using the default OTEL instance created by the
+    // client, and also end-to-end test using a custom OTEL instance set by the customer. In
+    // both tests, a BigtableCloudMonitoringExporter is created to export data to Cloud Monitoring.
     assume()
         .withMessage("Builtin metrics integration test is not supported by emulator")
         .that(testEnvRule.env())
@@ -134,6 +137,9 @@ public class BuiltinMetricsIT {
                 AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
             .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW)));
 
+    // When using the custom OTEL instance, we can also register a InMemoryMetricReader on the
+    // SdkMeterProvider to verify the data exported on Cloud Monitoring with the in memory metric
+    // data collected in InMemoryMetricReader.
     metricReader = InMemoryMetricReader.create();
 
     SdkMeterProviderBuilder meterProvider =
@@ -187,6 +193,8 @@ public class BuiltinMetricsIT {
                 .addFamily("cf"));
     logger.info("Create default table: " + tableDefault.getId());
 
+    Instant start = Instant.now().minus(Duration.ofSeconds(10));
+
     // Send a MutateRow and ReadRows request and measure the latencies for these requests.
     clientDefault.mutateRow(
         RowMutation.create(tableDefault.getId(), "a-new-key").setCell("cf", "q", "abc"));
@@ -198,9 +206,10 @@ public class BuiltinMetricsIT {
 
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
-    // Restrict time to last minutes and 5 minutes after the request
-    Instant start = Instant.now().minus(Duration.ofMinutes(1));
-    Instant end = start.plus(Duration.ofMinutes(6));
+    // Interval is set in the monarch request when query metric timestamps.
+    // Restrict it to before we send to request and 1 minute after we send the request. If
+    // it turns out to be still flaky we can increase the filter range.
+    Instant end = Instant.now().plus(Duration.ofMinutes(1));
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
@@ -222,7 +231,7 @@ public class BuiltinMetricsIT {
               .setFilter(metricFilter)
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
-      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, null);
+      verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
 
       // Verify that metrics are published for ReadRows request
       metricFilter =
@@ -233,7 +242,7 @@ public class BuiltinMetricsIT {
               view, testEnvRule.env().getInstanceId(), tableDefault.getId(), appProfileDefault);
       requestBuilder.setFilter(metricFilter);
 
-      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, null);
+      verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
     }
   }
 
@@ -246,6 +255,7 @@ public class BuiltinMetricsIT {
                 .addFamily("cf"));
     logger.info("Create custom table: " + tableCustomOtel.getId());
 
+    Instant start = Instant.now().minus(Duration.ofSeconds(10));
     // Send a MutateRow and ReadRows request and measure the latencies for these requests.
     clientCustomOtel.mutateRow(
         RowMutation.create(tableCustomOtel.getId(), "a-new-key").setCell("cf", "q", "abc"));
@@ -260,9 +270,10 @@ public class BuiltinMetricsIT {
 
     Collection<MetricData> fromMetricReader = metricReader.collectAllMetrics();
 
-    // Restrict time to last minutes and 5 minutes after the request
-    Instant start = Instant.now().minus(Duration.ofMinutes(1));
-    Instant end = start.plus(Duration.ofMinutes(6));
+    // Interval is set in the monarch request when query metric timestamps.
+    // Restrict it to before we send to request and 1 minute after we send the request. If
+    // it turns out to be still flaky we can increase the filter range.
+    Instant end = start.plus(Duration.ofMinutes(1));
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
@@ -294,7 +305,9 @@ public class BuiltinMetricsIT {
               .setInterval(interval)
               .setView(ListTimeSeriesRequest.TimeSeriesView.FULL);
 
-      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, dataFromReader);
+      ListTimeSeriesResponse response =
+          verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
+      verifyMetricsWithMetricsReader(response, dataFromReader);
 
       // Verify that metrics are correct for ReadRows request
       metricFilter =
@@ -308,15 +321,13 @@ public class BuiltinMetricsIT {
               appProfileCustomOtel);
       requestBuilder.setFilter(metricFilter);
 
-      verifyMetrics(requestBuilder.build(), metricsPollingStopwatch, view, dataFromReader);
+      response = verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
+      verifyMetricsWithMetricsReader(response, dataFromReader);
     }
   }
 
-  private void verifyMetrics(
-      ListTimeSeriesRequest request,
-      Stopwatch metricsPollingStopwatch,
-      String view,
-      MetricData dataFromReader)
+  private ListTimeSeriesResponse verifyMetricsArePublished(
+      ListTimeSeriesRequest request, Stopwatch metricsPollingStopwatch, String view)
       throws Exception {
     ListTimeSeriesResponse response = metricClient.listTimeSeriesCallable().call(request);
     logger.log(
@@ -338,61 +349,62 @@ public class BuiltinMetricsIT {
         .that(response.getTimeSeriesCount())
         .isGreaterThan(0);
 
-    // Compare metric data with in memory metrics reader data if present
-    if (dataFromReader != null) {
-      for (TimeSeries ts : response.getTimeSeriesList()) {
-        Map<String, String> attributesMap =
-            ImmutableMap.<String, String>builder()
-                .putAll(ts.getResource().getLabelsMap())
-                .putAll(ts.getMetric().getLabelsMap())
-                .build();
-        AttributesBuilder attributesBuilder = Attributes.builder();
-        String streamingKey = BuiltinMetricsConstants.STREAMING_KEY.getKey();
-        attributesMap.forEach(
-            (k, v) -> {
-              if (!k.equals(streamingKey)) {
-                attributesBuilder.put(k, v);
-              }
-            });
-        if (attributesMap.containsKey(streamingKey)) {
-          attributesBuilder.put(
-              streamingKey, Boolean.parseBoolean(attributesMap.get(streamingKey)));
-        }
-        Attributes attributes = attributesBuilder.build();
-        verifyAttributes(dataFromReader, attributes);
-        long expectedValue = getAggregatedValue(dataFromReader, attributes);
-        Timestamp startTime = getStartTimeSeconds(dataFromReader, attributes);
-        assertThat(startTime.getSeconds()).isGreaterThan(0);
-        List<Point> point =
-            ts.getPointsList().stream()
-                .filter(
-                    p ->
-                        Timestamps.compare(p.getInterval().getStartTime(), startTime) >= 0
-                            && Timestamps.compare(
-                                    p.getInterval().getStartTime(),
-                                    Timestamps.add(
-                                        startTime,
-                                        com.google.protobuf.Duration.newBuilder()
-                                            .setSeconds(60)
-                                            .build()))
-                                < 0)
-                .collect(Collectors.toList());
-        if (point.size() > 0) {
-          long actualValue = (long) point.get(0).getValue().getDistributionValue().getMean();
-          assertWithMessage(
-                  "actual value does not match expected value, actual value "
-                      + actualValue
-                      + " expected value "
-                      + expectedValue
-                      + " actual start time "
-                      + point.get(0).getInterval().getStartTime()
-                      + " expected start time "
-                      + startTime)
-              .that(actualValue)
-              .isIn(
-                  Range.range(
-                      expectedValue - 1, BoundType.CLOSED, expectedValue + 1, BoundType.CLOSED));
-        }
+    return response;
+  }
+
+  private void verifyMetricsWithMetricsReader(
+      ListTimeSeriesResponse response, MetricData dataFromReader) {
+    for (TimeSeries ts : response.getTimeSeriesList()) {
+      Map<String, String> attributesMap =
+          ImmutableMap.<String, String>builder()
+              .putAll(ts.getResource().getLabelsMap())
+              .putAll(ts.getMetric().getLabelsMap())
+              .build();
+      AttributesBuilder attributesBuilder = Attributes.builder();
+      String streamingKey = BuiltinMetricsConstants.STREAMING_KEY.getKey();
+      attributesMap.forEach(
+          (k, v) -> {
+            if (!k.equals(streamingKey)) {
+              attributesBuilder.put(k, v);
+            }
+          });
+      if (attributesMap.containsKey(streamingKey)) {
+        attributesBuilder.put(streamingKey, Boolean.parseBoolean(attributesMap.get(streamingKey)));
+      }
+      Attributes attributes = attributesBuilder.build();
+      verifyAttributes(dataFromReader, attributes);
+      long expectedValue = getAggregatedValue(dataFromReader, attributes);
+      Timestamp startTime = getStartTimeSeconds(dataFromReader, attributes);
+      assertThat(startTime.getSeconds()).isGreaterThan(0);
+      List<Point> point =
+          ts.getPointsList().stream()
+              .filter(
+                  p ->
+                      Timestamps.compare(p.getInterval().getStartTime(), startTime) >= 0
+                          && Timestamps.compare(
+                                  p.getInterval().getStartTime(),
+                                  Timestamps.add(
+                                      startTime,
+                                      com.google.protobuf.Duration.newBuilder()
+                                          .setSeconds(60)
+                                          .build()))
+                              < 0)
+              .collect(Collectors.toList());
+      if (point.size() > 0) {
+        long actualValue = (long) point.get(0).getValue().getDistributionValue().getMean();
+        assertWithMessage(
+                "actual value does not match expected value, actual value "
+                    + actualValue
+                    + " expected value "
+                    + expectedValue
+                    + " actual start time "
+                    + point.get(0).getInterval().getStartTime()
+                    + " expected start time "
+                    + startTime)
+            .that(actualValue)
+            .isIn(
+                Range.range(
+                    expectedValue - 1, BoundType.CLOSED, expectedValue + 1, BoundType.CLOSED));
       }
     }
   }
