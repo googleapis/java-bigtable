@@ -48,7 +48,6 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                 responseListener) {
               @Override
               public void onClose(Status status, Metadata trailers) {
-                System.out.println("reza is in onClose w/ status = " + status.isOk());
                 if (status.isOk()) {
                   numOfSuccesses.getAndIncrement();
                 } else {

@@ -132,7 +132,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
@@ -182,8 +181,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
-    System.out.println("reza in create()");
-
     settings = settings.toBuilder().setTracerFactory(createBigtableTracerFactory(settings)).build();
     ClientContext clientContext = createClientContext(settings);
 
@@ -198,7 +195,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
       throws IOException {
-    System.out.println("reza in createClientContext");
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
     // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
@@ -213,7 +209,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             : null;
 
     Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors =
-        Collections.newSetFromMap(new WeakHashMap<>());
+        Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     setupConnectionErrorCountTask(builder, connectionErrorCountInterceptors);
 
     if (transportProvider != null) {
@@ -267,12 +263,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private static void setupConnectionErrorCountTask(
       EnhancedBigtableStubSettings.Builder settings,
       Set<ConnectionErrorCountInterceptor> interceptors) {
-//    ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-//    NOTE: when replacing this line with the one below, the stub creation hangs.
     ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
-    System.out.println("reza using ScheduledExecutorService = " + scheduler);
     ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
-//    scheduler.scheduleWithFixedDelay()
     scheduler.scheduleAtFixedRate(
         new CountErrorsPerInterceptorTask(interceptors, builtinAttributes),
         0,

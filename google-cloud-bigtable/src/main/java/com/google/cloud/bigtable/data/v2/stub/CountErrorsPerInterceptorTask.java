@@ -37,17 +37,17 @@ class CountErrorsPerInterceptorTask implements Runnable {
 
   @Override
   public void run() {
-    for (ConnectionErrorCountInterceptor interceptor : interceptors) {
-      int errors = interceptor.getAndResetNumOfErrors();
-      int successes = interceptor.getAndResetNumOfSuccesses();
-      System.out.println("reza running run(), e = " + errors + ", s = " + successes);
-      // We avoid keeping track of inactive connections (i.e., without any failed or successful
-      // requests).
-      if (errors > 0 || successes > 0) {
-        // TODO: add a metric to also keep track of the number of successful requests per each
-        // connection.
-        System.out.println("reza gonna call putAndRecordPerConnectionErrorCount w/ " + errors);
-        this.statsRecorderWrapper.putAndRecordPerConnectionErrorCount(errors);
+    synchronized (interceptors) {
+      for (ConnectionErrorCountInterceptor interceptor : interceptors) {
+        int errors = interceptor.getAndResetNumOfErrors();
+        int successes = interceptor.getAndResetNumOfSuccesses();
+        // We avoid keeping track of inactive connections (i.e., without any failed or successful
+        // requests).
+        if (errors > 0 || successes > 0) {
+          // TODO: add a metric to also keep track of the number of successful requests per each
+          // connection.
+          this.statsRecorderWrapper.putAndRecordPerConnectionErrorCount(errors);
+        }
       }
     }
   }
