@@ -212,6 +212,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
     setupConnectionErrorCountTask(builder, connectionErrorCountInterceptors);
 
+    // TODO: This currently overrides the InterceptorProvider if one has been set by the user, since
+    // the attribute is private w/o a getter. Consider finding a way around it.
     if (transportProvider != null) {
       transportProvider.setInterceptorProvider(
           () -> getInterceptors(builder, connectionErrorCountInterceptors));

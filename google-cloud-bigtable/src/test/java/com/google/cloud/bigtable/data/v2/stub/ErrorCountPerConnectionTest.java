@@ -252,8 +252,7 @@ public class ErrorCountPerConnectionTest {
         responseObserver.onCompleted();
       } else {
         // Send a non-retriable error, since otherwise the client tries to use the mocked
-        // ScheduledExecutorService
-        // object for retyring, resulting in a hang.
+        // ScheduledExecutorService object for retyring, resulting in a hang.
         StatusRuntimeException exception = new StatusRuntimeException(Status.INTERNAL);
         responseObserver.onError(exception);
       }
