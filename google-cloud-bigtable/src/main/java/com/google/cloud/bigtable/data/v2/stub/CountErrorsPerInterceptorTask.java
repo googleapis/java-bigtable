@@ -17,13 +17,18 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.cloud.bigtable.stats.StatsWrapper;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.Set;
 
+/**
+ * A background task that goes through all channels and updates the errors_per_connection metric.
+ */
 class CountErrorsPerInterceptorTask implements Runnable {
   private final Set<ConnectionErrorCountInterceptor> interceptors;
   private StatsRecorderWrapper statsRecorderWrapper;
 
+  @VisibleForTesting
   public void setStatsRecorderWrapper(StatsRecorderWrapper statsRecorderWrapper) {
     this.statsRecorderWrapper = statsRecorderWrapper;
   }
@@ -32,6 +37,8 @@ class CountErrorsPerInterceptorTask implements Runnable {
       Set<ConnectionErrorCountInterceptor> interceptors,
       ImmutableMap<String, String> builtinAttributes) {
     this.interceptors = interceptors;
+    // We only interact with the putAndRecordPerConnectionErrorCount method, so OperationType and
+    // SpanName won't matter.
     this.statsRecorderWrapper = StatsWrapper.createRecorder(null, null, builtinAttributes);
   }
 

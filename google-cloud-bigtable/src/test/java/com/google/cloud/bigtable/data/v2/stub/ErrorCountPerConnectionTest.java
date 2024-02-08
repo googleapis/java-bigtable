@@ -20,6 +20,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 import com.google.api.gax.core.FixedExecutorProvider;
+import com.google.api.gax.grpc.ChannelPoolSettings;
+import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.bigtable.v2.*;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
@@ -60,7 +62,6 @@ public class ErrorCountPerConnectionTest {
             .setProjectId("fake-project")
             .setInstanceId("fake-instance");
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-    System.out.println("rez1 " + executors + " 2 = " + builder);
     Mockito.when(
             executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))
         .thenReturn(null);
@@ -106,23 +107,22 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void readWithTwoStubs() throws Exception {
-    EnhancedBigtableStub stub1 = EnhancedBigtableStub.create(builder.build());
-    EnhancedBigtableStub stub2 = EnhancedBigtableStub.create(builder.build());
-    long errorCount1 = 0;
-    long errorCount2 = 0;
+    EnhancedBigtableStubSettings.Builder builderWithTwoChannels =
+        builder.setTransportChannelProvider(
+            ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider())
+                .toBuilder()
+                .setChannelPoolSettings(ChannelPoolSettings.staticallySized(2))
+                .build());
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builderWithTwoChannels.build());
+    long totalErrorCount = 0;
 
     for (int i = 0; i < 20; i++) {
-      Query successQuery = Query.create(SUCCESS_TABLE_NAME);
-      Query errorQuery = Query.create(ERROR_TABLE_NAME);
       try {
-        if (i % 3 == 0) {
-          errorCount2 += 1;
-          stub1.readRowsCallable().call(successQuery).iterator().hasNext();
-          stub2.readRowsCallable().call(errorQuery).iterator().hasNext();
+        if (i < 10) {
+          totalErrorCount += 1;
+          stub.readRowsCallable().call(Query.create(ERROR_TABLE_NAME)).iterator().hasNext();
         } else {
-          errorCount1 += 1;
-          stub1.readRowsCallable().call(errorQuery).iterator().hasNext();
-          stub2.readRowsCallable().call(successQuery).iterator().hasNext();
+          stub.readRowsCallable().call(Query.create(SUCCESS_TABLE_NAME)).iterator().hasNext();
         }
       } catch (Exception e) {
         // noop
@@ -132,11 +132,12 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapper)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(2);
+    runInterceptorTasksAndAssertCount(1);
 
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(2);
-    assertThat(allErrorCounts).containsExactly(errorCount1, errorCount2);
+    // Requests get assigned to channels using a Round Robin algorithm, so half to each.
+    assertThat(allErrorCounts).containsExactly(totalErrorCount / 2, totalErrorCount / 2);
   }
 
   @Test
