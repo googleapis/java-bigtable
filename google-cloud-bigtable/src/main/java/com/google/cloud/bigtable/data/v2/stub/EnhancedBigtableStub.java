@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
@@ -117,7 +118,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
-import io.grpc.ClientInterceptor;
+import io.grpc.ManagedChannelBuilder;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -130,9 +131,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.WeakHashMap;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -153,8 +151,6 @@ import javax.annotation.Nullable;
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
-  private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
-
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
 
@@ -208,15 +204,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors =
-        Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
-    setupConnectionErrorCountTask(builder, connectionErrorCountInterceptors);
-
-    // TODO: This currently overrides the InterceptorProvider if one has been set by the user, since
-    // the attribute is private w/o a getter. Consider finding a way around it.
+    ConnectionMetricsTracker connectionMetricsTracker =
+        new ConnectionMetricsTracker(builder, createBuiltinAttributes(builder));
     if (transportProvider != null) {
-      transportProvider.setInterceptorProvider(
-          () -> getInterceptors(builder, connectionErrorCountInterceptors));
+      ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
+          transportProvider.getChannelConfigurator();
+      transportProvider.setChannelConfigurator(
+          managedChannelBuilder -> {
+            if (settings.getEnableRoutingCookie()) {
+              // TODO: this also need to be added to BigtableClientFactory
+              managedChannelBuilder.intercept(new CookiesInterceptor());
+            }
+
+            managedChannelBuilder.intercept(connectionMetricsTracker.getInterceptor());
+
+            if (oldChannelConfigurator != null) {
+              managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
+            }
+            return managedChannelBuilder;
+          });
     }
 
     // Inject channel priming
@@ -243,35 +249,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
 
     return ClientContext.create(builder.build());
-  }
-
-  private static ImmutableList<ClientInterceptor> getInterceptors(
-      EnhancedBigtableStubSettings.Builder settings,
-      Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors) {
-    ConnectionErrorCountInterceptor connectionErrorCountInterceptor =
-        new ConnectionErrorCountInterceptor();
-    connectionErrorCountInterceptors.add(connectionErrorCountInterceptor);
-    ImmutableList.Builder<ClientInterceptor> builder =
-        ImmutableList.<ClientInterceptor>builder().add(connectionErrorCountInterceptor);
-
-    if (settings.getEnableRoutingCookie()) {
-      // TODO: this also need to be added to BigtableClientFactory
-      builder.add(new CookiesInterceptor());
-    }
-
-    return builder.build();
-  }
-
-  private static void setupConnectionErrorCountTask(
-      EnhancedBigtableStubSettings.Builder settings,
-      Set<ConnectionErrorCountInterceptor> interceptors) {
-    ScheduledExecutorService scheduler = settings.getBackgroundExecutorProvider().getExecutor();
-    ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings);
-    scheduler.scheduleAtFixedRate(
-        new CountErrorsPerInterceptorTask(interceptors, builtinAttributes),
-        0,
-        PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS,
-        TimeUnit.SECONDS);
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
@@ -316,11 +293,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   private static ImmutableMap<String, String> createBuiltinAttributes(
-      EnhancedBigtableStubSettings.Builder settings) {
+      EnhancedBigtableStubSettings.Builder builder) {
     return ImmutableMap.<String, String>builder()
-        .put("project_id", settings.getProjectId())
-        .put("instance", settings.getInstanceId())
-        .put("app_profile", settings.getAppProfileId())
+        .put("project_id", builder.getProjectId())
+        .put("instance", builder.getInstanceId())
+        .put("app_profile", builder.getAppProfileId())
         .put("client_name", "bigtable-java/" + Version.VERSION)
         .build();
   }

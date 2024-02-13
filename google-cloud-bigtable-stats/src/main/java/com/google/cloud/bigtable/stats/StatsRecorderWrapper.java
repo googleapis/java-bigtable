@@ -42,7 +42,6 @@ public class StatsRecorderWrapper {
 
   private MeasureMap attemptMeasureMap;
   private MeasureMap operationMeasureMap;
-  private MeasureMap perConnectionErrorCountMeasureMap;
 
   public StatsRecorderWrapper(
       OperationType operationType,
@@ -58,7 +57,6 @@ public class StatsRecorderWrapper {
 
     this.attemptMeasureMap = statsRecorder.newMeasureMap();
     this.operationMeasureMap = statsRecorder.newMeasureMap();
-    this.perConnectionErrorCountMeasureMap = statsRecorder.newMeasureMap();
   }
 
   public void recordOperation(String status, String tableId, String zone, String cluster) {
@@ -87,15 +85,6 @@ public class StatsRecorderWrapper {
     attemptMeasureMap.record(tagCtx.build());
     // Reinitialize a new map
     attemptMeasureMap = statsRecorder.newMeasureMap();
-  }
-
-  public void putAndRecordPerConnectionErrorCount(long errorCount) {
-    perConnectionErrorCountMeasureMap.put(
-        BuiltinMeasureConstants.PER_CONNECTION_ERROR_COUNT, errorCount);
-
-    perConnectionErrorCountMeasureMap.record(
-        newTagContextBuilderForPerConnectionErrorCount().build());
-    perConnectionErrorCountMeasureMap = statsRecorder.newMeasureMap();
   }
 
   public void putOperationLatencies(long operationLatency) {
@@ -138,14 +127,6 @@ public class StatsRecorderWrapper {
             .putLocal(BuiltinMeasureConstants.TABLE, TagValue.create(tableId))
             .putLocal(BuiltinMeasureConstants.ZONE, TagValue.create(zone))
             .putLocal(BuiltinMeasureConstants.CLUSTER, TagValue.create(cluster));
-    for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
-      tagContextBuilder.putLocal(TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
-    }
-    return tagContextBuilder;
-  }
-
-  private TagContextBuilder newTagContextBuilderForPerConnectionErrorCount() {
-    TagContextBuilder tagContextBuilder = tagger.toBuilder(parentContext);
     for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
       tagContextBuilder.putLocal(TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
     }

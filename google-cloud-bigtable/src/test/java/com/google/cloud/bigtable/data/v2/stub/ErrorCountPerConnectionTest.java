@@ -26,7 +26,7 @@ import com.google.bigtable.v2.*;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.*;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
+import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
@@ -48,7 +48,7 @@ public class ErrorCountPerConnectionTest {
   private final FakeService fakeService = new FakeService();
   private EnhancedBigtableStubSettings.Builder builder;
   private ArgumentCaptor<Runnable> runnableCaptor;
-  private StatsRecorderWrapper statsRecorderWrapper;
+  private StatsRecorderWrapperForConnection statsRecorderWrapperForConnection;
 
   @Before
   public void setup() throws Exception {
@@ -66,7 +66,7 @@ public class ErrorCountPerConnectionTest {
             executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))
         .thenReturn(null);
 
-    statsRecorderWrapper = Mockito.mock(StatsRecorderWrapper.class);
+    statsRecorderWrapperForConnection = Mockito.mock(StatsRecorderWrapperForConnection.class);
   }
 
   @After
@@ -97,7 +97,7 @@ public class ErrorCountPerConnectionTest {
     }
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
@@ -130,7 +130,7 @@ public class ErrorCountPerConnectionTest {
     }
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
 
@@ -161,7 +161,7 @@ public class ErrorCountPerConnectionTest {
     }
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
@@ -186,7 +186,7 @@ public class ErrorCountPerConnectionTest {
     }
     errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
     allErrorCounts = errorCountCaptor.getAllValues();
@@ -200,7 +200,7 @@ public class ErrorCountPerConnectionTest {
 
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
@@ -220,7 +220,7 @@ public class ErrorCountPerConnectionTest {
     }
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
-        .when(statsRecorderWrapper)
+        .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
     runInterceptorTasksAndAssertCount(1);
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
@@ -232,7 +232,8 @@ public class ErrorCountPerConnectionTest {
     int actualNumOfTasks = 0;
     for (Runnable runnable : runnableCaptor.getAllValues()) {
       if (runnable instanceof CountErrorsPerInterceptorTask) {
-        ((CountErrorsPerInterceptorTask) runnable).setStatsRecorderWrapper(statsRecorderWrapper);
+        ((CountErrorsPerInterceptorTask) runnable)
+            .setStatsRecorderWrapperForConnection(statsRecorderWrapperForConnection);
         runnable.run();
         actualNumOfTasks++;
       }

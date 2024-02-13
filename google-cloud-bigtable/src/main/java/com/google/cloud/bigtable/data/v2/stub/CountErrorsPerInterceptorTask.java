@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
+import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
@@ -26,34 +26,39 @@ import java.util.Set;
  */
 class CountErrorsPerInterceptorTask implements Runnable {
   private final Set<ConnectionErrorCountInterceptor> interceptors;
-  private StatsRecorderWrapper statsRecorderWrapper;
+  private final Object interceptorsLock;
+  // This is not final so that it can be updated and mocked during testing.
+  private StatsRecorderWrapperForConnection statsRecorderWrapperForConnection;
 
   @VisibleForTesting
-  public void setStatsRecorderWrapper(StatsRecorderWrapper statsRecorderWrapper) {
-    this.statsRecorderWrapper = statsRecorderWrapper;
+  void setStatsRecorderWrapperForConnection(
+      StatsRecorderWrapperForConnection statsRecorderWrapperForConnection) {
+    this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
   }
 
-  public CountErrorsPerInterceptorTask(
+  CountErrorsPerInterceptorTask(
       Set<ConnectionErrorCountInterceptor> interceptors,
+      Object interceptorsLock,
       ImmutableMap<String, String> builtinAttributes) {
     this.interceptors = interceptors;
+    this.interceptorsLock = interceptorsLock;
     // We only interact with the putAndRecordPerConnectionErrorCount method, so OperationType and
     // SpanName won't matter.
-    this.statsRecorderWrapper = StatsWrapper.createRecorder(null, null, builtinAttributes);
+    this.statsRecorderWrapperForConnection = StatsWrapper.createRecorderForConnection(builtinAttributes);
   }
 
   @Override
   public void run() {
-    synchronized (interceptors) {
+    synchronized (interceptorsLock) {
       for (ConnectionErrorCountInterceptor interceptor : interceptors) {
-        int errors = interceptor.getAndResetNumOfErrors();
-        int successes = interceptor.getAndResetNumOfSuccesses();
+        long errors = interceptor.getAndResetNumOfErrors();
+        long successes = interceptor.getAndResetNumOfSuccesses();
         // We avoid keeping track of inactive connections (i.e., without any failed or successful
         // requests).
         if (errors > 0 || successes > 0) {
           // TODO: add a metric to also keep track of the number of successful requests per each
           // connection.
-          this.statsRecorderWrapper.putAndRecordPerConnectionErrorCount(errors);
+          this.statsRecorderWrapperForConnection.putAndRecordPerConnectionErrorCount(errors);
         }
       }
     }
