@@ -42,8 +42,7 @@ public class StatsRecorderWrapperForConnection {
     Tagger tagger = Tags.getTagger();
     TagContextBuilder tagContextBuilder = tagger.toBuilder(tagger.getCurrentTagContext());
     for (Map.Entry<String, String> entry : statsAttributes.entrySet()) {
-      tagContextBuilder.putLocal(
-          TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
+      tagContextBuilder.putLocal(TagKey.create(entry.getKey()), TagValue.create(entry.getValue()));
     }
     this.tagContext = tagContextBuilder.build();
   }

@@ -44,7 +44,8 @@ class CountErrorsPerInterceptorTask implements Runnable {
     this.interceptorsLock = interceptorsLock;
     // We only interact with the putAndRecordPerConnectionErrorCount method, so OperationType and
     // SpanName won't matter.
-    this.statsRecorderWrapperForConnection = StatsWrapper.createRecorderForConnection(builtinAttributes);
+    this.statsRecorderWrapperForConnection =
+        StatsWrapper.createRecorderForConnection(builtinAttributes);
   }
 
   @Override
