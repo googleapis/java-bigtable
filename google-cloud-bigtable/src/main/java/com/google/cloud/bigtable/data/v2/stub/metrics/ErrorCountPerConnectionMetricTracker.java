@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
+import io.grpc.ClientInterceptor;
+import java.util.Collections;
 import java.util.Set;
+import java.util.WeakHashMap;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-/**
- * A background task that goes through all channels and updates the errors_per_connection metric.
- */
-class CountErrorsPerInterceptorTask implements Runnable {
-  private final Set<ConnectionErrorCountInterceptor> interceptors;
-  private final Object interceptorsLock;
+/* Background task that goes through all connections and updates the errors_per_connection metric. */
+public class ErrorCountPerConnectionMetricTracker implements Runnable {
+  private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
+  private final EnhancedBigtableStubSettings.Builder builder;
+  private final Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors;
+  private final Object interceptorsLock = new Object();
   // This is not final so that it can be updated and mocked during testing.
   private StatsRecorderWrapperForConnection statsRecorderWrapperForConnection;
 
@@ -36,22 +42,37 @@ class CountErrorsPerInterceptorTask implements Runnable {
     this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
   }
 
-  CountErrorsPerInterceptorTask(
-      Set<ConnectionErrorCountInterceptor> interceptors,
-      Object interceptorsLock,
+  public ErrorCountPerConnectionMetricTracker(
+      EnhancedBigtableStubSettings.Builder builder,
       ImmutableMap<String, String> builtinAttributes) {
-    this.interceptors = interceptors;
-    this.interceptorsLock = interceptorsLock;
-    // We only interact with the putAndRecordPerConnectionErrorCount method, so OperationType and
-    // SpanName won't matter.
+    this.builder = builder;
+    connectionErrorCountInterceptors =
+        Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
+
     this.statsRecorderWrapperForConnection =
         StatsWrapper.createRecorderForConnection(builtinAttributes);
+    startConnectionErrorCountTracker();
+  }
+
+  private void startConnectionErrorCountTracker() {
+    ScheduledExecutorService scheduler = builder.getBackgroundExecutorProvider().getExecutor();
+    scheduler.scheduleAtFixedRate(
+        this, 0, PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS, TimeUnit.SECONDS);
+  }
+
+  public ClientInterceptor getInterceptor() {
+    ConnectionErrorCountInterceptor connectionErrorCountInterceptor =
+        new ConnectionErrorCountInterceptor();
+    synchronized (interceptorsLock) {
+      connectionErrorCountInterceptors.add(connectionErrorCountInterceptor);
+    }
+    return connectionErrorCountInterceptor;
   }
 
   @Override
   public void run() {
     synchronized (interceptorsLock) {
-      for (ConnectionErrorCountInterceptor interceptor : interceptors) {
+      for (ConnectionErrorCountInterceptor interceptor : connectionErrorCountInterceptors) {
         long errors = interceptor.getAndResetNumOfErrors();
         long successes = interceptor.getAndResetNumOfSuccesses();
         // We avoid keeping track of inactive connections (i.e., without any failed or successful
@@ -59,7 +80,7 @@ class CountErrorsPerInterceptorTask implements Runnable {
         if (errors > 0 || successes > 0) {
           // TODO: add a metric to also keep track of the number of successful requests per each
           // connection.
-          this.statsRecorderWrapperForConnection.putAndRecordPerConnectionErrorCount(errors);
+          statsRecorderWrapperForConnection.putAndRecordPerConnectionErrorCount(errors);
         }
       }
     }

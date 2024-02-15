@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import io.grpc.CallOptions;
 import io.grpc.Channel;
@@ -31,7 +31,7 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
   private final LongAdder numOfErrors;
   private final LongAdder numOfSuccesses;
 
-  public ConnectionErrorCountInterceptor() {
+  ConnectionErrorCountInterceptor() {
     numOfErrors = new LongAdder();
     numOfSuccesses = new LongAdder();
   }
@@ -61,11 +61,11 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
     };
   }
 
-  public long getAndResetNumOfErrors() {
+  long getAndResetNumOfErrors() {
     return numOfErrors.sumThenReset();
   }
 
-  public long getAndResetNumOfSuccesses() {
+  long getAndResetNumOfSuccesses() {
     return numOfSuccesses.sumThenReset();
   }
 }

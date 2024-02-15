@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,6 +26,8 @@ import com.google.bigtable.v2.*;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.*;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import io.grpc.*;
 import io.grpc.stub.StreamObserver;
@@ -77,7 +79,7 @@ public class ErrorCountPerConnectionTest {
   }
 
   @Test
-  public void singleRead() throws Exception {
+  public void readWithOneChannel() throws Exception {
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build());
     long errorCount = 0;
 
@@ -99,14 +101,14 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(1);
     assertThat(allErrorCounts.get(0)).isEqualTo(errorCount);
   }
 
   @Test
-  public void readWithTwoStubs() throws Exception {
+  public void readWithTwoChannels() throws Exception {
     EnhancedBigtableStubSettings.Builder builderWithTwoChannels =
         builder.setTransportChannelProvider(
             ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider())
@@ -132,7 +134,7 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
 
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(2);
@@ -163,7 +165,7 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(1);
     assertThat(allErrorCounts.get(0)).isEqualTo(errorCount);
@@ -188,7 +190,7 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
     allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(1);
     assertThat(allErrorCounts.get(0)).isEqualTo(errorCount);
@@ -196,13 +198,13 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void ignoreInactiveConnection() throws Exception {
-    EnhancedBigtableStub.create(builder.build());
+    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build());
 
     ArgumentCaptor<Long> errorCountCaptor = ArgumentCaptor.forClass(long.class);
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts).isEmpty();
   }
@@ -222,23 +224,23 @@ public class ErrorCountPerConnectionTest {
     Mockito.doNothing()
         .when(statsRecorderWrapperForConnection)
         .putAndRecordPerConnectionErrorCount(errorCountCaptor.capture());
-    runInterceptorTasksAndAssertCount(1);
+    runInterceptorTasksAndAssertCount();
     List<Long> allErrorCounts = errorCountCaptor.getAllValues();
     assertThat(allErrorCounts.size()).isEqualTo(1);
     assertThat(allErrorCounts.get(0)).isEqualTo(0);
   }
 
-  private void runInterceptorTasksAndAssertCount(int expectNumOfTasks) {
+  private void runInterceptorTasksAndAssertCount() {
     int actualNumOfTasks = 0;
     for (Runnable runnable : runnableCaptor.getAllValues()) {
-      if (runnable instanceof CountErrorsPerInterceptorTask) {
-        ((CountErrorsPerInterceptorTask) runnable)
+      if (runnable instanceof ErrorCountPerConnectionMetricTracker) {
+        ((ErrorCountPerConnectionMetricTracker) runnable)
             .setStatsRecorderWrapperForConnection(statsRecorderWrapperForConnection);
         runnable.run();
         actualNumOfTasks++;
       }
     }
-    assertThat(actualNumOfTasks).isEqualTo(expectNumOfTasks);
+    assertThat(actualNumOfTasks).isEqualTo(1);
   }
 
   static class FakeService extends BigtableGrpc.BigtableImplBase {

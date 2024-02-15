@@ -95,6 +95,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCal
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
@@ -204,19 +205,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    ConnectionMetricsTracker connectionMetricsTracker =
-        new ConnectionMetricsTracker(builder, createBuiltinAttributes(builder));
+    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker =
+        new ErrorCountPerConnectionMetricTracker(builder, createBuiltinAttributes(builder));
     if (transportProvider != null) {
       ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
           transportProvider.getChannelConfigurator();
       transportProvider.setChannelConfigurator(
           managedChannelBuilder -> {
             if (settings.getEnableRoutingCookie()) {
-              // TODO: this also need to be added to BigtableClientFactory
               managedChannelBuilder.intercept(new CookiesInterceptor());
             }
 
-            managedChannelBuilder.intercept(connectionMetricsTracker.getInterceptor());
+            managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
 
             if (oldChannelConfigurator != null) {
               managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
