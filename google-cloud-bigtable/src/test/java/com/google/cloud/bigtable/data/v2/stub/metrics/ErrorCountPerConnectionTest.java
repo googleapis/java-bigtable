@@ -246,13 +246,9 @@ public class ErrorCountPerConnectionTest {
   }
 
   static class FakeService extends BigtableGrpc.BigtableImplBase {
-
-    private final AtomicInteger count = new AtomicInteger();
-
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
-      count.getAndIncrement();
       if (request.getTableName().contains(SUCCESS_TABLE_NAME)) {
         responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
         responseObserver.onCompleted();
