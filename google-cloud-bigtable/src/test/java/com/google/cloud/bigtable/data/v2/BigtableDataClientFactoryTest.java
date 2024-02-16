@@ -257,10 +257,6 @@ public class BigtableDataClientFactoryTest {
             .setProjectId(DEFAULT_PROJECT_ID)
             .setInstanceId(DEFAULT_INSTANCE_ID)
             .setAppProfileId(DEFAULT_APP_PROFILE_ID)
-            // Builtin metrics will call getCredentialsProvider at which point it'll be a
-            // FixedCredentialProvider.
-            // So disabling in the test code it's fine.
-            .setMetricsProvider(NoopMetricsProvider.INSTANCE)
             .setRefreshingChannel(true);
     builder
         .stubSettings()

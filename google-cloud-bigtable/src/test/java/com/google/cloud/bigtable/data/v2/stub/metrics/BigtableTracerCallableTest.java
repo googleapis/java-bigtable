@@ -44,7 +44,6 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
-import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
@@ -125,16 +124,21 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings stubSettings =
-        settings
-            .getStubSettings()
+
+    ClientContext clientContext =
+        EnhancedBigtableStub.createClientContext(settings.getStubSettings());
+    clientContext =
+        clientContext
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder()))
+                    settings.getStubSettings(),
+                    Tags.getTagger(),
+                    localStats.getStatsRecorder(),
+                    clientContext))
             .build();
-    attempts = stubSettings.readRowsSettings().getRetrySettings().getMaxAttempts();
-    stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
+    attempts = settings.getStubSettings().readRowsSettings().getRetrySettings().getMaxAttempts();
+    stub = new EnhancedBigtableStub(settings.getStubSettings(), clientContext);
 
     // Create another server without injecting the server-timing header and another stub that
     // connects to it.
@@ -146,18 +150,21 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings noHeaderStubSettings =
-        noHeaderSettings
-            .getStubSettings()
+
+    ClientContext noHeaderClientContext =
+        EnhancedBigtableStub.createClientContext(noHeaderSettings.getStubSettings());
+    noHeaderClientContext =
+        noHeaderClientContext
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     noHeaderSettings.getStubSettings(),
                     Tags.getTagger(),
-                    localStats.getStatsRecorder()))
+                    localStats.getStatsRecorder(),
+                    noHeaderClientContext))
             .build();
     noHeaderStub =
-        new EnhancedBigtableStub(noHeaderStubSettings, ClientContext.create(noHeaderStubSettings));
+        new EnhancedBigtableStub(noHeaderSettings.getStubSettings(), noHeaderClientContext);
   }
 
   @After
