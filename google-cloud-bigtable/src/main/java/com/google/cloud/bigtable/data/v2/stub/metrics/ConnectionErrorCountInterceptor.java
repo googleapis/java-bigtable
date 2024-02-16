@@ -24,10 +24,14 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
+import java.util.Arrays;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.logging.Logger;
 
 /** An interceptor which counts the number of failed responses for a channel. */
 class ConnectionErrorCountInterceptor implements ClientInterceptor {
+  private static final Logger LOG =
+      Logger.getLogger(ConnectionErrorCountInterceptor.class.toString());
   private final LongAdder numOfErrors;
   private final LongAdder numOfSuccesses;
 
@@ -48,14 +52,25 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                 responseListener) {
               @Override
               public void onClose(Status status, Metadata trailers) {
+                // Connection accounting is non-critical, so we log the exception, but let normal
+                // processing proceed.
                 try {
-                  if (status.isOk()) {
-                    numOfSuccesses.increment();
-                  } else {
-                    numOfErrors.increment();
+                  handleOnCloseUnsafe(status);
+                } catch (Throwable t) {
+                  if (t instanceof InterruptedException) {
+                    Thread.currentThread().interrupt();
                   }
-                } finally {
-                  super.onClose(status, trailers);
+                  LOG.warning(
+                      "Failed to record connection stats, " + Arrays.toString(t.getStackTrace()));
+                }
+                super.onClose(status, trailers);
+              }
+
+              private void handleOnCloseUnsafe(Status status) {
+                if (status.isOk()) {
+                  numOfSuccesses.increment();
+                } else {
+                  numOfErrors.increment();
                 }
               }
             },
