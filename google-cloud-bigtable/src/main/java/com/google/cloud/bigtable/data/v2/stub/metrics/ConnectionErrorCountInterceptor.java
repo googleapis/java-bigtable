@@ -24,7 +24,6 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
-import java.util.Arrays;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,7 +60,8 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                   if (t instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                   }
-                  LOG.log(Level.WARNING, "Unexpected error while updating connection error stats", t);
+                  LOG.log(
+                      Level.WARNING, "Unexpected error while updating connection error stats", t);
                 }
                 super.onClose(status, trailers);
               }
