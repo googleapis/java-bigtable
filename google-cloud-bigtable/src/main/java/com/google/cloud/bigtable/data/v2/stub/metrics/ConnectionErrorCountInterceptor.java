@@ -26,6 +26,7 @@ import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import java.util.Arrays;
 import java.util.concurrent.atomic.LongAdder;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /** An interceptor which counts the number of failed responses for a channel. */
@@ -60,8 +61,7 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                   if (t instanceof InterruptedException) {
                     Thread.currentThread().interrupt();
                   }
-                  LOG.warning(
-                      "Failed to record connection stats, " + Arrays.toString(t.getStackTrace()));
+                  LOG.log(Level.WARNING, "Unexpected error while updating connection error stats", t);
                 }
                 super.onClose(status, trailers);
               }
