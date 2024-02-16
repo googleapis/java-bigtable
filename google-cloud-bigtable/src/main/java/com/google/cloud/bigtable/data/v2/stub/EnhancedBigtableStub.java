@@ -177,10 +177,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
 
-    settings = settings.toBuilder().setTracerFactory(createBigtableTracerFactory(settings)).build();
     ClientContext clientContext = createClientContext(settings);
+    ClientContext contextWithTracer =
+        clientContext
+            .toBuilder()
+            .setTracerFactory(createBigtableTracerFactory(settings, clientContext))
+            .build();
 
-    return new EnhancedBigtableStub(settings, clientContext);
+    return new EnhancedBigtableStub(settings, contextWithTracer);
   }
 
   public static EnhancedBigtableStub createWithClientContext(
@@ -237,13 +241,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings) {
-    return createBigtableTracerFactory(settings, Tags.getTagger(), Stats.getStatsRecorder());
+      EnhancedBigtableStubSettings settings, ClientContext clientContext) {
+    return createBigtableTracerFactory(
+        settings, Tags.getTagger(), Stats.getStatsRecorder(), clientContext);
   }
 
   @VisibleForTesting
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings, Tagger tagger, StatsRecorder stats) {
+      EnhancedBigtableStubSettings settings,
+      Tagger tagger,
+      StatsRecorder stats,
+      ClientContext clientContext) {
     String projectId = settings.getProjectId();
     String instanceId = settings.getInstanceId();
     String appProfileId = settings.getAppProfileId();

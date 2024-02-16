@@ -112,7 +112,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
               .toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
-                      defaultSettings.getStubSettings()))
+                      defaultSettings.getStubSettings(), sharedClientContext))
               .build();
 
       return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
@@ -140,7 +140,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), sharedClientContext))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
@@ -168,7 +169,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), sharedClientContext))
             .build();
 
     return BigtableDataClient.createWithClientContext(settings, clientContext);
@@ -197,7 +199,8 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         sharedClientContext
             .toBuilder()
             .setTracerFactory(
-                EnhancedBigtableStub.createBigtableTracerFactory(settings.getStubSettings()))
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(), sharedClientContext))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
