@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.annotations.VisibleForTesting;
@@ -28,9 +28,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /* Background task that goes through all connections and updates the errors_per_connection metric. */
+@InternalApi("For internal use only")
 public class ErrorCountPerConnectionMetricTracker implements Runnable {
   private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
-  private final EnhancedBigtableStubSettings.Builder builder;
+  private final ScheduledExecutorService scheduler;
   private final Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors;
   private final Object interceptorsLock = new Object();
   // This is not final so that it can be updated and mocked during testing.
@@ -43,9 +44,8 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
   }
 
   public ErrorCountPerConnectionMetricTracker(
-      EnhancedBigtableStubSettings.Builder builder,
-      ImmutableMap<String, String> builtinAttributes) {
-    this.builder = builder;
+      ScheduledExecutorService scheduler, ImmutableMap<String, String> builtinAttributes) {
+    this.scheduler = scheduler;
     connectionErrorCountInterceptors =
         Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
@@ -55,7 +55,6 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
   }
 
   private void startConnectionErrorCountTracker() {
-    ScheduledExecutorService scheduler = builder.getBackgroundExecutorProvider().getExecutor();
     scheduler.scheduleAtFixedRate(
         this, 0, PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS, TimeUnit.SECONDS);
   }
