@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 @InternalApi("For internal use only")
 public class ErrorCountPerConnectionMetricTracker implements Runnable {
   private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
-  private final ScheduledExecutorService scheduler;
   private final Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors;
   private final Object interceptorsLock = new Object();
   // This is not final so that it can be updated and mocked during testing.
@@ -43,18 +42,15 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
     this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
   }
 
-  public ErrorCountPerConnectionMetricTracker(
-      ScheduledExecutorService scheduler, ImmutableMap<String, String> builtinAttributes) {
-    this.scheduler = scheduler;
+  public ErrorCountPerConnectionMetricTracker(ImmutableMap<String, String> builtinAttributes) {
     connectionErrorCountInterceptors =
         Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
     this.statsRecorderWrapperForConnection =
         StatsWrapper.createRecorderForConnection(builtinAttributes);
-    startConnectionErrorCountTracker();
   }
 
-  private void startConnectionErrorCountTracker() {
+  public void startConnectionErrorCountTracker(ScheduledExecutorService scheduler) {
     scheduler.scheduleAtFixedRate(
         this, 0, PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS, TimeUnit.SECONDS);
   }
