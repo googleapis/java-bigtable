@@ -48,12 +48,16 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                 responseListener) {
               @Override
               public void onClose(Status status, Metadata trailers) {
-                if (status.isOk()) {
-                  numOfSuccesses.increment();
-                } else {
-                  numOfErrors.increment();
+                try {
+                  if (status.isOk()) {
+                    numOfSuccesses.increment();
+                  } else {
+                    numOfErrors.increment();
+                  }
                 }
-                super.onClose(status, trailers);
+                finally {
+                  super.onClose(status, trailers);
+                }
               }
             },
             headers);

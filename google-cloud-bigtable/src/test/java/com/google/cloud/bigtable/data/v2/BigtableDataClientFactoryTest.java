@@ -177,11 +177,10 @@ public class BigtableDataClientFactoryTest {
         BigtableDataClient ignored2 = factory.createForInstance("project2", "instance2");
         BigtableDataClient ignored3 = factory.createForInstance("project3", "instance3")) {
 
-      // Make sure that the right number of instances is created by each provider
+      // Make sure that only 1 instance is created by each provider
       Mockito.verify(transportChannelProvider, Mockito.times(1)).getTransportChannel();
       Mockito.verify(credentialsProvider, Mockito.times(1)).getCredentials();
-      // getExecutor() is called for setting Watchdog and per_connection_error_count metric.
-      Mockito.verify(executorProvider, Mockito.times(2)).getExecutor();
+      Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
       Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
     }
   }
@@ -267,10 +266,9 @@ public class BigtableDataClientFactoryTest {
     factory.createForAppProfile("other-appprofile");
     factory.createForInstance("other-project", "other-instance");
 
-    // Make sure that the right number of instances is created for all clients
+    // Make sure that only 1 instance is created by each provider
     Mockito.verify(credentialsProvider, Mockito.times(1)).getCredentials();
-    // getExecutor() is called for setting Watchdog and per_connection_error_count metric.
-    Mockito.verify(executorProvider, Mockito.times(2)).getExecutor();
+    Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
     Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
 
     // Make sure that the clients are sharing the same ChannelPool
