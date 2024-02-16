@@ -43,7 +43,9 @@ public class BigtableStackdriverStatsExporter {
 
   // Default export interval is 1 minute
   private static final Duration EXPORT_INTERVAL = Duration.create(60, 0);
-  private static final String RESOURCE_TYPE = "bigtable_client_raw";
+  private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
+  private static final String GCE_RESOURCE_TYPE = "gce_instance";
+  private static final String GKE_RESOURCE_TYPE = "k8s_container";
 
   private static final String MONITORING_ENDPOINT =
       MoreObjects.firstNonNull(
@@ -55,13 +57,19 @@ public class BigtableStackdriverStatsExporter {
   private BigtableStackdriverStatsExporter(
       MetricServiceClient metricServiceClient,
       Duration exportInterval,
-      MonitoredResource monitoredResource) {
+      MonitoredResource bigtableMonitoredResource,
+      MonitoredResource gceMonitoredResource,
+      MonitoredResource gkeMonitoredResource) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
-            new BigtableCreateTimeSeriesExporter(metricServiceClient, monitoredResource),
+            new BigtableCreateTimeSeriesExporter(
+                metricServiceClient,
+                bigtableMonitoredResource,
+                gceMonitoredResource,
+                gkeMonitoredResource),
             MetricReader.create(
                 MetricReader.Options.builder()
                     .setMetricProducerManager(
@@ -76,9 +84,15 @@ public class BigtableStackdriverStatsExporter {
           instance == null, "Bigtable Stackdriver stats exporter is already created");
       // Default timeout for creating a client is 1 minute
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
-      MonitoredResource resourceType =
-          MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build();
-      instance = new BigtableStackdriverStatsExporter(client, EXPORT_INTERVAL, resourceType);
+      MonitoredResource bigtableResourceType =
+          MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE).build();
+      MonitoredResource gceResourceType =
+          MonitoredResource.newBuilder().setType(GCE_RESOURCE_TYPE).build();
+      MonitoredResource gkeResourceType =
+          MonitoredResource.newBuilder().setType(GKE_RESOURCE_TYPE).build();
+      instance =
+          new BigtableStackdriverStatsExporter(
+              client, EXPORT_INTERVAL, bigtableResourceType, gceResourceType, gkeResourceType);
     }
   }
 

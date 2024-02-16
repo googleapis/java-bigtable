@@ -36,7 +36,8 @@ public class BuiltinViews {
           BuiltinViewConstants.SERVER_LATENCIES_VIEW,
           BuiltinViewConstants.CONNECTIVITY_ERROR_COUNT_VIEW,
           BuiltinViewConstants.APPLICATION_LATENCIES_VIEW,
-          BuiltinViewConstants.THROTTLING_LATENCIES_VIEW);
+          BuiltinViewConstants.THROTTLING_LATENCIES_VIEW,
+          BuiltinViewConstants.PER_CONNECTION_ERROR_COUNT_VIEW);
 
   @VisibleForTesting
   void registerPrivateViews(ViewManager viewManager) {

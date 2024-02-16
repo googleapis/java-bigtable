@@ -33,13 +33,20 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
   private final MetricServiceClient metricServiceClient;
-  private final MonitoredResource monitoredResource;
+  private final MonitoredResource bigtableMonitoredResource;
+  private final MonitoredResource gceMonitoredResource;
+  private final MonitoredResource gkeMonitoredResource;
   private final String clientId;
 
   BigtableCreateTimeSeriesExporter(
-      MetricServiceClient metricServiceClient, MonitoredResource monitoredResource) {
+      MetricServiceClient metricServiceClient,
+      MonitoredResource bigtableMonitoredResource,
+      MonitoredResource gceMonitoredResource,
+      MonitoredResource gkeMonitoredResource) {
     this.metricServiceClient = metricServiceClient;
-    this.monitoredResource = monitoredResource;
+    this.bigtableMonitoredResource = bigtableMonitoredResource;
+    this.gceMonitoredResource = gceMonitoredResource;
+    this.gkeMonitoredResource = gkeMonitoredResource;
     this.clientId = BigtableStackdriverExportUtils.getDefaultTaskValue();
   }
 
@@ -48,11 +55,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
 
     for (Metric metric : metrics) {
       // only export bigtable metrics
-      if (!metric.getMetricDescriptor().getName().contains("bigtable")) {
-        continue;
-      }
-      // TODO: temporarily skip exporting per connection metrics.
-      if (metric.getMetricDescriptor().getName().contains("per_connection_error_count")) {
+      if (!BigtableStackdriverExportUtils.shouldExportMetric(metric.getMetricDescriptor())) {
         continue;
       }
 
@@ -69,7 +72,9 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
                                   metric.getMetricDescriptor(),
                                   timeSeries,
                                   clientId,
-                                  monitoredResource),
+                                  bigtableMonitoredResource,
+                                  gceMonitoredResource,
+                                  gkeMonitoredResource),
                           Collectors.toList())));
 
       for (Map.Entry<String, List<com.google.monitoring.v3.TimeSeries>> entry :
