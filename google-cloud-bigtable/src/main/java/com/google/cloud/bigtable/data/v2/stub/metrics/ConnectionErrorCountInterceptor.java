@@ -54,8 +54,7 @@ class ConnectionErrorCountInterceptor implements ClientInterceptor {
                   } else {
                     numOfErrors.increment();
                   }
-                }
-                finally {
+                } finally {
                   super.onClose(status, trailers);
                 }
               }

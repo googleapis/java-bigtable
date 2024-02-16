@@ -207,7 +207,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
     if (transportProvider != null) {
-      errorCountPerConnectionMetricTracker = new ErrorCountPerConnectionMetricTracker(createBuiltinAttributes(builder));
+      errorCountPerConnectionMetricTracker =
+          new ErrorCountPerConnectionMetricTracker(createBuiltinAttributes(builder));
       ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
           transportProvider.getChannelConfigurator();
       transportProvider.setChannelConfigurator(
@@ -253,7 +254,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ClientContext clientContext = ClientContext.create(builder.build());
     if (errorCountPerConnectionMetricTracker != null) {
       errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
-              clientContext.getExecutor());
+          clientContext.getExecutor());
     }
     return clientContext;
   }
