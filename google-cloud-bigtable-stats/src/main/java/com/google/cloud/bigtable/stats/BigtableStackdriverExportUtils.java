@@ -22,6 +22,7 @@ import com.google.api.Distribution.BucketOptions.Explicit;
 import com.google.api.Metric;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.TimeInterval;
@@ -192,6 +193,14 @@ class BigtableStackdriverExportUtils {
       MonitoredResource gceOrGkeMonitoredResource,
       TimeSeries timeSeries,
       String clientId) {
+    Preconditions.checkNotNull(gceOrGkeMonitoredResource);
+    if (!Objects.equals(gceOrGkeMonitoredResource.getType(), GCE_RESOURCE_TYPE)
+        && !Objects.equals(gceOrGkeMonitoredResource.getType(), GKE_RESOURCE_TYPE)) {
+      logger.warning(
+          "MonitoredResource is expected to correspond to GCE or GKE, but was "
+              + gceOrGkeMonitoredResource
+              + " instead.");
+    }
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
     String metricName = metricDescriptor.getName();
     List<LabelKey> metricTagKeys = new ArrayList<>();
@@ -207,14 +216,6 @@ class BigtableStackdriverExportUtils {
 
     com.google.monitoring.v3.TimeSeries.Builder builder =
         com.google.monitoring.v3.TimeSeries.newBuilder();
-    if (gceOrGkeMonitoredResource == null
-        || (!Objects.equals(gceOrGkeMonitoredResource.getType(), GCE_RESOURCE_TYPE)
-            && !Objects.equals(gceOrGkeMonitoredResource.getType(), GKE_RESOURCE_TYPE))) {
-      logger.warning(
-          "MonitoredResource is expected to correspond to GCE or GKE, but was "
-              + gceOrGkeMonitoredResource
-              + " instead.");
-    }
     builder.setResource(gceOrGkeMonitoredResource);
     builder.setMetric(createMetric(metricName, metricTagKeys, metricTagValues));
 
