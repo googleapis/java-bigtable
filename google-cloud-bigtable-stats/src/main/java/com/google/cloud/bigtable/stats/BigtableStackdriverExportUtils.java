@@ -22,7 +22,6 @@ import com.google.api.Distribution.BucketOptions.Explicit;
 import com.google.api.Metric;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.TimeInterval;
@@ -48,7 +47,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -57,9 +55,6 @@ import javax.annotation.Nullable;
 
 class BigtableStackdriverExportUtils {
   private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
-  static final String GCE_RESOURCE_TYPE = "gce_instance";
-  static final String GKE_RESOURCE_TYPE = "k8s_container";
-
   private static final Logger logger =
       Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
 
@@ -193,14 +188,6 @@ class BigtableStackdriverExportUtils {
       MonitoredResource gceOrGkeMonitoredResource,
       TimeSeries timeSeries,
       String clientId) {
-    Preconditions.checkNotNull(gceOrGkeMonitoredResource);
-    if (!Objects.equals(gceOrGkeMonitoredResource.getType(), GCE_RESOURCE_TYPE)
-        && !Objects.equals(gceOrGkeMonitoredResource.getType(), GKE_RESOURCE_TYPE)) {
-      logger.warning(
-          "MonitoredResource is expected to correspond to GCE or GKE, but was "
-              + gceOrGkeMonitoredResource
-              + " instead.");
-    }
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
     String metricName = metricDescriptor.getName();
     List<LabelKey> metricTagKeys = new ArrayList<>();

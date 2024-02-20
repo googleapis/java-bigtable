@@ -148,7 +148,7 @@ public class BigtableCreateTimeSeriesExporterTest {
         new BigtableCreateTimeSeriesExporter(
             fakeMetricServiceClient,
             MonitoredResource.newBuilder()
-                .setType(BigtableStackdriverExportUtils.GCE_RESOURCE_TYPE)
+                .setType("gce-instance")
                 .putLabels("some-gce-key", "some-gce-value")
                 .build());
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
@@ -225,7 +225,7 @@ public class BigtableCreateTimeSeriesExporterTest {
         new BigtableCreateTimeSeriesExporter(
             fakeMetricServiceClient,
             MonitoredResource.newBuilder()
-                .setType(BigtableStackdriverExportUtils.GKE_RESOURCE_TYPE)
+                .setType("gke-container")
                 .putLabels("some-gke-key", "some-gke-value")
                 .build());
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
