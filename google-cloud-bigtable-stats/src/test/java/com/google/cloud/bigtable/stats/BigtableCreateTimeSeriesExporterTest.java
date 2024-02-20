@@ -19,7 +19,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
@@ -85,12 +84,7 @@ public class BigtableCreateTimeSeriesExporterTest {
 
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
 
-    exporter =
-        new BigtableCreateTimeSeriesExporter(
-            fakeMetricServiceClient,
-            MonitoredResource.newBuilder().setType("bigtable-table").build(),
-            MonitoredResource.newBuilder().setType("gce-instance").build(),
-            MonitoredResource.newBuilder().setType("gke-container").build());
+    exporter = new BigtableCreateTimeSeriesExporter(fakeMetricServiceClient);
   }
 
   @After

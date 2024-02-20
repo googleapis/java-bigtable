@@ -54,6 +54,9 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 class BigtableStackdriverExportUtils {
+  private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
+  private static final String GCE_RESOURCE_TYPE = "gce_instance";
+  private static final String GKE_RESOURCE_TYPE = "k8s_container";
 
   private static final Logger logger =
       Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
@@ -105,38 +108,42 @@ class BigtableStackdriverExportUtils {
       LabelKey.create(BuiltinMeasureConstants.CLIENT_UID.getName(), "client uid");
 
   static boolean isBigtableTableMetric(MetricDescriptor metricDescriptor) {
-    return !metricDescriptor.getName().equals(PER_CONNECTION_ERROR_COUNT_VIEW.getName().asString());
+    return metricDescriptor.getName().contains("bigtable")
+        && !metricDescriptor.getName().equals(PER_CONNECTION_ERROR_COUNT_VIEW.getName().asString());
   }
 
   static boolean shouldExportMetric(MetricDescriptor metricDescriptor) {
-    return metricDescriptor.getName().contains("bigtable")
-        && (isBigtableTableMetric(metricDescriptor)
-            || ConsumerEnvironmentUtils.isEnvGce()
-            || ConsumerEnvironmentUtils.isEnvGke());
+    return isBigtableTableMetric(metricDescriptor)
+        || (metricDescriptor.getName().equals(PER_CONNECTION_ERROR_COUNT_VIEW.getName().asString())
+            && (ConsumerEnvironmentUtils.isEnvGce() || ConsumerEnvironmentUtils.isEnvGke()));
   }
 
   static com.google.monitoring.v3.TimeSeries convertTimeSeries(
-      MetricDescriptor metricDescriptor,
-      TimeSeries timeSeries,
-      String clientId,
-      MonitoredResource bigtableMonitoredResource,
-      MonitoredResource gceMonitoredResource,
-      MonitoredResource gkeMonitoredResource) {
+      MetricDescriptor metricDescriptor, TimeSeries timeSeries, String clientId) {
     Type metricType = metricDescriptor.getType();
 
     com.google.monitoring.v3.TimeSeries.Builder builder;
     if (isBigtableTableMetric(metricDescriptor)) {
       builder =
           setupBuilderForBigtableResource(
-              metricDescriptor, bigtableMonitoredResource, timeSeries, clientId);
+              metricDescriptor,
+              MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE),
+              timeSeries,
+              clientId);
     } else if (ConsumerEnvironmentUtils.isEnvGce()) {
       builder =
           setupBuilderForGceOrGKEResource(
-              metricDescriptor, gceMonitoredResource, timeSeries, clientId);
+              metricDescriptor,
+              MonitoredResource.newBuilder().setType(GCE_RESOURCE_TYPE),
+              timeSeries,
+              clientId);
     } else if (ConsumerEnvironmentUtils.isEnvGke()) {
       builder =
           setupBuilderForGceOrGKEResource(
-              metricDescriptor, gkeMonitoredResource, timeSeries, clientId);
+              metricDescriptor,
+              MonitoredResource.newBuilder().setType(GKE_RESOURCE_TYPE),
+              timeSeries,
+              clientId);
     } else {
       logger.warning(
           "Trying to export metric "
@@ -155,12 +162,11 @@ class BigtableStackdriverExportUtils {
 
   private static com.google.monitoring.v3.TimeSeries.Builder setupBuilderForBigtableResource(
       MetricDescriptor metricDescriptor,
-      MonitoredResource bigtableMonitoredResource,
+      MonitoredResource.Builder monitoredResourceBuilder,
       TimeSeries timeSeries,
       String clientId) {
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
     String metricName = metricDescriptor.getName();
-    MonitoredResource.Builder monitoredResourceBuilder = bigtableMonitoredResource.toBuilder();
     List<LabelKey> metricTagKeys = new ArrayList<>();
     List<LabelValue> metricTagValues = new ArrayList<>();
 
@@ -189,12 +195,11 @@ class BigtableStackdriverExportUtils {
 
   private static com.google.monitoring.v3.TimeSeries.Builder setupBuilderForGceOrGKEResource(
       MetricDescriptor metricDescriptor,
-      MonitoredResource monitoredResource,
+      MonitoredResource.Builder monitoredResourceBuilder,
       TimeSeries timeSeries,
       String clientId) {
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
     String metricName = metricDescriptor.getName();
-    MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
     List<LabelKey> metricTagKeys = new ArrayList<>();
     List<LabelValue> metricTagValues = new ArrayList<>();
 

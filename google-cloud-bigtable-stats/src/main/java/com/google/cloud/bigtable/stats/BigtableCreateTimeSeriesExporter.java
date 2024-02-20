@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.stats;
 
-import com.google.api.MonitoredResource;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -33,20 +32,13 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
   private final MetricServiceClient metricServiceClient;
-  private final MonitoredResource bigtableMonitoredResource;
-  private final MonitoredResource gceMonitoredResource;
-  private final MonitoredResource gkeMonitoredResource;
+  //  private final MonitoredResource bigtableMonitoredResource;
+  //  private final MonitoredResource gceMonitoredResource;
+  //  private final MonitoredResource gkeMonitoredResource;
   private final String clientId;
 
-  BigtableCreateTimeSeriesExporter(
-      MetricServiceClient metricServiceClient,
-      MonitoredResource bigtableMonitoredResource,
-      MonitoredResource gceMonitoredResource,
-      MonitoredResource gkeMonitoredResource) {
+  BigtableCreateTimeSeriesExporter(MetricServiceClient metricServiceClient) {
     this.metricServiceClient = metricServiceClient;
-    this.bigtableMonitoredResource = bigtableMonitoredResource;
-    this.gceMonitoredResource = gceMonitoredResource;
-    this.gkeMonitoredResource = gkeMonitoredResource;
     this.clientId = BigtableStackdriverExportUtils.getDefaultTaskValue();
   }
 
@@ -69,12 +61,7 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
                       Collectors.mapping(
                           timeSeries ->
                               BigtableStackdriverExportUtils.convertTimeSeries(
-                                  metric.getMetricDescriptor(),
-                                  timeSeries,
-                                  clientId,
-                                  bigtableMonitoredResource,
-                                  gceMonitoredResource,
-                                  gkeMonitoredResource),
+                                  metric.getMetricDescriptor(), timeSeries, clientId),
                           Collectors.toList())));
 
       for (Map.Entry<String, List<com.google.monitoring.v3.TimeSeries>> entry :
