@@ -36,7 +36,7 @@ public class BuiltinMetricsTestUtils {
   public static MetricData getMetricData(Collection<MetricData> allMetricData, String metricName) {
     List<MetricData> metricDataList =
         allMetricData.stream()
-            .filter(md -> md.getName().equals(metricName))
+            .filter(md -> md.getName().equals(BuiltinMetricsConstants.METER_NAME + metricName))
             .collect(Collectors.toList());
     if (metricDataList.size() == 0) {
       allMetricData.stream().forEach(md -> System.out.println(md.getName()));

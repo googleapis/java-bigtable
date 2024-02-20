@@ -135,7 +135,7 @@ public class BuiltinMetricsConstants {
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
+        ImmutableSet.of(STATUS_KEY));
     defineView(
         views,
         FIRST_RESPONSE_LATENCIES_NAME,

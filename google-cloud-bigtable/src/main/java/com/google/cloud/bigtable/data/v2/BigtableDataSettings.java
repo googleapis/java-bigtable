@@ -74,7 +74,10 @@ public final class BigtableDataSettings {
 
   private static final Logger LOGGER = Logger.getLogger(BigtableDataSettings.class.getName());
   private static final String BIGTABLE_EMULATOR_HOST_ENV_VAR = "BIGTABLE_EMULATOR_HOST";
-  @Nullable private static Credentials credentials;
+  // This is the legacy credential override used in the deprecated enableBuiltinMetrics method to
+  // override the default credentials set on the Bigtable client. Keeping it for backward
+  // compatibility.
+  @Deprecated @Nullable private static Credentials legacyMetricCredentialOverride;
 
   private final EnhancedBigtableStubSettings stubSettings;
 
@@ -214,13 +217,13 @@ public final class BigtableDataSettings {
    *     on how to enable or disable built-in metrics.
    */
   public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
-    BigtableDataSettings.credentials = credentials;
+    BigtableDataSettings.legacyMetricCredentialOverride = credentials;
   }
 
   /** Get the metrics credentials if it's set by {@link #enableBuiltinMetrics(Credentials)}. */
   @InternalApi
   public static Credentials getMetricsCredentials() {
-    return credentials;
+    return legacyMetricCredentialOverride;
   }
 
   /** Returns the target project id. */

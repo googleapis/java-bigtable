@@ -281,9 +281,9 @@ public class BuiltinMetricsIT {
             .build();
 
     for (String view : VIEWS) {
-      String otelMetricName = "bigtable.googleapis.com/internal/client/" + view;
+      String otelMetricName = view;
       if (view.equals("application_blocking_latencies")) {
-        otelMetricName = "bigtable.googleapis.com/internal/client/application_latencies";
+        otelMetricName = "application_latencies";
       }
       MetricData dataFromReader = getMetricData(fromMetricReader, otelMetricName);
 
@@ -330,16 +330,16 @@ public class BuiltinMetricsIT {
       ListTimeSeriesRequest request, Stopwatch metricsPollingStopwatch, String view)
       throws Exception {
     ListTimeSeriesResponse response = metricClient.listTimeSeriesCallable().call(request);
-    logger.log(
-        Level.INFO,
-        "Checking for view "
-            + view
-            + ", has timeseries="
-            + response.getTimeSeriesCount()
-            + " stopwatch elapsed "
-            + metricsPollingStopwatch.elapsed(TimeUnit.MINUTES));
     while (response.getTimeSeriesCount() == 0
         && metricsPollingStopwatch.elapsed(TimeUnit.MINUTES) < 10) {
+      logger.log(
+          Level.INFO,
+          "Checking for view "
+              + view
+              + ", has timeseries="
+              + response.getTimeSeriesCount()
+              + " stopwatch elapsed "
+              + metricsPollingStopwatch.elapsed(TimeUnit.MINUTES));
       // Call listTimeSeries every minute
       Thread.sleep(Duration.ofMinutes(1).toMillis());
       response = metricClient.listTimeSeriesCallable().call(request);

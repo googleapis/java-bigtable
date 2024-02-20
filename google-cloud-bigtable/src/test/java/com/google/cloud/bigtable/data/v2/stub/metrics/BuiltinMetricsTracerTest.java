@@ -21,7 +21,6 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
@@ -85,11 +84,10 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.metrics.Meter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.data.MetricData;
-import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -134,8 +132,6 @@ public class BuiltinMetricsTracerTest {
 
   private EnhancedBigtableStub stub;
 
-  private BuiltinMetricsTracerFactory facotry;
-
   private int batchElementCount = 2;
 
   private Attributes baseAttributes;
@@ -153,16 +149,14 @@ public class BuiltinMetricsTracerTest {
             .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
             .build();
 
-    SdkMeterProvider meterProvider =
-        SdkMeterProvider.builder()
-            .registerMetricReader(metricReader)
-            .setResource(Resource.create(baseAttributes))
-            .build();
+    SdkMeterProviderBuilder meterProvider =
+        SdkMeterProvider.builder().registerMetricReader(metricReader);
 
-    Meter meter = meterProvider.get(METER_NAME);
+    BuiltinMetricsView.registerBuiltinMetrics(PROJECT_ID, meterProvider);
 
-    OpenTelemetrySdk otel = OpenTelemetrySdk.builder().setMeterProvider(meterProvider).build();
-    facotry = BuiltinMetricsTracerFactory.create(otel, baseAttributes);
+    OpenTelemetrySdk otel =
+        OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+    BuiltinMetricsTracerFactory facotry = BuiltinMetricsTracerFactory.create(otel, baseAttributes);
 
     // Add an interceptor to add server-timing in headers
     ServerInterceptor trailersInterceptor =

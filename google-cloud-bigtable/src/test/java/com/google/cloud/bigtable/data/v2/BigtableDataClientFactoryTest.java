@@ -171,10 +171,6 @@ public class BigtableDataClientFactoryTest {
   @Test
   public void testNewClientsShareTransportChannel() throws Exception {
     // Create 3 lightweight clients
-
-    // Builtin metrics will call getCredentialsProvider at which point it'll be a
-    // FixedCredentialProvider.
-    // So disabling in the test code it's fine.
     try (BigtableDataClientFactory factory =
             BigtableDataClientFactory.create(
                 defaultSettings

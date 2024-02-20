@@ -84,8 +84,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private Long serverLatencies = null;
 
-  private final double toMs = 1e-6;
-
+  // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
+  // end]. To work around this, we measure all the latencies in nanoseconds and convert them
+  // to milliseconds and use DoubleHistogram. This should minimize the chance of a data
+  // point fall on the bucket boundary that causes off by one errors.
   private final DoubleHistogram operationLatenciesHistogram;
   private final DoubleHistogram attemptLatenciesHistogram;
   private final DoubleHistogram serverLatenciesHistogram;
@@ -278,6 +280,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     boolean isStreaming = operationType == OperationType.ServerStreaming;
     String statusStr = Util.extractStatus(status);
 
+    // Publish metric data with all the attributes. The attributes get filtered in
+    // BuiltinMetricsConstants when we construct the views.
     Attributes attributes =
         baseAttributes
             .toBuilder()
@@ -286,6 +290,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(ZONE_ID_KEY, zone)
             .put(METHOD_KEY, spanName.toString())
             .put(CLIENT_NAME_KEY, NAME)
+            .put(STREAMING_KEY, isStreaming)
+            .put(STATUS_KEY, statusStr)
             .build();
 
     long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
@@ -293,22 +299,19 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
     if (attemptCount > 1) {
-      retryCounter.add(attemptCount - 1, attributes.toBuilder().put(STATUS_KEY, statusStr).build());
+      retryCounter.add(attemptCount - 1, attributes);
     }
 
-    // serverLatencyTimer should already be stopped in recordAttemptCompletion
-    operationLatenciesHistogram.record(
-        Duration.ofNanos(operationLatencyNano).toMillis(),
-        attributes.toBuilder().put(STREAMING_KEY, isStreaming).put(STATUS_KEY, statusStr).build());
+    operationLatenciesHistogram.record(convertToMs(operationLatencyNano), attributes);
 
+    // serverLatencyTimer should already be stopped in recordAttemptCompletion
     long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
-    applicationBlockingLatenciesHistogram.record(applicationLatencyNano * toMs, attributes);
+    applicationBlockingLatenciesHistogram.record(convertToMs(applicationLatencyNano), attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
       firstResponseLatenciesHistogram.record(
-          firstResponsePerOpTimer.elapsed(TimeUnit.NANOSECONDS) * toMs,
-          attributes.toBuilder().put(STATUS_KEY, Util.extractStatus(status)).build());
+          convertToMs(firstResponsePerOpTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
     }
   }
 
@@ -326,18 +329,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
 
-    Attributes attributes =
-        baseAttributes
-            .toBuilder()
-            .put(TABLE_ID_KEY, tableId)
-            .put(CLUSTER_ID_KEY, cluster)
-            .put(ZONE_ID_KEY, zone)
-            .put(METHOD_KEY, spanName.toString())
-            .put(CLIENT_NAME_KEY, NAME)
-            .build();
-
-    clientBlockingLatenciesHistogram.record(totalClientBlockingTime.get() * toMs, attributes);
-
     // Patch the status until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
     // so it could get processed by extractStatus
@@ -347,16 +338,33 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     String statusStr = Util.extractStatus(status);
 
+    Attributes attributes =
+        baseAttributes
+            .toBuilder()
+            .put(TABLE_ID_KEY, tableId)
+            .put(CLUSTER_ID_KEY, cluster)
+            .put(ZONE_ID_KEY, zone)
+            .put(METHOD_KEY, spanName.toString())
+            .put(CLIENT_NAME_KEY, NAME)
+            .put(STREAMING_KEY, isStreaming)
+            .put(STATUS_KEY, statusStr)
+            .build();
+
+    clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
+
     attemptLatenciesHistogram.record(
-        attemptTimer.elapsed(TimeUnit.NANOSECONDS) * toMs,
-        attributes.toBuilder().put(STREAMING_KEY, isStreaming).put(STATUS_KEY, statusStr).build());
+        convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
     if (serverLatencies != null) {
-      serverLatenciesHistogram.record(
-          serverLatencies, attributes.toBuilder().put(STATUS_KEY, statusStr).build());
-      connectivityErrorCounter.add(0, attributes.toBuilder().put(STATUS_KEY, statusStr).build());
+      serverLatenciesHistogram.record(serverLatencies, attributes);
+      connectivityErrorCounter.add(0, attributes);
     } else {
-      connectivityErrorCounter.add(1, attributes.toBuilder().put(STATUS_KEY, statusStr).build());
+      connectivityErrorCounter.add(1, attributes);
     }
+  }
+
+  private double convertToMs(long nanoSeconds) {
+    double toMs = 1e-6;
+    return nanoSeconds * toMs;
   }
 }
