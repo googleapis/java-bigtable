@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.google.api.MonitoredResource;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
@@ -29,7 +30,6 @@ import io.opencensus.common.Timestamp;
 import io.opencensus.contrib.resource.util.CloudResource;
 import io.opencensus.contrib.resource.util.ContainerResource;
 import io.opencensus.contrib.resource.util.HostResource;
-import io.opencensus.contrib.resource.util.K8sResource;
 import io.opencensus.metrics.LabelKey;
 import io.opencensus.metrics.LabelValue;
 import io.opencensus.metrics.export.Metric;
@@ -62,29 +62,15 @@ public class BigtableCreateTimeSeriesExporterTest {
   private static final String bigtableCluster = "cluster-1";
   private static final String clientName = "client-name";
 
-  private static final String gceProjectId = "fake-gce-project";
-  private static final String gceInstanceId = "fake-gce-instance";
-  private static final String gceZone = "fake-gce-zone";
-
-  private static final String gkeProjectId = "fake-gke-project";
-  private static final String gkeLocation = "fake-gke-location";
-  private static final String gkeClusterName = "fake-gke-cluster";
-  private static final String gkeNamespaceName = "fake-gke-namespace";
-  private static final String gkePodName = "fake-gke-pod";
-  private static final String gkeContainerName = "fake-gke-container";
-
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Mock private MetricServiceStub mockMetricServiceStub;
   private MetricServiceClient fakeMetricServiceClient;
-  private BigtableCreateTimeSeriesExporter exporter;
 
   @Before
   public void setUp() {
 
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
-
-    exporter = new BigtableCreateTimeSeriesExporter(fakeMetricServiceClient);
   }
 
   @After
@@ -92,6 +78,8 @@ public class BigtableCreateTimeSeriesExporterTest {
 
   @Test
   public void testTimeSeriesForMetricWithBigtableResource() {
+    BigtableCreateTimeSeriesExporter exporter =
+        new BigtableCreateTimeSeriesExporter(fakeMetricServiceClient, null);
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 
@@ -156,6 +144,13 @@ public class BigtableCreateTimeSeriesExporterTest {
 
   @Test
   public void testTimeSeriesForMetricWithGceResource() {
+    BigtableCreateTimeSeriesExporter exporter =
+        new BigtableCreateTimeSeriesExporter(
+            fakeMetricServiceClient,
+            MonitoredResource.newBuilder()
+                .setType(BigtableStackdriverExportUtils.GCE_RESOURCE_TYPE)
+                .putLabels("some-gce-key", "some-gce-value")
+                .build());
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 
@@ -170,15 +165,7 @@ public class BigtableCreateTimeSeriesExporterTest {
         .thenReturn(
             Resource.create(
                 HostResource.TYPE,
-                ImmutableMap.of(
-                    CloudResource.PROVIDER_KEY,
-                    CloudResource.PROVIDER_GCP,
-                    CloudResource.ACCOUNT_ID_KEY,
-                    gceProjectId,
-                    HostResource.ID_KEY,
-                    gceInstanceId,
-                    CloudResource.ZONE_KEY,
-                    gceZone)));
+                ImmutableMap.of(CloudResource.PROVIDER_KEY, CloudResource.PROVIDER_GCP)));
 
     double fakeValue = 10.0;
     Metric fakeMetric =
@@ -215,10 +202,7 @@ public class BigtableCreateTimeSeriesExporterTest {
     com.google.monitoring.v3.TimeSeries timeSeries = request.getTimeSeriesList().get(0);
 
     assertThat(timeSeries.getResource().getLabelsMap())
-        .containsExactly(
-            ConsumerEnvironmentUtils.GCE_PROJECT_ID_LABEL, gceProjectId,
-            ConsumerEnvironmentUtils.GCE_INSTANCE_ID_LABEL, gceInstanceId,
-            ConsumerEnvironmentUtils.GCE_ZONE_LABEL, gceZone);
+        .containsExactly("some-gce-key", "some-gce-value");
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
     assertThat(timeSeries.getMetric().getLabelsMap())
@@ -237,6 +221,13 @@ public class BigtableCreateTimeSeriesExporterTest {
 
   @Test
   public void testTimeSeriesForMetricWithGkeResource() {
+    BigtableCreateTimeSeriesExporter exporter =
+        new BigtableCreateTimeSeriesExporter(
+            fakeMetricServiceClient,
+            MonitoredResource.newBuilder()
+                .setType(BigtableStackdriverExportUtils.GKE_RESOURCE_TYPE)
+                .putLabels("some-gke-key", "some-gke-value")
+                .build());
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 
@@ -252,21 +243,7 @@ public class BigtableCreateTimeSeriesExporterTest {
         .thenReturn(
             Resource.create(
                 ContainerResource.TYPE,
-                ImmutableMap.of(
-                    CloudResource.PROVIDER_KEY,
-                    CloudResource.PROVIDER_GCP,
-                    CloudResource.ACCOUNT_ID_KEY,
-                    gkeProjectId,
-                    CloudResource.ZONE_KEY,
-                    gkeLocation,
-                    K8sResource.CLUSTER_NAME_KEY,
-                    gkeClusterName,
-                    K8sResource.NAMESPACE_NAME_KEY,
-                    gkeNamespaceName,
-                    K8sResource.POD_NAME_KEY,
-                    gkePodName,
-                    ContainerResource.NAME_KEY,
-                    gkeContainerName)));
+                ImmutableMap.of(CloudResource.PROVIDER_KEY, CloudResource.PROVIDER_GCP)));
 
     double fakeValue = 10.0;
     Metric fakeMetric =
@@ -303,13 +280,7 @@ public class BigtableCreateTimeSeriesExporterTest {
     com.google.monitoring.v3.TimeSeries timeSeries = request.getTimeSeriesList().get(0);
 
     assertThat(timeSeries.getResource().getLabelsMap())
-        .containsExactly(
-            ConsumerEnvironmentUtils.GKE_PROJECT_ID_LABEL, gkeProjectId,
-            ConsumerEnvironmentUtils.GKE_LOCATION_LABEL, gkeLocation,
-            ConsumerEnvironmentUtils.GKE_CLUSTER_NAME_LABEL, gkeClusterName,
-            ConsumerEnvironmentUtils.GKE_NAMESPACE_NAME_LABEL, gkeNamespaceName,
-            ConsumerEnvironmentUtils.GKE_POD_NAME_LABEL, gkePodName,
-            ConsumerEnvironmentUtils.GKE_CONTAINER_NAME_LABEL, gkeContainerName);
+        .containsExactly("some-gke-key", "some-gke-value");
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
     assertThat(timeSeries.getMetric().getLabelsMap())

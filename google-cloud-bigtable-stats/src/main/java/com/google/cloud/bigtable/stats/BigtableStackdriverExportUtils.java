@@ -47,6 +47,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -55,8 +56,8 @@ import javax.annotation.Nullable;
 
 class BigtableStackdriverExportUtils {
   private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
-  private static final String GCE_RESOURCE_TYPE = "gce_instance";
-  private static final String GKE_RESOURCE_TYPE = "k8s_container";
+  static final String GCE_RESOURCE_TYPE = "gce_instance";
+  static final String GKE_RESOURCE_TYPE = "k8s_container";
 
   private static final Logger logger =
       Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
@@ -119,7 +120,10 @@ class BigtableStackdriverExportUtils {
   }
 
   static com.google.monitoring.v3.TimeSeries convertTimeSeries(
-      MetricDescriptor metricDescriptor, TimeSeries timeSeries, String clientId) {
+      MetricDescriptor metricDescriptor,
+      TimeSeries timeSeries,
+      String clientId,
+      MonitoredResource gceOrGkeMonitoredResource) {
     Type metricType = metricDescriptor.getType();
 
     com.google.monitoring.v3.TimeSeries.Builder builder;
@@ -130,20 +134,10 @@ class BigtableStackdriverExportUtils {
               MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE),
               timeSeries,
               clientId);
-    } else if (ConsumerEnvironmentUtils.isEnvGce()) {
+    } else if (ConsumerEnvironmentUtils.isEnvGce() || ConsumerEnvironmentUtils.isEnvGke()) {
       builder =
           setupBuilderForGceOrGKEResource(
-              metricDescriptor,
-              MonitoredResource.newBuilder().setType(GCE_RESOURCE_TYPE),
-              timeSeries,
-              clientId);
-    } else if (ConsumerEnvironmentUtils.isEnvGke()) {
-      builder =
-          setupBuilderForGceOrGKEResource(
-              metricDescriptor,
-              MonitoredResource.newBuilder().setType(GKE_RESOURCE_TYPE),
-              timeSeries,
-              clientId);
+              metricDescriptor, gceOrGkeMonitoredResource, timeSeries, clientId);
     } else {
       logger.warning(
           "Trying to export metric "
@@ -195,7 +189,7 @@ class BigtableStackdriverExportUtils {
 
   private static com.google.monitoring.v3.TimeSeries.Builder setupBuilderForGceOrGKEResource(
       MetricDescriptor metricDescriptor,
-      MonitoredResource.Builder monitoredResourceBuilder,
+      MonitoredResource gceOrGkeMonitoredResource,
       TimeSeries timeSeries,
       String clientId) {
     List<LabelKey> labelKeys = metricDescriptor.getLabelKeys();
@@ -211,15 +205,17 @@ class BigtableStackdriverExportUtils {
     metricTagKeys.add(CLIENT_UID_LABEL_KEY);
     metricTagValues.add(LabelValue.create(clientId));
 
-    if (ConsumerEnvironmentUtils.isEnvGce()) {
-      ConsumerEnvironmentUtils.putGceResourceLabels(monitoredResourceBuilder);
-    } else {
-      ConsumerEnvironmentUtils.putGkeResourceLabels(monitoredResourceBuilder);
-    }
-
     com.google.monitoring.v3.TimeSeries.Builder builder =
         com.google.monitoring.v3.TimeSeries.newBuilder();
-    builder.setResource(monitoredResourceBuilder.build());
+    if (gceOrGkeMonitoredResource == null
+        || (!Objects.equals(gceOrGkeMonitoredResource.getType(), GCE_RESOURCE_TYPE)
+            && !Objects.equals(gceOrGkeMonitoredResource.getType(), GKE_RESOURCE_TYPE))) {
+      logger.warning(
+          "MonitoredResource is expected to correspond to GCE or GKE, but was "
+              + gceOrGkeMonitoredResource
+              + " instead.");
+    }
+    builder.setResource(gceOrGkeMonitoredResource);
     builder.setMetric(createMetric(metricName, metricTagKeys, metricTagValues));
 
     return builder;

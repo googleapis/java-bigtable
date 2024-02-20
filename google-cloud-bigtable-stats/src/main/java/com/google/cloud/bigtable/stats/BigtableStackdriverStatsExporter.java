@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.stats;
 
+import com.google.api.MonitoredResource;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -27,6 +28,7 @@ import com.google.common.base.Preconditions;
 import io.opencensus.common.Duration;
 import io.opencensus.exporter.metrics.util.IntervalMetricReader;
 import io.opencensus.exporter.metrics.util.MetricReader;
+import io.opencensus.exporter.stats.stackdriver.StackdriverStatsConfiguration;
 import io.opencensus.metrics.Metrics;
 import java.io.IOException;
 import javax.annotation.Nullable;
@@ -51,13 +53,15 @@ public class BigtableStackdriverStatsExporter {
   private final IntervalMetricReader intervalMetricReader;
 
   private BigtableStackdriverStatsExporter(
-      MetricServiceClient metricServiceClient, Duration exportInterval) {
+      MetricServiceClient metricServiceClient,
+      Duration exportInterval,
+      MonitoredResource gceOrGkeMonitoredResource) {
     IntervalMetricReader.Options.Builder intervalMetricReaderOptionsBuilder =
         IntervalMetricReader.Options.builder();
     intervalMetricReaderOptionsBuilder.setExportInterval(exportInterval);
     this.intervalMetricReader =
         IntervalMetricReader.create(
-            new BigtableCreateTimeSeriesExporter(metricServiceClient),
+            new BigtableCreateTimeSeriesExporter(metricServiceClient, gceOrGkeMonitoredResource),
             MetricReader.create(
                 MetricReader.Options.builder()
                     .setMetricProducerManager(
@@ -72,7 +76,13 @@ public class BigtableStackdriverStatsExporter {
           instance == null, "Bigtable Stackdriver stats exporter is already created");
       // Default timeout for creating a client is 1 minute
       MetricServiceClient client = createMetricServiceClient(credentials, Duration.create(60L, 0));
-      instance = new BigtableStackdriverStatsExporter(client, EXPORT_INTERVAL);
+      MonitoredResource gceOrGkeMonitoredResource = null;
+      if (ConsumerEnvironmentUtils.isEnvGce() || ConsumerEnvironmentUtils.isEnvGke()) {
+        gceOrGkeMonitoredResource =
+            StackdriverStatsConfiguration.builder().build().getMonitoredResource();
+      }
+      instance =
+          new BigtableStackdriverStatsExporter(client, EXPORT_INTERVAL, gceOrGkeMonitoredResource);
     }
   }
 

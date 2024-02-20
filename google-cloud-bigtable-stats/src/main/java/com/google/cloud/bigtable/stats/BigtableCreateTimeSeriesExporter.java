@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.stats;
 
+import com.google.api.MonitoredResource;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -32,14 +33,14 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCreateTimeSeriesExporter.class.getName());
   private final MetricServiceClient metricServiceClient;
-  //  private final MonitoredResource bigtableMonitoredResource;
-  //  private final MonitoredResource gceMonitoredResource;
-  //  private final MonitoredResource gkeMonitoredResource;
+  private final MonitoredResource gceOrGkeMonitoredResource;
   private final String clientId;
 
-  BigtableCreateTimeSeriesExporter(MetricServiceClient metricServiceClient) {
+  BigtableCreateTimeSeriesExporter(
+      MetricServiceClient metricServiceClient, MonitoredResource gceOrGkeMonitoredResource) {
     this.metricServiceClient = metricServiceClient;
     this.clientId = BigtableStackdriverExportUtils.getDefaultTaskValue();
+    this.gceOrGkeMonitoredResource = gceOrGkeMonitoredResource;
   }
 
   public void export(Collection<Metric> metrics) {
@@ -61,7 +62,10 @@ final class BigtableCreateTimeSeriesExporter extends MetricExporter {
                       Collectors.mapping(
                           timeSeries ->
                               BigtableStackdriverExportUtils.convertTimeSeries(
-                                  metric.getMetricDescriptor(), timeSeries, clientId),
+                                  metric.getMetricDescriptor(),
+                                  timeSeries,
+                                  clientId,
+                                  gceOrGkeMonitoredResource),
                           Collectors.toList())));
 
       for (Map.Entry<String, List<com.google.monitoring.v3.TimeSeries>> entry :
