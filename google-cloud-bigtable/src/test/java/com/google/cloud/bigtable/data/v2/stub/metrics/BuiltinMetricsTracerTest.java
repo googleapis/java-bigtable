@@ -85,8 +85,10 @@ import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.ArrayList;
@@ -94,6 +96,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -152,7 +155,10 @@ public class BuiltinMetricsTracerTest {
     SdkMeterProviderBuilder meterProvider =
         SdkMeterProvider.builder().registerMetricReader(metricReader);
 
-    BuiltinMetricsView.registerBuiltinMetrics(PROJECT_ID, meterProvider);
+    for (Map.Entry<InstrumentSelector, View> entry :
+        BuiltinMetricsConstants.getAllViews().entrySet()) {
+      meterProvider.registerView(entry.getKey(), entry.getValue());
+    }
 
     OpenTelemetrySdk otel =
         OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
