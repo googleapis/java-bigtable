@@ -21,29 +21,66 @@ import static com.google.common.truth.TruthJUnit.assume;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
+import com.google.cloud.bigtable.data.v2.BigtableDataClient;
+import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-import com.google.cloud.bigtable.stats.BuiltinViews;
-import com.google.cloud.bigtable.stats.StatsWrapper;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
+import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.data.PointData;
+import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.junit.BeforeClass;
+import java.util.stream.Collectors;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
-  @BeforeClass
-  public static void setUpClass() {
+  private BigtableDataClient client;
+  private InMemoryMetricReader metricReader;
+
+  @Before
+  public void setup() throws IOException {
     assume()
         .withMessage("UnaryMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-    BuiltinViews.registerBigtableBuiltinViews();
+
+    BigtableDataSettings.Builder settings = testEnvRule.env().getDataClientSettings().toBuilder();
+
+    metricReader = InMemoryMetricReader.create();
+
+    SdkMeterProviderBuilder meterProvider =
+        SdkMeterProvider.builder().registerMetricReader(metricReader);
+    BuiltinMetricsView.registerBuiltinMetrics(testEnvRule.env().getProjectId(), meterProvider);
+    OpenTelemetry openTelemetry =
+        OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+
+    settings.setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry));
+
+    client = BigtableDataClient.create(settings.build());
+  }
+
+  @After
+  public void tearDown() throws IOException {
+    if (client != null) {
+      client.close();
+    }
   }
 
   @Test
@@ -52,9 +89,7 @@ public class UnaryMetricsMetadataIT {
     String familyId = testEnvRule.env().getFamilyId();
 
     ApiFuture<Void> future =
-        testEnvRule
-            .env()
-            .getDataClient()
+        client
             .mutateRowCallable()
             .futureCall(
                 RowMutation.create(testEnvRule.env().getTableId(), rowKey)
@@ -69,18 +104,26 @@ public class UnaryMetricsMetadataIT {
             .listClustersAsync(testEnvRule.env().getInstanceId());
     List<Cluster> clusters = clustersFuture.get(1, TimeUnit.MINUTES);
 
-    // give opencensus some time to populate view data
-    for (int i = 0; i < 10; i++) {
-      if (StatsWrapper.getOperationLatencyViewTagValueStrings()
-          .contains(clusters.get(0).getZone())) {
-        break;
-      }
-      Thread.sleep(100);
-    }
+    List<MetricData> metrics =
+        metricReader.collectAllMetrics().stream()
+            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
+            .collect(Collectors.toList());
 
-    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
-    assertThat(tagValueStrings).contains(clusters.get(0).getZone());
-    assertThat(tagValueStrings).contains(clusters.get(0).getId());
+    assertThat(metrics.size()).isEqualTo(1);
+
+    MetricData metricData = metrics.get(0);
+    List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
+    List<String> clusterAttributes =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
+            .collect(Collectors.toList());
+    List<String> zoneAttributes =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
+            .collect(Collectors.toList());
+
+    assertThat(clusterAttributes).contains(clusters.get(0).getId());
+    assertThat(zoneAttributes).contains(clusters.get(0).getZone());
   }
 
   @Test
@@ -89,9 +132,7 @@ public class UnaryMetricsMetadataIT {
     String familyId = testEnvRule.env().getFamilyId();
 
     ApiFuture<Void> future =
-        testEnvRule
-            .env()
-            .getDataClient()
+        client
             .mutateRowCallable()
             .futureCall(
                 RowMutation.create("non-exist-table", rowKey).setCell(familyId, "q", "myVal"));
@@ -106,16 +147,25 @@ public class UnaryMetricsMetadataIT {
       }
     }
 
-    // give opencensus some time to populate view data
-    for (int i = 0; i < 10; i++) {
-      if (StatsWrapper.getOperationLatencyViewTagValueStrings().contains("unspecified")) {
-        break;
-      }
-      Thread.sleep(100);
-    }
+    List<MetricData> metrics =
+        metricReader.collectAllMetrics().stream()
+            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
+            .collect(Collectors.toList());
 
-    List<String> tagValueStrings = StatsWrapper.getOperationLatencyViewTagValueStrings();
-    assertThat(tagValueStrings).contains("unspecified");
-    assertThat(tagValueStrings).contains("global");
+    assertThat(metrics.size()).isEqualTo(1);
+
+    MetricData metricData = metrics.get(0);
+    List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
+    List<String> clusterAttributes =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
+            .collect(Collectors.toList());
+    List<String> zoneAttributes =
+        pointData.stream()
+            .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
+            .collect(Collectors.toList());
+
+    assertThat(clusterAttributes).contains("unspecified");
+    assertThat(zoneAttributes).contains("global");
   }
 }

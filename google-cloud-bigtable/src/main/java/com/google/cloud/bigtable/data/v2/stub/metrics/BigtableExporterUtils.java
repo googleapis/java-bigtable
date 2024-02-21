@@ -25,12 +25,12 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_UID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 
 import com.google.api.Distribution;
 import com.google.api.Metric;
@@ -70,7 +70,7 @@ class BigtableExporterUtils {
 
   // These metric labels will be promoted to the bigtable_table monitored resource fields
   private static final Set<AttributeKey<String>> PROMOTED_RESOURCE_LABELS =
-      ImmutableSet.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, CLUSTER_ID, ZONE_ID);
+      ImmutableSet.of(PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
 
   private BigtableExporterUtils() {}
 
@@ -96,7 +96,7 @@ class BigtableExporterUtils {
   }
 
   static String getProjectId(PointData pointData) {
-    return pointData.getAttributes().get(PROJECT_ID);
+    return pointData.getAttributes().get(PROJECT_ID_KEY);
   }
 
   static List<TimeSeries> convertCollectionToListOfTimeSeries(
@@ -104,9 +104,11 @@ class BigtableExporterUtils {
     List<TimeSeries> allTimeSeries = new ArrayList<>();
 
     for (MetricData metricData : collection) {
-      // TODO: scope will be defined in BuiltinMetricsConstants. Update this field in the following
-      // PR.
-      if (!metricData.getInstrumentationScopeInfo().getName().equals("bigtable.googleapis.com")) {
+      if (!metricData
+          .getInstrumentationScopeInfo()
+          .getName()
+          .equals(BuiltinMetricsConstants.METER_NAME)) {
+        // Filter out metric data for instruments that are not part of the bigtable builtin metrics
         continue;
       }
       metricData.getData().getPoints().stream()
@@ -135,7 +137,7 @@ class BigtableExporterUtils {
         metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
       }
     }
-    metricBuilder.putLabels(CLIENT_UID.getKey(), taskId);
+    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
 
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()

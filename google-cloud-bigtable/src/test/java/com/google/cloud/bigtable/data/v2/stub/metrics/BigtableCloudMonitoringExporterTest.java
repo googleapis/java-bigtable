@@ -15,13 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.APP_PROFILE;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLIENT_UID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.CLUSTER_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.INSTANCE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.PROJECT_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.TABLE_ID;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsAttributes.ZONE_ID;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -93,17 +93,17 @@ public class BigtableCloudMonitoringExporterTest {
 
     attributes =
         Attributes.builder()
-            .put(PROJECT_ID, projectId)
-            .put(INSTANCE_ID, instanceId)
-            .put(TABLE_ID, tableId)
-            .put(CLUSTER_ID, cluster)
-            .put(ZONE_ID, zone)
-            .put(APP_PROFILE, appProfileId)
+            .put(PROJECT_ID_KEY, projectId)
+            .put(INSTANCE_ID_KEY, instanceId)
+            .put(TABLE_ID_KEY, tableId)
+            .put(CLUSTER_ID_KEY, cluster)
+            .put(ZONE_ID_KEY, zone)
+            .put(APP_PROFILE_KEY, appProfileId)
             .build();
 
     resource = Resource.create(Attributes.empty());
 
-    scope = InstrumentationScopeInfo.create("bigtable.googleapis.com");
+    scope = InstrumentationScopeInfo.create(BuiltinMetricsConstants.METER_NAME);
   }
 
   @After
@@ -146,16 +146,17 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID.getKey(), projectId,
-            INSTANCE_ID.getKey(), instanceId,
-            TABLE_ID.getKey(), tableId,
-            CLUSTER_ID.getKey(), cluster,
-            ZONE_ID.getKey(), zone);
+            PROJECT_ID_KEY.getKey(), projectId,
+            INSTANCE_ID_KEY.getKey(), instanceId,
+            TABLE_ID_KEY.getKey(), tableId,
+            CLUSTER_ID_KEY.getKey(), cluster,
+            ZONE_ID_KEY.getKey(), zone);
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(2);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE.getKey(), appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_UID.getKey(), taskId);
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
     assertThat(timeSeries.getPoints(0).getValue().getInt64Value()).isEqualTo(fakeValue);
     assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
         .isEqualTo(startEpoch);
@@ -207,16 +208,17 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID.getKey(), projectId,
-            INSTANCE_ID.getKey(), instanceId,
-            TABLE_ID.getKey(), tableId,
-            CLUSTER_ID.getKey(), cluster,
-            ZONE_ID.getKey(), zone);
+            PROJECT_ID_KEY.getKey(), projectId,
+            INSTANCE_ID_KEY.getKey(), instanceId,
+            TABLE_ID_KEY.getKey(), tableId,
+            CLUSTER_ID_KEY.getKey(), cluster,
+            ZONE_ID_KEY.getKey(), zone);
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(2);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE.getKey(), appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_UID.getKey(), taskId);
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
     Distribution distribution = timeSeries.getPoints(0).getValue().getDistributionValue();
     assertThat(distribution.getCount()).isEqualTo(3);
     assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
