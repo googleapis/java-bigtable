@@ -363,7 +363,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
   }
 
-  private double convertToMs(long nanoSeconds) {
+  private static double convertToMs(long nanoSeconds) {
     double toMs = 1e-6;
     return nanoSeconds * toMs;
   }

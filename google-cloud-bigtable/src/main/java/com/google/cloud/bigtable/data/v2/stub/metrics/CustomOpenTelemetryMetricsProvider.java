@@ -61,4 +61,9 @@ public final class CustomOpenTelemetryMetricsProvider implements MetricsProvider
   public OpenTelemetry getOpenTelemetry() {
     return otel;
   }
+
+  @Override
+  public String toString() {
+    return otel.toString();
+  }
 }

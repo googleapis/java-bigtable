@@ -26,4 +26,9 @@ public final class NoopMetricsProvider implements MetricsProvider {
   public static NoopMetricsProvider INSTANCE = new NoopMetricsProvider();
 
   private NoopMetricsProvider() {}
+
+  @Override
+  public String toString() {
+    return "NoopMetricsProvider";
+  }
 }

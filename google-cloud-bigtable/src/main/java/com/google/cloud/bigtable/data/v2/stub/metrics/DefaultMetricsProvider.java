@@ -27,4 +27,9 @@ public final class DefaultMetricsProvider implements MetricsProvider {
   public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
 
   private DefaultMetricsProvider() {}
+
+  @Override
+  public String toString() {
+    return "DefaultMetricsProvider";
+  }
 }

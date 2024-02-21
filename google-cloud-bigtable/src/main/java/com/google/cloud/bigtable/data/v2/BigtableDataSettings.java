@@ -216,6 +216,7 @@ public final class BigtableDataSettings {
    *     now. Please refer {@link BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)}
    *     on how to enable or disable built-in metrics.
    */
+  @Deprecated
   public static void enableBuiltinMetrics(Credentials credentials) throws IOException {
     BigtableDataSettings.legacyMetricCredentialOverride = credentials;
   }
