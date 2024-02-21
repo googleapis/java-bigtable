@@ -24,6 +24,7 @@
         <differenceType>7005</differenceType>
         <className>com/google/cloud/bigtable/stats/StatsRecorderWrapperForConnection</className>
         <method>*StatsRecorderWrapperForConnection*</method>
+        <to>*</to>
     </difference>
     <!-- Internal API is updated -->
     <difference>
