@@ -27,8 +27,8 @@
     </difference>
     <!-- Internal API is updated -->
     <difference>
-        <differenceType>7006</differenceType>
+        <differenceType>7002</differenceType>
         <className>com/google/cloud/bigtable/stats/ConsumerEnvironmentUtils/ResourceUtilsWrapper</className>
-        <method>*detect*</method>
+        <method>*detectResource*</method>
     </difference>
 </differences>
