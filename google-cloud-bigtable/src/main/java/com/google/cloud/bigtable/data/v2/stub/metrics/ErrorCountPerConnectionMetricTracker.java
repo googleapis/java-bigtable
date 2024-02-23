@@ -15,22 +15,32 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
+
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
-import com.google.cloud.bigtable.stats.StatsWrapper;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import io.grpc.ClientInterceptor;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.LongHistogram;
+import io.opentelemetry.api.metrics.Meter;
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 /* Background task that goes through all connections and updates the errors_per_connection metric. */
 @InternalApi("For internal use only")
 public class ErrorCountPerConnectionMetricTracker implements Runnable {
   private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
+
+  private final LongHistogram perConnectionErrorCountHistogram;
+  private final Attributes attributes;
+
   private final Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors;
   private final Object interceptorsLock = new Object();
   // This is not final so that it can be updated and mocked during testing.
@@ -42,12 +52,25 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
     this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
   }
 
-  public ErrorCountPerConnectionMetricTracker(ImmutableMap<String, String> builtinAttributes) {
+  public ErrorCountPerConnectionMetricTracker(
+      @Nullable OpenTelemetry openTelemetry, Attributes attributes) {
     connectionErrorCountInterceptors =
         Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
-    this.statsRecorderWrapperForConnection =
-        StatsWrapper.createRecorderForConnection(builtinAttributes);
+    if (openTelemetry != null) {
+      Meter meter = openTelemetry.getMeter(METER_NAME);
+
+      perConnectionErrorCountHistogram =
+          meter
+              .histogramBuilder(PER_CONNECTION_ERROR_COUNT_NAME)
+              .ofLongs()
+              .setDescription("Distribution of counts of channels per 'error count per minute'.")
+              .setUnit("1")
+              .build();
+    } else {
+      perConnectionErrorCountHistogram = null;
+    }
+    this.attributes = attributes;
   }
 
   public void startConnectionErrorCountTracker(ScheduledExecutorService scheduler) {
@@ -66,6 +89,9 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
 
   @Override
   public void run() {
+    if (perConnectionErrorCountHistogram == null) {
+      return;
+    }
     synchronized (interceptorsLock) {
       for (ConnectionErrorCountInterceptor interceptor : connectionErrorCountInterceptors) {
         long errors = interceptor.getAndResetNumOfErrors();
@@ -76,6 +102,7 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
           // TODO: add a metric to also keep track of the number of successful requests per each
           // connection.
           statsRecorderWrapperForConnection.putAndRecordPerConnectionErrorCount(errors);
+          perConnectionErrorCountHistogram.record(errors, attributes);
         }
       }
     }

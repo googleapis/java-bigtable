@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * A util class to register built-in metrics on a custom OpenTelemetry instance. This is for
+ * An util class to register built-in metrics on a custom OpenTelemetry instance. This is for
  * advanced usage, and is only necessary when wanting to write built-in metrics to cloud monitoring
  * and custom sinks. Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
  */

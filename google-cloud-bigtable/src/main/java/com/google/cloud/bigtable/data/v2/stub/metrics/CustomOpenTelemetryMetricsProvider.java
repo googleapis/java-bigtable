@@ -25,7 +25,7 @@ import io.opentelemetry.api.OpenTelemetry;
  * <pre>{@code
  * SdkMeterProviderBuilder sdkMeterProvider = SdkMeterProvider.builder();
  *
- * // register Builtin metrics on your meter provider
+ * // register Builtin metrics on your meter provider with default credentials
  * BuiltinMetricsViews.registerBuiltinMetrics("project-id", sdkMeterProvider);
  *
  * // register other metrics reader and views

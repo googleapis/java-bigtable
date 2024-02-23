@@ -15,6 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.auth.Credentials;
+import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import java.io.IOException;
+
 /**
  * Set {@link
  * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)},
@@ -26,7 +33,19 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
 
+  private OpenTelemetry openTelemetry;
+
   private DefaultMetricsProvider() {}
+
+  public OpenTelemetry getOpenTelemetry(String projectId, Credentials credentials)
+      throws IOException {
+    if (openTelemetry == null) {
+      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
+      BuiltinMetricsView.registerBuiltinMetrics(projectId, credentials, meterProvider);
+      openTelemetry = OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+    }
+    return openTelemetry;
+  }
 
   @Override
   public String toString() {

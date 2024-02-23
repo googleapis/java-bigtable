@@ -186,4 +186,10 @@
         <className>com/google/cloud/bigtable/data/v2/models/MutateRowsException</className>
         <method>*</method>
     </difference>
+    <!-- InternalApi was updated -->
+    <difference>
+        <differenceType>7004</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/ErrorCountPerConnectionMetricTracker</className>
+        <method>*</method>
+    </difference>
 </differences>

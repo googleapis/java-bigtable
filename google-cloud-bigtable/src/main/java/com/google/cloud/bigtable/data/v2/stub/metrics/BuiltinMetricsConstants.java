@@ -44,9 +44,9 @@ public class BuiltinMetricsConstants {
   // IT tests, so they're public.
   public static final AttributeKey<String> APP_PROFILE_KEY = AttributeKey.stringKey("app_profile");
   public static final AttributeKey<Boolean> STREAMING_KEY = AttributeKey.booleanKey("streaming");
+  public static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
-  static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
 
   // Metric names
@@ -58,6 +58,7 @@ public class BuiltinMetricsConstants {
   static final String FIRST_RESPONSE_LATENCIES_NAME = "first_response_latencies";
   static final String APPLICATION_BLOCKING_LATENCIES_NAME = "application_latencies";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
+  static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
 
   // Buckets under 100,000 are identical to buckets for server side metrics handler_latencies.
   // Extending client side bucket to up to 3,200,000.
@@ -68,6 +69,31 @@ public class BuiltinMetricsConstants {
               50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
               800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0, 200000.0,
               400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
+
+  private static final Aggregation AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM =
+      Aggregation.explicitBucketHistogram(
+          ImmutableList.of(
+              1.0,
+              2.0,
+              4.0,
+              8.0,
+              16.0,
+              32.0,
+              64.0,
+              125.0,
+              250.0,
+              500.0,
+              1_000.0,
+              2_000.0,
+              4_000.0,
+              8_000.0,
+              16_000.0,
+              32_000.0,
+              64_000.0,
+              128_000.0,
+              250_000.0,
+              500_000.0,
+              1_000_000.0));
 
   public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
@@ -88,7 +114,7 @@ public class BuiltinMetricsConstants {
       Aggregation aggregation,
       InstrumentType type,
       String unit,
-      Set<AttributeKey> extraAttributes) {
+      Set<AttributeKey> attributes) {
     InstrumentSelector selector =
         InstrumentSelector.builder()
             .setName(id)
@@ -100,7 +126,7 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<String>builder()
             .addAll(
                 COMMON_ATTRIBUTES.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
-            .addAll(extraAttributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
+            .addAll(attributes.stream().map(AttributeKey::getKey).collect(Collectors.toSet()))
             .build();
     View view =
         View.builder()
@@ -121,56 +147,72 @@ public class BuiltinMetricsConstants {
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(STREAMING_KEY, STATUS_KEY)
+            .build());
     defineView(
         views,
         ATTEMPT_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STREAMING_KEY, STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(STREAMING_KEY, STATUS_KEY)
+            .build());
     defineView(
         views,
         SERVER_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).add(STATUS_KEY).build());
     defineView(
         views,
         FIRST_RESPONSE_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of(STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).add(STATUS_KEY).build());
     defineView(
         views,
         APPLICATION_BLOCKING_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of());
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
     defineView(
         views,
         CLIENT_BLOCKING_LATENCIES_NAME,
         AGGREGATION_WITH_MILLIS_HISTOGRAM,
         InstrumentType.HISTOGRAM,
         "ms",
-        ImmutableSet.of());
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).build());
     defineView(
         views,
         RETRY_COUNT_NAME,
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).add(STATUS_KEY).build());
     defineView(
         views,
         CONNECTIVITY_ERROR_COUNT_NAME,
         Aggregation.sum(),
         InstrumentType.COUNTER,
         "1",
-        ImmutableSet.of(STATUS_KEY));
+        ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).add(STATUS_KEY).build());
+
+    defineView(
+        views,
+        PER_CONNECTION_ERROR_COUNT_NAME,
+        AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .build());
 
     return views.build();
   }

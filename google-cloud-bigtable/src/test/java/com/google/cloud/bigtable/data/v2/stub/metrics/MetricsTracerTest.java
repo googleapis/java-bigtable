@@ -130,7 +130,7 @@ public class MetricsTracerTest {
                     settings.getStubSettings(),
                     Tags.getTagger(),
                     localStats.getStatsRecorder(),
-                    clientContext))
+                    null))
             .build();
     stub = new EnhancedBigtableStub(settings.getStubSettings(), clientContext);
   }

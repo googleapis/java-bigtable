@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 
@@ -99,12 +100,11 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserC
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
+import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
@@ -138,9 +138,6 @@ import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -194,10 +191,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
     ClientContext clientContext = createClientContext(settings);
+    OpenTelemetry openTelemetry =
+        getOpenTelemetry(
+            settings.getProjectId(), settings.getMetricsProvider(), clientContext.getCredentials());
     ClientContext contextWithTracer =
         clientContext
             .toBuilder()
-            .setTracerFactory(createBigtableTracerFactory(settings, clientContext))
+            .setTracerFactory(createBigtableTracerFactory(settings, openTelemetry))
             .build();
 
     return new EnhancedBigtableStub(settings, contextWithTracer);
@@ -219,15 +219,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // workaround JWT audience issues
     patchCredentials(builder);
 
+    // Fix the credentials so that they can be shared
+    Credentials credentials = null;
+    if (builder.getCredentialsProvider() != null) {
+      credentials = builder.getCredentialsProvider().getCredentials();
+    }
+    builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+
     InstantiatingGrpcChannelProvider.Builder transportProvider =
         builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
     ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
+    OpenTelemetry openTelemetry =
+        getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
     if (transportProvider != null) {
       errorCountPerConnectionMetricTracker =
-          new ErrorCountPerConnectionMetricTracker(createBuiltinAttributes(builder));
+          new ErrorCountPerConnectionMetricTracker(
+              openTelemetry, createBuiltinAttributes(settings));
       ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
           transportProvider.getChannelConfigurator();
       transportProvider.setChannelConfigurator(
@@ -249,12 +259,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // Inject channel priming
     if (settings.isRefreshingChannel()) {
-      // Fix the credentials so that they can be shared
-      Credentials credentials = null;
-      if (builder.getCredentialsProvider() != null) {
-        credentials = builder.getCredentialsProvider().getCredentials();
-      }
-      builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
       if (transportProvider != null) {
         transportProvider.setChannelPrimer(
@@ -271,7 +275,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
-    if (errorCountPerConnectionMetricTracker != null) {
+    if (errorCountPerConnectionMetricTracker != null && openTelemetry != null) {
       errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
           clientContext.getExecutor());
     }
@@ -279,9 +283,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings, ClientContext clientContext) throws IOException {
+      EnhancedBigtableStubSettings settings, OpenTelemetry openTelemetry) throws IOException {
     return createBigtableTracerFactory(
-        settings, Tags.getTagger(), Stats.getStatsRecorder(), clientContext);
+        settings, Tags.getTagger(), Stats.getStatsRecorder(), openTelemetry);
   }
 
   @VisibleForTesting
@@ -289,7 +293,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       EnhancedBigtableStubSettings settings,
       Tagger tagger,
       StatsRecorder stats,
-      ClientContext clientContext)
+      OpenTelemetry openTelemetry)
       throws IOException {
     String projectId = settings.getProjectId();
     String instanceId = settings.getInstanceId();
@@ -301,8 +305,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(instanceId))
             .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId))
             .build();
-
-    ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings.toBuilder());
 
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
@@ -323,53 +325,47 @@ public class EnhancedBigtableStub implements AutoCloseable {
         .add(MetricsTracerFactory.create(tagger, stats, attributes))
         // Add user configured tracer
         .add(settings.getTracerFactory());
-    Attributes otelAttributes =
-        Attributes.of(
-            PROJECT_ID_KEY, projectId, INSTANCE_ID_KEY, instanceId, APP_PROFILE_KEY, appProfileId);
     BuiltinMetricsTracerFactory builtinMetricsTracerFactory =
-        createBuiltinMetricsTracerFactory(
-            projectId, settings.getMetricsProvider(), otelAttributes, clientContext);
+        openTelemetry != null
+            ? BuiltinMetricsTracerFactory.create(openTelemetry, createBuiltinAttributes(settings))
+            : null;
     if (builtinMetricsTracerFactory != null) {
       tracerFactories.add(builtinMetricsTracerFactory);
     }
     return new CompositeTracerFactory(tracerFactories.build());
   }
 
-  private static BuiltinMetricsTracerFactory createBuiltinMetricsTracerFactory(
-      String projectId,
-      MetricsProvider metricsProvider,
-      Attributes attributes,
-      ClientContext clientContext)
+  @Nullable
+  public static OpenTelemetry getOpenTelemetry(
+      String projectId, MetricsProvider metricsProvider, Credentials defaultCredentials)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
           (CustomOpenTelemetryMetricsProvider) metricsProvider;
-      return BuiltinMetricsTracerFactory.create(
-          customMetricsProvider.getOpenTelemetry(), attributes);
+      return customMetricsProvider.getOpenTelemetry();
     } else if (metricsProvider instanceof DefaultMetricsProvider) {
-      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
       Credentials credentials =
           BigtableDataSettings.getMetricsCredentials() != null
               ? BigtableDataSettings.getMetricsCredentials()
-              : clientContext.getCredentials();
-      BuiltinMetricsView.registerBuiltinMetrics(projectId, credentials, meterProvider);
-      OpenTelemetry openTelemetry =
-          OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
-      return BuiltinMetricsTracerFactory.create(openTelemetry, attributes);
+              : defaultCredentials;
+      DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
+      return defaultMetricsProvider.getOpenTelemetry(projectId, credentials);
     } else if (metricsProvider instanceof NoopMetricsProvider) {
       return null;
     }
     throw new IOException("Invalid MetricsProvider type " + metricsProvider);
   }
 
-  private static ImmutableMap<String, String> createBuiltinAttributes(
-      EnhancedBigtableStubSettings.Builder builder) {
-    return ImmutableMap.<String, String>builder()
-        .put("project_id", builder.getProjectId())
-        .put("instance", builder.getInstanceId())
-        .put("app_profile", builder.getAppProfileId())
-        .put("client_name", "bigtable-java/" + Version.VERSION)
-        .build();
+  private static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
+    return Attributes.of(
+        PROJECT_ID_KEY,
+        settings.getProjectId(),
+        INSTANCE_ID_KEY,
+        settings.getInstanceId(),
+        APP_PROFILE_KEY,
+        settings.getAppProfileId(),
+        CLIENT_NAME_KEY,
+        "bigtable-java/" + Version.VERSION);
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

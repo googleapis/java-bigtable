@@ -320,7 +320,7 @@ public class BigtableDataClientFactoryTest {
   @Test
   public void testBulkMutationFlowControllerConfigured() throws Exception {
     BigtableDataSettings settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId("my-project")
             .setInstanceId("my-instance")
             .setCredentialsProvider(credentialsProvider)
