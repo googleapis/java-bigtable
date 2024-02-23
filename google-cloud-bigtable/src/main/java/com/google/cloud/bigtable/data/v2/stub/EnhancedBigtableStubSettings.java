@@ -663,7 +663,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
-
       metricsProvider = DefaultMetricsProvider.INSTANCE;
 
       // Defaults provider

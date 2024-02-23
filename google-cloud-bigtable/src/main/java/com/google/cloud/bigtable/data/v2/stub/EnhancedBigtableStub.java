@@ -19,6 +19,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 
+import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.Batcher;
@@ -103,6 +104,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
@@ -127,6 +129,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import io.grpc.ManagedChannelBuilder;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
 import io.opencensus.tags.TagKey;
@@ -164,7 +167,6 @@ import javax.annotation.Nullable;
 public class EnhancedBigtableStub implements AutoCloseable {
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
-
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
 
@@ -191,7 +193,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
-
     ClientContext clientContext = createClientContext(settings);
     ClientContext contextWithTracer =
         clientContext
@@ -223,10 +224,27 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    if (builder.getEnableRoutingCookie() && transportProvider != null) {
-      // TODO: this also need to be added to BigtableClientFactory
-      // patch cookies interceptor
-      transportProvider.setInterceptorProvider(() -> ImmutableList.of(new CookiesInterceptor()));
+    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
+    if (transportProvider != null) {
+      errorCountPerConnectionMetricTracker =
+          new ErrorCountPerConnectionMetricTracker(createBuiltinAttributes(builder));
+      ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
+          transportProvider.getChannelConfigurator();
+      transportProvider.setChannelConfigurator(
+          managedChannelBuilder -> {
+            if (settings.getEnableRoutingCookie()) {
+              managedChannelBuilder.intercept(new CookiesInterceptor());
+            }
+
+            managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
+
+            if (oldChannelConfigurator != null) {
+              managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
+            }
+            return managedChannelBuilder;
+          });
+    } else {
+      errorCountPerConnectionMetricTracker = null;
     }
 
     // Inject channel priming
@@ -252,7 +270,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
       builder.setTransportChannelProvider(transportProvider.build());
     }
 
-    return ClientContext.create(builder.build());
+    ClientContext clientContext = ClientContext.create(builder.build());
+    if (errorCountPerConnectionMetricTracker != null) {
+      errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
+          clientContext.getExecutor());
+    }
+    return clientContext;
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
@@ -278,6 +301,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(instanceId))
             .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId))
             .build();
+
+    ImmutableMap<String, String> builtinAttributes = createBuiltinAttributes(settings.toBuilder());
 
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
@@ -335,6 +360,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
       return null;
     }
     throw new IOException("Invalid MetricsProvider type " + metricsProvider);
+  }
+
+  private static ImmutableMap<String, String> createBuiltinAttributes(
+      EnhancedBigtableStubSettings.Builder builder) {
+    return ImmutableMap.<String, String>builder()
+        .put("project_id", builder.getProjectId())
+        .put("instance", builder.getInstanceId())
+        .put("app_profile", builder.getAppProfileId())
+        .put("client_name", "bigtable-java/" + Version.VERSION)
+        .build();
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

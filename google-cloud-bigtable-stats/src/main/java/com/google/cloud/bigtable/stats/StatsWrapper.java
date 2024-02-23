@@ -40,6 +40,11 @@ public class StatsWrapper {
         operationType, spanName, statsAttributes, Stats.getStatsRecorder());
   }
 
+  public static StatsRecorderWrapperForConnection createRecorderForConnection(
+      Map<String, String> statsAttributes) {
+    return new StatsRecorderWrapperForConnection(statsAttributes, Stats.getStatsRecorder());
+  }
+
   // This is used in integration tests to get the tag value strings from view manager because Stats
   // is relocated to com.google.bigtable.veneer.repackaged.io.opencensus.
   @InternalApi("Visible for testing")
@@ -56,7 +61,7 @@ public class StatsWrapper {
   // the packaging step. Opencensus classes will be relocated when they are packaged but the
   // integration test files will not be. So the integration tests can't reference any transitive
   // dependencies that have been relocated.
-  static Map<String, List<String>> getViewToTagMap() {
+  static Map<String, List<String>> getBigtableViewToTagMap() {
     Map<String, List<String>> map = new HashMap<>();
     for (View view : BuiltinViews.BIGTABLE_BUILTIN_VIEWS) {
       List<TagKey> tagKeys = view.getColumns();
