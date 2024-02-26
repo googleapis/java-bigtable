@@ -26,6 +26,8 @@ import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
+import com.google.cloud.opentelemetry.detectors.GCPResource;
+import com.google.cloud.opentelemetry.metric.ResourceTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -38,6 +40,7 @@ import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import io.opentelemetry.sdk.resources.Resource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -67,14 +70,17 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           System.getProperty("bigtable.test-monitoring-endpoint"),
           MetricServiceSettings.getDefaultEndpoint());
 
+  private static final String GCE_RESOURCE_TYPE = "gce_instance";
+  private static final String GKE_RESOURCE_TYPE = "k8s_container";
+
   private final MetricServiceClient client;
 
   private final String projectId;
   private final String taskId;
-  private final MonitoredResource monitoredResource;
-  private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
-  private static final String RESOURCE_TYPE = "bigtable_client_raw";
+  private final MonitoredResource gceOrGkeResource;
+
+  private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private CompletableResultCode lastExportCode;
 
@@ -94,10 +100,20 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
+
+    GCPResource gcpResource = new GCPResource();
+    Resource resource = gcpResource.createResource(null);
+    MonitoredResource gceOrGkeResource = ResourceTranslator.mapResource(resource);
+
+    if (!gceOrGkeResource.getType().equals(GCE_RESOURCE_TYPE)
+        && !gceOrGkeResource.getType().equals(GKE_RESOURCE_TYPE)) {
+      gceOrGkeResource = null;
+    }
+
     return new BigtableCloudMonitoringExporter(
         projectId,
         MetricServiceClient.create(settingsBuilder.build()),
-        MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build(),
+        gceOrGkeResource,
         BigtableExporterUtils.getDefaultTaskValue());
   }
 
@@ -105,11 +121,11 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   BigtableCloudMonitoringExporter(
       String projectId,
       MetricServiceClient client,
-      MonitoredResource monitoredResource,
+      @Nullable MonitoredResource gceOrGkeResource,
       String taskId) {
     this.client = client;
-    this.monitoredResource = monitoredResource;
     this.taskId = taskId;
+    this.gceOrGkeResource = gceOrGkeResource;
     this.projectId = projectId;
   }
 
@@ -130,7 +146,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     try {
       allTimeSeries =
           BigtableExporterUtils.convertCollectionToListOfTimeSeries(
-              collection, taskId, monitoredResource);
+              collection, taskId, gceOrGkeResource);
     } catch (Throwable e) {
       logger.log(Level.WARNING, "Failed to convert metric data to cloud monitoring timeseries.", e);
       return CompletableResultCode.ofFailure();

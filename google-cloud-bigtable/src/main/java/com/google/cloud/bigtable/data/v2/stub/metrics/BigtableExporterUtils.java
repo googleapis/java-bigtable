@@ -58,6 +58,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -68,8 +69,10 @@ class BigtableExporterUtils {
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
 
+  private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
+
   // These metric labels will be promoted to the bigtable_table monitored resource fields
-  private static final Set<AttributeKey<String>> PROMOTED_RESOURCE_LABELS =
+  private static final Set<AttributeKey<String>> BIGTABLE_PROMOTED_RESOURCE_LABELS =
       ImmutableSet.of(PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
 
   private BigtableExporterUtils() {}
@@ -100,7 +103,7 @@ class BigtableExporterUtils {
   }
 
   static List<TimeSeries> convertCollectionToListOfTimeSeries(
-      Collection<MetricData> collection, String taskId, MonitoredResource monitoredResource) {
+      Collection<MetricData> collection, String taskId, MonitoredResource gceOrGkeResource) {
     List<TimeSeries> allTimeSeries = new ArrayList<>();
 
     for (MetricData metricData : collection) {
@@ -111,10 +114,15 @@ class BigtableExporterUtils {
         // Filter out metric data for instruments that are not part of the bigtable builtin metrics
         continue;
       }
+      if (gceOrGkeResource == null
+          && metricData.getName().equals(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
+        // Skip exporting per connection error count metric in none gce / gke environment
+        continue;
+      }
       metricData.getData().getPoints().stream()
           .map(
               pointData ->
-                  convertPointToTimeSeries(metricData, pointData, taskId, monitoredResource))
+                  convertPointToTimeSeries(metricData, pointData, taskId, gceOrGkeResource))
           .forEach(allTimeSeries::add);
     }
 
@@ -125,26 +133,43 @@ class BigtableExporterUtils {
       MetricData metricData,
       PointData pointData,
       String taskId,
-      MonitoredResource monitoredResource) {
-    Attributes attributes = pointData.getAttributes();
-    MonitoredResource.Builder monitoredResourceBuilder = monitoredResource.toBuilder();
-    Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
-
-    for (AttributeKey<?> key : attributes.asMap().keySet()) {
-      if (PROMOTED_RESOURCE_LABELS.contains(key)) {
-        monitoredResourceBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
-      } else {
-        metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
-      }
-    }
-    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
-
+      MonitoredResource gceOrGkeResource) {
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
-            .setResource(monitoredResourceBuilder.build())
             .setMetricKind(convertMetricKind(metricData))
-            .setMetric(metricBuilder.build())
             .setValueType(convertValueType(metricData.getType()));
+    Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
+
+    if (metricData.getName().equals(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
+      if (gceOrGkeResource != null) {
+        Attributes attributes = pointData.getAttributes();
+        for (Map.Entry<AttributeKey<?>, Object> entry : attributes.asMap().entrySet()) {
+          metricBuilder.putLabels(entry.getKey().getKey(), String.valueOf(entry.getValue()));
+        }
+        builder.setResource(gceOrGkeResource);
+      } else {
+        logger.warning(
+            "Trying to export metric " + metricData.getName() + " in a non-GCE/GKE environment.");
+        return TimeSeries.newBuilder().build();
+      }
+    } else {
+      Attributes attributes = pointData.getAttributes();
+      MonitoredResource.Builder monitoredResourceBuilder =
+          MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE);
+
+      for (AttributeKey<?> key : attributes.asMap().keySet()) {
+        if (BIGTABLE_PROMOTED_RESOURCE_LABELS.contains(key)) {
+          monitoredResourceBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+        } else {
+          metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+        }
+      }
+
+      builder.setResource(monitoredResourceBuilder.build());
+    }
+
+    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
+    builder.setMetric(metricBuilder.build());
 
     TimeInterval timeInterval =
         TimeInterval.newBuilder()
