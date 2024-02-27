@@ -18,16 +18,10 @@ package com.example.bigtable;
 
 // [START bigtable_writes_batch]
 
-import com.google.api.core.ApiFuture;
 import com.google.api.gax.batching.Batcher;
-import com.google.api.gax.batching.BatchingException;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.BulkMutation;
-import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.protobuf.ByteString;
-
-import java.util.Map;
 
 public class WriteBatch {
   private static final String COLUMN_FAMILY_NAME = "stats_summary";
@@ -52,7 +46,7 @@ public class WriteBatch {
         // flush will be called automatically when a batch is full.
         batcher.flush();
       } // Before batcher is closed, all remaining (if any) mutations are applied.
-      
+
       System.out.print("Successfully wrote 2 rows");
     } catch (Exception e) {
       System.out.println("Error during WriteBatch: \n" + e.toString());
