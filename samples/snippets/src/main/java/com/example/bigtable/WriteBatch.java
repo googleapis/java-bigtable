@@ -71,6 +71,7 @@ public class WriteBatch {
           }
         }
       }
+      System.out.println("Successfully wrote 2 rows");
     } catch (Exception e) {
       System.out.println("Error during WriteBatch: \n" + e);
     }
