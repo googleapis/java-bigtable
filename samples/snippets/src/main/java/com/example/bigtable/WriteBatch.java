@@ -60,13 +60,14 @@ public class WriteBatch {
       } catch (BatchingException batchingException) {
         System.out.println(
             "At least one entry failed to apply. Summary of the errors: \n" + batchingException);
+        // get individual entry error details
         for (ApiFuture<Void> future : batchFutures) {
-          // get individual entry error details
           try {
             future.get();
           } catch (ExecutionException entryException) {
             System.out.println("Entry failure: " + entryException.getCause());
           } catch (InterruptedException e) {
+            // handle interrupted exception
           }
         }
       }
