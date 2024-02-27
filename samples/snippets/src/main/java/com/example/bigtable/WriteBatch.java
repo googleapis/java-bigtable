@@ -19,6 +19,7 @@ package com.example.bigtable;
 // [START bigtable_writes_batch]
 
 import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.batching.BatchingException;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.protobuf.ByteString;
@@ -38,14 +39,14 @@ public class WriteBatch {
         batcher.add(
                 RowMutationEntry.create("tablet#a0b81f74#20190501")
                         .setCell(COLUMN_FAMILY_NAME,
-                                ByteString.copyFrom("connected_wifi".getBytes()),
+                                ByteString.copyFromUtf8("connected_wifi"),
                                 timestamp,
                                 1)
                         .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc1"));
         batcher.add(
                 RowMutationEntry.create("tablet#a0b81f74#20190502")
                         .setCell(COLUMN_FAMILY_NAME,
-                                ByteString.copyFrom("connected_wifi".getBytes()),
+                                ByteString.copyFromUtf8("connected_wifi"),
                                 timestamp,
                                 1)
                         .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc6"));
@@ -56,6 +57,8 @@ public class WriteBatch {
       } // Before batcher is closed, all remaining (if any) mutations are applied.
 
       System.out.print("Successfully wrote 2 rows");
+    } catch (BatchingException e) {
+      System.out.println("Some mutations failed to apply: \n" + e);
     } catch (Exception e) {
       System.out.println("Error during WriteBatch: \n" + e);
     }
