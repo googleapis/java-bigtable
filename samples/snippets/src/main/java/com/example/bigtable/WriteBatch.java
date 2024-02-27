@@ -36,8 +36,8 @@ public class WriteBatch {
     // String instanceId = "my-instance-id";
     // String tableId = "mobile-time-series";
 
-    List<ApiFuture<Void>> batchFutures = new ArrayList<>();
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+      List<ApiFuture<Void>> batchFutures = new ArrayList<>();
       try (Batcher<RowMutationEntry, Void> batcher = dataClient.newBulkMutationBatcher(tableId)) {
         long timestamp = System.currentTimeMillis() * 1000;
         batchFutures.add(
@@ -56,17 +56,18 @@ public class WriteBatch {
         // Blocks until mutations are applied on all submitted row entries.
         // flush will be called automatically when a batch is full.
         batcher.flush();
-      } // Before batcher is closed, all remaining (if any) mutations are applied.
-      System.out.print("Successfully wrote 2 rows");
-    } catch (BatchingException batchingException) {
-      System.out.println(
-          "At least one entry failed to apply. Summary of the errors: \n" + batchingException);
-      for (ApiFuture<Void> future : batchFutures) {
-        try {
-          future.get();
-        } catch (ExecutionException entryException) {
-          System.out.println("Entry failure: " + entryException.getCause());
-        } catch (InterruptedException e) {
+        // Before batcher is closed, all remaining (if any) mutations are applied.
+      } catch (BatchingException batchingException) {
+        System.out.println(
+            "At least one entry failed to apply. Summary of the errors: \n" + batchingException);
+        for (ApiFuture<Void> future : batchFutures) {
+          // get individual entry error details
+          try {
+            future.get();
+          } catch (ExecutionException entryException) {
+            System.out.println("Entry failure: " + entryException.getCause());
+          } catch (InterruptedException e) {
+          }
         }
       }
     } catch (Exception e) {
