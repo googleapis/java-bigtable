@@ -35,12 +35,20 @@ public class WriteBatch {
       try (Batcher<RowMutationEntry, Void> batcher = dataClient.newBulkMutationBatcher(tableId)) {
         long timestamp = System.currentTimeMillis() * 1000;
 
-        batcher.add(RowMutationEntry.create("tablet#a0b81f74#20190501")
-                .setCell(COLUMN_FAMILY_NAME, ByteString.copyFrom("connected_wifi".getBytes()), timestamp, 1)
-                .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc1"));
-        batcher.add(RowMutationEntry.create("tablet#a0b81f74#20190502")
-                .setCell(COLUMN_FAMILY_NAME, ByteString.copyFrom("connected_wifi".getBytes()), timestamp, 1)
-                .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc6"));
+        batcher.add(
+                RowMutationEntry.create("tablet#a0b81f74#20190501")
+                        .setCell(COLUMN_FAMILY_NAME,
+                                ByteString.copyFrom("connected_wifi".getBytes()),
+                                timestamp,
+                                1)
+                        .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc1"));
+        batcher.add(
+                RowMutationEntry.create("tablet#a0b81f74#20190502")
+                        .setCell(COLUMN_FAMILY_NAME,
+                                ByteString.copyFrom("connected_wifi".getBytes()),
+                                timestamp,
+                                1)
+                        .setCell(COLUMN_FAMILY_NAME, "os_build", timestamp, "12155.0.0-rc6"));
 
         // Blocks until mutations are applied on all submitted row entries.
         // flush will be called automatically when a batch is full.
@@ -49,7 +57,7 @@ public class WriteBatch {
 
       System.out.print("Successfully wrote 2 rows");
     } catch (Exception e) {
-      System.out.println("Error during WriteBatch: \n" + e.toString());
+      System.out.println("Error during WriteBatch: \n" + e);
     }
   }
 }
