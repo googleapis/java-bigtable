@@ -24,9 +24,10 @@ import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
 import java.util.Map;
+import javax.annotation.Nullable;
 
 /**
- * An util class to register built-in metrics on a custom OpenTelemetry instance. This is for
+ * A util class to register built-in metrics on a custom OpenTelemetry instance. This is for
  * advanced usage, and is only necessary when wanting to write built-in metrics to cloud monitoring
  * and custom sinks. Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
  */
@@ -46,7 +47,7 @@ public class BuiltinMetricsView {
 
   /** Register built-in metrics on the {@link SdkMeterProviderBuilder} with credentials. */
   public static void registerBuiltinMetrics(
-      String projectId, Credentials credentials, SdkMeterProviderBuilder builder)
+      String projectId, @Nullable Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
     MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(projectId, credentials);
     for (Map.Entry<InstrumentSelector, View> entry :

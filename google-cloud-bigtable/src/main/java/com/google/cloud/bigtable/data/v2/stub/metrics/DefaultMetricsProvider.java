@@ -21,6 +21,7 @@ import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import java.io.IOException;
+import javax.annotation.Nullable;
 
 /**
  * Set {@link
@@ -37,7 +38,7 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   private DefaultMetricsProvider() {}
 
-  public OpenTelemetry getOpenTelemetry(String projectId, Credentials credentials)
+  public OpenTelemetry getOpenTelemetry(String projectId, @Nullable Credentials credentials)
       throws IOException {
     if (openTelemetry == null) {
       SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();

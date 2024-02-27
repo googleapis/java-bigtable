@@ -231,10 +231,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
     OpenTelemetry openTelemetry =
         getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
-    if (transportProvider != null) {
+    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
+    // Skip setting up ErrorCountPerConnectionMetricTracker if openTelemetry is null
+    if (openTelemetry != null && transportProvider != null) {
       errorCountPerConnectionMetricTracker =
           new ErrorCountPerConnectionMetricTracker(
               openTelemetry, createBuiltinAttributes(settings));
@@ -275,7 +276,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
-    if (errorCountPerConnectionMetricTracker != null && openTelemetry != null) {
+    if (errorCountPerConnectionMetricTracker != null) {
       errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
           clientContext.getExecutor());
     }
@@ -337,7 +338,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   @Nullable
   public static OpenTelemetry getOpenTelemetry(
-      String projectId, MetricsProvider metricsProvider, Credentials defaultCredentials)
+      String projectId, MetricsProvider metricsProvider, @Nullable Credentials defaultCredentials)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
