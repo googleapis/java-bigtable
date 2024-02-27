@@ -63,6 +63,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 
 /** Utils to convert OpenTelemetry types to Google Cloud Monitoring types. */
 class BigtableExporterUtils {
@@ -127,6 +128,44 @@ class BigtableExporterUtils {
     }
 
     return allTimeSeries;
+  }
+
+  @Nullable
+  static MonitoredResource detectResource() {
+    GCPMetadataConfig metadataConfig = GCPMetadataConfig.DEFAULT_INSTANCE;
+    if (metadataConfig.getProjectId() == null || metadataConfig.getProjectId().isEmpty()) {
+      // return null if the application is not running on GCP platform
+      return null;
+    }
+    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
+      createGkeMonitoredResource(metadataConfig);
+    } else if (System.getenv("K_CONFIGURATION") == null
+        && System.getenv("FUNCTION_TARGET") == null
+        && System.getenv("GAE_SERVICE") == null) {
+      createGceMonitoredResource(metadataConfig);
+    }
+    return null;
+  }
+
+  private static MonitoredResource createGceMonitoredResource(GCPMetadataConfig metadataConfig) {
+    return MonitoredResource.newBuilder()
+        .setType("gce_instance")
+        .putLabels("project_id", metadataConfig.getProjectId())
+        .putLabels("instance_id", metadataConfig.getInstanceId())
+        .putLabels("zone", metadataConfig.getZone())
+        .build();
+  }
+
+  private static MonitoredResource createGkeMonitoredResource(GCPMetadataConfig metadataConfig) {
+    return MonitoredResource.newBuilder()
+        .setType("k8s_container")
+        .putLabels("project_id", metadataConfig.getProjectId())
+        .putLabels("location", metadataConfig.getZone())
+        .putLabels("cluster_name", metadataConfig.getAttribute("k8s.cluster.name"))
+        .putLabels("namespace_name", metadataConfig.getAttribute("k8s.namespace.name"))
+        .putLabels("pod_name", metadataConfig.getAttribute("k8s.pod.name"))
+        .putLabels("container_name", metadataConfig.getAttribute("k8s.container.name"))
+        .build();
   }
 
   private static TimeSeries convertPointToTimeSeries(

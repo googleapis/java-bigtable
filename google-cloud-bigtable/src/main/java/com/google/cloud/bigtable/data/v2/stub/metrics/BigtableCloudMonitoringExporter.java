@@ -26,8 +26,6 @@ import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
-import com.google.cloud.opentelemetry.detectors.GCPResource;
-import com.google.cloud.opentelemetry.metric.ResourceTranslator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -40,7 +38,6 @@ import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
-import io.opentelemetry.sdk.resources.Resource;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
@@ -101,14 +98,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
 
-    GCPResource gcpResource = new GCPResource();
-    Resource resource = gcpResource.createResource(null);
-    MonitoredResource gceOrGkeResource = ResourceTranslator.mapResource(resource);
-
-    if (!gceOrGkeResource.getType().equals(GCE_RESOURCE_TYPE)
-        && !gceOrGkeResource.getType().equals(GKE_RESOURCE_TYPE)) {
-      gceOrGkeResource = null;
-    }
+    MonitoredResource gceOrGkeResource = BigtableExporterUtils.detectResource();
 
     return new BigtableCloudMonitoringExporter(
         projectId,
