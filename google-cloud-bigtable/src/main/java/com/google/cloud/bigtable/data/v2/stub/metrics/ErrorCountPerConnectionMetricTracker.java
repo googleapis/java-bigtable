@@ -31,7 +31,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.nullness.qual.Nullable;
 
 /* Background task that goes through all connections and updates the errors_per_connection metric. */
 @InternalApi("For internal use only")
@@ -52,24 +51,20 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
     this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
   }
 
-  public ErrorCountPerConnectionMetricTracker(
-      @Nullable OpenTelemetry openTelemetry, Attributes attributes) {
+  public ErrorCountPerConnectionMetricTracker(OpenTelemetry openTelemetry, Attributes attributes) {
     connectionErrorCountInterceptors =
         Collections.synchronizedSet(Collections.newSetFromMap(new WeakHashMap<>()));
 
-    if (openTelemetry != null) {
-      Meter meter = openTelemetry.getMeter(METER_NAME);
+    Meter meter = openTelemetry.getMeter(METER_NAME);
 
-      perConnectionErrorCountHistogram =
-          meter
-              .histogramBuilder(PER_CONNECTION_ERROR_COUNT_NAME)
-              .ofLongs()
-              .setDescription("Distribution of counts of channels per 'error count per minute'.")
-              .setUnit("1")
-              .build();
-    } else {
-      perConnectionErrorCountHistogram = null;
-    }
+    perConnectionErrorCountHistogram =
+        meter
+            .histogramBuilder(PER_CONNECTION_ERROR_COUNT_NAME)
+            .ofLongs()
+            .setDescription("Distribution of counts of channels per 'error count per minute'.")
+            .setUnit("1")
+            .build();
+
     this.attributes = attributes;
   }
 
@@ -89,9 +84,6 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
 
   @Override
   public void run() {
-    if (perConnectionErrorCountHistogram == null) {
-      return;
-    }
     synchronized (interceptorsLock) {
       for (ConnectionErrorCountInterceptor interceptor : connectionErrorCountInterceptors) {
         long errors = interceptor.getAndResetNumOfErrors();
