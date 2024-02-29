@@ -29,7 +29,6 @@ import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.*;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
 import io.grpc.Server;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
@@ -63,7 +62,6 @@ public class ErrorCountPerConnectionTest {
   private final FakeService fakeService = new FakeService();
   private EnhancedBigtableStubSettings.Builder builder;
   private ArgumentCaptor<Runnable> runnableCaptor;
-  private StatsRecorderWrapperForConnection statsRecorderWrapperForConnection;
 
   private InMemoryMetricReader metricReader;
 
@@ -108,8 +106,6 @@ public class ErrorCountPerConnectionTest {
     Mockito.when(
             executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))
         .thenReturn(null);
-
-    statsRecorderWrapperForConnection = Mockito.mock(StatsRecorderWrapperForConnection.class);
   }
 
   @After
@@ -298,8 +294,6 @@ public class ErrorCountPerConnectionTest {
     int actualNumOfTasks = 0;
     for (Runnable runnable : runnableCaptor.getAllValues()) {
       if (runnable instanceof ErrorCountPerConnectionMetricTracker) {
-        ((ErrorCountPerConnectionMetricTracker) runnable)
-            .setStatsRecorderWrapperForConnection(statsRecorderWrapperForConnection);
         runnable.run();
         actualNumOfTasks++;
       }

@@ -19,8 +19,6 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
 
 import com.google.api.core.InternalApi;
-import com.google.cloud.bigtable.stats.StatsRecorderWrapperForConnection;
-import com.google.common.annotations.VisibleForTesting;
 import io.grpc.ClientInterceptor;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
@@ -42,14 +40,6 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
 
   private final Set<ConnectionErrorCountInterceptor> connectionErrorCountInterceptors;
   private final Object interceptorsLock = new Object();
-  // This is not final so that it can be updated and mocked during testing.
-  private StatsRecorderWrapperForConnection statsRecorderWrapperForConnection;
-
-  @VisibleForTesting
-  void setStatsRecorderWrapperForConnection(
-      StatsRecorderWrapperForConnection statsRecorderWrapperForConnection) {
-    this.statsRecorderWrapperForConnection = statsRecorderWrapperForConnection;
-  }
 
   public ErrorCountPerConnectionMetricTracker(OpenTelemetry openTelemetry, Attributes attributes) {
     connectionErrorCountInterceptors =
@@ -93,7 +83,6 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
         if (errors > 0 || successes > 0) {
           // TODO: add a metric to also keep track of the number of successful requests per each
           // connection.
-          statsRecorderWrapperForConnection.putAndRecordPerConnectionErrorCount(errors);
           perConnectionErrorCountHistogram.record(errors, attributes);
         }
       }
