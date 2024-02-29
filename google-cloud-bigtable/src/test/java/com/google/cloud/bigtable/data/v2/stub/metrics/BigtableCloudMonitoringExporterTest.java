@@ -225,7 +225,7 @@ public class BigtableCloudMonitoringExporterTest {
   }
 
   @Test
-  public void testTimeSeriesForMetricWithGceResource() {
+  public void testTimeSeriesForMetricWithGceOrGkeResource() {
     BigtableCloudMonitoringExporter exporter =
         new BigtableCloudMonitoringExporter(
             projectId,
@@ -240,7 +240,8 @@ public class BigtableCloudMonitoringExporterTest {
 
     UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
     when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
-    when(mockCallable.call(argumentCaptor.capture())).thenReturn(Empty.getDefaultInstance());
+    ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
+    when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
 
     long startEpoch = 10;
     long endEpoch = 15;
@@ -287,12 +288,16 @@ public class BigtableCloudMonitoringExporterTest {
         .containsExactly("some-gce-key", "some-gce-value");
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(PROJECT_ID_KEY, projectId);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(INSTANCE_ID_KEY, instanceId);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE_KEY, appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_NAME_KEY, clientName);
-    assertThat(timeSeries.getMetric().getLabelsMap()).containsAtLeast(CLIENT_UID_KEY, taskId);
+        .containsAtLeast(PROJECT_ID_KEY.getKey(), projectId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(INSTANCE_ID_KEY.getKey(), instanceId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_NAME_KEY.getKey(), clientName);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
   }
 
   private static class FakeMetricServiceClient extends MetricServiceClient {

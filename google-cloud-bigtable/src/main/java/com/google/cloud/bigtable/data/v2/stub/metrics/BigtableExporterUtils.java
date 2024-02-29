@@ -35,6 +35,10 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import com.google.api.Distribution;
 import com.google.api.Metric;
 import com.google.api.MonitoredResource;
+import com.google.cloud.opentelemetry.detection.AttributeKeys;
+import com.google.cloud.opentelemetry.detection.DetectedPlatform;
+import com.google.cloud.opentelemetry.detection.GCPPlatformDetector;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -116,7 +120,9 @@ class BigtableExporterUtils {
         continue;
       }
       if (gceOrGkeResource == null
-          && metricData.getName().equals(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
+          && metricData
+              .getName()
+              .contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
         // Skip exporting per connection error count metric in none gce / gke environment
         continue;
       }
@@ -132,39 +138,40 @@ class BigtableExporterUtils {
 
   @Nullable
   static MonitoredResource detectResource() {
-    GCPMetadataConfig metadataConfig = GCPMetadataConfig.DEFAULT_INSTANCE;
-    if (metadataConfig.getProjectId() == null || metadataConfig.getProjectId().isEmpty()) {
-      // return null if the application is not running on GCP platform
-      return null;
+    GCPPlatformDetector detector = GCPPlatformDetector.DEFAULT_INSTANCE;
+    DetectedPlatform detectedPlatform = detector.detectPlatform();
+    switch (detectedPlatform.getSupportedPlatform()) {
+      case GOOGLE_COMPUTE_ENGINE:
+        return createGceMonitoredResource(
+            detectedPlatform.getProjectId(), detectedPlatform.getAttributes());
+      case GOOGLE_KUBERNETES_ENGINE:
+        return createGkeMonitoredResource(
+            detectedPlatform.getProjectId(), detectedPlatform.getAttributes());
+      default:
+        return null;
     }
-    if (System.getenv("KUBERNETES_SERVICE_HOST") != null) {
-      createGkeMonitoredResource(metadataConfig);
-    } else if (System.getenv("K_CONFIGURATION") == null
-        && System.getenv("FUNCTION_TARGET") == null
-        && System.getenv("GAE_SERVICE") == null) {
-      createGceMonitoredResource(metadataConfig);
-    }
-    return null;
   }
 
-  private static MonitoredResource createGceMonitoredResource(GCPMetadataConfig metadataConfig) {
+  private static MonitoredResource createGceMonitoredResource(
+      String projectId, Map<String, String> attributes) {
     return MonitoredResource.newBuilder()
         .setType("gce_instance")
-        .putLabels("project_id", metadataConfig.getProjectId())
-        .putLabels("instance_id", metadataConfig.getInstanceId())
-        .putLabels("zone", metadataConfig.getZone())
+        .putLabels("project_id", projectId)
+        .putLabels("instance_id", attributes.get(AttributeKeys.GCE_INSTANCE_ID))
+        .putLabels("zone", attributes.get(AttributeKeys.GCE_AVAILABILITY_ZONE))
         .build();
   }
 
-  private static MonitoredResource createGkeMonitoredResource(GCPMetadataConfig metadataConfig) {
+  private static MonitoredResource createGkeMonitoredResource(
+      String projectId, Map<String, String> attributes) {
     return MonitoredResource.newBuilder()
         .setType("k8s_container")
-        .putLabels("project_id", metadataConfig.getProjectId())
-        .putLabels("location", metadataConfig.getZone())
-        .putLabels("cluster_name", metadataConfig.getAttribute("k8s.cluster.name"))
-        .putLabels("namespace_name", metadataConfig.getAttribute("k8s.namespace.name"))
-        .putLabels("pod_name", metadataConfig.getAttribute("k8s.pod.name"))
-        .putLabels("container_name", metadataConfig.getAttribute("k8s.container.name"))
+        .putLabels("project_id", projectId)
+        .putLabels("location", attributes.get(AttributeKeys.GKE_CLUSTER_LOCATION))
+        .putLabels("cluster_name", attributes.get(AttributeKeys.GKE_CLUSTER_NAME))
+        .putLabels("namespace_name", MoreObjects.firstNonNull(System.getenv("NAMESPACE"), ""))
+        .putLabels("pod_name", MoreObjects.firstNonNull(System.getenv("HOSTNAME"), ""))
+        .putLabels("container_name", MoreObjects.firstNonNull(System.getenv("CONTAINER_NAME"), ""))
         .build();
   }
 
@@ -179,18 +186,12 @@ class BigtableExporterUtils {
             .setValueType(convertValueType(metricData.getType()));
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
 
-    if (metricData.getName().equals(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
-      if (gceOrGkeResource != null) {
-        Attributes attributes = pointData.getAttributes();
-        for (Map.Entry<AttributeKey<?>, Object> entry : attributes.asMap().entrySet()) {
-          metricBuilder.putLabels(entry.getKey().getKey(), String.valueOf(entry.getValue()));
-        }
-        builder.setResource(gceOrGkeResource);
-      } else {
-        logger.warning(
-            "Trying to export metric " + metricData.getName() + " in a non-GCE/GKE environment.");
-        return TimeSeries.newBuilder().build();
+    if (metricData.getName().contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
+      Attributes attributes = pointData.getAttributes();
+      for (Map.Entry<AttributeKey<?>, Object> entry : attributes.asMap().entrySet()) {
+        metricBuilder.putLabels(entry.getKey().getKey(), String.valueOf(entry.getValue()));
       }
+      builder.setResource(gceOrGkeResource);
     } else {
       Attributes attributes = pointData.getAttributes();
       MonitoredResource.Builder monitoredResourceBuilder =

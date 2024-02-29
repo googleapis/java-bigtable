@@ -231,29 +231,30 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    OpenTelemetry openTelemetry =
-        getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
     // Skip setting up ErrorCountPerConnectionMetricTracker if openTelemetry is null
-    if (openTelemetry != null && transportProvider != null) {
-      errorCountPerConnectionMetricTracker =
-          new ErrorCountPerConnectionMetricTracker(
-              openTelemetry, createBuiltinAttributes(settings));
-      ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
-          transportProvider.getChannelConfigurator();
-      transportProvider.setChannelConfigurator(
-          managedChannelBuilder -> {
-            if (settings.getEnableRoutingCookie()) {
-              managedChannelBuilder.intercept(new CookiesInterceptor());
-            }
+    OpenTelemetry openTelemetry =
+            getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
+    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
+    if (transportProvider != null && openTelemetry != null) {
+       errorCountPerConnectionMetricTracker =
+            new ErrorCountPerConnectionMetricTracker(
+                openTelemetry, createBuiltinAttributes(settings));
+        ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
+            transportProvider.getChannelConfigurator();
+        transportProvider.setChannelConfigurator(
+            managedChannelBuilder -> {
+              if (settings.getEnableRoutingCookie()) {
+                managedChannelBuilder.intercept(new CookiesInterceptor());
+              }
 
-            managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
+              managedChannelBuilder.intercept(
+                  errorCountPerConnectionMetricTracker.getInterceptor());
 
-            if (oldChannelConfigurator != null) {
-              managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
-            }
-            return managedChannelBuilder;
-          });
+              if (oldChannelConfigurator != null) {
+                managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
+              }
+              return managedChannelBuilder;
+            });
     } else {
       errorCountPerConnectionMetricTracker = null;
     }

@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 /* Background task that goes through all connections and updates the errors_per_connection metric. */
 @InternalApi("For internal use only")
 public class ErrorCountPerConnectionMetricTracker implements Runnable {
-  private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 60;
+  private static final Integer PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS = 10;
 
   private final LongHistogram perConnectionErrorCountHistogram;
   private final Attributes attributes;
@@ -59,7 +59,7 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
   }
 
   public void startConnectionErrorCountTracker(ScheduledExecutorService scheduler) {
-    scheduler.scheduleAtFixedRate(
+    scheduler.scheduleWithFixedDelay(
         this, 0, PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS, TimeUnit.SECONDS);
   }
 
