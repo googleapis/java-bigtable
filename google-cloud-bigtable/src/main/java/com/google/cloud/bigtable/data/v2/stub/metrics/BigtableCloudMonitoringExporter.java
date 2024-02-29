@@ -121,6 +121,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   @Override
   public CompletableResultCode export(Collection<MetricData> collection) {
+    logger.log(Level.INFO, "Bigtable exporting metrics");
     if (isShutdown.get()) {
       logger.log(Level.WARNING, "Exporter is shutting down");
       return CompletableResultCode.ofFailure();
