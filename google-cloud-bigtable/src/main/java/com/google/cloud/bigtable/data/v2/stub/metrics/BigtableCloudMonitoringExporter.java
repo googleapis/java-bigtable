@@ -100,6 +100,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     MonitoredResource gceOrGkeResource = BigtableExporterUtils.detectResource();
 
+    System.out.println("Detected resource: " + gceOrGkeResource);
+
     return new BigtableCloudMonitoringExporter(
         projectId,
         MetricServiceClient.create(settingsBuilder.build()),
