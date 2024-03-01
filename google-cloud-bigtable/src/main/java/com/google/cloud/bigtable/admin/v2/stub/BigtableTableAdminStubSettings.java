@@ -22,7 +22,6 @@ import static com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.Li
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
-import com.google.api.core.BetaApi;
 import com.google.api.gax.core.GaxProperties;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
@@ -1251,8 +1250,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to createTableFromSnapshot. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<
             CreateTableFromSnapshotRequest, Table, CreateTableFromSnapshotMetadata>
         createTableFromSnapshotOperationSettings() {
@@ -1276,8 +1273,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to updateTable. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<UpdateTableRequest, Table, UpdateTableMetadata>
         updateTableOperationSettings() {
       return updateTableOperationSettings;
@@ -1294,8 +1289,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to undeleteTable. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<UndeleteTableRequest, Table, UndeleteTableMetadata>
         undeleteTableOperationSettings() {
       return undeleteTableOperationSettings;
@@ -1331,8 +1324,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to snapshotTable. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<SnapshotTableRequest, Snapshot, SnapshotTableMetadata>
         snapshotTableOperationSettings() {
       return snapshotTableOperationSettings;
@@ -1361,8 +1352,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to createBackup. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<CreateBackupRequest, Backup, CreateBackupMetadata>
         createBackupOperationSettings() {
       return createBackupOperationSettings;
@@ -1396,8 +1385,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to restoreTable. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<RestoreTableRequest, Table, RestoreTableMetadata>
         restoreTableOperationSettings() {
       return restoreTableOperationSettings;
@@ -1409,8 +1396,6 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
     }
 
     /** Returns the builder for the settings used for calls to copyBackup. */
-    @BetaApi(
-        "The surface for use by generated code is not stable yet and may change in the future.")
     public OperationCallSettings.Builder<CopyBackupRequest, Backup, CopyBackupMetadata>
         copyBackupOperationSettings() {
       return copyBackupOperationSettings;
