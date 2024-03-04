@@ -20,7 +20,9 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
+import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -75,10 +78,16 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private CompletableResultCode lastExportCode;
 
-  public static BigtableCloudMonitoringExporter create(String projectId, Credentials credentials)
-      throws IOException {
+  public static BigtableCloudMonitoringExporter create(
+      String projectId, @Nullable Credentials credentials) throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
-    settingsBuilder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
+    CredentialsProvider credentialsProvider;
+    if (credentials == null) {
+      credentialsProvider = NoCredentialsProvider.create();
+    } else {
+      credentialsProvider = FixedCredentialsProvider.create(credentials);
+    }
+    settingsBuilder.setCredentialsProvider(credentialsProvider);
     settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);

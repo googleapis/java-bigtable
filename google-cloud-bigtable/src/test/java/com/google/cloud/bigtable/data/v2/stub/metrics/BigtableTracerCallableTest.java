@@ -135,7 +135,7 @@ public class BigtableTracerCallableTest {
                     settings.getStubSettings(),
                     Tags.getTagger(),
                     localStats.getStatsRecorder(),
-                    clientContext))
+                    null))
             .build();
     attempts = settings.getStubSettings().readRowsSettings().getRetrySettings().getMaxAttempts();
     stub = new EnhancedBigtableStub(settings.getStubSettings(), clientContext);
@@ -161,7 +161,7 @@ public class BigtableTracerCallableTest {
                     noHeaderSettings.getStubSettings(),
                     Tags.getTagger(),
                     localStats.getStatsRecorder(),
-                    noHeaderClientContext))
+                    null))
             .build();
     noHeaderStub =
         new EnhancedBigtableStub(noHeaderSettings.getStubSettings(), noHeaderClientContext);
