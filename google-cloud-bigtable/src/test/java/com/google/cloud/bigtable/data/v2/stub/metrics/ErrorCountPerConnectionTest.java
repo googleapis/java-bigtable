@@ -44,6 +44,7 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import org.junit.After;
@@ -147,14 +148,7 @@ public class ErrorCountPerConnectionTest {
         new ArrayList<>(metricData.getHistogramData().getPoints());
     assertThat(histogramPointData.size()).isEqualTo(1);
     HistogramPointData point = histogramPointData.get(0);
-    int index = 0;
-    for (Double boundary : point.getBoundaries()) {
-      if (boundary < errorCount) {
-        index++;
-        continue;
-      }
-      break;
-    }
+    int index = findDataPointIndex(point.getBoundaries(), errorCount);
     assertThat(point.getCounts().get(index)).isEqualTo(1);
   }
 
@@ -196,14 +190,7 @@ public class ErrorCountPerConnectionTest {
         new ArrayList<>(metricData.getHistogramData().getPoints());
     assertThat(histogramPointData.size()).isEqualTo(1);
     HistogramPointData point = histogramPointData.get(0);
-    int index = 0;
-    for (Double boundary : point.getBoundaries()) {
-      if (boundary < errorCountPerChannel) {
-        index++;
-        continue;
-      }
-      break;
-    }
+    int index = findDataPointIndex(point.getBoundaries(), errorCountPerChannel);
     assertThat(point.getCounts().get(index)).isEqualTo(2);
   }
 
@@ -256,16 +243,8 @@ public class ErrorCountPerConnectionTest {
         new ArrayList<>(metricData.getHistogramData().getPoints());
     assertThat(histogramPointData.size()).isEqualTo(1);
     HistogramPointData point = histogramPointData.get(0);
-    int index1 = 0;
-    int index2 = 0;
-    for (Double boundary : point.getBoundaries()) {
-      if (boundary < errorCount1) {
-        index1++;
-      }
-      if (boundary < errorCount2) {
-        index2++;
-      }
-    }
+    int index1 = findDataPointIndex(point.getBoundaries(), errorCount1);
+    int index2 = findDataPointIndex(point.getBoundaries(), errorCount2);
     assertThat(point.getCounts().get(index1)).isEqualTo(1);
     assertThat(point.getCounts().get(index2)).isEqualTo(1);
   }
@@ -299,6 +278,16 @@ public class ErrorCountPerConnectionTest {
       }
     }
     assertThat(actualNumOfTasks).isEqualTo(1);
+  }
+
+  private int findDataPointIndex(List<Double> boundaries, long dataPoint) {
+    int index = 0;
+    for (; index < boundaries.size(); index++) {
+      if (boundaries.get(index) >= dataPoint) {
+        break;
+      }
+    }
+    return index;
   }
 
   static class FakeService extends BigtableGrpc.BigtableImplBase {
