@@ -22,6 +22,7 @@ import com.google.api.Distribution.BucketOptions.Explicit;
 import com.google.api.Metric;
 import com.google.api.MetricDescriptor.MetricKind;
 import com.google.api.MonitoredResource;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.monitoring.v3.TimeInterval;
@@ -56,10 +57,9 @@ import javax.annotation.Nullable;
 class BigtableStackdriverExportUtils {
   private static final String BIGTABLE_RESOURCE_TYPE = "bigtable_client_raw";
 
-  // Defined package private to access in tests.
-  static final String GCE_RESOURCE_TYPE = "gce_instance";
-  static final String GKE_RESOURCE_TYPE = "k8s_container";
-  static final String GCE_OR_GKE_PROJECT_ID_KEY = "project_id";
+  @VisibleForTesting static final String GCE_RESOURCE_TYPE = "gce_instance";
+  @VisibleForTesting static final String GKE_RESOURCE_TYPE = "k8s_container";
+  @VisibleForTesting static final String GCE_OR_GKE_PROJECT_ID_KEY = "project_id";
   private static final Logger logger =
       Logger.getLogger(BigtableStackdriverExportUtils.class.getName());
 
