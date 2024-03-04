@@ -111,7 +111,7 @@ class CloudEnv extends AbstractTestEnv {
         getRequiredProperty(PROJECT_PROPERTY_NAME),
         getRequiredProperty(INSTANCE_PROPERTY_NAME),
         getRequiredProperty(TABLE_PROPERTY_NAME),
-        getOptionalProperty(TRACING_COOKIE_PROPERTY_NAME, null));
+        getOptionalProperty(TRACING_COOKIE_PROPERTY_NAME));
   }
 
   private CloudEnv(
@@ -384,6 +384,11 @@ class CloudEnv extends AbstractTestEnv {
 
   public String getKmsKeyName() {
     return kmsKeyName;
+  }
+
+  @Nullable
+  private static String getOptionalProperty(String prop) {
+    return System.getProperty(prop);
   }
 
   private static String getOptionalProperty(String prop, String defaultValue) {
