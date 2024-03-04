@@ -160,7 +160,7 @@ class CloudEnv extends AbstractTestEnv {
             Optional.ofNullable(oldHeaderProvider)
                 .map(p -> ImmutableMap.<String, String>builder().putAll(p.getHeaders()))
                 .orElse(ImmutableMap.builder())
-                .put("Cookie", tracingCookie)
+                .put("cookie", tracingCookie)
                 .build());
   }
 
@@ -228,6 +228,7 @@ class CloudEnv extends AbstractTestEnv {
         return new SimpleForwardingClientCall<ReqT, RespT>(clientCall) {
           @Override
           public void start(Listener<RespT> responseListener, Metadata headers) {
+            System.out.println(headers);
             super.start(
                 new SimpleForwardingClientCallListener<RespT>(responseListener) {
                   @Override
