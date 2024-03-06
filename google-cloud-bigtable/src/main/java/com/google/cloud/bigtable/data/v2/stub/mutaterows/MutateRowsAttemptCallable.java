@@ -87,7 +87,7 @@ import javax.annotation.Nullable;
  *
  * <p>Package-private for internal use.
  */
-class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
+class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
   // Synthetic status for Mutations that didn't get a result (because the whole RPC failed). It will
   // be exposed in MutateRowsException's FailedMutations.
   private static final StatusCode LOCAL_UNKNOWN_STATUS =
@@ -116,10 +116,10 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
   @Nonnull private TimedAttemptSettings attemptSettings;
 
   // Parent controller
-  private RetryingFuture<MutateRowsAttemptErrors> externalFuture;
+  private RetryingFuture<MutateRowsAttemptResult> externalFuture;
 
   // Simple wrappers for handling result futures
-  private final ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptErrors>
+  private final ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptResult>
       attemptSuccessfulCallback =
           responses -> {
             handleAttemptSuccess(responses);
@@ -148,7 +148,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
     permanentFailures = Lists.newArrayList();
   }
 
-  public void setExternalFuture(RetryingFuture<MutateRowsAttemptErrors> externalFuture) {
+  public void setExternalFuture(RetryingFuture<MutateRowsAttemptResult> externalFuture) {
     this.externalFuture = externalFuture;
   }
 
@@ -161,7 +161,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
    * return of this method should just be ignored.
    */
   @Override
-  public MutateRowsAttemptErrors call() {
+  public MutateRowsAttemptResult call() {
     try {
       // externalFuture is set from MutateRowsRetryingCallable before invoking this method. It
       // shouldn't be null unless the code changed
@@ -203,7 +203,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
 
       // Inspect the results and either propagate the success, or prepare to retry the failed
       // mutations
-      ApiFuture<MutateRowsAttemptErrors> transformed =
+      ApiFuture<MutateRowsAttemptResult> transformed =
           ApiFutures.transform(catching, attemptSuccessfulCallback, MoreExecutors.directExecutor());
 
       // Notify the parent of the attempt
@@ -262,7 +262,7 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
    * {@link MutateRowsException}. If no errors exist, then the attempt future is successfully
    * completed. We don't currently handle RetryInfo on entry level failures.
    */
-  private MutateRowsAttemptErrors handleAttemptSuccess(List<MutateRowsResponse> responses) {
+  private MutateRowsAttemptResult handleAttemptSuccess(List<MutateRowsResponse> responses) {
     List<FailedMutation> allFailures = Lists.newArrayList(permanentFailures);
     MutateRowsRequest lastRequest = currentRequest;
 
@@ -321,9 +321,9 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptErrors> {
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      return new MutateRowsAttemptErrors(allFailures, isRetryable);
+      return new MutateRowsAttemptResult(allFailures, isRetryable);
     }
-    return null;
+    return new MutateRowsAttemptResult();
   }
 
   /**

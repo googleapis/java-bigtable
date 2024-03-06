@@ -25,7 +25,7 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
-import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptErrors;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
@@ -49,26 +49,3 @@ class CookiesUnaryCallable<RequestT, ResponseT> extends UnaryCallable<RequestT, 
   }
 }
 
-class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<MutateRowsRequest, Void> {
-  private final UnaryCallable<MutateRowsRequest, MutateRowsAttemptErrors> innerCallable;
-
-  MutateRowsErrorConverterUnaryCallable(
-      UnaryCallable<MutateRowsRequest, MutateRowsAttemptErrors> callable) {
-    this.innerCallable = callable;
-  }
-
-  @Override
-  public ApiFuture<Void> futureCall(MutateRowsRequest request, ApiCallContext context) {
-    ApiFuture<MutateRowsAttemptErrors> future = innerCallable.futureCall(request, context);
-    return ApiFutures.transform(
-        future,
-        (ApiFunction<MutateRowsAttemptErrors, Void>)
-            result -> {
-              if (result != null) {
-                throw MutateRowsException.create(null, result.failedMutations, result.isRetryable);
-              }
-              return null;
-            },
-        MoreExecutors.directExecutor());
-  }
-}

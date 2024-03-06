@@ -19,23 +19,23 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
 import com.google.api.gax.retrying.TimedAttemptSettings;
-import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptErrors;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 @InternalApi
 public class MutateRowsErrorRetryAlgorithm
-    extends BasicResultRetryAlgorithm<MutateRowsAttemptErrors> {
-  BasicResultRetryAlgorithm<MutateRowsAttemptErrors> retryAlgorithm;
+    extends BasicResultRetryAlgorithm<MutateRowsAttemptResult> {
+  BasicResultRetryAlgorithm<MutateRowsAttemptResult> retryAlgorithm;
 
   public MutateRowsErrorRetryAlgorithm(
-      BasicResultRetryAlgorithm<MutateRowsAttemptErrors> retryAlgorithm) {
+      BasicResultRetryAlgorithm<MutateRowsAttemptResult> retryAlgorithm) {
     this.retryAlgorithm = retryAlgorithm;
   }
 
   @Override
   public TimedAttemptSettings createNextAttempt(
       Throwable previousThrowable,
-      MutateRowsAttemptErrors previousResponse,
+      MutateRowsAttemptResult previousResponse,
       TimedAttemptSettings previousSettings) {
     return retryAlgorithm.createNextAttempt(previousThrowable, previousResponse, previousSettings);
   }
@@ -44,7 +44,7 @@ public class MutateRowsErrorRetryAlgorithm
   public TimedAttemptSettings createNextAttempt(
       RetryingContext context,
       Throwable previousThrowable,
-      MutateRowsAttemptErrors previousResponse,
+      MutateRowsAttemptResult previousResponse,
       TimedAttemptSettings previousSettings) {
     return retryAlgorithm.createNextAttempt(
         context, previousThrowable, previousResponse, previousSettings);
@@ -52,7 +52,7 @@ public class MutateRowsErrorRetryAlgorithm
 
   @Override
   public boolean shouldRetry(
-      Throwable previousThrowable, MutateRowsAttemptErrors previousResponse) {
+      Throwable previousThrowable, MutateRowsAttemptResult previousResponse) {
     if (retryAlgorithm.shouldRetry(previousThrowable, previousResponse)) {
       return true;
     }
@@ -63,7 +63,7 @@ public class MutateRowsErrorRetryAlgorithm
   public boolean shouldRetry(
       @Nullable RetryingContext context,
       Throwable previousThrowable,
-      MutateRowsAttemptErrors previousResponse) {
+      MutateRowsAttemptResult previousResponse) {
     if (retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse)) {
       return true;
     }
