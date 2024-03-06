@@ -1,0 +1,75 @@
+/*
+ * Copyright 2024 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.cloud.bigtable.gaxx.retrying;
+
+import com.google.api.core.InternalApi;
+import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
+import com.google.api.gax.retrying.RetryingContext;
+import com.google.api.gax.retrying.TimedAttemptSettings;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptErrors;
+import org.checkerframework.checker.nullness.qual.Nullable;
+
+@InternalApi
+public class MutateRowsErrorRetryAlgorithm
+    extends BasicResultRetryAlgorithm<MutateRowsAttemptErrors> {
+  BasicResultRetryAlgorithm<MutateRowsAttemptErrors> retryAlgorithm;
+
+  public MutateRowsErrorRetryAlgorithm(
+      BasicResultRetryAlgorithm<MutateRowsAttemptErrors> retryAlgorithm) {
+    this.retryAlgorithm = retryAlgorithm;
+  }
+
+  @Override
+  public TimedAttemptSettings createNextAttempt(
+      Throwable previousThrowable,
+      MutateRowsAttemptErrors previousResponse,
+      TimedAttemptSettings previousSettings) {
+    return retryAlgorithm.createNextAttempt(previousThrowable, previousResponse, previousSettings);
+  }
+
+  @Override
+  public TimedAttemptSettings createNextAttempt(
+      RetryingContext context,
+      Throwable previousThrowable,
+      MutateRowsAttemptErrors previousResponse,
+      TimedAttemptSettings previousSettings) {
+    return retryAlgorithm.createNextAttempt(
+        context, previousThrowable, previousResponse, previousSettings);
+  }
+
+  @Override
+  public boolean shouldRetry(
+      Throwable previousThrowable, MutateRowsAttemptErrors previousResponse) {
+    if (retryAlgorithm.shouldRetry(previousThrowable, previousResponse)) {
+      return true;
+    }
+    return shouldRetry(null, previousThrowable, previousResponse);
+  }
+
+  @Override
+  public boolean shouldRetry(
+      @Nullable RetryingContext context,
+      Throwable previousThrowable,
+      MutateRowsAttemptErrors previousResponse) {
+    if (retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse)) {
+      return true;
+    }
+    if (previousResponse == null) {
+      return false;
+    }
+    return previousResponse.isRetryable;
+  }
+}

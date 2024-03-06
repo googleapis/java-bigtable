@@ -411,8 +411,9 @@ public class MutateRowsAttemptCallableTest {
     }
   }
 
-  static class MockRetryingFuture extends AbstractApiFuture<Void> implements RetryingFuture<Void> {
-    ApiFuture<Void> attemptFuture;
+  static class MockRetryingFuture extends AbstractApiFuture<MutateRowsAttemptErrors>
+      implements RetryingFuture<MutateRowsAttemptErrors> {
+    ApiFuture<MutateRowsAttemptErrors> attemptFuture;
 
     TimedAttemptSettings timedAttemptSettings;
 
@@ -433,7 +434,7 @@ public class MutateRowsAttemptCallableTest {
     }
 
     @Override
-    public void setAttemptFuture(ApiFuture<Void> attemptFuture) {
+    public void setAttemptFuture(ApiFuture<MutateRowsAttemptErrors> attemptFuture) {
       this.attemptFuture = attemptFuture;
     }
 
@@ -443,17 +444,17 @@ public class MutateRowsAttemptCallableTest {
     }
 
     @Override
-    public Callable<Void> getCallable() {
+    public Callable<MutateRowsAttemptErrors> getCallable() {
       throw new UnsupportedOperationException("not used");
     }
 
     @Override
-    public ApiFuture<Void> peekAttemptResult() {
+    public ApiFuture<MutateRowsAttemptErrors> peekAttemptResult() {
       throw new UnsupportedOperationException("not used");
     }
 
     @Override
-    public ApiFuture<Void> getAttemptResult() {
+    public ApiFuture<MutateRowsAttemptErrors> getAttemptResult() {
       throw new UnsupportedOperationException("not used");
     }
   }

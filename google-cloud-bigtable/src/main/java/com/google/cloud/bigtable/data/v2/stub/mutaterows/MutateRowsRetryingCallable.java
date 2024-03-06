@@ -26,6 +26,7 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
@@ -40,17 +41,18 @@ import javax.annotation.Nonnull;
  * @see MutateRowsAttemptCallable for more details.
  */
 @InternalApi
-public class MutateRowsRetryingCallable extends UnaryCallable<MutateRowsRequest, Void> {
+public class MutateRowsRetryingCallable
+    extends UnaryCallable<MutateRowsRequest, MutateRowsAttemptErrors> {
   private final ApiCallContext callContextPrototype;
   private final ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> callable;
-  private final RetryingExecutorWithContext<Void> executor;
+  private final RetryingExecutorWithContext<MutateRowsAttemptErrors> executor;
   private final ImmutableSet<Code> retryCodes;
   private final RetryAlgorithm retryAlgorithm;
 
   public MutateRowsRetryingCallable(
       @Nonnull ApiCallContext callContextPrototype,
       @Nonnull ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> callable,
-      @Nonnull RetryingExecutorWithContext<Void> executor,
+      @Nonnull RetryingExecutorWithContext<MutateRowsAttemptErrors> executor,
       @Nonnull Set<StatusCode.Code> retryCodes,
       @Nonnull RetryAlgorithm retryAlgorithm) {
     this.callContextPrototype = Preconditions.checkNotNull(callContextPrototype);
@@ -61,14 +63,20 @@ public class MutateRowsRetryingCallable extends UnaryCallable<MutateRowsRequest,
   }
 
   @Override
-  public RetryingFuture<Void> futureCall(MutateRowsRequest request, ApiCallContext inputContext) {
+  public RetryingFuture<MutateRowsAttemptErrors> futureCall(
+      MutateRowsRequest request, ApiCallContext inputContext) {
     ApiCallContext context = callContextPrototype.nullToSelf(inputContext);
     MutateRowsAttemptCallable retryCallable =
         new MutateRowsAttemptCallable(callable.all(), request, context, retryCodes, retryAlgorithm);
 
-    RetryingFuture<Void> retryingFuture = executor.createFuture(retryCallable, context);
+    RetryingFuture<MutateRowsAttemptErrors> retryingFuture =
+        executor.createFuture(retryCallable, context);
     retryCallable.setExternalFuture(retryingFuture);
-    retryCallable.call();
+    MutateRowsAttemptErrors mutateRowsAttemptErrors = retryCallable.call();
+    if (mutateRowsAttemptErrors != null) {
+      throw MutateRowsException.create(
+          null, mutateRowsAttemptErrors.failedMutations, mutateRowsAttemptErrors.isRetryable);
+    }
 
     return retryingFuture;
   }

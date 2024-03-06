@@ -102,6 +102,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamin
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptErrors;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
@@ -112,6 +113,7 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
+import com.google.cloud.bigtable.gaxx.retrying.MutateRowsErrorRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
@@ -706,28 +708,34 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(convertException);
 
-    BasicResultRetryAlgorithm<Void> resultRetryAlgorithm;
+    BasicResultRetryAlgorithm<MutateRowsAttemptErrors> resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
       resultRetryAlgorithm = new RetryInfoRetryAlgorithm<>();
     } else {
       resultRetryAlgorithm = new ApiResultRetryAlgorithm<>();
     }
+    MutateRowsErrorRetryAlgorithm mutateRowsErrorRetryAlgorithm =
+        new MutateRowsErrorRetryAlgorithm(resultRetryAlgorithm);
 
-    RetryAlgorithm<Void> retryAlgorithm =
+    RetryAlgorithm<MutateRowsAttemptErrors> retryAlgorithm =
         new RetryAlgorithm<>(
-            resultRetryAlgorithm,
+            mutateRowsErrorRetryAlgorithm,
             new ExponentialRetryAlgorithm(
                 settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
 
-    RetryingExecutorWithContext<Void> retryingExecutor =
+    RetryingExecutorWithContext<MutateRowsAttemptErrors> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
+    MutateRowsRetryingCallable mutateRowsRetryingCallable =
+        new MutateRowsRetryingCallable(
+            clientContext.getDefaultCallContext(),
+            withBigtableTracer,
+            retryingExecutor,
+            settings.bulkMutateRowsSettings().getRetryableCodes(),
+            retryAlgorithm);
 
-    return new MutateRowsRetryingCallable(
-        clientContext.getDefaultCallContext(),
-        withBigtableTracer,
-        retryingExecutor,
-        settings.bulkMutateRowsSettings().getRetryableCodes(),
-        retryAlgorithm);
+    UnaryCallable<MutateRowsRequest, Void> errorsConverter =
+        new MutateRowsErrorConverterUnaryCallable(mutateRowsRetryingCallable);
+    return errorsConverter;
   }
 
   /**
