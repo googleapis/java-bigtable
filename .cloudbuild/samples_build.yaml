@@ -21,6 +21,7 @@ steps:
   env:
   - 'JOB_TYPE=samples'
   - 'GOOGLE_CLOUD_PROJECT=cloud-java-ci-sample'
+  - 'BIGTABLE_TESTING_INSTANCE=instance'
 - name: gcr.io/cloud-devrel-public-resources/java8
   entrypoint: echo
   args: [
