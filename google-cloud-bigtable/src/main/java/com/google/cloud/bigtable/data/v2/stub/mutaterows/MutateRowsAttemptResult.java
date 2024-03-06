@@ -23,10 +23,12 @@ public class MutateRowsAttemptResult {
 
   public boolean isRetryable;
   public List<FailedMutation> failedMutations;
-public MutateRowsAttemptResult(){
-  this.failedMutations = new ArrayList<>();
-  this.isRetryable = false;
-}
+
+  public MutateRowsAttemptResult() {
+    this.failedMutations = new ArrayList<>();
+    this.isRetryable = false;
+  }
+
   public MutateRowsAttemptResult(List<FailedMutation> failedMutations, boolean isRetryable) {
     this.failedMutations = failedMutations;
     this.isRetryable = isRetryable;

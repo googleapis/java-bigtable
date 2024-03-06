@@ -17,16 +17,10 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.CookiesHolder.COOKIES_HOLDER_KEY;
 
-import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.v2.MutateRowsRequest;
-import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
-import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
-import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * The cookie holder will act as operation scoped storage for all retry attempts. Each attempt's
@@ -48,4 +42,3 @@ class CookiesUnaryCallable<RequestT, ResponseT> extends UnaryCallable<RequestT, 
             grpcCallContext.getCallOptions().withOption(COOKIES_HOLDER_KEY, new CookiesHolder())));
   }
 }
-

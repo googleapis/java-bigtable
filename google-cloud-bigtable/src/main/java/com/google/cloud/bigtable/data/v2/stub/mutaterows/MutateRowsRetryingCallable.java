@@ -26,7 +26,6 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
-import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;

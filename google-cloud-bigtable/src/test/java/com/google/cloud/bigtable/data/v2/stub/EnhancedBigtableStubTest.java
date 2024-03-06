@@ -21,7 +21,6 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebSignature;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
-import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
@@ -58,8 +57,6 @@ import com.google.common.io.BaseEncoding;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
-import com.google.rpc.Code;
-import com.google.rpc.Status;
 import io.grpc.Context;
 import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
@@ -96,7 +93,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.Mockito;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
@@ -616,7 +612,8 @@ public class EnhancedBigtableStubTest {
   //                     .addEntries(
   //                         MutateRowsResponse.Entry.newBuilder()
   //                             .setIndex(1)
-  //                             .setStatus(Status.newBuilder().setCode(Code.PERMISSION_DENIED_VALUE))
+  //
+  // .setStatus(Status.newBuilder().setCode(Code.PERMISSION_DENIED_VALUE))
   //                             .build())
   //                     .build());
   //             observer.onCompleted();
@@ -656,7 +653,8 @@ public class EnhancedBigtableStubTest {
   //       Assert.assertThrows(BatchingException.class, () -> batcher.close());
   //
   //   // Overall RPC status was PERMISSION_DENIED, so the error message should be something like
-  //   // Batching finished with 1 batches failed to apply due to: 1 ApiException(1 PERMISSION_DENIED)
+  //   // Batching finished with 1 batches failed to apply due to: 1 ApiException(1
+  // PERMISSION_DENIED)
   //   assertThat(batchingException).hasMessageThat().contains("PERMISSION_DENIED");
   // }
 
