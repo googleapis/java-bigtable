@@ -28,6 +28,7 @@ import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -45,6 +46,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
@@ -67,12 +69,11 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           System.getProperty("bigtable.test-monitoring-endpoint"),
           MetricServiceSettings.getDefaultEndpoint());
 
-  private static final String GCE_RESOURCE_TYPE = "gce_instance";
-  private static final String GKE_RESOURCE_TYPE = "k8s_container";
+  private static String GCE_OR_GKE_PROJECT_ID_LABEL = "project_id";
 
   private final MetricServiceClient client;
 
-  private final String projectId;
+  private final String bigtableProjectId;
   private final String taskId;
 
   private final MonitoredResource gceOrGkeResource;
@@ -118,60 +119,75 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     this.client = client;
     this.taskId = taskId;
     this.gceOrGkeResource = gceOrGkeResource;
-    this.projectId = projectId;
+    this.bigtableProjectId = projectId;
   }
 
   @Override
   public CompletableResultCode export(Collection<MetricData> collection) {
-    logger.log(Level.INFO, "Bigtable exporting metrics");
     if (isShutdown.get()) {
       logger.log(Level.WARNING, "Exporter is shutting down");
       return CompletableResultCode.ofFailure();
     }
     if (!collection.stream()
         .flatMap(metricData -> metricData.getData().getPoints().stream())
-        .allMatch(pd -> projectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
+        .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
       logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
       return CompletableResultCode.ofFailure();
     }
 
-    List<TimeSeries> allTimeSeries;
+    List<TimeSeries> bigtableTimeSeries;
     try {
-      allTimeSeries =
-          BigtableExporterUtils.convertCollectionToListOfTimeSeries(
-              collection, taskId, gceOrGkeResource);
+      bigtableTimeSeries =
+          BigtableExporterUtils.convertToBigtableTimeSeries(
+              collection.stream()
+                  .filter(
+                      md ->
+                          !md.getName()
+                              .contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME))
+                  .collect(Collectors.toList()),
+              taskId);
     } catch (Throwable e) {
-      logger.log(Level.WARNING, "Failed to convert metric data to cloud monitoring timeseries.", e);
+      logger.log(
+          Level.WARNING,
+          "Failed to convert bigtable metric data to cloud monitoring timeseries.",
+          e);
       return CompletableResultCode.ofFailure();
     }
 
-    ProjectName projectName = ProjectName.of(projectId);
-    CreateTimeSeriesRequest request =
+    ProjectName projectName = ProjectName.of(bigtableProjectId);
+    CreateTimeSeriesRequest bigtableRequest =
         CreateTimeSeriesRequest.newBuilder()
             .setName(projectName.toString())
-            .addAllTimeSeries(allTimeSeries)
+            .addAllTimeSeries(bigtableTimeSeries)
             .build();
 
-    ApiFuture<Empty> future = this.client.createServiceTimeSeriesCallable().futureCall(request);
+    ApiFuture<Empty> future =
+        this.client.createServiceTimeSeriesCallable().futureCall(bigtableRequest);
 
-    lastExportCode = new CompletableResultCode();
-
+    CompletableResultCode bigtableExportCode = new CompletableResultCode();
     ApiFutures.addCallback(
         future,
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            logger.log(Level.WARNING, "createServiceTimeSeries request failed. ", throwable);
-            lastExportCode.fail();
+            logger.log(
+                Level.WARNING,
+                "createServiceTimeSeries request failed for bigtable metrics. ",
+                throwable);
+            bigtableExportCode.fail();
           }
 
           @Override
           public void onSuccess(Empty empty) {
-            lastExportCode.succeed();
+            bigtableExportCode.succeed();
           }
         },
         MoreExecutors.directExecutor());
 
+    CompletableResultCode gceOrGkeExportCode = exportGceOrGkeMetrics(collection);
+
+    lastExportCode =
+        CompletableResultCode.ofAll(ImmutableList.of(gceOrGkeExportCode, bigtableExportCode));
     return lastExportCode;
   }
 
@@ -216,5 +232,63 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   @Override
   public AggregationTemporality getAggregationTemporality(InstrumentType instrumentType) {
     return AggregationTemporality.CUMULATIVE;
+  }
+
+  private CompletableResultCode exportGceOrGkeMetrics(Collection<MetricData> collection) {
+    CompletableResultCode gceOrGkeExportCode = new CompletableResultCode();
+    if (gceOrGkeResource == null) {
+      return gceOrGkeExportCode.succeed();
+    }
+    List<TimeSeries> gceOrGceTimeSeries;
+    try {
+      gceOrGceTimeSeries =
+          BigtableExporterUtils.convertToGceOrGkeTimeSeries(
+              collection.stream()
+                  .filter(
+                      md ->
+                          md.getName()
+                              .contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME))
+                  .collect(Collectors.toList()),
+              taskId,
+              gceOrGkeResource);
+    } catch (Throwable e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to convert per connection error count data to cloud monitoring timeseries.",
+          e);
+      return CompletableResultCode.ofFailure();
+    }
+
+    ProjectName gceOrGkeProjectName =
+        ProjectName.of(gceOrGkeResource.getLabelsOrThrow(GCE_OR_GKE_PROJECT_ID_LABEL));
+    CreateTimeSeriesRequest gceOrGkeRequest =
+        CreateTimeSeriesRequest.newBuilder()
+            .setName(gceOrGkeProjectName.toString())
+            .addAllTimeSeries(gceOrGceTimeSeries)
+            .build();
+
+    ApiFuture<Empty> gceOrGkeFuture =
+        this.client.createServiceTimeSeriesCallable().futureCall(gceOrGkeRequest);
+
+    ApiFutures.addCallback(
+        gceOrGkeFuture,
+        new ApiFutureCallback<Empty>() {
+          @Override
+          public void onFailure(Throwable throwable) {
+            logger.log(
+                Level.WARNING,
+                "createServiceTimeSeries request failed for per connection error metrics.",
+                throwable);
+            gceOrGkeExportCode.fail();
+          }
+
+          @Override
+          public void onSuccess(Empty empty) {
+            gceOrGkeExportCode.succeed();
+          }
+        },
+        MoreExecutors.directExecutor());
+
+    return gceOrGkeExportCode;
   }
 }

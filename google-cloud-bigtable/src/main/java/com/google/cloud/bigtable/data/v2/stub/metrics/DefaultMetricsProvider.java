@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
@@ -38,6 +39,7 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   private DefaultMetricsProvider() {}
 
+  @InternalApi
   public OpenTelemetry getOpenTelemetry(String projectId, @Nullable Credentials credentials)
       throws IOException {
     if (openTelemetry == null) {
@@ -50,6 +52,6 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   @Override
   public String toString() {
-    return "DefaultMetricsProvider";
+    return "DefaultMetricsProvider: " + openTelemetry;
   }
 }

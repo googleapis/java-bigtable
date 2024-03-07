@@ -28,6 +28,7 @@ import static com.google.api.MetricDescriptor.ValueType.INT64;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
@@ -39,6 +40,7 @@ import com.google.cloud.opentelemetry.detection.AttributeKeys;
 import com.google.cloud.opentelemetry.detection.DetectedPlatform;
 import com.google.cloud.opentelemetry.detection.GCPPlatformDetector;
 import com.google.common.base.MoreObjects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -107,32 +109,39 @@ class BigtableExporterUtils {
     return pointData.getAttributes().get(PROJECT_ID_KEY);
   }
 
-  static List<TimeSeries> convertCollectionToListOfTimeSeries(
-      Collection<MetricData> collection, String taskId, MonitoredResource gceOrGkeResource) {
+  static List<TimeSeries> convertToBigtableTimeSeries(List<MetricData> collection, String taskId) {
     List<TimeSeries> allTimeSeries = new ArrayList<>();
 
     for (MetricData metricData : collection) {
-      if (!metricData
-          .getInstrumentationScopeInfo()
-          .getName()
-          .equals(BuiltinMetricsConstants.METER_NAME)) {
+      if (!metricData.getInstrumentationScopeInfo().getName().equals(METER_NAME)) {
         // Filter out metric data for instruments that are not part of the bigtable builtin metrics
         continue;
       }
-      if (gceOrGkeResource == null
-          && metricData
-              .getName()
-              .contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
-        // Skip exporting per connection error count metric in none gce / gke environment
+      metricData.getData().getPoints().stream()
+          .map(pointData -> convertPointToBigtableTimeSeries(metricData, pointData, taskId))
+          .forEach(allTimeSeries::add);
+    }
+
+    return allTimeSeries;
+  }
+
+  static List<TimeSeries> convertToGceOrGkeTimeSeries(
+      Collection<MetricData> collection, String taskId, MonitoredResource gceOrGkeResource) {
+    Preconditions.checkNotNull(
+        gceOrGkeResource,
+        "convert gce or gke metrics is called when gce or gke resource is not detected");
+    List<TimeSeries> allTimeSeries = new ArrayList<>();
+    for (MetricData metricData : collection) {
+      if (!metricData.getInstrumentationScopeInfo().getName().equals(METER_NAME)) {
+        // Filter out metric data for instruments that are not part of the bigtable builtin metrics
         continue;
       }
       metricData.getData().getPoints().stream()
           .map(
               pointData ->
-                  convertPointToTimeSeries(metricData, pointData, taskId, gceOrGkeResource))
+                  convertPointToGceOrGkeTimeSeries(metricData, pointData, taskId, gceOrGkeResource))
           .forEach(allTimeSeries::add);
     }
-
     return allTimeSeries;
   }
 
@@ -175,38 +184,27 @@ class BigtableExporterUtils {
         .build();
   }
 
-  private static TimeSeries convertPointToTimeSeries(
-      MetricData metricData,
-      PointData pointData,
-      String taskId,
-      MonitoredResource gceOrGkeResource) {
+  private static TimeSeries convertPointToBigtableTimeSeries(
+      MetricData metricData, PointData pointData, String taskId) {
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
             .setMetricKind(convertMetricKind(metricData))
             .setValueType(convertValueType(metricData.getType()));
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
 
-    if (metricData.getName().contains(BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME)) {
-      Attributes attributes = pointData.getAttributes();
-      for (Map.Entry<AttributeKey<?>, Object> entry : attributes.asMap().entrySet()) {
-        metricBuilder.putLabels(entry.getKey().getKey(), String.valueOf(entry.getValue()));
-      }
-      builder.setResource(gceOrGkeResource);
-    } else {
-      Attributes attributes = pointData.getAttributes();
-      MonitoredResource.Builder monitoredResourceBuilder =
-          MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE);
+    Attributes attributes = pointData.getAttributes();
+    MonitoredResource.Builder monitoredResourceBuilder =
+        MonitoredResource.newBuilder().setType(BIGTABLE_RESOURCE_TYPE);
 
-      for (AttributeKey<?> key : attributes.asMap().keySet()) {
-        if (BIGTABLE_PROMOTED_RESOURCE_LABELS.contains(key)) {
-          monitoredResourceBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
-        } else {
-          metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
-        }
+    for (AttributeKey<?> key : attributes.asMap().keySet()) {
+      if (BIGTABLE_PROMOTED_RESOURCE_LABELS.contains(key)) {
+        monitoredResourceBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+      } else {
+        metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
       }
-
-      builder.setResource(monitoredResourceBuilder.build());
     }
+
+    builder.setResource(monitoredResourceBuilder.build());
 
     metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
     builder.setMetric(metricBuilder.build());
@@ -219,6 +217,37 @@ class BigtableExporterUtils {
 
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
 
+    return builder.build();
+  }
+
+  private static TimeSeries convertPointToGceOrGkeTimeSeries(
+      MetricData metricData,
+      PointData pointData,
+      String taskId,
+      MonitoredResource gceOrGkeResource) {
+    TimeSeries.Builder builder =
+        TimeSeries.newBuilder()
+            .setMetricKind(convertMetricKind(metricData))
+            .setValueType(convertValueType(metricData.getType()))
+            .setResource(gceOrGkeResource);
+
+    Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
+
+    Attributes attributes = pointData.getAttributes();
+    for (AttributeKey<?> key : attributes.asMap().keySet()) {
+      metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
+    }
+
+    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
+    builder.setMetric(metricBuilder.build());
+
+    TimeInterval timeInterval =
+        TimeInterval.newBuilder()
+            .setStartTime(Timestamps.fromNanos(pointData.getStartEpochNanos()))
+            .setEndTime(Timestamps.fromNanos(pointData.getEpochNanos()))
+            .build();
+
+    builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
     return builder.build();
   }
 

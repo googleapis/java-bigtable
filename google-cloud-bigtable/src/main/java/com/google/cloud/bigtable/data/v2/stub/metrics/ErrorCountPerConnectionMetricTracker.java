@@ -59,7 +59,7 @@ public class ErrorCountPerConnectionMetricTracker implements Runnable {
   }
 
   public void startConnectionErrorCountTracker(ScheduledExecutorService scheduler) {
-    scheduler.scheduleWithFixedDelay(
+    scheduler.scheduleAtFixedRate(
         this, 0, PER_CONNECTION_ERROR_COUNT_PERIOD_SECONDS, TimeUnit.SECONDS);
   }
 

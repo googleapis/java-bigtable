@@ -226,6 +226,7 @@ public class BigtableCloudMonitoringExporterTest {
 
   @Test
   public void testTimeSeriesForMetricWithGceOrGkeResource() {
+    String gceProjectId = "fake-gce-project";
     BigtableCloudMonitoringExporter exporter =
         new BigtableCloudMonitoringExporter(
             projectId,
@@ -233,6 +234,7 @@ public class BigtableCloudMonitoringExporterTest {
             MonitoredResource.newBuilder()
                 .setType("gce-instance")
                 .putLabels("some-gce-key", "some-gce-value")
+                .putLabels("project_id", gceProjectId)
                 .build(),
             taskId);
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
@@ -280,12 +282,13 @@ public class BigtableCloudMonitoringExporterTest {
 
     CreateTimeSeriesRequest request = argumentCaptor.getValue();
 
+    assertThat(request.getName()).isEqualTo("projects/" + gceProjectId);
     assertThat(request.getTimeSeriesList()).hasSize(1);
 
     com.google.monitoring.v3.TimeSeries timeSeries = request.getTimeSeriesList().get(0);
 
     assertThat(timeSeries.getResource().getLabelsMap())
-        .containsExactly("some-gce-key", "some-gce-value");
+        .containsExactly("some-gce-key", "some-gce-value", "project_id", gceProjectId);
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
     assertThat(timeSeries.getMetric().getLabelsMap())
