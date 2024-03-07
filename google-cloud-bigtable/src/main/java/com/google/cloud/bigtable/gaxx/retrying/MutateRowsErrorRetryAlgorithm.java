@@ -56,6 +56,9 @@ public class MutateRowsErrorRetryAlgorithm
     if (retryAlgorithm.shouldRetry(previousThrowable, previousResponse)) {
       return true;
     }
+    if (previousResponse == null) {
+      return false;
+    }
     return previousResponse.isRetryable;
   }
 
@@ -66,6 +69,9 @@ public class MutateRowsErrorRetryAlgorithm
       MutateRowsAttemptResult previousResponse) {
     if (retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse)) {
       return true;
+    }
+    if (previousResponse == null) {
+      return false;
     }
     return previousResponse.isRetryable;
   }
