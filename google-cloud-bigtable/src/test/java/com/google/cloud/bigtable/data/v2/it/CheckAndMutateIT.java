@@ -17,12 +17,21 @@ package com.google.cloud.bigtable.data.v2.it;
 
 import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.TruthJUnit.assume;
+import static org.junit.Assert.fail;
 
+import com.google.api.gax.rpc.PermissionDeniedException;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
+import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
+import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.protobuf.ByteString;
 import java.util.UUID;
@@ -35,6 +44,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CheckAndMutateIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+  private static String AUTHORIZED_VIEW_ROW_PREFIX = "row#";
+  private static String AUTHORIZED_VIEW_COLUMN_QUALIFIER = "qualifier";
 
   @Test
   public void test() throws Exception {
@@ -70,5 +81,96 @@ public class CheckAndMutateIT {
 
     assertThat(row.getCells()).hasSize(3);
     assertThat(row.getCells().get(2).getValue()).isEqualTo(ByteString.copyFromUtf8("q1"));
+  }
+
+  @Test
+  public void testOnAuthorizedView() throws Exception {
+    assume()
+        .withMessage("AuthorizedView is not supported on Emulator")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    AuthorizedView testAuthorizedView = createTestAuthorizedView();
+
+    String tableId = testEnvRule.env().getTableId();
+    String familyId = testEnvRule.env().getFamilyId();
+    String rowKey = AUTHORIZED_VIEW_ROW_PREFIX + UUID.randomUUID();
+    BigtableDataClient dataClient = testEnvRule.env().getDataClient();
+
+    dataClient
+        .mutateRowCallable()
+        .call(
+            RowMutation.createForAuthorizedView(tableId, testAuthorizedView.getId(), rowKey)
+                .setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER + "1", "val1")
+                .setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER + "2", "val2"));
+
+    dataClient
+        .checkAndMutateRowAsync(
+            ConditionalRowMutation.createForAuthorizedView(
+                    tableId, testAuthorizedView.getId(), rowKey)
+                .condition(FILTERS.qualifier().exactMatch(AUTHORIZED_VIEW_COLUMN_QUALIFIER + "1"))
+                .then(
+                    Mutation.create()
+                        .setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER + "3", "q1")))
+        .get(1, TimeUnit.MINUTES);
+
+    Row row = dataClient.readRowsCallable().first().call(Query.create(tableId).rowKey(rowKey));
+
+    assertThat(row.getCells()).hasSize(3);
+    assertThat(row.getCells().get(2).getValue()).isEqualTo(ByteString.copyFromUtf8("q1"));
+
+    // Conditional mutation for rows exist in the table but outside the authorized view
+    String rowKeyOutsideAuthorizedView = UUID.randomUUID() + "-outside-authorized-view";
+    dataClient
+        .mutateRowCallable()
+        .call(
+            RowMutation.create(tableId, rowKeyOutsideAuthorizedView)
+                .setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER, "value"));
+    try {
+      dataClient
+          .checkAndMutateRowAsync(
+              ConditionalRowMutation.createForAuthorizedView(
+                      tableId, testAuthorizedView.getId(), rowKeyOutsideAuthorizedView)
+                  .condition(FILTERS.qualifier().exactMatch(AUTHORIZED_VIEW_COLUMN_QUALIFIER))
+                  .then(Mutation.create().setCell(familyId, "new_qualifier", "new-value")))
+          .get(1, TimeUnit.MINUTES);
+      fail("Should not be able to conditional mutate row outside authorized view");
+    } catch (Exception e) {
+      assertThat(e.getCause()).isInstanceOf(PermissionDeniedException.class);
+    }
+
+    // Column qualifier outside the authorized view
+    try {
+      dataClient
+          .checkAndMutateRowAsync(
+              ConditionalRowMutation.createForAuthorizedView(
+                      tableId, testAuthorizedView.getId(), rowKey)
+                  .condition(FILTERS.qualifier().exactMatch(AUTHORIZED_VIEW_COLUMN_QUALIFIER))
+                  .then(Mutation.create().setCell(familyId, "new_qualifier", "new-value")))
+          .get(1, TimeUnit.MINUTES);
+      fail("Should not be able to perform mutations with cells outside the authorized view");
+    } catch (Exception e) {
+      assertThat(e.getCause()).isInstanceOf(PermissionDeniedException.class);
+    }
+
+    testEnvRule
+        .env()
+        .getTableAdminClient()
+        .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
+  }
+
+  private static AuthorizedView createTestAuthorizedView() {
+    String tableId = testEnvRule.env().getTableId();
+    String authorizedViewId = UUID.randomUUID().toString();
+    CreateAuthorizedViewRequest request =
+        CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+            .setAuthorizedViewImpl(
+                new SubsetView()
+                    .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
+                    .addFamilySubsets(
+                        testEnvRule.env().getFamilyId(),
+                        new FamilySubsets().addQualifierPrefix(AUTHORIZED_VIEW_COLUMN_QUALIFIER)))
+            .setDeletionProtection(false);
+    return testEnvRule.env().getTableAdminClient().createAuthorizedView(request);
   }
 }

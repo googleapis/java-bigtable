@@ -16,12 +16,18 @@
 package com.google.cloud.bigtable.data.v2.it;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
+import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -37,6 +43,8 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SampleRowsIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+  private static String AUTHORIZED_VIEW_ROW_PREFIX = "row#";
+  private static String AUTHORIZED_VIEW_COLUMN_QUALIFIER = "qualifier";
 
   @Test
   public void test() throws InterruptedException, ExecutionException, TimeoutException {
@@ -60,5 +68,66 @@ public class SampleRowsIT {
 
     assertThat(results).isNotEmpty();
     assertThat(results.get(results.size() - 1).getOffsetBytes()).isGreaterThan(0L);
+  }
+
+  @Test
+  public void testOnAuthorizedView()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    assume()
+        .withMessage("AuthorizedView is not supported on Emulator")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    AuthorizedView testAuthorizedView = createTestAuthorizedView();
+
+    BigtableDataClient client = testEnvRule.env().getDataClient();
+    String rowPrefix = AUTHORIZED_VIEW_ROW_PREFIX + UUID.randomUUID();
+    String rowPrefixOutsideAuthorizedView = UUID.randomUUID() + "-outside-authorized-view";
+
+    // Create some data so that sample row keys has something to show
+    List<ApiFuture<?>> futures = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      ApiFuture<Void> future =
+          client.mutateRowAsync(
+              RowMutation.create(testEnvRule.env().getTableId(), rowPrefix + "-" + i)
+                  .setCell(
+                      testEnvRule.env().getFamilyId(), AUTHORIZED_VIEW_COLUMN_QUALIFIER, "value"));
+      futures.add(future);
+      ApiFuture<Void> futureOutsideAuthorizedView =
+          client.mutateRowAsync(
+              RowMutation.create(
+                      testEnvRule.env().getTableId(), rowPrefixOutsideAuthorizedView + "-" + i)
+                  .setCell(
+                      testEnvRule.env().getFamilyId(), AUTHORIZED_VIEW_COLUMN_QUALIFIER, "value"));
+      futures.add(futureOutsideAuthorizedView);
+    }
+    ApiFutures.allAsList(futures).get(1, TimeUnit.MINUTES);
+
+    ApiFuture<List<KeyOffset>> future = client.sampleRowKeysAsync(testEnvRule.env().getTableId());
+
+    List<KeyOffset> results = future.get(1, TimeUnit.MINUTES);
+
+    assertThat(results).isNotEmpty();
+    assertThat(results.get(results.size() - 1).getOffsetBytes()).isGreaterThan(0L);
+
+    testEnvRule
+        .env()
+        .getTableAdminClient()
+        .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
+  }
+
+  private static AuthorizedView createTestAuthorizedView() {
+    String tableId = testEnvRule.env().getTableId();
+    String authorizedViewId = UUID.randomUUID().toString();
+    CreateAuthorizedViewRequest request =
+        CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+            .setAuthorizedViewImpl(
+                new SubsetView()
+                    .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
+                    .addFamilySubsets(
+                        testEnvRule.env().getFamilyId(),
+                        new FamilySubsets().addQualifierPrefix(AUTHORIZED_VIEW_COLUMN_QUALIFIER)))
+            .setDeletionProtection(false);
+    return testEnvRule.env().getTableAdminClient().createAuthorizedView(request);
   }
 }

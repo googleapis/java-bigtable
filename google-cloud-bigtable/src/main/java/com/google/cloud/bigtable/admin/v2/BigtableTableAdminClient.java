@@ -2172,6 +2172,187 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     return testResourceIamPermissions(backupName, permissions);
   }
 
+  /**
+   * Gets the IAM access control policy for the specified authorized view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * Policy policy = client.getAuthorizedViewIamPolicy("my-table-id", "my-authorized-view-id");
+   * for(Map.Entry<Role, Set<Identity>> entry : policy.getBindings().entrySet()) {
+   *   System.out.printf("Role: %s Identities: %s\n", entry.getKey(), entry.getValue());
+   * }
+   * }</pre>
+   *
+   * @see <a
+   *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
+   *     IAM management</a>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public Policy getAuthorizedViewIamPolicy(String tableId, String authorizedViewId) {
+    return ApiExceptions.callAndTranslateApiException(
+        getAuthorizedViewIamPolicyAsync(tableId, authorizedViewId));
+  }
+
+  /**
+   * Asynchronously gets the IAM access control policy for the specified authorized view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<Policy> policyFuture = client.getAuthorizedViewIamPolicyAsync("my-table-id", "my-authorized-view-id");
+   *
+   * ApiFutures.addCallback(policyFuture,
+   *   new ApiFutureCallback<Policy>() {
+   *     public void onSuccess(Policy policy) {
+   *       for (Entry<Role, Set<Identity>> entry : policy.getBindings().entrySet()) {
+   *         System.out.printf("Role: %s Identities: %s\n", entry.getKey(), entry.getValue());
+   *       }
+   *     }
+   *
+   *     public void onFailure(Throwable t) {
+   *       t.printStackTrace();
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor());
+   * }</pre>
+   *
+   * @see <a
+   *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
+   *     IAM management</a>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<Policy> getAuthorizedViewIamPolicyAsync(
+      String tableId, String authorizedViewId) {
+    String authorizedViewName =
+        NameUtil.formatAuthorizedViewName(projectId, instanceId, tableId, authorizedViewId);
+    return getResourceIamPolicy(authorizedViewName);
+  }
+
+  /**
+   * Replaces the IAM policy associated with the specified authorized view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * Policy newPolicy = client.setAuthorizedViewIamPolicy("my-table-id", "my-authorized-view-id",
+   *   Policy.newBuilder()
+   *     .addIdentity(Role.of("bigtable.user"), Identity.user("someone@example.com"))
+   *     .addIdentity(Role.of("bigtable.admin"), Identity.group("admins@example.com"))
+   *     .build());
+   * }</pre>
+   *
+   * @see <a
+   *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
+   *     IAM management</a>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public Policy setAuthorizedViewIamPolicy(String tableId, String authorizedViewId, Policy policy) {
+    return ApiExceptions.callAndTranslateApiException(
+        setAuthorizedViewIamPolicyAsync(tableId, authorizedViewId, policy));
+  }
+
+  /**
+   * Asynchronously replaces the IAM policy associated with the specified authorized view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<Policy> newPolicyFuture = client.setAuthorizedViewIamPolicyAsync("my-table-id", "my-authorized-view-id",
+   *   Policy.newBuilder()
+   *     .addIdentity(Role.of("bigtable.user"), Identity.user("someone@example.com"))
+   *     .addIdentity(Role.of("bigtable.admin"), Identity.group("admins@example.com"))
+   *     .build());
+   *
+   * ApiFutures.addCallback(newPolicyFuture,
+   *   new ApiFutureCallback<Policy>() {
+   *     public void onSuccess(Policy policy) {
+   *       for (Entry<Role, Set<Identity>> entry : policy.getBindings().entrySet()) {
+   *         System.out.printf("Role: %s Identities: %s\n", entry.getKey(), entry.getValue());
+   *       }
+   *     }
+   *
+   *     public void onFailure(Throwable t) {
+   *       t.printStackTrace();
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor());
+   * }</pre>
+   *
+   * @see <a
+   *     href="https://cloud.google.com/bigtable/docs/access-control#iam-management-table">Table-level
+   *     IAM management</a>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<Policy> setAuthorizedViewIamPolicyAsync(
+      String tableId, String authorizedViewId, Policy policy) {
+    String authorizedViewName =
+        NameUtil.formatAuthorizedViewName(projectId, instanceId, tableId, authorizedViewId);
+    return setResourceIamPolicy(policy, authorizedViewName);
+  }
+
+  /**
+   * Tests whether the caller has the given permissions for the specified authorized view. Returns a
+   * subset of the specified permissions that the caller has.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * List<String> grantedPermissions = client.testAuthorizedViewIamPermission("my-table-id", "my-authorized-view-id",
+   *   "bigtable.authorizedViews.get", "bigtable.authorizedViews.delete");
+   * }</pre>
+   *
+   * System.out.println("Has get access: " +
+   * grantedPermissions.contains("bigtable.authorizedViews.get"));
+   *
+   * <p>System.out.println("Has delete access: " +
+   * grantedPermissions.contains("bigtable.authorizedViews.delete"));
+   *
+   * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
+   *     permissions</a>
+   */
+  @SuppressWarnings({"WeakerAccess"})
+  public List<String> testAuthorizedViewIamPermission(
+      String tableId, String authorizedViewId, String... permissions) {
+    return ApiExceptions.callAndTranslateApiException(
+        testAuthorizedViewIamPermissionAsync(tableId, authorizedViewId, permissions));
+  }
+
+  /**
+   * Asynchronously tests whether the caller has the given permissions for the specified authorized
+   * view. Returns a subset of the specified permissions that the caller has.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<List<String>> grantedPermissionsFuture = client.testAuthorizedViewIamPermissionAsync("my-table-id", "my-authorized-view-id",
+   *   "bigtable.authorizedViews.get", "bigtable.authorizedViews.delete");
+   *
+   * ApiFutures.addCallback(grantedPermissionsFuture,
+   *   new ApiFutureCallback<List<String>>() {
+   *     public void onSuccess(List<String> grantedPermissions) {
+   *       System.out.println("Has get access: " + grantedPermissions.contains("bigtable.authorizedViews.get"));
+   *       System.out.println("Has delete access: " + grantedPermissions.contains("bigtable.authorizedViews.delete"));
+   *     }
+   *
+   *     public void onFailure(Throwable t) {
+   *       t.printStackTrace();
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor());
+   * }</pre>
+   *
+   * @see <a href="https://cloud.google.com/bigtable/docs/access-control#permissions">Cloud Bigtable
+   *     permissions</a>
+   */
+  @SuppressWarnings({"WeakerAccess"})
+  public ApiFuture<List<String>> testAuthorizedViewIamPermissionAsync(
+      String tableId, String authorizedViewId, String... permissions) {
+    String authorizedViewName =
+        NameUtil.formatAuthorizedViewName(projectId, instanceId, tableId, authorizedViewId);
+    return testResourceIamPermissions(authorizedViewName, permissions);
+  }
+
   private ApiFuture<Policy> getResourceIamPolicy(String name) {
     GetIamPolicyRequest request = GetIamPolicyRequest.newBuilder().setResource(name).build();
 

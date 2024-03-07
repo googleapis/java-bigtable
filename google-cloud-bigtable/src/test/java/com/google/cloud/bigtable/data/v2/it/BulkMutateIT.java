@@ -17,13 +17,19 @@ package com.google.cloud.bigtable.data.v2.it;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
+import static org.junit.Assert.fail;
 
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlEventStats;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
+import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
+import com.google.cloud.bigtable.data.v2.models.MutateRowOptions;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -42,6 +48,8 @@ import org.threeten.bp.Duration;
 public class BulkMutateIT {
 
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
+  private static String AUTHORIZED_VIEW_ROW_PREFIX = "row#";
+  private static String AUTHORIZED_VIEW_COLUMN_QUALIFIER = "qualifier";
 
   @Test(timeout = 60 * 1000)
   public void test() throws IOException, InterruptedException {
@@ -86,6 +94,66 @@ public class BulkMutateIT {
                       .rowKey(rowPrefix + "test-key" + initial));
       assertThat(row.getCells()).hasSize(1);
     }
+  }
+
+  @Test(timeout = 60 * 1000)
+  public void testOnAuthorizedView() throws IOException, InterruptedException {
+    assume()
+        .withMessage("AuthorizedView is not supported on Emulator")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    BigtableDataSettings settings = testEnvRule.env().getDataClientSettings();
+    String rowPrefix = AUTHORIZED_VIEW_ROW_PREFIX + UUID.randomUUID();
+    // Set target latency really low so it'll trigger adjusting thresholds
+    BigtableDataSettings.Builder builder =
+        settings.toBuilder().enableBatchMutationLatencyBasedThrottling(2L);
+
+    AuthorizedView testAuthorizedView = createTestAuthorizedView();
+
+    try (BigtableDataClient client = BigtableDataClient.create(builder.build());
+        BatcherImpl<RowMutationEntry, Void, BulkMutation, Void> batcher =
+            (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
+                client.newBulkMutationBatcher(
+                    testEnvRule.env().getTableId(),
+                    new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+      FlowControlEventStats events = batcher.getFlowController().getFlowControlEventStats();
+      long initialThreashold =
+          Objects.requireNonNull(batcher.getFlowController().getCurrentElementCountLimit());
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
+          .isNotEqualTo(batcher.getFlowController().getMinElementCountLimit());
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
+          .isNotEqualTo(batcher.getFlowController().getMaxElementCountLimit());
+
+      String familyId = testEnvRule.env().getFamilyId();
+      long initial = batcher.getFlowController().getCurrentElementCountLimit();
+      for (long i = 0; i < initial * 3; i++) {
+        String key = rowPrefix + "test-key" + i;
+        batcher.add(
+            RowMutationEntry.create(key).setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER, i));
+      }
+      batcher.flush();
+      assertThat(events.getLastFlowControlEvent()).isNotNull();
+      // Verify that the threshold is adjusted
+      assertThat(batcher.getFlowController().getCurrentElementCountLimit())
+          .isNotEqualTo(initialThreashold);
+      // Query a key to make sure the write succeeded
+      Row row =
+          testEnvRule
+              .env()
+              .getDataClient()
+              .readRowsCallable()
+              .first()
+              .call(
+                  Query.create(testEnvRule.env().getTableId())
+                      .rowKey(rowPrefix + "test-key" + initial));
+      assertThat(row.getCells()).hasSize(1);
+    }
+
+    testEnvRule
+        .env()
+        .getTableAdminClient()
+        .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
   }
 
   @Test
@@ -134,5 +202,99 @@ public class BulkMutateIT {
               .call(Query.create(testEnvRule.env().getTableId()).rowKey(rowPrefix + "test-key"));
       assertThat(row.getCells()).hasSize(100002);
     }
+  }
+
+  @Test
+  public void testManyMutationsOnAuthorizedView() throws IOException, InterruptedException {
+    assume()
+        .withMessage("AuthorizedView is not supported on Emulator")
+        .that(testEnvRule.env())
+        .isNotInstanceOf(EmulatorEnv.class);
+
+    AuthorizedView testAuthorizedView = createTestAuthorizedView();
+
+    BigtableDataSettings settings = testEnvRule.env().getDataClientSettings();
+    String rowPrefix = AUTHORIZED_VIEW_ROW_PREFIX + UUID.randomUUID();
+
+    BatchingSettings batchingSettings =
+        settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings();
+
+    settings
+        .toBuilder()
+        .stubSettings()
+        .bulkMutateRowsSettings()
+        .setBatchingSettings(
+            batchingSettings.toBuilder().setDelayThreshold(Duration.ofHours(1)).build());
+    try (BigtableDataClient client = BigtableDataClient.create(settings);
+        BatcherImpl<RowMutationEntry, Void, BulkMutation, Void> batcher =
+            (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
+                client.newBulkMutationBatcher(
+                    testEnvRule.env().getTableId(),
+                    new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+
+      String familyId = testEnvRule.env().getFamilyId();
+      for (int i = 0; i < 2; i++) {
+        String key = rowPrefix + "test-key";
+        RowMutationEntry rowMutationEntry = RowMutationEntry.create(key);
+        // Create mutation entries with many columns. The batcher should flush every time.
+        for (long j = 0; j < 50001; j++) {
+          rowMutationEntry.setCell(familyId, AUTHORIZED_VIEW_COLUMN_QUALIFIER + j + i, j);
+        }
+        batcher.add(rowMutationEntry);
+      }
+      batcher.flush();
+      // Query a key to make sure the write succeeded
+      Row row =
+          testEnvRule
+              .env()
+              .getDataClient()
+              .readRowsCallable()
+              .first()
+              .call(Query.create(testEnvRule.env().getTableId()).rowKey(rowPrefix + "test-key"));
+      assertThat(row.getCells()).hasSize(100002);
+    }
+
+    // We should not be able to mutate rows outside the authorized view
+    try {
+      try (BigtableDataClient client = BigtableDataClient.create(settings);
+          BatcherImpl<RowMutationEntry, Void, BulkMutation, Void> batcherOutsideAuthorizedView =
+              (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
+                  testEnvRule
+                      .env()
+                      .getDataClient()
+                      .newBulkMutationBatcher(
+                          testEnvRule.env().getTableId(),
+                          new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+        String keyOutsideAuthorizedView = UUID.randomUUID() + "-outside-authorized-view";
+        RowMutationEntry rowMutationEntry = RowMutationEntry.create(keyOutsideAuthorizedView);
+        rowMutationEntry.setCell(
+            testEnvRule.env().getFamilyId(), AUTHORIZED_VIEW_COLUMN_QUALIFIER, "test-value");
+        batcherOutsideAuthorizedView.add(rowMutationEntry);
+        batcherOutsideAuthorizedView.flush();
+      }
+      fail("Should not be able to apply bulk mutation on rows outside authorized view");
+    } catch (Exception e) {
+      // Ignore.
+    }
+
+    testEnvRule
+        .env()
+        .getTableAdminClient()
+        .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
+  }
+
+  private static AuthorizedView createTestAuthorizedView() {
+    String tableId = testEnvRule.env().getTableId();
+    String authorizedViewId = UUID.randomUUID().toString();
+    CreateAuthorizedViewRequest request =
+        CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+            .setAuthorizedViewImpl(
+                new SubsetView()
+                    .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
+                    .addFamilySubsets(
+                        testEnvRule.env().getFamilyId(),
+                        new FamilySubsets().addQualifierPrefix(AUTHORIZED_VIEW_COLUMN_QUALIFIER)))
+            .setDeletionProtection(false);
+    return testEnvRule.env().getTableAdminClient().createAuthorizedView(request);
   }
 }
