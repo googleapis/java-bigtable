@@ -231,11 +231,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    // Skip setting up ErrorCountPerConnectionMetricTracker if openTelemetry is null
     OpenTelemetry openTelemetry =
         getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
     ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
-    if (transportProvider != null && openTelemetry != null) {
+    // Skip setting up ErrorCountPerConnectionMetricTracker if openTelemetry is null
+    if (openTelemetry != null && transportProvider != null) {
       errorCountPerConnectionMetricTracker =
           new ErrorCountPerConnectionMetricTracker(
               openTelemetry, createBuiltinAttributes(settings));
