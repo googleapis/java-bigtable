@@ -71,6 +71,7 @@ public class MutateRowsRetryingCallable
     RetryingFuture<MutateRowsAttemptResult> retryingFuture =
         executor.createFuture(retryCallable, context);
     retryCallable.setExternalFuture(retryingFuture);
+    retryCallable.call();
 
     return retryingFuture;
   }
