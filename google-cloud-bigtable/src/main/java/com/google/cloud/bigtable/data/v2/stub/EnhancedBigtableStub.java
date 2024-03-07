@@ -680,9 +680,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
             GrpcCallSettings.<MutateRowsRequest, MutateRowsResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getMutateRowsMethod())
                 .setParamsExtractor(
-                    mutateRowsRequest -> ImmutableMap.of(
-                        "table_name", mutateRowsRequest.getTableName(),
-                        "app_profile_id", mutateRowsRequest.getAppProfileId()))
+                    mutateRowsRequest ->
+                        ImmutableMap.of(
+                            "table_name", mutateRowsRequest.getTableName(),
+                            "app_profile_id", mutateRowsRequest.getAppProfileId()))
                 .build(),
             settings.bulkMutateRowsSettings().getRetryableCodes());
 
