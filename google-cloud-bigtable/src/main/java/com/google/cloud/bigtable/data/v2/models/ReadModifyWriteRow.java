@@ -28,19 +28,27 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /** Wraps a {@link ReadModifyWriteRowRequest}. */
 public final class ReadModifyWriteRow implements Serializable {
   private static final long serialVersionUID = -8150045424541029193L;
 
   private final String tableId;
+  @Nullable private final String authorizedViewId;
   private transient ReadModifyWriteRowRequest.Builder builder =
       ReadModifyWriteRowRequest.newBuilder();
 
   private ReadModifyWriteRow(@Nonnull String tableId, @Nonnull ByteString key) {
+    this(tableId, null, key);
+  }
+
+  private ReadModifyWriteRow(
+      @Nonnull String tableId, @Nullable String authorizedViewId, @Nonnull ByteString key) {
     Preconditions.checkNotNull(tableId, "tableId can't be null.");
     Preconditions.checkNotNull(key, "key can't be null.");
     this.tableId = tableId;
+    this.authorizedViewId = authorizedViewId;
 
     builder.setRowKey(key);
   }
@@ -50,8 +58,31 @@ public final class ReadModifyWriteRow implements Serializable {
     return new ReadModifyWriteRow(tableId, ByteString.copyFromUtf8(key));
   }
 
+  /**
+   * Creates a new instance of the ReadModifyWriteRow on an authorized view.
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static ReadModifyWriteRow createForAuthorizedView(
+      @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull String key) {
+    Preconditions.checkNotNull(key, "key can't be null.");
+    return new ReadModifyWriteRow(tableId, authorizedViewId, ByteString.copyFromUtf8(key));
+  }
+
   public static ReadModifyWriteRow create(@Nonnull String tableId, @Nonnull ByteString key) {
     return new ReadModifyWriteRow(tableId, key);
+  }
+
+  /**
+   * Creates a new instance of the ReadModifyWriteRow on an authorized view.
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static ReadModifyWriteRow createForAuthorizedView(
+      @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull ByteString key) {
+    return new ReadModifyWriteRow(tableId, authorizedViewId, key);
   }
 
   private void readObject(ObjectInputStream input) throws IOException, ClassNotFoundException {
@@ -129,14 +160,21 @@ public final class ReadModifyWriteRow implements Serializable {
 
   @InternalApi
   public ReadModifyWriteRowRequest toProto(RequestContext requestContext) {
-    String tableName =
-        NameUtil.formatTableName(
-            requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
-
-    return builder
-        .setTableName(tableName)
-        .setAppProfileId(requestContext.getAppProfileId())
-        .build();
+    if (authorizedViewId != null && !authorizedViewId.isEmpty()) {
+      String authorizedViewName =
+          NameUtil.formatAuthorizedViewName(
+              requestContext.getProjectId(),
+              requestContext.getInstanceId(),
+              tableId,
+              authorizedViewId);
+      builder.setAuthorizedViewName(authorizedViewName);
+    } else {
+      String tableName =
+          NameUtil.formatTableName(
+              requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+      builder.setTableName(tableName);
+    }
+    return builder.setAppProfileId(requestContext.getAppProfileId()).build();
   }
 
   /**
@@ -147,9 +185,28 @@ public final class ReadModifyWriteRow implements Serializable {
    */
   @BetaApi
   public static ReadModifyWriteRow fromProto(@Nonnull ReadModifyWriteRowRequest request) {
-    String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
+    String tableName = request.getTableName();
+    String authorizedViewName = request.getAuthorizedViewName();
 
-    ReadModifyWriteRow row = ReadModifyWriteRow.create(tableId, request.getRowKey());
+    Preconditions.checkArgument(
+        !tableName.isEmpty() || !authorizedViewName.isEmpty(),
+        "Either table name or authorized view name must be specified");
+    Preconditions.checkArgument(
+        tableName.isEmpty() || authorizedViewName.isEmpty(),
+        "Table name and authorized view name cannot be specified at the same time");
+
+    ReadModifyWriteRow row;
+    if (!tableName.isEmpty()) {
+      String tableId = NameUtil.extractTableIdFromTableName(tableName);
+      row = ReadModifyWriteRow.create(tableId, request.getRowKey());
+    } else {
+      String tableId = NameUtil.extractTableIdFromAuthorizedViewName(authorizedViewName);
+      String authorizedViewId =
+          NameUtil.extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
+      row =
+          ReadModifyWriteRow.createForAuthorizedView(
+              tableId, authorizedViewId, request.getRowKey());
+    }
     row.builder = request.toBuilder();
 
     return row;

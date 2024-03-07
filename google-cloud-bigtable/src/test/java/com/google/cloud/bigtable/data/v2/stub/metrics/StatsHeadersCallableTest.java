@@ -40,6 +40,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.SampleRowKeys;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.Queues;
@@ -136,6 +137,13 @@ public class StatsHeadersCallableTest {
   public void testSampleRowKeysHeaders() throws Exception {
     long startTimestamp = System.currentTimeMillis() * 1000;
     stub.sampleRowKeysCallable().call(TABLE_ID).get(0);
+    verifyHeaders(attemptCounts, startTimestamp);
+  }
+
+  @Test
+  public void testSampleRowKeys2Headers() throws Exception {
+    long startTimestamp = System.currentTimeMillis() * 1000;
+    stub.sampleRowKeysCallable2().call(SampleRowKeys.create(TABLE_ID)).get(0);
     verifyHeaders(attemptCounts, startTimestamp);
   }
 

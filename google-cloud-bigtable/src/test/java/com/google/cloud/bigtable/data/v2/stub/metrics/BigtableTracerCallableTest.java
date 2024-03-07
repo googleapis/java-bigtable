@@ -43,6 +43,7 @@ import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.models.SampleRowKeys;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
@@ -233,6 +234,24 @@ public class BigtableTracerCallableTest {
   @Test
   public void testGFELatencySampleRowKeys() throws InterruptedException {
     stub.sampleRowKeysCallable().call(TABLE_ID);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.SampleRowKeys"),
+                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(latency).isEqualTo(fakeServerTiming.get());
+  }
+
+  @Test
+  public void testGFELatencySampleRowKeys2() throws InterruptedException {
+    stub.sampleRowKeysCallable2().call(SampleRowKeys.create(TABLE_ID));
 
     Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
     long latency =

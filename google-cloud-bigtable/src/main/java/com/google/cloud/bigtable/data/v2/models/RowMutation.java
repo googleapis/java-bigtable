@@ -23,9 +23,11 @@ import com.google.bigtable.v2.MutateRowsRequest.Entry;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a list of mutations targeted at a single row. It's meant to be used as an parameter
@@ -35,11 +37,23 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
   private static final long serialVersionUID = 6529002234913236318L;
 
   private final String tableId;
+  @Nullable private final String authorizedViewId;
   private final ByteString key;
   private final Mutation mutation;
 
-  private RowMutation(String tableId, ByteString key, Mutation mutation) {
+  private RowMutation(@Nonnull String tableId, ByteString key, Mutation mutation) {
+    this(tableId, null, key, mutation);
+  }
+
+  private RowMutation(
+      @Nonnull String tableId,
+      @Nullable String authorizedViewId,
+      ByteString key,
+      Mutation mutation) {
+    Preconditions.checkNotNull(tableId);
+
     this.tableId = tableId;
+    this.authorizedViewId = authorizedViewId;
     this.key = key;
     this.mutation = mutation;
   }
@@ -49,9 +63,31 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
     return create(tableId, ByteString.copyFromUtf8(key));
   }
 
+  /**
+   * Creates a new instance of the mutation builder on an authorized view.
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static RowMutation createForAuthorizedView(
+      @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull String key) {
+    return createForAuthorizedView(tableId, authorizedViewId, ByteString.copyFromUtf8(key));
+  }
+
   /** Creates a new instance of the mutation builder. */
   public static RowMutation create(@Nonnull String tableId, @Nonnull ByteString key) {
     return new RowMutation(tableId, key, Mutation.create());
+  }
+
+  /**
+   * Creates a new instance of the mutation builder on an authorized view.
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static RowMutation createForAuthorizedView(
+      @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull ByteString key) {
+    return new RowMutation(tableId, authorizedViewId, key, Mutation.create());
   }
 
   /**
@@ -73,6 +109,31 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
   }
 
   /**
+   * Creates new instance of mutation builder on an authorized view by wrapping existing set of row
+   * mutations. The builder will be owned by this RowMutation and should not be used by the caller
+   * after this call. This functionality is intended for advanced usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre><code>
+   * Mutation mutation = Mutation.create()
+   *     .setCell("[FAMILY_NAME]", "[QUALIFIER]", [TIMESTAMP], "[VALUE]");
+   * RowMutation rowMutation = RowMutation.create("[TABLE]", "[AUTHORIZED_VIEW]", "[ROW_KEY]", mutation);
+   * </code></pre>
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static RowMutation createForAuthorizedView(
+      @Nonnull String tableId,
+      @Nonnull String authorizedViewId,
+      @Nonnull String key,
+      @Nonnull Mutation mutation) {
+    return createForAuthorizedView(
+        tableId, authorizedViewId, ByteString.copyFromUtf8(key), mutation);
+  }
+
+  /**
    * Creates new instance of mutation builder by wrapping existing set of row mutations. The builder
    * will be owned by this RowMutation and should not be used by the caller after this call. This
    * functionality is intended for advanced usage.
@@ -88,6 +149,30 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
   public static RowMutation create(
       @Nonnull String tableId, @Nonnull ByteString key, @Nonnull Mutation mutation) {
     return new RowMutation(tableId, key, mutation);
+  }
+
+  /**
+   * Creates new instance of mutation builder on an authorized view by wrapping existing set of row
+   * mutations. The builder will be owned by this RowMutation and should not be used by the caller
+   * after this call. This functionality is intended for advanced usage.
+   *
+   * <p>Sample code:
+   *
+   * <pre><code>
+   * Mutation mutation = Mutation.create()
+   *     .setCell("[FAMILY_NAME]", "[QUALIFIER]", [TIMESTAMP], "[VALUE]");
+   * RowMutation rowMutation = RowMutation.create("[TABLE]", "[AUTHORIZED_VIEW]", [BYTE_STRING_ROW_KEY], mutation);
+   * </code></pre>
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static RowMutation createForAuthorizedView(
+      @Nonnull String tableId,
+      @Nonnull String authorizedViewId,
+      @Nonnull ByteString key,
+      @Nonnull Mutation mutation) {
+    return new RowMutation(tableId, authorizedViewId, key, mutation);
   }
 
   @Override
@@ -196,13 +281,24 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
 
   @InternalApi
   public MutateRowRequest toProto(RequestContext requestContext) {
-    String tableName =
-        NameUtil.formatTableName(
-            requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+    MutateRowRequest.Builder builder = MutateRowRequest.newBuilder();
+    if (authorizedViewId != null && !authorizedViewId.isEmpty()) {
+      String authorizedViewName =
+          NameUtil.formatAuthorizedViewName(
+              requestContext.getProjectId(),
+              requestContext.getInstanceId(),
+              tableId,
+              authorizedViewId);
+      builder.setAuthorizedViewName(authorizedViewName);
+    } else {
+      String tableName =
+          NameUtil.formatTableName(
+              requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+      builder.setTableName(tableName);
+    }
 
-    return MutateRowRequest.newBuilder()
+    return builder
         .setAppProfileId(requestContext.getAppProfileId())
-        .setTableName(tableName)
         .setRowKey(key)
         .addAllMutations(mutation.getMutations())
         .build();
@@ -214,13 +310,24 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    */
   @InternalApi
   public MutateRowsRequest toBulkProto(RequestContext requestContext) {
-    String tableName =
-        NameUtil.formatTableName(
-            requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+    MutateRowsRequest.Builder builder = MutateRowsRequest.newBuilder();
+    if (authorizedViewId != null && !authorizedViewId.isEmpty()) {
+      String authorizedViewName =
+          NameUtil.formatAuthorizedViewName(
+              requestContext.getProjectId(),
+              requestContext.getInstanceId(),
+              tableId,
+              authorizedViewId);
+      builder.setAuthorizedViewName(authorizedViewName);
+    } else {
+      String tableName =
+          NameUtil.formatTableName(
+              requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+      builder.setTableName(tableName);
+    }
 
-    return MutateRowsRequest.newBuilder()
+    return builder
         .setAppProfileId(requestContext.getAppProfileId())
-        .setTableName(tableName)
         .addEntries(
             Entry.newBuilder().setRowKey(key).addAllMutations(mutation.getMutations()).build())
         .build();
@@ -239,9 +346,29 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    */
   @BetaApi
   public static RowMutation fromProto(@Nonnull MutateRowRequest request) {
-    String tableId = NameUtil.extractTableIdFromTableName(request.getTableName());
+    String tableName = request.getTableName();
+    String authorizedViewName = request.getAuthorizedViewName();
 
-    return RowMutation.create(
-        tableId, request.getRowKey(), Mutation.fromProto(request.getMutationsList()));
+    Preconditions.checkArgument(
+        !tableName.isEmpty() || !authorizedViewName.isEmpty(),
+        "Either table name or authorized view name must be specified");
+    Preconditions.checkArgument(
+        tableName.isEmpty() || authorizedViewName.isEmpty(),
+        "Table name and authorized view name cannot be specified at the same time");
+
+    if (!tableName.isEmpty()) {
+      String tableId = NameUtil.extractTableIdFromTableName(tableName);
+      return RowMutation.create(
+          tableId, request.getRowKey(), Mutation.fromProto(request.getMutationsList()));
+    } else {
+      String tableId = NameUtil.extractTableIdFromAuthorizedViewName(authorizedViewName);
+      String authorizedViewId =
+          NameUtil.extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
+      return RowMutation.createForAuthorizedView(
+          tableId,
+          authorizedViewId,
+          request.getRowKey(),
+          Mutation.fromProto(request.getMutationsList()));
+    }
   }
 }

@@ -35,4 +35,9 @@ class Validations {
     Preconditions.checkNotNull(tableId, "tableId can't be null");
     Preconditions.checkArgument(!tableId.isEmpty(), "tableId can't be empty");
   }
+
+  static void validateAuthorizedViewId(@Nonnull String authorizedViewId) {
+    Preconditions.checkNotNull(authorizedViewId, "authorizedViewId can't be null");
+    Preconditions.checkArgument(!authorizedViewId.isEmpty(), "authorizedViewId can't be empty");
+  }
 }

@@ -29,6 +29,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents a list of mutations for multiple rows. Each mutation contains multiple changes that
@@ -40,6 +41,7 @@ public final class BulkMutation implements Serializable, Cloneable {
   private static final long serialVersionUID = 3522061250439399088L;
 
   private final String tableId;
+  @Nullable private final String authorizedViewId;
   private transient MutateRowsRequest.Builder builder;
 
   private long mutationCountSum = 0;
@@ -48,10 +50,33 @@ public final class BulkMutation implements Serializable, Cloneable {
     return new BulkMutation(tableId);
   }
 
+  /**
+   * Creates a new instance of the bulk mutation builder on an AuthorizedView.
+   *
+   * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
+   * an AuthorizedView.
+   */
+  public static BulkMutation createForAuthorizedView(String tableId, String authorizedViewId) {
+    return new BulkMutation(tableId, authorizedViewId);
+  }
+
+  @InternalApi("For internal use only")
+  public static BulkMutation create(String tableId, @Nullable MutateRowOptions mutateRowOptions) {
+    if (mutateRowOptions == null) {
+      return new BulkMutation(tableId);
+    }
+    return new BulkMutation(tableId, mutateRowOptions.getAuthorizedViewId());
+  }
+
   private BulkMutation(@Nonnull String tableId) {
+    this(tableId, null);
+  }
+
+  private BulkMutation(@Nonnull String tableId, @Nullable String authorizedViewId) {
     Preconditions.checkNotNull(tableId);
 
     this.tableId = tableId;
+    this.authorizedViewId = authorizedViewId;
     this.builder = MutateRowsRequest.newBuilder();
   }
 
@@ -117,14 +142,22 @@ public final class BulkMutation implements Serializable, Cloneable {
 
   @InternalApi
   public MutateRowsRequest toProto(RequestContext requestContext) {
-    String tableName =
-        NameUtil.formatTableName(
-            requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+    if (authorizedViewId != null && !authorizedViewId.isEmpty()) {
+      String authorizedViewName =
+          NameUtil.formatAuthorizedViewName(
+              requestContext.getProjectId(),
+              requestContext.getInstanceId(),
+              tableId,
+              authorizedViewId);
+      builder.setAuthorizedViewName(authorizedViewName);
+    } else {
+      String tableName =
+          NameUtil.formatTableName(
+              requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
+      builder.setTableName(tableName);
+    }
 
-    return builder
-        .setTableName(tableName)
-        .setAppProfileId(requestContext.getAppProfileId())
-        .build();
+    return builder.setAppProfileId(requestContext.getAppProfileId()).build();
   }
 
   /**
@@ -140,8 +173,25 @@ public final class BulkMutation implements Serializable, Cloneable {
    */
   @BetaApi
   public static BulkMutation fromProto(@Nonnull MutateRowsRequest request) {
-    BulkMutation bulkMutation =
-        BulkMutation.create(NameUtil.extractTableIdFromTableName(request.getTableName()));
+    String tableName = request.getTableName();
+    String authorizedViewName = request.getAuthorizedViewName();
+
+    Preconditions.checkArgument(
+        !tableName.isEmpty() || !authorizedViewName.isEmpty(),
+        "Either table name or authorized view name must be specified");
+    Preconditions.checkArgument(
+        tableName.isEmpty() || authorizedViewName.isEmpty(),
+        "Table name and authorized view name cannot be specified at the same time");
+
+    BulkMutation bulkMutation;
+    if (!tableName.isEmpty()) {
+      bulkMutation = BulkMutation.create(NameUtil.extractTableIdFromTableName(tableName));
+    } else {
+      bulkMutation =
+          BulkMutation.createForAuthorizedView(
+              NameUtil.extractTableIdFromAuthorizedViewName(authorizedViewName),
+              NameUtil.extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName));
+    }
     bulkMutation.builder = request.toBuilder();
 
     return bulkMutation;
@@ -150,7 +200,9 @@ public final class BulkMutation implements Serializable, Cloneable {
   /** Creates a copy of {@link BulkMutation}. */
   @Override
   public BulkMutation clone() {
-    BulkMutation bulkMutation = BulkMutation.create(tableId);
+    // createForAuthorizedView() copies the tableId and authorizedViewId at the same time. It is
+    // essentially create() when the authorizedViewId is null.
+    BulkMutation bulkMutation = BulkMutation.createForAuthorizedView(tableId, authorizedViewId);
     bulkMutation.builder = this.builder.clone();
     return bulkMutation;
   }
