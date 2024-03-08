@@ -2,16 +2,19 @@
   "api_shortname": "bigtable",
   "name_pretty": "Cloud Bigtable",
   "product_documentation": "https://cloud.google.com/bigtable",
+  "api_description": "Java idiomatic client for Cloud Bigtable.",
   "client_documentation": "https://cloud.google.com/java/docs/reference/google-cloud-bigtable/latest/history",
-  "issue_tracker": "https://issuetracker.google.com/savedsearches/559777",
   "release_level": "stable",
+  "transport": "grpc",
   "language": "java",
   "repo": "googleapis/java-bigtable",
   "repo_short": "java-bigtable",
   "distribution_name": "com.google.cloud:google-cloud-bigtable",
-  "codeowner_team": "@googleapis/api-bigtable @googleapis/api-bigtable-partners",
   "api_id": "bigtable.googleapis.com",
   "library_type": "GAPIC_COMBO",
-  "extra_versioned_modules": "google-cloud-bigtable-emulator,google-cloud-bigtable-emulator-core",
-  "excluded_poms": "google-cloud-bigtable-bom"
+  "requires_billing": true,
+  "codeowner_team": "@googleapis/api-bigtable @googleapis/api-bigtable-partners",
+  "excluded_poms": "google-cloud-bigtable-bom",
+  "issue_tracker": "https://issuetracker.google.com/savedsearches/559777",
+  "extra_versioned_modules": "google-cloud-bigtable-emulator,google-cloud-bigtable-emulator-core"
 }
