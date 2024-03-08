@@ -215,20 +215,21 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     return AggregationTemporality.CUMULATIVE;
   }
 
-  /**
-   * Export metrics associated with a BigtableTable resource. This method will: 1. Filter
-   * BigtableTable metrics. 2. Check if the filtered metric data all have the same bigtable project
-   * Id. 3. Convert MetricData to a list of Cloud Monitoring TimeSeries. 3. Construct and send the
-   * CreateTimeSeriesRequest. The request will have the bigtable project id set on this client
-   * instance.
-   */
+  /** Export metrics associated with a BigtableTable resource. */
   private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> collection) {
+    // Filter bigtable table metrics
     List<MetricData> bigtableMetricData =
         collection.stream()
             .filter(md -> BIGTABLE_TABLE_METRICS.contains(md.getName()))
             .collect(Collectors.toList());
 
-    if (!collection.stream()
+    // Skips exporting if there's none
+    if (bigtableMetricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    // Verifies metrics project id are the same as the bigtable project id set on this client
+    if (!bigtableMetricData.stream()
         .flatMap(metricData -> metricData.getData().getPoints().stream())
         .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
       logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
@@ -280,23 +281,23 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     return bigtableExportCode;
   }
 
-  /**
-   * Export metrics associated with the resource the Application is running on. This method will: 1.
-   * Skip exporting if detected resource is null (not one of the supported resource). 2. Filter
-   * metrics that's collected per application. 3. Convert MetricData to a list of Cloud Monitoring
-   * TimeSeries. 4. Construct and send the CreateTimeSeriesRequest. The request will have the
-   * project id of the detected MonitoredResource.
-   */
+  /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
     if (applicationResource == null) {
       return CompletableResultCode.ofSuccess();
     }
 
+    // Filter application level metrics
     List<MetricData> metricData =
         collection.stream()
             .filter(md -> APPLICATION_METRICS.contains(md.getName()))
             .collect(Collectors.toList());
+
+    // Skip exporting if there's none
+    if (metricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
 
     List<TimeSeries> timeSeries;
     try {
@@ -311,6 +312,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
+    // Construct the request. The project id will be the project id of the detected monitored
+    // resource.
     ProjectName projectName =
         ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
 
