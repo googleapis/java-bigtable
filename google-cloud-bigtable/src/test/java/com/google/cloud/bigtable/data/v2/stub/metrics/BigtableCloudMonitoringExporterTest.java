@@ -128,7 +128,7 @@ public class BigtableCloudMonitoringExporterTest {
         ImmutableMetricData.createLongSum(
             resource,
             scope,
-            "bigtable/test/long",
+            "bigtable.googleapis.com/internal/client/retry_count",
             "description",
             "1",
             ImmutableSumData.create(
@@ -190,7 +190,7 @@ public class BigtableCloudMonitoringExporterTest {
         ImmutableMetricData.createDoubleHistogram(
             resource,
             scope,
-            "bigtable/test/histogram",
+            "bigtable.googleapis.com/internal/client/operation_latencies",
             "description",
             "ms",
             ImmutableHistogramData.create(

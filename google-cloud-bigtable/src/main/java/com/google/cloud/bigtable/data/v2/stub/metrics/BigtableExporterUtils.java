@@ -125,11 +125,11 @@ class BigtableExporterUtils {
     return allTimeSeries;
   }
 
-  static List<TimeSeries> convertToGceOrGkeTimeSeries(
-      Collection<MetricData> collection, String taskId, MonitoredResource gceOrGkeResource) {
+  static List<TimeSeries> convertToApplicationResourceTimeSeries(
+      Collection<MetricData> collection, String taskId, MonitoredResource applicationResource) {
     Preconditions.checkNotNull(
-        gceOrGkeResource,
-        "convert gce or gke metrics is called when gce or gke resource is not detected");
+        applicationResource,
+        "convert application metrics is called when the supported resource is not detected");
     List<TimeSeries> allTimeSeries = new ArrayList<>();
     for (MetricData metricData : collection) {
       if (!metricData.getInstrumentationScopeInfo().getName().equals(METER_NAME)) {
@@ -139,7 +139,8 @@ class BigtableExporterUtils {
       metricData.getData().getPoints().stream()
           .map(
               pointData ->
-                  convertPointToGceOrGkeTimeSeries(metricData, pointData, taskId, gceOrGkeResource))
+                  convertPointToApplicationResourceTimeSeries(
+                      metricData, pointData, taskId, applicationResource))
           .forEach(allTimeSeries::add);
     }
     return allTimeSeries;
@@ -220,16 +221,16 @@ class BigtableExporterUtils {
     return builder.build();
   }
 
-  private static TimeSeries convertPointToGceOrGkeTimeSeries(
+  private static TimeSeries convertPointToApplicationResourceTimeSeries(
       MetricData metricData,
       PointData pointData,
       String taskId,
-      MonitoredResource gceOrGkeResource) {
+      MonitoredResource applicationResource) {
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
             .setMetricKind(convertMetricKind(metricData))
             .setValueType(convertValueType(metricData.getType()))
-            .setResource(gceOrGkeResource);
+            .setResource(applicationResource);
 
     Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
 
