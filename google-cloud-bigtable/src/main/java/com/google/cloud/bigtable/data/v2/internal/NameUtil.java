@@ -67,6 +67,15 @@ public class NameUtil {
     return matcher.group(3);
   }
 
+  public static String extractTableNameFromAuthorizedViewName(
+      @Nonnull String fullAuthorizedViewName) {
+    Matcher matcher = AUTHORIZED_VIEW_PATTERN.matcher(fullAuthorizedViewName);
+    if (!matcher.matches()) {
+      throw new IllegalArgumentException("Invalid authorized view name: " + fullAuthorizedViewName);
+    }
+    return formatTableName(matcher.group(1), matcher.group(2), matcher.group(3));
+  }
+
   public static String extractAuthorizedViewIdFromAuthorizedViewName(
       @Nonnull String fullAuthorizedViewName) {
     Matcher matcher = AUTHORIZED_VIEW_PATTERN.matcher(fullAuthorizedViewName);

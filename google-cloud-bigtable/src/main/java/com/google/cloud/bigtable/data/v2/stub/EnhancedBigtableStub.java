@@ -70,6 +70,7 @@ import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
+import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
@@ -496,9 +497,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadRowsRequest>() {
                       @Override
                       public Map<String, String> extract(ReadRowsRequest readRowsRequest) {
+                        String tableName = readRowsRequest.getTableName();
+                        String authorizedViewName = readRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", readRowsRequest.getTableName(),
-                            "app_profile_id", readRowsRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            readRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -605,9 +614,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       @Override
                       public Map<String, String> extract(
                           SampleRowKeysRequest sampleRowKeysRequest) {
+                        String tableName = sampleRowKeysRequest.getTableName();
+                        String authorizedViewName = sampleRowKeysRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", sampleRowKeysRequest.getTableName(),
-                            "app_profile_id", sampleRowKeysRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            sampleRowKeysRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -652,9 +669,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       @Override
                       public Map<String, String> extract(
                           SampleRowKeysRequest sampleRowKeysRequest) {
+                        String tableName = sampleRowKeysRequest.getTableName();
+                        String authorizedViewName = sampleRowKeysRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", sampleRowKeysRequest.getTableName(),
-                            "app_profile_id", sampleRowKeysRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            sampleRowKeysRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -693,9 +718,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowRequest mutateRowRequest) {
+                        String tableName = mutateRowRequest.getTableName();
+                        String authorizedViewName = mutateRowRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", mutateRowRequest.getTableName(),
-                            "app_profile_id", mutateRowRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            mutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -731,9 +764,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowsRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowsRequest mutateRowsRequest) {
+                        String tableName = mutateRowsRequest.getTableName();
+                        String authorizedViewName = mutateRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", mutateRowsRequest.getTableName(),
-                            "app_profile_id", mutateRowsRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            mutateRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -940,9 +981,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       @Override
                       public Map<String, String> extract(
                           CheckAndMutateRowRequest checkAndMutateRowRequest) {
+                        String tableName = checkAndMutateRowRequest.getTableName();
+                        String authorizedViewName =
+                            checkAndMutateRowRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", checkAndMutateRowRequest.getTableName(),
-                            "app_profile_id", checkAndMutateRowRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            checkAndMutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -980,9 +1030,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadModifyWriteRowRequest>() {
                       @Override
                       public Map<String, String> extract(ReadModifyWriteRowRequest request) {
+                        String tableName = request.getTableName();
+                        String authorizedViewName = request.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", request.getTableName(),
-                            "app_profile_id", request.getAppProfileId());
+                            "table_name", tableName, "app_profile_id", request.getAppProfileId());
                       }
                     })
                 .build(),
