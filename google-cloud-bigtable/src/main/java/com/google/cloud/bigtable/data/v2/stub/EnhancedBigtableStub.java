@@ -16,9 +16,9 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
@@ -359,7 +359,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
     return Attributes.of(
-        PROJECT_ID_KEY,
+        BIGTABLE_PROJECT_ID_KEY,
         settings.getProjectId(),
         INSTANCE_ID_KEY,
         settings.getInstanceId(),

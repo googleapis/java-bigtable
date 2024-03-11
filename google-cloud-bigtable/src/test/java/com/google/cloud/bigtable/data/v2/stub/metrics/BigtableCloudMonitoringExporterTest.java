@@ -16,10 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.common.truth.Truth.assertThat;
@@ -67,6 +68,7 @@ public class BigtableCloudMonitoringExporterTest {
   private static final String zone = "us-east-1";
   private static final String cluster = "cluster-1";
 
+  private static final String clientName = "fake-client-name";
   private static final String taskId = "fake-task-id";
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -86,14 +88,11 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
-            projectId,
-            fakeMetricServiceClient,
-            MonitoredResource.newBuilder().setType("bigtable-table").build(),
-            taskId);
+            projectId, fakeMetricServiceClient, /* applicationResource= */ null, taskId);
 
     attributes =
         Attributes.builder()
-            .put(PROJECT_ID_KEY, projectId)
+            .put(BIGTABLE_PROJECT_ID_KEY, projectId)
             .put(INSTANCE_ID_KEY, instanceId)
             .put(TABLE_ID_KEY, tableId)
             .put(CLUSTER_ID_KEY, cluster)
@@ -130,7 +129,7 @@ public class BigtableCloudMonitoringExporterTest {
         ImmutableMetricData.createLongSum(
             resource,
             scope,
-            "bigtable/test/long",
+            "bigtable.googleapis.com/internal/client/retry_count",
             "description",
             "1",
             ImmutableSumData.create(
@@ -146,7 +145,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID_KEY.getKey(), projectId,
+            BIGTABLE_PROJECT_ID_KEY.getKey(), projectId,
             INSTANCE_ID_KEY.getKey(), instanceId,
             TABLE_ID_KEY.getKey(), tableId,
             CLUSTER_ID_KEY.getKey(), cluster,
@@ -192,7 +191,7 @@ public class BigtableCloudMonitoringExporterTest {
         ImmutableMetricData.createDoubleHistogram(
             resource,
             scope,
-            "bigtable/test/histogram",
+            "bigtable.googleapis.com/internal/client/operation_latencies",
             "description",
             "ms",
             ImmutableHistogramData.create(
@@ -208,7 +207,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID_KEY.getKey(), projectId,
+            BIGTABLE_PROJECT_ID_KEY.getKey(), projectId,
             INSTANCE_ID_KEY.getKey(), instanceId,
             TABLE_ID_KEY.getKey(), tableId,
             CLUSTER_ID_KEY.getKey(), cluster,
@@ -224,6 +223,85 @@ public class BigtableCloudMonitoringExporterTest {
     assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
         .isEqualTo(startEpoch);
     assertThat(timeSeries.getPoints(0).getInterval().getEndTime().getNanos()).isEqualTo(endEpoch);
+  }
+
+  @Test
+  public void testTimeSeriesForMetricWithGceOrGkeResource() {
+    String gceProjectId = "fake-gce-project";
+    BigtableCloudMonitoringExporter exporter =
+        new BigtableCloudMonitoringExporter(
+            projectId,
+            fakeMetricServiceClient,
+            MonitoredResource.newBuilder()
+                .setType("gce-instance")
+                .putLabels("some-gce-key", "some-gce-value")
+                .putLabels("project_id", gceProjectId)
+                .build(),
+            taskId);
+    ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
+        ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
+
+    UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
+    when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
+    ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
+    when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
+
+    long startEpoch = 10;
+    long endEpoch = 15;
+    HistogramPointData histogramPointData =
+        ImmutableHistogramPointData.create(
+            startEpoch,
+            endEpoch,
+            Attributes.of(
+                BIGTABLE_PROJECT_ID_KEY,
+                projectId,
+                INSTANCE_ID_KEY,
+                instanceId,
+                APP_PROFILE_KEY,
+                appProfileId,
+                CLIENT_NAME_KEY,
+                clientName),
+            3d,
+            true,
+            1d, // min
+            true,
+            2d, // max
+            Arrays.asList(1.0),
+            Arrays.asList(1L, 2L));
+
+    MetricData histogramData =
+        ImmutableMetricData.createDoubleHistogram(
+            resource,
+            scope,
+            "bigtable.googleapis.com/internal/client/per_connection_error_count",
+            "description",
+            "ms",
+            ImmutableHistogramData.create(
+                AggregationTemporality.CUMULATIVE, ImmutableList.of(histogramPointData)));
+
+    exporter.export(Arrays.asList(histogramData));
+
+    CreateTimeSeriesRequest request = argumentCaptor.getValue();
+
+    assertThat(request.getName()).isEqualTo("projects/" + gceProjectId);
+    assertThat(request.getTimeSeriesList()).hasSize(1);
+
+    com.google.monitoring.v3.TimeSeries timeSeries = request.getTimeSeriesList().get(0);
+
+    assertThat(timeSeries.getResource().getLabelsMap())
+        .containsExactly("some-gce-key", "some-gce-value", "project_id", gceProjectId);
+
+    assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(BIGTABLE_PROJECT_ID_KEY.getKey(), projectId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(INSTANCE_ID_KEY.getKey(), instanceId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_NAME_KEY.getKey(), clientName);
+    assertThat(timeSeries.getMetric().getLabelsMap())
+        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
   }
 
   private static class FakeMetricServiceClient extends MetricServiceClient {

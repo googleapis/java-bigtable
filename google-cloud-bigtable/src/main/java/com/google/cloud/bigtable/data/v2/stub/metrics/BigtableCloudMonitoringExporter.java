@@ -15,6 +15,17 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
+
 import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutureCallback;
@@ -28,6 +39,8 @@ import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -42,9 +55,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
@@ -67,16 +82,38 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           System.getProperty("bigtable.test-monitoring-endpoint"),
           MetricServiceSettings.getDefaultEndpoint());
 
+  private static String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
+
   private final MetricServiceClient client;
 
-  private final String projectId;
+  private final String bigtableProjectId;
   private final String taskId;
-  private final MonitoredResource monitoredResource;
+
+  // The resource the client application is running on
+  private final MonitoredResource applicationResource;
+
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
-  private static final String RESOURCE_TYPE = "bigtable_client_raw";
-
   private CompletableResultCode lastExportCode;
+
+  private static final Set<String> BIGTABLE_TABLE_METRICS =
+      ImmutableSet.of(
+              OPERATION_LATENCIES_NAME,
+              ATTEMPT_LATENCIES_NAME,
+              SERVER_LATENCIES_NAME,
+              FIRST_RESPONSE_LATENCIES_NAME,
+              CLIENT_BLOCKING_LATENCIES_NAME,
+              APPLICATION_BLOCKING_LATENCIES_NAME,
+              RETRY_COUNT_NAME,
+              CONNECTIVITY_ERROR_COUNT_NAME)
+          .stream()
+          .map(m -> METER_NAME + m)
+          .collect(Collectors.toSet());
+
+  private static final Set<String> APPLICATION_METRICS =
+      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME).stream()
+          .map(m -> METER_NAME + m)
+          .collect(Collectors.toSet());
 
   public static BigtableCloudMonitoringExporter create(
       String projectId, @Nullable Credentials credentials) throws IOException {
@@ -94,10 +131,16 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
+
+    // Detect the resource that the client application is running on. For example,
+    // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
+    // GKE pod. This method will return null for everything else.
+    MonitoredResource applicationResource = BigtableExporterUtils.detectResource();
+
     return new BigtableCloudMonitoringExporter(
         projectId,
         MetricServiceClient.create(settingsBuilder.build()),
-        MonitoredResource.newBuilder().setType(RESOURCE_TYPE).build(),
+        applicationResource,
         BigtableExporterUtils.getDefaultTaskValue());
   }
 
@@ -105,12 +148,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   BigtableCloudMonitoringExporter(
       String projectId,
       MetricServiceClient client,
-      MonitoredResource monitoredResource,
+      @Nullable MonitoredResource applicationResource,
       String taskId) {
     this.client = client;
-    this.monitoredResource = monitoredResource;
     this.taskId = taskId;
-    this.projectId = projectId;
+    this.applicationResource = applicationResource;
+    this.bigtableProjectId = projectId;
   }
 
   @Override
@@ -119,51 +162,155 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       logger.log(Level.WARNING, "Exporter is shutting down");
       return CompletableResultCode.ofFailure();
     }
-    if (!collection.stream()
+
+    CompletableResultCode bigtableExportCode = exportBigtableResourceMetrics(collection);
+    CompletableResultCode applicationExportCode = exportApplicationResourceMetrics(collection);
+
+    lastExportCode =
+        CompletableResultCode.ofAll(ImmutableList.of(applicationExportCode, bigtableExportCode));
+
+    return lastExportCode;
+  }
+
+  /** Export metrics associated with a BigtableTable resource. */
+  private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> collection) {
+    // Filter bigtable table metrics
+    List<MetricData> bigtableMetricData =
+        collection.stream()
+            .filter(md -> BIGTABLE_TABLE_METRICS.contains(md.getName()))
+            .collect(Collectors.toList());
+
+    // Skips exporting if there's none
+    if (bigtableMetricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    // Verifies metrics project id are the same as the bigtable project id set on this client
+    if (!bigtableMetricData.stream()
         .flatMap(metricData -> metricData.getData().getPoints().stream())
-        .allMatch(pd -> projectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
+        .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
       logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
       return CompletableResultCode.ofFailure();
     }
 
-    List<TimeSeries> allTimeSeries;
+    List<TimeSeries> bigtableTimeSeries;
     try {
-      allTimeSeries =
-          BigtableExporterUtils.convertCollectionToListOfTimeSeries(
-              collection, taskId, monitoredResource);
+      bigtableTimeSeries =
+          BigtableExporterUtils.convertToBigtableTimeSeries(bigtableMetricData, taskId);
     } catch (Throwable e) {
-      logger.log(Level.WARNING, "Failed to convert metric data to cloud monitoring timeseries.", e);
+      logger.log(
+          Level.WARNING,
+          "Failed to convert bigtable table metric data to cloud monitoring timeseries.",
+          e);
       return CompletableResultCode.ofFailure();
     }
 
-    ProjectName projectName = ProjectName.of(projectId);
-    CreateTimeSeriesRequest request =
+    ProjectName projectName = ProjectName.of(bigtableProjectId);
+    CreateTimeSeriesRequest bigtableRequest =
         CreateTimeSeriesRequest.newBuilder()
             .setName(projectName.toString())
-            .addAllTimeSeries(allTimeSeries)
+            .addAllTimeSeries(bigtableTimeSeries)
             .build();
 
-    ApiFuture<Empty> future = this.client.createServiceTimeSeriesCallable().futureCall(request);
+    ApiFuture<Empty> future =
+        this.client.createServiceTimeSeriesCallable().futureCall(bigtableRequest);
 
-    lastExportCode = new CompletableResultCode();
-
+    CompletableResultCode bigtableExportCode = new CompletableResultCode();
     ApiFutures.addCallback(
         future,
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            logger.log(Level.WARNING, "createServiceTimeSeries request failed. ", throwable);
-            lastExportCode.fail();
+            logger.log(
+                Level.WARNING,
+                "createServiceTimeSeries request failed for bigtable metrics. ",
+                throwable);
+            bigtableExportCode.fail();
           }
 
           @Override
           public void onSuccess(Empty empty) {
-            lastExportCode.succeed();
+            bigtableExportCode.succeed();
           }
         },
         MoreExecutors.directExecutor());
 
-    return lastExportCode;
+    return bigtableExportCode;
+  }
+
+  /** Export metrics associated with the resource the Application is running on. */
+  private CompletableResultCode exportApplicationResourceMetrics(
+      Collection<MetricData> collection) {
+    if (applicationResource == null) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    // Filter application level metrics
+    List<MetricData> metricData =
+        collection.stream()
+            .filter(md -> APPLICATION_METRICS.contains(md.getName()))
+            .collect(Collectors.toList());
+
+    // Skip exporting if there's none
+    if (metricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    List<TimeSeries> timeSeries;
+    try {
+      timeSeries =
+          BigtableExporterUtils.convertToApplicationResourceTimeSeries(
+              metricData, taskId, applicationResource);
+    } catch (Throwable e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to convert application metric data to cloud monitoring timeseries.",
+          e);
+      return CompletableResultCode.ofFailure();
+    }
+
+    // Construct the request. The project id will be the project id of the detected monitored
+    // resource.
+    ApiFuture<Empty> gceOrGkeFuture;
+    CompletableResultCode exportCode = new CompletableResultCode();
+    try {
+      ProjectName projectName =
+          ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
+      CreateTimeSeriesRequest request =
+          CreateTimeSeriesRequest.newBuilder()
+              .setName(projectName.toString())
+              .addAllTimeSeries(timeSeries)
+              .build();
+
+      gceOrGkeFuture = this.client.createServiceTimeSeriesCallable().futureCall(request);
+
+      ApiFutures.addCallback(
+          gceOrGkeFuture,
+          new ApiFutureCallback<Empty>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+              logger.log(
+                  Level.WARNING,
+                  "createServiceTimeSeries request failed for per connection error metrics.",
+                  throwable);
+              exportCode.fail();
+            }
+
+            @Override
+            public void onSuccess(Empty empty) {
+              exportCode.succeed();
+            }
+          },
+          MoreExecutors.directExecutor());
+
+    } catch (Exception e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to get projectName for application resource " + applicationResource);
+      return CompletableResultCode.ofFailure();
+    }
+
+    return exportCode;
   }
 
   @Override
