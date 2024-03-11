@@ -87,7 +87,8 @@ public class BigtableCloudMonitoringExporterTest {
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
 
     exporter =
-        new BigtableCloudMonitoringExporter(projectId, fakeMetricServiceClient, null, taskId);
+        new BigtableCloudMonitoringExporter(
+            projectId, fakeMetricServiceClient, /* applicationResource= */ null, taskId);
 
     attributes =
         Attributes.builder()
