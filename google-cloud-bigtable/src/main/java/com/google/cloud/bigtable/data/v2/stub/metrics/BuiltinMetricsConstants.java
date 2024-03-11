@@ -33,7 +33,8 @@ import java.util.stream.Collectors;
 public class BuiltinMetricsConstants {
 
   // Metric attribute keys for monitored resource
-  public static final AttributeKey<String> PROJECT_ID_KEY = AttributeKey.stringKey("project_id");
+  public static final AttributeKey<String> BIGTABLE_PROJECT_ID_KEY =
+      AttributeKey.stringKey("project_id");
   public static final AttributeKey<String> INSTANCE_ID_KEY = AttributeKey.stringKey("instance");
   public static final AttributeKey<String> TABLE_ID_KEY = AttributeKey.stringKey("table");
   public static final AttributeKey<String> CLUSTER_ID_KEY = AttributeKey.stringKey("cluster");
@@ -99,7 +100,7 @@ public class BuiltinMetricsConstants {
 
   static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
-          PROJECT_ID_KEY,
+          BIGTABLE_PROJECT_ID_KEY,
           INSTANCE_ID_KEY,
           TABLE_ID_KEY,
           APP_PROFILE_KEY,
@@ -211,7 +212,7 @@ public class BuiltinMetricsConstants {
         InstrumentType.HISTOGRAM,
         "1",
         ImmutableSet.<AttributeKey>builder()
-            .add(PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
             .build());
 
     return views.build();

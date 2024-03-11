@@ -25,11 +25,11 @@ import static com.google.api.MetricDescriptor.ValueType;
 import static com.google.api.MetricDescriptor.ValueType.DISTRIBUTION;
 import static com.google.api.MetricDescriptor.ValueType.DOUBLE;
 import static com.google.api.MetricDescriptor.ValueType.INT64;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 
@@ -80,7 +80,8 @@ class BigtableExporterUtils {
 
   // These metric labels will be promoted to the bigtable_table monitored resource fields
   private static final Set<AttributeKey<String>> BIGTABLE_PROMOTED_RESOURCE_LABELS =
-      ImmutableSet.of(PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
+      ImmutableSet.of(
+          BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, TABLE_ID_KEY, CLUSTER_ID_KEY, ZONE_ID_KEY);
 
   private BigtableExporterUtils() {}
 
@@ -106,7 +107,7 @@ class BigtableExporterUtils {
   }
 
   static String getProjectId(PointData pointData) {
-    return pointData.getAttributes().get(PROJECT_ID_KEY);
+    return pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY);
   }
 
   static List<TimeSeries> convertToBigtableTimeSeries(List<MetricData> collection, String taskId) {

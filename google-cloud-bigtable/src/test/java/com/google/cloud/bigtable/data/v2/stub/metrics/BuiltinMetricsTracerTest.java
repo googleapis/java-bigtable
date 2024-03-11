@@ -147,7 +147,7 @@ public class BuiltinMetricsTracerTest {
 
     baseAttributes =
         Attributes.builder()
-            .put(BuiltinMetricsConstants.PROJECT_ID_KEY, PROJECT_ID)
+            .put(BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY, PROJECT_ID)
             .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, INSTANCE_ID)
             .put(BuiltinMetricsConstants.APP_PROFILE_KEY, APP_PROFILE_ID)
             .build();

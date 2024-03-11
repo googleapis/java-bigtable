@@ -16,11 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PROJECT_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.common.truth.Truth.assertThat;
@@ -92,7 +92,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     attributes =
         Attributes.builder()
-            .put(PROJECT_ID_KEY, projectId)
+            .put(BIGTABLE_PROJECT_ID_KEY, projectId)
             .put(INSTANCE_ID_KEY, instanceId)
             .put(TABLE_ID_KEY, tableId)
             .put(CLUSTER_ID_KEY, cluster)
@@ -145,7 +145,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID_KEY.getKey(), projectId,
+            BIGTABLE_PROJECT_ID_KEY.getKey(), projectId,
             INSTANCE_ID_KEY.getKey(), instanceId,
             TABLE_ID_KEY.getKey(), tableId,
             CLUSTER_ID_KEY.getKey(), cluster,
@@ -207,7 +207,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getResource().getLabelsMap())
         .containsExactly(
-            PROJECT_ID_KEY.getKey(), projectId,
+            BIGTABLE_PROJECT_ID_KEY.getKey(), projectId,
             INSTANCE_ID_KEY.getKey(), instanceId,
             TABLE_ID_KEY.getKey(), tableId,
             CLUSTER_ID_KEY.getKey(), cluster,
@@ -253,7 +253,7 @@ public class BigtableCloudMonitoringExporterTest {
             startEpoch,
             endEpoch,
             Attributes.of(
-                PROJECT_ID_KEY,
+                BIGTABLE_PROJECT_ID_KEY,
                 projectId,
                 INSTANCE_ID_KEY,
                 instanceId,
@@ -293,7 +293,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(PROJECT_ID_KEY.getKey(), projectId);
+        .containsAtLeast(BIGTABLE_PROJECT_ID_KEY.getKey(), projectId);
     assertThat(timeSeries.getMetric().getLabelsMap())
         .containsAtLeast(INSTANCE_ID_KEY.getKey(), instanceId);
     assertThat(timeSeries.getMetric().getLabelsMap())
