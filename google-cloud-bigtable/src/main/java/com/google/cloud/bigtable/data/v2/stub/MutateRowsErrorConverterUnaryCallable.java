@@ -19,22 +19,22 @@ import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.v2.MutateRowsRequest;
+import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<MutateRowsRequest, Void> {
+public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<BulkMutation, Void> {
 
-  private final UnaryCallable<MutateRowsRequest, MutateRowsAttemptResult> innerCallable;
+  private final UnaryCallable<BulkMutation, MutateRowsAttemptResult> innerCallable;
 
   MutateRowsErrorConverterUnaryCallable(
-      UnaryCallable<MutateRowsRequest, MutateRowsAttemptResult> callable) {
+      UnaryCallable<BulkMutation, MutateRowsAttemptResult> callable) {
     this.innerCallable = callable;
   }
 
   @Override
-  public ApiFuture<Void> futureCall(MutateRowsRequest request, ApiCallContext context) {
+  public ApiFuture<Void> futureCall(BulkMutation request, ApiCallContext context) {
     ApiFuture<MutateRowsAttemptResult> future = innerCallable.futureCall(request, context);
     return ApiFutures.transform(
         future,

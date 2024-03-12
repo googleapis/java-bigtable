@@ -37,7 +37,7 @@ import java.util.Map;
  */
 @InternalApi("For internal use only")
 public class MutateRowsBatchingDescriptor
-    implements BatchingDescriptor<RowMutationEntry, Void, BulkMutation, Void> {
+    implements BatchingDescriptor<RowMutationEntry, Void, BulkMutation, MutateRowsAttemptResult> {
 
   @Override
   public BatchingRequestBuilder<RowMutationEntry, BulkMutation> newRequestBuilder(
@@ -46,7 +46,11 @@ public class MutateRowsBatchingDescriptor
   }
 
   @Override
-  public void splitResponse(Void response, List<BatchEntry<RowMutationEntry, Void>> entries) {
+  public void splitResponse(
+      MutateRowsAttemptResult response, List<BatchEntry<RowMutationEntry, Void>> entries) {
+    for (FailedMutation mutation : response.failedMutations) {
+      entries.get(mutation.getIndex()).getResultFuture().setException(mutation.getError());
+    }
     for (BatchEntry<RowMutationEntry, Void> batchResponse : entries) {
       batchResponse.getResultFuture().set(null);
     }

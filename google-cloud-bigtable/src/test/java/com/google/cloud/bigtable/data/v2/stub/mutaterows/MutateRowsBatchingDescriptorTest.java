@@ -92,7 +92,7 @@ public class MutateRowsBatchingDescriptorTest {
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isFalse();
 
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
-    underTest.splitResponse(null, batchResponse);
+    underTest.splitResponse(new MutateRowsAttemptResult(), batchResponse);
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
   }
