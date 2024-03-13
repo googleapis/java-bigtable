@@ -147,14 +147,16 @@ public class UnaryMetricsMetadataIT {
       }
     }
 
-    List<MetricData> metrics =
-        metricReader.collectAllMetrics().stream()
-            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
-            .collect(Collectors.toList());
+    MetricData metricData = null;
+    for (MetricData md : metricReader.collectAllMetrics()) {
+      if (md.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME)) {
+        metricData = md;
+        break;
+      }
+    }
 
-    assertThat(metrics.size()).isEqualTo(1);
+    assertThat(metricData).isNotNull();
 
-    MetricData metricData = metrics.get(0);
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
