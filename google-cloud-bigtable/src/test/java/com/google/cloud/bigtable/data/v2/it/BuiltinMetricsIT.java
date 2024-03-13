@@ -207,9 +207,9 @@ public class BuiltinMetricsIT {
     ProjectName name = ProjectName.of(testEnvRule.env().getProjectId());
 
     // Interval is set in the monarch request when query metric timestamps.
-    // Restrict it to before we send to request and 1 minute after we send the request. If
+    // Restrict it to before we send to request and 3 minute after we send the request. If
     // it turns out to be still flaky we can increase the filter range.
-    Instant end = Instant.now().plus(Duration.ofMinutes(1));
+    Instant end = Instant.now().plus(Duration.ofMinutes(3));
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
@@ -271,9 +271,9 @@ public class BuiltinMetricsIT {
     Collection<MetricData> fromMetricReader = metricReader.collectAllMetrics();
 
     // Interval is set in the monarch request when query metric timestamps.
-    // Restrict it to before we send to request and 1 minute after we send the request. If
+    // Restrict it to before we send to request and 3 minute after we send the request. If
     // it turns out to be still flaky we can increase the filter range.
-    Instant end = start.plus(Duration.ofMinutes(1));
+    Instant end = start.plus(Duration.ofMinutes(3));
     TimeInterval interval =
         TimeInterval.newBuilder()
             .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))

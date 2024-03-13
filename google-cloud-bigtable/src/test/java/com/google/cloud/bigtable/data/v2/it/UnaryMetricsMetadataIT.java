@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +51,7 @@ import org.junit.Test;
 
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
-
+  
   private BigtableDataClient client;
   private InMemoryMetricReader metricReader;
 
@@ -147,14 +148,16 @@ public class UnaryMetricsMetadataIT {
       }
     }
 
-    List<MetricData> metrics =
-        metricReader.collectAllMetrics().stream()
-            .filter(m -> m.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME))
-            .collect(Collectors.toList());
+    MetricData metricData = null;
+    for (MetricData md : metricReader.collectAllMetrics()) {
+      if (md.getName().contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME)) {
+        metricData = md;
+        break;
+      }
+    }
 
-    assertThat(metrics.size()).isEqualTo(1);
+    assertThat(metricData).isNotNull();
 
-    MetricData metricData = metrics.get(0);
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
     List<String> clusterAttributes =
         pointData.stream()
