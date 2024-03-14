@@ -123,12 +123,13 @@ public class MutateRowsBatchingDescriptorTest {
                     0,
                     ApiExceptionFactory.createException(
                         "error message",
-                        null, GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL), false))),
+                        null,
+                        GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL),
+                        false))),
             true),
         batchResponse);
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
-
 
     batchResponse.get(1).getResultFuture().get();
 
