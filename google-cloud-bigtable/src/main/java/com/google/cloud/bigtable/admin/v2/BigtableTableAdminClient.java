@@ -1451,7 +1451,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * CreateAuthorizedViewRequest request =
    *     CreateAuthorizedViewRequest.of("my-table", "my-new-authorized-view")
    *         .setDeletionProtection(true)
-   *         .setAuthorizedViewImpl(
+   *         .setAuthorizedViewType(
    *             new AuthorizedView.SubsetView()
    *                 .addRowPrefix("row#")
    *                 .addFamilySubsets(
@@ -1475,7 +1475,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * CreateAuthorizedViewRequest request =
    *     CreateAuthorizedViewRequest.of("my-table", "my-new-authorized-view")
    *         .setDeletionProtection(true)
-   *         .setAuthorizedViewImpl(
+   *         .setAuthorizedViewType(
    *             new AuthorizedView.SubsetView()
    *                 .addRowPrefix("row#")
    *                 .addFamilySubsets(

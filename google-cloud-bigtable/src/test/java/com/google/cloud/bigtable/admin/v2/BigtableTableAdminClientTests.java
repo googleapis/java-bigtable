@@ -958,7 +958,7 @@ public class BigtableTableAdminClientTests {
     CreateAuthorizedViewRequest req =
         CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewImpl(new SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"));
 
     // Execute
     AuthorizedView actualResult = adminClient.createAuthorizedView(req);
@@ -1011,7 +1011,7 @@ public class BigtableTableAdminClientTests {
     UpdateAuthorizedViewRequest req =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewImpl(new SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"));
 
     // Execute
     AuthorizedView actualResult = adminClient.updateAuthorizedView(req);

@@ -126,7 +126,7 @@ public class ReadIT {
         RowMutation.create(tableId, rowKeyOutsideAuthorizedView)
             .setCell(testEnvRule.env().getFamilyId(), AUTHORIZED_VIEW_COLUMN_QUALIFIER, "value"));
 
-    ExistsOptions existsOptions = new ExistsOptions().authorizedView(testAuthorizedView.getId());
+    ExistsOptions existsOptions = ExistsOptions.createForAuthorizedView(testAuthorizedView.getId());
 
     assertThat(dataClient.exists(tableId, rowKey, existsOptions)).isTrue();
     assertThat(dataClient.exists(tableId, rowKeyOutsideAuthorizedView, existsOptions)).isFalse();
@@ -350,7 +350,7 @@ public class ReadIT {
         dataClient.readRow(
             tableId,
             expectedRows.get(0).getKey(),
-            new ReadRowOptions().authorizedView(testAuthorizedView.getId()));
+            ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId()));
     assertThat(actualRow).isEqualTo(expectedRows.get(0));
 
     // Row exists but outside the authorized view
@@ -358,7 +358,7 @@ public class ReadIT {
             dataClient.readRow(
                 tableId,
                 uniqueKeyOutsideAuthorizedView + "-0",
-                new ReadRowOptions().authorizedView(testAuthorizedView.getId())))
+                ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId())))
         .isNull();
 
     // Point Async
@@ -366,7 +366,7 @@ public class ReadIT {
         dataClient.readRowAsync(
             tableId,
             expectedRows.get(0).getKey(),
-            new ReadRowOptions().authorizedView(testAuthorizedView.getId()));
+            ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId()));
     assertThat(actualRowFuture.get()).isEqualTo(expectedRows.get(0));
 
     // Row exists but outside the authorized view
@@ -375,7 +375,7 @@ public class ReadIT {
                 .readRowAsync(
                     tableId,
                     uniqueKeyOutsideAuthorizedView + "-0",
-                    new ReadRowOptions().authorizedView(testAuthorizedView.getId()))
+                    ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId()))
                 .get())
         .isNull();
 
@@ -793,7 +793,7 @@ public class ReadIT {
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new SubsetView()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(

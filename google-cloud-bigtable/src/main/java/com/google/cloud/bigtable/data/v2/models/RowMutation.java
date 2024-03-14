@@ -118,7 +118,7 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    * <pre><code>
    * Mutation mutation = Mutation.create()
    *     .setCell("[FAMILY_NAME]", "[QUALIFIER]", [TIMESTAMP], "[VALUE]");
-   * RowMutation rowMutation = RowMutation.create("[TABLE]", "[AUTHORIZED_VIEW]", "[ROW_KEY]", mutation);
+   * RowMutation rowMutation = RowMutation.createForAuthorizedView("[TABLE]", "[AUTHORIZED_VIEW]", "[ROW_KEY]", mutation);
    * </code></pre>
    *
    * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about
@@ -161,7 +161,7 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    * <pre><code>
    * Mutation mutation = Mutation.create()
    *     .setCell("[FAMILY_NAME]", "[QUALIFIER]", [TIMESTAMP], "[VALUE]");
-   * RowMutation rowMutation = RowMutation.create("[TABLE]", "[AUTHORIZED_VIEW]", [BYTE_STRING_ROW_KEY], mutation);
+   * RowMutation rowMutation = RowMutation.createForAuthorizedView("[TABLE]", "[AUTHORIZED_VIEW]", [BYTE_STRING_ROW_KEY], mutation);
    * </code></pre>
    *
    * <p>See {@link com.google.cloud.bigtable.admin.v2.models.AuthorizedView} for more details about

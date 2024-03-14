@@ -80,7 +80,7 @@ public class BigtableDataClientTests {
 
   @Mock private UnaryCallable<Query, Row> mockReadRowCallable;
   @Mock private UnaryCallable<String, List<KeyOffset>> mockSampleRowKeysCallable;
-  @Mock private UnaryCallable<SampleRowKeys, List<KeyOffset>> mockSampleRowKeysCallable2;
+  @Mock private UnaryCallable<SampleRowKeys, List<KeyOffset>> mockSampleRowKeysCallableWithRequest;
   @Mock private UnaryCallable<RowMutation, Void> mockMutateRowCallable;
   @Mock private UnaryCallable<ConditionalRowMutation, Boolean> mockCheckAndMutateRowCallable;
   @Mock private UnaryCallable<ReadModifyWriteRow, Row> mockReadModifyWriteRowCallable;
@@ -157,12 +157,12 @@ public class BigtableDataClientTests {
         bigtableDataClient.exists(
             "fake-table",
             "fake-row-key",
-            new ExistsOptions().authorizedView("fake-authorized-view"));
+            ExistsOptions.createForAuthorizedView("fake-authorized-view"));
     boolean anotherResult =
         bigtableDataClient.exists(
             "fake-table",
             ByteString.copyFromUtf8("fake-row-key"),
-            new ExistsOptions().authorizedView("fake-authorized-view"));
+            ExistsOptions.createForAuthorizedView("fake-authorized-view"));
 
     assertThat(result).isTrue();
     assertThat(anotherResult).isFalse();
@@ -220,14 +220,14 @@ public class BigtableDataClientTests {
         bigtableDataClient.existsAsync(
             "fake-table",
             ByteString.copyFromUtf8("fake-row-key"),
-            new ExistsOptions().authorizedView("fake-authorized-view"));
+            ExistsOptions.createForAuthorizedView("fake-authorized-view"));
     assertThat(result.get()).isTrue();
 
     ApiFuture<Boolean> anotherResult =
         bigtableDataClient.existsAsync(
             "fake-table",
             "fake-row-key",
-            new ExistsOptions().authorizedView("fake-authorized-view"));
+            ExistsOptions.createForAuthorizedView("fake-authorized-view"));
     assertThat(anotherResult.get()).isFalse();
 
     Mockito.verify(mockReadRowCallable, Mockito.times(2)).futureCall(expectedQuery);
@@ -270,7 +270,7 @@ public class BigtableDataClientTests {
     bigtableDataClient.readRowAsync(
         "fake-table",
         ByteString.copyFromUtf8("fake-row-key"),
-        new ReadRowOptions().authorizedView("fake-authorized-view"));
+        ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
     Mockito.verify(mockReadRowCallable)
         .futureCall(
             Query.createForAuthorizedView("fake-table", "fake-authorized-view")
@@ -291,7 +291,9 @@ public class BigtableDataClientTests {
     Mockito.when(mockStub.readRowCallable()).thenReturn(mockReadRowCallable);
 
     bigtableDataClient.readRowAsync(
-        "fake-table", "fake-row-key", new ReadRowOptions().authorizedView("fake-authorized-view"));
+        "fake-table",
+        "fake-row-key",
+        ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
     Mockito.verify(mockReadRowCallable)
         .futureCall(
             Query.createForAuthorizedView("fake-table", "fake-authorized-view")
@@ -327,7 +329,7 @@ public class BigtableDataClientTests {
     bigtableDataClient.readRowAsync(
         "fake-table",
         ByteString.copyFromUtf8("fake-row-key"),
-        new ReadRowOptions().authorizedView("fake-authorized-view").filter(filter));
+        ReadRowOptions.createForAuthorizedView("fake-authorized-view").filter(filter));
 
     Mockito.verify(mockReadRowCallable)
         .futureCall(
@@ -365,7 +367,7 @@ public class BigtableDataClientTests {
     bigtableDataClient.readRowAsync(
         "fake-table",
         "fake-row-key",
-        new ReadRowOptions().authorizedView("fake-authorized-view").filter(filter));
+        ReadRowOptions.createForAuthorizedView("fake-authorized-view").filter(filter));
 
     Mockito.verify(mockReadRowCallable)
         .futureCall(
@@ -405,7 +407,7 @@ public class BigtableDataClientTests {
         bigtableDataClient.readRow(
             "fake-table",
             ByteString.copyFromUtf8("fake-row-key"),
-            new ReadRowOptions().authorizedView("fake-authorized-view"));
+            ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
 
     assertThat(actualRow).isEqualTo(expectedRow);
   }
@@ -440,7 +442,7 @@ public class BigtableDataClientTests {
         bigtableDataClient.readRow(
             "fake-table",
             "fake-row-key",
-            new ReadRowOptions().authorizedView("fake-authorized-view"));
+            ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
 
     assertThat(actualRow).isEqualTo(expectedRow);
   }
@@ -493,7 +495,7 @@ public class BigtableDataClientTests {
         bigtableDataClient.readRow(
             "fake-table",
             ByteString.copyFromUtf8("fake-row-key"),
-            new ReadRowOptions().authorizedView("fake-authorized-view").filter(filter));
+            ReadRowOptions.createForAuthorizedView("fake-authorized-view").filter(filter));
 
     assertThat(actualRow).isEqualTo(expectedRow);
   }
@@ -543,7 +545,7 @@ public class BigtableDataClientTests {
         bigtableDataClient.readRow(
             "fake-table",
             "fake-row-key",
-            new ReadRowOptions().authorizedView("fake-authorized-view").filter(filter));
+            ReadRowOptions.createForAuthorizedView("fake-authorized-view").filter(filter));
 
     assertThat(actualRow).isEqualTo(expectedRow);
   }
@@ -647,41 +649,51 @@ public class BigtableDataClientTests {
 
   @Test
   public void proxySampleRowKeysTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2()).thenReturn(mockSampleRowKeysCallable2);
+    Mockito.when(mockStub.sampleRowKeysCallable2())
+        .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     bigtableDataClient.sampleRowKeysAsync("fake-table");
-    Mockito.verify(mockSampleRowKeysCallable2).futureCall(SampleRowKeys.create("fake-table"));
+    Mockito.verify(mockSampleRowKeysCallableWithRequest)
+        .futureCall(SampleRowKeys.create("fake-table"));
   }
 
   @Test
   public void proxySampleRowKeysOnAuthorizedViewTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2()).thenReturn(mockSampleRowKeysCallable2);
+    Mockito.when(mockStub.sampleRowKeysCallable2())
+        .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     bigtableDataClient.sampleRowKeysAsync(
-        "fake-table", new SampleRowKeysOptions().authorizedView("fake-authorized-view"));
-    Mockito.verify(mockSampleRowKeysCallable2)
+        "fake-table", SampleRowKeysOptions.createForAuthorizedView("fake-authorized-view"));
+    Mockito.verify(mockSampleRowKeysCallableWithRequest)
         .futureCall(SampleRowKeys.createForAuthorizedView("fake-table", "fake-authorized-view"));
   }
 
   @Test
   public void sampleRowKeysTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2()).thenReturn(mockSampleRowKeysCallable2);
+    Mockito.when(mockStub.sampleRowKeysCallable2())
+        .thenReturn(mockSampleRowKeysCallableWithRequest);
 
-    Mockito.when(mockSampleRowKeysCallable2.futureCall(ArgumentMatchers.any(SampleRowKeys.class)))
+    Mockito.when(
+            mockSampleRowKeysCallableWithRequest.futureCall(
+                ArgumentMatchers.any(SampleRowKeys.class)))
         .thenReturn(ApiFutures.immediateFuture(Collections.<KeyOffset>emptyList()));
     bigtableDataClient.sampleRowKeys("fake-table");
-    Mockito.verify(mockSampleRowKeysCallable2).futureCall(SampleRowKeys.create("fake-table"));
+    Mockito.verify(mockSampleRowKeysCallableWithRequest)
+        .futureCall(SampleRowKeys.create("fake-table"));
   }
 
   @Test
   public void sampleRowKeysOnAuthorizedViewTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2()).thenReturn(mockSampleRowKeysCallable2);
+    Mockito.when(mockStub.sampleRowKeysCallable2())
+        .thenReturn(mockSampleRowKeysCallableWithRequest);
 
-    Mockito.when(mockSampleRowKeysCallable2.futureCall(ArgumentMatchers.any(SampleRowKeys.class)))
+    Mockito.when(
+            mockSampleRowKeysCallableWithRequest.futureCall(
+                ArgumentMatchers.any(SampleRowKeys.class)))
         .thenReturn(ApiFutures.immediateFuture(Collections.<KeyOffset>emptyList()));
     bigtableDataClient.sampleRowKeys(
-        "fake-table", new SampleRowKeysOptions().authorizedView("fake-authorized-view"));
-    Mockito.verify(mockSampleRowKeysCallable2)
+        "fake-table", SampleRowKeysOptions.createForAuthorizedView("fake-authorized-view"));
+    Mockito.verify(mockSampleRowKeysCallableWithRequest)
         .futureCall(SampleRowKeys.createForAuthorizedView("fake-table", "fake-authorized-view"));
   }
 
@@ -836,7 +848,7 @@ public class BigtableDataClientTests {
     ApiFuture<Void> expectedResponse = ApiFutures.immediateFuture(null);
     Batcher<RowMutationEntry, Void> batcher =
         bigtableDataClient.newBulkMutationBatcher(
-            "fake-table", new MutateRowOptions().authorizedView("fake-authorized-view"));
+            "fake-table", MutateRowOptions.createForAuthorizedView("fake-authorized-view"));
     RowMutationEntry request =
         RowMutationEntry.create("some-key").setCell("some-family", "fake-qualifier", "fake-value");
     Mockito.when(mockBulkMutationBatcher.add(request)).thenReturn(expectedResponse);
@@ -878,7 +890,7 @@ public class BigtableDataClientTests {
 
     Batcher<ByteString, Row> batcher =
         bigtableDataClient.newBulkReadRowsBatcher(
-            "fake-table", new ReadRowOptions().authorizedView("fake-authorized-view"));
+            "fake-table", ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
     Mockito.when(mockBulkReadRowsBatcher.add(request)).thenReturn(expectedResponse);
 
     ApiFuture<Row> actualResponse = batcher.add(request);
@@ -920,8 +932,7 @@ public class BigtableDataClientTests {
     Batcher<ByteString, Row> batcher =
         bigtableDataClient.newBulkReadRowsBatcher(
             "fake-table",
-            new ReadRowOptions()
-                .authorizedView("fake-authorized-view")
+            ReadRowOptions.createForAuthorizedView("fake-authorized-view")
                 .filter(FILTERS.key().regex("fake-row")));
     Mockito.when(mockBulkReadRowsBatcher.add(request)).thenReturn(expectedResponse);
 

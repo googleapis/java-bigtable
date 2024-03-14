@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,13 +82,13 @@ public final class AuthorizedView {
     return proto.getDeletionProtection();
   }
 
-  /** Gets the implementation of this authorized view, which currently can only be a subset view. */
-  public AuthorizedViewImpl getAuthorizedViewImpl() {
+  /** Gets the type of this authorized view, which currently can only be a subset view. */
+  public AuthorizedViewType getAuthorizedViewType() {
     if (proto.hasSubsetView()) {
       return SubsetView.fromProto(proto.getSubsetView());
     } else {
       // Should never happen because the constructor verifies that one must exist.
-      throw new IllegalStateException("This AuthorizedView doesn't have an implementation");
+      throw new IllegalStateException("This AuthorizedView doesn't have a valid type specified");
     }
   }
 
@@ -122,7 +122,7 @@ public final class AuthorizedView {
    * Represents a subset of a Table. Please check the implementations of this interface for more
    * details.
    */
-  public interface AuthorizedViewImpl {}
+  public interface AuthorizedViewType {}
 
   /**
    * Defines a simple authorized view that is a subset of the underlying Table.
@@ -131,7 +131,7 @@ public final class AuthorizedView {
    * by adding the family id along with its familySubsets rule to the family subsets map. The subset
    * is defined by the intersection of the specified row key prefixes and column family subsets.
    */
-  public static class SubsetView implements AuthorizedViewImpl {
+  public static class SubsetView implements AuthorizedViewType {
     private final com.google.bigtable.admin.v2.AuthorizedView.SubsetView.Builder builder;
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.AuthorizedViewType;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -84,19 +85,19 @@ public final class UpdateAuthorizedViewRequest {
   /**
    * Updates the implementation for this authorized view.
    *
-   * @see AuthorizedView.AuthorizedViewImpl for details.
+   * @see AuthorizedViewType for details.
    */
-  public UpdateAuthorizedViewRequest setAuthorizedViewImpl(
-      @Nonnull AuthorizedView.AuthorizedViewImpl authorizedViewImpl) {
-    Preconditions.checkNotNull(authorizedViewImpl, "authorizedViewImpl must be set");
+  public UpdateAuthorizedViewRequest setAuthorizedViewType(
+      @Nonnull AuthorizedViewType authorizedViewType) {
+    Preconditions.checkNotNull(authorizedViewType, "authorizedViewType must be set");
 
-    if (authorizedViewImpl instanceof SubsetView) {
+    if (authorizedViewType instanceof SubsetView) {
       requestBuilder
           .getAuthorizedViewBuilder()
-          .setSubsetView(((SubsetView) authorizedViewImpl).toProto());
+          .setSubsetView(((SubsetView) authorizedViewType).toProto());
       updateFieldMask(com.google.bigtable.admin.v2.AuthorizedView.SUBSET_VIEW_FIELD_NUMBER);
     } else {
-      throw new IllegalArgumentException("Unknown authorizedViewImpl: " + authorizedViewImpl);
+      throw new IllegalArgumentException("Unknown authorizedViewType: " + authorizedViewType);
     }
 
     return this;

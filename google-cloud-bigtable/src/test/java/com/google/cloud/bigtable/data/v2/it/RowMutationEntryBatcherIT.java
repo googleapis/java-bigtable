@@ -99,7 +99,7 @@ public class RowMutationEntryBatcherIT {
 
     try (Batcher<RowMutationEntry, Void> batcher =
         client.newBulkMutationBatcher(
-            tableId, new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+            tableId, MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
       for (int i = 0; i < 10; i++) {
         batcher.add(
             RowMutationEntry.create(rowPrefix + "-" + i)
@@ -129,7 +129,7 @@ public class RowMutationEntryBatcherIT {
     try {
       try (Batcher<RowMutationEntry, Void> batcher =
           client.newBulkMutationBatcher(
-              tableId, new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+              tableId, MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
         batcher.add(
             RowMutationEntry.create(rowKeyOutsideAuthorizedView)
                 .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value"));
@@ -150,7 +150,7 @@ public class RowMutationEntryBatcherIT {
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new SubsetView()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(

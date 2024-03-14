@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ public class UpdateAuthorizedViewRequestTest {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
 
     com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest.newBuilder()
@@ -85,17 +85,17 @@ public class UpdateAuthorizedViewRequestTest {
   public void testEquality() {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
 
     assertThat(request)
         .isEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#")));
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#")));
 
     assertThat(request)
         .isNotEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(
+                .setAuthorizedViewType(
                     new AuthorizedView.SubsetView().addRowPrefix("another-row#")));
   }
 
@@ -103,18 +103,18 @@ public class UpdateAuthorizedViewRequestTest {
   public void testHashCode() {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
 
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"))
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("another-row#"))
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("another-row#"))
                 .hashCode());
   }
 }

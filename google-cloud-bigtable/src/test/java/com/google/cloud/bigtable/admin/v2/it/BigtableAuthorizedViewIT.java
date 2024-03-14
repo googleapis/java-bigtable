@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ public class BigtableAuthorizedViewIT {
 
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(testTable.getId(), authorizedViewId)
-            .setAuthorizedViewImpl(new SubsetView().addRowPrefix("row#"))
+            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"))
             .setDeletionProtection(false);
     try {
       AuthorizedView response = tableAdmin.createAuthorizedView(request);
@@ -102,7 +102,7 @@ public class BigtableAuthorizedViewIT {
           .that(response.isDeletionProtected())
           .isFalse();
       assertWithMessage("Got wrong subset view in CreateAuthorizedView")
-          .that(((SubsetView) response.getAuthorizedViewImpl()).getRowPrefixes())
+          .that(((SubsetView) response.getAuthorizedViewType()).getRowPrefixes())
           .containsExactly(ByteString.copyFromUtf8("row#"));
 
       response = tableAdmin.getAuthorizedView(testTable.getId(), authorizedViewId);
@@ -113,7 +113,7 @@ public class BigtableAuthorizedViewIT {
           .that(response.isDeletionProtected())
           .isFalse();
       assertWithMessage("Got wrong subset view in getAuthorizedView")
-          .that(((SubsetView) response.getAuthorizedViewImpl()).getRowPrefixes())
+          .that(((SubsetView) response.getAuthorizedViewType()).getRowPrefixes())
           .containsExactly(ByteString.copyFromUtf8("row#"));
     } finally {
       tableAdmin.deleteAuthorizedView(testTable.getId(), authorizedViewId);
@@ -197,7 +197,7 @@ public class BigtableAuthorizedViewIT {
   }
 
   @Test
-  public void AuthorizedViewIamTest() {
+  public void authorizedViewIamTest() {
     String authorizedViewId = prefixGenerator.newPrefix();
 
     try {
@@ -230,7 +230,7 @@ public class BigtableAuthorizedViewIT {
 
   private CreateAuthorizedViewRequest createAuthorizedViewRequest(String authorizedViewId) {
     return CreateAuthorizedViewRequest.of(testTable.getId(), authorizedViewId)
-        .setAuthorizedViewImpl(new SubsetView());
+        .setAuthorizedViewType(new SubsetView());
   }
 
   private static Table createAndPopulateTestTable(

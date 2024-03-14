@@ -67,6 +67,7 @@ public final class ReadModifyWriteRow implements Serializable {
   public static ReadModifyWriteRow createForAuthorizedView(
       @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull String key) {
     Preconditions.checkNotNull(key, "key can't be null.");
+    Preconditions.checkNotNull(authorizedViewId, "authorized view id can't be null.");
     return new ReadModifyWriteRow(tableId, authorizedViewId, ByteString.copyFromUtf8(key));
   }
 

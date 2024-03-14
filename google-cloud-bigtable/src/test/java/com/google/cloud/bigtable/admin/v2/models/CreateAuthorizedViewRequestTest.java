@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class CreateAuthorizedViewRequestTest {
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new AuthorizedView.SubsetView()
                     .addRowPrefix("row#")
                     .addRowPrefix("another-row#")
@@ -72,18 +72,18 @@ public class CreateAuthorizedViewRequestTest {
   public void testEquality() {
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"))
+            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"))
             .setDeletionProtection(false);
 
     assertThat(request)
         .isEqualTo(
             CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#")));
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#")));
 
     assertThat(request)
         .isNotEqualTo(
             CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(
+                .setAuthorizedViewType(
                     new AuthorizedView.SubsetView().addRowPrefix("another-row#")));
   }
 
@@ -91,19 +91,19 @@ public class CreateAuthorizedViewRequestTest {
   public void testHashCode() {
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"))
+            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"))
             .setDeletionProtection(false);
 
     assertThat(request.hashCode())
         .isEqualTo(
             CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("row#"))
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewImpl(new AuthorizedView.SubsetView().addRowPrefix("another-row#"))
+                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("another-row#"))
                 .hashCode());
   }
 }

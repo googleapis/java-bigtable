@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.AuthorizedViewType;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -32,7 +33,7 @@ import javax.annotation.Nonnull;
  * <pre>{@code
  * CreateAuthorizedViewRequest request =
  *     CreateAuthorizedViewRequest.of("my-table", "my-new-authorized-view")
- *         .setAuthorizedViewImpl(
+ *         .setAuthorizedViewType(
  *             new AuthorizedView.SubsetView()
  *                 .addRowPrefix("row#")
  *                 .addFamilySubsets(
@@ -68,18 +69,18 @@ public final class CreateAuthorizedViewRequest {
   /**
    * Sets the implementation for this authorized view.
    *
-   * @see AuthorizedView.AuthorizedViewImpl for details.
+   * @see AuthorizedViewType for details.
    */
-  public CreateAuthorizedViewRequest setAuthorizedViewImpl(
-      @Nonnull AuthorizedView.AuthorizedViewImpl authorizedViewImpl) {
-    Preconditions.checkNotNull(authorizedViewImpl, "authorizedViewImpl must be set");
+  public CreateAuthorizedViewRequest setAuthorizedViewType(
+      @Nonnull AuthorizedViewType authorizedViewType) {
+    Preconditions.checkNotNull(authorizedViewType, "authorizedViewType must be set");
 
-    if (authorizedViewImpl instanceof SubsetView) {
+    if (authorizedViewType instanceof SubsetView) {
       requestBuilder
           .getAuthorizedViewBuilder()
-          .setSubsetView(((SubsetView) authorizedViewImpl).toProto());
+          .setSubsetView(((SubsetView) authorizedViewType).toProto());
     } else {
-      throw new IllegalArgumentException("Unknown authorizedViewImpl: " + authorizedViewImpl);
+      throw new IllegalArgumentException("Unknown authorizedViewType: " + authorizedViewType);
     }
 
     return this;

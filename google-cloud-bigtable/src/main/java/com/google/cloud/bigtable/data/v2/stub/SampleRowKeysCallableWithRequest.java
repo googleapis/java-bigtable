@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.util.List;
 
 /** Simple wrapper for SampleRowKeys to wrap the request and response protobufs. */
-class SampleRowKeysCallable2 extends UnaryCallable<SampleRowKeys, List<KeyOffset>> {
+class SampleRowKeysCallableWithRequest extends UnaryCallable<SampleRowKeys, List<KeyOffset>> {
   private final RequestContext requestContext;
   private final UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> inner;
 
-  SampleRowKeysCallable2(
+  SampleRowKeysCallableWithRequest(
       UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> inner,
       RequestContext requestContext) {
 

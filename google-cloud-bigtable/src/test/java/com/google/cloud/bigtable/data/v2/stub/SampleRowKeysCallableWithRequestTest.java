@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,17 +41,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class SampleRowKeysCallable2Test {
+public class SampleRowKeysCallableWithRequestTest {
 
   private final RequestContext requestContext =
       RequestContext.create("my-project", "my-instance", "my-profile");
   private FakeCallable inner;
-  private SampleRowKeysCallable2 callable;
+  private SampleRowKeysCallableWithRequest callable;
 
   @Before
   public void setUp() {
     inner = new FakeCallable();
-    callable = new SampleRowKeysCallable2(inner, requestContext);
+    callable = new SampleRowKeysCallableWithRequest(inner, requestContext);
   }
 
   @Test

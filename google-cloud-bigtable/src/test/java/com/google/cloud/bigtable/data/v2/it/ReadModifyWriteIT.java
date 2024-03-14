@@ -144,7 +144,7 @@ public class ReadModifyWriteIT {
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new SubsetView()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(

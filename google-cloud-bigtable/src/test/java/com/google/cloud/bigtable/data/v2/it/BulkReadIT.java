@@ -154,7 +154,7 @@ public class BulkReadIT {
     try (Batcher<ByteString, Row> batcher =
         client.newBulkReadRowsBatcher(
             testEnvRule.env().getTableId(),
-            new ReadRowOptions().authorizedView(testAuthorizedView.getId()))) {
+            ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
 
       List<ApiFuture<Row>> rowFutures = new ArrayList<>(numRows);
 
@@ -201,7 +201,7 @@ public class BulkReadIT {
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new SubsetView()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(

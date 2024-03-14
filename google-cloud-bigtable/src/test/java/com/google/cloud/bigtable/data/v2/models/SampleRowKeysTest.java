@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,8 +112,7 @@ public class SampleRowKeysTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithInvalidAuthorizedViewId() {
     SampleRowKeys.fromProto(
-        SampleRowKeysRequest.getDefaultInstance()
-            .toBuilder()
+        SampleRowKeysRequest.getDefaultInstance().toBuilder()
             .setAuthorizedViewName("invalid-name")
             .build());
 
@@ -132,8 +131,7 @@ public class SampleRowKeysTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithBothTableAndAuthorizedViewId() {
     SampleRowKeys.fromProto(
-        SampleRowKeysRequest.getDefaultInstance()
-            .toBuilder()
+        SampleRowKeysRequest.getDefaultInstance().toBuilder()
             .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
             .setAuthorizedViewName(
                 NameUtil.formatAuthorizedViewName(

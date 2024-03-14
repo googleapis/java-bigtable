@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
+import com.google.common.base.Preconditions;
 import java.io.Serializable;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /** Represents a collection of customized options for point reads and batch reads. */
@@ -31,15 +33,26 @@ public final class ReadRowOptions implements Serializable {
     return this;
   }
 
+  public static ReadRowOptions create() {
+    return new ReadRowOptions();
+  }
+
   /**
    * Limits the read to subsets of the table represented in an authorized view with the specified
    * authorized view id.
    *
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
-  public ReadRowOptions authorizedView(@Nullable String authorizedViewId) {
+  public static ReadRowOptions createForAuthorizedView(@Nullable String authorizedViewId) {
+    return new ReadRowOptions(authorizedViewId);
+  }
+
+  private ReadRowOptions() {}
+
+  private ReadRowOptions(@Nonnull String authorizedViewId) {
+    Preconditions.checkNotNull(authorizedViewId);
+
     this.authorizedViewId = authorizedViewId;
-    return this;
   }
 
   /**

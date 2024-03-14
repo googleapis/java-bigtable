@@ -213,7 +213,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public boolean exists(String tableId, String rowKey) {
-    return exists(tableId, rowKey, new ExistsOptions());
+    return exists(tableId, rowKey, ExistsOptions.create());
   }
 
   /**
@@ -240,7 +240,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public boolean exists(String tableId, ByteString rowKey) {
-    return exists(tableId, rowKey, new ExistsOptions());
+    return exists(tableId, rowKey, ExistsOptions.create());
   }
 
   /**
@@ -255,7 +255,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   String key = "key";
    *
    *   String authorizedViewId = "[AUTHORIZED_VIEW]";
-   *   ExistsOptions existsOptions = new ExistsOptions().authorizedView(authorizedViewId);
+   *   ExistsOptions existsOptions = ExistsOptions.createForAuthorizedView(authorizedViewId);
    *
    *   boolean isRowPresent = bigtableDataClient.exists(tableId, key, existsOptions);
    *
@@ -286,7 +286,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   ByteString key = ByteString.copyFromUtf8("key");
    *
    *   String authorizedViewId = "[AUTHORIZED_VIEW]";
-   *   ExistsOptions existsOptions = new ExistsOptions().authorizedView(authorizedViewId);
+   *   ExistsOptions existsOptions = ExistsOptions.createForAuthorizedView(authorizedViewId);
    *
    *   boolean isRowPresent = bigtableDataClient.exists(tableId, key, existsOptions);
    *
@@ -331,7 +331,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(String tableId, String rowKey) {
-    return existsAsync(tableId, rowKey, new ExistsOptions());
+    return existsAsync(tableId, rowKey, ExistsOptions.create());
   }
 
   /**
@@ -360,7 +360,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(String tableId, ByteString rowKey) {
-    return existsAsync(tableId, rowKey, new ExistsOptions());
+    return existsAsync(tableId, rowKey, ExistsOptions.create());
   }
 
   /**
@@ -375,7 +375,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   final String key = "key";
    *
    *   String authorizedViewId = "[AUTHORIZED_VIEW]";
-   *   ExistsOptions existsOptions = new ExistsOptions().authorizedView(authorizedViewId);
+   *   ExistsOptions existsOptions = ExistsOptions.createForAuthorizedView(authorizedViewId);
    *
    *   ApiFuture<Boolean> futureResult = bigtableDataClient.existsAsync(tableId, key, existsOptions);
    *
@@ -409,7 +409,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   final ByteString key = ByteString.copyFromUtf8("key");
    *
    *   String authorizedViewId = "[AUTHORIZED_VIEW]";
-   *   ExistsOptions existsOptions = new ExistsOptions().authorizedView(authorizedViewId);
+   *   ExistsOptions existsOptions = ExistsOptions.createForAuthorizedView(authorizedViewId);
    *
    *   ApiFuture<Boolean> futureResult = bigtableDataClient.existsAsync(tableId, key, existsOptions);
    *
@@ -475,7 +475,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public Row readRow(String tableId, ByteString rowKey) {
-    return readRow(tableId, rowKey, new ReadRowOptions());
+    return readRow(tableId, rowKey, ReadRowOptions.create());
   }
 
   /**
@@ -505,7 +505,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public Row readRow(String tableId, String rowKey) {
-    return readRow(tableId, rowKey, new ReadRowOptions());
+    return readRow(tableId, rowKey, ReadRowOptions.create());
   }
 
   /**
@@ -540,7 +540,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public Row readRow(String tableId, String rowKey, @Nullable Filter filter) {
-    return readRow(tableId, rowKey, new ReadRowOptions().filter(filter));
+    return readRow(tableId, rowKey, ReadRowOptions.create().filter(filter));
   }
 
   /**
@@ -575,7 +575,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public Row readRow(String tableId, ByteString rowKey, @Nullable Filter filter) {
-    return readRow(tableId, rowKey, new ReadRowOptions().filter(filter));
+    return readRow(tableId, rowKey, ReadRowOptions.create().filter(filter));
   }
 
   /**
@@ -595,7 +595,7 @@ public class BigtableDataClient implements AutoCloseable {
    *         .filter(FILTERS.qualifier().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
    *
-   *   ReadRowOptions readRowOptions = new ReadRowOptions().authorizedView(authorizedViewId).filter(filter);
+   *   ReadRowOptions readRowOptions = ReadRowOptions.createForAuthorizedView(authorizedViewId).filter(filter);
    *   Row row = bigtableDataClient.readRow(tableId, "key", readRowOptions);
    *   // Do something with row, for example, display all cells
    *   if(row != null) {
@@ -634,7 +634,7 @@ public class BigtableDataClient implements AutoCloseable {
    *         .filter(FILTERS.qualifier().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
    *
-   *   ReadRowOptions readRowOptions = new ReadRowOptions().authorizedView(authorizedViewId).filter(filter);
+   *   ReadRowOptions readRowOptions = ReadRowOptions.createForAuthorizedView(authorizedViewId).filter(filter);
    *   Row row = bigtableDataClient.readRow(tableId, ByteString.copyFromUtf8("key"), readRowOptions);
    *   // Do something with row, for example, display all cells
    *   if(row != null) {
@@ -686,7 +686,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(String tableId, String rowKey) {
-    return readRowAsync(tableId, rowKey, new ReadRowOptions());
+    return readRowAsync(tableId, rowKey, ReadRowOptions.create());
   }
 
   /**
@@ -719,7 +719,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(String tableId, ByteString rowKey) {
-    return readRowAsync(tableId, rowKey, new ReadRowOptions());
+    return readRowAsync(tableId, rowKey, ReadRowOptions.create());
   }
 
   /**
@@ -757,7 +757,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(String tableId, String rowKey, @Nullable Filter filter) {
-    return readRowAsync(tableId, rowKey, new ReadRowOptions().filter(filter));
+    return readRowAsync(tableId, rowKey, ReadRowOptions.create().filter(filter));
   }
 
   /**
@@ -795,7 +795,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(String tableId, ByteString rowKey, @Nullable Filter filter) {
-    return readRowAsync(tableId, rowKey, new ReadRowOptions().filter(filter));
+    return readRowAsync(tableId, rowKey, ReadRowOptions.create().filter(filter));
   }
 
   /**
@@ -815,7 +815,7 @@ public class BigtableDataClient implements AutoCloseable {
    *         .filter(FILTERS.qualifier().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
    *
-   *   ReadRowOptions readRowOptions = new ReadRowOptions().authorizedView(authorizedViewId).filter(filter);
+   *   ReadRowOptions readRowOptions = ReadRowOptions.createForAuthorizedView(authorizedViewId).filter(filter);
    *   ApiFuture<Row> futureResult = bigtableDataClient.readRowAsync(tableId, "key", readRowOptions);
    *
    *   ApiFutures.addCallback(futureResult, new ApiFutureCallback<Row>() {
@@ -857,7 +857,7 @@ public class BigtableDataClient implements AutoCloseable {
    *         .filter(FILTERS.qualifier().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
    *
-   *   ReadRowOptions readRowOptions = new ReadRowOptions().authorizedView(authorizedViewId).filter(filter);
+   *   ReadRowOptions readRowOptions = ReadRowOptions.createForAuthorizedView(authorizedViewId).filter(filter);
    *   ApiFuture<Row> futureResult = bigtableDataClient.readRowAsync(tableId, ByteString.copyFromUtf8("key"), readRowOptions);
    *
    *   ApiFutures.addCallback(futureResult, new ApiFutureCallback<Row>() {
@@ -1172,7 +1172,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public List<KeyOffset> sampleRowKeys(String tableId) {
-    return sampleRowKeys(tableId, new SampleRowKeysOptions());
+    return sampleRowKeys(tableId, SampleRowKeysOptions.create());
   }
 
   /**
@@ -1188,7 +1188,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   String tableId = "[TABLE_ID]";
    *
    *   String authorizedViewId = "[AUTHORIZED_VIEW_ID]";
-   *   SampleRowKeysOptions sampleRowKeysOptions = new SampleRowKeysOptions().authorizedView(authorizedViewId);
+   *   SampleRowKeysOptions sampleRowKeysOptions = SampleRowKeysOptions.createForAuthorizedView(authorizedViewId);
    *
    *   List<KeyOffset> keyOffsets = bigtableDataClient.sampleRowKeys(tableId, sampleRowKeysOptions);
    *   for(KeyOffset keyOffset : keyOffsets) {
@@ -1234,7 +1234,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<List<KeyOffset>> sampleRowKeysAsync(String tableId) {
-    return sampleRowKeysAsync(tableId, new SampleRowKeysOptions());
+    return sampleRowKeysAsync(tableId, SampleRowKeysOptions.create());
   }
 
   /**
@@ -1249,7 +1249,7 @@ public class BigtableDataClient implements AutoCloseable {
    * try (BigtableClient bigtableDataClient = BigtableClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String tableId = "[TABLE_ID]";
    *   String authorizedViewId = "[AUTHORIZED_VIEW_ID]";
-   *   SampleRowKeysOptions sampleRowKeysOptions = new SampleRowKeysOptions().authorizedView(authorizedViewId);
+   *   SampleRowKeysOptions sampleRowKeysOptions = SampleRowKeysOptions.createForAuthorizedView(authorizedViewId);
    *   ApiFuture<List<KeyOffset>> keyOffsetsFuture = bigtableClient.sampleRowKeysAsync(tableId, sampleRowKeysOptions);
    *
    *   ApiFutures.addCallback(keyOffsetsFuture, new ApiFutureCallback<List<KeyOffset>>() {
@@ -1493,7 +1493,7 @@ public class BigtableDataClient implements AutoCloseable {
    */
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(@Nonnull String tableId) {
-    return newBulkMutationBatcher(tableId, new MutateRowOptions(), null);
+    return newBulkMutationBatcher(tableId, MutateRowOptions.create(), null);
   }
 
   /**
@@ -1506,7 +1506,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
-   *   MutateRowOptions mutateRowOptions = new MutateRowOptions().authorizedView("[AUTHORIZED_VIEW]");
+   *   MutateRowOptions mutateRowOptions = MutateRowOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
    *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowOptions)) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Void> entryFuture =
@@ -1558,7 +1558,7 @@ public class BigtableDataClient implements AutoCloseable {
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
       @Nonnull String tableId, @Nullable GrpcCallContext ctx) {
-    return newBulkMutationBatcher(tableId, new MutateRowOptions(), ctx);
+    return newBulkMutationBatcher(tableId, MutateRowOptions.create(), ctx);
   }
 
   /**
@@ -1573,7 +1573,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
-   *   MutateRowOptions mutateRowOptions = new MutateRowOptions().authorizedView("[AUTHORIZED_VIEW]");
+   *   MutateRowOptions mutateRowOptions = MutateRowOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
    *   GrpcCallContext ctx = GrpcCallContext.createDefault().withTimeout(Duration.ofSeconds(10));
    *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowOptions, ctx)) {
    *     for (String someValue : someCollection) {
@@ -1635,7 +1635,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(String tableId) {
-    return newBulkReadRowsBatcher(tableId, new ReadRowOptions(), null);
+    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create(), null);
   }
 
   /**
@@ -1682,7 +1682,7 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       String tableId, @Nullable Filters.Filter filter) {
-    return newBulkReadRowsBatcher(tableId, new ReadRowOptions().filter(filter), null);
+    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create().filter(filter), null);
   }
 
   /**
@@ -1705,7 +1705,7 @@ public class BigtableDataClient implements AutoCloseable {
    *  Filter filter = FILTERS.chain()
    *         .filter(FILTERS.key().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
-   *  ReadRowOptions readRowOptions = new ReadRowOptions().filter(filter);
+   *  ReadRowOptions readRowOptions = ReadRowOptions.create().filter(filter);
    *
    *   List<ApiFuture<Row>> rows = new ArrayList<>();
    *
@@ -1781,7 +1781,7 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       String tableId, @Nullable Filters.Filter filter, @Nullable GrpcCallContext ctx) {
-    return newBulkReadRowsBatcher(tableId, new ReadRowOptions().filter(filter), ctx);
+    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create().filter(filter), ctx);
   }
 
   /**
@@ -1806,7 +1806,7 @@ public class BigtableDataClient implements AutoCloseable {
    *  Filter filter = FILTERS.chain()
    *         .filter(FILTERS.key().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
-   *  ReadRowOptions readRowOptions = new ReadRowOptions().filter(filter);
+   *  ReadRowOptions readRowOptions = ReadRowOptions.create().filter(filter);
    *
    *   List<ApiFuture<Row>> rows = new ArrayList<>();
    *

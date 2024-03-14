@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class AuthorizedViewTest {
     assertThat(result.getId()).isEqualTo(AUTHORIZED_VIEW_ID);
     assertThat(result.getTableId()).isEqualTo(TABLE_ID);
     assertThat(result.isDeletionProtected()).isTrue();
-    SubsetView subsetViewResult = (SubsetView) result.getAuthorizedViewImpl();
+    SubsetView subsetViewResult = (SubsetView) result.getAuthorizedViewType();
     assertThat(subsetViewResult).isEqualTo(SubsetView.fromProto(subsetViewProto));
     assertThat(subsetViewResult.getRowPrefixes())
         .containsExactly(ByteString.copyFromUtf8("row1#"), ByteString.copyFromUtf8("row2#"));
@@ -114,7 +114,7 @@ public class AuthorizedViewTest {
   }
 
   @Test
-  public void testRequiresAuthorizedViewImpl() {
+  public void testRequiresAuthorizedViewType() {
     AuthorizedViewName authorizedViewName =
         AuthorizedViewName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID);
     com.google.bigtable.admin.v2.AuthorizedView proto =
@@ -131,5 +131,56 @@ public class AuthorizedViewTest {
     }
 
     assertThat(actualException).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void testEquality() {
+    AuthorizedViewName authorizedViewName =
+        AuthorizedViewName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID);
+    com.google.bigtable.admin.v2.AuthorizedView proto =
+        com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
+            .setName(authorizedViewName.toString())
+            .setDeletionProtection(true)
+            .setSubsetView(
+                com.google.bigtable.admin.v2.AuthorizedView.SubsetView.newBuilder().build())
+            .build();
+    AuthorizedView authorizedView = AuthorizedView.fromProto(proto);
+
+    assertThat(authorizedView).isEqualTo(AuthorizedView.fromProto(proto));
+
+    assertThat(authorizedView)
+        .isNotEqualTo(
+            com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
+                .setName(authorizedViewName.toString())
+                .setDeletionProtection(false)
+                .setSubsetView(
+                    com.google.bigtable.admin.v2.AuthorizedView.SubsetView.newBuilder().build())
+                .build());
+  }
+
+  @Test
+  public void testHashCode() {
+    AuthorizedViewName authorizedViewName =
+        AuthorizedViewName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID);
+    com.google.bigtable.admin.v2.AuthorizedView proto =
+        com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
+            .setName(authorizedViewName.toString())
+            .setDeletionProtection(true)
+            .setSubsetView(
+                com.google.bigtable.admin.v2.AuthorizedView.SubsetView.newBuilder().build())
+            .build();
+    AuthorizedView authorizedView = AuthorizedView.fromProto(proto);
+
+    assertThat(authorizedView.hashCode()).isEqualTo(AuthorizedView.fromProto(proto).hashCode());
+
+    assertThat(authorizedView.hashCode())
+        .isNotEqualTo(
+            com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
+                .setName(authorizedViewName.toString())
+                .setDeletionProtection(false)
+                .setSubsetView(
+                    com.google.bigtable.admin.v2.AuthorizedView.SubsetView.newBuilder().build())
+                .build()
+                .hashCode());
   }
 }

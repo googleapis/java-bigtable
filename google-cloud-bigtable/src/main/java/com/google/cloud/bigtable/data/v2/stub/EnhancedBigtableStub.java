@@ -370,7 +370,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
     bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
-    sampleRowKeysCallable2 = createSampleRowKeysCallable2();
+    sampleRowKeysCallable2 = createSampleRowKeysCallableWithRequest();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
@@ -657,7 +657,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Add tracing & metrics.
    * </ul>
    */
-  private UnaryCallable<SampleRowKeys, List<KeyOffset>> createSampleRowKeysCallable2() {
+  private UnaryCallable<SampleRowKeys, List<KeyOffset>> createSampleRowKeysCallableWithRequest() {
     String methodName = "SampleRowKeys";
 
     ServerStreamingCallable<SampleRowKeysRequest, SampleRowKeysResponse> base =
@@ -697,7 +697,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
 
     return createUserFacingUnaryCallable(
-        methodName, new SampleRowKeysCallable2(retryable, requestContext));
+        methodName, new SampleRowKeysCallableWithRequest(retryable, requestContext));
   }
 
   /**

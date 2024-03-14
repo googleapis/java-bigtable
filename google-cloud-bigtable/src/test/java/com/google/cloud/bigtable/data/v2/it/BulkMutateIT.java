@@ -116,7 +116,7 @@ public class BulkMutateIT {
             (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
                 client.newBulkMutationBatcher(
                     testEnvRule.env().getTableId(),
-                    new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+                    MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
       FlowControlEventStats events = batcher.getFlowController().getFlowControlEventStats();
       long initialThreashold =
           Objects.requireNonNull(batcher.getFlowController().getCurrentElementCountLimit());
@@ -170,8 +170,7 @@ public class BulkMutateIT {
     BatchingSettings batchingSettings =
         settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings();
 
-    settings
-        .toBuilder()
+    settings.toBuilder()
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(
@@ -219,8 +218,7 @@ public class BulkMutateIT {
     BatchingSettings batchingSettings =
         settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings();
 
-    settings
-        .toBuilder()
+    settings.toBuilder()
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(
@@ -230,7 +228,7 @@ public class BulkMutateIT {
             (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
                 client.newBulkMutationBatcher(
                     testEnvRule.env().getTableId(),
-                    new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+                    MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
 
       String familyId = testEnvRule.env().getFamilyId();
       for (int i = 0; i < 2; i++) {
@@ -264,7 +262,7 @@ public class BulkMutateIT {
                       .getDataClient()
                       .newBulkMutationBatcher(
                           testEnvRule.env().getTableId(),
-                          new MutateRowOptions().authorizedView(testAuthorizedView.getId()))) {
+                          MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
         String keyOutsideAuthorizedView = UUID.randomUUID() + "-outside-authorized-view";
         RowMutationEntry rowMutationEntry = RowMutationEntry.create(keyOutsideAuthorizedView);
         rowMutationEntry.setCell(
@@ -288,7 +286,7 @@ public class BulkMutateIT {
     String authorizedViewId = UUID.randomUUID().toString();
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-            .setAuthorizedViewImpl(
+            .setAuthorizedViewType(
                 new SubsetView()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(
