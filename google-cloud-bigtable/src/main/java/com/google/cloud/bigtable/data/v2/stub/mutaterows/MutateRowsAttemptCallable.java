@@ -120,12 +120,21 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
 
   // Simple wrappers for handling result futures
   private final ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptResult>
-      attemptSuccessfulCallback = responses -> handleAttemptSuccess(responses);
+      attemptSuccessfulCallback =
+          new ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptResult>() {
+            @Override
+            public MutateRowsAttemptResult apply(List<MutateRowsResponse> responses) {
+              return handleAttemptSuccess(responses);
+            }
+          };
 
   private final ApiFunction<Throwable, List<MutateRowsResponse>> attemptFailedCallback =
-      throwable -> {
-        handleAttemptError(throwable);
-        return null;
+      new ApiFunction<Throwable, List<MutateRowsResponse>>() {
+        @Override
+        public List<MutateRowsResponse> apply(Throwable throwable) {
+          handleAttemptError(throwable);
+          return null;
+        }
       };
 
   MutateRowsAttemptCallable(
