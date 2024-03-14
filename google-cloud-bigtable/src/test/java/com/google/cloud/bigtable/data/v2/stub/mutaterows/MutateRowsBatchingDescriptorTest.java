@@ -22,15 +22,19 @@ import com.google.api.gax.batching.BatchEntry;
 import com.google.api.gax.batching.BatchResource;
 import com.google.api.gax.batching.BatchingRequestBuilder;
 import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.rpc.ApiExceptionFactory;
 import com.google.api.gax.rpc.DeadlineExceededException;
+import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.common.collect.ImmutableList;
 import io.grpc.Status;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
@@ -95,6 +99,48 @@ public class MutateRowsBatchingDescriptorTest {
     underTest.splitResponse(new MutateRowsAttemptResult(), batchResponse);
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
+  }
+
+  @Test
+  public void splitResponsePartialErrorsTest() throws Exception {
+    BatchEntry<RowMutationEntry, Void> batchEntry1 =
+        BatchEntry.create(
+            RowMutationEntry.create("key1").deleteRow(), SettableApiFuture.<Void>create());
+    BatchEntry<RowMutationEntry, Void> batchEntry2 =
+        BatchEntry.create(
+            RowMutationEntry.create("key2").deleteRow(), SettableApiFuture.<Void>create());
+
+    List<BatchEntry<RowMutationEntry, Void>> batchResponse =
+        ImmutableList.of(batchEntry1, batchEntry2);
+    assertThat(batchResponse.get(0).getResultFuture().isDone()).isFalse();
+    assertThat(batchResponse.get(1).getResultFuture().isDone()).isFalse();
+
+    MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
+    underTest.splitResponse(
+        new MutateRowsAttemptResult(
+            Arrays.asList(
+                FailedMutation.create(
+                    0,
+                    ApiExceptionFactory.createException(
+                        "error message",
+                        null, GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL), false))),
+            true),
+        batchResponse);
+    assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
+    assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
+
+
+    batchResponse.get(1).getResultFuture().get();
+
+    Throwable actualError = null;
+    try {
+      batchResponse.get(0).getResultFuture().get();
+    } catch (Throwable t) {
+      actualError = t.getCause();
+    }
+
+    assertThat(actualError).isInstanceOf(InternalException.class);
+    assertThat(actualError).hasMessageThat().contains("error message");
   }
 
   @Test
