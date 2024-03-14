@@ -34,7 +34,7 @@ public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<BulkMut
 
   private final UnaryCallable<BulkMutation, MutateRowsAttemptResult> innerCallable;
 
-  MutateRowsErrorConverterUnaryCallable(
+  public MutateRowsErrorConverterUnaryCallable(
       UnaryCallable<BulkMutation, MutateRowsAttemptResult> callable) {
     this.innerCallable = callable;
   }
