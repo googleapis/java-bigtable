@@ -16,20 +16,50 @@
 package com.google.cloud.bigtable.gaxx.retrying;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
+import com.google.api.gax.retrying.ResultRetryAlgorithmWithContext;
 import com.google.api.gax.retrying.RetryingContext;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
+/**
+ * This algorithm will retry if there was a retryable failed mutation, or if there wasn't but the
+ * underlying algorithm allows a retry.
+ */
 @InternalApi
-public class MutateRowsErrorRetryAlgorithm
-    extends BasicResultRetryAlgorithm<MutateRowsAttemptResult> {
-  BasicResultRetryAlgorithm<MutateRowsAttemptResult> retryAlgorithm;
+public class MutateRowsPartialErrorRetryAlgorithm
+    implements ResultRetryAlgorithmWithContext<MutateRowsAttemptResult> {
+  private final ResultRetryAlgorithmWithContext<MutateRowsAttemptResult> retryAlgorithm;
 
-  public MutateRowsErrorRetryAlgorithm(
-      BasicResultRetryAlgorithm<MutateRowsAttemptResult> retryAlgorithm) {
+  public MutateRowsPartialErrorRetryAlgorithm(
+      ResultRetryAlgorithmWithContext<MutateRowsAttemptResult> retryAlgorithm) {
     this.retryAlgorithm = retryAlgorithm;
+  }
+
+  @Override
+  public boolean shouldRetry(
+      Throwable previousThrowable, MutateRowsAttemptResult previousResponse) {
+    if (previousResponse == null) {
+      return retryAlgorithm.shouldRetry(previousThrowable, null);
+    }
+    if (!previousResponse.failedMutations.isEmpty()) {
+      return previousResponse.isRetryable;
+    }
+    return retryAlgorithm.shouldRetry(previousThrowable, previousResponse);
+  }
+
+  @Override
+  public boolean shouldRetry(
+      @Nullable RetryingContext context,
+      Throwable previousThrowable,
+      MutateRowsAttemptResult previousResponse) {
+    if (previousResponse == null) {
+      return retryAlgorithm.shouldRetry(context, previousThrowable, null);
+    }
+    if (!previousResponse.failedMutations.isEmpty()) {
+      return previousResponse.isRetryable;
+    }
+    return retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse);
   }
 
   @Override
@@ -48,31 +78,5 @@ public class MutateRowsErrorRetryAlgorithm
       TimedAttemptSettings previousSettings) {
     return retryAlgorithm.createNextAttempt(
         context, previousThrowable, previousResponse, previousSettings);
-  }
-
-  @Override
-  public boolean shouldRetry(
-      Throwable previousThrowable, MutateRowsAttemptResult previousResponse) {
-    if (retryAlgorithm.shouldRetry(previousThrowable, previousResponse)) {
-      return true;
-    }
-    if (previousResponse == null) {
-      return false;
-    }
-    return previousResponse.isRetryable;
-  }
-
-  @Override
-  public boolean shouldRetry(
-      @Nullable RetryingContext context,
-      Throwable previousThrowable,
-      MutateRowsAttemptResult previousResponse) {
-    if (retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse)) {
-      return true;
-    }
-    if (previousResponse == null) {
-      return false;
-    }
-    return previousResponse.isRetryable;
   }
 }

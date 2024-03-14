@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -24,6 +25,11 @@ import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.common.util.concurrent.MoreExecutors;
 
+/**
+ * This callable converts partial batch failures into an exception. This is necessary to make sure
+ * that the caller properly handles issues and avoids possible data loss on partial failures
+ */
+@InternalApi
 public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<BulkMutation, Void> {
 
   private final UnaryCallable<BulkMutation, MutateRowsAttemptResult> innerCallable;

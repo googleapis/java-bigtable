@@ -15,14 +15,20 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
+import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class represents the result of a MutateRows attempt. It contains the list of failed
+ * mutations, along with an indicator whether these errors are retryable.
+ */
+@InternalApi
 public class MutateRowsAttemptResult {
 
-  public boolean isRetryable;
-  public List<FailedMutation> failedMutations;
+  public final boolean isRetryable;
+  public final List<FailedMutation> failedMutations;
 
   public MutateRowsAttemptResult() {
     this.failedMutations = new ArrayList<>();
