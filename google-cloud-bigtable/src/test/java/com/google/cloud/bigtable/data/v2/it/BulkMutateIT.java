@@ -170,7 +170,8 @@ public class BulkMutateIT {
     BatchingSettings batchingSettings =
         settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings();
 
-    settings.toBuilder()
+    settings
+        .toBuilder()
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(
@@ -218,7 +219,8 @@ public class BulkMutateIT {
     BatchingSettings batchingSettings =
         settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings();
 
-    settings.toBuilder()
+    settings
+        .toBuilder()
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(

@@ -112,7 +112,8 @@ public class SampleRowKeysTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithInvalidAuthorizedViewId() {
     SampleRowKeys.fromProto(
-        SampleRowKeysRequest.getDefaultInstance().toBuilder()
+        SampleRowKeysRequest.getDefaultInstance()
+            .toBuilder()
             .setAuthorizedViewName("invalid-name")
             .build());
 
@@ -131,7 +132,8 @@ public class SampleRowKeysTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithBothTableAndAuthorizedViewId() {
     SampleRowKeys.fromProto(
-        SampleRowKeysRequest.getDefaultInstance().toBuilder()
+        SampleRowKeysRequest.getDefaultInstance()
+            .toBuilder()
             .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
             .setAuthorizedViewName(
                 NameUtil.formatAuthorizedViewName(
