@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
@@ -51,7 +50,7 @@ import org.junit.Test;
 
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
-  
+
   private BigtableDataClient client;
   private InMemoryMetricReader metricReader;
 
