@@ -27,6 +27,7 @@ import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import com.google.cloud.bigtable.data.v2.stub.MutateRowsErrorConverterUnaryCallable;
 import java.util.Arrays;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,14 +77,11 @@ public class MutateRowsErrorConverterUnaryCallableTest {
                         null, GrpcStatusCode.of(io.grpc.Status.Code.INTERNAL), false))),
             true));
 
-    Throwable actualError = null;
-    try {
-      callable.call(BulkMutation.create("fake-table"));
-    } catch (Throwable t) {
-      actualError = t;
-    }
+    MutateRowsException exception =
+        Assert.assertThrows(
+            MutateRowsException.class, () -> callable.call(BulkMutation.create("fake-table")));
 
-    assertThat(actualError).isInstanceOf(MutateRowsException.class);
-    assertThat(((MutateRowsException) actualError).isRetryable()).isTrue();
+    assertThat(exception).isInstanceOf(MutateRowsException.class);
+    assertThat((exception).isRetryable()).isTrue();
   }
 }
