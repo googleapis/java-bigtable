@@ -16,6 +16,7 @@
 
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 
@@ -23,11 +24,12 @@ import javax.annotation.Nullable;
  * Represents a collection of customized options for sampling row keys. Currently, it only wraps an
  * authorized view id option but there could be more in the future.
  */
-public class SampleRowKeysOptions implements Serializable {
+@AutoValue
+public abstract class SampleRowKeysOptions implements Serializable {
   @Nullable private String authorizedViewId = null;
 
   public static SampleRowKeysOptions create() {
-    return new SampleRowKeysOptions(null);
+    return new AutoValue_SampleRowKeysOptions(null);
   }
 
   /**
@@ -37,11 +39,7 @@ public class SampleRowKeysOptions implements Serializable {
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
   public static SampleRowKeysOptions createForAuthorizedView(String authorizedViewId) {
-    return new SampleRowKeysOptions(authorizedViewId);
-  }
-
-  private SampleRowKeysOptions(@Nullable String authorizedViewId) {
-    this.authorizedViewId = authorizedViewId;
+    return new AutoValue_SampleRowKeysOptions(authorizedViewId);
   }
 
   /**
@@ -49,7 +47,5 @@ public class SampleRowKeysOptions implements Serializable {
    * sampling is based on the entire table rather than a specific authorized view.
    */
   @Nullable
-  public String getAuthorizedViewId() {
-    return this.authorizedViewId;
-  }
+  public abstract String getAuthorizedViewId();
 }

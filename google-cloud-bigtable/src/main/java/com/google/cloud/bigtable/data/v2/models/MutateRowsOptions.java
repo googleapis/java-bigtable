@@ -16,6 +16,7 @@
 
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 
@@ -23,11 +24,12 @@ import javax.annotation.Nullable;
  * Represents a collection of customized options for mutating rows. Currently, it only wraps an
  * authorized view id option but there could be more in the future.
  */
-public class MutateRowsOptions implements Serializable {
+@AutoValue
+public abstract class MutateRowsOptions implements Serializable {
   @Nullable private String authorizedViewId = null;
 
   public static MutateRowsOptions create() {
-    return new MutateRowsOptions(null);
+    return new AutoValue_MutateRowsOptions(null);
   }
 
   /**
@@ -37,11 +39,7 @@ public class MutateRowsOptions implements Serializable {
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
   public static MutateRowsOptions createForAuthorizedView(@Nullable String authorizedViewId) {
-    return new MutateRowsOptions(authorizedViewId);
-  }
-
-  private MutateRowsOptions(@Nullable String authorizedViewId) {
-    this.authorizedViewId = authorizedViewId;
+    return new AutoValue_MutateRowsOptions(authorizedViewId);
   }
 
   /**
@@ -49,7 +47,5 @@ public class MutateRowsOptions implements Serializable {
    * mutation is not target a specific authorized view.
    */
   @Nullable
-  public String getAuthorizedViewId() {
-    return this.authorizedViewId;
-  }
+  public abstract String getAuthorizedViewId();
 }

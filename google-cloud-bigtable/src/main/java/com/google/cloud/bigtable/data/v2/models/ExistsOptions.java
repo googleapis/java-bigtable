@@ -16,6 +16,7 @@
 
 package com.google.cloud.bigtable.data.v2.models;
 
+import com.google.auto.value.AutoValue;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 
@@ -23,11 +24,12 @@ import javax.annotation.Nullable;
  * Represents a collection of customized options for row key existence check. Currently, it only
  * wraps an authorized view id option but there would be more in the future.
  */
-public class ExistsOptions implements Serializable {
+@AutoValue
+public abstract class ExistsOptions implements Serializable {
   @Nullable private String authorizedViewId = null;
 
   public static ExistsOptions create() {
-    return new ExistsOptions(null);
+    return new AutoValue_ExistsOptions(null);
   }
 
   /**
@@ -37,11 +39,7 @@ public class ExistsOptions implements Serializable {
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
   public static ExistsOptions createForAuthorizedView(String authorizedViewId) {
-    return new ExistsOptions(authorizedViewId);
-  }
-
-  private ExistsOptions(@Nullable String authorizedViewId) {
-    this.authorizedViewId = authorizedViewId;
+    return new AutoValue_ExistsOptions(authorizedViewId);
   }
 
   /**
@@ -49,7 +47,5 @@ public class ExistsOptions implements Serializable {
    * the check is based on the entire table rather than a specific authorized view.
    */
   @Nullable
-  public String getAuthorizedViewId() {
-    return this.authorizedViewId;
-  }
+  public abstract String getAuthorizedViewId();
 }
