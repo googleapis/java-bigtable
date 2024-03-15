@@ -27,9 +27,9 @@ import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -91,7 +91,7 @@ public class BigtableAuthorizedViewIT {
 
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(testTable.getId(), authorizedViewId)
-            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"))
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"))
             .setDeletionProtection(false);
     try {
       AuthorizedView response = tableAdmin.createAuthorizedView(request);
@@ -230,7 +230,7 @@ public class BigtableAuthorizedViewIT {
 
   private CreateAuthorizedViewRequest createAuthorizedViewRequest(String authorizedViewId) {
     return CreateAuthorizedViewRequest.of(testTable.getId(), authorizedViewId)
-        .setAuthorizedViewType(new SubsetView());
+        .setAuthorizedViewType(SubsetView.create());
   }
 
   private static Table createAndPopulateTestTable(

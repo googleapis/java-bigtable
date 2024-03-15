@@ -62,7 +62,6 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTable
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
 import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
@@ -72,6 +71,7 @@ import com.google.cloud.bigtable.admin.v2.models.EncryptionInfo;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
+import com.google.cloud.bigtable.admin.v2.models.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.Type;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
@@ -958,7 +958,7 @@ public class BigtableTableAdminClientTests {
     CreateAuthorizedViewRequest req =
         CreateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
 
     // Execute
     AuthorizedView actualResult = adminClient.createAuthorizedView(req);
@@ -1011,7 +1011,7 @@ public class BigtableTableAdminClientTests {
     UpdateAuthorizedViewRequest req =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewType(new SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
 
     // Execute
     AuthorizedView actualResult = adminClient.updateAuthorizedView(req);

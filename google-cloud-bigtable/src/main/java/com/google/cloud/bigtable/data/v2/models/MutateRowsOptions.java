@@ -38,7 +38,7 @@ public abstract class MutateRowsOptions implements Serializable {
    *
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
-  public static MutateRowsOptions createForAuthorizedView(@Nullable String authorizedViewId) {
+  public static MutateRowsOptions createForAuthorizedView(String authorizedViewId) {
     return new AutoValue_MutateRowsOptions(authorizedViewId);
   }
 

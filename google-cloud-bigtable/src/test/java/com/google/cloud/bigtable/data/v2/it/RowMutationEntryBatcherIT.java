@@ -22,9 +22,9 @@ import static org.junit.Assert.fail;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.FamilySubsets;
+import com.google.cloud.bigtable.admin.v2.models.SubsetView;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -151,11 +151,12 @@ public class RowMutationEntryBatcherIT {
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
             .setAuthorizedViewType(
-                new SubsetView()
+                SubsetView.create()
                     .addRowPrefix(AUTHORIZED_VIEW_ROW_PREFIX)
                     .addFamilySubsets(
                         testEnvRule.env().getFamilyId(),
-                        new FamilySubsets().addQualifierPrefix(AUTHORIZED_VIEW_COLUMN_QUALIFIER)))
+                        FamilySubsets.create()
+                            .addQualifierPrefix(AUTHORIZED_VIEW_COLUMN_QUALIFIER)))
             .setDeletionProtection(false);
     return testEnvRule.env().getTableAdminClient().createAuthorizedView(request);
   }

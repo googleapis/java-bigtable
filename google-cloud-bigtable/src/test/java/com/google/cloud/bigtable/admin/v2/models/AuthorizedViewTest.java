@@ -19,8 +19,6 @@ package com.google.cloud.bigtable.admin.v2.models;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.bigtable.admin.v2.AuthorizedViewName;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.protobuf.ByteString;
 import java.util.Map;
 import org.junit.Test;

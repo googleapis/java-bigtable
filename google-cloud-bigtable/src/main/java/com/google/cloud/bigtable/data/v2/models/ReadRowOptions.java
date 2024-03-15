@@ -41,7 +41,7 @@ public final class ReadRowOptions implements Serializable {
    *
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
-  public static ReadRowOptions createForAuthorizedView(@Nullable String authorizedViewId) {
+  public static ReadRowOptions createForAuthorizedView(String authorizedViewId) {
     return new ReadRowOptions(authorizedViewId);
   }
 

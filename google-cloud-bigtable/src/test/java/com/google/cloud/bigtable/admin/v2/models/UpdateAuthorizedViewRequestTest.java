@@ -37,7 +37,7 @@ public class UpdateAuthorizedViewRequestTest {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
 
     com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest.newBuilder()
@@ -85,36 +85,35 @@ public class UpdateAuthorizedViewRequestTest {
   public void testEquality() {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
 
     assertThat(request)
         .isEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#")));
+                .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#")));
 
     assertThat(request)
         .isNotEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewType(
-                    new AuthorizedView.SubsetView().addRowPrefix("another-row#")));
+                .setAuthorizedViewType(SubsetView.create().addRowPrefix("another-row#")));
   }
 
   @Test
   public void testHashCode() {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-            .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
 
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("row#"))
+                .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
-                .setAuthorizedViewType(new AuthorizedView.SubsetView().addRowPrefix("another-row#"))
+                .setAuthorizedViewType(SubsetView.create().addRowPrefix("another-row#"))
                 .hashCode());
   }
 }

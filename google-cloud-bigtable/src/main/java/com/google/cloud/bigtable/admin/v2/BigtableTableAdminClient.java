@@ -1452,10 +1452,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *     CreateAuthorizedViewRequest.of("my-table", "my-new-authorized-view")
    *         .setDeletionProtection(true)
    *         .setAuthorizedViewType(
-   *             new AuthorizedView.SubsetView()
+   *             SubsetView.create()
    *                 .addRowPrefix("row#")
    *                 .addFamilySubsets(
-   *                     "my-family", new AuthorizedView.FamilySubsets().addQualifier("column")));
+   *                     "my-family", FamilySubsets.create().addQualifier("column")));
    *
    * AuthorizedView response = client.createAuthorizedView(request);
    * }</pre>
@@ -1476,10 +1476,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    *     CreateAuthorizedViewRequest.of("my-table", "my-new-authorized-view")
    *         .setDeletionProtection(true)
    *         .setAuthorizedViewType(
-   *             new AuthorizedView.SubsetView()
+   *             SubsetView.create()
    *                 .addRowPrefix("row#")
    *                 .addFamilySubsets(
-   *                     "my-family", new AuthorizedView.FamilySubsets().addQualifier("column")));
+   *                     "my-family", FamilySubsets.create().addQualifier("column")));
    *
    * ApiFuture<AuthorizedView> future = client.createAuthorizedViewAsync(request);
    *

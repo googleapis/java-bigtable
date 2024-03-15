@@ -51,6 +51,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeys;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysOptions;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
@@ -271,7 +272,8 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
-  public boolean exists(String tableId, String rowKey, @Nullable ExistsOptions existsOptions) {
+  public boolean exists(String tableId, String rowKey, @Nonnull ExistsOptions existsOptions) {
+    Preconditions.checkNotNull(existsOptions, "Please use the exists(tableId, rowKey) API instead");
     return ApiExceptions.callAndTranslateApiException(existsAsync(tableId, rowKey, existsOptions));
   }
 
@@ -302,7 +304,8 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
-  public boolean exists(String tableId, ByteString rowKey, @Nullable ExistsOptions existsOptions) {
+  public boolean exists(String tableId, ByteString rowKey, @Nonnull ExistsOptions existsOptions) {
+    Preconditions.checkNotNull(existsOptions, "Please use the exists(tableId, rowKey) API instead");
     return ApiExceptions.callAndTranslateApiException(existsAsync(tableId, rowKey, existsOptions));
   }
 
@@ -394,7 +397,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(
-      String tableId, String rowKey, @Nullable ExistsOptions existsOptions) {
+      String tableId, String rowKey, @Nonnull ExistsOptions existsOptions) {
+    Preconditions.checkNotNull(
+        existsOptions, "Please use the existsAsync(tableId, rowKey) API instead");
     return existsAsync(tableId, ByteString.copyFromUtf8(rowKey), existsOptions);
   }
 
@@ -428,7 +433,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Boolean> existsAsync(
-      String tableId, ByteString rowKey, @Nullable ExistsOptions existsOptions) {
+      String tableId, ByteString rowKey, @Nonnull ExistsOptions existsOptions) {
+    Preconditions.checkNotNull(
+        existsOptions, "Please use the existsAsync(tableId, rowKey) API instead");
     Query query =
         Query.create(tableId, existsOptions)
             .rowKey(rowKey)
@@ -613,7 +620,9 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
-  public Row readRow(String tableId, String rowKey, @Nullable ReadRowOptions readRowOptions) {
+  public Row readRow(String tableId, String rowKey, @Nonnull ReadRowOptions readRowOptions) {
+    Preconditions.checkNotNull(
+        readRowOptions, "Please use the readRow(tableId, rowKey) API instead");
     return ApiExceptions.callAndTranslateApiException(
         readRowAsync(tableId, rowKey, readRowOptions));
   }
@@ -652,7 +661,9 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
-  public Row readRow(String tableId, ByteString rowKey, @Nullable ReadRowOptions readRowOptions) {
+  public Row readRow(String tableId, ByteString rowKey, @Nonnull ReadRowOptions readRowOptions) {
+    Preconditions.checkNotNull(
+        readRowOptions, "Please use the readRow(tableId, rowKey) API instead");
     return ApiExceptions.callAndTranslateApiException(
         readRowAsync(tableId, rowKey, readRowOptions));
   }
@@ -837,7 +848,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(
-      String tableId, String rowKey, @Nullable ReadRowOptions readRowOptions) {
+      String tableId, String rowKey, @Nonnull ReadRowOptions readRowOptions) {
+    Preconditions.checkNotNull(
+        readRowOptions, "Please use the readRowAsync(tableId, rowKey) API instead");
     return readRowAsync(tableId, ByteString.copyFromUtf8(rowKey), readRowOptions);
   }
 
@@ -879,7 +892,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Row> readRowAsync(
-      String tableId, ByteString rowKey, @Nullable ReadRowOptions readRowOptions) {
+      String tableId, ByteString rowKey, @Nonnull ReadRowOptions readRowOptions) {
+    Preconditions.checkNotNull(
+        readRowOptions, "Please use the readRowAsync(tableId, rowKey) API instead");
     Query query = Query.create(tableId, readRowOptions).rowKey(rowKey);
     return readRowCallable().futureCall(query);
   }
@@ -1203,7 +1218,9 @@ public class BigtableDataClient implements AutoCloseable {
    * @throws com.google.api.gax.rpc.ApiException when a serverside error occurs
    */
   public List<KeyOffset> sampleRowKeys(
-      String tableId, @Nullable SampleRowKeysOptions sampleRowKeysOptions) {
+      String tableId, @Nonnull SampleRowKeysOptions sampleRowKeysOptions) {
+    Preconditions.checkNotNull(
+        sampleRowKeysOptions, "Please use the sampleRowKeys(tableId) API instead");
     return ApiExceptions.callAndTranslateApiException(
         sampleRowKeysAsync(tableId, sampleRowKeysOptions));
   }
@@ -1269,7 +1286,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<List<KeyOffset>> sampleRowKeysAsync(
-      String tableId, @Nullable SampleRowKeysOptions sampleRowKeysOptions) {
+      String tableId, @Nonnull SampleRowKeysOptions sampleRowKeysOptions) {
+    Preconditions.checkNotNull(
+        sampleRowKeysOptions, "Please use the sampleRowKeysAsync(tableId) API instead");
     SampleRowKeys sampleRowKeys = SampleRowKeys.create(tableId, sampleRowKeysOptions);
     return sampleRowKeysCallable2().futureCall(sampleRowKeys);
   }
@@ -1525,7 +1544,9 @@ public class BigtableDataClient implements AutoCloseable {
    */
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
-      @Nonnull String tableId, @Nullable MutateRowsOptions mutateRowsOptions) {
+      @Nonnull String tableId, @Nonnull MutateRowsOptions mutateRowsOptions) {
+    Preconditions.checkNotNull(
+        mutateRowsOptions, "Please use the newBulkMutationBatcher(tableId) API instead");
     return newBulkMutationBatcher(tableId, mutateRowsOptions, null);
   }
 
@@ -1594,8 +1615,10 @@ public class BigtableDataClient implements AutoCloseable {
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
       @Nonnull String tableId,
-      @Nullable MutateRowsOptions mutateRowsOptions,
+      @Nonnull MutateRowsOptions mutateRowsOptions,
       @Nullable GrpcCallContext ctx) {
+    Preconditions.checkNotNull(
+        mutateRowsOptions, "Please use the newBulkMutationBatcher(tableId, ctx) API instead");
     BulkMutation mutation = BulkMutation.create(tableId, mutateRowsOptions);
     return stub.newMutateRowsBatcher(mutation, ctx);
   }
@@ -1731,7 +1754,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
-      String tableId, @Nullable ReadRowsOptions readRowsOptions) {
+      String tableId, @Nonnull ReadRowsOptions readRowsOptions) {
+    Preconditions.checkNotNull(
+        readRowsOptions, "Please use the newBulkReadRowsBatcher(tableId) API instead");
     return newBulkReadRowsBatcher(tableId, readRowsOptions, null);
   }
 
@@ -1833,7 +1858,9 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
-      String tableId, @Nullable ReadRowsOptions readRowsOptions, @Nullable GrpcCallContext ctx) {
+      String tableId, @Nonnull ReadRowsOptions readRowsOptions, @Nullable GrpcCallContext ctx) {
+    Preconditions.checkNotNull(
+        readRowsOptions, "Please use the newBulkReadRowsBatcher(tableId, ctx) API instead");
     Query query = Query.create(tableId, readRowsOptions);
     return stub.newBulkReadRowsBatcher(query, ctx);
   }
