@@ -20,32 +20,32 @@ import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import java.io.Serializable;
 import javax.annotation.Nullable;
 
-/** Represents a collection of customized options for point reads. */
-public final class ReadRowOptions implements Serializable {
+/** Represents a collection of customized options for batch reads. */
+public final class ReadRowsOptions implements Serializable {
   @Nullable private Filter filter = null;
   @Nullable private String authorizedViewId = null;
 
   /** Adds a filter to be applied to the contents of the specified row. */
-  public ReadRowOptions filter(@Nullable Filter filter) {
+  public ReadRowsOptions filter(@Nullable Filter filter) {
     this.filter = filter;
     return this;
   }
 
-  public static ReadRowOptions create() {
-    return new ReadRowOptions(null);
+  public static ReadRowsOptions create() {
+    return new ReadRowsOptions(null);
   }
 
   /**
-   * Limits the read to subsets of the table represented in an authorized view with the specified
+   * Limits the reads to subsets of the table represented in an authorized view with the specified
    * authorized view id.
    *
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
-  public static ReadRowOptions createForAuthorizedView(@Nullable String authorizedViewId) {
-    return new ReadRowOptions(authorizedViewId);
+  public static ReadRowsOptions createForAuthorizedView(@Nullable String authorizedViewId) {
+    return new ReadRowsOptions(authorizedViewId);
   }
 
-  private ReadRowOptions(@Nullable String authorizedViewId) {
+  private ReadRowsOptions(@Nullable String authorizedViewId) {
     this.authorizedViewId = authorizedViewId;
   }
 

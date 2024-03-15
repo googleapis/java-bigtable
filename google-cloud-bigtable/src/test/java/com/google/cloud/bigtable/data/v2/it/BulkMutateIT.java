@@ -29,7 +29,7 @@ import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
-import com.google.cloud.bigtable.data.v2.models.MutateRowOptions;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -116,7 +116,7 @@ public class BulkMutateIT {
             (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
                 client.newBulkMutationBatcher(
                     testEnvRule.env().getTableId(),
-                    MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+                    MutateRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
       FlowControlEventStats events = batcher.getFlowController().getFlowControlEventStats();
       long initialThreashold =
           Objects.requireNonNull(batcher.getFlowController().getCurrentElementCountLimit());
@@ -230,7 +230,7 @@ public class BulkMutateIT {
             (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
                 client.newBulkMutationBatcher(
                     testEnvRule.env().getTableId(),
-                    MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+                    MutateRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
 
       String familyId = testEnvRule.env().getFamilyId();
       for (int i = 0; i < 2; i++) {
@@ -264,7 +264,7 @@ public class BulkMutateIT {
                       .getDataClient()
                       .newBulkMutationBatcher(
                           testEnvRule.env().getTableId(),
-                          MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+                          MutateRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
         String keyOutsideAuthorizedView = UUID.randomUUID() + "-outside-authorized-view";
         RowMutationEntry rowMutationEntry = RowMutationEntry.create(keyOutsideAuthorizedView);
         rowMutationEntry.setCell(

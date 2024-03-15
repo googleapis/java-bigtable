@@ -26,7 +26,7 @@ import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.FamilySubsets;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.MutateRowOptions;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
@@ -99,7 +99,7 @@ public class RowMutationEntryBatcherIT {
 
     try (Batcher<RowMutationEntry, Void> batcher =
         client.newBulkMutationBatcher(
-            tableId, MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+            tableId, MutateRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
       for (int i = 0; i < 10; i++) {
         batcher.add(
             RowMutationEntry.create(rowPrefix + "-" + i)
@@ -129,7 +129,7 @@ public class RowMutationEntryBatcherIT {
     try {
       try (Batcher<RowMutationEntry, Void> batcher =
           client.newBulkMutationBatcher(
-              tableId, MutateRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+              tableId, MutateRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
         batcher.add(
             RowMutationEntry.create(rowKeyOutsideAuthorizedView)
                 .setCell(family, AUTHORIZED_VIEW_COLUMN_QUALIFIER, 10_000L, "value"));

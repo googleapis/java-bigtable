@@ -96,6 +96,20 @@ public final class Query implements Serializable {
     return query.filter(filter);
   }
 
+  @InternalApi("For internal use only")
+  public static Query create(String tableId, @Nullable ReadRowsOptions readRowsOptions) {
+    if (readRowsOptions == null) {
+      return new Query(tableId);
+    }
+    String authorizedViewId = readRowsOptions.getAuthorizedViewId();
+    Filters.Filter filter = readRowsOptions.getFilter();
+    Query query = new Query(tableId, authorizedViewId);
+    if (filter == null) {
+      return query;
+    }
+    return query.filter(filter);
+  }
+
   private Query(@Nonnull String tableId) {
     this(tableId, null);
   }

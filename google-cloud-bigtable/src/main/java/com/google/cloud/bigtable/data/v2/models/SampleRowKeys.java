@@ -54,6 +54,8 @@ public final class SampleRowKeys implements Serializable {
    */
   public static SampleRowKeys createForAuthorizedView(
       @Nonnull String tableId, @Nonnull String authorizedViewId) {
+    Preconditions.checkNotNull(tableId, "table id can't be null.");
+    Preconditions.checkNotNull(authorizedViewId, "authorized view id can't be null.");
     return new SampleRowKeys(tableId, authorizedViewId);
   }
 

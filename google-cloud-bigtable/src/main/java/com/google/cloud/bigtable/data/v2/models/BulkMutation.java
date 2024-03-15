@@ -61,11 +61,11 @@ public final class BulkMutation implements Serializable, Cloneable {
   }
 
   @InternalApi("For internal use only")
-  public static BulkMutation create(String tableId, @Nullable MutateRowOptions mutateRowOptions) {
-    if (mutateRowOptions == null) {
+  public static BulkMutation create(String tableId, @Nullable MutateRowsOptions mutateRowsOptions) {
+    if (mutateRowsOptions == null) {
       return new BulkMutation(tableId);
     }
-    return new BulkMutation(tableId, mutateRowOptions.getAuthorizedViewId());
+    return new BulkMutation(tableId, mutateRowsOptions.getAuthorizedViewId());
   }
 
   private BulkMutation(@Nonnull String tableId) {

@@ -71,6 +71,7 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    */
   public static RowMutation createForAuthorizedView(
       @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull String key) {
+    Preconditions.checkNotNull(authorizedViewId, "authorized view id can't be null.");
     return createForAuthorizedView(tableId, authorizedViewId, ByteString.copyFromUtf8(key));
   }
 
@@ -87,6 +88,7 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
    */
   public static RowMutation createForAuthorizedView(
       @Nonnull String tableId, @Nonnull String authorizedViewId, @Nonnull ByteString key) {
+    Preconditions.checkNotNull(authorizedViewId, "authorized view id can't be null.");
     return new RowMutation(tableId, authorizedViewId, key, Mutation.create());
   }
 

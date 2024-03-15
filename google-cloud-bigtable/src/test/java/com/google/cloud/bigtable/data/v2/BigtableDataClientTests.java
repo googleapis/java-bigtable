@@ -30,13 +30,14 @@ import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.ExistsOptions;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
-import com.google.cloud.bigtable.data.v2.models.MutateRowOptions;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.ReadRowOptions;
+import com.google.cloud.bigtable.data.v2.models.ReadRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -848,7 +849,7 @@ public class BigtableDataClientTests {
     ApiFuture<Void> expectedResponse = ApiFutures.immediateFuture(null);
     Batcher<RowMutationEntry, Void> batcher =
         bigtableDataClient.newBulkMutationBatcher(
-            "fake-table", MutateRowOptions.createForAuthorizedView("fake-authorized-view"));
+            "fake-table", MutateRowsOptions.createForAuthorizedView("fake-authorized-view"));
     RowMutationEntry request =
         RowMutationEntry.create("some-key").setCell("some-family", "fake-qualifier", "fake-value");
     Mockito.when(mockBulkMutationBatcher.add(request)).thenReturn(expectedResponse);
@@ -890,7 +891,7 @@ public class BigtableDataClientTests {
 
     Batcher<ByteString, Row> batcher =
         bigtableDataClient.newBulkReadRowsBatcher(
-            "fake-table", ReadRowOptions.createForAuthorizedView("fake-authorized-view"));
+            "fake-table", ReadRowsOptions.createForAuthorizedView("fake-authorized-view"));
     Mockito.when(mockBulkReadRowsBatcher.add(request)).thenReturn(expectedResponse);
 
     ApiFuture<Row> actualResponse = batcher.add(request);
@@ -932,7 +933,7 @@ public class BigtableDataClientTests {
     Batcher<ByteString, Row> batcher =
         bigtableDataClient.newBulkReadRowsBatcher(
             "fake-table",
-            ReadRowOptions.createForAuthorizedView("fake-authorized-view")
+            ReadRowsOptions.createForAuthorizedView("fake-authorized-view")
                 .filter(FILTERS.key().regex("fake-row")));
     Mockito.when(mockBulkReadRowsBatcher.add(request)).thenReturn(expectedResponse);
 

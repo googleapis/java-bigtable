@@ -37,12 +37,13 @@ import com.google.cloud.bigtable.data.v2.models.ExistsOptions;
 import com.google.cloud.bigtable.data.v2.models.Filters;
 import com.google.cloud.bigtable.data.v2.models.Filters.Filter;
 import com.google.cloud.bigtable.data.v2.models.KeyOffset;
-import com.google.cloud.bigtable.data.v2.models.MutateRowOptions;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Range.ByteStringRange;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.ReadRowOptions;
+import com.google.cloud.bigtable.data.v2.models.ReadRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -1493,12 +1494,12 @@ public class BigtableDataClient implements AutoCloseable {
    */
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(@Nonnull String tableId) {
-    return newBulkMutationBatcher(tableId, MutateRowOptions.create(), null);
+    return newBulkMutationBatcher(tableId, MutateRowsOptions.create(), null);
   }
 
   /**
    * Mutates multiple rows in a batch. This method allows customized mutation options by passing in
-   * a {@link MutateRowOptions}. Each individual row is mutated atomically as in MutateRow, but the
+   * a {@link MutateRowsOptions}. Each individual row is mutated atomically as in MutateRow, but the
    * entire batch is not executed atomically. The returned Batcher instance is not threadsafe, it
    * can only be used from single thread.
    *
@@ -1506,8 +1507,8 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
-   *   MutateRowOptions mutateRowOptions = MutateRowOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
-   *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowOptions)) {
+   *   MutateRowsOptions mutateRowsOptions = MutateRowsOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
+   *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowsOptions)) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Void> entryFuture =
    *           batcher.add(
@@ -1524,8 +1525,8 @@ public class BigtableDataClient implements AutoCloseable {
    */
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
-      @Nonnull String tableId, @Nullable MutateRowOptions mutateRowOptions) {
-    return newBulkMutationBatcher(tableId, mutateRowOptions, null);
+      @Nonnull String tableId, @Nullable MutateRowsOptions mutateRowsOptions) {
+    return newBulkMutationBatcher(tableId, mutateRowsOptions, null);
   }
 
   /**
@@ -1558,12 +1559,12 @@ public class BigtableDataClient implements AutoCloseable {
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
       @Nonnull String tableId, @Nullable GrpcCallContext ctx) {
-    return newBulkMutationBatcher(tableId, MutateRowOptions.create(), ctx);
+    return newBulkMutationBatcher(tableId, MutateRowsOptions.create(), ctx);
   }
 
   /**
    * Mutates multiple rows in a batch. This method allows customized mutation options by passing in
-   * a {@link MutateRowOptions}. Each individual row is mutated atomically as in MutateRow, but the
+   * a {@link MutateRowsOptions}. Each individual row is mutated atomically as in MutateRow, but the
    * entire batch is not executed atomically. The returned Batcher instance is not threadsafe, it
    * can only be used from single thread. This method allows customization of the underlying RPCs by
    * passing in a {@link com.google.api.gax.grpc.GrpcCallContext}. The same context will be reused
@@ -1573,9 +1574,9 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
-   *   MutateRowOptions mutateRowOptions = MutateRowOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
+   *   MutateRowsOptions mutateRowsOptions = MutateRowsOptions.createForAuthorizedView("[AUTHORIZED_VIEW]");
    *   GrpcCallContext ctx = GrpcCallContext.createDefault().withTimeout(Duration.ofSeconds(10));
-   *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowOptions, ctx)) {
+   *   try (Batcher<RowMutationEntry, Void> batcher = bigtableDataClient.newBulkMutationBatcher("[TABLE]", mutateRowsOptions, ctx)) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Void> entryFuture =
    *           batcher.add(
@@ -1593,9 +1594,9 @@ public class BigtableDataClient implements AutoCloseable {
   @BetaApi("This surface is likely to change as the batching surface evolves.")
   public Batcher<RowMutationEntry, Void> newBulkMutationBatcher(
       @Nonnull String tableId,
-      @Nullable MutateRowOptions mutateRowOptions,
+      @Nullable MutateRowsOptions mutateRowsOptions,
       @Nullable GrpcCallContext ctx) {
-    BulkMutation mutation = BulkMutation.create(tableId, mutateRowOptions);
+    BulkMutation mutation = BulkMutation.create(tableId, mutateRowsOptions);
     return stub.newMutateRowsBatcher(mutation, ctx);
   }
 
@@ -1635,7 +1636,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(String tableId) {
-    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create(), null);
+    return newBulkReadRowsBatcher(tableId, ReadRowsOptions.create(), null);
   }
 
   /**
@@ -1682,12 +1683,12 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       String tableId, @Nullable Filters.Filter filter) {
-    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create().filter(filter), null);
+    return newBulkReadRowsBatcher(tableId, ReadRowsOptions.create().filter(filter), null);
   }
 
   /**
    * Reads rows for given tableId in a batch. This method allows customized reading options (such as
-   * filter criteria) by passing in a {@link ReadRowOptions}. If the row does not exist, the value
+   * filter criteria) by passing in a {@link ReadRowsOptions}. If the row does not exist, the value
    * will be null. The returned Batcher instance is not threadsafe, it can only be used from a
    * single thread.
    *
@@ -1705,11 +1706,11 @@ public class BigtableDataClient implements AutoCloseable {
    *  Filter filter = FILTERS.chain()
    *         .filter(FILTERS.key().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
-   *  ReadRowOptions readRowOptions = ReadRowOptions.create().filter(filter);
+   *  ReadRowsOptions readRowsOptions = ReadRowsOptions.create().filter(filter);
    *
    *   List<ApiFuture<Row>> rows = new ArrayList<>();
    *
-   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher("[TABLE]", readRowOptions)) {
+   *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher("[TABLE]", readRowsOptions)) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Row> rowFuture =
    *           batcher.add(ByteString.copyFromUtf8("[ROW KEY]"));
@@ -1730,8 +1731,8 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
-      String tableId, @Nullable ReadRowOptions readRowOptions) {
-    return newBulkReadRowsBatcher(tableId, readRowOptions, null);
+      String tableId, @Nullable ReadRowsOptions readRowsOptions) {
+    return newBulkReadRowsBatcher(tableId, readRowsOptions, null);
   }
 
   /**
@@ -1781,12 +1782,12 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
       String tableId, @Nullable Filters.Filter filter, @Nullable GrpcCallContext ctx) {
-    return newBulkReadRowsBatcher(tableId, ReadRowOptions.create().filter(filter), ctx);
+    return newBulkReadRowsBatcher(tableId, ReadRowsOptions.create().filter(filter), ctx);
   }
 
   /**
    * Reads rows for given tableId in a batch. This method allows customized reading options (such as
-   * filter criteria) by passing in a {@link ReadRowOptions}. If the row does not exist, the value
+   * filter criteria) by passing in a {@link ReadRowsOptions}. If the row does not exist, the value
    * will be null. The returned Batcher instance is not threadsafe, it can only be used from a
    * single thread. This method allows customization of the underlying RPCs by passing in a {@link
    * com.google.api.gax.grpc.GrpcCallContext}. The same context will be reused for all batches. This
@@ -1806,12 +1807,12 @@ public class BigtableDataClient implements AutoCloseable {
    *  Filter filter = FILTERS.chain()
    *         .filter(FILTERS.key().regex("prefix.*"))
    *         .filter(FILTERS.limit().cellsPerRow(10));
-   *  ReadRowOptions readRowOptions = ReadRowOptions.create().filter(filter);
+   *  ReadRowsOptions readRowsOptions = ReadRowsOptions.create().filter(filter);
    *
    *   List<ApiFuture<Row>> rows = new ArrayList<>();
    *
    *   try (Batcher<ByteString, Row> batcher = bigtableDataClient.newBulkReadRowsBatcher(
-   *    "[TABLE]", readRowOptions, GrpcCallContext.createDefault().withTimeout(Duration.ofSeconds(10)))) {
+   *    "[TABLE]", readRowsOptions, GrpcCallContext.createDefault().withTimeout(Duration.ofSeconds(10)))) {
    *     for (String someValue : someCollection) {
    *       ApiFuture<Row> rowFuture =
    *           batcher.add(ByteString.copyFromUtf8("[ROW KEY]"));
@@ -1832,8 +1833,8 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public Batcher<ByteString, Row> newBulkReadRowsBatcher(
-      String tableId, @Nullable ReadRowOptions readRowOptions, @Nullable GrpcCallContext ctx) {
-    Query query = Query.create(tableId, readRowOptions);
+      String tableId, @Nullable ReadRowsOptions readRowsOptions, @Nullable GrpcCallContext ctx) {
+    Query query = Query.create(tableId, readRowsOptions);
     return stub.newBulkReadRowsBatcher(query, ctx);
   }
 

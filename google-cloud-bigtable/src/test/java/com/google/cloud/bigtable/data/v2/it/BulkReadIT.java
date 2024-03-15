@@ -27,7 +27,7 @@ import com.google.cloud.bigtable.admin.v2.models.AuthorizedView.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
-import com.google.cloud.bigtable.data.v2.models.ReadRowOptions;
+import com.google.cloud.bigtable.data.v2.models.ReadRowsOptions;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -154,7 +154,7 @@ public class BulkReadIT {
     try (Batcher<ByteString, Row> batcher =
         client.newBulkReadRowsBatcher(
             testEnvRule.env().getTableId(),
-            ReadRowOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
+            ReadRowsOptions.createForAuthorizedView(testAuthorizedView.getId()))) {
 
       List<ApiFuture<Row>> rowFutures = new ArrayList<>(numRows);
 

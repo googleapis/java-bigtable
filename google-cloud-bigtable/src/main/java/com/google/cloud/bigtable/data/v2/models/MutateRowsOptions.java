@@ -16,37 +16,31 @@
 
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Represents a collection of customized options for mutating a row. Currently, it only wraps an
+ * Represents a collection of customized options for mutating rows. Currently, it only wraps an
  * authorized view id option but there could be more in the future.
  */
-public class MutateRowOptions implements Serializable {
+public class MutateRowsOptions implements Serializable {
   @Nullable private String authorizedViewId = null;
 
-  public static MutateRowOptions create() {
-    return new MutateRowOptions();
+  public static MutateRowsOptions create() {
+    return new MutateRowsOptions(null);
   }
 
   /**
-   * Limits the mutation to subsets of the table represented in an authorized view with the
+   * Limits the mutations to subsets of the table represented in an authorized view with the
    * specified authorized view id.
    *
    * @see com.google.cloud.bigtable.admin.v2.models.AuthorizedView for more details.
    */
-  public static MutateRowOptions createForAuthorizedView(@Nullable String authorizedViewId) {
-    return new MutateRowOptions(authorizedViewId);
+  public static MutateRowsOptions createForAuthorizedView(@Nullable String authorizedViewId) {
+    return new MutateRowsOptions(authorizedViewId);
   }
 
-  private MutateRowOptions() {}
-
-  private MutateRowOptions(@Nonnull String authorizedViewId) {
-    Preconditions.checkNotNull(authorizedViewId);
-
+  private MutateRowsOptions(@Nullable String authorizedViewId) {
     this.authorizedViewId = authorizedViewId;
   }
 
@@ -54,6 +48,7 @@ public class MutateRowOptions implements Serializable {
    * Gets the id of the authorized view that this mutation is limited to. Could be null if the
    * mutation is not target a specific authorized view.
    */
+  @Nullable
   public String getAuthorizedViewId() {
     return this.authorizedViewId;
   }

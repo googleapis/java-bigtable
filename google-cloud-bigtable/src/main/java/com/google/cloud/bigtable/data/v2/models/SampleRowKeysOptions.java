@@ -16,9 +16,7 @@
 
 package com.google.cloud.bigtable.data.v2.models;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -29,7 +27,7 @@ public class SampleRowKeysOptions implements Serializable {
   @Nullable private String authorizedViewId = null;
 
   public static SampleRowKeysOptions create() {
-    return new SampleRowKeysOptions();
+    return new SampleRowKeysOptions(null);
   }
 
   /**
@@ -42,11 +40,7 @@ public class SampleRowKeysOptions implements Serializable {
     return new SampleRowKeysOptions(authorizedViewId);
   }
 
-  private SampleRowKeysOptions() {}
-
-  private SampleRowKeysOptions(@Nonnull String authorizedViewId) {
-    Preconditions.checkNotNull(authorizedViewId);
-
+  private SampleRowKeysOptions(@Nullable String authorizedViewId) {
     this.authorizedViewId = authorizedViewId;
   }
 
@@ -54,6 +48,7 @@ public class SampleRowKeysOptions implements Serializable {
    * Gets the id of the authorized view that this sampling is limited to. Could be null if the
    * sampling is based on the entire table rather than a specific authorized view.
    */
+  @Nullable
   public String getAuthorizedViewId() {
     return this.authorizedViewId;
   }
