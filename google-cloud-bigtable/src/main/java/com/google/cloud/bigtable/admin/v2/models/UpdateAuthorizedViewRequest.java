@@ -102,6 +102,13 @@ public final class UpdateAuthorizedViewRequest {
     return this;
   }
 
+  /** Configures if safety warnings should be disabled. */
+  @SuppressWarnings("WeakerAccess")
+  public UpdateAuthorizedViewRequest setIgnoreWarnings(boolean value) {
+    requestBuilder.setIgnoreWarnings(value);
+    return this;
+  }
+
   private void updateFieldMask(int fieldNumber) {
     FieldMask newMask =
         FieldMaskUtil.fromFieldNumbers(

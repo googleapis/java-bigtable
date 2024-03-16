@@ -37,7 +37,8 @@ public class UpdateAuthorizedViewRequestTest {
     UpdateAuthorizedViewRequest request =
         UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
             .setDeletionProtection(true)
-            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"));
+            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"))
+            .setIgnoreWarnings(true);
 
     com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest.newBuilder()
@@ -52,6 +53,7 @@ public class UpdateAuthorizedViewRequestTest {
                             .addRowPrefixes(ByteString.copyFromUtf8("row#"))))
             .setUpdateMask(
                 FieldMask.newBuilder().addPaths("deletion_protection").addPaths("subset_view"))
+            .setIgnoreWarnings(true)
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
   }
