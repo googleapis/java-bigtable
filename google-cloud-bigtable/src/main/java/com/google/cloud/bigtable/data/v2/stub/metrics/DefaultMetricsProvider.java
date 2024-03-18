@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
+import com.google.common.base.MoreObjects;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -54,6 +55,9 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   @Override
   public String toString() {
-    return "DefaultMetricsProvider: projectId=" + projectId + " " + openTelemetry;
+    return MoreObjects.toStringHelper(this)
+        .add("projectId", projectId)
+        .add("openTelemetry", openTelemetry)
+        .toString();
   }
 }

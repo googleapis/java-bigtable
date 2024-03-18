@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.common.base.MoreObjects;
+
 /**
  * Set {@link
  * com.google.cloud.bigtable.data.v2.BigtableDataSettings.Builder#setMetricsProvider(MetricsProvider)},
@@ -29,6 +31,6 @@ public final class NoopMetricsProvider implements MetricsProvider {
 
   @Override
   public String toString() {
-    return "NoopMetricsProvider";
+    return MoreObjects.toStringHelper(this).toString();
   }
 }

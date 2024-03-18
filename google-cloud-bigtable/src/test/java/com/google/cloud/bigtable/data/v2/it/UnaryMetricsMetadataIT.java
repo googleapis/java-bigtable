@@ -15,6 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.it;
 
+import static com.google.cloud.bigtable.data.v2.it.MetricsITUtils.METRIC_DATA_NAME_CONTAINS;
+import static com.google.cloud.bigtable.data.v2.it.MetricsITUtils.POINT_DATA_CLUSTER_ID_CONTAINS;
+import static com.google.cloud.bigtable.data.v2.it.MetricsITUtils.POINT_DATA_ZONE_ID_CONTAINS;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
 
@@ -29,7 +32,6 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsView;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
-import com.google.common.truth.Correspondence;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -55,19 +57,6 @@ public class UnaryMetricsMetadataIT {
 
   private BigtableDataClient client;
   private InMemoryMetricReader metricReader;
-
-  private static final Correspondence<MetricData, String> METRIC_DATA_CONTAINS =
-      Correspondence.from((md, s) -> md.getName().contains(s), "contains name");
-
-  private static final Correspondence<PointData, String> POINT_DATA_CLUSTER_ID_IS =
-      Correspondence.from(
-          (pd, s) -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY).contains(s),
-          "contains attributes");
-
-  private static final Correspondence<PointData, String> POINT_DATA_ZONE_ID_IS =
-      Correspondence.from(
-          (pd, s) -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY).contains(s),
-          "contains attributes");
 
   @Before
   public void setup() throws IOException {
@@ -126,7 +115,7 @@ public class UnaryMetricsMetadataIT {
             .collect(Collectors.toList());
 
     assertThat(allMetricData)
-        .comparingElementsUsing(METRIC_DATA_CONTAINS)
+        .comparingElementsUsing(METRIC_DATA_NAME_CONTAINS)
         .contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME);
     assertThat(metrics).hasSize(1);
 
@@ -142,10 +131,10 @@ public class UnaryMetricsMetadataIT {
             .collect(Collectors.toList());
 
     assertThat(pointData)
-        .comparingElementsUsing(POINT_DATA_CLUSTER_ID_IS)
+        .comparingElementsUsing(POINT_DATA_CLUSTER_ID_CONTAINS)
         .contains(clusters.get(0).getId());
     assertThat(pointData)
-        .comparingElementsUsing(POINT_DATA_ZONE_ID_IS)
+        .comparingElementsUsing(POINT_DATA_ZONE_ID_CONTAINS)
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
@@ -185,14 +174,16 @@ public class UnaryMetricsMetadataIT {
     }
 
     assertThat(allMetricData)
-        .comparingElementsUsing(METRIC_DATA_CONTAINS)
+        .comparingElementsUsing(METRIC_DATA_NAME_CONTAINS)
         .contains(BuiltinMetricsConstants.OPERATION_LATENCIES_NAME);
     assertThat(metricData).isNotNull();
 
     List<PointData> pointData = new ArrayList<>(metricData.getData().getPoints());
 
-    assertThat(pointData).comparingElementsUsing(POINT_DATA_CLUSTER_ID_IS).contains("unspecified");
-    assertThat(pointData).comparingElementsUsing(POINT_DATA_ZONE_ID_IS).contains("global");
+    assertThat(pointData)
+        .comparingElementsUsing(POINT_DATA_CLUSTER_ID_CONTAINS)
+        .contains("unspecified");
+    assertThat(pointData).comparingElementsUsing(POINT_DATA_ZONE_ID_CONTAINS).contains("global");
     List<String> clusterAttributes =
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))

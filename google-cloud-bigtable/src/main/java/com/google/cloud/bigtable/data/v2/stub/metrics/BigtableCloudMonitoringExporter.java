@@ -55,7 +55,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,7 +95,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private CompletableResultCode lastExportCode;
 
-  private static final Set<String> BIGTABLE_TABLE_METRICS =
+  private static final ImmutableList<String> BIGTABLE_TABLE_METRICS =
       ImmutableSet.of(
               OPERATION_LATENCIES_NAME,
               ATTEMPT_LATENCIES_NAME,
@@ -108,12 +107,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               CONNECTIVITY_ERROR_COUNT_NAME)
           .stream()
           .map(m -> METER_NAME + m)
-          .collect(Collectors.toSet());
+          .collect(ImmutableList.toImmutableList());
 
-  private static final Set<String> APPLICATION_METRICS =
+  private static final ImmutableList<String> APPLICATION_METRICS =
       ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME).stream()
           .map(m -> METER_NAME + m)
-          .collect(Collectors.toSet());
+          .collect(ImmutableList.toImmutableList());
 
   public static BigtableCloudMonitoringExporter create(
       String projectId, @Nullable Credentials credentials) throws IOException {

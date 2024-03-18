@@ -27,6 +27,7 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.junit.Assert;
 
 @InternalApi
 public class BuiltinMetricsTestUtils {
@@ -62,8 +63,9 @@ public class BuiltinMetricsTestUtils {
                 .collect(Collectors.toList())
                 .get(0);
         return ld.getValue();
+      default:
+        return 0;
     }
-    return 0;
   }
 
   public static Timestamp getStartTimeSeconds(MetricData metricData, Attributes attributes) {
@@ -82,8 +84,9 @@ public class BuiltinMetricsTestUtils {
                 .collect(Collectors.toList())
                 .get(0);
         return Timestamps.fromNanos(ld.getStartEpochNanos());
+      default:
+        return Timestamp.getDefaultInstance();
     }
-    return Timestamp.getDefaultInstance();
   }
 
   public static void verifyAttributes(MetricData metricData, Attributes attributes) {
@@ -93,15 +96,17 @@ public class BuiltinMetricsTestUtils {
             metricData.getHistogramData().getPoints().stream()
                 .filter(pd -> pd.getAttributes().equals(attributes))
                 .collect(Collectors.toList());
-        assertThat(hd.size()).isGreaterThan(0);
+        assertThat(hd).isNotEmpty();
         break;
       case LONG_SUM:
         List<LongPointData> ld =
             metricData.getLongSumData().getPoints().stream()
                 .filter(pd -> pd.getAttributes().equals(attributes))
                 .collect(Collectors.toList());
-        assertThat(ld.size()).isGreaterThan(0);
+        assertThat(ld).isNotEmpty();
         break;
+      default:
+        Assert.fail("Unexpected type");
     }
   }
 }

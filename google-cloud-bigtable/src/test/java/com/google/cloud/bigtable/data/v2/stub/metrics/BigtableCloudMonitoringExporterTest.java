@@ -83,7 +83,6 @@ public class BigtableCloudMonitoringExporterTest {
 
   @Before
   public void setUp() {
-
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
 
     exporter =
@@ -153,9 +152,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(2);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId, CLIENT_UID_KEY.getKey(), taskId);
     assertThat(timeSeries.getPoints(0).getValue().getInt64Value()).isEqualTo(fakeValue);
     assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
         .isEqualTo(startEpoch);
@@ -215,9 +212,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(2);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
+        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId, CLIENT_UID_KEY.getKey(), taskId);
     Distribution distribution = timeSeries.getPoints(0).getValue().getDistributionValue();
     assertThat(distribution.getCount()).isEqualTo(3);
     assertThat(timeSeries.getPoints(0).getInterval().getStartTime().getNanos())
@@ -293,15 +288,17 @@ public class BigtableCloudMonitoringExporterTest {
 
     assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
     assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(BIGTABLE_PROJECT_ID_KEY.getKey(), projectId);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(INSTANCE_ID_KEY.getKey(), instanceId);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(APP_PROFILE_KEY.getKey(), appProfileId);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(CLIENT_NAME_KEY.getKey(), clientName);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(CLIENT_UID_KEY.getKey(), taskId);
+        .containsAtLeast(
+            BIGTABLE_PROJECT_ID_KEY.getKey(),
+            projectId,
+            INSTANCE_ID_KEY.getKey(),
+            instanceId,
+            APP_PROFILE_KEY.getKey(),
+            appProfileId,
+            CLIENT_NAME_KEY.getKey(),
+            clientName,
+            CLIENT_UID_KEY.getKey(),
+            taskId);
   }
 
   private static class FakeMetricServiceClient extends MetricServiceClient {

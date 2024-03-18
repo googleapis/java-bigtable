@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import com.google.common.base.MoreObjects;
 import io.opentelemetry.api.OpenTelemetry;
 
 /**
@@ -64,6 +65,6 @@ public final class CustomOpenTelemetryMetricsProvider implements MetricsProvider
 
   @Override
   public String toString() {
-    return otel.toString();
+    return MoreObjects.toStringHelper(this).add("openTelemetry", otel).toString();
   }
 }
