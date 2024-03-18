@@ -650,7 +650,7 @@ public class BigtableDataClientTests {
 
   @Test
   public void proxySampleRowKeysTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2())
+    Mockito.when(mockStub.sampleRowKeysCallableWithRequest())
         .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     bigtableDataClient.sampleRowKeysAsync("fake-table");
@@ -660,7 +660,7 @@ public class BigtableDataClientTests {
 
   @Test
   public void proxySampleRowKeysOnAuthorizedViewTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2())
+    Mockito.when(mockStub.sampleRowKeysCallableWithRequest())
         .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     bigtableDataClient.sampleRowKeysAsync(
@@ -671,7 +671,7 @@ public class BigtableDataClientTests {
 
   @Test
   public void sampleRowKeysTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2())
+    Mockito.when(mockStub.sampleRowKeysCallableWithRequest())
         .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     Mockito.when(
@@ -685,7 +685,7 @@ public class BigtableDataClientTests {
 
   @Test
   public void sampleRowKeysOnAuthorizedViewTest() {
-    Mockito.when(mockStub.sampleRowKeysCallable2())
+    Mockito.when(mockStub.sampleRowKeysCallableWithRequest())
         .thenReturn(mockSampleRowKeysCallableWithRequest);
 
     Mockito.when(

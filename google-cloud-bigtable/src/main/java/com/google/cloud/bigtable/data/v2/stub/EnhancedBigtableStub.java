@@ -166,7 +166,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<Query, Row> readRowCallable;
   private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
-  private final UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallable2;
+  private final UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallableWithRequest;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
   private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
@@ -370,7 +370,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
     bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
-    sampleRowKeysCallable2 = createSampleRowKeysCallableWithRequest();
+    sampleRowKeysCallableWithRequest = createSampleRowKeysCallableWithRequest();
     mutateRowCallable = createMutateRowCallable();
     bulkMutateRowsCallable = createBulkMutateRowsCallable();
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
@@ -1303,8 +1303,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return sampleRowKeysCallable;
   }
 
-  public UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallable2() {
-    return sampleRowKeysCallable2;
+  public UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallableWithRequest() {
+    return sampleRowKeysCallableWithRequest;
   }
 
   public UnaryCallable<RowMutation, Void> mutateRowCallable() {

@@ -1290,7 +1290,7 @@ public class BigtableDataClient implements AutoCloseable {
     Preconditions.checkNotNull(
         sampleRowKeysOptions, "Please use the sampleRowKeysAsync(tableId) API instead");
     SampleRowKeys sampleRowKeys = SampleRowKeys.create(tableId, sampleRowKeysOptions);
-    return sampleRowKeysCallable2().futureCall(sampleRowKeys);
+    return sampleRowKeysCallableWithRequest().futureCall(sampleRowKeys);
   }
 
   /**
@@ -1348,7 +1348,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   SampleRowKeys sampleRowKeys = SampleRowKeys.createForAuthorizedView("[TABLE]", "[AUTHORIZED_VIEW]");
    *   // Synchronous invocation
    *   try {
-   *     List<KeyOffset> keyOffsets = bigtableDataClient.sampleRowKeysCallable2().call(sampleRowKeys);
+   *     List<KeyOffset> keyOffsets = bigtableDataClient.sampleRowKeysCallableWithRequest().call(sampleRowKeys);
    *   } catch (NotFoundException e) {
    *     System.out.println("Tried to sample keys of a non-existent authorized view");
    *   } catch (RuntimeException e) {
@@ -1356,7 +1356,7 @@ public class BigtableDataClient implements AutoCloseable {
    *   }
    *
    *   // Asynchronous invocation
-   *   ApiFuture<List<KeyOffset>> keyOffsetsFuture = bigtableDataClient.sampleRowKeysCallable2().futureCall(sampleRowKeys);
+   *   ApiFuture<List<KeyOffset>> keyOffsetsFuture = bigtableDataClient.sampleRowKeysCallableWithRequest().futureCall(sampleRowKeys);
    *
    *   ApiFutures.addCallback(keyOffsetsFuture, new ApiFutureCallback<List<KeyOffset>>() {
    *     public void onFailure(Throwable t) {
@@ -1373,8 +1373,8 @@ public class BigtableDataClient implements AutoCloseable {
    * }
    * }</pre>
    */
-  public UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallable2() {
-    return stub.sampleRowKeysCallable2();
+  public UnaryCallable<SampleRowKeys, List<KeyOffset>> sampleRowKeysCallableWithRequest() {
+    return stub.sampleRowKeysCallableWithRequest();
   }
 
   /**

@@ -251,7 +251,7 @@ public class BigtableTracerCallableTest {
 
   @Test
   public void testGFELatencySampleRowKeys2() throws InterruptedException {
-    stub.sampleRowKeysCallable2().call(SampleRowKeys.create(TABLE_ID));
+    stub.sampleRowKeysCallableWithRequest().call(SampleRowKeys.create(TABLE_ID));
 
     Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
     long latency =

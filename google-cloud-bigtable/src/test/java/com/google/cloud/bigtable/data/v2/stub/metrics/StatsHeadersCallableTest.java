@@ -143,7 +143,7 @@ public class StatsHeadersCallableTest {
   @Test
   public void testSampleRowKeys2Headers() throws Exception {
     long startTimestamp = System.currentTimeMillis() * 1000;
-    stub.sampleRowKeysCallable2().call(SampleRowKeys.create(TABLE_ID)).get(0);
+    stub.sampleRowKeysCallableWithRequest().call(SampleRowKeys.create(TABLE_ID)).get(0);
     verifyHeaders(attemptCounts, startTimestamp);
   }
 
