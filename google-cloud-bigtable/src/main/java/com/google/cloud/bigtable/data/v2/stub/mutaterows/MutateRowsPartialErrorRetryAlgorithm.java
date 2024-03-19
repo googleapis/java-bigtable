@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.gaxx.retrying;
+package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.ResultRetryAlgorithmWithContext;
 import com.google.api.gax.retrying.RetryingContext;
 import com.google.api.gax.retrying.TimedAttemptSettings;
-import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -39,12 +38,11 @@ public class MutateRowsPartialErrorRetryAlgorithm
   @Override
   public boolean shouldRetry(
       Throwable previousThrowable, MutateRowsAttemptResult previousResponse) {
-    if (previousResponse == null) {
-      return retryAlgorithm.shouldRetry(previousThrowable, null);
-    }
-    if (!previousResponse.failedMutations.isEmpty()) {
+    // handle partial retryable failures
+    if (previousResponse != null && !previousResponse.failedMutations.isEmpty()) {
       return previousResponse.isRetryable;
     }
+    // business as usual
     return retryAlgorithm.shouldRetry(previousThrowable, previousResponse);
   }
 
@@ -53,12 +51,11 @@ public class MutateRowsPartialErrorRetryAlgorithm
       @Nullable RetryingContext context,
       Throwable previousThrowable,
       MutateRowsAttemptResult previousResponse) {
-    if (previousResponse == null) {
-      return retryAlgorithm.shouldRetry(context, previousThrowable, null);
-    }
-    if (!previousResponse.failedMutations.isEmpty()) {
+    // handle partial retryable failures
+    if (previousResponse != null && !previousResponse.failedMutations.isEmpty()) {
       return previousResponse.isRetryable;
     }
+    // business as usual
     return retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse);
   }
 

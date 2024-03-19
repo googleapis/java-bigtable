@@ -453,8 +453,7 @@ public class MetricsTracerTest {
     try (Batcher<RowMutationEntry, Void> batcher =
         new BatcherImpl<>(
             batchingDescriptor,
-            new ReverseErrorsConverter(
-                stub.bulkMutateRowsCallable().withDefaultCallContext(defaultContext)),
+                stub.internalBulkMutateRowsCallable().withDefaultCallContext(defaultContext),
             BulkMutation.create(TABLE_ID),
             settings.getStubSettings().bulkMutateRowsSettings().getBatchingSettings(),
             Executors.newSingleThreadScheduledExecutor(),
@@ -479,23 +478,5 @@ public class MetricsTracerTest {
   @SuppressWarnings("unchecked")
   private static <T> StreamObserver<T> anyObserver(Class<T> returnType) {
     return (StreamObserver<T>) any(returnType);
-  }
-
-  private class ReverseErrorsConverter
-      extends UnaryCallable<BulkMutation, MutateRowsAttemptResult> {
-
-    private final UnaryCallable<BulkMutation, Void> innerCallable;
-
-    ReverseErrorsConverter(UnaryCallable<BulkMutation, Void> callable) {
-      this.innerCallable = callable;
-    }
-
-    @Override
-    public ApiFuture<MutateRowsAttemptResult> futureCall(
-        BulkMutation request, ApiCallContext context) {
-      ApiFuture<Void> future = innerCallable.futureCall(request, context);
-      return ApiFutures.transform(
-          future, result -> new MutateRowsAttemptResult(), MoreExecutors.directExecutor());
-    }
   }
 }

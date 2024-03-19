@@ -104,6 +104,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsPartialErrorRetryAlgorithm;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
@@ -113,7 +114,6 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCal
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
-import com.google.cloud.bigtable.gaxx.retrying.MutateRowsPartialErrorRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
@@ -679,12 +679,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       been applied, are filtered from the next attempt. Also, any entries that failed with a
    *       nontransient error, are filtered from the next attempt. This will continue until there
    *       are no more entries or there are no more retry attempts left.
-   *   <li>Wrap batch failures in a {@link
-   *       com.google.cloud.bigtable.data.v2.models.MutateRowsException}.
+   *   <li>Wrap batch failures in a {@link MutateRowsAttemptResult}.
    *   <li>Add tracing & metrics.
    * </ul>
    *
    * This callable returns an internal type {@link MutateRowsAttemptResult}.
+   *
+   * <p>This function should not be exposed to external users, as it could cause a data loss.
    */
   private UnaryCallable<BulkMutation, MutateRowsAttemptResult> createMutateRowsBaseCallable() {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> base =
@@ -1173,6 +1174,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable() {
     return externalBulkMutateRowsCallable;
+  }
+
+  @InternalApi
+  public UnaryCallable<BulkMutation, MutateRowsAttemptResult> internalBulkMutateRowsCallable() {
+    return bulkMutateRowsCallable;
   }
 
   /**

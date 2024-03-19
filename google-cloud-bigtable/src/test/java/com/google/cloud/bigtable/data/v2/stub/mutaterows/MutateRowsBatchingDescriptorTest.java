@@ -131,7 +131,14 @@ public class MutateRowsBatchingDescriptorTest {
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
 
-    batchResponse.get(1).getResultFuture().get();
+    Throwable unexpectedError = null;
+    try {
+      batchResponse.get(1).getResultFuture().get();
+
+    } catch (Throwable t) {
+      unexpectedError = t;
+    }
+    assertThat(unexpectedError).isNull();
 
     Throwable actualError = null;
     try {
