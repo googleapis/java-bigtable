@@ -52,7 +52,7 @@ public class BuiltinMetricsConstants {
 
   // Metric names
   public static final String OPERATION_LATENCIES_NAME = "operation_latencies";
-  static final String ATTEMPT_LATENCIES_NAME = "attempt_latencies";
+  public static final String ATTEMPT_LATENCIES_NAME = "attempt_latencies";
   static final String RETRY_COUNT_NAME = "retry_count";
   static final String CONNECTIVITY_ERROR_COUNT_NAME = "connectivity_error_count";
   static final String SERVER_LATENCIES_NAME = "server_latencies";

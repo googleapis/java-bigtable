@@ -167,7 +167,7 @@ public class UnaryMetricsMetadataIT {
       if (md.getName()
           .equals(
               BuiltinMetricsConstants.METER_NAME
-                  + BuiltinMetricsConstants.OPERATION_LATENCIES_NAME)) {
+                  + BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME)) {
         metricData = md;
         break;
       }
