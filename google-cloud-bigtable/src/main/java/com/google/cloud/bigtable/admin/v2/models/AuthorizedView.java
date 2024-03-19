@@ -118,5 +118,6 @@ public final class AuthorizedView {
    * Represents a subset of a Table. Please check the implementations of this interface for more
    * details.
    */
+  @InternalApi
   public interface AuthorizedViewType {}
 }
