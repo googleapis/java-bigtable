@@ -21,34 +21,35 @@ import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiExceptionFactory;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import com.google.cloud.bigtable.data.v2.stub.MutateRowsErrorConverterUnaryCallable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 @RunWith(JUnit4.class)
 public class MutateRowsErrorConverterUnaryCallableTest {
-
-  private static final RequestContext REQUEST_CONTEXT =
-      RequestContext.create("fake-project", "fake-instance", "fake-profile");
-  private UnaryCallable<BulkMutation, MutateRowsAttemptResult> innerCallable;
-  private ArgumentCaptor<BulkMutation> innerMutation;
+  @Mock private UnaryCallable<BulkMutation, MutateRowsAttemptResult> innerCallable;
+  @Captor private ArgumentCaptor<BulkMutation> innerMutation;
   private SettableApiFuture<MutateRowsAttemptResult> innerResult;
 
-  @SuppressWarnings("unchecked")
+  @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
+
   @Before
   public void setUp() {
-    innerCallable = Mockito.mock(UnaryCallable.class);
-    innerMutation = ArgumentCaptor.forClass(BulkMutation.class);
     innerResult = SettableApiFuture.create();
     Mockito.when(innerCallable.futureCall(innerMutation.capture(), Mockito.any()))
         .thenReturn(innerResult);
@@ -60,11 +61,18 @@ public class MutateRowsErrorConverterUnaryCallableTest {
         new MutateRowsErrorConverterUnaryCallable(innerCallable);
 
     innerResult.set(MutateRowsAttemptResult.success());
-    callable.call(BulkMutation.create("fake-table"));
+
+    Throwable unexpectedError = null;
+    try {
+      callable.call(BulkMutation.create("fake-table"));
+    } catch (Throwable t) {
+      unexpectedError = t;
+    }
+    assertThat(unexpectedError).isNull();
   }
 
   @Test
-  public void testFailure() {
+  public void testPartialFailure() {
     MutateRowsErrorConverterUnaryCallable callable =
         new MutateRowsErrorConverterUnaryCallable(innerCallable);
 
@@ -83,5 +91,19 @@ public class MutateRowsErrorConverterUnaryCallableTest {
 
     assertThat(exception).isInstanceOf(MutateRowsException.class);
     assertThat((exception).isRetryable()).isTrue();
+  }
+
+  @Test
+  public void testRPCFailure() {
+    MutateRowsErrorConverterUnaryCallable callable =
+        new MutateRowsErrorConverterUnaryCallable(innerCallable);
+
+    innerResult.setException(new Exception("RPC error"));
+
+    Exception exception =
+        Assert.assertThrows(
+            Exception.class, () -> callable.call(BulkMutation.create("fake-table")));
+
+    assertThat(exception).isInstanceOf(Exception.class);
   }
 }
