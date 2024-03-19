@@ -26,6 +26,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
+import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
 import io.opentelemetry.api.common.Attributes;
@@ -45,7 +46,7 @@ import org.threeten.bp.Duration;
  */
 class BuiltinMetricsTracer extends BigtableTracer {
 
-  private static final String NAME = "java-bigtable";
+  private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
   private final SpanName spanName;
 

@@ -53,6 +53,7 @@ import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ResponseParams;
+import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -125,6 +126,7 @@ public class BuiltinMetricsTracerTest {
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
   private static final long SLEEP_VARIABILITY = 15;
+  private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
 
   private static final long CHANNEL_BLOCKING_LATENCY = 75;
 
@@ -289,7 +291,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(STREAMING_KEY, true)
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
     Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
@@ -311,7 +313,7 @@ public class BuiltinMetricsTracerTest {
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
 
@@ -332,7 +334,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, "global")
             .put(CLUSTER_ID_KEY, "unspecified")
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
     Attributes expected2 =
         baseAttributes
@@ -342,7 +344,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
     verifyAttributes(connectivityErrorCountMetricData, expected1);
@@ -397,7 +399,7 @@ public class BuiltinMetricsTracerTest {
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
     long value = getAggregatedValue(applicationLatency, expectedAttributes);
@@ -434,7 +436,7 @@ public class BuiltinMetricsTracerTest {
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .build();
 
@@ -465,7 +467,7 @@ public class BuiltinMetricsTracerTest {
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(METHOD_KEY, "Bigtable.MutateRow")
             .put(STATUS_KEY, "OK")
             .build();
@@ -490,7 +492,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, "global")
             .put(CLUSTER_ID_KEY, "unspecified")
             .put(METHOD_KEY, "Bigtable.MutateRow")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, false)
             .build();
 
@@ -502,7 +504,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(METHOD_KEY, "Bigtable.MutateRow")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, false)
             .build();
 
@@ -525,7 +527,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, "global")
             .put(CLUSTER_ID_KEY, "unspecified")
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, true)
             .build();
 
@@ -537,7 +539,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, true)
             .build();
 
@@ -567,7 +569,7 @@ public class BuiltinMetricsTracerTest {
               .put(ZONE_ID_KEY, ZONE)
               .put(CLUSTER_ID_KEY, CLUSTER)
               .put(METHOD_KEY, "Bigtable.MutateRows")
-              .put(CLIENT_NAME_KEY, "java-bigtable")
+              .put(CLIENT_NAME_KEY, CLIENT_NAME)
               .build();
 
       long value = getAggregatedValue(applicationLatency, expectedAttributes);
@@ -593,7 +595,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
     long value = getAggregatedValue(clientLatency, attributes);
@@ -615,7 +617,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
             .put(METHOD_KEY, "Bigtable.MutateRow")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
     long expected = CHANNEL_BLOCKING_LATENCY * 2 / 3;
@@ -643,7 +645,7 @@ public class BuiltinMetricsTracerTest {
             .put(ZONE_ID_KEY, "global")
             .put(STREAMING_KEY, true)
             .put(METHOD_KEY, "Bigtable.ReadRows")
-            .put(CLIENT_NAME_KEY, "java-bigtable")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
     verifyAttributes(attemptLatency, expected);
