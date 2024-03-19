@@ -103,8 +103,8 @@ public class MutateRowsAttemptCallableTest {
     MutateRowsAttemptResult result = parentFuture.attemptFuture.get();
 
     assertThat(result).isNotNull();
-    assertThat(result.failedMutations).hasSize(0);
-    assertThat(result.isRetryable).isFalse();
+    assertThat(result.getFailedMutations()).hasSize(0);
+    assertThat(result.getIsRetryable()).isFalse();
     // innerCallable received the request
     assertThat(innerCallable.lastRequest).isEqualTo(request);
   }
@@ -129,8 +129,8 @@ public class MutateRowsAttemptCallableTest {
 
     MutateRowsAttemptResult result = parentFuture.attemptFuture.get();
 
-    assertThat(result.failedMutations).hasSize(1);
-    FailedMutation failedMutation = result.failedMutations.get(0);
+    assertThat(result.getFailedMutations()).hasSize(1);
+    FailedMutation failedMutation = result.getFailedMutations().get(0);
     assertThat(failedMutation.getIndex()).isEqualTo(1);
     assertThat(failedMutation.getError())
         .hasMessageThat()
@@ -196,7 +196,7 @@ public class MutateRowsAttemptCallableTest {
 
     // Entry expectations
     @SuppressWarnings("ConstantConditions")
-    List<FailedMutation> failedMutations = result.failedMutations;
+    List<FailedMutation> failedMutations = result.getFailedMutations();
     assertThat(failedMutations).hasSize(2);
 
     assertThat(failedMutations.get(0).getIndex()).isEqualTo(1);
@@ -260,7 +260,7 @@ public class MutateRowsAttemptCallableTest {
 
     // Entry expectations
     @SuppressWarnings("ConstantConditions")
-    List<FailedMutation> failedMutations = result.failedMutations;
+    List<FailedMutation> failedMutations = result.getFailedMutations();
     assertThat(failedMutations).hasSize(1);
 
     assertThat(failedMutations.get(0).getIndex()).isEqualTo(2);

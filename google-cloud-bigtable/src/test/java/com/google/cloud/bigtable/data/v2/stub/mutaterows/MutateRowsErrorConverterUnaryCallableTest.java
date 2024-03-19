@@ -59,7 +59,7 @@ public class MutateRowsErrorConverterUnaryCallableTest {
     MutateRowsErrorConverterUnaryCallable callable =
         new MutateRowsErrorConverterUnaryCallable(innerCallable);
 
-    innerResult.set(new MutateRowsAttemptResult());
+    innerResult.set(MutateRowsAttemptResult.success());
     callable.call(BulkMutation.create("fake-table"));
   }
 
@@ -69,7 +69,7 @@ public class MutateRowsErrorConverterUnaryCallableTest {
         new MutateRowsErrorConverterUnaryCallable(innerCallable);
 
     innerResult.set(
-        new MutateRowsAttemptResult(
+        MutateRowsAttemptResult.create(
             Arrays.asList(
                 FailedMutation.create(
                     0,

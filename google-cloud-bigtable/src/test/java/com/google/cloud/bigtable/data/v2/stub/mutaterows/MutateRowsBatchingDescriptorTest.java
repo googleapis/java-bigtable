@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.BatchEntry;
@@ -96,13 +97,13 @@ public class MutateRowsBatchingDescriptorTest {
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isFalse();
 
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
-    underTest.splitResponse(new MutateRowsAttemptResult(), batchResponse);
+    underTest.splitResponse(MutateRowsAttemptResult.success(), batchResponse);
     assertThat(batchResponse.get(0).getResultFuture().isDone()).isTrue();
     assertThat(batchResponse.get(1).getResultFuture().isDone()).isTrue();
   }
 
   @Test
-  public void splitResponsePartialErrorsTest() throws Exception {
+  public void splitResponsePartialErrorsTest() {
     BatchEntry<RowMutationEntry, Void> batchEntry1 =
         BatchEntry.create(
             RowMutationEntry.create("key1").deleteRow(), SettableApiFuture.<Void>create());
@@ -117,7 +118,7 @@ public class MutateRowsBatchingDescriptorTest {
 
     MutateRowsBatchingDescriptor underTest = new MutateRowsBatchingDescriptor();
     underTest.splitResponse(
-        new MutateRowsAttemptResult(
+        MutateRowsAttemptResult.create(
             Arrays.asList(
                 FailedMutation.create(
                     0,
@@ -140,12 +141,9 @@ public class MutateRowsBatchingDescriptorTest {
     }
     assertThat(unexpectedError).isNull();
 
-    Throwable actualError = null;
-    try {
-      batchResponse.get(0).getResultFuture().get();
-    } catch (Throwable t) {
-      actualError = t.getCause();
-    }
+    Throwable actualError =
+        assertThrows(ExecutionException.class, () -> batchResponse.get(0).getResultFuture().get())
+            .getCause();
 
     assertThat(actualError).isInstanceOf(InternalException.class);
     assertThat(actualError).hasMessageThat().contains("error message");

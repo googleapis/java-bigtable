@@ -16,27 +16,34 @@
 package com.google.cloud.bigtable.data.v2.stub.mutaterows;
 
 import com.google.api.core.InternalApi;
+import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * This class represents the result of a MutateRows attempt. It contains the list of failed
  * mutations, along with an indicator whether these errors are retryable.
  */
 @InternalApi
-public class MutateRowsAttemptResult {
+@AutoValue
+public abstract class MutateRowsAttemptResult {
 
-  public final boolean isRetryable;
-  public final List<FailedMutation> failedMutations;
+  public abstract List<FailedMutation> getFailedMutations();
 
-  public MutateRowsAttemptResult() {
-    this.failedMutations = new ArrayList<>();
-    this.isRetryable = false;
+  public abstract boolean getIsRetryable();
+
+  @InternalApi
+  @Nonnull
+  public static MutateRowsAttemptResult create(
+      List<FailedMutation> failedMutations, boolean isRetryable) {
+    return new AutoValue_MutateRowsAttemptResult(failedMutations, isRetryable);
   }
 
-  public MutateRowsAttemptResult(List<FailedMutation> failedMutations, boolean isRetryable) {
-    this.failedMutations = failedMutations;
-    this.isRetryable = isRetryable;
+  @InternalApi
+  @Nonnull
+  public static MutateRowsAttemptResult success() {
+    return new AutoValue_MutateRowsAttemptResult(new ArrayList<>(), false);
   }
 }

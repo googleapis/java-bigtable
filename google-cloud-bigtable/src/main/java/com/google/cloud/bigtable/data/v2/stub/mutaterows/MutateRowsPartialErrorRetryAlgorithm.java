@@ -39,8 +39,8 @@ public class MutateRowsPartialErrorRetryAlgorithm
   public boolean shouldRetry(
       Throwable previousThrowable, MutateRowsAttemptResult previousResponse) {
     // handle partial retryable failures
-    if (previousResponse != null && !previousResponse.failedMutations.isEmpty()) {
-      return previousResponse.isRetryable;
+    if (previousResponse != null && !previousResponse.getFailedMutations().isEmpty()) {
+      return previousResponse.getIsRetryable();
     }
     // business as usual
     return retryAlgorithm.shouldRetry(previousThrowable, previousResponse);
@@ -52,8 +52,8 @@ public class MutateRowsPartialErrorRetryAlgorithm
       Throwable previousThrowable,
       MutateRowsAttemptResult previousResponse) {
     // handle partial retryable failures
-    if (previousResponse != null && !previousResponse.failedMutations.isEmpty()) {
-      return previousResponse.isRetryable;
+    if (previousResponse != null && !previousResponse.getFailedMutations().isEmpty()) {
+      return previousResponse.getIsRetryable();
     }
     // business as usual
     return retryAlgorithm.shouldRetry(context, previousThrowable, previousResponse);

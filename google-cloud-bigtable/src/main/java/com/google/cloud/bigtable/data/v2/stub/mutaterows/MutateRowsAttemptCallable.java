@@ -326,9 +326,9 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      return new MutateRowsAttemptResult(allFailures, isRetryable);
+      return MutateRowsAttemptResult.create(allFailures, isRetryable);
     }
-    return new MutateRowsAttemptResult();
+    return MutateRowsAttemptResult.success();
   }
 
   /**

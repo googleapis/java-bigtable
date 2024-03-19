@@ -45,8 +45,8 @@ public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<BulkMut
     return ApiFutures.transform(
         future,
         result -> {
-          if (!result.failedMutations.isEmpty()) {
-            throw MutateRowsException.create(null, result.failedMutations, result.isRetryable);
+          if (!result.getFailedMutations().isEmpty()) {
+            throw MutateRowsException.create(null, result.getFailedMutations(), result.getIsRetryable());
           }
           return null;
         },

@@ -52,7 +52,7 @@ public class MutateRowsBatchingDescriptor
     // mutation. It is important to set the correct error on the correct mutation. When the entry is
     // later read, it resolves the exception first, and only later it goes to the value set by
     // set().
-    for (FailedMutation mutation : response.failedMutations) {
+    for (FailedMutation mutation : response.getFailedMutations()) {
       entries.get(mutation.getIndex()).getResultFuture().setException(mutation.getError());
     }
     for (BatchEntry<RowMutationEntry, Void> batchResponse : entries) {
