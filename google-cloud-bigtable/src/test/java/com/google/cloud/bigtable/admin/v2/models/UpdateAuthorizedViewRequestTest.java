@@ -59,7 +59,7 @@ public class UpdateAuthorizedViewRequestTest {
   }
 
   @Test
-  public void testUpdateExisting() {
+  public void testUpdateDeletionProtection() {
     com.google.bigtable.admin.v2.AuthorizedView existingAuthorizedView =
         com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
             .setName(
@@ -79,6 +79,43 @@ public class UpdateAuthorizedViewRequestTest {
         com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest.newBuilder()
             .setAuthorizedView(existingAuthorizedView.toBuilder().setDeletionProtection(false))
             .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection"))
+            .build();
+    assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
+  }
+
+  @Test
+  public void testUpdateSubsetView() {
+    com.google.bigtable.admin.v2.AuthorizedView authorizedViewProto =
+        com.google.bigtable.admin.v2.AuthorizedView.newBuilder()
+            .setName(
+                NameUtil.formatAuthorizedViewName(
+                    PROJECT_ID, INSTANCE_ID, TABLE_ID, AUTHORIZED_VIEW_ID))
+            .setSubsetView(
+                com.google.bigtable.admin.v2.AuthorizedView.SubsetView.newBuilder()
+                    .addRowPrefixes(ByteString.copyFromUtf8("row#"))
+                    .putFamilySubsets(
+                        "cf",
+                        com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets.newBuilder()
+                            .addQualifiers(ByteString.copyFromUtf8("qualifier"))
+                            .addQualifierPrefixes(ByteString.copyFromUtf8("prefix#"))
+                            .build()))
+            .build();
+
+    UpdateAuthorizedViewRequest request =
+        UpdateAuthorizedViewRequest.of(TABLE_ID, AUTHORIZED_VIEW_ID)
+            .setAuthorizedViewType(
+                SubsetView.create()
+                    .addRowPrefix("row#")
+                    .addFamilySubsets(
+                        "cf",
+                        FamilySubsets.create()
+                            .addQualifier("qualifier")
+                            .addQualifierPrefix("prefix#")));
+
+    com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest requestProto =
+        com.google.bigtable.admin.v2.UpdateAuthorizedViewRequest.newBuilder()
+            .setAuthorizedView(authorizedViewProto)
+            .setUpdateMask(FieldMask.newBuilder().addPaths("subset_view"))
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
   }

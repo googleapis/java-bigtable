@@ -29,6 +29,7 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.FamilySubsets;
 import com.google.cloud.bigtable.admin.v2.models.SubsetView;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
@@ -91,7 +92,11 @@ public class BigtableAuthorizedViewIT {
 
     CreateAuthorizedViewRequest request =
         CreateAuthorizedViewRequest.of(testTable.getId(), authorizedViewId)
-            .setAuthorizedViewType(SubsetView.create().addRowPrefix("row#"))
+            .setAuthorizedViewType(
+                SubsetView.create()
+                    .addRowPrefix("row#")
+                    .addFamilySubsets("cf1", FamilySubsets.create().addQualifier("qualifier"))
+                    .addFamilySubsets("cf1", FamilySubsets.create().addQualifierPrefix("prefix#")))
             .setDeletionProtection(false);
     try {
       AuthorizedView response = tableAdmin.createAuthorizedView(request);
@@ -104,6 +109,11 @@ public class BigtableAuthorizedViewIT {
       assertWithMessage("Got wrong subset view in CreateAuthorizedView")
           .that(((SubsetView) response.getAuthorizedViewType()).getRowPrefixes())
           .containsExactly(ByteString.copyFromUtf8("row#"));
+      assertWithMessage("Got wrong family subsets in CreateAuthorizedView")
+          .that(((SubsetView) response.getAuthorizedViewType()).getFamilySubsets())
+          .containsExactly(
+              "cf1",
+              FamilySubsets.create().addQualifier("qualifier").addQualifierPrefix("prefix#"));
 
       response = tableAdmin.getAuthorizedView(testTable.getId(), authorizedViewId);
       assertWithMessage("Got wrong authorized view Id in getAuthorizedView")
@@ -115,6 +125,11 @@ public class BigtableAuthorizedViewIT {
       assertWithMessage("Got wrong subset view in getAuthorizedView")
           .that(((SubsetView) response.getAuthorizedViewType()).getRowPrefixes())
           .containsExactly(ByteString.copyFromUtf8("row#"));
+      assertWithMessage("Got wrong family subsets in getAuthorizedView")
+          .that(((SubsetView) response.getAuthorizedViewType()).getFamilySubsets())
+          .containsExactly(
+              "cf1",
+              FamilySubsets.create().addQualifier("qualifier").addQualifierPrefix("prefix#"));
     } finally {
       tableAdmin.deleteAuthorizedView(testTable.getId(), authorizedViewId);
     }

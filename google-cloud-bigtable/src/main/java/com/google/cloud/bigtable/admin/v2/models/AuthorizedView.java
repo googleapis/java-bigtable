@@ -17,6 +17,7 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.admin.v2.AuthorizedViewName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -118,6 +119,6 @@ public final class AuthorizedView {
    * Represents a subset of a Table. Please check the implementations of this interface for more
    * details.
    */
-  @InternalApi
+  @InternalExtensionOnly
   public interface AuthorizedViewType {}
 }
