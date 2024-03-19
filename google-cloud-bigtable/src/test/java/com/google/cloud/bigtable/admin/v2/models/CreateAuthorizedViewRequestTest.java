@@ -42,9 +42,12 @@ public class CreateAuthorizedViewRequestTest {
                     .addRowPrefix("another-row#")
                     .addFamilySubsets(
                         "family",
+                        FamilySubsets.create().addQualifier("column").addQualifierPrefix("column#"))
+                    .addFamilySubsets(
+                        "family",
                         FamilySubsets.create()
-                            .addQualifier("column")
-                            .addQualifierPrefix("column#")));
+                            .addQualifier("another-column")
+                            .addQualifierPrefix("another-column#")));
 
     com.google.bigtable.admin.v2.CreateAuthorizedViewRequest requestProto =
         com.google.bigtable.admin.v2.CreateAuthorizedViewRequest.newBuilder()
@@ -62,7 +65,10 @@ public class CreateAuthorizedViewRequestTest {
                                 com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets
                                     .newBuilder()
                                     .addQualifiers(ByteString.copyFromUtf8("column"))
+                                    .addQualifiers(ByteString.copyFromUtf8("another-column"))
                                     .addQualifierPrefixes(ByteString.copyFromUtf8("column#"))
+                                    .addQualifierPrefixes(
+                                        ByteString.copyFromUtf8("another-column#"))
                                     .build())))
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);

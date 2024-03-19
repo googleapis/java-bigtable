@@ -84,12 +84,22 @@ public class SubsetView implements AuthorizedViewType {
     return this;
   }
 
-  /**
-   * Adds a new familyId with its familySubsets to the subset view. Please note that calling this
-   * method with the same familyId will overwrite the previous rule set on the family.
-   */
+  /** Adds a new familyId with its familySubsets to the subset view. */
   public SubsetView addFamilySubsets(String familyId, FamilySubsets familySubsets) {
-    this.builder.putFamilySubsets(familyId, familySubsets.toProto());
+    if (this.builder.containsFamilySubsets(familyId)) {
+      // If the familyId exists, append the familySubsets to the existing value.
+      com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets existingFamilySubsets =
+          this.builder.getFamilySubsetsMap().get(familyId);
+      com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets newFamilySubsets =
+          existingFamilySubsets
+              .toBuilder()
+              .addAllQualifiers(familySubsets.getQualifiers())
+              .addAllQualifierPrefixes(familySubsets.getQualifierPrefixes())
+              .build();
+      this.builder.putFamilySubsets(familyId, newFamilySubsets);
+    } else {
+      this.builder.putFamilySubsets(familyId, familySubsets.toProto());
+    }
     return this;
   }
 
