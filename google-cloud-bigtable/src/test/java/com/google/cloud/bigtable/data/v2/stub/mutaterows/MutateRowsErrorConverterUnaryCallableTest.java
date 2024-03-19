@@ -25,7 +25,6 @@ import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException.FailedMutation;
 import com.google.cloud.bigtable.data.v2.stub.MutateRowsErrorConverterUnaryCallable;
-import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
