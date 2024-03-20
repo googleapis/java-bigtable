@@ -628,7 +628,8 @@ public class EnhancedBigtableStubTest {
     BatchingException batchingException =
         assertThrows(BatchingException.class, () -> batcher.close());
     assertThat(batchingException.getMessage())
-        .contains("Batching finished with 1 partial failures. The 1 partial failures contained 1 entries that failed with: 1 ApiException(1 PERMISSION_DENIED).");
+        .contains(
+            "Batching finished with 1 partial failures. The 1 partial failures contained 1 entries that failed with: 1 ApiException(1 PERMISSION_DENIED).");
   }
 
   @Test
