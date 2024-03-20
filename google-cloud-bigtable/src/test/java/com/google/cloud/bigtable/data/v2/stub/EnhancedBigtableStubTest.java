@@ -16,11 +16,13 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.webtoken.JsonWebSignature;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
+import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
@@ -120,7 +122,7 @@ public class EnhancedBigtableStubTest {
   public void setUp() throws IOException, IllegalAccessException, InstantiationException {
     metadataInterceptor = new MetadataInterceptor();
     contextInterceptor = new ContextInterceptor();
-    fakeDataService = new FakeDataService();
+    fakeDataService = Mockito.spy(new FakeDataService());
 
     server =
         FakeServiceBuilder.create(fakeDataService)
@@ -595,7 +597,7 @@ public class EnhancedBigtableStubTest {
   }
 
   @Test
-  public void testBatchMutationsPartialFailure() throws InterruptedException {
+  public void testBatchMutationsPartialFailure() {
     Batcher<RowMutationEntry, Void> batcher =
         enhancedBigtableStub.newMutateRowsBatcher("table1", GrpcCallContext.createDefault());
 
@@ -621,13 +623,16 @@ public class EnhancedBigtableStubTest {
               observer.onCompleted();
               return null;
             })
-        .when(Mockito.mock(FakeDataService.class))
+        .when(fakeDataService)
         .mutateRows(Mockito.any(MutateRowsRequest.class), Mockito.any(StreamObserver.class));
-    batcher.close();
+    BatchingException batchingException =
+        assertThrows(BatchingException.class, () -> batcher.close());
+    assertThat(batchingException.getMessage())
+        .contains("Batching finished with 1 partial failures. The 1 partial failures contained 1 entries that failed with: 1 ApiException(1 PERMISSION_DENIED).");
   }
 
   @Test
-  public void testBatchMutationRPCErrorCode() throws InterruptedException {
+  public void testBatchMutationRPCErrorCode() {
     Batcher<RowMutationEntry, Void> batcher =
         enhancedBigtableStub.newMutateRowsBatcher("table1", GrpcCallContext.createDefault());
 
@@ -637,11 +642,15 @@ public class EnhancedBigtableStubTest {
               observer.onError(io.grpc.Status.PERMISSION_DENIED.asException());
               return null;
             })
-        .when(Mockito.mock(FakeDataService.class))
+        .when(fakeDataService)
         .mutateRows(Mockito.any(MutateRowsRequest.class), Mockito.any(StreamObserver.class));
 
     batcher.add(RowMutationEntry.create("key0").deleteRow());
-    batcher.close();
+    BatchingException batchingException =
+        assertThrows(BatchingException.class, () -> batcher.close());
+    assertThat(batchingException.getMessage())
+        .contains(
+            "Batching finished with 1 batches failed to apply due to: 1 ApiException(1 INTERNAL) and 0 partial failures");
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {
