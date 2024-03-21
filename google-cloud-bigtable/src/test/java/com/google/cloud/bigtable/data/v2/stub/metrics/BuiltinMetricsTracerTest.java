@@ -216,7 +216,7 @@ public class BuiltinMetricsTracerTest {
                         .build())
                 .build());
     stubSettingsBuilder.setTracerFactory(mockFactory);
-    
+
     InstantiatingGrpcChannelProvider.Builder channelProvider =
         ((InstantiatingGrpcChannelProvider) stubSettingsBuilder.getTransportChannelProvider())
             .toBuilder();
