@@ -192,6 +192,7 @@ public class MutateRowsBatchingDescriptorTest {
     MutateRowsException serverError =
         MutateRowsException.create(
             null,
+            GrpcStatusCode.of(Status.Code.UNAVAILABLE),
             ImmutableList.of(
                 MutateRowsException.FailedMutation.create(
                     0,

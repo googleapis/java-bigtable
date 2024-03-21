@@ -656,7 +656,7 @@ public class EnhancedBigtableStubTest {
         assertThrows(BatchingException.class, () -> batcher.close());
     assertThat(batchingException.getMessage())
         .contains(
-            "Batching finished with 1 batches failed to apply due to: 1 ApiException(1 INTERNAL) and 0 partial failures");
+            "Batching finished with 1 batches failed to apply due to: 1 ApiException(1 PERMISSION_DENIED) and 0 partial failures");
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {

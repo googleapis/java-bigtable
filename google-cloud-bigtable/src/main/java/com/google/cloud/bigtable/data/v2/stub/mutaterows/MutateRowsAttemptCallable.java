@@ -257,7 +257,8 @@ class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
-    throw MutateRowsException.create(rpcError, allFailures.build(), builder.getEntriesCount() > 0);
+    throw MutateRowsException.create(
+        rpcError, entryError.getStatusCode(), allFailures.build(), builder.getEntriesCount() > 0);
   }
 
   /**

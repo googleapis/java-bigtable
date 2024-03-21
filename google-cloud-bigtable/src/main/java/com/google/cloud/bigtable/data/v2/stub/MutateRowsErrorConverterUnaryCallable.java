@@ -18,12 +18,15 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiCallContext;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.common.util.concurrent.MoreExecutors;
+import io.grpc.Status;
 
 /**
  * This callable converts partial batch failures into an exception. This is necessary to make sure
@@ -47,7 +50,10 @@ public class MutateRowsErrorConverterUnaryCallable extends UnaryCallable<BulkMut
         result -> {
           if (!result.getFailedMutations().isEmpty()) {
             throw MutateRowsException.create(
-                null, result.getFailedMutations(), result.getIsRetryable());
+                null,
+                GrpcStatusCode.of(Status.Code.OK),
+                result.getFailedMutations(),
+                result.getIsRetryable());
           }
           return null;
         },
