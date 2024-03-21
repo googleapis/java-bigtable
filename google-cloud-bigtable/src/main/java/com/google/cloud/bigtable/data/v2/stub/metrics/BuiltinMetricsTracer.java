@@ -19,6 +19,7 @@ import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
+import com.google.cloud.bigtable.data.v2.models.MutateRowsException;
 import com.google.cloud.bigtable.stats.StatsRecorderWrapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
@@ -279,7 +280,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // Patch the status until it's fixed in gax. When an attempt failed,
     // it'll throw a ServerStreamingAttemptException. Unwrap the exception
     // so it could get processed by extractStatus
-    if (status instanceof ServerStreamingAttemptException) {
+    if (status instanceof ServerStreamingAttemptException
+        || status instanceof MutateRowsException) {
       status = status.getCause();
     }
 
