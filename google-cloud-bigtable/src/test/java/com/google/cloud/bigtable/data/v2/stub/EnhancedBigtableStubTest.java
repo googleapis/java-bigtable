@@ -617,7 +617,10 @@ public class EnhancedBigtableStubTest {
                       .addEntries(
                           MutateRowsResponse.Entry.newBuilder()
                               .setIndex(1)
-                              .setStatus(Status.newBuilder().setCode(Code.PERMISSION_DENIED_VALUE))
+                              .setStatus(
+                                  Status.newBuilder()
+                                      .setCode(Code.PERMISSION_DENIED_VALUE)
+                                      .setMessage("fake partial error"))
                               .build())
                       .build());
               observer.onCompleted();
@@ -630,6 +633,8 @@ public class EnhancedBigtableStubTest {
     assertThat(batchingException.getMessage())
         .contains(
             "Batching finished with 1 partial failures. The 1 partial failures contained 1 entries that failed with: 1 ApiException(1 PERMISSION_DENIED).");
+    assertThat(batchingException.getMessage()).contains("fake partial error");
+    assertThat(batchingException.getMessage()).doesNotContain("INTERNAL");
   }
 
   @Test
