@@ -1449,15 +1449,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    */
   private static ApiFuture<Table> transformToTableResponse(
       ApiFuture<com.google.bigtable.admin.v2.Table> future) {
-    return ApiFutures.transform(
-        future,
-        new ApiFunction<com.google.bigtable.admin.v2.Table, Table>() {
-          @Override
-          public Table apply(com.google.bigtable.admin.v2.Table table) {
-            return Table.fromProto(table);
-          }
-        },
-        MoreExecutors.directExecutor());
+    return ApiFutures.transform(future, Table::fromProto, MoreExecutors.directExecutor());
   }
 
   /** Helper method to transform ApiFuture<Empty> to ApiFuture<Void> */

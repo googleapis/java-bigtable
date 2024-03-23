@@ -20,6 +20,7 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.util.FieldMaskUtil;
 import java.util.Objects;
 import org.threeten.bp.Duration;
 
@@ -30,6 +31,7 @@ import org.threeten.bp.Duration;
  *
  * <ul>
  *   <li>Change stream retention period.
+ *   <li>Table deletion protection
  * </ul>
  */
 public class UpdateTableRequest {
@@ -74,6 +76,17 @@ public class UpdateTableRequest {
     return addChangeStreamRetention(Duration.ZERO);
   }
 
+  /** Update the table's deletion protection setting * */
+  public UpdateTableRequest setDeletionProtection(boolean deletionProtection) {
+    requestBuilder.setUpdateMask(
+        FieldMaskUtil.union(
+            requestBuilder.getUpdateMask(),
+            FieldMaskUtil.fromString(
+                com.google.bigtable.admin.v2.Table.class, "deletion_protection")));
+    requestBuilder.getTableBuilder().setDeletionProtection(deletionProtection);
+    return this;
+  }
+
   @InternalApi
   public com.google.bigtable.admin.v2.UpdateTableRequest toProto(
       String projectId, String instanceId) {
@@ -85,14 +98,18 @@ public class UpdateTableRequest {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (!(o instanceof UpdateTableRequest)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof UpdateTableRequest)) {
+      return false;
+    }
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equals(requestBuilder, that.requestBuilder);
+    return Objects.equals(requestBuilder.build(), that.requestBuilder.build());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestBuilder);
+    return Objects.hash(requestBuilder.build());
   }
 }

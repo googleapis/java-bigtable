@@ -268,6 +268,36 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
+  public void testCreateTableWithDeletionProtection() {
+    // Setup
+    Mockito.when(mockStub.createTableCallable()).thenReturn(mockCreateTableCallable);
+
+    com.google.bigtable.admin.v2.CreateTableRequest expectedRequest =
+        com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
+            .setTable(
+                com.google.bigtable.admin.v2.Table.newBuilder().setDeletionProtection(true).build())
+            .setParent(INSTANCE_NAME)
+            .setTableId(TABLE_ID)
+            .build();
+
+    com.google.bigtable.admin.v2.Table expectedResponse =
+        com.google.bigtable.admin.v2.Table.newBuilder()
+            .setName(TABLE_NAME)
+            .setDeletionProtection(true)
+            .build();
+
+    Mockito.when(mockCreateTableCallable.futureCall(expectedRequest))
+        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    Table result =
+        adminClient.createTable(CreateTableRequest.of(TABLE_ID).setDeletionProtection(true));
+
+    // Verify
+    assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
+  }
+
+  @Test
   public void testModifyFamilies() {
     // Setup
     Mockito.when(mockStub.modifyColumnFamiliesCallable()).thenReturn(mockModifyTableCallable);

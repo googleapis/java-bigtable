@@ -81,4 +81,37 @@ public class UpdateTableRequestTest {
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
   }
+
+  @Test
+  public void testToProto() {
+    UpdateTableRequest request = UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true);
+    com.google.bigtable.admin.v2.UpdateTableRequest requestProto =
+        com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder()
+            .setTable(
+                Table.newBuilder()
+                    .setName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
+                    .setDeletionProtection(true))
+            .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection"))
+            .build();
+
+    assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
+  }
+
+  @Test
+  public void testEquality() {
+    UpdateTableRequest request = UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true);
+
+    assertThat(request).isEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true));
+    assertThat(request).isNotEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(false));
+  }
+
+  @Test
+  public void testHashCode() {
+    UpdateTableRequest request = UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true);
+
+    assertThat(request.hashCode())
+        .isEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true).hashCode());
+    assertThat(request.hashCode())
+        .isNotEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(false).hashCode());
+  }
 }

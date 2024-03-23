@@ -67,6 +67,7 @@ public class TableTest {
                                     .setSeconds(1)
                                     .setNanos(99)))
                     .build())
+            .setDeletionProtection(true)
             .build();
 
     Table result = Table.fromProto(proto);
@@ -85,6 +86,8 @@ public class TableTest {
               com.google.cloud.bigtable.admin.v2.models.ColumnFamily.fromProto(
                   entry.getKey(), entry.getValue()));
     }
+
+    assertThat(result.isProtected()).isTrue();
   }
 
   @Test
