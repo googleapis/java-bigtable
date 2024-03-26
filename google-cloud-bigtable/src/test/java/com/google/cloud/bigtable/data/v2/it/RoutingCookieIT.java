@@ -24,8 +24,13 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
+import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Instance;
+import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -33,6 +38,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
+import java.io.IOException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -53,11 +59,15 @@ public class RoutingCookieIT {
   @Rule public Timeout globalTimeout = Timeout.seconds(300);
 
   private static BigtableInstanceAdminClient instanceAdminClient;
+  private static BigtableTableAdminClient tableAdminClient;
+  private static String targetInstance;
   private static String appProfileId;
   private static String appProfileIdFailing;
+  private static String targetTable;
+  private static String clusterId = "test-cluster";
 
   @BeforeClass
-  public static void setUpClass() {
+  public static void setUpClass() throws IOException {
     assume()
         .withMessage("Routing cookie integration test is not supported by emulator")
         .that(testEnvRule.env())
@@ -68,28 +78,42 @@ public class RoutingCookieIT {
     appProfileId = PrefixGenerator.newPrefix("a");
     appProfileIdFailing = PrefixGenerator.newPrefix("b");
 
+    targetInstance = PrefixGenerator.newPrefix("instance");
+    instanceAdminClient.createInstance(
+        CreateInstanceRequest.of(targetInstance)
+            .addCluster(clusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+            .setDisplayName("databoost-test-instance")
+            .addLabel("state", "readytodelete")
+            .setType(Instance.Type.PRODUCTION));
+
     instanceAdminClient.createAppProfile(
-        CreateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileId)
-            .setRoutingPolicy(
-                AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
+        CreateAppProfileRequest.of(targetInstance, appProfileId)
+            .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(clusterId))
             .setIsolationPolicy(
                 AppProfile.DataBoostIsolationReadOnlyPolicy.of(
                     AppProfile.ComputeBillingOwner.HOST_PAYS)));
     instanceAdminClient.createAppProfile(
-        CreateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileIdFailing)
-            .setRoutingPolicy(
-                AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
+        CreateAppProfileRequest.of(targetInstance, appProfileIdFailing)
+            .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(clusterId))
             .setIsolationPolicy(
                 AppProfile.DataBoostIsolationReadOnlyPolicy.of(
                     AppProfile.ComputeBillingOwner.HOST_PAYS)));
+
+    tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(targetInstance);
+    targetTable = PrefixGenerator.newPrefix("table");
+    tableAdminClient.createTable(
+        CreateTableRequest.of(targetTable).addFamily(testEnvRule.env().getFamilyId()));
   }
 
   @AfterClass
   public static void tearDown() {
+    if (tableAdminClient != null) {
+      tableAdminClient.deleteTable(targetTable);
+    }
     if (instanceAdminClient != null) {
-      instanceAdminClient.deleteAppProfile(testEnvRule.env().getInstanceId(), appProfileId, true);
-      instanceAdminClient.deleteAppProfile(
-          testEnvRule.env().getInstanceId(), appProfileIdFailing, true);
+      instanceAdminClient.deleteAppProfile(targetInstance, appProfileId, true);
+      instanceAdminClient.deleteAppProfile(targetInstance, appProfileIdFailing, true);
+      instanceAdminClient.deleteInstance(targetInstance);
     }
   }
 
@@ -104,7 +128,7 @@ public class RoutingCookieIT {
   public void testRoutingCookieForDataBoost() throws Exception {
     BigtableDataSettings.Builder settings = testEnvRule.env().getDataClientSettings().toBuilder();
 
-    settings.setAppProfileId(appProfileId);
+    settings.setAppProfileId(appProfileId).setInstanceId(targetInstance);
     // Disable direct path
     InstantiatingGrpcChannelProvider channelProvider =
         ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider())
@@ -129,20 +153,13 @@ public class RoutingCookieIT {
       // Send a readRows request, immediately switch the app profile from offline to online.
       // GFE will have the cached results still routing to offline AFEs. Routing cookie should
       // break this cache and route the request correctly.
-      dataClient
-          .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
-          .iterator()
-          .hasNext();
+      dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext();
       instanceAdminClient.updateAppProfile(
-          UpdateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileId)
+          UpdateAppProfileRequest.of(targetInstance, appProfileId)
               .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW))
-              .setRoutingPolicy(
-                  AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
+              .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(clusterId))
               .setIgnoreWarnings(true));
-      dataClient
-          .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
-          .iterator()
-          .hasNext();
+      dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext();
     }
   }
 
@@ -153,7 +170,7 @@ public class RoutingCookieIT {
   public void testTimeoutWithoutRoutingCookieForDataBoost() throws Exception {
     BigtableDataSettings.Builder settings = testEnvRule.env().getDataClientSettings().toBuilder();
 
-    settings.setAppProfileId(appProfileIdFailing);
+    settings.setAppProfileId(appProfileIdFailing).setInstanceId(targetInstance);
     // Disable direct path
     InstantiatingGrpcChannelProvider channelProvider =
         ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider())
@@ -181,21 +198,14 @@ public class RoutingCookieIT {
 
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
       // Routing cookie is disabled. The second readRows request should fail.
-      dataClient
-          .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
-          .iterator()
-          .hasNext();
+      dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext();
       instanceAdminClient.updateAppProfile(
-          UpdateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileIdFailing)
+          UpdateAppProfileRequest.of(targetInstance, appProfileIdFailing)
               .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW))
-              .setRoutingPolicy(
-                  AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
+              .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(clusterId))
               .setIgnoreWarnings(true));
       try {
-        dataClient
-            .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
-            .iterator()
-            .hasNext();
+        dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext();
         Assert.fail("Second readRows request should fail");
       } catch (ApiException e) {
         Assert.assertTrue(
