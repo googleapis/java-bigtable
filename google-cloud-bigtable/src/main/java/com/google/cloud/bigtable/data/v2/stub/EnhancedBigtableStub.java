@@ -31,9 +31,11 @@ import com.google.api.gax.grpc.GrpcRawCallableFactory;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
+import com.google.api.gax.retrying.ResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
+import com.google.api.gax.retrying.StreamingRetryAlgorithm;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -1119,13 +1121,19 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
       UnaryCallable<RequestT, ResponseT> innerCallable, UnaryCallSettings<?, ?> unaryCallSettings) {
     UnaryCallable<RequestT, ResponseT> retrying;
+    ResultRetryAlgorithm resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
-      retrying =
-          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
-              innerCallable, unaryCallSettings, clientContext);
+      resultRetryAlgorithm = new RetryInfoRetryAlgorithm();
     } else {
-      retrying = Callables.retrying(innerCallable, unaryCallSettings, clientContext);
+      resultRetryAlgorithm = new ApiResultRetryAlgorithm();
     }
+
+    RetryAlgorithm retryAlgorithm = new RetryAlgorithm(
+            resultRetryAlgorithm,
+            new ExponentialRetryAlgorithm(unaryCallSettings.getRetrySettings(), clientContext.getClock()));
+
+    retrying = Callables.retrying(innerCallable, retryAlgorithm, clientContext);
+
     if (settings.getEnableRoutingCookie()) {
       return new CookiesUnaryCallable<>(retrying);
     }
@@ -1137,13 +1145,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
     ServerStreamingCallable<RequestT, ResponseT> retrying;
+    ResultRetryAlgorithm resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
-      retrying =
-          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
-              innerCallable, serverStreamingCallSettings, clientContext);
+      resultRetryAlgorithm = new RetryInfoRetryAlgorithm();
     } else {
-      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+      resultRetryAlgorithm = new ApiResultRetryAlgorithm();
     }
+    StreamingRetryAlgorithm retryAlgorithm = new StreamingRetryAlgorithm(
+            resultRetryAlgorithm,
+            new ExponentialRetryAlgorithm(serverStreamingCallSettings.getRetrySettings(), clientContext.getClock()));
+
+    retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, retryAlgorithm, clientContext);
+
     if (settings.getEnableRoutingCookie()) {
       return new CookiesServerStreamingCallable<>(retrying);
     }
