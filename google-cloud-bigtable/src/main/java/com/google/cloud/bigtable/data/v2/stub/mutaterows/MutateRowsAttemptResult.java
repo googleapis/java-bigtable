@@ -23,8 +23,8 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
- * This class represents the result of a MutateRows attempt. It contains the list of failed
- * mutations, along with an indicator whether these errors are retryable.
+ * This class represents the result of a MutateRows attempt. It contains a potentially empty list of
+ * failed mutations, along with an indicator whether these errors are retryable.
  */
 @InternalApi
 @AutoValue
