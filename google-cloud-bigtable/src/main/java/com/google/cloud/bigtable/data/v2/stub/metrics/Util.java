@@ -128,8 +128,9 @@ public class Util {
       tableName = ((ReadModifyWriteRowRequest) request).getTableName();
       authorizedViewName = ((ReadModifyWriteRowRequest) request).getAuthorizedViewName();
     }
-    if (tableName == null) return "undefined";
-    if (tableName.isEmpty()) {
+    if (tableName == null && authorizedViewName == null) return "undefined";
+    if (tableName.isEmpty() && authorizedViewName.isEmpty()) return "undefined";
+    if (!tableName.isEmpty()) {
       return TableName.parse(tableName).getTable();
     } else {
       return AuthorizedViewName.parse(authorizedViewName).getTable();
