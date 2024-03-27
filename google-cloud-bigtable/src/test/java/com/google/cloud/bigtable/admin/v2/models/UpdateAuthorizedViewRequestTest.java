@@ -106,7 +106,7 @@ public class UpdateAuthorizedViewRequestTest {
             .setAuthorizedViewType(
                 SubsetView.create()
                     .addRowPrefix("row#")
-                    .addFamilySubsets(
+                    .setFamilySubsets(
                         "cf",
                         FamilySubsets.create()
                             .addQualifier("qualifier")

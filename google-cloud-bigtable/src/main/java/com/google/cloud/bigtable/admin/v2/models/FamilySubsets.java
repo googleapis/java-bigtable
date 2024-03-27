@@ -20,6 +20,7 @@ import com.google.api.core.InternalApi;
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 /** Represents subsets of a particular column family that are included in this authorized view. */
@@ -49,12 +50,12 @@ public final class FamilySubsets {
   }
 
   /** Gets the list of column qualifiers included in this authorized view. */
-  public ImmutableList<ByteString> getQualifiers() {
+  public List<ByteString> getQualifiers() {
     return ImmutableList.copyOf(this.builder.getQualifiersList());
   }
 
   /** Gets the list of column qualifier prefixes included in this authorized view. */
-  public ImmutableList<ByteString> getQualifierPrefixes() {
+  public List<ByteString> getQualifierPrefixes() {
     return ImmutableList.copyOf(this.builder.getQualifierPrefixesList());
   }
 

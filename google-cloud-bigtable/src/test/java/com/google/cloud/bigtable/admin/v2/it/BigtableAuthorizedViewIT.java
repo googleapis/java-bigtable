@@ -95,8 +95,11 @@ public class BigtableAuthorizedViewIT {
             .setAuthorizedViewType(
                 SubsetView.create()
                     .addRowPrefix("row#")
-                    .addFamilySubsets("cf1", FamilySubsets.create().addQualifier("qualifier"))
-                    .addFamilySubsets("cf1", FamilySubsets.create().addQualifierPrefix("prefix#")))
+                    .setFamilySubsets(
+                        "cf1",
+                        FamilySubsets.create()
+                            .addQualifier("qualifier")
+                            .addQualifierPrefix("prefix#")))
             .setDeletionProtection(false);
     try {
       AuthorizedView response = tableAdmin.createAuthorizedView(request);

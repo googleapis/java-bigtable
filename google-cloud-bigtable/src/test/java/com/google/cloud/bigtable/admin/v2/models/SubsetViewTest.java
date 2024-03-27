@@ -77,13 +77,13 @@ public class SubsetViewTest {
         SubsetView.create()
             .addRowPrefix("row1#")
             .addRowPrefix("row2#")
-            .addFamilySubsets(
+            .setFamilySubsets(
                 "family1",
                 FamilySubsets.create().addQualifier("column1").addQualifierPrefix("prefix1#"))
-            .addFamilySubsets(
+            .setFamilySubsets(
                 "family1",
                 FamilySubsets.create().addQualifier("column2").addQualifierPrefix("prefix2#"))
-            .addFamilySubsets(
+            .setFamilySubsets(
                 "family2", FamilySubsets.create().addQualifier("column").addQualifierPrefix(""));
 
     com.google.bigtable.admin.v2.AuthorizedView.SubsetView subsetViewProto =
@@ -93,9 +93,7 @@ public class SubsetViewTest {
             .putFamilySubsets(
                 "family1",
                 com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets.newBuilder()
-                    .addQualifiers(ByteString.copyFromUtf8("column1"))
                     .addQualifiers(ByteString.copyFromUtf8("column2"))
-                    .addQualifierPrefixes(ByteString.copyFromUtf8("prefix1#"))
                     .addQualifierPrefixes(ByteString.copyFromUtf8("prefix2#"))
                     .build())
             .putFamilySubsets(
@@ -116,9 +114,9 @@ public class SubsetViewTest {
             "family2",
             FamilySubsets.fromProto(subsetViewProto.getFamilySubsetsOrThrow("family2")));
     assertThat(familySubsetsResult.get("family1").getQualifiers())
-        .containsExactly(ByteString.copyFromUtf8("column1"), ByteString.copyFromUtf8("column2"));
+        .containsExactly(ByteString.copyFromUtf8("column2"));
     assertThat(familySubsetsResult.get("family1").getQualifierPrefixes())
-        .containsExactly(ByteString.copyFromUtf8("prefix1#"), ByteString.copyFromUtf8("prefix2#"));
+        .containsExactly(ByteString.copyFromUtf8("prefix2#"));
     assertThat(familySubsetsResult.get("family2").getQualifiers())
         .containsExactly(ByteString.copyFromUtf8("column"));
     assertThat(familySubsetsResult.get("family2").getQualifierPrefixes())

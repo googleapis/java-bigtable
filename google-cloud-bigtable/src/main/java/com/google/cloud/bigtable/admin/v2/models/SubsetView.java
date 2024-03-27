@@ -22,6 +22,8 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
 
@@ -58,12 +60,12 @@ public class SubsetView implements AuthorizedViewType {
   }
 
   /** Gets the row prefixes to be included in this subset view. */
-  public ImmutableList<ByteString> getRowPrefixes() {
+  public List<ByteString> getRowPrefixes() {
     return ImmutableList.copyOf(this.builder.getRowPrefixesList());
   }
 
   /** Gets the map from familyId to familySubsets in this subset view. */
-  public ImmutableMap<String, FamilySubsets> getFamilySubsets() {
+  public Map<String, FamilySubsets> getFamilySubsets() {
     ImmutableMap.Builder<String, FamilySubsets> familySubsets = ImmutableMap.builder();
     for (Entry<String, com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets> entry :
         builder.getFamilySubsetsMap().entrySet()) {
@@ -84,22 +86,12 @@ public class SubsetView implements AuthorizedViewType {
     return this;
   }
 
-  /** Adds a new familyId with its familySubsets to the subset view. */
-  public SubsetView addFamilySubsets(String familyId, FamilySubsets familySubsets) {
-    if (this.builder.containsFamilySubsets(familyId)) {
-      // If the familyId exists, append the familySubsets to the existing value.
-      com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets existingFamilySubsets =
-          this.builder.getFamilySubsetsMap().get(familyId);
-      com.google.bigtable.admin.v2.AuthorizedView.FamilySubsets newFamilySubsets =
-          existingFamilySubsets
-              .toBuilder()
-              .addAllQualifiers(familySubsets.getQualifiers())
-              .addAllQualifierPrefixes(familySubsets.getQualifierPrefixes())
-              .build();
-      this.builder.putFamilySubsets(familyId, newFamilySubsets);
-    } else {
-      this.builder.putFamilySubsets(familyId, familySubsets.toProto());
-    }
+  /**
+   * Adds a new familyId with its familySubsets to the subset view. Please note that calling this
+   * method with the same familyId will overwrite the previous rule set on the family.
+   */
+  public SubsetView setFamilySubsets(String familyId, FamilySubsets familySubsets) {
+    this.builder.putFamilySubsets(familyId, familySubsets.toProto());
     return this;
   }
 
