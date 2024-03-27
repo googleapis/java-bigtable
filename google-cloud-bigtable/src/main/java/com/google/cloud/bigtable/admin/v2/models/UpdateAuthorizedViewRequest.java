@@ -102,7 +102,10 @@ public final class UpdateAuthorizedViewRequest {
     return this;
   }
 
-  /** Configures if safety warnings should be disabled. */
+  /**
+   * Configures if safety warnings should be disabled. If set, then updates that making the
+   * authorized view more restrictive are allowed.
+   */
   @SuppressWarnings("WeakerAccess")
   public UpdateAuthorizedViewRequest setIgnoreWarnings(boolean value) {
     requestBuilder.setIgnoreWarnings(value);
