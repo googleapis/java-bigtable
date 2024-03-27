@@ -58,6 +58,7 @@ public final class SampleRowKeysRequest implements Serializable {
    * <p>WARNING: Please note that the project id & instance id in the table/authorized view name
    * will be overwritten by the configuration in the BigtableDataClient.
    */
+  @InternalApi
   public static SampleRowKeysRequest fromProto(
       @Nonnull com.google.bigtable.v2.SampleRowKeysRequest request) {
     String tableName = request.getTableName();
