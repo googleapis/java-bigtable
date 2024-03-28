@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.38.0](https://github.com/googleapis/java-bigtable/compare/v2.37.0...v2.38.0) (2024-03-28)
+
+
+### Features
+
+* Add Data Boost configurations to admin API ([f29c5bb](https://github.com/googleapis/java-bigtable/commit/f29c5bba08daffe2721454db1714f6ea6f47fc66))
+* Add feature flag for client side metrics ([#2179](https://github.com/googleapis/java-bigtable/issues/2179)) ([f29c5bb](https://github.com/googleapis/java-bigtable/commit/f29c5bba08daffe2721454db1714f6ea6f47fc66))
+
 ## [2.37.0](https://github.com/googleapis/java-bigtable/compare/v2.36.0...v2.37.0) (2024-03-27)
 
 
