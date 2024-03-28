@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -27,6 +28,7 @@ import com.google.api.client.util.Lists;
 import com.google.api.core.ApiFunction;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -45,6 +47,7 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
+import com.google.cloud.bigtable.data.v2.models.AuthorizedViewId;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -74,6 +77,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -102,7 +106,7 @@ public class BuiltinMetricsTracerTest {
   private static final String INSTANCE_ID = "fake-instance";
   private static final String APP_PROFILE_ID = "default";
   private static final String TABLE_ID = "fake-table";
-
+  private static final String AUTHORIZED_VIEW_ID = "fake-authorized-view";
   private static final String BAD_TABLE_ID = "non-exist-table";
   private static final String ZONE = "us-west-1";
   private static final String CLUSTER = "cluster-0";
@@ -255,6 +259,37 @@ public class BuiltinMetricsTracerTest {
 
     Stopwatch stopwatch = Stopwatch.createStarted();
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE_ID)).iterator());
+    long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+    verify(statsRecorderWrapper).putOperationLatencies(operationLatency.capture());
+    // verify record operation is only called once
+    verify(statsRecorderWrapper)
+        .recordOperation(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+
+    assertThat(operationLatency.getValue()).isIn(Range.closed(SERVER_LATENCY, elapsed));
+    assertThat(status.getAllValues()).containsExactly("OK");
+    assertThat(tableId.getAllValues()).containsExactly(TABLE_ID);
+    assertThat(zone.getAllValues()).containsExactly(ZONE);
+    assertThat(cluster.getAllValues()).containsExactly(CLUSTER);
+  }
+
+  @Test
+  public void testReadRowsOperationLatenciesOnAuthorizedView() {
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenAnswer(
+            (Answer<BuiltinMetricsTracer>)
+                invocationOnMock ->
+                    new BuiltinMetricsTracer(
+                        OperationType.ServerStreaming,
+                        SpanName.of("Bigtable", "ReadRows"),
+                        statsRecorderWrapper));
+    ArgumentCaptor<Long> operationLatency = ArgumentCaptor.forClass(Long.class);
+
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    Lists.newArrayList(
+        stub.readRowsCallable()
+            .call(Query.create(AuthorizedViewId.of(TABLE_ID, AUTHORIZED_VIEW_ID)))
+            .iterator());
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     verify(statsRecorderWrapper).putOperationLatencies(operationLatency.capture());
@@ -447,6 +482,55 @@ public class BuiltinMetricsTracerTest {
     assertThat(cluster.getAllValues()).containsExactly("unspecified", "unspecified", CLUSTER);
     assertThat(status.getAllValues()).containsExactly("UNAVAILABLE", "UNAVAILABLE", "OK");
     assertThat(tableId.getAllValues()).containsExactly(TABLE_ID, TABLE_ID, TABLE_ID);
+  }
+
+  @Test
+  public void testMutateRowsPartialError() throws InterruptedException {
+    int numMutations = 6;
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRows"), statsRecorderWrapper));
+
+    Batcher<RowMutationEntry, Void> batcher = stub.newMutateRowsBatcher(TABLE_ID, null);
+    for (int i = 0; i < numMutations; i++) {
+      String key = i % 2 == 0 ? "key" : "fail-key";
+      batcher.add(RowMutationEntry.create(key).setCell("f", "q", "v"));
+    }
+
+    assertThrows(BatchingException.class, () -> batcher.close());
+
+    int expectedNumRequests = numMutations / batchElementCount;
+    verify(statsRecorderWrapper, timeout(100).times(expectedNumRequests))
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+
+    assertThat(zone.getAllValues()).containsExactly(ZONE, ZONE, ZONE);
+    assertThat(cluster.getAllValues()).containsExactly(CLUSTER, CLUSTER, CLUSTER);
+    assertThat(status.getAllValues()).containsExactly("OK", "OK", "OK");
+  }
+
+  @Test
+  public void testMutateRowsRpcError() {
+    int numMutations = 6;
+    when(mockFactory.newTracer(any(), any(), any()))
+        .thenReturn(
+            new BuiltinMetricsTracer(
+                OperationType.Unary, SpanName.of("Bigtable", "MutateRows"), statsRecorderWrapper));
+
+    Batcher<RowMutationEntry, Void> batcher = stub.newMutateRowsBatcher(BAD_TABLE_ID, null);
+    for (int i = 0; i < numMutations; i++) {
+      batcher.add(RowMutationEntry.create("key").setCell("f", "q", "v"));
+    }
+
+    assertThrows(BatchingException.class, () -> batcher.close());
+
+    int expectedNumRequests = numMutations / batchElementCount;
+    verify(statsRecorderWrapper, timeout(100).times(expectedNumRequests))
+        .recordAttempt(status.capture(), tableId.capture(), zone.capture(), cluster.capture());
+
+    assertThat(zone.getAllValues()).containsExactly("global", "global", "global");
+    assertThat(cluster.getAllValues()).containsExactly("unspecified", "unspecified", "unspecified");
+    assertThat(status.getAllValues()).containsExactly("NOT_FOUND", "NOT_FOUND", "NOT_FOUND");
   }
 
   @Test
@@ -644,12 +728,30 @@ public class BuiltinMetricsTracerTest {
     @Override
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
+      if (request.getTableName().contains(BAD_TABLE_ID)) {
+        responseObserver.onError(new StatusRuntimeException(Status.NOT_FOUND));
+        return;
+      }
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {
       }
       MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
       for (int i = 0; i < request.getEntriesCount(); i++) {
+        if (request
+            .getEntries(i)
+            .getRowKey()
+            .toString(Charset.availableCharsets().get("UTF-8"))
+            .startsWith("fail")) {
+          builder
+              .addEntriesBuilder()
+              .setIndex(i)
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(com.google.rpc.Code.PERMISSION_DENIED_VALUE)
+                      .build());
+          continue;
+        }
         builder.addEntriesBuilder().setIndex(i);
       }
       responseObserver.onNext(builder.build());

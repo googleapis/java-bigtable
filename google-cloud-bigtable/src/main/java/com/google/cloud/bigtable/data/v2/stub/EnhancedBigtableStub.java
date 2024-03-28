@@ -66,10 +66,10 @@ import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowRange;
-import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
+import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamMutation;
@@ -87,6 +87,8 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
+import com.google.cloud.bigtable.data.v2.models.TargetId;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
@@ -102,7 +104,9 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamin
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsPartialErrorRetryAlgorithm;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
@@ -164,8 +168,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<Query, Row> readRowCallable;
   private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
   private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
+  private final UnaryCallable<SampleRowKeysRequest, List<KeyOffset>>
+      sampleRowKeysCallableWithRequest;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
-  private final UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable;
+  private final UnaryCallable<BulkMutation, MutateRowsAttemptResult> bulkMutateRowsCallable;
+  private final UnaryCallable<BulkMutation, Void> externalBulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
   private final UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable;
@@ -367,8 +374,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
     bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
+    sampleRowKeysCallableWithRequest = createSampleRowKeysCallableWithRequest();
     mutateRowCallable = createMutateRowCallable();
-    bulkMutateRowsCallable = createBulkMutateRowsCallable();
+    bulkMutateRowsCallable = createMutateRowsBaseCallable();
+    externalBulkMutateRowsCallable =
+        new MutateRowsErrorConverterUnaryCallable(bulkMutateRowsCallable);
     checkAndMutateRowCallable = createCheckAndMutateRowCallable();
     readModifyWriteRowCallable = createReadModifyWriteRowCallable();
     generateInitialChangeStreamPartitionsCallable =
@@ -493,9 +503,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadRowsRequest>() {
                       @Override
                       public Map<String, String> extract(ReadRowsRequest readRowsRequest) {
+                        String tableName = readRowsRequest.getTableName();
+                        String authorizedViewName = readRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", readRowsRequest.getTableName(),
-                            "app_profile_id", readRowsRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            readRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -579,6 +597,57 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
+   * Helper function that should only be used by createSampleRowKeysCallable() and
+   * createSampleRowKeysWithRequestCallable().
+   */
+  private UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+      createSampleRowKeysBaseCallable() {
+    ServerStreamingCallable<com.google.bigtable.v2.SampleRowKeysRequest, SampleRowKeysResponse>
+        base =
+            GrpcRawCallableFactory.createServerStreamingCallable(
+                GrpcCallSettings
+                    .<com.google.bigtable.v2.SampleRowKeysRequest, SampleRowKeysResponse>
+                        newBuilder()
+                    .setMethodDescriptor(BigtableGrpc.getSampleRowKeysMethod())
+                    .setParamsExtractor(
+                        new RequestParamsExtractor<com.google.bigtable.v2.SampleRowKeysRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              com.google.bigtable.v2.SampleRowKeysRequest sampleRowKeysRequest) {
+                            String tableName = sampleRowKeysRequest.getTableName();
+                            String authorizedViewName =
+                                sampleRowKeysRequest.getAuthorizedViewName();
+                            if (tableName.isEmpty()) {
+                              tableName =
+                                  NameUtil.extractTableNameFromAuthorizedViewName(
+                                      authorizedViewName);
+                            }
+                            return ImmutableMap.of(
+                                "table_name",
+                                tableName,
+                                "app_profile_id",
+                                sampleRowKeysRequest.getAppProfileId());
+                          }
+                        })
+                    .build(),
+                settings.sampleRowKeysSettings().getRetryableCodes());
+
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        spoolable = base.all();
+
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        withStatsHeaders = new StatsHeadersUnaryCallable<>(spoolable);
+
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        withBigtableTracer = new BigtableTracerUnaryCallable<>(withStatsHeaders);
+
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        retryable = withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
+
+    return retryable;
+  }
+
+  /**
    * Creates a callable chain to handle SampleRowKeys RPcs. The chain will:
    *
    * <ul>
@@ -593,36 +662,33 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private UnaryCallable<String, List<KeyOffset>> createSampleRowKeysCallable() {
     String methodName = "SampleRowKeys";
 
-    ServerStreamingCallable<SampleRowKeysRequest, SampleRowKeysResponse> base =
-        GrpcRawCallableFactory.createServerStreamingCallable(
-            GrpcCallSettings.<SampleRowKeysRequest, SampleRowKeysResponse>newBuilder()
-                .setMethodDescriptor(BigtableGrpc.getSampleRowKeysMethod())
-                .setParamsExtractor(
-                    new RequestParamsExtractor<SampleRowKeysRequest>() {
-                      @Override
-                      public Map<String, String> extract(
-                          SampleRowKeysRequest sampleRowKeysRequest) {
-                        return ImmutableMap.of(
-                            "table_name", sampleRowKeysRequest.getTableName(),
-                            "app_profile_id", sampleRowKeysRequest.getAppProfileId());
-                      }
-                    })
-                .build(),
-            settings.sampleRowKeysSettings().getRetryableCodes());
-
-    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> spoolable = base.all();
-
-    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withStatsHeaders =
-        new StatsHeadersUnaryCallable<>(spoolable);
-
-    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(withStatsHeaders);
-
-    UnaryCallable<SampleRowKeysRequest, List<SampleRowKeysResponse>> retryable =
-        withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
-
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        baseCallable = createSampleRowKeysBaseCallable();
     return createUserFacingUnaryCallable(
-        methodName, new SampleRowKeysCallable(retryable, requestContext));
+        methodName, new SampleRowKeysCallable(baseCallable, requestContext));
+  }
+
+  /**
+   * Creates a callable chain to handle SampleRowKeys RPcs. The chain will:
+   *
+   * <ul>
+   *   <li>Convert a {@link SampleRowKeysRequest} to a {@link
+   *       com.google.bigtable.v2.SampleRowKeysRequest}.
+   *   <li>Dispatch the request to the GAPIC's {@link BigtableStub#sampleRowKeysCallable()}.
+   *   <li>Spool responses into a list.
+   *   <li>Retry on failure.
+   *   <li>Convert the responses into {@link KeyOffset}s.
+   *   <li>Add tracing & metrics.
+   * </ul>
+   */
+  private UnaryCallable<SampleRowKeysRequest, List<KeyOffset>>
+      createSampleRowKeysCallableWithRequest() {
+    String methodName = "SampleRowKeys";
+
+    UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
+        baseCallable = createSampleRowKeysBaseCallable();
+    return createUserFacingUnaryCallable(
+        methodName, new SampleRowKeysCallableWithRequest(baseCallable, requestContext));
   }
 
   /**
@@ -643,9 +709,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowRequest mutateRowRequest) {
+                        String tableName = mutateRowRequest.getTableName();
+                        String authorizedViewName = mutateRowRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", mutateRowRequest.getTableName(),
-                            "app_profile_id", mutateRowRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            mutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -665,14 +739,24 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * Internal helper to create the base MutateRows callable chain. The chain is responsible for
-   * retrying individual entry in case of error.
+   * Creates a callable chain to handle MutatesRows RPCs. This is meant to be used for manual
+   * batching. The chain will:
    *
-   * <p>NOTE: the caller is responsible for adding tracing & metrics.
+   * <ul>
+   *   <li>Convert a {@link BulkMutation} into a {@link MutateRowsRequest}.
+   *   <li>Process the response and schedule retries. At the end of each attempt, entries that have
+   *       been applied, are filtered from the next attempt. Also, any entries that failed with a
+   *       nontransient error, are filtered from the next attempt. This will continue until there
+   *       are no more entries or there are no more retry attempts left.
+   *   <li>Wrap batch failures in a {@link MutateRowsAttemptResult}.
+   *   <li>Add tracing & metrics.
+   * </ul>
    *
-   * @see MutateRowsRetryingCallable for more details
+   * This callable returns an internal type {@link MutateRowsAttemptResult}.
+   *
+   * <p>This function should not be exposed to external users, as it could cause a data loss.
    */
-  private UnaryCallable<MutateRowsRequest, Void> createMutateRowsBaseCallable() {
+  private UnaryCallable<BulkMutation, MutateRowsAttemptResult> createMutateRowsBaseCallable() {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<MutateRowsRequest, MutateRowsResponse>newBuilder()
@@ -681,9 +765,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<MutateRowsRequest>() {
                       @Override
                       public Map<String, String> extract(MutateRowsRequest mutateRowsRequest) {
+                        String tableName = mutateRowsRequest.getTableName();
+                        String authorizedViewName = mutateRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", mutateRowsRequest.getTableName(),
-                            "app_profile_id", mutateRowsRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            mutateRowsRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -706,55 +798,38 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(convertException);
 
-    BasicResultRetryAlgorithm<Void> resultRetryAlgorithm;
+    BasicResultRetryAlgorithm<MutateRowsAttemptResult> resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
       resultRetryAlgorithm = new RetryInfoRetryAlgorithm<>();
     } else {
       resultRetryAlgorithm = new ApiResultRetryAlgorithm<>();
     }
+    MutateRowsPartialErrorRetryAlgorithm mutateRowsPartialErrorRetryAlgorithm =
+        new MutateRowsPartialErrorRetryAlgorithm(resultRetryAlgorithm);
 
-    RetryAlgorithm<Void> retryAlgorithm =
+    RetryAlgorithm<MutateRowsAttemptResult> retryAlgorithm =
         new RetryAlgorithm<>(
-            resultRetryAlgorithm,
+            mutateRowsPartialErrorRetryAlgorithm,
             new ExponentialRetryAlgorithm(
                 settings.bulkMutateRowsSettings().getRetrySettings(), clientContext.getClock()));
 
-    RetryingExecutorWithContext<Void> retryingExecutor =
+    RetryingExecutorWithContext<MutateRowsAttemptResult> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
+    UnaryCallable<MutateRowsRequest, MutateRowsAttemptResult> baseCallable =
+        new MutateRowsRetryingCallable(
+            clientContext.getDefaultCallContext(),
+            withBigtableTracer,
+            retryingExecutor,
+            settings.bulkMutateRowsSettings().getRetryableCodes(),
+            retryAlgorithm);
 
-    return new MutateRowsRetryingCallable(
-        clientContext.getDefaultCallContext(),
-        withBigtableTracer,
-        retryingExecutor,
-        settings.bulkMutateRowsSettings().getRetryableCodes(),
-        retryAlgorithm);
-  }
-
-  /**
-   * Creates a callable chain to handle MutatesRows RPCs. This is meant to be used for manual
-   * batching. The chain will:
-   *
-   * <ul>
-   *   <li>Convert a {@link BulkMutation} into a {@link MutateRowsRequest}.
-   *   <li>Process the response and schedule retries. At the end of each attempt, entries that have
-   *       been applied, are filtered from the next attempt. Also, any entries that failed with a
-   *       nontransient error, are filtered from the next attempt. This will continue until there
-   *       are no more entries or there are no more retry attempts left.
-   *   <li>Wrap batch failures in a {@link
-   *       com.google.cloud.bigtable.data.v2.models.MutateRowsException}.
-   *   <li>Add tracing & metrics.
-   * </ul>
-   */
-  private UnaryCallable<BulkMutation, Void> createBulkMutateRowsCallable() {
-    UnaryCallable<MutateRowsRequest, Void> baseCallable = createMutateRowsBaseCallable();
-
-    UnaryCallable<MutateRowsRequest, Void> withCookie = baseCallable;
+    UnaryCallable<MutateRowsRequest, MutateRowsAttemptResult> withCookie = baseCallable;
 
     if (settings.getEnableRoutingCookie()) {
       withCookie = new CookiesUnaryCallable<>(baseCallable);
     }
 
-    UnaryCallable<MutateRowsRequest, Void> flowControlCallable = null;
+    UnaryCallable<MutateRowsRequest, MutateRowsAttemptResult> flowControlCallable = null;
     if (settings.bulkMutateRowsSettings().isLatencyBasedThrottlingEnabled()) {
       flowControlCallable =
           new DynamicFlowControlCallable(
@@ -764,16 +839,16 @@ public class EnhancedBigtableStub implements AutoCloseable {
               settings.bulkMutateRowsSettings().getTargetRpcLatencyMs(),
               FLOW_CONTROL_ADJUSTING_INTERVAL_MS);
     }
-    UnaryCallable<BulkMutation, Void> userFacing =
+    UnaryCallable<BulkMutation, MutateRowsAttemptResult> userFacing =
         new BulkMutateRowsUserFacingCallable(
             flowControlCallable != null ? flowControlCallable : withCookie, requestContext);
 
     SpanName spanName = getSpanName("MutateRows");
 
-    UnaryCallable<BulkMutation, Void> tracedBatcherUnaryCallable =
+    UnaryCallable<BulkMutation, MutateRowsAttemptResult> tracedBatcherUnaryCallable =
         new TracedBatcherUnaryCallable<>(userFacing);
 
-    UnaryCallable<BulkMutation, Void> traced =
+    UnaryCallable<BulkMutation, MutateRowsAttemptResult> traced =
         new TracedUnaryCallable<>(
             tracedBatcherUnaryCallable, clientContext.getTracerFactory(), spanName);
 
@@ -805,6 +880,37 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.bulkMutateRowsSettings().getBatchingDescriptor(),
         bulkMutateRowsCallable,
         BulkMutation.create(tableId),
+        settings.bulkMutateRowsSettings().getBatchingSettings(),
+        clientContext.getExecutor(),
+        bulkMutationFlowController,
+        MoreObjects.firstNonNull(ctx, clientContext.getDefaultCallContext()));
+  }
+
+  /**
+   * Creates a {@link BatcherImpl} to handle {@link MutateRowsRequest.Entry} mutations. This is
+   * meant to be used for automatic batching with flow control.
+   *
+   * <ul>
+   *   <li>Uses {@link MutateRowsBatchingDescriptor} to spool the {@link RowMutationEntry} mutations
+   *       and send them out as {@link BulkMutation}.
+   *   <li>Uses {@link #bulkMutateRowsCallable()} to perform RPC.
+   *   <li>Batching thresholds can be configured from {@link
+   *       EnhancedBigtableStubSettings#bulkMutateRowsSettings()}.
+   *   <li>Process the response and schedule retries. At the end of each attempt, entries that have
+   *       been applied, are filtered from the next attempt. Also, any entries that failed with a
+   *       nontransient error, are filtered from the next attempt. This will continue until there
+   *       are no more entries or there are no more retry attempts left.
+   *   <li>Wrap batch failures in a {@link
+   *       com.google.cloud.bigtable.data.v2.models.MutateRowsException}.
+   *   <li>Split the responses using {@link MutateRowsBatchingDescriptor}.
+   * </ul>
+   */
+  public Batcher<RowMutationEntry, Void> newMutateRowsBatcher(
+      TargetId targetId, @Nullable GrpcCallContext ctx) {
+    return new BatcherImpl<>(
+        settings.bulkMutateRowsSettings().getBatchingDescriptor(),
+        bulkMutateRowsCallable,
+        BulkMutation.create(targetId),
         settings.bulkMutateRowsSettings().getBatchingSettings(),
         clientContext.getExecutor(),
         bulkMutationFlowController,
@@ -859,9 +965,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       @Override
                       public Map<String, String> extract(
                           CheckAndMutateRowRequest checkAndMutateRowRequest) {
+                        String tableName = checkAndMutateRowRequest.getTableName();
+                        String authorizedViewName =
+                            checkAndMutateRowRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", checkAndMutateRowRequest.getTableName(),
-                            "app_profile_id", checkAndMutateRowRequest.getAppProfileId());
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            checkAndMutateRowRequest.getAppProfileId());
                       }
                     })
                 .build(),
@@ -899,9 +1014,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     new RequestParamsExtractor<ReadModifyWriteRowRequest>() {
                       @Override
                       public Map<String, String> extract(ReadModifyWriteRowRequest request) {
+                        String tableName = request.getTableName();
+                        String authorizedViewName = request.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
                         return ImmutableMap.of(
-                            "table_name", request.getTableName(),
-                            "app_profile_id", request.getAppProfileId());
+                            "table_name", tableName, "app_profile_id", request.getAppProfileId());
                       }
                     })
                 .build(),
@@ -1149,6 +1269,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
     return retrying;
   }
+
   // </editor-fold>
 
   // <editor-fold desc="Callable accessors">
@@ -1166,15 +1287,24 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return sampleRowKeysCallable;
   }
 
+  public UnaryCallable<SampleRowKeysRequest, List<KeyOffset>> sampleRowKeysCallableWithRequest() {
+    return sampleRowKeysCallableWithRequest;
+  }
+
   public UnaryCallable<RowMutation, Void> mutateRowCallable() {
     return mutateRowCallable;
   }
 
   /**
-   * Returns the callable chain created in {@link #createBulkMutateRowsCallable()} ()} during stub
+   * Returns the callable chain created in {@link #createMutateRowsBaseCallable()} during stub
    * construction.
    */
   public UnaryCallable<BulkMutation, Void> bulkMutateRowsCallable() {
+    return externalBulkMutateRowsCallable;
+  }
+
+  @InternalApi
+  public UnaryCallable<BulkMutation, MutateRowsAttemptResult> internalBulkMutateRowsCallable() {
     return bulkMutateRowsCallable;
   }
 
@@ -1209,6 +1339,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable() {
     return pingAndWarmCallable;
   }
+
   // </editor-fold>
 
   private SpanName getSpanName(String methodName) {
