@@ -38,6 +38,7 @@ import com.google.api.client.util.Lists;
 import com.google.api.core.ApiFunction;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -56,10 +57,12 @@ import com.google.bigtable.v2.ResponseParams;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
+import com.google.cloud.bigtable.data.v2.models.AuthorizedViewId;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.base.Stopwatch;
@@ -92,6 +95,7 @@ import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -298,6 +302,33 @@ public class BuiltinMetricsTracerTest {
 
     MetricData metricData = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
 
+    long value = getAggregatedValue(metricData, expectedAttributes);
+    assertThat(value).isIn(Range.closed(SERVER_LATENCY, elapsed));
+  }
+
+  @Test
+  public void testReadRowsOperationLatenciesOnAuthorizedView() {
+    String authorizedViewId = "test-authorized-view-id";
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    Lists.newArrayList(
+        stub.readRowsCallable().call(Query.create(AuthorizedViewId.of(TABLE, authorizedViewId))));
+    long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+
+    Attributes expectedAttributes =
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(STREAMING_KEY, true)
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
+
+    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
+
+    MetricData metricData = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
     long value = getAggregatedValue(metricData, expectedAttributes);
     assertThat(value).isIn(Range.closed(SERVER_LATENCY, elapsed));
   }
@@ -510,6 +541,65 @@ public class BuiltinMetricsTracerTest {
 
     verifyAttributes(metricData, expected1);
     verifyAttributes(metricData, expected2);
+  }
+
+  @Test
+  public void testMutateRowsPartialError() throws InterruptedException {
+    Batcher<RowMutationEntry, Void> batcher = stub.newMutateRowsBatcher(TableId.of(TABLE), null);
+    int numMutations = 6;
+    for (int i = 0; i < numMutations; i++) {
+      String key = i % 2 == 0 ? "key" : "fail-key";
+      batcher.add(RowMutationEntry.create(key).setCell("f", "q", "v"));
+    }
+
+    Assert.assertThrows(BatchingException.class, batcher::close);
+
+    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
+    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+
+    Attributes expected =
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.MutateRows")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .put(STREAMING_KEY, false)
+            .build();
+
+    verifyAttributes(metricData, expected);
+  }
+
+  @Test
+  public void testMutateRowsRpcError() {
+    Batcher<RowMutationEntry, Void> batcher =
+        stub.newMutateRowsBatcher(TableId.of(BAD_TABLE_ID), null);
+    int numMutations = 6;
+    for (int i = 0; i < numMutations; i++) {
+      String key = i % 2 == 0 ? "key" : "fail-key";
+      batcher.add(RowMutationEntry.create(key).setCell("f", "q", "v"));
+    }
+
+    Assert.assertThrows(BatchingException.class, batcher::close);
+
+    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
+    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+
+    Attributes expected =
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "NOT_FOUND")
+            .put(TABLE_ID_KEY, BAD_TABLE_ID)
+            .put(ZONE_ID_KEY, "global")
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(METHOD_KEY, "Bigtable.MutateRows")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .put(STREAMING_KEY, false)
+            .build();
+
+    verifyAttributes(metricData, expected);
   }
 
   @Test
@@ -729,12 +819,30 @@ public class BuiltinMetricsTracerTest {
     @Override
     public void mutateRows(
         MutateRowsRequest request, StreamObserver<MutateRowsResponse> responseObserver) {
+      if (request.getTableName().contains(BAD_TABLE_ID)) {
+        responseObserver.onError(new StatusRuntimeException(Status.NOT_FOUND));
+        return;
+      }
       try {
         Thread.sleep(SERVER_LATENCY);
       } catch (InterruptedException e) {
       }
       MutateRowsResponse.Builder builder = MutateRowsResponse.newBuilder();
       for (int i = 0; i < request.getEntriesCount(); i++) {
+        if (request
+            .getEntries(i)
+            .getRowKey()
+            .toString(Charset.availableCharsets().get("UTF-8"))
+            .startsWith("fail")) {
+          builder
+              .addEntriesBuilder()
+              .setIndex(i)
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(com.google.rpc.Code.PERMISSION_DENIED_VALUE)
+                      .build());
+          continue;
+        }
         builder.addEntriesBuilder().setIndex(i);
       }
       responseObserver.onNext(builder.build());
