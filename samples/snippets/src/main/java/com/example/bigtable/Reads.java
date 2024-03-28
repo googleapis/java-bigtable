@@ -105,7 +105,8 @@ public class Reads {
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       Query query =
-          Query.create(TableId.of(tableId)).rowKey("phone#4c410523#20190501")
+          Query.create(TableId.of(tableId))
+              .rowKey("phone#4c410523#20190501")
               .rowKey("phone#4c410523#20190502");
       ServerStream<Row> rows = dataClient.readRows(query);
       for (Row row : rows) {

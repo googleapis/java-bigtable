@@ -30,8 +30,8 @@ public class BatchDeleteExample {
   public void batchDelete(String projectId, String instanceId, String tableId)
       throws InterruptedException, IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
-      try (Batcher<RowMutationEntry, Void> batcher = dataClient.newBulkMutationBatcher(
-          TableId.of(tableId))) {
+      try (Batcher<RowMutationEntry, Void> batcher =
+          dataClient.newBulkMutationBatcher(TableId.of(tableId))) {
         ServerStream<Row> rows = dataClient.readRows(Query.create(TableId.of(tableId)));
         for (Row row : rows) {
           batcher.add(

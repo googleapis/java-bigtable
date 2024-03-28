@@ -50,7 +50,8 @@ public class WriteConditionally {
               .filter(FILTERS.value().regex("PQ2A\\..*"));
 
       ConditionalRowMutation conditionalRowMutation =
-          ConditionalRowMutation.create(TableId.of(tableId), rowkey).condition(filter)
+          ConditionalRowMutation.create(TableId.of(tableId), rowkey)
+              .condition(filter)
               .then(mutation);
 
       boolean success = dataClient.checkAndMutateRow(conditionalRowMutation);
