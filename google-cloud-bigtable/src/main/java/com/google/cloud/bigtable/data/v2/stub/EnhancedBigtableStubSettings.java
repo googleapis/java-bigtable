@@ -46,7 +46,6 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.base.MoreObjects;
@@ -1068,8 +1067,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       featureFlags.setRoutingCookie(this.getEnableRoutingCookie());
       featureFlags.setRetryInfo(this.getEnableRetryInfo());
+      // client_Side_metrics_enabled feature flag is only set when a user is running with a
+      // DefaultMetricsProvider. This may cause false negatives when a user registered the
+      // metrics on their CustomOpenTelemetryMetricsProvider.
       featureFlags.setClientSideMetricsEnabled(
-          !(this.getMetricsProvider() instanceof NoopMetricsProvider));
+          this.getMetricsProvider() instanceof DefaultMetricsProvider);
 
       // Serialize the web64 encode the bigtable feature flags
       ByteArrayOutputStream boas = new ByteArrayOutputStream();

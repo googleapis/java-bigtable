@@ -24,6 +24,7 @@ import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 
 /**
@@ -32,6 +33,8 @@ import javax.annotation.Nullable;
  * and custom sinks. Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
  */
 public class BuiltinMetricsView {
+
+  private static final AtomicBoolean BUILTIN_VIEW_REGISTERED = new AtomicBoolean();
 
   private BuiltinMetricsView() {}
 
@@ -50,6 +53,7 @@ public class BuiltinMetricsView {
       String projectId, @Nullable Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
     MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(projectId, credentials);
+    BUILTIN_VIEW_REGISTERED.set(true);
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
