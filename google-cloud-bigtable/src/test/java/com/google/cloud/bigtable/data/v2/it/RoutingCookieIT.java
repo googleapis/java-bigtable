@@ -73,6 +73,11 @@ public class RoutingCookieIT {
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
 
+    assume()
+        .withMessage("Routing cookie integration test can't run against batch endpoint")
+        .that(testEnvRule.env().getDataEndpoint())
+        .isNotEqualTo("batch-bigtable.googleapis.com:443");
+
     instanceAdminClient = testEnvRule.env().getInstanceAdminClient();
 
     appProfileId = PrefixGenerator.newPrefix("a");
