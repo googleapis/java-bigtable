@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -117,12 +118,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   public static BigtableCloudMonitoringExporter create(
       String projectId, @Nullable Credentials credentials) throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
-    CredentialsProvider credentialsProvider;
-    if (credentials == null) {
-      credentialsProvider = NoCredentialsProvider.create();
-    } else {
-      credentialsProvider = FixedCredentialsProvider.create(credentials);
-    }
+    CredentialsProvider credentialsProvider =
+        Optional.ofNullable(credentials)
+            .<CredentialsProvider>map(FixedCredentialsProvider::create)
+            .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
     settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
 
