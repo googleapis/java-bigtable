@@ -19,6 +19,7 @@ package com.example.bigtable;
 import static com.google.cloud.bigtable.data.v2.models.Filters.FILTERS;
 
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
@@ -174,7 +175,7 @@ public class AuthorizedViewExample {
       System.out.printf("AuthorizedView: %s updated successfully%n", authorizedView.getId());
     } catch (NotFoundException e) {
       System.err.println(
-          "Failed to create an authorized view from a non-existent table: " + e.getMessage());
+          "Failed to modify a non-existent authorized view: " + e.getMessage());
     }
     // [END bigtable_update_authorized_view]
   }
@@ -263,8 +264,13 @@ public class AuthorizedViewExample {
         dataClient.mutateRow(rowMutation);
         System.out.println(greeting);
       }
-    } catch (NotFoundException e) {
-      System.err.println("Failed to write to non-existent authorized view: " + e.getMessage());
+    } catch (Exception e) {
+      if (e instanceof NotFoundException) {
+        System.err.println("Failed to write to non-existent authorized view: " + e.getMessage());
+      } else if (e instanceof PermissionDeniedException) {
+        System.err.println(
+            "Failed to apply mutations outside of the authorized view: " + e.getMessage());
+      }
     }
     // [END bigtable_authorized_view_write_rows]
   }
