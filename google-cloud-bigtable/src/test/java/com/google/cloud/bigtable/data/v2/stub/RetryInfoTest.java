@@ -18,12 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
-import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ErrorDetails;
-import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
@@ -45,6 +42,7 @@ import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
+import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Filters;
@@ -60,17 +58,26 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.protobuf.Any;
 import com.google.rpc.RetryInfo;
+import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.Server;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -78,12 +85,13 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class RetryInfoTest {
 
-  @Rule public GrpcServerRule serverRule = new GrpcServerRule();
-
   private static final Metadata.Key<byte[]> ERROR_DETAILS_KEY =
       Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
+  private static final Set<String> methods = new HashSet<>();
+
   private FakeBigtableService service;
+  private Server server;
   private BigtableDataClient client;
   private BigtableDataSettings.Builder settings;
 
@@ -94,24 +102,61 @@ public class RetryInfoTest {
   @Before
   public void setUp() throws IOException {
     service = new FakeBigtableService();
-    serverRule.getServiceRegistry().addService(service);
+
+    ServerInterceptor serverInterceptor =
+        new ServerInterceptor() {
+          @Override
+          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+              ServerCall<ReqT, RespT> serverCall,
+              Metadata metadata,
+              ServerCallHandler<ReqT, RespT> serverCallHandler) {
+            return serverCallHandler.startCall(
+                new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                  @Override
+                  public void close(Status status, Metadata trailers) {
+                    if (trailers.containsKey(ERROR_DETAILS_KEY)) {
+                      methods.add(serverCall.getMethodDescriptor().getBareMethodName());
+                    }
+                    super.close(status, trailers);
+                  }
+                },
+                metadata);
+          }
+        };
+    server = FakeServiceBuilder.create(service).intercept(serverInterceptor).start();
 
     settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId("fake-project")
-            .setInstanceId("fake-instance")
-            .setCredentialsProvider(NoCredentialsProvider.create());
-
-    settings
-        .stubSettings()
-        .setTransportChannelProvider(
-            FixedTransportChannelProvider.create(
-                GrpcTransportChannel.create(serverRule.getChannel())))
-        // channel priming doesn't work with FixedTransportChannelProvider. Disable it for the test
-        .setRefreshingChannel(false)
-        .build();
+            .setInstanceId("fake-instance");
 
     this.client = BigtableDataClient.create(settings.build());
+  }
+
+  @After
+  public void tearDown() {
+    if (client != null) {
+      client.close();
+    }
+    if (server != null) {
+      server.shutdown();
+    }
+  }
+
+  @AfterClass
+  public static void verify() {
+    // After all the tests are run we verify that the new methods that are added
+    // to data API are tested or excluded. This is enforced by introspecting grpc
+    // method descriptors.
+    Set<String> expected =
+        BigtableGrpc.getServiceDescriptor().getMethods().stream()
+            .map(MethodDescriptor::getBareMethodName)
+            .collect(Collectors.toSet());
+
+    // Exclude methods that don't support retry info
+    methods.add("PingAndWarm");
+
+    assertThat(methods).containsExactlyElementsIn(expected);
   }
 
   @Test
