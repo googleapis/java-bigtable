@@ -43,6 +43,7 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -130,6 +131,7 @@ public class RoutingCookieIT {
   // We set a short deadline on the read rows request of 30 seconds, so if client failed to send
   // the routing cookie to update the cache, the request will get deadline exceeded.
   @Test
+  @Ignore("Server will sleep when app profile is updated so the negative test won't work anymore.")
   public void testRoutingCookieForDataBoost() throws Exception {
     BigtableDataSettings.Builder settings = testEnvRule.env().getDataClientSettings().toBuilder();
 
