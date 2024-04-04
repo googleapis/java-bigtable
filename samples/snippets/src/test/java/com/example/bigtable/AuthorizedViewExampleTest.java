@@ -62,11 +62,14 @@ public class AuthorizedViewExampleTest extends BigtableBaseTest {
   @BeforeClass
   public static void beforeClass() throws IOException {
     initializeVariables();
-    BigtableDataSettings settings = BigtableDataSettings.newBuilder().setProjectId(projectId)
-        .setInstanceId(instanceId).build();
+    BigtableDataSettings settings =
+        BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId).build();
     dataClient = BigtableDataClient.create(settings);
-    BigtableTableAdminSettings adminSettings = BigtableTableAdminSettings.newBuilder()
-        .setProjectId(projectId).setInstanceId(instanceId).build();
+    BigtableTableAdminSettings adminSettings =
+        BigtableTableAdminSettings.newBuilder()
+            .setProjectId(projectId)
+            .setInstanceId(instanceId)
+            .build();
     adminClient = BigtableTableAdminClient.create(adminSettings);
   }
 
@@ -81,12 +84,16 @@ public class AuthorizedViewExampleTest extends BigtableBaseTest {
   public void setup() throws IOException {
     tableId = generateResourceId(TABLE_PREFIX);
     authorizedViewId = generateResourceId(AUTHORIZED_VIEW_PREFIX);
-    authorizedViewExample = new AuthorizedViewExample(projectId, instanceId, tableId,
-        authorizedViewId);
+    authorizedViewExample =
+        new AuthorizedViewExample(projectId, instanceId, tableId, authorizedViewId);
     adminClient.createTable(CreateTableRequest.of(tableId).addFamily(COLUMN_FAMILY));
-    adminClient.createAuthorizedView(CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
-        .setAuthorizedViewType(SubsetView.create().addRowPrefix("")
-            .setFamilySubsets(COLUMN_FAMILY, FamilySubsets.create().addQualifierPrefix(""))));
+    adminClient.createAuthorizedView(
+        CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+            .setAuthorizedViewType(
+                SubsetView.create()
+                    .addRowPrefix("")
+                    .setFamilySubsets(
+                        COLUMN_FAMILY, FamilySubsets.create().addQualifierPrefix(""))));
   }
 
   @After
@@ -107,21 +114,22 @@ public class AuthorizedViewExampleTest extends BigtableBaseTest {
   public void testAuthorizedViewCreateUpdateDelete() throws IOException {
     // Creates an authorized view.
     String testAuthorizedViewId = generateResourceId(AUTHORIZED_VIEW_PREFIX);
-    AuthorizedViewExample testAuthorizedViewExample = new AuthorizedViewExample(projectId,
-        instanceId, tableId, testAuthorizedViewId);
+    AuthorizedViewExample testAuthorizedViewExample =
+        new AuthorizedViewExample(projectId, instanceId, tableId, testAuthorizedViewId);
     testAuthorizedViewExample.createAuthorizedView();
     AuthorizedView authorizedView = adminClient.getAuthorizedView(tableId, testAuthorizedViewId);
     assertEquals(authorizedView.getId(), testAuthorizedViewId);
 
     // Updates the authorized view.
     testAuthorizedViewExample.updateAuthorizedView();
-    AuthorizedView updatedAuthorizedView = adminClient.getAuthorizedView(tableId,
-        testAuthorizedViewId);
+    AuthorizedView updatedAuthorizedView =
+        adminClient.getAuthorizedView(tableId, testAuthorizedViewId);
     assertNotEquals(authorizedView, updatedAuthorizedView);
 
     // Deletes the authorized view.
     testAuthorizedViewExample.deleteAuthorizedView();
-    assertThrows(NotFoundException.class,
+    assertThrows(
+        NotFoundException.class,
         () -> adminClient.getAuthorizedView(tableId, testAuthorizedViewId));
 
     testAuthorizedViewExample.close();
@@ -162,13 +170,24 @@ public class AuthorizedViewExampleTest extends BigtableBaseTest {
     List<String> printedRows = new ArrayList<>();
     for (Row row : rows) {
       for (RowCell cell : row.getCells()) {
-        printedRows.add(String.format("%s_%s_%s:%s", row.getKey().toStringUtf8(), cell.getFamily(),
-            cell.getQualifier().toStringUtf8(), cell.getValue().toStringUtf8()));
+        printedRows.add(
+            String.format(
+                "%s_%s_%s:%s",
+                row.getKey().toStringUtf8(),
+                cell.getFamily(),
+                cell.getQualifier().toStringUtf8(),
+                cell.getValue().toStringUtf8()));
       }
     }
-    String[] expectedRows = new String[]{"rowKey0_cf_greeting:Hello World!",
-        "rowKey0_cf_name:World", "rowKey1_cf_greeting:Hello Bigtable!", "rowKey1_cf_name:Bigtable",
-        "rowKey2_cf_greeting:Hello Java!", "rowKey2_cf_name:Java"};
+    String[] expectedRows =
+        new String[] {
+          "rowKey0_cf_greeting:Hello World!",
+          "rowKey0_cf_name:World",
+          "rowKey1_cf_greeting:Hello Bigtable!",
+          "rowKey1_cf_name:Bigtable",
+          "rowKey2_cf_greeting:Hello Java!",
+          "rowKey2_cf_name:Java"
+        };
     assertEquals(printedRows, Arrays.asList(expectedRows));
   }
 
@@ -189,4 +208,3 @@ public class AuthorizedViewExampleTest extends BigtableBaseTest {
     }
   }
 }
-

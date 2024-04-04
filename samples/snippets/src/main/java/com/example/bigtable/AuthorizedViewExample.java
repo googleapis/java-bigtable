@@ -64,14 +64,14 @@ public class AuthorizedViewExample {
     String projectId = args[0];
     String instanceId = args[1];
 
-    AuthorizedViewExample authorizedViewExample = new AuthorizedViewExample(projectId, instanceId,
-        "test-table",
-        "test-authorized-view");
+    AuthorizedViewExample authorizedViewExample =
+        new AuthorizedViewExample(projectId, instanceId, "test-table", "test-authorized-view");
     authorizedViewExample.run();
   }
 
-  public AuthorizedViewExample(String projectId, String instanceId, String tableId,
-      String authorizedViewId) throws IOException {
+  public AuthorizedViewExample(
+      String projectId, String instanceId, String tableId, String authorizedViewId)
+      throws IOException {
     this.tableId = tableId;
     this.authorizedViewId = authorizedViewId;
 
@@ -116,8 +116,8 @@ public class AuthorizedViewExample {
     // Checks if table exists, creates table if it does not exist.
     if (!adminClient.exists(tableId)) {
       System.out.println("Table does not exist, creating table: " + tableId);
-      CreateTableRequest createTableRequest = CreateTableRequest.of(tableId)
-          .addFamily(COLUMN_FAMILY);
+      CreateTableRequest createTableRequest =
+          CreateTableRequest.of(tableId).addFamily(COLUMN_FAMILY);
       Table table = adminClient.createTable(createTableRequest);
       System.out.printf("Table: %s created successfully%n", table.getId());
     }
@@ -145,10 +145,14 @@ public class AuthorizedViewExample {
       System.out.printf("%nCreating authorized view %s in table %s%n", authorizedViewId, tableId);
       // [START bigtable_create_authorized_view]
       try {
-        CreateAuthorizedViewRequest request = CreateAuthorizedViewRequest.of(
-            tableId, authorizedViewId).setAuthorizedViewType(SubsetView.create().addRowPrefix("")
-            .setFamilySubsets(COLUMN_FAMILY,
-                FamilySubsets.create().addQualifierPrefix(COLUMN_QUALIFIER_NAME)));
+        CreateAuthorizedViewRequest request =
+            CreateAuthorizedViewRequest.of(tableId, authorizedViewId)
+                .setAuthorizedViewType(
+                    SubsetView.create()
+                        .addRowPrefix("")
+                        .setFamilySubsets(
+                            COLUMN_FAMILY,
+                            FamilySubsets.create().addQualifierPrefix(COLUMN_QUALIFIER_NAME)));
         AuthorizedView authorizedView = adminClient.createAuthorizedView(request);
         System.out.printf("AuthorizedView: %s created successfully%n", authorizedView.getId());
       } catch (NotFoundException e) {
@@ -159,30 +163,28 @@ public class AuthorizedViewExample {
     }
   }
 
-  /**
-   * Demonstrates how to modify an authorized view.
-   */
+  /** Demonstrates how to modify an authorized view. */
   public void updateAuthorizedView() {
     System.out.printf("%nUpdating authorized view %s in table %s%n", authorizedViewId, tableId);
     // [START bigtable_update_authorized_view]
     try {
       // Update to an authorized view permitting everything.
-      UpdateAuthorizedViewRequest request = UpdateAuthorizedViewRequest.of(
-          tableId, authorizedViewId).setAuthorizedViewType(
-          SubsetView.create().addRowPrefix("").setFamilySubsets(COLUMN_FAMILY,
-              FamilySubsets.create().addQualifierPrefix("")));
+      UpdateAuthorizedViewRequest request =
+          UpdateAuthorizedViewRequest.of(tableId, authorizedViewId)
+              .setAuthorizedViewType(
+                  SubsetView.create()
+                      .addRowPrefix("")
+                      .setFamilySubsets(
+                          COLUMN_FAMILY, FamilySubsets.create().addQualifierPrefix("")));
       AuthorizedView authorizedView = adminClient.updateAuthorizedView(request);
       System.out.printf("AuthorizedView: %s updated successfully%n", authorizedView.getId());
     } catch (NotFoundException e) {
-      System.err.println(
-          "Failed to modify a non-existent authorized view: " + e.getMessage());
+      System.err.println("Failed to modify a non-existent authorized view: " + e.getMessage());
     }
     // [END bigtable_update_authorized_view]
   }
 
-  /**
-   * Demonstrates how to get an authorized view's metadata.
-   */
+  /** Demonstrates how to get an authorized view's metadata. */
   public AuthorizedView getAuthorizedView() {
     System.out.printf("%nGetting authorized view %s in table %s%n", authorizedViewId, tableId);
     // [START bigtable_get_authorized_view]
@@ -196,12 +198,13 @@ public class AuthorizedViewExample {
       }
       for (Map.Entry<String, FamilySubsets> entry : subsetView.getFamilySubsets().entrySet()) {
         for (ByteString qualifierPrefix : entry.getValue().getQualifierPrefixes()) {
-          System.out.printf("Column Family: %s, Qualifier Prefix: %s%n", entry.getKey(),
-              qualifierPrefix.toStringUtf8());
+          System.out.printf(
+              "Column Family: %s, Qualifier Prefix: %s%n",
+              entry.getKey(), qualifierPrefix.toStringUtf8());
         }
         for (ByteString qualifier : entry.getValue().getQualifiers()) {
-          System.out.printf("Column Family: %s, Qualifier: %s%n", entry.getKey(),
-              qualifier.toStringUtf8());
+          System.out.printf(
+              "Column Family: %s, Qualifier: %s%n", entry.getKey(), qualifier.toStringUtf8());
         }
       }
     } catch (NotFoundException e) {
@@ -212,9 +215,7 @@ public class AuthorizedViewExample {
     return authorizedView;
   }
 
-  /**
-   * Demonstrates how to list all authorized views within a table.
-   */
+  /** Demonstrates how to list all authorized views within a table. */
   public List<String> listAllAuthorizedViews() {
     System.out.printf("%nListing authorized views in table %s%n", tableId);
     // [START bigtable_list_authorized_views]
@@ -232,9 +233,7 @@ public class AuthorizedViewExample {
     return authorizedViewIds;
   }
 
-  /**
-   * Demonstrates how to delete an authorized view.
-   */
+  /** Demonstrates how to delete an authorized view. */
   public void deleteAuthorizedView() {
     System.out.printf("%nDeleting authorized view %s in table %s%n", authorizedViewId, tableId);
     // [START bigtable_delete_authorized_view]
@@ -247,9 +246,7 @@ public class AuthorizedViewExample {
     // [END bigtable_delete_authorized_view]
   }
 
-  /**
-   * Demonstrates how to write some rows to an authorized view.
-   */
+  /** Demonstrates how to write some rows to an authorized view. */
   public void writeToAuthorizedView() {
     // [START bigtable_authorized_view_write_rows]
     try {
@@ -275,15 +272,13 @@ public class AuthorizedViewExample {
     // [END bigtable_authorized_view_write_rows]
   }
 
-  /**
-   * Demonstrates how to read a single row from an authorized view.
-   */
+  /** Demonstrates how to read a single row from an authorized view. */
   public Row readSingleRowFromAuthorizedView() {
     // [START bigtable_authorized_view_get_by_key]
     try {
       System.out.println("\nReading a single row by row key from an authorized view");
-      Row row = dataClient.readRow(AuthorizedViewId.of(tableId, authorizedViewId),
-          ROW_KEY_PREFIX + 0);
+      Row row =
+          dataClient.readRow(AuthorizedViewId.of(tableId, authorizedViewId), ROW_KEY_PREFIX + 0);
       System.out.println("Row: " + row.getKey().toStringUtf8());
       for (RowCell cell : row.getCells()) {
         System.out.printf(
@@ -298,9 +293,7 @@ public class AuthorizedViewExample {
     // [END bigtable_authorized_view_get_by_key]
   }
 
-  /**
-   * Demonstrates how to read rows from an authorized view with a filter.
-   */
+  /** Demonstrates how to read rows from an authorized view with a filter. */
   public List<Row> readRowsWithFilterFromAuthorizedView() {
     // [START bigtable_authorized_view_scan_with_filter]
     try {
