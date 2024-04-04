@@ -53,6 +53,7 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
@@ -76,7 +77,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,7 +88,7 @@ public class RetryInfoTest {
   private static final Metadata.Key<byte[]> ERROR_DETAILS_KEY =
       Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
-  private static final Set<String> methods = new HashSet<>();
+  private final Set<String> methods = new HashSet<>();
 
   private FakeBigtableService service;
   private Server server;
@@ -143,10 +143,60 @@ public class RetryInfoTest {
     }
   }
 
-  @AfterClass
-  public static void verify() {
-    // After all the tests are run we verify that the new methods that are added
-    // to data API are tested or excluded. This is enforced by introspecting grpc
+  @Test
+  public void testAllMethods() {
+    // Verify retry info is handled correctly for all the methods in data API.
+    verifyRetryInfoIsUsed(() -> client.readRow(TableId.of("table"), "row"), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.readRows(Query.create(TableId.of("table"))).iterator().hasNext(), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create(TableId.of("fake-table"))
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.mutateRow(
+                RowMutation.create(TableId.of("fake-table"), "key").setCell("cf", "q", "v")),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(() -> client.sampleRowKeys(TableId.of("table")), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.checkAndMutateRow(
+                ConditionalRowMutation.create("table", "key")
+                    .condition(Filters.FILTERS.value().regex("old-value"))
+                    .then(Mutation.create().setCell("cf", "q", "v"))),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.readModifyWriteRow(
+                ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
+
+    // Verify that the new data API methods are tested or excluded. This is enforced by
+    // introspecting grpc
     // method descriptors.
     Set<String> expected =
         BigtableGrpc.getServiceDescriptor().getMethods().stream()
@@ -157,11 +207,6 @@ public class RetryInfoTest {
     methods.add("PingAndWarm");
 
     assertThat(methods).containsExactlyElementsIn(expected);
-  }
-
-  @Test
-  public void testReadRow() {
-    verifyRetryInfoIsUsed(() -> client.readRow("table", "row"), true);
   }
 
   @Test
@@ -193,11 +238,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testReadRows() {
-    verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), true);
-  }
-
-  @Test
   public void testReadRowsNonRetraybleErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), false);
   }
@@ -224,16 +264,6 @@ public class RetryInfoTest {
     try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
       verifyNoRetryInfo(() -> newClient.readRows(Query.create("table")).iterator().hasNext(), true);
     }
-  }
-
-  @Test
-  public void testMutateRows() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.bulkMutateRows(
-                BulkMutation.create("fake-table")
-                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
-        true);
   }
 
   @Test
@@ -284,12 +314,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testMutateRow() {
-    verifyRetryInfoIsUsed(
-        () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), true);
-  }
-
-  @Test
   public void testMutateRowNonRetryableErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(
         () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), false);
@@ -324,11 +348,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testSampleRowKeys() {
-    verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), true);
-  }
-
-  @Test
   public void testSampleRowKeysNonRetryableErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), false);
   }
@@ -355,17 +374,6 @@ public class RetryInfoTest {
     try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
       verifyNoRetryInfo(() -> newClient.sampleRowKeys("table"), true);
     }
-  }
-
-  @Test
-  public void testCheckAndMutateRow() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.checkAndMutateRow(
-                ConditionalRowMutation.create("table", "key")
-                    .condition(Filters.FILTERS.value().regex("old-value"))
-                    .then(Mutation.create().setCell("cf", "q", "v"))),
-        true);
   }
 
   @Test
@@ -414,15 +422,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testReadModifyWrite() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.readModifyWriteRow(
-                ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
-        true);
-  }
-
-  @Test
   public void testReadModifyWriteDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
@@ -457,13 +456,6 @@ public class RetryInfoTest {
                   ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
           false);
     }
-  }
-
-  @Test
-  public void testReadChangeStream() {
-    verifyRetryInfoIsUsed(
-        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
-        true);
   }
 
   @Test
@@ -508,12 +500,6 @@ public class RetryInfoTest {
           true,
           com.google.protobuf.Duration.newBuilder().setSeconds(5).setNanos(0).build());
     }
-  }
-
-  @Test
-  public void testGenerateInitialChangeStreamPartition() {
-    verifyRetryInfoIsUsed(
-        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
   }
 
   @Test
