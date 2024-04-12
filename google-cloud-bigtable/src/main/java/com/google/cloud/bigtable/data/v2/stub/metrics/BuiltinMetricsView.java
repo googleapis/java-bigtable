@@ -24,6 +24,8 @@ import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
@@ -32,6 +34,8 @@ import javax.annotation.Nullable;
  * and custom sinks. Please refer to {@link CustomOpenTelemetryMetricsProvider} for example usage.
  */
 public class BuiltinMetricsView {
+
+  private static final Logger logger = Logger.getLogger(BuiltinMetricsView.class.getName());
 
   private BuiltinMetricsView() {}
 
@@ -49,11 +53,16 @@ public class BuiltinMetricsView {
   public static void registerBuiltinMetrics(
       String projectId, @Nullable Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
-    MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(projectId, credentials);
-    for (Map.Entry<InstrumentSelector, View> entry :
-        BuiltinMetricsConstants.getAllViews().entrySet()) {
-      builder.registerView(entry.getKey(), entry.getValue());
+    try {
+      MetricExporter metricExporter =
+          BigtableCloudMonitoringExporter.create(projectId, credentials);
+      for (Map.Entry<InstrumentSelector, View> entry :
+          BuiltinMetricsConstants.getAllViews().entrySet()) {
+        builder.registerView(entry.getKey(), entry.getValue());
+      }
+      builder.registerMetricReader(PeriodicMetricReader.create(metricExporter));
+    } catch (Throwable t) {
+      logger.log(Level.WARNING, "Failed to register builtin metrics.", t);
     }
-    builder.registerMetricReader(PeriodicMetricReader.create(metricExporter));
   }
 }
