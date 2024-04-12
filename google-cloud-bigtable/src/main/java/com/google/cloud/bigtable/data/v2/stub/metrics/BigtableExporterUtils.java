@@ -166,7 +166,10 @@ class BigtableExporterUtils {
           break;
       }
     } catch (IllegalStateException e) {
-      logger.log(Level.WARNING, "Failed to create monitored resource for GCE / GKE.", e);
+      logger.log(
+          Level.WARNING,
+          "Failed to create monitored resource for " + detectedPlatform.getSupportedPlatform(),
+          e);
     }
     return monitoredResource;
   }

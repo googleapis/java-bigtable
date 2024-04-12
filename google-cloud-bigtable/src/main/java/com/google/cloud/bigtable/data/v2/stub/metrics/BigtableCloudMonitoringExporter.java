@@ -172,153 +172,143 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   /** Export metrics associated with a BigtableTable resource. */
   private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> collection) {
-    try {
-      // Filter bigtable table metrics
-      List<MetricData> bigtableMetricData =
-          collection.stream()
-              .filter(md -> BIGTABLE_TABLE_METRICS.contains(md.getName()))
-              .collect(Collectors.toList());
+    // Filter bigtable table metrics
+    List<MetricData> bigtableMetricData =
+        collection.stream()
+            .filter(md -> BIGTABLE_TABLE_METRICS.contains(md.getName()))
+            .collect(Collectors.toList());
 
-      // Skips exporting if there's none
-      if (bigtableMetricData.isEmpty()) {
-        return CompletableResultCode.ofSuccess();
-      }
+    // Skips exporting if there's none
+    if (bigtableMetricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
 
-      // Verifies metrics project id are the same as the bigtable project id set on this client
-      if (!bigtableMetricData.stream()
-          .flatMap(metricData -> metricData.getData().getPoints().stream())
-          .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
-        logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
-        return CompletableResultCode.ofFailure();
-      }
-
-      List<TimeSeries> bigtableTimeSeries;
-      try {
-        bigtableTimeSeries =
-            BigtableExporterUtils.convertToBigtableTimeSeries(bigtableMetricData, taskId);
-      } catch (Throwable e) {
-        logger.log(
-            Level.WARNING,
-            "Failed to convert bigtable table metric data to cloud monitoring timeseries.",
-            e);
-        return CompletableResultCode.ofFailure();
-      }
-
-      ProjectName projectName = ProjectName.of(bigtableProjectId);
-      CreateTimeSeriesRequest bigtableRequest =
-          CreateTimeSeriesRequest.newBuilder()
-              .setName(projectName.toString())
-              .addAllTimeSeries(bigtableTimeSeries)
-              .build();
-
-      ApiFuture<Empty> future =
-          this.client.createServiceTimeSeriesCallable().futureCall(bigtableRequest);
-
-      CompletableResultCode bigtableExportCode = new CompletableResultCode();
-      ApiFutures.addCallback(
-          future,
-          new ApiFutureCallback<Empty>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-              logger.log(
-                  Level.WARNING,
-                  "createServiceTimeSeries request failed for bigtable metrics. ",
-                  throwable);
-              bigtableExportCode.fail();
-            }
-
-            @Override
-            public void onSuccess(Empty empty) {
-              bigtableExportCode.succeed();
-            }
-          },
-          MoreExecutors.directExecutor());
-
-      return bigtableExportCode;
-    } catch (Throwable t) {
-      logger.log(Level.WARNING, "Failed to export Bigtable Resource Metrics.", t);
+    // Verifies metrics project id are the same as the bigtable project id set on this client
+    if (!bigtableMetricData.stream()
+        .flatMap(metricData -> metricData.getData().getPoints().stream())
+        .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
+      logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
       return CompletableResultCode.ofFailure();
     }
+
+    List<TimeSeries> bigtableTimeSeries;
+    try {
+      bigtableTimeSeries =
+          BigtableExporterUtils.convertToBigtableTimeSeries(bigtableMetricData, taskId);
+    } catch (Throwable e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to convert bigtable table metric data to cloud monitoring timeseries.",
+          e);
+      return CompletableResultCode.ofFailure();
+    }
+
+    ProjectName projectName = ProjectName.of(bigtableProjectId);
+    CreateTimeSeriesRequest bigtableRequest =
+        CreateTimeSeriesRequest.newBuilder()
+            .setName(projectName.toString())
+            .addAllTimeSeries(bigtableTimeSeries)
+            .build();
+
+    ApiFuture<Empty> future =
+        this.client.createServiceTimeSeriesCallable().futureCall(bigtableRequest);
+
+    CompletableResultCode bigtableExportCode = new CompletableResultCode();
+    ApiFutures.addCallback(
+        future,
+        new ApiFutureCallback<Empty>() {
+          @Override
+          public void onFailure(Throwable throwable) {
+            logger.log(
+                Level.WARNING,
+                "createServiceTimeSeries request failed for bigtable metrics. ",
+                throwable);
+            bigtableExportCode.fail();
+          }
+
+          @Override
+          public void onSuccess(Empty empty) {
+            bigtableExportCode.succeed();
+          }
+        },
+        MoreExecutors.directExecutor());
+
+    return bigtableExportCode;
   }
 
   /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
+    if (applicationResource == null) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    // Filter application level metrics
+    List<MetricData> metricData =
+        collection.stream()
+            .filter(md -> APPLICATION_METRICS.contains(md.getName()))
+            .collect(Collectors.toList());
+
+    // Skip exporting if there's none
+    if (metricData.isEmpty()) {
+      return CompletableResultCode.ofSuccess();
+    }
+
+    List<TimeSeries> timeSeries;
     try {
-      if (applicationResource == null) {
-        return CompletableResultCode.ofSuccess();
-      }
-
-      // Filter application level metrics
-      List<MetricData> metricData =
-          collection.stream()
-              .filter(md -> APPLICATION_METRICS.contains(md.getName()))
-              .collect(Collectors.toList());
-
-      // Skip exporting if there's none
-      if (metricData.isEmpty()) {
-        return CompletableResultCode.ofSuccess();
-      }
-
-      List<TimeSeries> timeSeries;
-      try {
-        timeSeries =
-            BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-                metricData, taskId, applicationResource);
-      } catch (Throwable e) {
-        logger.log(
-            Level.WARNING,
-            "Failed to convert application metric data to cloud monitoring timeseries.",
-            e);
-        return CompletableResultCode.ofFailure();
-      }
-
-      // Construct the request. The project id will be the project id of the detected monitored
-      // resource.
-      ApiFuture<Empty> gceOrGkeFuture;
-      CompletableResultCode exportCode = new CompletableResultCode();
-      try {
-        ProjectName projectName =
-            ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
-        CreateTimeSeriesRequest request =
-            CreateTimeSeriesRequest.newBuilder()
-                .setName(projectName.toString())
-                .addAllTimeSeries(timeSeries)
-                .build();
-
-        gceOrGkeFuture = this.client.createServiceTimeSeriesCallable().futureCall(request);
-
-        ApiFutures.addCallback(
-            gceOrGkeFuture,
-            new ApiFutureCallback<Empty>() {
-              @Override
-              public void onFailure(Throwable throwable) {
-                logger.log(
-                    Level.WARNING,
-                    "createServiceTimeSeries request failed for per connection error metrics.",
-                    throwable);
-                exportCode.fail();
-              }
-
-              @Override
-              public void onSuccess(Empty empty) {
-                exportCode.succeed();
-              }
-            },
-            MoreExecutors.directExecutor());
-
-      } catch (Exception e) {
-        logger.log(
-            Level.WARNING,
-            "Failed to get projectName for application resource " + applicationResource);
-        return CompletableResultCode.ofFailure();
-      }
-
-      return exportCode;
-    } catch (Throwable t) {
-      logger.log(Level.WARNING, "Failed to export Application Resource Metrics.", t);
+      timeSeries =
+          BigtableExporterUtils.convertToApplicationResourceTimeSeries(
+              metricData, taskId, applicationResource);
+    } catch (Throwable e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to convert application metric data to cloud monitoring timeseries.",
+          e);
       return CompletableResultCode.ofFailure();
     }
+
+    // Construct the request. The project id will be the project id of the detected monitored
+    // resource.
+    ApiFuture<Empty> gceOrGkeFuture;
+    CompletableResultCode exportCode = new CompletableResultCode();
+    try {
+      ProjectName projectName =
+          ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
+      CreateTimeSeriesRequest request =
+          CreateTimeSeriesRequest.newBuilder()
+              .setName(projectName.toString())
+              .addAllTimeSeries(timeSeries)
+              .build();
+
+      gceOrGkeFuture = this.client.createServiceTimeSeriesCallable().futureCall(request);
+
+      ApiFutures.addCallback(
+          gceOrGkeFuture,
+          new ApiFutureCallback<Empty>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+              logger.log(
+                  Level.WARNING,
+                  "createServiceTimeSeries request failed for per connection error metrics.",
+                  throwable);
+              exportCode.fail();
+            }
+
+            @Override
+            public void onSuccess(Empty empty) {
+              exportCode.succeed();
+            }
+          },
+          MoreExecutors.directExecutor());
+
+    } catch (Exception e) {
+      logger.log(
+          Level.WARNING,
+          "Failed to get projectName for application resource " + applicationResource);
+      return CompletableResultCode.ofFailure();
+    }
+
+    return exportCode;
   }
 
   @Override
