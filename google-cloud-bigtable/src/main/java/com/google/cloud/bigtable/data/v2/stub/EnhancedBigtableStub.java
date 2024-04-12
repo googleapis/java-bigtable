@@ -246,8 +246,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     OpenTelemetry openTelemetry = null;
     try {
       // We don't want client side metrics to crash the client, so catch any exception when getting
-      // the OTEL instance
-      // and log the exception instead.
+      // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
     } catch (Throwable t) {
