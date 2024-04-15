@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.gaxx.retrying;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
 import com.google.api.gax.retrying.StreamingRetryAlgorithm;
 import com.google.api.gax.rpc.ClientContext;
@@ -45,6 +46,15 @@ public class Callables {
 
     UnaryCallSettings<?, ?> settings = callSettings;
 
+    if (areRetriesDisabled(settings.getRetrySettings())) {
+      // When retries are disabled, the total timeout can be treated as the rpc timeout.
+      settings =
+          settings
+              .toBuilder()
+              .setSimpleTimeoutNoRetries(settings.getRetrySettings().getTotalTimeout())
+              .build();
+    }
+
     RetryAlgorithm<ResponseT> retryAlgorithm =
         new RetryAlgorithm<>(
             new RetryInfoRetryAlgorithm<>(),
@@ -62,6 +72,15 @@ public class Callables {
 
     ServerStreamingCallSettings<RequestT, ResponseT> settings = callSettings;
 
+    if (areRetriesDisabled(settings.getRetrySettings())) {
+      // When retries are disabled, the total timeout can be treated as the rpc timeout.
+      settings =
+          settings
+              .toBuilder()
+              .setSimpleTimeoutNoRetries(settings.getRetrySettings().getTotalTimeout())
+              .build();
+    }
+
     StreamingRetryAlgorithm<Void> retryAlgorithm =
         new StreamingRetryAlgorithm<>(
             new RetryInfoRetryAlgorithm<>(),
@@ -72,5 +91,10 @@ public class Callables {
 
     return new RetryingServerStreamingCallable<>(
         innerCallable, retryingExecutor, settings.getResumptionStrategy());
+  }
+
+  private static boolean areRetriesDisabled(RetrySettings retrySettings) {
+    return retrySettings.getMaxAttempts() == 1
+        || (retrySettings.getMaxAttempts() == 0 && retrySettings.getTotalTimeout().isZero());
   }
 }

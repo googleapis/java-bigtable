@@ -20,6 +20,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
@@ -207,6 +208,49 @@ public class RetryInfoTest {
     methods.add("PingAndWarm");
 
     assertThat(methods).containsExactlyElementsIn(expected);
+  }
+
+  @Test
+  public void testReadRowClientSetNoRetry() throws IOException {
+    settings
+        .stubSettings()
+        .readRowSettings()
+        .setRetrySettings(
+            settings
+                .stubSettings()
+                .readRowSettings()
+                .getRetrySettings()
+                .toBuilder()
+                .setMaxAttempts(1)
+                .setTotalTimeout(org.threeten.bp.Duration.ofMillis(1))
+                .build());
+    service.sleep = 10;
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      assertThrows(
+          DeadlineExceededException.class, () -> newClient.readRow(TableId.of("table"), "row"));
+    }
+  }
+
+  @Test
+  public void testReadRowsClientSetNoRetry() throws IOException {
+    settings
+        .stubSettings()
+        .readRowsSettings()
+        .setRetrySettings(
+            settings
+                .stubSettings()
+                .readRowsSettings()
+                .getRetrySettings()
+                .toBuilder()
+                .setMaxAttempts(1)
+                .setTotalTimeout(org.threeten.bp.Duration.ofMillis(1))
+                .build());
+    service.sleep = 10;
+    try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
+      assertThrows(
+          DeadlineExceededException.class,
+          () -> newClient.readRows(Query.create(TableId.of("table"))).iterator().next());
+    }
   }
 
   @Test
@@ -686,10 +730,16 @@ public class RetryInfoTest {
 
   private class FakeBigtableService extends BigtableGrpc.BigtableImplBase {
     Queue<Exception> expectations = Queues.newArrayDeque();
+    Integer sleep = 0;
 
     @Override
     public void readRows(
         ReadRowsRequest request, StreamObserver<ReadRowsResponse> responseObserver) {
+      try {
+        Thread.sleep(sleep);
+      } catch (InterruptedException e) {
+        // ignore
+      }
       attemptCounter.incrementAndGet();
       if (expectations.isEmpty()) {
         responseObserver.onNext(ReadRowsResponse.getDefaultInstance());
