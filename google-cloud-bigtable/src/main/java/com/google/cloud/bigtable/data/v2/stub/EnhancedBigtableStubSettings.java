@@ -15,13 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.batching.BatchingCallSettings;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.batching.FlowController.LimitExceededBehavior;
-import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.GoogleCredentialsProvider;
 import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
@@ -32,7 +32,6 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
-import com.google.auth.Credentials;
 import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
@@ -45,6 +44,8 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.base.MoreObjects;
@@ -211,6 +212,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
   private final Map<String, String> jwtAudienceMapping;
+  private final boolean enableRoutingCookie;
+  private final boolean enableRetryInfo;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -227,6 +230,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
 
   private final FeatureFlags featureFlags;
+
+  private final MetricsProvider metricsProvider;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -252,6 +257,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
     jwtAudienceMapping = builder.jwtAudienceMapping;
+    enableRoutingCookie = builder.enableRoutingCookie;
+    enableRetryInfo = builder.enableRetryInfo;
+    metricsProvider = builder.metricsProvider;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -311,6 +319,28 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @InternalApi("Used for internal testing")
   public Map<String, String> getJwtAudienceMapping() {
     return jwtAudienceMapping;
+  }
+
+  public MetricsProvider getMetricsProvider() {
+    return metricsProvider;
+  }
+
+  /**
+   * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
+   * server sent back.
+   */
+  @BetaApi("Routing cookie is not currently stable and may change in the future")
+  public boolean getEnableRoutingCookie() {
+    return enableRoutingCookie;
+  }
+
+  /**
+   * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on server
+   * returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+   */
+  @BetaApi("RetryInfo is not currently stable and may change in the future")
+  public boolean getEnableRetryInfo() {
+    return enableRetryInfo;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -592,6 +622,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
     private Map<String, String> jwtAudienceMapping;
+    private boolean enableRoutingCookie;
+    private boolean enableRetryInfo;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -610,6 +642,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private FeatureFlags.Builder featureFlags;
 
+    private MetricsProvider metricsProvider;
+
     /**
      * Initializes a new Builder with sane defaults for all settings.
      *
@@ -624,6 +658,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       primedTableIds = ImmutableList.of();
       jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
+      this.enableRoutingCookie = true;
+      this.enableRetryInfo = true;
+      metricsProvider = DefaultMetricsProvider.INSTANCE;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -742,6 +779,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
       jwtAudienceMapping = settings.jwtAudienceMapping;
+      enableRoutingCookie = settings.enableRoutingCookie;
+      enableRetryInfo = settings.enableRetryInfo;
+      metricsProvider = settings.metricsProvider;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -885,9 +925,71 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
+    /**
+     * Sets the {@link MetricsProvider}.
+     *
+     * <p>By default, this is set to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider#INSTANCE} which will
+     * collect and export client side metrics.
+     *
+     * <p>To disable client side metrics, set it to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider#INSTANCE}.
+     *
+     * <p>To use a custom OpenTelemetry instance, refer to {@link
+     * com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider} on how to
+     * set it up.
+     */
+    public Builder setMetricsProvider(MetricsProvider metricsProvider) {
+      this.metricsProvider = Preconditions.checkNotNull(metricsProvider);
+      return this;
+    }
+
+    /** Gets the {@link MetricsProvider}. */
+    public MetricsProvider getMetricsProvider() {
+      return this.metricsProvider;
+    }
+
     @InternalApi("Used for internal testing")
     public Map<String, String> getJwtAudienceMapping() {
       return jwtAudienceMapping;
+    }
+
+    /**
+     * Sets if routing cookie is enabled. If true, client will retry a request with extra metadata
+     * server sent back.
+     */
+    @BetaApi("Routing cookie is not currently stable and may change in the future")
+    public Builder setEnableRoutingCookie(boolean enableRoutingCookie) {
+      this.enableRoutingCookie = enableRoutingCookie;
+      return this;
+    }
+
+    /**
+     * Gets if routing cookie is enabled. If true, client will retry a request with extra metadata
+     * server sent back.
+     */
+    @BetaApi("Routing cookie is not currently stable and may change in the future")
+    public boolean getEnableRoutingCookie() {
+      return enableRoutingCookie;
+    }
+
+    /**
+     * Sets if RetryInfo is enabled. If true, client bases retry decision and back off time on
+     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     */
+    @BetaApi("RetryInfo is not currently stable and may change in the future")
+    public Builder setEnableRetryInfo(boolean enableRetryInfo) {
+      this.enableRetryInfo = enableRetryInfo;
+      return this;
+    }
+
+    /**
+     * Gets if RetryInfo is enabled. If true, client bases retry decision and back off time on
+     * server returned RetryInfo value. Otherwise, client uses {@link RetrySettings}.
+     */
+    @BetaApi("RetryInfo is not currently stable and may change in the future")
+    public boolean getEnableRetryInfo() {
+      return enableRetryInfo;
     }
 
     /** Returns the builder for the settings used for calls to readRows. */
@@ -953,32 +1055,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
       Preconditions.checkState(instanceId != null, "Instance id must be set");
-      if (isRefreshingChannel) {
-        Preconditions.checkArgument(
-            getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider,
-            "refreshingChannel only works with InstantiatingGrpcChannelProviders");
-        InstantiatingGrpcChannelProvider.Builder channelProviderBuilder =
-            ((InstantiatingGrpcChannelProvider) getTransportChannelProvider()).toBuilder();
-        Credentials credentials = null;
-        if (getCredentialsProvider() != null) {
-          try {
-            credentials = getCredentialsProvider().getCredentials();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-        }
-        // Use shared credentials
-        this.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-        channelProviderBuilder.setChannelPrimer(
-            BigtableChannelPrimer.create(credentials, projectId, instanceId, appProfileId));
-        this.setTransportChannelProvider(channelProviderBuilder.build());
-      }
 
       if (this.bulkMutateRowsSettings().isServerInitiatedFlowControlEnabled()) {
         // only set mutate rows feature flag when this feature is enabled
         featureFlags.setMutateRowsRateLimit(true);
         featureFlags.setMutateRowsRateLimit2(true);
       }
+
+      featureFlags.setRoutingCookie(this.getEnableRoutingCookie());
+      featureFlags.setRetryInfo(this.getEnableRetryInfo());
+      // client_Side_metrics_enabled feature flag is only set when a user is running with a
+      // DefaultMetricsProvider. This may cause false negatives when a user registered the
+      // metrics on their CustomOpenTelemetryMetricsProvider.
+      featureFlags.setClientSideMetricsEnabled(
+          this.getMetricsProvider() instanceof DefaultMetricsProvider);
 
       // Serialize the web64 encode the bigtable feature flags
       ByteArrayOutputStream boas = new ByteArrayOutputStream();
@@ -1016,6 +1106,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
         .add("jwtAudienceMapping", jwtAudienceMapping)
+        .add("enableRoutingCookie", enableRoutingCookie)
+        .add("enableRetryInfo", enableRetryInfo)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)
@@ -1029,6 +1121,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
             generateInitialChangeStreamPartitionsSettings)
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
+        .add("metricsProvider", metricsProvider)
         .add("parent", super.toString())
         .toString();
   }

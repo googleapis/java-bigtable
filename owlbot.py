@@ -105,10 +105,13 @@ java.common_templates(excludes=[
     # todo remove once template is updated
     '.github/ISSUE_TEMPLATE/bug_report.md',
     '.github/PULL_REQUEST_TEMPLATE.md',
+    '.github/trusted-contribution.yml',
     'CONTRIBUTING.md',
     # exclude autogen
     'codecov.yaml',
     # needed for extraFiles
     '.github/release-please.yml',
     'renovate.json',
+    '.kokoro/requirements.in',
+    '.kokoro/requirements.txt'
 ])

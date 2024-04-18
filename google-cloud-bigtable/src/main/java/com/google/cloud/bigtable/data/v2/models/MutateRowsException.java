@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.MutateRowsRequest;
@@ -32,20 +33,6 @@ import javax.annotation.Nullable;
  * were part of that RPC.
  */
 public final class MutateRowsException extends ApiException {
-  // Synthetic status to use for this ApiException subclass.
-  private static final StatusCode LOCAL_STATUS =
-      new StatusCode() {
-        @Override
-        public Code getCode() {
-          return Code.INTERNAL;
-        }
-
-        @Override
-        public Object getTransportCode() {
-          return null;
-        }
-      };
-
   private final List<FailedMutation> failedMutations;
 
   /**
@@ -53,14 +40,36 @@ public final class MutateRowsException extends ApiException {
    * applications.
    */
   @InternalApi
-  public MutateRowsException(
+  public static MutateRowsException create(
       @Nullable Throwable rpcError,
+      StatusCode status,
       @Nonnull List<FailedMutation> failedMutations,
       boolean retryable) {
-    super("Some mutations failed to apply", rpcError, LOCAL_STATUS, retryable);
+    ErrorDetails errorDetails = null;
+    if (rpcError instanceof ApiException) {
+      errorDetails = ((ApiException) rpcError).getErrorDetails();
+    }
+
+    return new MutateRowsException(rpcError, status, failedMutations, retryable, errorDetails);
+  }
+
+  private MutateRowsException(
+      @Nullable Throwable rpcError,
+      StatusCode status,
+      @Nonnull List<FailedMutation> failedMutations,
+      boolean retryable,
+      @Nullable ErrorDetails errorDetails) {
+    super(rpcError, status, retryable, errorDetails);
     Preconditions.checkNotNull(failedMutations);
     Preconditions.checkArgument(!failedMutations.isEmpty(), "failedMutations can't be empty");
     this.failedMutations = failedMutations;
+  }
+
+  // TODO: remove this after we add a ctor in gax to pass in a Throwable, a message and error
+  // details.
+  @Override
+  public String getMessage() {
+    return "Some mutations failed to apply";
   }
 
   /**

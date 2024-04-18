@@ -1,5 +1,148 @@
 # Changelog
 
+## [2.38.0](https://github.com/googleapis/java-bigtable/compare/v2.37.0...v2.38.0) (2024-04-15)
+
+
+### Features
+
+* Add Data Boost configurations to admin API ([f29c5bb](https://github.com/googleapis/java-bigtable/commit/f29c5bba08daffe2721454db1714f6ea6f47fc66))
+* Add feature flag for client side metrics ([#2179](https://github.com/googleapis/java-bigtable/issues/2179)) ([f29c5bb](https://github.com/googleapis/java-bigtable/commit/f29c5bba08daffe2721454db1714f6ea6f47fc66))
+* Migrate to OTEL and enable metrics by default ([#2166](https://github.com/googleapis/java-bigtable/issues/2166)) ([1682939](https://github.com/googleapis/java-bigtable/commit/168293937cc7f438a3ec2dee46805aa8e12089c4))
+
+
+### Bug Fixes
+
+* Add more error handling ([#2203](https://github.com/googleapis/java-bigtable/issues/2203)) ([c2a63f7](https://github.com/googleapis/java-bigtable/commit/c2a63f7627f2aa6e2e51ec3e185abfa5234ad3e4))
+* Fix export to log detect resource errors ([#2197](https://github.com/googleapis/java-bigtable/issues/2197)) ([d32fbb7](https://github.com/googleapis/java-bigtable/commit/d32fbb78bbde2ad04103ab7b2c1176a6df72d0a3))
+
+## [2.37.0](https://github.com/googleapis/java-bigtable/compare/v2.36.0...v2.37.0) (2024-03-27)
+
+
+### Features
+
+* Add admin APIs for AuthorizedView ([#2175](https://github.com/googleapis/java-bigtable/issues/2175)) ([13d1df3](https://github.com/googleapis/java-bigtable/commit/13d1df3910e3041b57485a09317f717932b21727))
+* Support AuthorizedView in bigtable data client  ([#2177](https://github.com/googleapis/java-bigtable/issues/2177)) ([4b255d0](https://github.com/googleapis/java-bigtable/commit/4b255d0160b0ea30a4ab6453ccae278f40d32ee2))
+
+
+### Bug Fixes
+
+* Update the accounting of partial batch mutations ([#2149](https://github.com/googleapis/java-bigtable/issues/2149)) ([4158094](https://github.com/googleapis/java-bigtable/commit/4158094c34c85b1540197256f98e8880962fb13d))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2174](https://github.com/googleapis/java-bigtable/issues/2174)) ([f313f14](https://github.com/googleapis/java-bigtable/commit/f313f1410f28df15438d83acaa74b715c752abdd))
+
+## [2.36.0](https://github.com/googleapis/java-bigtable/compare/v2.35.1...v2.36.0) (2024-03-13)
+
+
+### Features
+
+* Add models for type APIs ([#2160](https://github.com/googleapis/java-bigtable/issues/2160)) ([8277ea8](https://github.com/googleapis/java-bigtable/commit/8277ea828491d39b9c3c2e67c1a03927e2a744d9))
+* Publish new bigtable APIs for types and aggregates ([#2158](https://github.com/googleapis/java-bigtable/issues/2158)) ([430dffe](https://github.com/googleapis/java-bigtable/commit/430dffe0ff5916d9c3d7cfd7d35ca13514fd8934))
+
+## [2.35.1](https://github.com/googleapis/java-bigtable/compare/v2.35.0...v2.35.1) (2024-03-07)
+
+
+### Dependencies
+
+* Update shared dependencies ([#2140](https://github.com/googleapis/java-bigtable/issues/2140)) ([a6c9f9b](https://github.com/googleapis/java-bigtable/commit/a6c9f9bc7781535d80c4a44cb350052d6771b2e0))
+
+## [2.35.0](https://github.com/googleapis/java-bigtable/compare/v2.34.0...v2.35.0) (2024-03-05)
+
+
+### Features
+
+* Add authorized view bindings to Cloud Bigtable data APIs and messages ([#2144](https://github.com/googleapis/java-bigtable/issues/2144)) ([ae89709](https://github.com/googleapis/java-bigtable/commit/ae89709514921f7f362b7bf6057ec2f01e50046d))
+
+
+### Bug Fixes
+
+* Per-connection metrics issue when using a different Bigtable project ([#2143](https://github.com/googleapis/java-bigtable/issues/2143)) ([8dbd680](https://github.com/googleapis/java-bigtable/commit/8dbd680abc1ad13ad33981c67f8349f63432b7ea))
+
+## [2.34.0](https://github.com/googleapis/java-bigtable/compare/v2.33.0...v2.34.0) (2024-02-21)
+
+
+### Features
+
+* Add the export logic for per-connection error rate metric ([#2121](https://github.com/googleapis/java-bigtable/issues/2121)) ([d053f2d](https://github.com/googleapis/java-bigtable/commit/d053f2dc98eb8576f33471d728c6fbf32d537ece))
+* Create the backbone of counting errors per connection each minute. ([#2094](https://github.com/googleapis/java-bigtable/issues/2094)) ([7d27816](https://github.com/googleapis/java-bigtable/commit/7d27816b959a06412f59f49023611f0bca8e3536))
+
+
+### Dependencies
+
+* Update actions/setup-java action to v4 ([#2106](https://github.com/googleapis/java-bigtable/issues/2106)) ([a694296](https://github.com/googleapis/java-bigtable/commit/a694296a76faefe31585aabc9dce0adcf4a342bf))
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.30.0 ([#2126](https://github.com/googleapis/java-bigtable/issues/2126)) ([f613bd0](https://github.com/googleapis/java-bigtable/commit/f613bd0dd449d218a0d8b6d20344155f9762cfb1))
+* Update dependency com.google.cloud:sdk-platform-java-config to v3.25.0 ([#2113](https://github.com/googleapis/java-bigtable/issues/2113)) ([ba1973e](https://github.com/googleapis/java-bigtable/commit/ba1973e20c4cbb9be778840cc202eb7e4daf04f4))
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.4.1 ([#2119](https://github.com/googleapis/java-bigtable/issues/2119)) ([0a7ad66](https://github.com/googleapis/java-bigtable/commit/0a7ad66fa9e2c1858f51c25d1ea01b26da0b944f))
+* Update dependency org.graalvm.buildtools:junit-platform-native to v0.10.1 ([#2122](https://github.com/googleapis/java-bigtable/issues/2122)) ([99ec284](https://github.com/googleapis/java-bigtable/commit/99ec28425c2caac6a992cb7edd83f2029cce92ec))
+* Update dependency org.graalvm.buildtools:native-maven-plugin to v0.10.1 ([#2123](https://github.com/googleapis/java-bigtable/issues/2123)) ([12d961a](https://github.com/googleapis/java-bigtable/commit/12d961aad5d15feb27a7996de8b9a626fcdfbc5b))
+
+## [2.33.0](https://github.com/googleapis/java-bigtable/compare/v2.32.0...v2.33.0) (2024-02-12)
+
+
+### Features
+
+* Define the metrics for collecting per connection error count. ([#2088](https://github.com/googleapis/java-bigtable/issues/2088)) ([b212bbf](https://github.com/googleapis/java-bigtable/commit/b212bbfcfb2d8c2e2fdc2fc3609976c8a462f677))
+
+
+### Bug Fixes
+
+* Deflake Backup integration tests due to deleteBackup timeouts ([#2105](https://github.com/googleapis/java-bigtable/issues/2105)) ([0948da7](https://github.com/googleapis/java-bigtable/commit/0948da7885958556c85ce333cf13b36896ddc154))
+* Extend timeouts for deleting snapshots, backups and tables ([#2108](https://github.com/googleapis/java-bigtable/issues/2108)) ([df1d307](https://github.com/googleapis/java-bigtable/commit/df1d307255abbe77050c2c24f934b13bb82eb212))
+
+
+### Dependencies
+
+* **autogen:** Set packed = false on field_behavior extension ([#2101](https://github.com/googleapis/java-bigtable/issues/2101)) ([7c438c6](https://github.com/googleapis/java-bigtable/commit/7c438c603f3893946f73b2d69f2e0901ac9b044a))
+* Update actions/setup-java action to v4 ([#2099](https://github.com/googleapis/java-bigtable/issues/2099)) ([a6c7c77](https://github.com/googleapis/java-bigtable/commit/a6c7c779df39b151202d765728c853a7bdcd3d18))
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.29.0 ([#2109](https://github.com/googleapis/java-bigtable/issues/2109)) ([ef88519](https://github.com/googleapis/java-bigtable/commit/ef8851976898f595f53bbc239d4f1731893d924b))
+* Update dependency com.google.cloud:sdk-platform-java-config to v3.24.0 ([#2085](https://github.com/googleapis/java-bigtable/issues/2085)) ([3851a5e](https://github.com/googleapis/java-bigtable/commit/3851a5e7db5ae3d3c1d29e6f97fc37815c8b70d1))
+* Update dependency org.graalvm.buildtools:junit-platform-native to v0.10.0 ([#2091](https://github.com/googleapis/java-bigtable/issues/2091)) ([2516a09](https://github.com/googleapis/java-bigtable/commit/2516a095c8305a4193bbadf6c08395f6d718e1d0))
+* Update protobuf to 25.2 in WORKSPACE ([#2086](https://github.com/googleapis/java-bigtable/issues/2086)) ([3eafcee](https://github.com/googleapis/java-bigtable/commit/3eafcee16f7a5e357fc8617120ee875d32fc415d))
+
+## [2.32.0](https://github.com/googleapis/java-bigtable/compare/v2.31.0...v2.32.0) (2024-01-25)
+
+
+### Features
+
+* Append version to the client name in client-side metrics. ([#2062](https://github.com/googleapis/java-bigtable/issues/2062)) ([9a0cdc8](https://github.com/googleapis/java-bigtable/commit/9a0cdc8cb8e2c52fde403eb316d28bf99c55a1e7))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.32.0 ([#2060](https://github.com/googleapis/java-bigtable/issues/2060)) ([c218ac3](https://github.com/googleapis/java-bigtable/commit/c218ac3571360c85171dac71b915ad6776d97589))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:google-cloud-shared-dependencies to v3.23.0 ([#2076](https://github.com/googleapis/java-bigtable/issues/2076)) ([5d1079c](https://github.com/googleapis/java-bigtable/commit/5d1079c2d1ced39b656773ff17743cb4e08a6126))
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.3.0 ([#2058](https://github.com/googleapis/java-bigtable/issues/2058)) ([1622a9f](https://github.com/googleapis/java-bigtable/commit/1622a9f34d6818952eb283eba01992dc48a9df25))
+* Update shared dependencies ([#2056](https://github.com/googleapis/java-bigtable/issues/2056)) ([f73ba40](https://github.com/googleapis/java-bigtable/commit/f73ba4099b497a78f82a1ad61b91035380955c21))
+
+## [2.31.0](https://github.com/googleapis/java-bigtable/compare/v2.30.0...v2.31.0) (2024-01-12)
+
+
+### Features
+
+* Add a flag to add / remove routing cookie from callable chain ([#2032](https://github.com/googleapis/java-bigtable/issues/2032)) ([201e631](https://github.com/googleapis/java-bigtable/commit/201e631f893b1edacdd5760c1d180b212dc9e38a))
+* Adding feature flags for routing cookie and retry info ([#2031](https://github.com/googleapis/java-bigtable/issues/2031)) ([08c5bf1](https://github.com/googleapis/java-bigtable/commit/08c5bf1fd76258387135c8c3abe75f13bcdcc1f6))
+* Count row merging errors as internal errors ([#2045](https://github.com/googleapis/java-bigtable/issues/2045)) ([fc7845b](https://github.com/googleapis/java-bigtable/commit/fc7845bd4cefca05bccc4dc3a9f727fd20f5adf6))
+* Enable feature flag when setting is enabled ([#2043](https://github.com/googleapis/java-bigtable/issues/2043)) ([e0d90db](https://github.com/googleapis/java-bigtable/commit/e0d90db67b3ea52d833f7d6bcd78e3f7e91ff301))
+* Handle retry info so client respect the delay server sets ([#2026](https://github.com/googleapis/java-bigtable/issues/2026)) ([f1b7fc7](https://github.com/googleapis/java-bigtable/commit/f1b7fc79ad3fd9006e430e48430331b360bb22e3))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.31.0 ([#2044](https://github.com/googleapis/java-bigtable/issues/2044)) ([d9042a5](https://github.com/googleapis/java-bigtable/commit/d9042a567f284424efb4af69f757883c9781dce3))
+* Fix RetryInfo algorithm and tests ([#2041](https://github.com/googleapis/java-bigtable/issues/2041)) ([dad7517](https://github.com/googleapis/java-bigtable/commit/dad751736112323c578b3c90d9587fc182105747))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.27.0 ([#2030](https://github.com/googleapis/java-bigtable/issues/2030)) ([a492d02](https://github.com/googleapis/java-bigtable/commit/a492d02bdc52cb81d8804a4d7cd363b5807bdd47))
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.2.0 ([#2035](https://github.com/googleapis/java-bigtable/issues/2035)) ([46e1e03](https://github.com/googleapis/java-bigtable/commit/46e1e0335f9969fa1b60acdf17e9b8abbc312ca2))
+
 ## [2.30.0](https://github.com/googleapis/java-bigtable/compare/v2.29.1...v2.30.0) (2023-12-05)
 
 

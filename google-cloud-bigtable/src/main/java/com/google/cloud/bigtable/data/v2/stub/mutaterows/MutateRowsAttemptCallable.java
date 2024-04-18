@@ -19,7 +19,9 @@ import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingFuture;
+import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ApiExceptionFactory;
@@ -85,7 +87,7 @@ import javax.annotation.Nullable;
  *
  * <p>Package-private for internal use.
  */
-class MutateRowsAttemptCallable implements Callable<Void> {
+class MutateRowsAttemptCallable implements Callable<MutateRowsAttemptResult> {
   // Synthetic status for Mutations that didn't get a result (because the whole RPC failed). It will
   // be exposed in MutateRowsException's FailedMutations.
   private static final StatusCode LOCAL_UNKNOWN_STATUS =
@@ -110,19 +112,21 @@ class MutateRowsAttemptCallable implements Callable<Void> {
   @Nullable private List<Integer> originalIndexes;
   @Nonnull private final Set<StatusCode.Code> retryableCodes;
   @Nullable private final List<FailedMutation> permanentFailures;
+  @Nonnull private final RetryAlgorithm<MutateRowsRequest> retryAlgorithm;
+  @Nonnull private TimedAttemptSettings attemptSettings;
 
   // Parent controller
-  private RetryingFuture<Void> externalFuture;
+  private RetryingFuture<MutateRowsAttemptResult> externalFuture;
 
   // Simple wrappers for handling result futures
-  private final ApiFunction<List<MutateRowsResponse>, Void> attemptSuccessfulCallback =
-      new ApiFunction<List<MutateRowsResponse>, Void>() {
-        @Override
-        public Void apply(List<MutateRowsResponse> responses) {
-          handleAttemptSuccess(responses);
-          return null;
-        }
-      };
+  private final ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptResult>
+      attemptSuccessfulCallback =
+          new ApiFunction<List<MutateRowsResponse>, MutateRowsAttemptResult>() {
+            @Override
+            public MutateRowsAttemptResult apply(List<MutateRowsResponse> responses) {
+              return handleAttemptSuccess(responses);
+            }
+          };
 
   private final ApiFunction<Throwable, List<MutateRowsResponse>> attemptFailedCallback =
       new ApiFunction<Throwable, List<MutateRowsResponse>>() {
@@ -137,16 +141,19 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       @Nonnull UnaryCallable<MutateRowsRequest, List<MutateRowsResponse>> innerCallable,
       @Nonnull MutateRowsRequest originalRequest,
       @Nonnull ApiCallContext callContext,
-      @Nonnull Set<StatusCode.Code> retryableCodes) {
+      @Nonnull Set<StatusCode.Code> retryableCodes,
+      @Nonnull RetryAlgorithm<MutateRowsRequest> retryAlgorithm) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "innerCallable");
     this.currentRequest = Preconditions.checkNotNull(originalRequest, "currentRequest");
     this.callContext = Preconditions.checkNotNull(callContext, "callContext");
     this.retryableCodes = Preconditions.checkNotNull(retryableCodes, "retryableCodes");
+    this.retryAlgorithm = retryAlgorithm;
+    this.attemptSettings = retryAlgorithm.createFirstAttempt();
 
     permanentFailures = Lists.newArrayList();
   }
 
-  public void setExternalFuture(RetryingFuture<Void> externalFuture) {
+  public void setExternalFuture(RetryingFuture<MutateRowsAttemptResult> externalFuture) {
     this.externalFuture = externalFuture;
   }
 
@@ -159,7 +166,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
    * return of this method should just be ignored.
    */
   @Override
-  public Void call() {
+  public MutateRowsAttemptResult call() {
     try {
       // externalFuture is set from MutateRowsRetryingCallable before invoking this method. It
       // shouldn't be null unless the code changed
@@ -185,7 +192,7 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       }
 
       // Handle concurrent cancellation
-      externalFuture.setAttemptFuture(new NonCancellableFuture<Void>());
+      externalFuture.setAttemptFuture(new NonCancellableFuture<>());
       if (externalFuture.isDone()) {
         return null;
       }
@@ -201,13 +208,13 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
       // Inspect the results and either propagate the success, or prepare to retry the failed
       // mutations
-      ApiFuture<Void> transformed =
+      ApiFuture<MutateRowsAttemptResult> transformed =
           ApiFutures.transform(catching, attemptSuccessfulCallback, MoreExecutors.directExecutor());
 
       // Notify the parent of the attempt
       externalFuture.setAttemptFuture(transformed);
     } catch (Throwable e) {
-      externalFuture.setAttemptFuture(ApiFutures.<Void>immediateFailedFuture(e));
+      externalFuture.setAttemptFuture(ApiFutures.immediateFailedFuture(e));
     }
 
     return null;
@@ -229,13 +236,15 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     Builder builder = lastRequest.toBuilder().clearEntries();
     List<Integer> newOriginalIndexes = Lists.newArrayList();
 
+    attemptSettings = retryAlgorithm.createNextAttempt(null, entryError, null, attemptSettings);
+
     for (int i = 0; i < currentRequest.getEntriesCount(); i++) {
       int origIndex = getOriginalIndex(i);
 
       FailedMutation failedMutation = FailedMutation.create(origIndex, entryError);
       allFailures.add(failedMutation);
 
-      if (!failedMutation.getError().isRetryable()) {
+      if (!retryAlgorithm.shouldRetry(null, failedMutation.getError(), null, attemptSettings)) {
         permanentFailures.add(failedMutation);
       } else {
         // Schedule the mutation entry for the next RPC by adding it to the request builder and
@@ -248,7 +257,8 @@ class MutateRowsAttemptCallable implements Callable<Void> {
     currentRequest = builder.build();
     originalIndexes = newOriginalIndexes;
 
-    throw new MutateRowsException(rpcError, allFailures.build(), entryError.isRetryable());
+    throw MutateRowsException.create(
+        rpcError, entryError.getStatusCode(), allFailures.build(), builder.getEntriesCount() > 0);
   }
 
   /**
@@ -256,9 +266,9 @@ class MutateRowsAttemptCallable implements Callable<Void> {
    * transient failures are found, their corresponding mutations are scheduled for the next RPC. The
    * caller is notified of both new found errors and pre-existing permanent errors in the thrown
    * {@link MutateRowsException}. If no errors exist, then the attempt future is successfully
-   * completed.
+   * completed. We don't currently handle RetryInfo on entry level failures.
    */
-  private void handleAttemptSuccess(List<MutateRowsResponse> responses) {
+  private MutateRowsAttemptResult handleAttemptSuccess(List<MutateRowsResponse> responses) {
     List<FailedMutation> allFailures = Lists.newArrayList(permanentFailures);
     MutateRowsRequest lastRequest = currentRequest;
 
@@ -317,8 +327,9 @@ class MutateRowsAttemptCallable implements Callable<Void> {
 
     if (!allFailures.isEmpty()) {
       boolean isRetryable = builder.getEntriesCount() > 0;
-      throw new MutateRowsException(null, allFailures, isRetryable);
+      return MutateRowsAttemptResult.create(allFailures, isRetryable);
     }
+    return MutateRowsAttemptResult.success();
   }
 
   /**
@@ -352,10 +363,10 @@ class MutateRowsAttemptCallable implements Callable<Void> {
       ApiException requestApiException = (ApiException) overallRequestError;
 
       return ApiExceptionFactory.createException(
-          "Didn't receive a result for this mutation entry",
           overallRequestError,
           requestApiException.getStatusCode(),
-          requestApiException.isRetryable());
+          requestApiException.isRetryable(),
+          requestApiException.getErrorDetails());
     }
 
     return ApiExceptionFactory.createException(
