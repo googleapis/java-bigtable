@@ -458,8 +458,8 @@ public final class AppProfile {
 
   /**
    * A Data Boost Read Only {@link IsolationPolicy} for running high-throughput read traffic on your
-   * Bigtable data without affecting application traffic. When created with ComputeBillingOwner,
-   * Compute Billing Owner specifies how usage should be accounted when using Data Boost.
+   * Bigtable data without affecting application traffic. Data Boost App Profile needs to be created
+   * with a ComputeBillingOwner which specifies how usage should be accounted when using Data Boost.
    */
   public static class DataBoostIsolationReadOnlyPolicy implements IsolationPolicy {
     private final DataBoostIsolationReadOnly proto;
@@ -477,11 +477,6 @@ public final class AppProfile {
           DataBoostIsolationReadOnly.newBuilder()
               .setComputeBillingOwner(billingOwner.toProto())
               .build());
-    }
-
-    /** Creates a new instance of {@link DataBoostIsolationReadOnlyPolicy}. */
-    public static DataBoostIsolationReadOnlyPolicy of() {
-      return new DataBoostIsolationReadOnlyPolicy(DataBoostIsolationReadOnly.getDefaultInstance());
     }
 
     /**

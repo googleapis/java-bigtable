@@ -261,27 +261,17 @@ public class BigtableInstanceAdminClientIT {
 
       CreateAppProfileRequest request =
           CreateAppProfileRequest.of(newInstanceId, testAppProfile)
-              .setIsolationPolicy(AppProfile.DataBoostIsolationReadOnlyPolicy.of())
+              .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(newClusterId))
+              .setIsolationPolicy(
+                  AppProfile.DataBoostIsolationReadOnlyPolicy.of(
+                      AppProfile.ComputeBillingOwner.HOST_PAYS))
               .setDescription("databoost app profile");
 
       AppProfile newlyCreateAppProfile = client.createAppProfile(request);
       AppProfile.ComputeBillingOwner computeBillingOwner =
           ((AppProfile.DataBoostIsolationReadOnlyPolicy) newlyCreateAppProfile.getIsolationPolicy())
               .getComputeBillingOwner();
-      assertThat(computeBillingOwner).isEqualTo(AppProfile.ComputeBillingOwner.UNSPECIFIED);
-
-      client.updateAppProfile(
-          UpdateAppProfileRequest.of(newlyCreateAppProfile)
-              .setIsolationPolicy(
-                  AppProfile.DataBoostIsolationReadOnlyPolicy.of(
-                      AppProfile.ComputeBillingOwner.HOST_PAYS)));
-
-      AppProfile freshAppProfile = client.getAppProfile(newInstanceId, testAppProfile);
-      AppProfile.ComputeBillingOwner freshBillingOwner =
-          ((AppProfile.DataBoostIsolationReadOnlyPolicy) freshAppProfile.getIsolationPolicy())
-              .getComputeBillingOwner();
-      assertThat(freshBillingOwner).isEqualTo(AppProfile.ComputeBillingOwner.HOST_PAYS);
-
+      assertThat(computeBillingOwner).isEqualTo(AppProfile.ComputeBillingOwner.HOST_PAYS);
     } finally {
       if (client.exists(newInstanceId)) {
         client.deleteInstance(newInstanceId);
