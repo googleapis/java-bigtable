@@ -416,7 +416,8 @@ public final class AppProfile {
   /** Compute Billing Owner specifies how usage should be accounted when using Data Boost. */
   public static enum ComputeBillingOwner {
     UNSPECIFIED(DataBoostIsolationReadOnly.ComputeBillingOwner.COMPUTE_BILLING_OWNER_UNSPECIFIED),
-    HOST_PAYS(DataBoostIsolationReadOnly.ComputeBillingOwner.HOST_PAYS);
+    HOST_PAYS(DataBoostIsolationReadOnly.ComputeBillingOwner.HOST_PAYS),
+    UNRECOGNIZED(DataBoostIsolationReadOnly.ComputeBillingOwner.UNRECOGNIZED);
 
     private final com.google.bigtable.admin.v2.AppProfile.DataBoostIsolationReadOnly
             .ComputeBillingOwner
@@ -438,7 +439,7 @@ public final class AppProfile {
         }
       }
 
-      throw new IllegalArgumentException("Unknown billing owner: " + proto);
+      return UNRECOGNIZED;
     }
 
     /**
@@ -457,7 +458,8 @@ public final class AppProfile {
 
   /**
    * A Data Boost Read Only {@link IsolationPolicy} for running high-throughput read traffic on your
-   * Bigtable data without affecting application traffic.
+   * Bigtable data without affecting application traffic. When created with ComputeBillingOwner,
+   * Compute Billing Owner specifies how usage should be accounted when using Data Boost.
    */
   public static class DataBoostIsolationReadOnlyPolicy implements IsolationPolicy {
     private final DataBoostIsolationReadOnly proto;
