@@ -21,6 +21,7 @@ import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.time.Instant;
@@ -28,7 +29,7 @@ import java.time.temporal.ChronoUnit;
 
 public class MobileTimeSeriesBaseTest extends BigtableBaseTest {
 
-  public static final String TABLE_ID = generateTableId("mobile-time-series");
+  public static final String TABLE_ID = generateResourceId("mobile-time-series");
   public static final String COLUMN_FAMILY_NAME_STATS = "stats_summary";
   public static final String COLUMN_FAMILY_NAME_PLAN = "cell_plan";
   public static final Instant CURRENT_TIME = Instant.now();
@@ -53,7 +54,7 @@ public class MobileTimeSeriesBaseTest extends BigtableBaseTest {
   public static void writeStatsData() throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       BulkMutation bulkMutation =
-          BulkMutation.create(TABLE_ID)
+          BulkMutation.create(TableId.of(TABLE_ID))
               .add(
                   "phone#4c410523#20190501",
                   Mutation.create()
@@ -135,7 +136,7 @@ public class MobileTimeSeriesBaseTest extends BigtableBaseTest {
   public static void writePlanData() throws IOException {
     try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
       BulkMutation bulkMutation =
-          BulkMutation.create(TABLE_ID)
+          BulkMutation.create(TableId.of(TABLE_ID))
               .add(
                   "phone#4c410523#20190501",
                   Mutation.create()
