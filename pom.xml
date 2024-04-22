@@ -4,7 +4,7 @@
 
     <artifactId>google-cloud-bigtable-parent</artifactId>
     <packaging>pom</packaging>
-    <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
     <name>Google Cloud Bigtable Parent</name>
     <url>https://github.com/googleapis/java-bigtable</url>
     <description>
@@ -153,27 +153,27 @@
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-v2</artifactId>
-                <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-v2:current} -->
+                <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-admin-v2</artifactId>
-                <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-admin-v2:current} -->
+                <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:proto-google-cloud-bigtable-admin-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>grpc-google-cloud-bigtable-v2</artifactId>
-                <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-v2:current} -->
+                <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>grpc-google-cloud-bigtable-admin-v2</artifactId>
-                <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-admin-v2:current} -->
+                <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:grpc-google-cloud-bigtable-admin-v2:current} -->
             </dependency>
             <dependency>
                 <groupId>com.google.cloud</groupId>
                 <artifactId>google-cloud-bigtable</artifactId>
-                <version>2.37.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+                <version>2.38.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
             </dependency>
             <!-- Test Deps in alphabetical order -->
             <dependency>
@@ -346,22 +346,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-
-        <profile>
-            <!-- Shading workaround for IDEs: This project relocates some of its internal dependencies. Since IDEs can't
-             resolve the relocated symbols on their own, a workaround is added: first mvn install the shaded module,
-             then disable the with-shaded profile to force IDEs to resolve the relocated dependencies from the local
-             repository -->
-            <id>with-shaded</id>
-            <activation>
-                <property>
-                    <name>!skip-shaded</name>
-                </property>
-            </activation>
-            <modules>
-                <module>google-cloud-bigtable-stats</module>
-            </modules>
         </profile>
     </profiles>
 

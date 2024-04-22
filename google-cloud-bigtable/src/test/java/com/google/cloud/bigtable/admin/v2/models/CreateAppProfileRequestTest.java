@@ -91,9 +91,14 @@ public class CreateAppProfileRequestTest {
     CreateAppProfileRequest wrapper =
         CreateAppProfileRequest.of("my-instance", "my-profile")
             .setRoutingPolicy(MultiClusterRoutingPolicy.of())
-            .setIsolationPolicy(AppProfile.DataBoostIsolationReadOnlyPolicy.of());
+            .setIsolationPolicy(
+                AppProfile.DataBoostIsolationReadOnlyPolicy.of(
+                    AppProfile.ComputeBillingOwner.HOST_PAYS));
 
     assertThat(wrapper.toProto("my-project").getAppProfile().getDataBoostIsolationReadOnly())
-        .isEqualTo(DataBoostIsolationReadOnly.getDefaultInstance());
+        .isEqualTo(
+            DataBoostIsolationReadOnly.newBuilder()
+                .setComputeBillingOwner(DataBoostIsolationReadOnly.ComputeBillingOwner.HOST_PAYS)
+                .build());
   }
 }
