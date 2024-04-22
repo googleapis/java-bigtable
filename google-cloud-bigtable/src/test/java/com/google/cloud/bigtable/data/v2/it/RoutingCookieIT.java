@@ -197,7 +197,7 @@ public class RoutingCookieIT {
                 .setTotalTimeout(Duration.ofSeconds(15))
                 .setMaxAttempts(2)
                 .build());
-
+    
     // We want to disable handling of routing cookie from the client but still send the feature flag
     // so server won't reject the request.
     settings.stubSettings().setEnableRoutingCookie(false);
