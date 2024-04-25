@@ -20,8 +20,6 @@ import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
-import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.DeadlineExceededException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
@@ -211,13 +209,9 @@ public class RoutingCookieIT {
               .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW))
               .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(clusterId))
               .setIgnoreWarnings(true));
-      try {
-        dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext();
-        Assert.fail("Second readRows request should fail");
-      } catch (ApiException e) {
-        Assert.assertTrue(
-            e instanceof UnavailableException || e instanceof DeadlineExceededException);
-      }
+      Assert.assertThrows(
+          UnavailableException.class,
+          () -> dataClient.readRows(Query.create(targetTable).limit(1)).iterator().hasNext());
     }
   }
 }
