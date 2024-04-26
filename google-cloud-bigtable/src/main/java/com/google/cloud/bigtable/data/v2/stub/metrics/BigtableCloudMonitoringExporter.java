@@ -97,6 +97,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private CompletableResultCode lastExportCode;
 
+  private final AtomicBoolean bigtableExportFailureLogged = new AtomicBoolean(false);
+  private final AtomicBoolean applicationExportFailureLogged = new AtomicBoolean(false);
+
   private static final ImmutableList<String> BIGTABLE_TABLE_METRICS =
       ImmutableSet.of(
               OPERATION_LATENCIES_NAME,
@@ -228,19 +231,24 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            String msg = "createServiceTimeSeries request failed for bigtable metrics.";
-            if (throwable instanceof PermissionDeniedException) {
-              msg +=
-                  String.format(
-                      "Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
-                      projectName.getProject());
+            if (bigtableExportFailureLogged.compareAndSet(false, true)) {
+              String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+              if (throwable instanceof PermissionDeniedException) {
+                msg +=
+                    String.format(
+                        " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                        projectName.getProject());
+              }
+              logger.log(Level.WARNING, msg, throwable);
             }
-            logger.log(Level.WARNING, msg, throwable);
             bigtableExportCode.fail();
           }
 
           @Override
           public void onSuccess(Empty empty) {
+            // When an export succeeded reset the export failure flag to false so if there's a
+            // transient failure it'll be logged.
+            bigtableExportFailureLogged.set(false);
             bigtableExportCode.succeed();
           }
         },
@@ -300,19 +308,24 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           new ApiFutureCallback<Empty>() {
             @Override
             public void onFailure(Throwable throwable) {
-              String msg = "createServiceTimeSeries request failed for bigtable metrics.";
-              if (throwable instanceof PermissionDeniedException) {
-                msg +=
-                    String.format(
-                        "Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
-                        projectName.getProject());
+              if (applicationExportFailureLogged.compareAndSet(false, true)) {
+                String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+                if (throwable instanceof PermissionDeniedException) {
+                  msg +=
+                      String.format(
+                          " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                          projectName.getProject());
+                }
+                logger.log(Level.WARNING, msg, throwable);
               }
-              logger.log(Level.WARNING, msg, throwable);
               exportCode.fail();
             }
 
             @Override
             public void onSuccess(Empty empty) {
+              // When an export succeeded reset the export failure flag to false so if there's a
+              // transient failure it'll be logged.
+              applicationExportFailureLogged.set(false);
               exportCode.succeed();
             }
           },
