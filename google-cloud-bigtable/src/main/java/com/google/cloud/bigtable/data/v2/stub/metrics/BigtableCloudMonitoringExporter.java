@@ -34,6 +34,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
@@ -227,10 +228,14 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
         new ApiFutureCallback<Empty>() {
           @Override
           public void onFailure(Throwable throwable) {
-            logger.log(
-                Level.WARNING,
-                "createServiceTimeSeries request failed for bigtable metrics. ",
-                throwable);
+            String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+            if (throwable instanceof PermissionDeniedException) {
+              msg +=
+                  String.format(
+                      "Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                      projectName.getProject());
+            }
+            logger.log(Level.WARNING, msg, throwable);
             bigtableExportCode.fail();
           }
 
@@ -295,10 +300,14 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           new ApiFutureCallback<Empty>() {
             @Override
             public void onFailure(Throwable throwable) {
-              logger.log(
-                  Level.WARNING,
-                  "createServiceTimeSeries request failed for per connection error metrics.",
-                  throwable);
+              String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+              if (throwable instanceof PermissionDeniedException) {
+                msg +=
+                    String.format(
+                        "Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                        projectName.getProject());
+              }
+              logger.log(Level.WARNING, msg, throwable);
               exportCode.fail();
             }
 
