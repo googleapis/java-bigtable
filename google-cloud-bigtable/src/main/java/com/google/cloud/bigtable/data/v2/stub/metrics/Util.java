@@ -214,11 +214,20 @@ public class Util {
 
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
+<<<<<<< HEAD
 
     String target =  responseMetadata.getMetadata().get(TARGET_METADATA_KEY);
     System.out.println(String.format("Adding target to tracer: %s",target));
     //Record target
     tracer.addTarget(target);
+=======
+    if(responseMetadata.getMetadata() != null) {
+      String target =  responseMetadata.getMetadata().get(TARGET_METADATA_KEY);
+      System.out.println(String.format("Adding target to tracer: %s",target));
+      //Record target
+      tracer.addTarget(target);
+    }
+>>>>>>> 20566b2b (Add target label to attributes, populated via new interceptor. Inteceptor pulls target from GRPC response header.)
   }
 
   /**

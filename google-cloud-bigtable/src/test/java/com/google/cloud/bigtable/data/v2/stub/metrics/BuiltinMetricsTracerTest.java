@@ -28,6 +28,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TARGET_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getAggregatedValue;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
@@ -185,6 +186,7 @@ public class BuiltinMetricsTracerTest {
                     headers.put(
                         Metadata.Key.of("server-timing", Metadata.ASCII_STRING_MARSHALLER),
                         String.format("gfet4t7; dur=%d", FAKE_SERVER_TIMING));
+                    headers.put(Metadata.Key.of("io.grpc.Grpc.TRANSPORT_ATTR_REMOTE_ADDR", Metadata.ASCII_STRING_MARSHALLER), "localhost");
 
                     ResponseParams params =
                         ResponseParams.newBuilder().setZoneId(ZONE).setClusterId(CLUSTER).build();
@@ -296,6 +298,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(STREAMING_KEY, true)
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .put(TARGET_KEY, "")
             .build();
 
     Collection<MetricData> allMetricData = metricReader.collectAllMetrics();

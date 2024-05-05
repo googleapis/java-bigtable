@@ -53,7 +53,10 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
+<<<<<<< HEAD
     System.out.println("INTECERCEPT!!!");
+=======
+>>>>>>> 20566b2b (Add target label to attributes, populated via new interceptor. Inteceptor pulls target from GRPC response header.)
 
     final ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> simpleForwardingClientCall =
         (SimpleForwardingClientCall<ReqT, RespT>) channel.newCall(methodDescriptor, callOptions);
@@ -72,11 +75,19 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
               public void onHeaders(Metadata headers) {
                 SocketAddress remoteAddr =
                     simpleForwardingClientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
+<<<<<<< HEAD
                 String target = ((InetSocketAddress) remoteAddr).getAddress().toString();
 
                 System.out.println("Adding custom hedererrwerss");
                 headers.put(Util.TARGET_METADATA_KEY, target);
                 super.onHeaders(headers);
+=======
+                if(remoteAddr != null && ((InetSocketAddress) remoteAddr).getAddress() != null) {
+                  String target = ((InetSocketAddress) remoteAddr).getAddress().toString();
+                  headers.put(Util.TARGET_METADATA_KEY, target);
+                  super.onHeaders(headers);
+                }
+>>>>>>> 20566b2b (Add target label to attributes, populated via new interceptor. Inteceptor pulls target from GRPC response header.)
               }
             },
             headers);
