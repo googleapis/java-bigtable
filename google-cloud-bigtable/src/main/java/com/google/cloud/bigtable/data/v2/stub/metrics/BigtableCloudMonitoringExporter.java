@@ -222,12 +222,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     ProjectName projectName = ProjectName.of(bigtableProjectId);
-    ApiFuture<?> future = exportTimeSeries(projectName, bigtableTimeSeries);
+    ApiFuture<List<Empty>> future = exportTimeSeries(projectName, bigtableTimeSeries);
 
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
     ApiFutures.addCallback(
         future,
-        new ApiFutureCallback<Object>() {
+        new ApiFutureCallback<List<Empty>>() {
           @Override
           public void onFailure(Throwable throwable) {
             if (bigtableExportFailureLogged.compareAndSet(false, true)) {
@@ -244,7 +244,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           }
 
           @Override
-          public void onSuccess(Object ignored) {
+          public void onSuccess(List<Empty> emptyList) {
             // When an export succeeded reset the export failure flag to false so if there's a
             // transient failure it'll be logged.
             bigtableExportFailureLogged.set(false);
@@ -289,7 +289,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     // Construct the request. The project id will be the project id of the detected monitored
     // resource.
-    ApiFuture<?> gceOrGkeFuture;
+    ApiFuture<List<Empty>> gceOrGkeFuture;
     CompletableResultCode exportCode = new CompletableResultCode();
     try {
       ProjectName projectName =
@@ -299,7 +299,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
       ApiFutures.addCallback(
           gceOrGkeFuture,
-          new ApiFutureCallback<Object>() {
+          new ApiFutureCallback<List<Empty>>() {
             @Override
             public void onFailure(Throwable throwable) {
               if (applicationExportFailureLogged.compareAndSet(false, true)) {
@@ -316,7 +316,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             }
 
             @Override
-            public void onSuccess(Object ignored) {
+            public void onSuccess(List<Empty> emptyList) {
               // When an export succeeded reset the export failure flag to false so if there's a
               // transient failure it'll be logged.
               applicationExportFailureLogged.set(false);
@@ -335,8 +335,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     return exportCode;
   }
 
-  private ApiFuture<?> exportTimeSeries(ProjectName projectName, List<TimeSeries> timeSeries) {
-    List<ApiFuture<?>> batchResults = new ArrayList<>();
+  private ApiFuture<List<Empty>> exportTimeSeries(
+      ProjectName projectName, List<TimeSeries> timeSeries) {
+    List<ApiFuture<Empty>> batchResults = new ArrayList<>();
 
     for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
       CreateTimeSeriesRequest req =
