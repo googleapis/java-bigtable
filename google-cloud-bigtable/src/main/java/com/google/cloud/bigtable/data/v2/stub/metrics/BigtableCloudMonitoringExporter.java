@@ -87,6 +87,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
+  // This the quota limit from Cloud Monitoring. More details in
+  // https://cloud.google.com/monitoring/quotas#custom_metrics_quotas.
   private static final int EXPORT_BATCH_SIZE_LIMIT = 200;
 
   private final MetricServiceClient client;
@@ -220,12 +222,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     ProjectName projectName = ProjectName.of(bigtableProjectId);
-    ApiFuture<List<Empty>> future = exportTimeSeries(projectName.toString(), bigtableTimeSeries);
+    ApiFuture<?> future = exportTimeSeries(projectName, bigtableTimeSeries);
 
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
     ApiFutures.addCallback(
         future,
-        new ApiFutureCallback<List<Empty>>() {
+        new ApiFutureCallback<Object>() {
           @Override
           public void onFailure(Throwable throwable) {
             if (bigtableExportFailureLogged.compareAndSet(false, true)) {
@@ -242,7 +244,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           }
 
           @Override
-          public void onSuccess(List<Empty> emptyList) {
+          public void onSuccess(Object ignored) {
             // When an export succeeded reset the export failure flag to false so if there's a
             // transient failure it'll be logged.
             bigtableExportFailureLogged.set(false);
@@ -287,17 +289,17 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     // Construct the request. The project id will be the project id of the detected monitored
     // resource.
-    ApiFuture<List<Empty>> gceOrGkeFuture;
+    ApiFuture<?> gceOrGkeFuture;
     CompletableResultCode exportCode = new CompletableResultCode();
     try {
       ProjectName projectName =
           ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
 
-      gceOrGkeFuture = exportTimeSeries(projectName.toString(), timeSeries);
+      gceOrGkeFuture = exportTimeSeries(projectName, timeSeries);
 
       ApiFutures.addCallback(
           gceOrGkeFuture,
-          new ApiFutureCallback<List<Empty>>() {
+          new ApiFutureCallback<Object>() {
             @Override
             public void onFailure(Throwable throwable) {
               if (applicationExportFailureLogged.compareAndSet(false, true)) {
@@ -314,7 +316,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             }
 
             @Override
-            public void onSuccess(List<Empty> emptyList) {
+            public void onSuccess(Object ignored) {
               // When an export succeeded reset the export failure flag to false so if there's a
               // transient failure it'll be logged.
               applicationExportFailureLogged.set(false);
@@ -333,12 +335,15 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     return exportCode;
   }
 
-  private ApiFuture<List<Empty>> exportTimeSeries(String name, List<TimeSeries> timeSeries) {
-    List<ApiFuture<Empty>> batchResults = new ArrayList<>();
+  private ApiFuture<?> exportTimeSeries(ProjectName projectName, List<TimeSeries> timeSeries) {
+    List<ApiFuture<?>> batchResults = new ArrayList<>();
 
     for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
       CreateTimeSeriesRequest req =
-          CreateTimeSeriesRequest.newBuilder().setName(name).addAllTimeSeries(batch).build();
+          CreateTimeSeriesRequest.newBuilder()
+              .setName(projectName.toString())
+              .addAllTimeSeries(batch)
+              .build();
       ApiFuture<Empty> f = this.client.createServiceTimeSeriesCallable().futureCall(req);
       batchResults.add(f);
     }
