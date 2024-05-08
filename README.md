@@ -322,7 +322,7 @@ Tracing.getTraceConfig().updateActiveTraceParams(
 );
 ```
 
-### Disable Bigtable traces
+### Disable Bigtbale traces
 
 If your application already has OpenCensus Tracing integration and you want to disable Bigtable
 traces, you can do the following:
