@@ -52,6 +52,11 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
     System.out.println("INTECERCEPT!!!");
+    ApiTracer tracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
+    if (tracer == null) {
+      System.out.println("tracer is null outside of header");
+    }
+    ((BuiltinMetricsTracer) tracer).addTarget(target);
 
     final ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> simpleForwardingClientCall =
         (SimpleForwardingClientCall<ReqT, RespT>) channel.newCall(methodDescriptor, callOptions);
@@ -77,8 +82,8 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
                   System.out.println("api tracer is null");
                 }
                 if (apiTracer != null && target != null) {
-
                   apiTracer.addTarget(target);
+                  ((BuiltinMetricsTracer) tracer).addTarget(target);
                 }
 
                 super.onHeaders(headers);
