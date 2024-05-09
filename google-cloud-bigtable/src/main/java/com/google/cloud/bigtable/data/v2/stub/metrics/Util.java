@@ -215,7 +215,7 @@ public class Util {
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
 
-    System.out.println("Adding target to tracer");
+    System.out.println(String.format("Adding target to tracer: %s", responseMetadata.getMetadata().get(TARGET_METADATA_KEY)));
     //Record target
     tracer.addTarget(responseMetadata.getMetadata().get(TARGET_METADATA_KEY));
   }
