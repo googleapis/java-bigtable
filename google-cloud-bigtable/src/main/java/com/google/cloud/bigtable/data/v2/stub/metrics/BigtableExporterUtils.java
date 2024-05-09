@@ -47,6 +47,7 @@ import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.util.Timestamps;
+import io.grpc.Grpc;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
@@ -60,6 +61,7 @@ import io.opentelemetry.sdk.metrics.data.PointData;
 import io.opentelemetry.sdk.metrics.data.SumData;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -109,7 +111,6 @@ class BigtableExporterUtils {
   static String getProjectId(PointData pointData) {
     return pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY);
   }
-
   static List<TimeSeries> convertToBigtableTimeSeries(List<MetricData> collection, String taskId) {
     List<TimeSeries> allTimeSeries = new ArrayList<>();
 

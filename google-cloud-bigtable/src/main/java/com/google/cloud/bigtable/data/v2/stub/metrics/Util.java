@@ -34,6 +34,7 @@ import com.google.bigtable.v2.TableName;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
+import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
@@ -64,6 +65,8 @@ public class Util {
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
+
+  // Grpc.TRANSPORT_ATTR_REMOTE_ADDR;
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -151,8 +154,7 @@ public class Util {
       int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
       headers.put(ATTEMPT_HEADER_KEY.name(), Arrays.asList(String.valueOf(attemptCount)));
     }
-    return headers.build();
-  }
+    return headers.build();}
 
   private static Long getGfeLatency(@Nullable Metadata metadata) {
     if (metadata == null) {
@@ -209,6 +211,7 @@ public class Util {
     if (responseParams != null && latency == null) {
       latency = 0L;
     }
+
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
   }

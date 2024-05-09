@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static java.lang.String.*;
 
+import com.google.api.gax.grpc.GrpcCallContext;
+import com.google.api.gax.tracing.ApiTracer;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -27,6 +29,8 @@ import io.grpc.ForwardingClientCallListener;
 import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.opentelemetry.api.common.AttributeKey;
+import io.opentelemetry.api.common.Attributes;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.logging.Level;
@@ -37,38 +41,41 @@ import java.util.logging.Logger;
  */
 public class TargetEndpointInterceptor implements ClientInterceptor {
 
+  private String target;
   private static final Logger LOG = Logger.getLogger(TargetEndpointInterceptor.class.getName());
+
+  public String getTarget() {
+    return target;
+  }
 
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
     System.out.println("INTECERCEPT!!!");
+
     final ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> simpleForwardingClientCall =
         (SimpleForwardingClientCall<ReqT, RespT>) channel.newCall(methodDescriptor, callOptions);
     return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
         simpleForwardingClientCall) {
+
       @Override
       public void start(Listener<RespT> responseListener, Metadata headers) {
+
         super.start(
             new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
                 responseListener) {
+
               @Override
               public void onHeaders(Metadata headers) {
                 SocketAddress remoteAddr =
                     simpleForwardingClientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-                if(remoteAddr == null) {
-                  System.out.println("Remote address is null!!!");
-                } else {
-                  System.out.println(
-                      format(
-                          "Target Address is: %s",
-                          ((InetSocketAddress) remoteAddr).getAddress().toString()));
-                  LOG.log(
-                      Level.INFO,
-                      format(
-                          "Target Address is: %s",
-                          ((InetSocketAddress) remoteAddr).getAddress().toString()));
+                target = ((InetSocketAddress) remoteAddr).getAddress().toString();
+
+                BuiltinMetricsTracer apiTracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
+                if (apiTracer != null && target != null) {
+                  apiTracer.addTarget(target);
                 }
+
                 super.onHeaders(headers);
               }
             },
