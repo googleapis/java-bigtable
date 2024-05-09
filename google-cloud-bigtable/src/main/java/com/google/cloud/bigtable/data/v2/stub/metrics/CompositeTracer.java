@@ -225,4 +225,10 @@ class CompositeTracer extends BigtableTracer {
       tracer.grpcChannelQueuedLatencies(queuedTimeMs);
     }
   }
+
+  public void addTarget(String target) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.addTarget(target);
+    }
+  }
 }
