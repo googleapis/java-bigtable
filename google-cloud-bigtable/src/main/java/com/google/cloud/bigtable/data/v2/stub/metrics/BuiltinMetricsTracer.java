@@ -92,7 +92,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private Long serverLatencies = null;
 
-  private List<String> targets;
+  private List<String> targets = new ArrayList<>();
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -354,7 +354,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
 
     String statusStr = Util.extractStatus(status);
-    System.out.println(String.format("Target key is: %s", targets.get(0)));
     Attributes attributes =
         baseAttributes
             .toBuilder()
@@ -367,6 +366,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(STATUS_KEY, statusStr)
             .put(TARGET_KEY, this.targets)
             .build();
+
+    attributes.asMap().forEach((key,value)->System.out.println(String.format("Attribute key: %s, value %s", key,value)));
 
     clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
 
