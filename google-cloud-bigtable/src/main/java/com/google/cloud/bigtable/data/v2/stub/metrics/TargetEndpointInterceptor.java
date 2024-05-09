@@ -23,6 +23,7 @@ import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
+import io.grpc.ClientStreamTracer;
 import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCall.SimpleForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
@@ -33,6 +34,7 @@ import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -52,11 +54,6 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
     System.out.println("INTECERCEPT!!!");
-    ApiTracer tracer = callOptions.getOption(GrpcCallContext.TRACER_KEY);
-    if (tracer == null) {
-      System.out.println("grpc tracer is null outside of header");
-    }
-    ((BuiltinMetricsTracer) tracer).addTarget(target);
 
     final ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> simpleForwardingClientCall =
         (SimpleForwardingClientCall<ReqT, RespT>) channel.newCall(methodDescriptor, callOptions);
@@ -75,15 +72,10 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
               public void onHeaders(Metadata headers) {
                 SocketAddress remoteAddr =
                     simpleForwardingClientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-                target = ((InetSocketAddress) remoteAddr).getAddress().toString();
+                String target = ((InetSocketAddress) remoteAddr).getAddress().toString();
 
-                if (tracer == null) {
-                  System.out.println("gax tracer is null");
-                }
-                if (tracer != null && target != null) {
-                  ((BuiltinMetricsTracer) tracer).addTarget(target);
-                }
-
+                System.out.println("Adding custom hedererrwerss");
+                headers.put(Util.TARGET_METADATA_KEY, target);
                 super.onHeaders(headers);
               }
             },

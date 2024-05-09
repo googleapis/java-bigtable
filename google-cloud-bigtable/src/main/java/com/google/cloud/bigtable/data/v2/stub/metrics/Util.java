@@ -66,7 +66,7 @@ public class Util {
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
-  // Grpc.TRANSPORT_ATTR_REMOTE_ADDR;
+  static final Metadata.Key<String> TARGET_METADATA_KEY = Metadata.Key.of("target",Metadata.ASCII_STRING_MARSHALLER);
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -214,6 +214,10 @@ public class Util {
 
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
+
+    System.out.println("Adding target to tracer");
+    //Record target
+    tracer.addTarget(responseMetadata.getMetadata().get(TARGET_METADATA_KEY));
   }
 
   /**
