@@ -52,9 +52,9 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
   public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions, Channel channel) {
     System.out.println("INTECERCEPT!!!");
-    ApiTracer tracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
+    ApiTracer tracer = callOptions.getOption(GrpcCallContext.TRACER_KEY);
     if (tracer == null) {
-      System.out.println("tracer is null outside of header");
+      System.out.println("grpc tracer is null outside of header");
     }
     ((BuiltinMetricsTracer) tracer).addTarget(target);
 
@@ -77,12 +77,10 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
                     simpleForwardingClientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
                 target = ((InetSocketAddress) remoteAddr).getAddress().toString();
 
-                BuiltinMetricsTracer apiTracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
-                if (apiTracer == null) {
-                  System.out.println("api tracer is null");
+                if (tracer == null) {
+                  System.out.println("gax tracer is null");
                 }
-                if (apiTracer != null && target != null) {
-                  apiTracer.addTarget(target);
+                if (tracer != null && target != null) {
                   ((BuiltinMetricsTracer) tracer).addTarget(target);
                 }
 
