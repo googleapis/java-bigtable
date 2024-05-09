@@ -60,15 +60,7 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
 
       @Override
       public void start(Listener<RespT> responseListener, Metadata headers) {
-
-        SocketAddress remoteAddr =
-            simpleForwardingClientCall.getAttributes().get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
-        target = ((InetSocketAddress) remoteAddr).getAddress().toString();
-
-        BuiltinMetricsTracer apiTracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
-        if (apiTracer != null && target != null) {
-          apiTracer.addTarget(target);
-        }
+        
         super.start(
             new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
                 responseListener) {
