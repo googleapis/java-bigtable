@@ -60,7 +60,7 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
 
       @Override
       public void start(Listener<RespT> responseListener, Metadata headers) {
-        
+
         super.start(
             new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(
                 responseListener) {
@@ -73,7 +73,11 @@ public class TargetEndpointInterceptor implements ClientInterceptor {
                 target = ((InetSocketAddress) remoteAddr).getAddress().toString();
 
                 BuiltinMetricsTracer apiTracer = callOptions.getOption(BuiltinMetricsTracer.BUILTIN_METRICSTRACER_KEY);
+                if (apiTracer == null) {
+                  System.out.println("api tracer is null");
+                }
                 if (apiTracer != null && target != null) {
+
                   apiTracer.addTarget(target);
                 }
 
