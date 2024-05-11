@@ -34,6 +34,7 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.rpc.PermissionDeniedException;
 import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
@@ -41,6 +42,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
 import com.google.monitoring.v3.ProjectName;
@@ -52,6 +54,7 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -84,6 +87,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
+  // This the quota limit from Cloud Monitoring. More details in
+  // https://cloud.google.com/monitoring/quotas#custom_metrics_quotas.
+  private static final int EXPORT_BATCH_SIZE_LIMIT = 200;
+
   private final MetricServiceClient client;
 
   private final String bigtableProjectId;
@@ -95,6 +102,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private CompletableResultCode lastExportCode;
+
+  private final AtomicBoolean bigtableExportFailureLogged = new AtomicBoolean(false);
+  private final AtomicBoolean applicationExportFailureLogged = new AtomicBoolean(false);
 
   private static final ImmutableList<String> BIGTABLE_TABLE_METRICS =
       ImmutableSet.of(
@@ -212,30 +222,32 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     ProjectName projectName = ProjectName.of(bigtableProjectId);
-    CreateTimeSeriesRequest bigtableRequest =
-        CreateTimeSeriesRequest.newBuilder()
-            .setName(projectName.toString())
-            .addAllTimeSeries(bigtableTimeSeries)
-            .build();
-
-    ApiFuture<Empty> future =
-        this.client.createServiceTimeSeriesCallable().futureCall(bigtableRequest);
+    ApiFuture<List<Empty>> future = exportTimeSeries(projectName, bigtableTimeSeries);
 
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
     ApiFutures.addCallback(
         future,
-        new ApiFutureCallback<Empty>() {
+        new ApiFutureCallback<List<Empty>>() {
           @Override
           public void onFailure(Throwable throwable) {
-            logger.log(
-                Level.WARNING,
-                "createServiceTimeSeries request failed for bigtable metrics. ",
-                throwable);
+            if (bigtableExportFailureLogged.compareAndSet(false, true)) {
+              String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+              if (throwable instanceof PermissionDeniedException) {
+                msg +=
+                    String.format(
+                        " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                        projectName.getProject());
+              }
+              logger.log(Level.WARNING, msg, throwable);
+            }
             bigtableExportCode.fail();
           }
 
           @Override
-          public void onSuccess(Empty empty) {
+          public void onSuccess(List<Empty> emptyList) {
+            // When an export succeeded reset the export failure flag to false so if there's a
+            // transient failure it'll be logged.
+            bigtableExportFailureLogged.set(false);
             bigtableExportCode.succeed();
           }
         },
@@ -277,33 +289,37 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     // Construct the request. The project id will be the project id of the detected monitored
     // resource.
-    ApiFuture<Empty> gceOrGkeFuture;
+    ApiFuture<List<Empty>> gceOrGkeFuture;
     CompletableResultCode exportCode = new CompletableResultCode();
     try {
       ProjectName projectName =
           ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
-      CreateTimeSeriesRequest request =
-          CreateTimeSeriesRequest.newBuilder()
-              .setName(projectName.toString())
-              .addAllTimeSeries(timeSeries)
-              .build();
 
-      gceOrGkeFuture = this.client.createServiceTimeSeriesCallable().futureCall(request);
+      gceOrGkeFuture = exportTimeSeries(projectName, timeSeries);
 
       ApiFutures.addCallback(
           gceOrGkeFuture,
-          new ApiFutureCallback<Empty>() {
+          new ApiFutureCallback<List<Empty>>() {
             @Override
             public void onFailure(Throwable throwable) {
-              logger.log(
-                  Level.WARNING,
-                  "createServiceTimeSeries request failed for per connection error metrics.",
-                  throwable);
+              if (applicationExportFailureLogged.compareAndSet(false, true)) {
+                String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+                if (throwable instanceof PermissionDeniedException) {
+                  msg +=
+                      String.format(
+                          " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                          projectName.getProject());
+                }
+                logger.log(Level.WARNING, msg, throwable);
+              }
               exportCode.fail();
             }
 
             @Override
-            public void onSuccess(Empty empty) {
+            public void onSuccess(List<Empty> emptyList) {
+              // When an export succeeded reset the export failure flag to false so if there's a
+              // transient failure it'll be logged.
+              applicationExportFailureLogged.set(false);
               exportCode.succeed();
             }
           },
@@ -317,6 +333,23 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     return exportCode;
+  }
+
+  private ApiFuture<List<Empty>> exportTimeSeries(
+      ProjectName projectName, List<TimeSeries> timeSeries) {
+    List<ApiFuture<Empty>> batchResults = new ArrayList<>();
+
+    for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
+      CreateTimeSeriesRequest req =
+          CreateTimeSeriesRequest.newBuilder()
+              .setName(projectName.toString())
+              .addAllTimeSeries(batch)
+              .build();
+      ApiFuture<Empty> f = this.client.createServiceTimeSeriesCallable().futureCall(req);
+      batchResults.add(f);
+    }
+
+    return ApiFutures.allAsList(batchResults);
   }
 
   @Override
