@@ -21,6 +21,7 @@ template_excludes:
   - .kokoro/requirements.txt
 libraries:
 - api_shortname: bigtable
+  api_description: API for reading and writing the contents of Bigtables associated with a cloud project.
   name_pretty: Cloud Bigtable
   product_documentation: https://cloud.google.com/bigtable
   client_documentation: https://cloud.google.com/java/docs/reference/google-cloud-bigtable/latest/history
