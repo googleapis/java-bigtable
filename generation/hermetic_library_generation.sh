@@ -97,7 +97,11 @@ docker run \
   --baseline-generation-config-path="${workspace_name}/${baseline_generation_config}" \
   --current-generation-config-path="${workspace_name}/${generation_config}"
 # commit the change to the pull request.
-git add java-* pom.xml gapic-libraries-bom/pom.xml versions.txt
+if [[ $(dirname) == "google-cloud-java" ]]; then
+  git add java-* pom.xml gapic-libraries-bom/pom.xml versions.txt
+else
+  git add .
+fi
 changed_files=$(git diff --cached --name-only)
 if [[ "${changed_files}" == "" ]]; then
     echo "There is no generated code change with the generation config change ${config_diff}."
