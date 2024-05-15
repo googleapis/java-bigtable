@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 # This script should be run at the root of the repository.
-# This script is used to update googleapis commit to latest in generation
+# This script is used to update googleapis committish to latest in generation
 # configuration at the time of running and create a pull request.
 
 # The following commands need to be installed before running the script:
@@ -52,7 +52,7 @@ if [ -z "${generation_config}" ]; then
 fi
 
 current_branch="generate-libraries-${base_branch}"
-title="chore: update googleapis commit at $(date)"
+title="chore: update googleapis committish at $(date)"
 
 # try to find a open pull request associated with the branch
 pr_num=$(gh pr list -s open -H "${current_branch}" -q . --json number | jq ".[] | .number")
