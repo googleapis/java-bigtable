@@ -97,7 +97,7 @@ docker run \
   --baseline-generation-config-path="${workspace_name}/${baseline_generation_config}" \
   --current-generation-config-path="${workspace_name}/${generation_config}"
 # commit the change to the pull request.
-if [[ $(dirname) == "google-cloud-java" ]]; then
+if [[ $(basename $(pwd)) == "google-cloud-java" ]]; then
   git add java-* pom.xml gapic-libraries-bom/pom.xml versions.txt
 else
   git add .
