@@ -90,6 +90,7 @@ final class ConvertExceptionCallable<RequestT, ResponseT>
     }
     return false;
   }
+
   private boolean isRstStreamError(Throwable t) {
     if (t instanceof InternalException && t.getMessage() != null) {
       String error = t.getMessage().toLowerCase();
