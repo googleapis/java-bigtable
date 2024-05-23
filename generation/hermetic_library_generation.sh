@@ -96,10 +96,14 @@ docker run \
   gcr.io/cloud-devrel-public-resources/java-library-generation:"${image_tag}" \
   --baseline-generation-config-path="${workspace_name}/${baseline_generation_config}" \
   --current-generation-config-path="${workspace_name}/${generation_config}"
+
+
 # commit the change to the pull request.
 if [[ $(basename $(pwd)) == "google-cloud-java" ]]; then
   git add java-* pom.xml gapic-libraries-bom/pom.xml versions.txt
 else
+  # The image leaves intermediate folders and files it works with. Here we remove them
+  rm -rdf output googleapis baseline_generation_config.yaml
   git add .
 fi
 changed_files=$(git diff --cached --name-only)
