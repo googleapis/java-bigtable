@@ -20,8 +20,6 @@ on:
 jobs:
   library_generation:
     runs-on: ubuntu-latest
-    env:
-      library_generation_image_tag: 2.40.0
     steps:
     - uses: actions/checkout@v4
       with:
@@ -36,6 +34,6 @@ jobs:
         bash generation/hermetic_library_generation.sh \
           --target_branch ${{ github.base_ref }} \
           --current_branch ${{ github.head_ref }} \
-          --image_tag "${library_generation_image_tag}"
+          --image_tag $(cat generation_config.yaml | yq .gapic_generator_version)
       env:
         GH_TOKEN: ${{ secrets.CLOUD_JAVA_BOT_TOKEN }}
