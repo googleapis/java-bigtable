@@ -78,7 +78,6 @@ public class WritesTest extends MobileTimeSeriesBaseTest {
     WriteAggregate.writeAggregate(projectId, instanceId, TABLE_ID);
 
     String output = bout.toString();
-    assertThat(
-        output, CoreMatchers.containsString("Successfully wrote row page#index.html"));
+    assertThat(output, CoreMatchers.containsString("Successfully wrote row page#index.html"));
   }
 }

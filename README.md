@@ -50,20 +50,20 @@ If you are using Maven without the BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.34.0')
+implementation platform('com.google.cloud:libraries-bom:26.39.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.35.1'
+implementation 'com.google.cloud:google-cloud-bigtable:2.39.3'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.35.1"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.39.3"
 ```
 <!-- {x-version-update-end} -->
 
@@ -498,6 +498,7 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 | Quickstart | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Quickstart.java) |
 | Reads | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Reads.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Reads.java) |
 | Table Admin Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/TableAdminExample.java) |
+| Write Aggregate | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteAggregate.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteAggregate.java) |
 | Write Batch | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteBatch.java) |
 | Write Conditionally | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteConditionally.java) |
 | Write Increment | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/WriteIncrement.java) |
@@ -609,7 +610,7 @@ Java is a registered trademark of Oracle and/or its affiliates.
 [kokoro-badge-link-5]: http://storage.googleapis.com/cloud-devrel-public/java/badges/java-bigtable/java11.html
 [stability-image]: https://img.shields.io/badge/stability-stable-green
 [maven-version-image]: https://img.shields.io/maven-central/v/com.google.cloud/google-cloud-bigtable.svg
-[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.35.1
+[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.39.3
 [authentication]: https://github.com/googleapis/google-cloud-java#authentication
 [auth-scopes]: https://developers.google.com/identity/protocols/oauth2/scopes
 [predefined-iam-roles]: https://cloud.google.com/iam/docs/understanding-roles#predefined_roles
