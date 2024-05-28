@@ -18,12 +18,9 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcStatusCode;
-import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ErrorDetails;
-import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
@@ -45,6 +42,7 @@ import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
+import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Filters;
@@ -55,22 +53,31 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Queues;
 import com.google.protobuf.Any;
 import com.google.rpc.RetryInfo;
+import io.grpc.ForwardingServerCall;
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.Server;
+import io.grpc.ServerCall;
+import io.grpc.ServerCallHandler;
+import io.grpc.ServerInterceptor;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -78,45 +85,128 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class RetryInfoTest {
 
-  @Rule public GrpcServerRule serverRule = new GrpcServerRule();
-
   private static final Metadata.Key<byte[]> ERROR_DETAILS_KEY =
       Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
+  private final Set<String> methods = new HashSet<>();
+
   private FakeBigtableService service;
+  private Server server;
   private BigtableDataClient client;
   private BigtableDataSettings.Builder settings;
 
   private AtomicInteger attemptCounter = new AtomicInteger();
-  private com.google.protobuf.Duration delay =
+  private com.google.protobuf.Duration defaultDelay =
       com.google.protobuf.Duration.newBuilder().setSeconds(2).setNanos(0).build();
 
   @Before
   public void setUp() throws IOException {
     service = new FakeBigtableService();
-    serverRule.getServiceRegistry().addService(service);
+
+    ServerInterceptor serverInterceptor =
+        new ServerInterceptor() {
+          @Override
+          public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+              ServerCall<ReqT, RespT> serverCall,
+              Metadata metadata,
+              ServerCallHandler<ReqT, RespT> serverCallHandler) {
+            return serverCallHandler.startCall(
+                new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(serverCall) {
+                  @Override
+                  public void close(Status status, Metadata trailers) {
+                    if (trailers.containsKey(ERROR_DETAILS_KEY)) {
+                      methods.add(serverCall.getMethodDescriptor().getBareMethodName());
+                    }
+                    super.close(status, trailers);
+                  }
+                },
+                metadata);
+          }
+        };
+    server = FakeServiceBuilder.create(service).intercept(serverInterceptor).start();
 
     settings =
-        BigtableDataSettings.newBuilder()
+        BigtableDataSettings.newBuilderForEmulator(server.getPort())
             .setProjectId("fake-project")
-            .setInstanceId("fake-instance")
-            .setCredentialsProvider(NoCredentialsProvider.create());
-
-    settings
-        .stubSettings()
-        .setTransportChannelProvider(
-            FixedTransportChannelProvider.create(
-                GrpcTransportChannel.create(serverRule.getChannel())))
-        // channel priming doesn't work with FixedTransportChannelProvider. Disable it for the test
-        .setRefreshingChannel(false)
-        .build();
+            .setInstanceId("fake-instance");
 
     this.client = BigtableDataClient.create(settings.build());
   }
 
+  @After
+  public void tearDown() {
+    if (client != null) {
+      client.close();
+    }
+    if (server != null) {
+      server.shutdown();
+    }
+  }
+
   @Test
-  public void testReadRow() {
-    verifyRetryInfoIsUsed(() -> client.readRow("table", "row"), true);
+  public void testAllMethods() {
+    // Verify retry info is handled correctly for all the methods in data API.
+    verifyRetryInfoIsUsed(() -> client.readRow(TableId.of("table"), "row"), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.readRows(Query.create(TableId.of("table"))).iterator().hasNext(), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.bulkMutateRows(
+                BulkMutation.create(TableId.of("fake-table"))
+                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.mutateRow(
+                RowMutation.create(TableId.of("fake-table"), "key").setCell("cf", "q", "v")),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(() -> client.sampleRowKeys(TableId.of("table")), true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.checkAndMutateRow(
+                ConditionalRowMutation.create("table", "key")
+                    .condition(Filters.FILTERS.value().regex("old-value"))
+                    .then(Mutation.create().setCell("cf", "q", "v"))),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () ->
+            client.readModifyWriteRow(
+                ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
+        true);
+
+    attemptCounter.set(0);
+    verifyRetryInfoIsUsed(
+        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
+
+    // Verify that the new data API methods are tested or excluded. This is enforced by
+    // introspecting grpc
+    // method descriptors.
+    Set<String> expected =
+        BigtableGrpc.getServiceDescriptor().getMethods().stream()
+            .map(MethodDescriptor::getBareMethodName)
+            .collect(Collectors.toSet());
+
+    // Exclude methods that don't support retry info
+    methods.add("PingAndWarm");
+
+    assertThat(methods).containsExactlyElementsIn(expected);
   }
 
   @Test
@@ -148,11 +238,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testReadRows() {
-    verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), true);
-  }
-
-  @Test
   public void testReadRowsNonRetraybleErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(() -> client.readRows(Query.create("table")).iterator().hasNext(), false);
   }
@@ -179,16 +264,6 @@ public class RetryInfoTest {
     try (BigtableDataClient newClient = BigtableDataClient.create(settings.build())) {
       verifyNoRetryInfo(() -> newClient.readRows(Query.create("table")).iterator().hasNext(), true);
     }
-  }
-
-  @Test
-  public void testMutateRows() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.bulkMutateRows(
-                BulkMutation.create("fake-table")
-                    .add(RowMutationEntry.create("row-key-1").setCell("cf", "q", "v"))),
-        true);
   }
 
   @Test
@@ -239,12 +314,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testMutateRow() {
-    verifyRetryInfoIsUsed(
-        () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), true);
-  }
-
-  @Test
   public void testMutateRowNonRetryableErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(
         () -> client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v")), false);
@@ -279,11 +348,6 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testSampleRowKeys() {
-    verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), true);
-  }
-
-  @Test
   public void testSampleRowKeysNonRetryableErrorWithRetryInfo() {
     verifyRetryInfoIsUsed(() -> client.sampleRowKeys("table"), false);
   }
@@ -313,22 +377,11 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testCheckAndMutateRow() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.checkAndMutateRow(
-                ConditionalRowMutation.create("table", "key")
-                    .condition(Filters.FILTERS.value().regex("old-value"))
-                    .then(Mutation.create().setCell("cf", "q", "v"))),
-        true);
-  }
-
-  @Test
   public void testCheckAndMutateDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
     try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
+      ApiException exception = enqueueNonRetryableExceptionWithDelay(defaultDelay);
       try {
         client.checkAndMutateRow(
             ConditionalRowMutation.create("table", "key")
@@ -369,20 +422,11 @@ public class RetryInfoTest {
   }
 
   @Test
-  public void testReadModifyWrite() {
-    verifyRetryInfoIsUsed(
-        () ->
-            client.readModifyWriteRow(
-                ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
-        true);
-  }
-
-  @Test
   public void testReadModifyWriteDisableRetryInfo() throws IOException {
     settings.stubSettings().setEnableRetryInfo(false);
 
     try (BigtableDataClient client = BigtableDataClient.create(settings.build())) {
-      ApiException exception = enqueueNonRetryableExceptionWithDelay(delay);
+      ApiException exception = enqueueNonRetryableExceptionWithDelay(defaultDelay);
       try {
         client.readModifyWriteRow(ReadModifyWriteRow.create("table", "row").append("cf", "q", "v"));
       } catch (ApiException e) {
@@ -412,13 +456,6 @@ public class RetryInfoTest {
                   ReadModifyWriteRow.create("table", "row").append("cf", "q", "v")),
           false);
     }
-  }
-
-  @Test
-  public void testReadChangeStream() {
-    verifyRetryInfoIsUsed(
-        () -> client.readChangeStream(ReadChangeStreamQuery.create("table")).iterator().hasNext(),
-        true);
   }
 
   @Test
@@ -460,14 +497,9 @@ public class RetryInfoTest {
                   .readChangeStream(ReadChangeStreamQuery.create("table"))
                   .iterator()
                   .hasNext(),
-          true);
+          true,
+          com.google.protobuf.Duration.newBuilder().setSeconds(5).setNanos(0).build());
     }
-  }
-
-  @Test
-  public void testGenerateInitialChangeStreamPartition() {
-    verifyRetryInfoIsUsed(
-        () -> client.generateInitialChangeStreamPartitions("table").iterator().hasNext(), true);
   }
 
   @Test
@@ -507,30 +539,30 @@ public class RetryInfoTest {
   // Test the case where server returns retry info and client enables handling of retry info
   private void verifyRetryInfoIsUsed(Runnable runnable, boolean retryableError) {
     if (retryableError) {
-      enqueueRetryableExceptionWithDelay(delay);
+      enqueueRetryableExceptionWithDelay(defaultDelay);
     } else {
-      enqueueNonRetryableExceptionWithDelay(delay);
+      enqueueNonRetryableExceptionWithDelay(defaultDelay);
     }
     Stopwatch stopwatch = Stopwatch.createStarted();
     runnable.run();
     stopwatch.stop();
 
     assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isAtLeast(Duration.ofSeconds(delay.getSeconds()));
+    assertThat(stopwatch.elapsed()).isAtLeast(Duration.ofSeconds(defaultDelay.getSeconds()));
   }
 
   // Test the case where server returns retry info but client disabled handling of retry info
   private void verifyRetryInfoCanBeDisabled(Runnable runnable) {
-    enqueueRetryableExceptionWithDelay(delay);
+    enqueueRetryableExceptionWithDelay(defaultDelay);
     Stopwatch stopwatch = Stopwatch.createStarted();
     runnable.run();
     stopwatch.stop();
 
     assertThat(attemptCounter.get()).isEqualTo(2);
-    assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(delay.getSeconds()));
+    assertThat(stopwatch.elapsed()).isLessThan(Duration.ofSeconds(defaultDelay.getSeconds()));
 
     attemptCounter.set(0);
-    ApiException expectedApiException = enqueueNonRetryableExceptionWithDelay(delay);
+    ApiException expectedApiException = enqueueNonRetryableExceptionWithDelay(defaultDelay);
     ApiException actualException =
         assertThrows("non retryable operations should fail", ApiException.class, runnable::run);
     if (actualException instanceof MutateRowsException) {
@@ -549,6 +581,12 @@ public class RetryInfoTest {
 
   // Test the case where server does not return retry info
   private void verifyNoRetryInfo(Runnable runnable, boolean operationRetryable) {
+    verifyNoRetryInfo(runnable, operationRetryable, defaultDelay);
+  }
+
+  // individual test can override the default delay
+  private void verifyNoRetryInfo(
+      Runnable runnable, boolean operationRetryable, com.google.protobuf.Duration delay) {
     enqueueRetryableExceptionNoRetryInfo();
 
     if (!operationRetryable) {
