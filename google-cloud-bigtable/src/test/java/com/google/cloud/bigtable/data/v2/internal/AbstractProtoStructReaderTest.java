@@ -35,6 +35,9 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValu
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.nullValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structField;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structType;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampValue;
 import static com.google.common.truth.Truth.assertThat;
@@ -48,6 +51,7 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.KindCase;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
@@ -191,7 +195,36 @@ public class AbstractProtoStructReaderTest {
             (BiFunction<TestProtoStruct, Integer, Date>) TestProtoStruct::getDate,
             Date.fromYearMonthDay(2024, 6, 1)
           },
-          // TODO(jackdingilian): struct
+          // Struct
+          {
+            Collections.singletonList(
+                columnMetadata(
+                    "testField",
+                    structType(
+                        structField("stringField", stringType()),
+                        structField("intField", int64Type()),
+                        structField("listField", arrayType(stringType()))))),
+            Collections.singletonList(
+                arrayValue(
+                    stringValue("test"),
+                    int64Value(100),
+                    arrayValue(stringValue("nested"), stringValue("nested2")))),
+            0,
+            "testField",
+            (BiFunction<TestProtoStruct, String, Struct>) TestProtoStruct::getStruct,
+            (BiFunction<TestProtoStruct, Integer, Struct>) TestProtoStruct::getStruct,
+            ProtoStruct.create(
+                structType(
+                        structField("stringField", stringType()),
+                        structField("intField", int64Type()),
+                        structField("listField", arrayType(stringType())))
+                    .getStructType(),
+                arrayValue(
+                        stringValue("test"),
+                        int64Value(100),
+                        arrayValue(stringValue("nested"), stringValue("nested2")))
+                    .getArrayValue())
+          },
           // Simple List
           {
             Collections.singletonList(columnMetadata("testField", arrayType(stringType()))),
@@ -274,7 +307,49 @@ public class AbstractProtoStructReaderTest {
               }
             }
           },
-          // TODO(jackdingilian): when we have struct Historical Map format
+          {
+            Collections.singletonList(
+                columnMetadata(
+                    "historicalField",
+                    mapType(
+                        bytesType(),
+                        arrayType(
+                            structType(
+                                structField("timestamp", timestampType()),
+                                structField("value", bytesType())))))),
+            Collections.singletonList(
+                mapValue(
+                    mapElement(
+                        bytesValue("qual"),
+                        arrayValue(
+                            structValue(timestampValue(10000, 100), bytesValue("test1")),
+                            structValue(timestampValue(20000, 100), bytesValue("test2")))))),
+            0,
+            "historicalField",
+            (BiFunction<TestProtoStruct, String, Map<ByteString, String>>) TestProtoStruct::getMap,
+            (BiFunction<TestProtoStruct, Integer, Map<ByteString, String>>) TestProtoStruct::getMap,
+            new HashMap<ByteString, List<Struct>>() {
+              {
+                put(
+                    ByteString.copyFromUtf8("qual"),
+                    Arrays.asList(
+                        ProtoStruct.create(
+                            structType(
+                                    structField("timestamp", timestampType()),
+                                    structField("value", bytesType()))
+                                .getStructType(),
+                            arrayValue(timestampValue(10000, 100), bytesValue("test1"))
+                                .getArrayValue()),
+                        ProtoStruct.create(
+                            structType(
+                                    structField("timestamp", timestampType()),
+                                    structField("value", bytesType()))
+                                .getStructType(),
+                            arrayValue(timestampValue(20000, 100), bytesValue("test2"))
+                                .getArrayValue())));
+              }
+            },
+          }
         });
   }
 

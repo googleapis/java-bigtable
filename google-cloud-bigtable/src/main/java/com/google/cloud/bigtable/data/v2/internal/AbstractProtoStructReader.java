@@ -182,14 +182,19 @@ public abstract class AbstractProtoStructReader implements StructReader {
 
   @Override
   public Struct getStruct(int columnIndex) {
-    // TODO(jackdingilian): return a Struct once it's implemented
-    return null;
+    checkNonNullOfType(columnIndex, Type.KindCase.STRUCT_TYPE, columnIndex);
+    Value value = values().get(columnIndex);
+    // A struct value is represented as an array
+    return ProtoStruct.create(getColumnType(columnIndex).getStructType(), value.getArrayValue());
   }
 
   @Override
   public Struct getStruct(String columnName) {
-    // TODO(jackdingilian): return a Struct once it's implemented
-    return null;
+    int columnIndex = getColumnIndex(columnName);
+    checkNonNullOfType(columnIndex, Type.KindCase.STRUCT_TYPE, columnName);
+    Value value = values().get(columnIndex);
+    // A struct value is represented as an array
+    return ProtoStruct.create(getColumnType(columnIndex).getStructType(), value.getArrayValue());
   }
 
   // TODO(jackdingilian): Add type param so we can avoid unsafe cast
@@ -252,8 +257,8 @@ public abstract class AbstractProtoStructReader implements StructReader {
       case DATE_TYPE:
         return fromProto(value.getDateValue());
       case STRUCT_TYPE:
-        // TODO(jackdingilian)
-        return null;
+        // A struct value is represented as an array
+        return ProtoStruct.create(type.getStructType(), value.getArrayValue());
       case ARRAY_TYPE:
         ArrayList<Object> listBuilder = new ArrayList<>();
         Type elemType = type.getArrayType().getElementType();

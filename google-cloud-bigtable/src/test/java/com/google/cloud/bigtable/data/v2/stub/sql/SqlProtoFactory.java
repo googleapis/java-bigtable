@@ -29,9 +29,7 @@ import com.google.bigtable.v2.Value;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.type.Date;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /** Utilities for creating sql proto objects in tests */
 public class SqlProtoFactory {
@@ -88,13 +86,21 @@ public class SqlProtoFactory {
   }
 
   public static Type structType(Type... fieldTypes) {
-    List<Field> fields = new ArrayList<>(fieldTypes.length);
-    for (Type fieldType : fieldTypes) {
-      fields.add(Type.Struct.Field.newBuilder().setType(fieldType).build());
+    Field[] fields = new Field[fieldTypes.length];
+    for (int i = 0; i < fieldTypes.length; i++) {
+      fields[i] = Type.Struct.Field.newBuilder().setType(fieldTypes[i]).build();
     }
+    return structType(fields);
+  }
+
+  public static Type structType(Field... fields) {
     return Type.newBuilder()
-        .setStructType(Type.Struct.newBuilder().addAllFields(fields).build())
+        .setStructType(Type.Struct.newBuilder().addAllFields(Arrays.asList(fields)).build())
         .build();
+  }
+
+  public static Field structField(String name, Type type) {
+    return Type.Struct.Field.newBuilder().setFieldName(name).setType(type).build();
   }
 
   public static Type mapType(Type keyType, Type valueType) {
