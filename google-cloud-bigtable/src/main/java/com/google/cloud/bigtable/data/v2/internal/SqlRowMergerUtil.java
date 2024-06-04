@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub.sql;
+package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.ResultSetMetadata;
-import com.google.cloud.bigtable.data.v2.models.SqlRow;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMerger;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
 
@@ -46,13 +46,15 @@ public class SqlRowMergerUtil implements AutoCloseable {
   }
 
   /**
-   * Transforms a list of {@link ExecuteQueryResponse} objects into a list of {@link SqlRow} objects
-   * . The first call must contain the ResultSetMetadata as the first ExecuteQueryResponse. This
-   * will return any complete {@link SqlRow}s from the given responses and buffer partial rows
-   * waiting for the next ExecuteQueryResponse.
+   * Transforms a list of {@link ExecuteQueryResponse} objects into a list of {@link
+   * com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow} objects . The first call must contain
+   * the ResultSetMetadata as the first ExecuteQueryResponse. This will return any complete {@link
+   * com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow}s from the given responses and buffer
+   * partial rows waiting for the next ExecuteQueryResponse.
    *
    * @param responses List of {@link ExecuteQueryResponse} for a query
-   * @return a list of the complete {@link SqlRow}s that have been merged from the given responses.
+   * @return a list of the complete {@link com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow}s
+   *     that have been merged from the given responses.
    */
   public List<SqlRow> parseExecuteQueryResponses(ImmutableList<ExecuteQueryResponse> responses) {
     ImmutableList.Builder<SqlRow> rows = new ImmutableList.Builder<>();

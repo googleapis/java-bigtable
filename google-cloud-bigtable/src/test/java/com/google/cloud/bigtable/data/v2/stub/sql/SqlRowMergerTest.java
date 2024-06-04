@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
-import static com.google.cloud.bigtable.data.v2.models.SqlRowSubject.assertThat;
+import static com.google.cloud.bigtable.data.v2.internal.SqlRowSubject.assertThat;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.arrayType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.arrayValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
@@ -37,7 +37,7 @@ import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.bigtable.v2.Value;
-import com.google.cloud.bigtable.data.v2.models.SqlRow;
+import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
@@ -172,16 +172,16 @@ public class SqlRowMergerTest {
     merger.push(partialResultSetWithToken(Arrays.copyOfRange(values, 5, 12)));
     assertThat(merger.pop())
         .isEqualTo(
-            SqlRow.create(
+            ProtoSqlRow.create(
                 ImmutableList.copyOf(columns), ImmutableList.copyOf(Arrays.copyOf(values, 4))));
     assertThat(merger.pop())
         .isEqualTo(
-            SqlRow.create(
+            ProtoSqlRow.create(
                 ImmutableList.copyOf(columns),
                 ImmutableList.copyOf(Arrays.copyOfRange(values, 4, 8))));
     assertThat(merger.pop())
         .isEqualTo(
-            SqlRow.create(
+            ProtoSqlRow.create(
                 ImmutableList.copyOf(columns),
                 ImmutableList.copyOf(Arrays.copyOfRange(values, 8, 12))));
   }
@@ -209,7 +209,7 @@ public class SqlRowMergerTest {
     assertThat(merger).hasFullFrame(true);
     assertThat(merger.pop())
         .isEqualTo(
-            SqlRow.create(
+            ProtoSqlRow.create(
                 ImmutableList.copyOf(columns),
                 ImmutableList.of(stringValue("test"), bytesValue("test"))));
   }
@@ -244,7 +244,7 @@ public class SqlRowMergerTest {
     assertThat(merger).hasFullFrame(true);
     assertThat(merger.pop())
         .isEqualTo(
-            SqlRow.create(
+            ProtoSqlRow.create(
                 ImmutableList.copyOf(columns),
                 ImmutableList.of(stringValue("test"), bytesValue("test"))));
   }

@@ -23,7 +23,8 @@ import com.google.bigtable.v2.ProtoRows;
 import com.google.bigtable.v2.ProtoSchema;
 import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
-import com.google.cloud.bigtable.data.v2.models.SqlRow;
+import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
+import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
@@ -34,8 +35,8 @@ import java.util.Queue;
 
 /**
  * Used to transform a stream of {@link com.google.bigtable.v2.ProtoRowsBatch} bytes chunks into
- * {@link com.google.cloud.bigtable.data.v2.models.SqlRow}s for the given schema. Each SqlRow
- * represents a logical row for a sql response.
+ * {@link ProtoSqlRow}s for the given schema. Each SqlRow represents a logical row for a sql
+ * response.
  *
  * <p>The intended usage of this class is:
  *
@@ -98,6 +99,7 @@ final class ProtoRowsMergingStateMachine {
         throw new InternalError("Unexpected exception parsing response protobuf", e);
       }
     }
+    // Empty buffers can benefit from resetting because ByteString.concat builds a rope
     batchBuffer = ByteString.empty();
     state = State.AWAITING_BATCH_CONSUME;
   }
@@ -131,7 +133,7 @@ final class ProtoRowsMergingStateMachine {
         validateValueAndType(c.getType(), v);
         rowDataBuilder.add(v);
       }
-      queue.add(SqlRow.create(schema.getColumnsList(), rowDataBuilder.build()));
+      queue.add(ProtoSqlRow.create(schema.getColumnsList(), rowDataBuilder.build()));
     }
     // reset the batch to be empty
     completeBatch = ProtoRows.getDefaultInstance();

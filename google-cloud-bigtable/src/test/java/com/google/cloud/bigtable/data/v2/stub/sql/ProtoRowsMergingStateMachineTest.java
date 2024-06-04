@@ -47,7 +47,7 @@ import com.google.bigtable.v2.ProtoRowsBatch;
 import com.google.bigtable.v2.ProtoSchema;
 import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
-import com.google.cloud.bigtable.data.v2.models.SqlRow;
+import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
@@ -164,9 +164,9 @@ public final class ProtoRowsMergingStateMachineTest {
 
       assertThat(stateMachine)
           .populateQueueYields(
-              SqlRow.create(columns, ImmutableList.of(stringValue("foo"))),
-              SqlRow.create(columns, ImmutableList.of(stringValue("bar"))),
-              SqlRow.create(columns, ImmutableList.of(stringValue("baz"))));
+              ProtoSqlRow.create(columns, ImmutableList.of(stringValue("foo"))),
+              ProtoSqlRow.create(columns, ImmutableList.of(stringValue("bar"))),
+              ProtoSqlRow.create(columns, ImmutableList.of(stringValue("baz"))));
     }
 
     @Test
@@ -198,7 +198,7 @@ public final class ProtoRowsMergingStateMachineTest {
 
       assertThat(stateMachine)
           .populateQueueYields(
-              SqlRow.create(
+              ProtoSqlRow.create(
                   ImmutableList.copyOf(schema.getColumnsList()), ImmutableList.of(mapVal)));
     }
 
@@ -230,7 +230,7 @@ public final class ProtoRowsMergingStateMachineTest {
       assertThat(stateMachine).hasCompleteBatch(true);
       assertThat(stateMachine)
           .populateQueueYields(
-              SqlRow.create(
+              ProtoSqlRow.create(
                   ImmutableList.copyOf(schema.getColumnsList()),
                   ImmutableList.of(stringVal, bytesVal, arrayVal, mapVal)));
 
@@ -265,7 +265,7 @@ public final class ProtoRowsMergingStateMachineTest {
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(schema);
 
       stateMachine.addPartialResultSet(partialResultSetWithToken().getResults());
-      assertThat(stateMachine).populateQueueYields(new SqlRow[] {});
+      assertThat(stateMachine).populateQueueYields(new ProtoSqlRow[] {});
     }
 
     @Test
@@ -279,7 +279,7 @@ public final class ProtoRowsMergingStateMachineTest {
       stateMachine.addPartialResultSet(
           tokenOnlyResultSet(ByteString.copyFromUtf8("token")).getResults());
       assertThat(stateMachine)
-          .populateQueueYields(SqlRow.create(columns, ImmutableList.of(stringValue("test"))));
+          .populateQueueYields(ProtoSqlRow.create(columns, ImmutableList.of(stringValue("test"))));
     }
 
     @Test

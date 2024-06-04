@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.models;
+package com.google.cloud.bigtable.data.v2.internal;
 
 import static com.google.common.truth.Truth.assertAbout;
 
-import com.google.bigtable.v2.Value;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import javax.annotation.Nullable;
 
-/** Truth subject for {@link SqlRow}. Intended for ease-of-use in testing. */
+/** Truth subject for {@link ProtoSqlRow}. Intended for ease-of-use in testing. */
 public final class SqlRowSubject extends Subject {
 
   private final @Nullable SqlRow actual;
@@ -38,15 +37,5 @@ public final class SqlRowSubject extends Subject {
 
   public static SqlRowSubject assertThat(@Nullable SqlRow actual) {
     return assertAbout(sqlRow()).that(actual);
-  }
-
-  public void hasSize(int count) {
-    check("values()").that(actual.values()).hasSize(count);
-  }
-
-  public void hasValueAt(int columnIndex, Value expected) {
-    check("values().get(" + columnIndex + ")")
-        .that(actual.values().get(columnIndex))
-        .isEqualTo(expected);
   }
 }

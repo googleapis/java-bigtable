@@ -21,7 +21,7 @@ import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.bigtable.v2.ResultSetMetadata.SchemaCase;
-import com.google.cloud.bigtable.data.v2.models.SqlRow;
+import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.gaxx.reframing.Reframer;
 import com.google.common.base.Preconditions;
 import java.util.ArrayDeque;
