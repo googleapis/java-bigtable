@@ -27,6 +27,8 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.Struct.Field;
 import com.google.bigtable.v2.Value;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Timestamp;
+import com.google.type.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -101,12 +103,40 @@ public class SqlProtoFactory {
         .build();
   }
 
+  public static Value nullValue() {
+    return Value.newBuilder().build();
+  }
+
   public static Value stringValue(String contents) {
     return Value.newBuilder().setStringValue(contents).build();
   }
 
   public static Value bytesValue(String contents) {
     return Value.newBuilder().setBytesValue(ByteString.copyFromUtf8(contents)).build();
+  }
+
+  public static Value int64Value(long data) {
+    return Value.newBuilder().setIntValue(data).build();
+  }
+
+  public static Value floatValue(double data) {
+    return Value.newBuilder().setFloatValue(data).build();
+  }
+
+  public static Value boolValue(boolean data) {
+    return Value.newBuilder().setBoolValue(data).build();
+  }
+
+  public static Value timestampValue(long seconds, int nanos) {
+    return Value.newBuilder()
+        .setTimestampValue(Timestamp.newBuilder().setSeconds(seconds).setNanos(nanos).build())
+        .build();
+  }
+
+  public static Value dateValue(int year, int month, int day) {
+    return Value.newBuilder()
+        .setDateValue(Date.newBuilder().setYear(year).setMonth(month).setDay(day).build())
+        .build();
   }
 
   public static Value arrayValue(Value... elements) {
