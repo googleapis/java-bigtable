@@ -32,7 +32,6 @@ import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
-import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
@@ -43,8 +42,9 @@ import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
-import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.collect.ImmutableMap;
 import io.grpc.ForwardingServerCall.SimpleForwardingServerCall;
 import io.grpc.Metadata;
@@ -125,11 +125,21 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings stubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            settings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
-    attempts = stubSettings.readRowsSettings().getRetrySettings().getMaxAttempts();
-    stub = new EnhancedBigtableStub(stubSettings, ClientContext.create(stubSettings));
+
+    ClientContext clientContext =
+        EnhancedBigtableStub.createClientContext(settings.getStubSettings());
+    clientContext =
+        clientContext
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    settings.getStubSettings(),
+                    Tags.getTagger(),
+                    localStats.getStatsRecorder(),
+                    null))
+            .build();
+    attempts = settings.getStubSettings().readRowsSettings().getRetrySettings().getMaxAttempts();
+    stub = new EnhancedBigtableStub(settings.getStubSettings(), clientContext);
 
     // Create another server without injecting the server-timing header and another stub that
     // connects to it.
@@ -141,11 +151,21 @@ public class BigtableTracerCallableTest {
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
             .build();
-    EnhancedBigtableStubSettings noHeaderStubSettings =
-        EnhancedBigtableStub.finalizeSettings(
-            noHeaderSettings.getStubSettings(), Tags.getTagger(), localStats.getStatsRecorder());
+
+    ClientContext noHeaderClientContext =
+        EnhancedBigtableStub.createClientContext(noHeaderSettings.getStubSettings());
+    noHeaderClientContext =
+        noHeaderClientContext
+            .toBuilder()
+            .setTracerFactory(
+                EnhancedBigtableStub.createBigtableTracerFactory(
+                    noHeaderSettings.getStubSettings(),
+                    Tags.getTagger(),
+                    localStats.getStatsRecorder(),
+                    null))
+            .build();
     noHeaderStub =
-        new EnhancedBigtableStub(noHeaderStubSettings, ClientContext.create(noHeaderStubSettings));
+        new EnhancedBigtableStub(noHeaderSettings.getStubSettings(), noHeaderClientContext);
   }
 
   @After
@@ -221,6 +241,24 @@ public class BigtableTracerCallableTest {
   @Test
   public void testGFELatencySampleRowKeys() throws InterruptedException {
     stub.sampleRowKeysCallable().call(TABLE_ID);
+
+    Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
+    long latency =
+        StatsTestUtils.getAggregationValueAsLong(
+            localStats,
+            RpcViewConstants.BIGTABLE_GFE_LATENCY_VIEW,
+            ImmutableMap.of(
+                RpcMeasureConstants.BIGTABLE_OP, TagValue.create("Bigtable.SampleRowKeys"),
+                RpcMeasureConstants.BIGTABLE_STATUS, TagValue.create("OK")),
+            PROJECT_ID,
+            INSTANCE_ID,
+            APP_PROFILE_ID);
+    assertThat(latency).isEqualTo(fakeServerTiming.get());
+  }
+
+  @Test
+  public void testGFELatencySampleRowKeysWithRequest() throws InterruptedException {
+    stub.sampleRowKeysCallableWithRequest().call(SampleRowKeysRequest.create(TableId.of(TABLE_ID)));
 
     Thread.sleep(WAIT_FOR_METRICS_TIME_MS);
     long latency =
@@ -413,7 +451,8 @@ public class BigtableTracerCallableTest {
 
     @Override
     public void sampleRowKeys(
-        SampleRowKeysRequest request, StreamObserver<SampleRowKeysResponse> observer) {
+        com.google.bigtable.v2.SampleRowKeysRequest request,
+        StreamObserver<SampleRowKeysResponse> observer) {
       observer.onNext(SampleRowKeysResponse.getDefaultInstance());
       observer.onCompleted();
     }

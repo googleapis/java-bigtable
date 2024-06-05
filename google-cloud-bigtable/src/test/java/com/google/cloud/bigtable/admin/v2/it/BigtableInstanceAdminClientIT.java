@@ -37,7 +37,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.util.List;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -193,6 +192,94 @@ public class BigtableInstanceAdminClientIT {
   }
 
   @Test
+  public void appProfileTestPriority() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    client.createInstance(
+        CreateInstanceRequest.of(newInstanceId)
+            .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+            .setDisplayName("Priority-Instance-Test")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
+
+    try {
+      assertThat(client.exists(newInstanceId)).isTrue();
+
+      String testAppProfile = prefixGenerator.newPrefix();
+
+      // This should be created with HIGH priority.
+      CreateAppProfileRequest request =
+          CreateAppProfileRequest.of(newInstanceId, testAppProfile)
+              .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(newClusterId))
+              .setDescription("This is to test app profile");
+
+      AppProfile newlyCreatedAppProfile = client.createAppProfile(request);
+      AppProfile.StandardIsolationPolicy newlyCreatedAppProfilePolicy =
+          (AppProfile.StandardIsolationPolicy) newlyCreatedAppProfile.getIsolationPolicy();
+      assertThat(newlyCreatedAppProfilePolicy.getPriority()).isEqualTo(AppProfile.Priority.HIGH);
+
+      AppProfile updated =
+          client.updateAppProfile(
+              UpdateAppProfileRequest.of(newlyCreatedAppProfile)
+                  .setIsolationPolicy(
+                      AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW)));
+
+      AppProfile freshAppProfile = client.getAppProfile(newInstanceId, testAppProfile);
+      AppProfile.StandardIsolationPolicy freshAppProfilePolicy =
+          (AppProfile.StandardIsolationPolicy) freshAppProfile.getIsolationPolicy();
+      AppProfile.StandardIsolationPolicy updatedAppProfilePolicy =
+          (AppProfile.StandardIsolationPolicy) updated.getIsolationPolicy();
+
+      assertThat(freshAppProfilePolicy.getPriority()).isEqualTo(AppProfile.Priority.LOW);
+      assertThat(freshAppProfilePolicy).isEqualTo(updatedAppProfilePolicy);
+
+      assertThat(client.listAppProfiles(newInstanceId)).contains(freshAppProfile);
+    } finally {
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
+    }
+  }
+
+  @Test
+  public void appProfileTestDataBoost() {
+    String newInstanceId = prefixGenerator.newPrefix();
+    String newClusterId = newInstanceId + "-c1";
+
+    client.createInstance(
+        CreateInstanceRequest.of(newInstanceId)
+            .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+            .setDisplayName("Priority-Instance-Test")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
+
+    try {
+      assertThat(client.exists(newInstanceId)).isTrue();
+
+      String testAppProfile = prefixGenerator.newPrefix();
+
+      CreateAppProfileRequest request =
+          CreateAppProfileRequest.of(newInstanceId, testAppProfile)
+              .setRoutingPolicy(AppProfile.SingleClusterRoutingPolicy.of(newClusterId))
+              .setIsolationPolicy(
+                  AppProfile.DataBoostIsolationReadOnlyPolicy.of(
+                      AppProfile.ComputeBillingOwner.HOST_PAYS))
+              .setDescription("databoost app profile");
+
+      AppProfile newlyCreateAppProfile = client.createAppProfile(request);
+      AppProfile.ComputeBillingOwner computeBillingOwner =
+          ((AppProfile.DataBoostIsolationReadOnlyPolicy) newlyCreateAppProfile.getIsolationPolicy())
+              .getComputeBillingOwner();
+      assertThat(computeBillingOwner).isEqualTo(AppProfile.ComputeBillingOwner.HOST_PAYS);
+    } finally {
+      if (client.exists(newInstanceId)) {
+        client.deleteInstance(newInstanceId);
+      }
+    }
+  }
+
+  @Test
   public void iamUpdateTest() {
     Policy policy = client.getIamPolicy(instanceId);
     assertThat(policy).isNotNull();
@@ -317,8 +404,6 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMaxServeNodes()).isEqualTo(4);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(20);
       assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(9200);
-    } catch (Exception e) {
-      Assert.fail("error in the test" + e.getMessage());
     } finally {
       client.deleteInstance(newInstanceId);
     }
@@ -452,8 +537,6 @@ public class BigtableInstanceAdminClientIT {
       assertThat(retrievedUpdatedCluster.getAutoscalingMaxServeNodes()).isEqualTo(5);
       assertThat(retrievedUpdatedCluster.getAutoscalingCpuPercentageTarget()).isEqualTo(45);
       assertThat(retrievedUpdatedCluster.getStorageUtilizationGibPerNode()).isEqualTo(2560);
-    } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
     } finally {
       client.deleteInstance(newInstanceId);
     }
@@ -485,8 +568,6 @@ public class BigtableInstanceAdminClientIT {
       assertThat(cluster.getAutoscalingMinServeNodes()).isEqualTo(0);
       assertThat(cluster.getAutoscalingCpuPercentageTarget()).isEqualTo(0);
       assertThat(cluster.getStorageUtilizationGibPerNode()).isEqualTo(0);
-    } catch (Exception e) {
-      Assert.fail("error in the test: " + e.getMessage());
     } finally {
       client.deleteInstance(newInstanceId);
     }

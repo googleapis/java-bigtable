@@ -3,6 +3,8 @@ Thank you for opening a Pull Request! Before submitting your PR, there are a few
 - [ ] Ensure the tests and linter pass
 - [ ] Code coverage does not decrease (if any source code was changed)
 - [ ] Appropriate docs were updated (if necessary)
+- [ ] Rollback plan is reviewed and LGTMed
+- [ ] All new data plane features have a completed end to end testing plan
 
 Fixes #<issue_number_goes_here> ☕️
 
