@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
-import com.google.bigtable.v2.Type;
 import com.google.cloud.Date;
 import com.google.protobuf.ByteString;
 import java.util.List;
@@ -39,29 +38,6 @@ import org.threeten.bp.Instant;
  */
 @BetaApi
 public interface StructReader {
-
-  /**
-   * @param columnName name of the column
-   * @return the index of the column named {@code columnName}
-   * @throws IllegalArgumentException if there is not exactly one column with the given name
-   */
-  int getColumnIndex(String columnName);
-
-  /**
-   * @param columnIndex index of the column
-   * @return the type of the column at the given index
-   */
-  // TODO(jackdingilian): Fix this so it uses type wrappers
-  Type getColumnType(int columnIndex);
-
-  /**
-   * @param columnName name of the column
-   * @return the type of the column with the given name
-   * @throws IllegalArgumentException if there is not exactly one column with the given name
-   */
-  // TODO(jackdingilian): Fix this so it uses type wrappers
-  Type getColumnType(String columnName);
-
   /**
    * @param columnIndex index of the column
    * @return {@code true} if the column contains a {@code NULL} value

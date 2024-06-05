@@ -44,7 +44,26 @@ public abstract class AbstractProtoStructReader implements StructReader {
 
   public abstract int hashCode();
 
-  @Override
+  /**
+   * @param columnName name of the column
+   * @return the index of the column named {@code columnName}
+   * @throws IllegalArgumentException if there is not exactly one column with the given name
+   */
+  public abstract int getColumnIndex(String columnName);
+
+  /**
+   * @param columnIndex index of the column
+   * @return the type of the column at the given index
+   */
+  // TODO(jackdingilian): Fix this so it uses type wrappers
+  public abstract Type getColumnType(int columnIndex);
+
+  /**
+   * @param columnName name of the column
+   * @return the type of the column with the given name
+   * @throws IllegalArgumentException if there is not exactly one column with the given name
+   */
+  // TODO(jackdingilian): Fix this so it uses type wrappers
   public Type getColumnType(String columnName) {
     return getColumnType(getColumnIndex(columnName));
   }

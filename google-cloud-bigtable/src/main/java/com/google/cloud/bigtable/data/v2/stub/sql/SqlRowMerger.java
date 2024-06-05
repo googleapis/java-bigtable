@@ -137,7 +137,6 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
    */
   @Nullable
   // TODO(jackdingilian): update this to return a wrapper instead of the raw proto.
-  // TODO(jackdingilian): per design doc this will be updated to block until metadata is populated.
   public ResultSetMetadata getMetadata() {
     return this.metadata;
   }
