@@ -35,9 +35,10 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryResponse;
-import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.bigtable.v2.Value;
+import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
@@ -67,7 +68,8 @@ public class SqlRowMergerTest {
     };
     merger.push(metadata(columns));
     assertThat(merger).hasMetadata(true);
-    assertThat(merger).metadataEquals(metadata(columns).getMetadata());
+    assertThat(merger)
+        .metadataEquals(ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata()));
     assertThat(merger).hasPartialFrame(false);
     assertThat(merger).hasFullFrame(false);
   }
@@ -77,7 +79,7 @@ public class SqlRowMergerTest {
     SqlRowMerger merger = new SqlRowMerger();
     ExecuteQueryResponse unrecognizedMetadata =
         ExecuteQueryResponse.newBuilder()
-            .setMetadata(ResultSetMetadata.newBuilder().build())
+            .setMetadata(com.google.bigtable.v2.ResultSetMetadata.newBuilder().build())
             .build();
 
     assertThrows(IllegalStateException.class, () -> merger.push(unrecognizedMetadata));
@@ -149,6 +151,7 @@ public class SqlRowMergerTest {
       columnMetadata("strArr", arrayType(stringType())),
       columnMetadata("strByteMap", mapType(stringType(), bytesType()))
     };
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
     merger.push(metadata(columns));
 
     // Three logical rows worth of values split across two responses
@@ -171,19 +174,13 @@ public class SqlRowMergerTest {
     merger.push(partialResultSetWithoutToken(Arrays.copyOf(values, 5)));
     merger.push(partialResultSetWithToken(Arrays.copyOfRange(values, 5, 12)));
     assertThat(merger.pop())
-        .isEqualTo(
-            ProtoSqlRow.create(
-                ImmutableList.copyOf(columns), ImmutableList.copyOf(Arrays.copyOf(values, 4))));
+        .isEqualTo(ProtoSqlRow.create(metadata, ImmutableList.copyOf(Arrays.copyOf(values, 4))));
     assertThat(merger.pop())
         .isEqualTo(
-            ProtoSqlRow.create(
-                ImmutableList.copyOf(columns),
-                ImmutableList.copyOf(Arrays.copyOfRange(values, 4, 8))));
+            ProtoSqlRow.create(metadata, ImmutableList.copyOf(Arrays.copyOfRange(values, 4, 8))));
     assertThat(merger.pop())
         .isEqualTo(
-            ProtoSqlRow.create(
-                ImmutableList.copyOf(columns),
-                ImmutableList.copyOf(Arrays.copyOfRange(values, 8, 12))));
+            ProtoSqlRow.create(metadata, ImmutableList.copyOf(Arrays.copyOfRange(values, 8, 12))));
   }
 
   @Test
@@ -200,6 +197,7 @@ public class SqlRowMergerTest {
     ColumnMetadata[] columns = {
       columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()),
     };
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
     merger.push(metadata(columns));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     merger.push(partialResultSetWithoutToken(bytesValue("test")));
@@ -210,8 +208,7 @@ public class SqlRowMergerTest {
     assertThat(merger.pop())
         .isEqualTo(
             ProtoSqlRow.create(
-                ImmutableList.copyOf(columns),
-                ImmutableList.of(stringValue("test"), bytesValue("test"))));
+                metadata, ImmutableList.of(stringValue("test"), bytesValue("test"))));
   }
 
   @Test
@@ -235,6 +232,7 @@ public class SqlRowMergerTest {
     ColumnMetadata[] columns = {
       columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()),
     };
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
     merger.push(metadata(columns));
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token1")));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
@@ -245,8 +243,7 @@ public class SqlRowMergerTest {
     assertThat(merger.pop())
         .isEqualTo(
             ProtoSqlRow.create(
-                ImmutableList.copyOf(columns),
-                ImmutableList.of(stringValue("test"), bytesValue("test"))));
+                metadata, ImmutableList.of(stringValue("test"), bytesValue("test"))));
   }
 
   @Test

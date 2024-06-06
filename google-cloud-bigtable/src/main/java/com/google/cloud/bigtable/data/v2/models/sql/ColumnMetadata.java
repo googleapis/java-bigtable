@@ -16,11 +16,15 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
-import java.io.Serializable;
+import com.google.bigtable.v2.Type;
 
-/**
- * The representation of a SQL Struct type. Data can be accessed using the methods from the {@code
- * StructReader} interface.
- */
+/** Represents the metadata for a column in a {@link ResultSet} */
 @BetaApi
-public interface Struct extends StructReader, Serializable {}
+public interface ColumnMetadata {
+  /** The name of the column. Returns Empty string if the column has no name */
+  String name();
+
+  /** The {@link Type} of the column */
+  // TODO(jackdingilian): replace with type wrapper
+  Type type();
+}

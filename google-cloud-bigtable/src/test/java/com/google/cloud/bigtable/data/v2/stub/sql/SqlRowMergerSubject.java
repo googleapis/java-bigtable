@@ -17,7 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import static com.google.common.truth.Truth.assertAbout;
 
-import com.google.bigtable.v2.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import javax.annotation.Nullable;

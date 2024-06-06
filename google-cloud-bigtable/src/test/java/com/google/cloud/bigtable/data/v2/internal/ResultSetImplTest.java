@@ -44,9 +44,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import com.google.bigtable.v2.ExecuteQueryRequest;
-import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
@@ -71,24 +71,25 @@ public class ResultSetImplTest {
   @Test
   public void testSingleRow() throws ExecutionException, InterruptedException {
     ResultSetMetadata metadata =
-        metadata(
-                columnMetadata("string", stringType()),
-                columnMetadata("bytes", bytesType()),
-                columnMetadata("long", int64Type()),
-                columnMetadata("double", float64Type()),
-                columnMetadata("float", float32Type()),
-                columnMetadata("boolean", boolType()),
-                columnMetadata("timestamp", timestampType()),
-                columnMetadata("date", dateType()),
-                columnMetadata("struct", structType(structField("string", stringType()))),
-                columnMetadata("list", arrayType(stringType())),
-                columnMetadata("map", mapType(stringType(), stringType())))
-            .getMetadata();
+        ProtoResultSetMetadata.fromProto(
+            metadata(
+                    columnMetadata("string", stringType()),
+                    columnMetadata("bytes", bytesType()),
+                    columnMetadata("long", int64Type()),
+                    columnMetadata("double", float64Type()),
+                    columnMetadata("float", float32Type()),
+                    columnMetadata("boolean", boolType()),
+                    columnMetadata("timestamp", timestampType()),
+                    columnMetadata("date", dateType()),
+                    columnMetadata("struct", structType(structField("string", stringType()))),
+                    columnMetadata("list", arrayType(stringType())),
+                    columnMetadata("map", mapType(stringType(), stringType())))
+                .getMetadata());
     ResultSet resultSet =
         resultSetWithFakeStream(
             metadata,
             ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
+                metadata,
                 Arrays.asList(
                     stringValue("test"),
                     bytesValue("bytes"),
@@ -157,25 +158,17 @@ public class ResultSetImplTest {
 
   @Test
   public void testIteration() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     try (ResultSet resultSet =
         resultSetWithFakeStream(
             metadata,
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("foo"))),
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("bar"))),
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("baz"))),
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("a"))),
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("b"))))) {
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))),
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("bar"))),
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("baz"))),
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("a"))),
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("b"))))) {
 
       assertThat(resultSet.next()).isTrue();
       assertThat(resultSet.getString(0)).isEqualTo("foo");
@@ -193,7 +186,9 @@ public class ResultSetImplTest {
 
   @Test
   public void testEmptyResultSet() throws ExecutionException, InterruptedException {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     try (ResultSet resultSet = resultSetWithFakeStream(metadata)) {
       assertThat(resultSet.next()).isFalse();
       // TODO(jackdingilian) - fix this when the metadata is populated
@@ -203,16 +198,15 @@ public class ResultSetImplTest {
 
   @Test
   public void getCallsPrevented_afterNextReturnsFalse() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
+
     ResultSet resultSet =
         resultSetWithFakeStream(
             metadata,
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("foo"))),
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("bar"))));
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))),
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("bar"))));
 
     assertThat(resultSet.next()).isTrue();
     assertThat(resultSet.getString(0)).isEqualTo("foo");
@@ -228,13 +222,12 @@ public class ResultSetImplTest {
 
   @Test
   public void close_preventsGetCalls() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     ResultSet resultSet =
         resultSetWithFakeStream(
-            metadata,
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("foo"))));
+            metadata, ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))));
 
     assertThat(resultSet.next()).isTrue();
     resultSet.close();
@@ -243,13 +236,13 @@ public class ResultSetImplTest {
 
   @Test
   public void close_cancelsStreamWhenResultsNotConsumed() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
             Arrays.asList(
-                ProtoSqlRow.create(
-                    metadata.getProtoSchema().getColumnsList(),
-                    Collections.singletonList(stringValue("foo")))));
+                ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo")))));
     ResultSet resultSet =
         ResultSetImpl.create(stream.call(ExecuteQueryRequest.newBuilder().build()));
     resultSet.close();
@@ -260,13 +253,13 @@ public class ResultSetImplTest {
 
   @Test
   public void close_doesNotCancelStreamWhenResultsConsumed() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
             Arrays.asList(
-                ProtoSqlRow.create(
-                    metadata.getProtoSchema().getColumnsList(),
-                    Collections.singletonList(stringValue("foo")))));
+                ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo")))));
     ResultSet resultSet =
         ResultSetImpl.create(stream.call(ExecuteQueryRequest.newBuilder().build()));
 
@@ -279,15 +272,30 @@ public class ResultSetImplTest {
 
   @Test
   public void getBeforeNext_throwsException() {
-    ResultSetMetadata metadata = metadata(columnMetadata("string", stringType())).getMetadata();
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("string", stringType())).getMetadata());
     try (ResultSet resultSet =
         resultSetWithFakeStream(
             metadata,
-            ProtoSqlRow.create(
-                metadata.getProtoSchema().getColumnsList(),
-                Collections.singletonList(stringValue("foo"))))) {
-
+            ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo"))))) {
       assertThrows(IllegalStateException.class, () -> resultSet.getString(0));
+    }
+  }
+
+  @Test
+  public void getOnColumnWithDuplicateName_throwsException() {
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(columnMetadata("name", stringType()), columnMetadata("name", stringType()))
+                .getMetadata());
+    try (ResultSet resultSet =
+        resultSetWithFakeStream(
+            metadata,
+            ProtoSqlRow.create(metadata, Arrays.asList(stringValue("foo"), stringValue("bar"))))) {
+
+      assertThat(resultSet.next()).isTrue();
+      assertThrows(IllegalArgumentException.class, () -> resultSet.getString("name"));
     }
   }
 }

@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
@@ -34,7 +33,6 @@ import java.util.Map;
 import org.threeten.bp.Instant;
 
 @InternalApi
-@BetaApi
 public abstract class AbstractProtoStructReader implements StructReader {
 
   abstract List<Value> values();

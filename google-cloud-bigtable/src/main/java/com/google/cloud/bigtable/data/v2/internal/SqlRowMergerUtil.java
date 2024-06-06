@@ -18,7 +18,7 @@ package com.google.cloud.bigtable.data.v2.internal;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ExecuteQueryResponse;
-import com.google.bigtable.v2.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMerger;
 import com.google.common.collect.ImmutableList;
 import java.util.List;

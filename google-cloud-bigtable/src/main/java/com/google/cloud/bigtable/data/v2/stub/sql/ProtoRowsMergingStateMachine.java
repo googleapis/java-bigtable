@@ -15,16 +15,15 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
-import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.ProtoRows;
-import com.google.bigtable.v2.ProtoSchema;
 import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
@@ -51,7 +50,6 @@ import java.util.Queue;
  * <p>Package-private for internal use. This class is not thread safe.
  */
 @InternalApi
-@BetaApi
 final class ProtoRowsMergingStateMachine {
   enum State {
     /** Waiting for the first chunk of bytes for a new batch */
@@ -62,14 +60,13 @@ final class ProtoRowsMergingStateMachine {
     AWAITING_BATCH_CONSUME,
   }
 
-  private final ProtoSchema schema;
+  private final ResultSetMetadata metadata;
   private State state;
   private ByteString batchBuffer;
   private ProtoRows completeBatch;
 
-  ProtoRowsMergingStateMachine(ProtoSchema schema) {
-    validateSchema(schema);
-    this.schema = schema;
+  ProtoRowsMergingStateMachine(ResultSetMetadata metadata) {
+    this.metadata = metadata;
     state = State.AWAITING_NEW_BATCH;
     batchBuffer = ByteString.empty();
   }
@@ -126,28 +123,18 @@ final class ProtoRowsMergingStateMachine {
     Iterator<Value> valuesIterator = completeBatch.getValuesList().iterator();
     while (valuesIterator.hasNext()) {
       ImmutableList.Builder<Value> rowDataBuilder = ImmutableList.builder();
-      for (ColumnMetadata c : schema.getColumnsList()) {
+      for (ColumnMetadata c : metadata.getColumns()) {
         Preconditions.checkState(
             valuesIterator.hasNext(), "Incomplete row received with first missing column: %s", c);
         Value v = valuesIterator.next();
-        validateValueAndType(c.getType(), v);
+        validateValueAndType(c.type(), v);
         rowDataBuilder.add(v);
       }
-      queue.add(ProtoSqlRow.create(schema.getColumnsList(), rowDataBuilder.build()));
+      queue.add(ProtoSqlRow.create(metadata, rowDataBuilder.build()));
     }
     // reset the batch to be empty
     completeBatch = ProtoRows.getDefaultInstance();
     state = State.AWAITING_NEW_BATCH;
-  }
-
-  private static void validateSchema(ProtoSchema schema) {
-    List<ColumnMetadata> columns = schema.getColumnsList();
-    Preconditions.checkState(!columns.isEmpty(), "columns cannot be empty");
-    for (ColumnMetadata column : columns) {
-      Preconditions.checkState(
-          column.getType().getKindCase() != Type.KindCase.KIND_NOT_SET,
-          "Column type cannot be empty");
-    }
   }
 
   @InternalApi("VisibleForTestingOnly")

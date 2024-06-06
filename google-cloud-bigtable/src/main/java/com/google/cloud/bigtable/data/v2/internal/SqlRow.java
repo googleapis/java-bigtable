@@ -15,12 +15,10 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
 import java.io.Serializable;
 
 /** Internal implementation detail that provides access to row data for SQL requests. */
 @InternalApi
-@BetaApi
 public interface SqlRow extends StructReader, Serializable {}

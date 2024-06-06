@@ -15,12 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ServerStream;
-import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
 import com.google.common.base.Preconditions;
@@ -39,7 +38,6 @@ import org.threeten.bp.Instant;
  *
  * <p>This is considered an internal implementation detail and not meant to be used by applications.
  */
-@BetaApi
 @InternalApi("For internal use only")
 public class ResultSetImpl implements ResultSet, StructReader {
 

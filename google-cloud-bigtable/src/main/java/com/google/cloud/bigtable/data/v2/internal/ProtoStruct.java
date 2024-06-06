@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ArrayValue;
@@ -29,7 +28,6 @@ import java.util.List;
  *
  * <p>This is considered an internal implementation detail and not meant to be used by applications.
  */
-@BetaApi
 @InternalApi("For internal use only")
 @AutoValue
 public abstract class ProtoStruct extends AbstractProtoStructReader implements Struct {

@@ -33,6 +33,7 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryResponse;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +78,11 @@ public class SqlRowMergerUtilTest {
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(
-                  ImmutableList.of(columnMetadata("str", stringType())),
+                  ProtoResultSetMetadata.fromProto(
+                      metadata(columnMetadata("str", stringType())).getMetadata()),
                   ImmutableList.of(stringValue("val"))));
-      assertThat(util.getMetadata()).isEqualTo(metadata.getMetadata());
+      assertThat(util.getMetadata())
+          .isEqualTo(ProtoResultSetMetadata.fromProto(metadata.getMetadata()));
     }
   }
 
@@ -92,6 +95,7 @@ public class SqlRowMergerUtilTest {
       columnMetadata("strArr", arrayType(stringType())),
       columnMetadata("map", mapType(stringType(), bytesType()))
     };
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
     ImmutableList<ExecuteQueryResponse> responses =
         ImmutableList.of(
             metadata(columns),
@@ -112,25 +116,25 @@ public class SqlRowMergerUtilTest {
                 mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
     try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
       List<SqlRow> rows = util.parseExecuteQueryResponses(responses);
-      assertThat(util.getMetadata()).isEqualTo(metadata(columns).getMetadata());
+      assertThat(util.getMetadata()).isEqualTo(metadata);
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str1"),
                       bytesValue("bytes1"),
                       arrayValue(stringValue("arr1")),
                       mapValue(mapElement(stringValue("key1"), bytesValue("val1"))))),
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str2"),
                       bytesValue("bytes2"),
                       arrayValue(stringValue("arr2")),
                       mapValue(mapElement(stringValue("key2"), bytesValue("val2"))))),
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str3"),
                       bytesValue("bytes3"),
@@ -172,6 +176,7 @@ public class SqlRowMergerUtilTest {
       columnMetadata("strArr", arrayType(stringType())),
       columnMetadata("map", mapType(stringType(), bytesType()))
     };
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
     ImmutableList<ExecuteQueryResponse> responses =
         ImmutableList.of(
             metadata(columns),
@@ -197,25 +202,25 @@ public class SqlRowMergerUtilTest {
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(2, 3)));
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(3, 4)));
 
-      assertThat(util.getMetadata()).isEqualTo(metadata(columns).getMetadata());
+      assertThat(util.getMetadata()).isEqualTo(metadata);
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str1"),
                       bytesValue("bytes1"),
                       arrayValue(stringValue("arr1")),
                       mapValue(mapElement(stringValue("key1"), bytesValue("val1"))))),
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str2"),
                       bytesValue("bytes2"),
                       arrayValue(stringValue("arr2")),
                       mapValue(mapElement(stringValue("key2"), bytesValue("val2"))))),
               ProtoSqlRow.create(
-                  ImmutableList.copyOf(columns),
+                  metadata,
                   ImmutableList.of(
                       stringValue("str3"),
                       bytesValue("bytes3"),

@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import com.google.bigtable.v2.ResultSetMetadata;
+import com.google.api.core.BetaApi;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -39,6 +39,7 @@ import java.util.concurrent.ExecutionException;
  * <p>{@code ResultSet} implementations are not required to be thread-safe: the thread that asked
  * for a ResultSet must be the one that interacts with it.
  */
+@BetaApi
 public interface ResultSet extends StructReader, AutoCloseable {
 
   /**
@@ -48,10 +49,9 @@ public interface ResultSet extends StructReader, AutoCloseable {
   boolean next();
 
   /**
-   * Returns the metadata for the ResultSet. Blocks until the underlying stream receives the
-   * metadata.
+   * Returns the {@link ResultSetMetadata} for the ResultSet. Blocks until the underlying request
+   * receives the metadata.
    */
-  // TODO replace with a wrapper around the protos (and update doc string)
   ResultSetMetadata getMetadata() throws ExecutionException, InterruptedException;
 
   /**

@@ -32,6 +32,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Va
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapElement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.nullValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
@@ -51,6 +52,7 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.KindCase;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.protobuf.ByteString;
@@ -63,40 +65,33 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.threeten.bp.Instant;
 
-@RunWith(Enclosed.class)
+@RunWith(Parameterized.class)
 public class AbstractProtoStructReaderTest {
+
+  // Timestamp can be in micros up to max long
+  private static final long MAX_TS_SECONDS = Long.MAX_VALUE / 1000 / 1000;
 
   @AutoValue
   public abstract static class TestProtoStruct extends AbstractProtoStructReader {
-    public static TestProtoStruct create(List<ColumnMetadata> schema, List<Value> values) {
-      return new AutoValue_AbstractProtoStructReaderTest_TestProtoStruct(values, schema);
+    public static TestProtoStruct create(ResultSetMetadata metadata, List<Value> values) {
+      return new AutoValue_AbstractProtoStructReaderTest_TestProtoStruct(values, metadata);
     }
 
-    abstract List<ColumnMetadata> schema();
+    abstract ResultSetMetadata metadata();
 
     @Override
-    // This is a temporary hack. The type/metadata wrappers will provide an efficient way to lookup
-    // fields and type by columnName
-    // TODO(jackdingilian): replace with efficient lookup
-    // TODO(jackdingilian): fail on requests for column that appears multiple times
     public int getColumnIndex(String columnName) {
-      for (int i = 0; i < schema().size(); i++) {
-        if (schema().get(i).getName().equals(columnName)) {
-          return i;
-        }
-      }
-      throw new IllegalArgumentException("No field found with name: " + columnName);
+      return metadata().getColumnIndex(columnName);
     }
 
     @Override
     public Type getColumnType(int columnIndex) {
-      return schema().get(columnIndex).getType();
+      return metadata().getColumnType(columnIndex);
     }
   }
 
@@ -174,16 +169,17 @@ public class AbstractProtoStructReaderTest {
             (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestamp,
             Instant.ofEpochSecond(1000000, 100)
           },
-          // MAX long timestamp - bigtable allows users to set timestamp to any long so the
-          // client should parse them
+          // MAX long timestamp - bigtable allows users to set timestamp micros to any long
+          // so the client should parse them. In practice the server doesn't currently,
+          // support timestamps this large.
           {
             Collections.singletonList(columnMetadata("testField", timestampType())),
-            Collections.singletonList(timestampValue(Long.MAX_VALUE, 0)),
+            Collections.singletonList(timestampValue(MAX_TS_SECONDS, 0)),
             0,
             "testField",
             (BiFunction<TestProtoStruct, String, Instant>) TestProtoStruct::getTimestamp,
             (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestamp,
-            Instant.ofEpochSecond(Long.MAX_VALUE)
+            Instant.ofEpochSecond(MAX_TS_SECONDS)
           },
           // Date
           {
@@ -374,40 +370,39 @@ public class AbstractProtoStructReaderTest {
   @Parameter(value = 6)
   public Object expectedJavaValue;
 
+  private TestProtoStruct getTestRow() {
+    return TestProtoStruct.create(
+        ProtoResultSetMetadata.fromProto(
+            metadata(schema.toArray(new ColumnMetadata[] {})).getMetadata()),
+        values);
+  }
+
   @Test
   public void getByColumnName_convertsValues() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
-    assertThat(expectedJavaValue).isEqualTo(getByColumn.apply(row, columnName));
+    assertThat(getByColumn.apply(getTestRow(), columnName)).isEqualTo(expectedJavaValue);
   }
 
   @Test
   public void getByIndex_convertsValues() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
-    assertThat(expectedJavaValue).isEqualTo(getByIndex.apply(row, index));
+    assertThat(getByIndex.apply(getTestRow(), index)).isEqualTo(expectedJavaValue);
   }
 
   @Test
   public void getByColumnName_throwsExceptionOnNonExistentColumn() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
-    assertThrows(IllegalArgumentException.class, () -> getByColumn.apply(row, "invalid"));
+    assertThrows(IllegalArgumentException.class, () -> getByColumn.apply(getTestRow(), "invalid"));
   }
 
   @Test
   public void getByColumnIndex_throwsExceptionOnNonExistentColumn() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
     // Assume none of the tests have 10k columns
-    assertThrows(IndexOutOfBoundsException.class, () -> getByIndex.apply(row, 10000));
+    assertThrows(IndexOutOfBoundsException.class, () -> getByIndex.apply(getTestRow(), 10000));
   }
 
   @Test
   public void getByColumnIndex_throwsNullPointerOnNullValue() {
     TestProtoStruct row =
         TestProtoStruct.create(
-            schema,
+            getTestRow().metadata(),
             schema.stream()
                 .map((ColumnMetadata t) -> SqlProtoFactory.nullValue())
                 .collect(Collectors.toList()));
@@ -419,7 +414,7 @@ public class AbstractProtoStructReaderTest {
   public void getByColumnName_throwsNullPointerOnNullValue() {
     TestProtoStruct row =
         TestProtoStruct.create(
-            schema,
+            getTestRow().metadata(),
             schema.stream()
                 .map((ColumnMetadata t) -> SqlProtoFactory.nullValue())
                 .collect(Collectors.toList()));
@@ -436,9 +431,15 @@ public class AbstractProtoStructReaderTest {
       updatedType = int64Type();
       updatedValue = int64Value(1000);
     }
-    schema.add(index, columnMetadata(columnName, updatedType));
-    values.add(index, updatedValue);
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
+    List<ColumnMetadata> updatedSchema = new ArrayList<>(schema);
+    updatedSchema.set(index, columnMetadata(columnName, updatedType));
+    List<Value> updatedValues = new ArrayList<>(values);
+    updatedValues.set(index, updatedValue);
+    TestProtoStruct row =
+        TestProtoStruct.create(
+            ProtoResultSetMetadata.fromProto(
+                metadata(updatedSchema.toArray(new ColumnMetadata[] {})).getMetadata()),
+            updatedValues);
 
     assertThrows(IllegalStateException.class, () -> getByIndex.apply(row, index));
   }
@@ -452,9 +453,15 @@ public class AbstractProtoStructReaderTest {
       updatedType = int64Type();
       updatedValue = int64Value(1000);
     }
-    schema.add(index, columnMetadata(columnName, updatedType));
-    values.add(index, updatedValue);
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
+    List<ColumnMetadata> updatedSchema = new ArrayList<>(schema);
+    updatedSchema.set(index, columnMetadata(columnName, updatedType));
+    List<Value> updatedValues = new ArrayList<>(values);
+    updatedValues.set(index, updatedValue);
+    TestProtoStruct row =
+        TestProtoStruct.create(
+            ProtoResultSetMetadata.fromProto(
+                metadata(updatedSchema.toArray(new ColumnMetadata[] {})).getMetadata()),
+            updatedValues);
 
     assertThrows(IllegalStateException.class, () -> getByColumn.apply(row, columnName));
   }
@@ -463,7 +470,7 @@ public class AbstractProtoStructReaderTest {
   public void isNull_worksForNullValues() {
     TestProtoStruct row =
         TestProtoStruct.create(
-            schema,
+            getTestRow().metadata(),
             schema.stream()
                 .map((ColumnMetadata t) -> SqlProtoFactory.nullValue())
                 .collect(Collectors.toList()));
@@ -474,33 +481,42 @@ public class AbstractProtoStructReaderTest {
 
   @Test
   public void isNull_worksForNonNullValues() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
-    assertFalse(row.isNull(columnName));
-    assertFalse(row.isNull(index));
+    assertFalse(getTestRow().isNull(columnName));
+    assertFalse(getTestRow().isNull(index));
   }
 
   @Test
   public void getColumnTypeByName() {
-    TestProtoStruct row = TestProtoStruct.create(schema, values);
-
-    assertThat(schema.get(index).getType()).isEqualTo(row.getColumnType(columnName));
+    assertThat(schema.get(index).getType()).isEqualTo(getTestRow().getColumnType(columnName));
   }
 
-  // TODO(jackdingilian): Test this once we have a ResultSetMetadata wrapper.
   // consider moving it to non-parameterized test
   @Test
   public void getByColumnName_throwsExceptionForDuplicateColumnName() {
-    assertTrue(true);
+    // Add all fields to the schema twice
+    List<ColumnMetadata> duplicatedSchema = new ArrayList<>(schema);
+    duplicatedSchema.addAll(schema);
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(duplicatedSchema.toArray(new ColumnMetadata[] {})).getMetadata());
+    List<Value> duplicatedValues = new ArrayList<>(values);
+    duplicatedValues.addAll(values);
+    TestProtoStruct row = TestProtoStruct.create(metadata, duplicatedValues);
+
+    assertThrows(IllegalArgumentException.class, () -> getByColumn.apply(row, columnName));
   }
 
   @Test
   public void getByIndex_worksWithDuplicateColumnName() {
+    // Add all fields to the schema twice
     List<ColumnMetadata> duplicatedSchema = new ArrayList<>(schema);
     duplicatedSchema.addAll(schema);
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(
+            metadata(duplicatedSchema.toArray(new ColumnMetadata[] {})).getMetadata());
     List<Value> duplicatedValues = new ArrayList<>(values);
     duplicatedValues.addAll(values);
-    TestProtoStruct row = TestProtoStruct.create(duplicatedSchema, duplicatedValues);
+    TestProtoStruct row = TestProtoStruct.create(metadata, duplicatedValues);
 
     assertThat(expectedJavaValue).isEqualTo(getByIndex.apply(row, index));
   }

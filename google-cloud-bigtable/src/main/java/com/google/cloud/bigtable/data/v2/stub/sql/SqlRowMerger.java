@@ -15,13 +15,12 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.PartialResultSet;
-import com.google.bigtable.v2.ResultSetMetadata;
-import com.google.bigtable.v2.ResultSetMetadata.SchemaCase;
+import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.gaxx.reframing.Reframer;
 import com.google.common.base.Preconditions;
 import java.util.ArrayDeque;
@@ -33,7 +32,6 @@ import javax.annotation.Nullable;
  * safe.
  */
 @InternalApi
-@BetaApi
 public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse> {
 
   enum State {
@@ -67,12 +65,8 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
             response.hasMetadata(),
             "Expected metadata response, but received: %s",
             response.getResponseCase().name());
-        metadata = response.getMetadata();
-        Preconditions.checkState(
-            metadata.getSchemaCase().equals(SchemaCase.PROTO_SCHEMA),
-            "Unrecognized Schema type: %s",
-            metadata.getSchemaCase());
-        stateMachine = new ProtoRowsMergingStateMachine(metadata.getProtoSchema());
+        metadata = ProtoResultSetMetadata.fromProto(response.getMetadata());
+        stateMachine = new ProtoRowsMergingStateMachine(metadata);
         currentState = State.PROCESSING_DATA;
         break;
       case PROCESSING_DATA:
@@ -136,7 +130,6 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
    *     the metadata. The metadata will be the first response in the stream.
    */
   @Nullable
-  // TODO(jackdingilian): update this to return a wrapper instead of the raw proto.
   public ResultSetMetadata getMetadata() {
     return this.metadata;
   }
