@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.internal;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ExecuteQueryResponse;
-import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMerger;
 import com.google.common.collect.ImmutableList;
 import java.util.List;
@@ -66,15 +65,5 @@ public class SqlRowMergerUtil implements AutoCloseable {
       }
     }
     return rows.build();
-  }
-
-  /**
-   * Get the metadata for the current query.
-   *
-   * @return the {@link ResultSetMetadata} for the current query. Null until the util has received
-   *     the metadata.
-   */
-  public ResultSetMetadata getMetadata() {
-    return merger.getMetadata();
   }
 }

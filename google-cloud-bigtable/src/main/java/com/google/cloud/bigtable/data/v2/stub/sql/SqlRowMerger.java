@@ -25,7 +25,6 @@ import com.google.cloud.bigtable.gaxx.reframing.Reframer;
 import com.google.common.base.Preconditions;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import javax.annotation.Nullable;
 
 /**
  * Used to transform a stream of ExecuteQueryResponse objects into rows. This class is not thread
@@ -40,7 +39,6 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
   }
 
   private final Queue<SqlRow> queue;
-  private ResultSetMetadata metadata;
   private ProtoRowsMergingStateMachine stateMachine;
   private State currentState;
 
@@ -65,8 +63,9 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
             response.hasMetadata(),
             "Expected metadata response, but received: %s",
             response.getResponseCase().name());
-        metadata = ProtoResultSetMetadata.fromProto(response.getMetadata());
-        stateMachine = new ProtoRowsMergingStateMachine(metadata);
+        ResultSetMetadata responseMetadata =
+            ProtoResultSetMetadata.fromProto(response.getMetadata());
+        stateMachine = new ProtoRowsMergingStateMachine(responseMetadata);
         currentState = State.PROCESSING_DATA;
         break;
       case PROCESSING_DATA:
@@ -121,26 +120,5 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
   public SqlRow pop() {
     return Preconditions.checkNotNull(
         queue.poll(), "SqlRowMerger.pop() called when there are no complete rows.");
-  }
-
-  /**
-   * Get the metadata for the current query.
-   *
-   * @return the {@link ResultSetMetadata} for the current query. Null until the query has received
-   *     the metadata. The metadata will be the first response in the stream.
-   */
-  @Nullable
-  public ResultSetMetadata getMetadata() {
-    return this.metadata;
-  }
-
-  /**
-   * Check if the merger has received the metadata.
-   *
-   * @return true if the SqlRowMerger has received the metadata for the current query, false
-   *     otherwise
-   */
-  public boolean hasMetadata() {
-    return this.metadata != null;
   }
 }

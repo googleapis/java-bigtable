@@ -15,19 +15,21 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
+import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
+import com.google.api.gax.rpc.ApiExceptions;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import org.threeten.bp.Instant;
 
 /**
@@ -43,16 +45,18 @@ public class ResultSetImpl implements ResultSet, StructReader {
 
   private final ServerStream<SqlRow> serverStream;
   private final Iterator<SqlRow> rowIterator;
+  private final ApiFuture<ResultSetMetadata> metadataApiFuture;
   private boolean consumed;
   private SqlRow currentRow;
 
-  public static ResultSet create(ServerStream<SqlRow> rowStream) {
-    return new ResultSetImpl(rowStream);
+  public static ResultSet create(SqlServerStream sqlServerStream) {
+    return new ResultSetImpl(sqlServerStream);
   }
 
-  private ResultSetImpl(ServerStream<SqlRow> rowStream) {
-    this.serverStream = rowStream;
-    this.rowIterator = rowStream.iterator();
+  private ResultSetImpl(SqlServerStream sqlServerStream) {
+    this.serverStream = sqlServerStream.rows();
+    this.rowIterator = serverStream.iterator();
+    this.metadataApiFuture = sqlServerStream.metadataFuture();
     this.consumed = false;
   }
 
@@ -77,9 +81,8 @@ public class ResultSetImpl implements ResultSet, StructReader {
   }
 
   @Override
-  public ResultSetMetadata getMetadata() throws ExecutionException, InterruptedException {
-    // TODO(jackdingilian) - hook up metadata
-    return null;
+  public ResultSetMetadata getMetadata() {
+    return ApiExceptions.callAndTranslateApiException(metadataApiFuture);
   }
 
   @Override

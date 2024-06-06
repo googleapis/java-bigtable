@@ -43,10 +43,14 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timesta
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStreamImpl;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
@@ -63,9 +67,13 @@ import org.threeten.bp.Instant;
 public class ResultSetImplTest {
 
   private static ResultSet resultSetWithFakeStream(ResultSetMetadata metadata, SqlRow... rows) {
-    ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
+    ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Arrays.asList(rows));
-    return ResultSetImpl.create(stream.call(ExecuteQueryRequest.newBuilder().build()));
+    SettableApiFuture<ResultSetMetadata> future = SettableApiFuture.create();
+    future.set(metadata);
+    ExecuteQueryCallContext fakeCallContext =
+        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), future);
+    return ResultSetImpl.create(SqlServerStreamImpl.create(future, stream.call(fakeCallContext)));
   }
 
   @Test
@@ -151,8 +159,7 @@ public class ResultSetImplTest {
     }
     assertThat(rows).isEqualTo(1);
     assertThat(resultSet.next()).isFalse();
-    // TODO(jackdingilian) - fix this when the metadata is populated
-    assertThat(resultSet.getMetadata()).isEqualTo(null);
+    assertThat(resultSet.getMetadata()).isEqualTo(metadata);
     resultSet.close();
   }
 
@@ -191,8 +198,7 @@ public class ResultSetImplTest {
             metadata(columnMetadata("string", stringType())).getMetadata());
     try (ResultSet resultSet = resultSetWithFakeStream(metadata)) {
       assertThat(resultSet.next()).isFalse();
-      // TODO(jackdingilian) - fix this when the metadata is populated
-      assertThat(resultSet.getMetadata()).isEqualTo(null);
+      assertThat(resultSet.getMetadata()).isEqualTo(metadata);
     }
   }
 
@@ -241,10 +247,12 @@ public class ResultSetImplTest {
             metadata(columnMetadata("string", stringType())).getMetadata());
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
-            Arrays.asList(
+            Collections.singletonList(
                 ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo")))));
-    ResultSet resultSet =
-        ResultSetImpl.create(stream.call(ExecuteQueryRequest.newBuilder().build()));
+    SqlServerStream sqlServerStream =
+        SqlServerStreamImpl.create(
+            SettableApiFuture.create(), stream.call(ExecuteQueryRequest.newBuilder().build()));
+    ResultSet resultSet = ResultSetImpl.create(sqlServerStream);
     resultSet.close();
 
     Throwable lastCallError = stream.popLastCall().getError();
@@ -258,10 +266,12 @@ public class ResultSetImplTest {
             metadata(columnMetadata("string", stringType())).getMetadata());
     ServerStreamingStashCallable<ExecuteQueryRequest, SqlRow> stream =
         new ServerStreamingStashCallable<>(
-            Arrays.asList(
+            Collections.singletonList(
                 ProtoSqlRow.create(metadata, Collections.singletonList(stringValue("foo")))));
-    ResultSet resultSet =
-        ResultSetImpl.create(stream.call(ExecuteQueryRequest.newBuilder().build()));
+    SqlServerStream sqlServerStream =
+        SqlServerStreamImpl.create(
+            SettableApiFuture.create(), stream.call(ExecuteQueryRequest.newBuilder().build()));
+    ResultSet resultSet = ResultSetImpl.create(sqlServerStream);
 
     assertThat(resultSet.next()).isTrue();
     assertThat(resultSet.next()).isFalse();
@@ -297,5 +307,35 @@ public class ResultSetImplTest {
       assertThat(resultSet.next()).isTrue();
       assertThrows(IllegalArgumentException.class, () -> resultSet.getString("name"));
     }
+  }
+
+  @Test
+  public void getMetadata_unwrapsExecutionExceptions() {
+    SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
+    ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
+        new ServerStreamingStashCallable<>(Collections.emptyList());
+    ExecuteQueryCallContext fakeCallContext =
+        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), metadataFuture);
+    ResultSet rs =
+        ResultSetImpl.create(
+            SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));
+
+    metadataFuture.setException(new IllegalStateException("test"));
+    assertThrows(IllegalStateException.class, rs::getMetadata);
+  }
+
+  @Test
+  public void getMetadata_returnsNonRuntimeExecutionExceptionsWrapped() {
+    SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
+    ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
+        new ServerStreamingStashCallable<>(Collections.emptyList());
+    ExecuteQueryCallContext fakeCallContext =
+        ExecuteQueryCallContext.create(ExecuteQueryRequest.newBuilder().build(), metadataFuture);
+    ResultSet rs =
+        ResultSetImpl.create(
+            SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));
+
+    metadataFuture.setException(new Throwable("test"));
+    assertThrows(RuntimeException.class, rs::getMetadata);
   }
 }

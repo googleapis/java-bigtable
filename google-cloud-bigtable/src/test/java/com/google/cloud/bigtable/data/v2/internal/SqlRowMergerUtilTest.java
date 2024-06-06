@@ -81,8 +81,7 @@ public class SqlRowMergerUtilTest {
                   ProtoResultSetMetadata.fromProto(
                       metadata(columnMetadata("str", stringType())).getMetadata()),
                   ImmutableList.of(stringValue("val"))));
-      assertThat(util.getMetadata())
-          .isEqualTo(ProtoResultSetMetadata.fromProto(metadata.getMetadata()));
+      ;
     }
   }
 
@@ -116,7 +115,6 @@ public class SqlRowMergerUtilTest {
                 mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
     try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
       List<SqlRow> rows = util.parseExecuteQueryResponses(responses);
-      assertThat(util.getMetadata()).isEqualTo(metadata);
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(
@@ -202,7 +200,6 @@ public class SqlRowMergerUtilTest {
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(2, 3)));
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(3, 4)));
 
-      assertThat(util.getMetadata()).isEqualTo(metadata);
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(

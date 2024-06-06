@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import static com.google.common.truth.Truth.assertAbout;
 
-import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
 import javax.annotation.Nullable;
@@ -40,14 +39,6 @@ final class SqlRowMergerSubject extends Subject {
     return assertAbout(sqlRowMerger()).that(actual);
   }
 
-  public void hasMetadata(boolean expectation) {
-    if (expectation) {
-      check("hasMetadata()").that(actual.hasMetadata()).isTrue();
-    } else {
-      check("hasMetadata()").that(actual.hasMetadata()).isFalse();
-    }
-  }
-
   public void hasPartialFrame(boolean expectation) {
     if (expectation) {
       check("hasPartialFrame()").that(actual.hasPartialFrame()).isTrue();
@@ -62,9 +53,5 @@ final class SqlRowMergerSubject extends Subject {
     } else {
       check("hasFullFrame()").that(actual.hasFullFrame()).isFalse();
     }
-  }
-
-  public void metadataEquals(ResultSetMetadata expected) {
-    check("metadata").that(actual.getMetadata()).isEqualTo(expected);
   }
 }

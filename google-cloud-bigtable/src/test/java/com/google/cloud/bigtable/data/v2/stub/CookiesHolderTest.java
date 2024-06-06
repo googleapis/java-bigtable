@@ -553,7 +553,6 @@ public class CookiesHolderTest {
 
     // Exclude methods that are not supported by routing cookie
     methods.add("PingAndWarm");
-    // TODO(jackdingilian): actually test this
     methods.add("ExecuteQuery");
 
     assertThat(methods).containsExactlyElementsIn(expected);

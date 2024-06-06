@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
-import java.util.concurrent.ExecutionException;
 
 /**
  * A set of SQL data, generated as the result of an ExecuteQuery request.
@@ -52,7 +51,7 @@ public interface ResultSet extends StructReader, AutoCloseable {
    * Returns the {@link ResultSetMetadata} for the ResultSet. Blocks until the underlying request
    * receives the metadata.
    */
-  ResultSetMetadata getMetadata() throws ExecutionException, InterruptedException;
+  ResultSetMetadata getMetadata();
 
   /**
    * Closes the result set and cancels the underlying request if it is still open. This must always

@@ -52,7 +52,6 @@ public class SqlRowMergerTest {
   @Test
   public void sqlRowMerger_handlesEmptyState() {
     SqlRowMerger merger = new SqlRowMerger();
-    assertThat(merger).hasMetadata(false);
     assertThat(merger).hasPartialFrame(false);
     assertThat(merger).hasFullFrame(false);
   }
@@ -67,9 +66,6 @@ public class SqlRowMergerTest {
       columnMetadata("strByteMap", mapType(stringType(), bytesType()))
     };
     merger.push(metadata(columns));
-    assertThat(merger).hasMetadata(true);
-    assertThat(merger)
-        .metadataEquals(ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata()));
     assertThat(merger).hasPartialFrame(false);
     assertThat(merger).hasFullFrame(false);
   }
