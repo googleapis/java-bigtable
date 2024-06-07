@@ -34,7 +34,7 @@ import com.google.cloud.bigtable.data.v2.models.KeyOffset;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
@@ -817,7 +817,7 @@ public class EnhancedBigtableStubSettingsTest {
 
   @Test
   public void executeQueryHasSaneDefaults() {
-    ServerStreamingCallSettings.Builder<ExecuteQueryCallContext, SqlRow> builder =
+    ServerStreamingCallSettings.Builder<Statement, SqlRow> builder =
         EnhancedBigtableStubSettings.newBuilder().executeQuerySettings();
 
     // Retries aren't supported right now
@@ -830,7 +830,7 @@ public class EnhancedBigtableStubSettingsTest {
 
   @Test
   public void executeQueryRetriesAreDisabled() {
-    ServerStreamingCallSettings.Builder<ExecuteQueryCallContext, SqlRow> builder =
+    ServerStreamingCallSettings.Builder<Statement, SqlRow> builder =
         EnhancedBigtableStubSettings.newBuilder().executeQuerySettings();
 
     assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);

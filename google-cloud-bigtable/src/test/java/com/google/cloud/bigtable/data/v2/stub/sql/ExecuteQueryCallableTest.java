@@ -21,10 +21,11 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringT
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.common.truth.Truth.assertThat;
 
-import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import java.util.Collections;
 import java.util.Iterator;
@@ -35,6 +36,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ExecuteQueryCallableTest {
 
+  private static final RequestContext REQUEST_CONTEXT =
+      RequestContext.create("fake-project", "fake-instance", "fake-profile");
+
   @Test
   public void testCallContextAndServerStreamSetup() {
     SqlRow row =
@@ -44,15 +48,8 @@ public class ExecuteQueryCallableTest {
             Collections.singletonList(stringValue("foo")));
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> innerCallable =
         new ServerStreamingStashCallable<>(Collections.singletonList(row));
-    ExecuteQueryCallable callable = new ExecuteQueryCallable(innerCallable);
-    // TODO replace w Statement
-    ExecuteQueryRequest request =
-        ExecuteQueryRequest.newBuilder()
-            .setInstanceName("projects/test/instances/test-instance")
-            .setAppProfileId("test-app-profile")
-            .setQuery("SELECT * FROM table")
-            .build();
-    SqlServerStream stream = callable.call(request);
+    ExecuteQueryCallable callable = new ExecuteQueryCallable(innerCallable, REQUEST_CONTEXT);
+    SqlServerStream stream = callable.call(Statement.of("SELECT * FROM table"));
 
     assertThat(stream.metadataFuture())
         .isEqualTo(innerCallable.getActualRequest().resultSetMetadataFuture());

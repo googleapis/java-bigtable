@@ -64,6 +64,7 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.*;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.collect.ImmutableMap;
@@ -670,13 +671,16 @@ public class EnhancedBigtableStubTest {
   public void testCreateExecuteQueryCallable() throws InterruptedException {
     ExecuteQueryCallable streamingCallable = enhancedBigtableStub.createExecuteQueryCallable();
 
-    // TODO replace with statement
-    ExecuteQueryRequest request = ExecuteQueryRequest.newBuilder().build();
-    SqlServerStream sqlServerStream = streamingCallable.call(request);
-
+    SqlServerStream sqlServerStream = streamingCallable.call(Statement.of("SELECT * FROM table"));
+    ExecuteQueryRequest expectedRequest =
+        ExecuteQueryRequest.newBuilder()
+            .setInstanceName(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+            .setAppProfileId(APP_PROFILE_ID)
+            .setQuery("SELECT * FROM table")
+            .build();
     assertThat(sqlServerStream.rows().iterator().next()).isNotNull();
     assertThat(sqlServerStream.metadataFuture().isDone()).isTrue();
-    assertThat(fakeDataService.popLastExecuteQueryRequest()).isEqualTo(request);
+    assertThat(fakeDataService.popLastExecuteQueryRequest()).isEqualTo(expectedRequest);
   }
 
   @Test
@@ -689,10 +693,7 @@ public class EnhancedBigtableStubTest {
 
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
     Iterator<SqlRow> iterator =
-        stub.executeQueryCallable()
-            .call(ExecuteQueryRequest.newBuilder().setQuery(WAIT_TIME_QUERY).build())
-            .rows()
-            .iterator();
+        stub.executeQueryCallable().call(Statement.of(WAIT_TIME_QUERY)).rows().iterator();
     WatchdogTimeoutException e = assertThrows(WatchdogTimeoutException.class, iterator::next);
     assertThat(e).hasMessageThat().contains("Canceled due to timeout waiting for next response");
   }
@@ -708,9 +709,7 @@ public class EnhancedBigtableStubTest {
 
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
     ApiFuture<ResultSetMetadata> future =
-        stub.executeQueryCallable()
-            .call(ExecuteQueryRequest.newBuilder().setQuery(WAIT_TIME_QUERY).build())
-            .metadataFuture();
+        stub.executeQueryCallable().call(Statement.of(WAIT_TIME_QUERY)).metadataFuture();
 
     ExecutionException e = assertThrows(ExecutionException.class, future::get);
     assertThat(e.getCause()).isInstanceOf(WatchdogTimeoutException.class);

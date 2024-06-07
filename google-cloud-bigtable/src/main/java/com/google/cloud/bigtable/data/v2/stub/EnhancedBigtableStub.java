@@ -1362,7 +1362,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             withBigtableTracer, clientContext.getTracerFactory(), span);
 
     return new ExecuteQueryCallable(
-        traced.withDefaultCallContext(clientContext.getDefaultCallContext()));
+        traced.withDefaultCallContext(clientContext.getDefaultCallContext()), requestContext);
   }
 
   /**

@@ -22,8 +22,10 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.ExecuteQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 
 /**
  * Callable that creates {@link SqlServerStream}s from {@link ExecuteQueryRequest}s.
@@ -33,18 +35,21 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
-// TODO(jackdingilian): update docs w Statement instead of the request proto
 @InternalApi
 public class ExecuteQueryCallable extends ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> {
 
   private final ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner;
+  private final RequestContext requestContext;
 
-  public ExecuteQueryCallable(ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner) {
+  public ExecuteQueryCallable(
+      ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner,
+      RequestContext requestContext) {
     this.inner = inner;
+    this.requestContext = requestContext;
   }
 
-  // TODO(jackdingilian): update to take a Statement instead of the request proto
-  public SqlServerStream call(ExecuteQueryRequest request) {
+  public SqlServerStream call(Statement statement) {
+    ExecuteQueryRequest request = statement.toProto(requestContext);
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStream<SqlRow> rowStream =
         this.call(ExecuteQueryCallContext.create(request, metadataFuture));

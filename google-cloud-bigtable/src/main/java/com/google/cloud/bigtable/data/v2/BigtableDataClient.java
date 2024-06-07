@@ -30,7 +30,6 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.bigtable.data.v2.internal.ResultSetImpl;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
@@ -50,6 +49,7 @@ import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -2614,10 +2614,9 @@ public class BigtableDataClient implements AutoCloseable {
     return stub.readChangeStreamCallable();
   }
 
-  // TODO(jackdingilian): Update this to use Statement API instead of protos
   @BetaApi
-  public ResultSet executeQuery(ExecuteQueryRequest request) {
-    SqlServerStream stream = stub.createExecuteQueryCallable().call(request);
+  public ResultSet executeQuery(Statement statement) {
+    SqlServerStream stream = stub.createExecuteQueryCallable().call(statement);
     return ResultSetImpl.create(stream);
   }
 
