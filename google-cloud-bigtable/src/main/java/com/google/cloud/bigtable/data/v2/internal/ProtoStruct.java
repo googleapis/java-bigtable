@@ -18,8 +18,8 @@ package com.google.cloud.bigtable.data.v2.internal;
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ArrayValue;
-import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import java.util.List;
 
@@ -33,11 +33,11 @@ import java.util.List;
 public abstract class ProtoStruct extends AbstractProtoStructReader implements Struct {
 
   @InternalApi
-  static ProtoStruct create(Type.Struct type, ArrayValue fieldValues) {
+  static ProtoStruct create(SqlType.Struct type, ArrayValue fieldValues) {
     return new AutoValue_ProtoStruct(type, fieldValues);
   }
 
-  protected abstract Type.Struct type();
+  protected abstract SqlType.Struct type();
 
   protected abstract ArrayValue fieldValues();
 
@@ -46,22 +46,13 @@ public abstract class ProtoStruct extends AbstractProtoStructReader implements S
     return fieldValues().getValuesList();
   }
 
-  // This is a temporary hack. The type/metadata wrappers will provide an efficient way to lookup
-  // fields and type by columnName
-  // TODO(jackdingilian): replace with efficient lookup
-  // TODO(jackdingilian): fail on requests for column that appears multiple times
   @Override
   public int getColumnIndex(String columnName) {
-    for (int i = 0; i < type().getFieldsCount(); i++) {
-      if (type().getFields(i).getFieldName().equals(columnName)) {
-        return i;
-      }
-    }
-    throw new IllegalArgumentException("No field found with name: " + columnName);
+    return type().getColumnIndex(columnName);
   }
 
   @Override
-  public Type getColumnType(int columnIndex) {
-    return type().getFields(columnIndex).getType();
+  public SqlType<?> getColumnType(int columnIndex) {
+    return type().getType(columnIndex);
   }
 }

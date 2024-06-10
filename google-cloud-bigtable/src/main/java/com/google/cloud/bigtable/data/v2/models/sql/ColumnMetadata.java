@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
-import com.google.bigtable.v2.Type;
 
 /** Represents the metadata for a column in a {@link ResultSet} */
 @BetaApi
@@ -24,7 +23,6 @@ public interface ColumnMetadata {
   /** The name of the column. Returns Empty string if the column has no name */
   String name();
 
-  /** The {@link Type} of the column */
-  // TODO(jackdingilian): replace with type wrapper
-  Type type();
+  /** The {@link SqlType} of the column */
+  SqlType<?> type();
 }

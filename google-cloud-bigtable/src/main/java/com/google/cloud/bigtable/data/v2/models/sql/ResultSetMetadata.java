@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
-import com.google.bigtable.v2.Type;
 import java.util.List;
 
 /** Provides information about the schema of a {@link ResultSet}. */
@@ -28,19 +27,17 @@ public interface ResultSetMetadata {
 
   /**
    * @param columnIndex index of the column
-   * @return the {@link Type} of the column at the given index
+   * @return the {@link SqlType} of the column at the given index
    */
-  // TODO(jackdingilian): replace response type with Type wrapper
-  Type getColumnType(int columnIndex);
+  SqlType<?> getColumnType(int columnIndex);
 
   /**
    * @param columnName name of the column
-   * @return the {@link Type} of the column with the given name
+   * @return the {@link SqlType} of the column with the given name
    * @throws IllegalArgumentException if there is no column with the name *or* if there are multiple
    *     columns with the given name
    */
-  // TODO(jackdingilian): replace response type with Type wrapper
-  Type getColumnType(String columnName);
+  SqlType<?> getColumnType(String columnName);
 
   /**
    * @param columnName name of the column

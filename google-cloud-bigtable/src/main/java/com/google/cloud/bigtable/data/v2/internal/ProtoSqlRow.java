@@ -17,9 +17,9 @@ package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
-import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import java.util.List;
 
 @InternalApi
@@ -44,7 +44,7 @@ public abstract class ProtoSqlRow extends AbstractProtoStructReader implements S
   }
 
   @Override
-  public Type getColumnType(int columnIndex) {
+  public SqlType<?> getColumnType(int columnIndex) {
     return metadata().getColumnType(columnIndex);
   }
 }

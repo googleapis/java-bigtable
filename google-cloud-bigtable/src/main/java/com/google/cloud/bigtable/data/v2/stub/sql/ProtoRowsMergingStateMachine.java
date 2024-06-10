@@ -18,12 +18,12 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.ProtoRows;
-import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
@@ -138,79 +138,76 @@ final class ProtoRowsMergingStateMachine {
   }
 
   @InternalApi("VisibleForTestingOnly")
-  static void validateValueAndType(Type type, Value value) {
+  static void validateValueAndType(SqlType<?> type, Value value) {
     // Null is represented as a value with none of the kind fields set
     if (value.getKindCase() == Value.KindCase.KIND_NOT_SET) {
       return;
     }
-    switch (type.getKindCase()) {
+    switch (type.getCode()) {
         // Primitive types
-      case STRING_TYPE:
-        checkExpectedKind(value, Value.KindCase.STRING_VALUE, Type.KindCase.STRING_TYPE);
+      case STRING:
+        checkExpectedKind(value, Value.KindCase.STRING_VALUE, type);
         break;
-      case BYTES_TYPE:
-        checkExpectedKind(value, Value.KindCase.BYTES_VALUE, Type.KindCase.BYTES_TYPE);
+      case BYTES:
+        checkExpectedKind(value, Value.KindCase.BYTES_VALUE, type);
         break;
-      case INT64_TYPE:
-        checkExpectedKind(value, Value.KindCase.INT_VALUE, Type.KindCase.INT64_TYPE);
+      case INT64:
+        checkExpectedKind(value, Value.KindCase.INT_VALUE, type);
         break;
-      case FLOAT32_TYPE:
-        checkExpectedKind(value, Value.KindCase.FLOAT_VALUE, Type.KindCase.FLOAT32_TYPE);
+      case FLOAT64:
+      case FLOAT32:
+        checkExpectedKind(value, Value.KindCase.FLOAT_VALUE, type);
         break;
-      case FLOAT64_TYPE:
-        checkExpectedKind(value, Value.KindCase.FLOAT_VALUE, Type.KindCase.FLOAT64_TYPE);
+      case BOOL:
+        checkExpectedKind(value, Value.KindCase.BOOL_VALUE, type);
         break;
-      case BOOL_TYPE:
-        checkExpectedKind(value, Value.KindCase.BOOL_VALUE, Type.KindCase.BOOL_TYPE);
+      case TIMESTAMP:
+        checkExpectedKind(value, Value.KindCase.TIMESTAMP_VALUE, type);
         break;
-      case TIMESTAMP_TYPE:
-        checkExpectedKind(value, Value.KindCase.TIMESTAMP_VALUE, Type.KindCase.TIMESTAMP_TYPE);
-        break;
-      case DATE_TYPE:
-        checkExpectedKind(value, Value.KindCase.DATE_VALUE, Type.KindCase.DATE_TYPE);
+      case DATE:
+        checkExpectedKind(value, Value.KindCase.DATE_VALUE, type);
         break;
         // Complex types
-      case ARRAY_TYPE:
-        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, Type.KindCase.ARRAY_TYPE);
+      case ARRAY:
+        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, type);
+        SqlType.Array<?> arrayType = (SqlType.Array<?>) type;
+        SqlType<?> elemType = arrayType.getElementType();
         for (Value element : value.getArrayValue().getValuesList()) {
-          validateValueAndType(type.getArrayType().getElementType(), element);
+          validateValueAndType(elemType, element);
         }
         break;
-      case STRUCT_TYPE:
-        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, Type.KindCase.STRUCT_TYPE);
+      case STRUCT:
+        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, type);
         List<Value> fieldValues = value.getArrayValue().getValuesList();
-        List<Type.Struct.Field> fieldTypes = type.getStructType().getFieldsList();
+        SqlType.Struct structType = (SqlType.Struct) type;
         for (int i = 0; i < fieldValues.size(); i++) {
-          validateValueAndType(fieldTypes.get(i).getType(), fieldValues.get(i));
+          validateValueAndType(structType.getType(i), fieldValues.get(i));
         }
         break;
-      case MAP_TYPE:
-        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, Type.KindCase.MAP_TYPE);
+      case MAP:
+        checkExpectedKind(value, Value.KindCase.ARRAY_VALUE, type);
+        SqlType.Map<?, ?> mapType = (SqlType.Map<?, ?>) type;
         for (Value mapElement : value.getArrayValue().getValuesList()) {
           Preconditions.checkState(
               mapElement.getArrayValue().getValuesCount() == 2,
               "Map elements must have exactly 2 elementss");
           validateValueAndType(
-              type.getMapType().getKeyType(), mapElement.getArrayValue().getValuesList().get(0));
+              mapType.getKeyType(), mapElement.getArrayValue().getValuesList().get(0));
           validateValueAndType(
-              type.getMapType().getValueType(), mapElement.getArrayValue().getValuesList().get(1));
+              mapType.getValueType(), mapElement.getArrayValue().getValuesList().get(1));
         }
         break;
-      case AGGREGATE_TYPE:
-        throw new IllegalStateException("Aggregate type is not supported");
-      case KIND_NOT_SET:
-        throw new IllegalStateException("Column type cannot be empty");
       default:
-        // Fail open for types the client doesn't have a validation case for yet
+        // This should be caught already at ResultSetMetadata creation
+        throw new IllegalStateException("Unrecognized type: " + type);
     }
   }
 
-  private static void checkExpectedKind(
-      Value value, Value.KindCase expectedKind, Type.KindCase currentColumnType) {
+  private static void checkExpectedKind(Value value, Value.KindCase expectedKind, SqlType<?> type) {
     Preconditions.checkState(
         value.getKindCase() == expectedKind,
         "Value kind must be %s for columns of type: %s",
         expectedKind.name(),
-        currentColumnType.name());
+        type);
   }
 }

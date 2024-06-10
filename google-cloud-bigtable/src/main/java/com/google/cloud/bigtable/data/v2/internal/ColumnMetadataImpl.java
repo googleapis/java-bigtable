@@ -17,8 +17,8 @@ package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
-import com.google.bigtable.v2.Type;
 import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 
 /**
  * Implementation of {@link ColumnMetadata} using AutoValue
@@ -28,11 +28,11 @@ import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
 @InternalApi("For internal use only")
 @AutoValue
 public abstract class ColumnMetadataImpl implements ColumnMetadata {
-  public static ColumnMetadata create(String name, Type type) {
+  public static ColumnMetadata create(String name, SqlType<?> type) {
     return new AutoValue_ColumnMetadataImpl(name, type);
   }
 
   static ColumnMetadata fromProto(com.google.bigtable.v2.ColumnMetadata proto) {
-    return create(proto.getName(), proto.getType());
+    return create(proto.getName(), SqlType.fromProto(proto.getType()));
   }
 }

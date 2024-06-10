@@ -48,6 +48,7 @@ import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStreamImpl;
@@ -133,23 +134,27 @@ public class ResultSetImplTest {
       assertThat(resultSet.getStruct(8))
           .isEqualTo(
               ProtoStruct.create(
-                  structType(structField("string", stringType())).getStructType(),
+                  (SqlType.Struct)
+                      SqlType.fromProto(structType(structField("string", stringType()))),
                   structValue(stringValue("foo")).getArrayValue()));
       assertThat(resultSet.getStruct("struct"))
           .isEqualTo(
               ProtoStruct.create(
-                  structType(structField("string", stringType())).getStructType(),
+                  (SqlType.Struct)
+                      SqlType.fromProto(structType(structField("string", stringType()))),
                   structValue(stringValue("foo")).getArrayValue()));
-      assertThat(resultSet.getList(9)).isEqualTo(Arrays.asList("foo", "bar"));
-      assertThat(resultSet.getList("list")).isEqualTo(Arrays.asList("foo", "bar"));
-      assertThat(resultSet.getMap(10))
+      assertThat(resultSet.getList(9, SqlType.arrayOf(SqlType.string())))
+          .isEqualTo(Arrays.asList("foo", "bar"));
+      assertThat(resultSet.getList("list", SqlType.arrayOf(SqlType.string())))
+          .isEqualTo(Arrays.asList("foo", "bar"));
+      assertThat(resultSet.getMap(10, SqlType.mapOf(SqlType.string(), SqlType.string())))
           .isEqualTo(
               new HashMap<String, String>() {
                 {
                   put("key", "val");
                 }
               });
-      assertThat(resultSet.getMap("map"))
+      assertThat(resultSet.getMap("map", SqlType.mapOf(SqlType.string(), SqlType.string())))
           .isEqualTo(
               new HashMap<String, String>() {
                 {

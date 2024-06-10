@@ -21,12 +21,10 @@ import com.google.bigtable.v2.ResultSetMetadata.SchemaCase;
 import com.google.bigtable.v2.Type;
 import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
@@ -35,24 +33,16 @@ import javax.annotation.Nullable;
  * <p>This is considered an internal implementation detail and not meant to be used by applications.
  */
 @InternalApi
-public class ProtoResultSetMetadata implements ResultSetMetadata {
-
-  // It is valid for a select query to return columns with the same name. This marker is used
-  // internally in the client to designate that getting a value by column name is invalid and will
-  // be converted into an exception.
-  private static final int AMBIGUOUS_FIELD_MARKER = -1;
-
+public class ProtoResultSetMetadata extends ColumnToIndexMapper implements ResultSetMetadata {
   private final List<ColumnMetadata> columns;
-  private final Map<String, Integer> columnNameMapping;
 
   public static ResultSetMetadata create(List<ColumnMetadata> columns) {
     return new ProtoResultSetMetadata(columns);
   }
 
   private ProtoResultSetMetadata(List<ColumnMetadata> columns) {
+    super(columns);
     this.columns = ImmutableList.copyOf(columns);
-    // consider deferring building this until first get-by-column-name call
-    this.columnNameMapping = buildColumnNameMapping(columns);
   }
 
   @Override
@@ -61,27 +51,13 @@ public class ProtoResultSetMetadata implements ResultSetMetadata {
   }
 
   @Override
-  public Type getColumnType(int columnIndex) {
+  public SqlType<?> getColumnType(int columnIndex) {
     return columns.get(columnIndex).type();
   }
 
   @Override
-  public Type getColumnType(String columnName) {
+  public SqlType<?> getColumnType(String columnName) {
     return getColumnType(getColumnIndex(columnName));
-  }
-
-  @Override
-  public int getColumnIndex(String columnName) {
-    Integer index = columnNameMapping.get(columnName);
-    if (index == null) {
-      throw new IllegalArgumentException("Column name not found: " + columnName);
-    }
-    int unboxedIndex = index;
-    if (unboxedIndex == AMBIGUOUS_FIELD_MARKER) {
-      throw new IllegalArgumentException(
-          "Ambiguous column name: " + columnName + ". Same name is used for multiple columns.");
-    }
-    return unboxedIndex;
   }
 
   @InternalApi
@@ -107,19 +83,6 @@ public class ProtoResultSetMetadata implements ResultSetMetadata {
           column.getType().getKindCase() != Type.KindCase.KIND_NOT_SET,
           "Column type cannot be empty");
     }
-  }
-
-  private Map<String, Integer> buildColumnNameMapping(List<ColumnMetadata> columns) {
-    HashMap<String, Integer> mapping = new HashMap<>(columns.size());
-    for (int i = 0; i < columns.size(); i++) {
-      ColumnMetadata column = columns.get(i);
-      if (mapping.containsKey(column.name())) {
-        mapping.put(column.name(), AMBIGUOUS_FIELD_MARKER);
-      } else {
-        mapping.put(column.name(), i);
-      }
-    }
-    return ImmutableMap.copyOf(mapping);
   }
 
   @Override

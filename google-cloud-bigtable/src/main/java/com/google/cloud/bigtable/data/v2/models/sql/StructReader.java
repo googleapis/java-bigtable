@@ -51,8 +51,6 @@ public interface StructReader {
    */
   boolean isNull(String columnName);
 
-  // TODO(jackdingilian): replace java type in docs with reference to SQL types
-  // once implementation exists
   /**
    * @param columnIndex index of the column
    * @return {@link ByteString} type value of a non-{@code NULL} column
@@ -176,16 +174,14 @@ public interface StructReader {
    * @return {@link List} type value of a non-{@code NULL} column
    * @param <ElemType> Java type of the list elements
    */
-  // TODO(jackdingilian): Add type param so we can avoid unsafe cast
-  <ElemType> List<ElemType> getList(int columnIndex);
+  <ElemType> List<ElemType> getList(int columnIndex, SqlType.Array<ElemType> arrayType);
 
   /**
    * @param columnName name of the column
    * @return {@link List} type value of a non-{@code NULL} column
    * @param <ElemType> Java type of the list elements
    */
-  // TODO(jackdingilian): Add type param so we can avoid unsafe cast
-  <ElemType> List<ElemType> getList(String columnName);
+  <ElemType> List<ElemType> getList(String columnName, SqlType.Array<ElemType> arrayType);
 
   /**
    * @param columnIndex index of the column
@@ -193,8 +189,7 @@ public interface StructReader {
    * @param <K> Java type of the map keys
    * @param <V> Java type of the map values
    */
-  // TODO(jackdingilian): Add type param so we can avoid unsafe cast
-  <K, V> Map<K, V> getMap(int columnIndex);
+  <K, V> Map<K, V> getMap(int columnIndex, SqlType.Map<K, V> mapType);
 
   /**
    * @param columnName name of the column
@@ -202,6 +197,5 @@ public interface StructReader {
    * @param <K> Java type of the map keys
    * @param <V> Java type of the map values
    */
-  // TODO(jackdingilian): Add type param so we can avoid unsafe cast
-  <K, V> Map<K, V> getMap(String columnName);
+  <K, V> Map<K, V> getMap(String columnName, SqlType.Map<K, V> mapType);
 }

@@ -22,6 +22,7 @@ import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
@@ -196,22 +197,22 @@ public class ResultSetImpl implements ResultSet, StructReader {
   }
 
   @Override
-  public <ElemType> List<ElemType> getList(int columnIndex) {
-    return getCurrentRow().getList(columnIndex);
+  public <ElemType> List<ElemType> getList(int columnIndex, SqlType.Array<ElemType> arrayType) {
+    return getCurrentRow().getList(columnIndex, arrayType);
   }
 
   @Override
-  public <ElemType> List<ElemType> getList(String columnName) {
-    return getCurrentRow().getList(columnName);
+  public <ElemType> List<ElemType> getList(String columnName, SqlType.Array<ElemType> arrayType) {
+    return getCurrentRow().getList(columnName, arrayType);
   }
 
   @Override
-  public <K, V> Map<K, V> getMap(int columnIndex) {
-    return getCurrentRow().getMap(columnIndex);
+  public <K, V> Map<K, V> getMap(int columnIndex, SqlType.Map<K, V> mapType) {
+    return getCurrentRow().getMap(columnIndex, mapType);
   }
 
   @Override
-  public <K, V> Map<K, V> getMap(String columnName) {
-    return getCurrentRow().getMap(columnName);
+  public <K, V> Map<K, V> getMap(String columnName, SqlType.Map<K, V> mapType) {
+    return getCurrentRow().getMap(columnName, mapType);
   }
 }

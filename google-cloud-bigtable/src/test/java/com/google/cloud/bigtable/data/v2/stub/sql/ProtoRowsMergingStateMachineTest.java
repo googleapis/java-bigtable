@@ -16,16 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import static com.google.cloud.bigtable.data.v2.stub.sql.ProtoRowsMergingStateMachineSubject.assertThat;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.aggregateSumType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.arrayType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.arrayValue;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64Type;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapElement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValue;
@@ -36,7 +31,6 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringT
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structValue;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.tokenOnlyResultSet;
 import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
@@ -44,11 +38,11 @@ import static org.junit.Assert.assertThrows;
 import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.ProtoRows;
 import com.google.bigtable.v2.ProtoRowsBatch;
-import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
@@ -299,117 +293,118 @@ public final class ProtoRowsMergingStateMachineTest {
   @RunWith(Parameterized.class)
   public static final class ParameterizedTests {
 
-    public ParameterizedTests(Type.KindCase typeCase) {
-      this.typeCase = typeCase;
+    public ParameterizedTests(SqlType.Code typeCode) {
+      this.typeCase = typeCode;
     }
 
-    private final Type.KindCase typeCase;
+    private final SqlType.Code typeCase;
 
     @Parameters
-    public static Type.KindCase[] valueTypes() {
-      return Type.KindCase.values();
+    public static SqlType.Code[] valueTypes() {
+      return SqlType.Code.values();
     }
 
     @Test
     @SuppressWarnings("UnnecessaryDefaultInEnumSwitch")
     public void testValidateSupportsAllTypes() {
       switch (typeCase) {
-        case STRING_TYPE:
+        case STRING:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      stringType(), bytesValue("test")));
+                      SqlType.string(), bytesValue("test")));
           break;
-        case BYTES_TYPE:
+        case BYTES:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      bytesType(), stringValue("test")));
+                      SqlType.bytes(), stringValue("test")));
           break;
-        case INT64_TYPE:
+        case INT64:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      int64Type(), stringValue("test")));
+                      SqlType.int64(), stringValue("test")));
           break;
-        case BOOL_TYPE:
+        case BOOL:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      boolType(), stringValue("test")));
+                      SqlType.bool(), stringValue("test")));
           break;
-        case FLOAT32_TYPE:
+        case FLOAT32:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      float32Type(), stringValue("test")));
+                      SqlType.float32(), stringValue("test")));
           break;
-        case FLOAT64_TYPE:
+        case FLOAT64:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      float64Type(), stringValue("test")));
+                      SqlType.float64(), stringValue("test")));
           break;
-        case TIMESTAMP_TYPE:
+        case TIMESTAMP:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      timestampType(), stringValue("test")));
+                      SqlType.timestamp(), stringValue("test")));
           break;
-        case DATE_TYPE:
+        case DATE:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      SqlProtoFactory.dateType(), stringValue("test")));
+                      SqlType.date(), stringValue("test")));
           break;
-        case ARRAY_TYPE:
+        case ARRAY:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      arrayType(stringType()), stringValue("test")));
+                      SqlType.arrayOf(SqlType.string()), stringValue("test")));
           // It should check nested values match
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      arrayType(stringType()),
+                      SqlType.arrayOf(SqlType.string()),
                       arrayValue(stringValue("test"), bytesValue("test"))));
           break;
-        case STRUCT_TYPE:
+        case STRUCT:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      structType(stringType(), bytesType()), stringValue("test")));
+                      SqlType.fromProto(structType(stringType(), bytesType())),
+                      stringValue("test")));
           // It should check nested values match
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      structType(stringType(), bytesType()),
+                      SqlType.fromProto(structType(stringType(), bytesType())),
                       structValue(stringValue("test"), stringValue("test"))));
           break;
-        case MAP_TYPE:
+        case MAP:
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      mapType(stringType(), stringType()), stringValue("test")));
+                      SqlType.mapOf(SqlType.string(), SqlType.string()), stringValue("test")));
           // It should check nested values match
           assertThrows(
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      mapType(stringType(), bytesType()),
+                      SqlType.mapOf(SqlType.string(), SqlType.bytes()),
                       mapValue(
                           mapElement(stringValue("key"), bytesValue("val")),
                           mapElement(stringValue("key2"), stringValue("val2")))));
@@ -420,27 +415,11 @@ public final class ProtoRowsMergingStateMachineTest {
               IllegalStateException.class,
               () ->
                   ProtoRowsMergingStateMachine.validateValueAndType(
-                      mapType(stringType(), bytesType()),
+                      SqlType.mapOf(SqlType.string(), SqlType.bytes()),
                       mapValue(
                           mapElement(stringValue("key"), bytesValue("val")),
                           structValue(
                               stringValue("key2"), bytesValue("val2"), bytesValue("val3")))));
-          break;
-        case AGGREGATE_TYPE:
-          // These aren't supported so they should throw an exception no matter what value type is
-          // passed.
-          assertThrows(
-              IllegalStateException.class,
-              () ->
-                  ProtoRowsMergingStateMachine.validateValueAndType(
-                      aggregateSumType(), stringValue("test")));
-          break;
-        case KIND_NOT_SET:
-          assertThrows(
-              IllegalStateException.class,
-              () ->
-                  ProtoRowsMergingStateMachine.validateValueAndType(
-                      Type.getDefaultInstance(), stringValue("test")));
           break;
         default:
           assertWithMessage(

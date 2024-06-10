@@ -39,12 +39,13 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timesta
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampValue;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 import com.google.bigtable.v2.ArrayValue;
+import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.Struct;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -59,19 +60,21 @@ public class ProtoStructTest {
 
   static ProtoStruct struct =
       ProtoStruct.create(
-          structType(
-                  structField("bytesField", bytesType()),
-                  structField("stringField", stringType()),
-                  structField("longField", int64Type()),
-                  structField("doubleField", float64Type()),
-                  structField("floatField", float32Type()),
-                  structField("booleanField", boolType()),
-                  structField("timestampField", timestampType()),
-                  structField("dateField", dateType()),
-                  structField("structField", structType(structField("stringField", stringType()))),
-                  structField("listField", arrayType(stringType())),
-                  structField("mapField", mapType(stringType(), stringType())))
-              .getStructType(),
+          (SqlType.Struct)
+              SqlType.fromProto(
+                  structType(
+                      structField("bytesField", bytesType()),
+                      structField("stringField", stringType()),
+                      structField("longField", int64Type()),
+                      structField("doubleField", float64Type()),
+                      structField("floatField", float32Type()),
+                      structField("booleanField", boolType()),
+                      structField("timestampField", timestampType()),
+                      structField("dateField", dateType()),
+                      structField(
+                          "structField", structType(structField("stringField", stringType()))),
+                      structField("listField", arrayType(stringType())),
+                      structField("mapField", mapType(stringType(), stringType())))),
           arrayValue(
                   bytesValue("testBytes"),
                   stringValue("testString"),
@@ -103,10 +106,12 @@ public class ProtoStructTest {
     assertThat(struct.getStruct(8))
         .isEqualTo(
             ProtoStruct.create(
-                structType(structField("stringField", stringType())).getStructType(),
+                (SqlType.Struct)
+                    SqlType.fromProto(structType(structField("stringField", stringType()))),
                 structValue(stringValue("string")).getArrayValue()));
-    assertThat(struct.getList(9)).isEqualTo(Arrays.asList("foo", "bar"));
-    assertThat(struct.getMap(10))
+    assertThat(struct.getList(9, SqlType.arrayOf(SqlType.string())))
+        .isEqualTo(Arrays.asList("foo", "bar"));
+    assertThat(struct.getMap(10, SqlType.mapOf(SqlType.string(), SqlType.string())))
         .isEqualTo(
             new HashMap<String, String>() {
               {
@@ -129,10 +134,12 @@ public class ProtoStructTest {
     assertThat(struct.getStruct("structField"))
         .isEqualTo(
             ProtoStruct.create(
-                structType(structField("stringField", stringType())).getStructType(),
+                (SqlType.Struct)
+                    SqlType.fromProto(structType(structField("stringField", stringType()))),
                 structValue(stringValue("string")).getArrayValue()));
-    assertThat(struct.getList("listField")).isEqualTo(Arrays.asList("foo", "bar"));
-    assertThat(struct.getMap("mapField"))
+    assertThat(struct.getList("listField", SqlType.arrayOf(SqlType.string())))
+        .isEqualTo(Arrays.asList("foo", "bar"));
+    assertThat(struct.getMap("mapField", SqlType.mapOf(SqlType.string(), SqlType.string())))
         .isEqualTo(
             new HashMap<String, String>() {
               {
@@ -144,34 +151,36 @@ public class ProtoStructTest {
 
   @Test
   public void getColumnType_byName() {
-    assertThat(struct.getColumnType("bytesField")).isEqualTo(bytesType());
-    assertThat(struct.getColumnType("stringField")).isEqualTo(stringType());
-    assertThat(struct.getColumnType("longField")).isEqualTo(int64Type());
-    assertThat(struct.getColumnType("doubleField")).isEqualTo(float64Type());
-    assertThat(struct.getColumnType("floatField")).isEqualTo(float32Type());
-    assertThat(struct.getColumnType("booleanField")).isEqualTo(boolType());
-    assertThat(struct.getColumnType("timestampField")).isEqualTo(timestampType());
-    assertThat(struct.getColumnType("dateField")).isEqualTo(dateType());
+    assertThat(struct.getColumnType("bytesField")).isEqualTo(SqlType.bytes());
+    assertThat(struct.getColumnType("stringField")).isEqualTo(SqlType.string());
+    assertThat(struct.getColumnType("longField")).isEqualTo(SqlType.int64());
+    assertThat(struct.getColumnType("doubleField")).isEqualTo(SqlType.float64());
+    assertThat(struct.getColumnType("floatField")).isEqualTo(SqlType.float32());
+    assertThat(struct.getColumnType("booleanField")).isEqualTo(SqlType.bool());
+    assertThat(struct.getColumnType("timestampField")).isEqualTo(SqlType.timestamp());
+    assertThat(struct.getColumnType("dateField")).isEqualTo(SqlType.date());
     assertThat(struct.getColumnType("structField"))
-        .isEqualTo(structType(structField("stringField", stringType())));
-    assertThat(struct.getColumnType("listField")).isEqualTo(arrayType(stringType()));
-    assertThat(struct.getColumnType("mapField")).isEqualTo(mapType(stringType(), stringType()));
+        .isEqualTo(SqlType.fromProto(structType(structField("stringField", stringType()))));
+    assertThat(struct.getColumnType("listField")).isEqualTo(SqlType.arrayOf(SqlType.string()));
+    assertThat(struct.getColumnType("mapField"))
+        .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
   }
 
   @Test
   public void getColumnType_byIndex() {
-    assertThat(struct.getColumnType(0)).isEqualTo(bytesType());
-    assertThat(struct.getColumnType(1)).isEqualTo(stringType());
-    assertThat(struct.getColumnType(2)).isEqualTo(int64Type());
-    assertThat(struct.getColumnType(3)).isEqualTo(float64Type());
-    assertThat(struct.getColumnType(4)).isEqualTo(float32Type());
-    assertThat(struct.getColumnType(5)).isEqualTo(boolType());
-    assertThat(struct.getColumnType(6)).isEqualTo(timestampType());
-    assertThat(struct.getColumnType(7)).isEqualTo(dateType());
+    assertThat(struct.getColumnType(0)).isEqualTo(SqlType.bytes());
+    assertThat(struct.getColumnType(1)).isEqualTo(SqlType.string());
+    assertThat(struct.getColumnType(2)).isEqualTo(SqlType.int64());
+    assertThat(struct.getColumnType(3)).isEqualTo(SqlType.float64());
+    assertThat(struct.getColumnType(4)).isEqualTo(SqlType.float32());
+    assertThat(struct.getColumnType(5)).isEqualTo(SqlType.bool());
+    assertThat(struct.getColumnType(6)).isEqualTo(SqlType.timestamp());
+    assertThat(struct.getColumnType(7)).isEqualTo(SqlType.date());
     assertThat(struct.getColumnType(8))
-        .isEqualTo(structType(structField("stringField", stringType())));
-    assertThat(struct.getColumnType(9)).isEqualTo(arrayType(stringType()));
-    assertThat(struct.getColumnType(10)).isEqualTo(mapType(stringType(), stringType()));
+        .isEqualTo(SqlType.fromProto(structType(structField("stringField", stringType()))));
+    assertThat(struct.getColumnType(9)).isEqualTo(SqlType.arrayOf(SqlType.string()));
+    assertThat(struct.getColumnType(10))
+        .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
   }
 
   @Test
@@ -199,10 +208,11 @@ public class ProtoStructTest {
     List<Value> values = Arrays.asList(stringValue("foo"), stringValue("bar"));
     ProtoStruct s =
         ProtoStruct.create(
-            structType(
-                    structField("stringField1", stringType()),
-                    structField("stringField2", stringType()))
-                .getStructType(),
+            (SqlType.Struct)
+                SqlType.fromProto(
+                    structType(
+                        structField("stringField1", stringType()),
+                        structField("stringField2", stringType()))),
             arrayValue(values.toArray(new Value[] {})).getArrayValue());
 
     assertThat(s.values()).isEqualTo(values);
@@ -213,7 +223,7 @@ public class ProtoStructTest {
     ProtoStruct s =
         ProtoStruct.create(
             // This creates a struct with two unnamed string fields
-            structType(stringType(), stringType()).getStructType(),
+            (SqlType.Struct) SqlType.fromProto(structType(stringType(), stringType())),
             arrayValue(stringValue("foo"), stringValue("bar")).getArrayValue());
 
     assertThat(s.getString(0)).isEqualTo("foo");
@@ -225,7 +235,7 @@ public class ProtoStructTest {
     ProtoStruct s =
         ProtoStruct.create(
             // This creates a struct with one unnamed string fields
-            structType(stringType()).getStructType(),
+            (SqlType.Struct) SqlType.fromProto(structType(stringType())),
             arrayValue(stringValue("foo")).getArrayValue());
 
     assertThat(s.getString("")).isEqualTo("foo");
@@ -234,7 +244,11 @@ public class ProtoStructTest {
   @Test
   public void emptyStruct_behavesCorrectly() {
     ProtoStruct empty =
-        ProtoStruct.create(Struct.newBuilder().build(), ArrayValue.newBuilder().build());
+        ProtoStruct.create(
+            (SqlType.Struct)
+                SqlType.fromProto(
+                    Type.newBuilder().setStructType(Struct.newBuilder().build()).build()),
+            ArrayValue.newBuilder().build());
 
     assertThrows(IndexOutOfBoundsException.class, () -> empty.getString(0));
     assertThrows(IllegalArgumentException.class, () -> empty.getString(""));
@@ -242,15 +256,43 @@ public class ProtoStructTest {
     assertThrows(IllegalArgumentException.class, () -> empty.getColumnType(""));
   }
 
-  // TODO(jackdingilian): implement this when we have proper metadata wrapper
   @Test
   public void getColumnIndexOnDuplicateField_throwsException() {
-    assertTrue(true);
+    List<Value> values = Arrays.asList(stringValue("foo"), stringValue("bar"));
+    ProtoStruct s =
+        ProtoStruct.create(
+            (SqlType.Struct)
+                SqlType.fromProto(
+                    structType(structField("dup", stringType()), structField("dup", stringType()))),
+            arrayValue(values.toArray(new Value[] {})).getArrayValue());
+
+    assertThrows(IllegalArgumentException.class, () -> s.getColumnIndex("dup"));
   }
 
-  // TODO(jackdingilian): implement this when we have proper metadata wrapper
   @Test
   public void getByFieldNameOnDuplicateField_throwsException() {
-    assertTrue(true);
+    List<Value> values = Arrays.asList(stringValue("foo"), stringValue("bar"));
+    ProtoStruct s =
+        ProtoStruct.create(
+            (SqlType.Struct)
+                SqlType.fromProto(
+                    structType(structField("dup", stringType()), structField("dup", stringType()))),
+            arrayValue(values.toArray(new Value[] {})).getArrayValue());
+
+    assertThrows(IllegalArgumentException.class, () -> s.getString("dup"));
+  }
+
+  @Test
+  public void getByIndex_worksWithDuplicateFieldNames() {
+    List<Value> values = Arrays.asList(stringValue("foo"), stringValue("bar"));
+    ProtoStruct s =
+        ProtoStruct.create(
+            (SqlType.Struct)
+                SqlType.fromProto(
+                    structType(structField("dup", stringType()), structField("dup", stringType()))),
+            arrayValue(values.toArray(new Value[] {})).getArrayValue());
+
+    assertThat(s.getString(0)).isEqualTo("foo");
+    assertThat(s.getString(1)).isEqualTo("bar");
   }
 }
