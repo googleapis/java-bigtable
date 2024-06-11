@@ -119,10 +119,9 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void readWithOneChannel() throws Exception {
-    long errorCount;
-    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
-      errorCount = 0;
+    long errorCount = 0;
 
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
       for (int i = 0; i < 20; i++) {
         Query query;
         if (i % 3 == 0) {
@@ -162,10 +161,8 @@ public class ErrorCountPerConnectionTest {
                 .toBuilder()
                 .setChannelPoolSettings(ChannelPoolSettings.staticallySized(2))
                 .build());
-    long totalErrorCount;
+    long totalErrorCount = 0;
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builderWithTwoChannels.build())) {
-      totalErrorCount = 0;
-
       for (int i = 0; i < 20; i++) {
         try {
           if (i < 10) {
@@ -199,10 +196,9 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void readOverTwoPeriods() throws Exception {
-    long errorCount1;
-    long errorCount2;
+    long errorCount1 = 0;
+    long errorCount2 = 0;
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
-      errorCount1 = 0;
 
       for (int i = 0; i < 20; i++) {
         Query query;
@@ -220,7 +216,6 @@ public class ErrorCountPerConnectionTest {
       }
 
       runInterceptorTasksAndAssertCount();
-      errorCount2 = 0;
 
       for (int i = 0; i < 20; i++) {
         Query query;
