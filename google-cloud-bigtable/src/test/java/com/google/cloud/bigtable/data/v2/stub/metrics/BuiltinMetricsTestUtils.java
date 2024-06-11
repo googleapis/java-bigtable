@@ -51,7 +51,9 @@ public class BuiltinMetricsTestUtils {
           allMetricData.stream()
               .filter(md -> METRIC_DATA_BY_NAME.compare(md, fullMetricName))
               .collect(Collectors.toList());
-      assertWithMessage("Found multiple MetricData with the same name")
+      assertWithMessage(
+              "Found multiple MetricData with the same name: %s, in: %s",
+              fullMetricName, matchingMetadata)
           .that(matchingMetadata.size())
           .isAtMost(1);
 
