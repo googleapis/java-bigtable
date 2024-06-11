@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.api.core.InternalApi;
 import com.google.common.truth.Correspondence;
@@ -46,12 +47,16 @@ public class BuiltinMetricsTestUtils {
     Optional<MetricData> filterdMetricData = Optional.empty();
 
     // Fetch the MetricData with retries
-    for (int attemptsLeft = 10; attemptsLeft >= 0; attemptsLeft--) {
+    for (int attemptsLeft = 10; attemptsLeft > 0; attemptsLeft--) {
       allMetricData = reader.collectAllMetrics();
-      filterdMetricData =
+      Collection<MetricData> matchingMetadata =
           allMetricData.stream()
               .filter(md -> METRIC_DATA_BY_NAME.compare(md, fullMetricName))
-              .findFirst();
+              .collect(Collectors.toList());
+      assertWithMessage("Found multiple MetricData with the same name")
+          .that(matchingMetadata.size())
+          .isAtMost(1);
+      filterdMetricData = matchingMetadata.stream().findFirst();
 
       if (filterdMetricData.isPresent()) {
         return filterdMetricData.get();
