@@ -30,7 +30,6 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.junit.Assert;
 
@@ -44,22 +43,20 @@ public class BuiltinMetricsTestUtils {
   public static MetricData getMetricData(InMemoryMetricReader reader, String metricName) {
     String fullMetricName = BuiltinMetricsConstants.METER_NAME + metricName;
     Collection<MetricData> allMetricData = Collections.emptyList();
-    Optional<MetricData> filterdMetricData = Optional.empty();
 
     // Fetch the MetricData with retries
     for (int attemptsLeft = 10; attemptsLeft > 0; attemptsLeft--) {
       allMetricData = reader.collectAllMetrics();
-      Collection<MetricData> matchingMetadata =
+      List<MetricData> matchingMetadata =
           allMetricData.stream()
               .filter(md -> METRIC_DATA_BY_NAME.compare(md, fullMetricName))
               .collect(Collectors.toList());
       assertWithMessage("Found multiple MetricData with the same name")
           .that(matchingMetadata.size())
           .isAtMost(1);
-      filterdMetricData = matchingMetadata.stream().findFirst();
 
-      if (filterdMetricData.isPresent()) {
-        return filterdMetricData.get();
+      if (!matchingMetadata.isEmpty()) {
+        return matchingMetadata.get(0);
       }
 
       try {
