@@ -53,6 +53,35 @@ public class WriteAggregate {
       System.out.println("Error during WriteAggregate: \n" + e.toString());
     }
   }
+
+  public static void mergeAggregate(String projectId, String instanceId, String tableId) {
+    // String projectId = "my-project-id";
+    // String instanceId = "my-instance-id";
+    // String tableId = "page-view-counter";
+
+    try (BigtableDataClient dataClient = BigtableDataClient.create(projectId, instanceId)) {
+
+      String rowKey = "page#index.html";
+      Instant viewTimestamp = Instant.parse("2024-03-13T12:41:34.123Z");
+
+      // Bucket the views for an hour into a single count, giving us an hourly view count for a
+      // given page.
+      Instant hourlyBucket = viewTimestamp.truncatedTo(ChronoUnit.HOURS);
+      long hourlyBucketMicros = hourlyBucket.toEpochMilli() * MICROS_PER_MILLI;
+
+      RowMutation rowMutation = RowMutation.create(tableId, rowKey)
+                                  .mergeToCell(COUNT_COLUMN_FAMILY_NAME, 
+                                    "views",
+                                    hourlyBucketMicros, 
+                                    Base64.encodeBase64(BigInteger.valueOf(1).toByteArray()));
+
+      dataClient.mutateRow(rowMutation);
+      System.out.printf("Successfully wrote row %s", rowKey);
+
+    } catch (Exception e) {
+      System.out.println("Error during mergeAggregate: \n" + e.toString());
+    }
+  }
 }
 
 // [END bigtable_writes_aggregate]
