@@ -298,7 +298,7 @@ public class DynamicFlowControlCallableTest {
               }
             });
     t.start();
-    // Wait 5 seconds for the thread to start, and 50 milliseconds after it's started to make sure
+    // Wait 50 milliseconds after the thread has started to make sure
     // flowController.reserve(1, 0) is blocked and creates a throttling event. It should never take
     // so long.
     threadStarted.get();
