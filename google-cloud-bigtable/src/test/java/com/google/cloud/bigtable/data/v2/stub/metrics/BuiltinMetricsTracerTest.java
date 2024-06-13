@@ -309,18 +309,6 @@ public class BuiltinMetricsTracerTest {
     Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
 
     MetricData metricData = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
-    metricData.getHistogramData().getPoints().stream()
-        .forEach(
-            histogramPointData ->
-                histogramPointData
-                    .getAttributes()
-                    .forEach(
-                        (attributeKey, o) ->
-                            System.out.println(
-                                "point data attributes: "
-                                    + attributeKey.getKey().toString()
-                                    + " output: "
-                                    + o.toString())));
     long value = getAggregatedValue(metricData, expectedAttributes);
     assertThat(value).isIn(Range.closed(SERVER_LATENCY, elapsed));
   }

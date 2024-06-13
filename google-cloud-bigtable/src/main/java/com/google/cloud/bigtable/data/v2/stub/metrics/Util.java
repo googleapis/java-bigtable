@@ -65,10 +65,7 @@ public class Util {
   private static final Pattern SERVER_TIMING_HEADER_PATTERN = Pattern.compile(".*dur=(?<dur>\\d+)");
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
-
-  static final Metadata.Key<String> TARGET_METADATA_KEY =
-      Metadata.Key.of("target", Metadata.ASCII_STRING_MARSHALLER);
-
+  
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
     final String statusString;
