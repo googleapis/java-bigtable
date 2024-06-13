@@ -98,7 +98,6 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -334,9 +333,7 @@ public class BuiltinMetricsTracerTest {
             .put(TARGET_KEY, TARGET_ATTRIBUTE_VALUE)
             .build();
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-
-    MetricData metricData = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
+    MetricData metricData = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
     long value = getAggregatedValue(metricData, expectedAttributes);
     assertThat(value).isIn(Range.closed(SERVER_LATENCY, elapsed));
   }
@@ -357,15 +354,13 @@ public class BuiltinMetricsTracerTest {
             .put(TARGET_KEY, TARGET_ATTRIBUTE_VALUE)
             .build();
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-
-    MetricData serverLatenciesMetricData = getMetricData(allMetricData, SERVER_LATENCIES_NAME);
+    MetricData serverLatenciesMetricData = getMetricData(metricReader, SERVER_LATENCIES_NAME);
 
     long serverLatencies = getAggregatedValue(serverLatenciesMetricData, expectedAttributes);
     assertThat(serverLatencies).isEqualTo(FAKE_SERVER_TIMING);
 
     MetricData connectivityErrorCountMetricData =
-        getMetricData(allMetricData, CONNECTIVITY_ERROR_COUNT_NAME);
+        getMetricData(metricReader, CONNECTIVITY_ERROR_COUNT_NAME);
     Attributes expected1 =
         baseAttributes
             .toBuilder()
@@ -431,9 +426,8 @@ public class BuiltinMetricsTracerTest {
 
     assertThat(counter.get()).isEqualTo(fakeService.getResponseCounter().get());
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
     MetricData applicationLatency =
-        getMetricData(allMetricData, APPLICATION_BLOCKING_LATENCIES_NAME);
+        getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
         baseAttributes
@@ -449,7 +443,7 @@ public class BuiltinMetricsTracerTest {
 
     assertThat(value).isAtLeast((APPLICATION_LATENCY - SLEEP_VARIABILITY) * counter.get());
 
-    MetricData operationLatency = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
+    MetricData operationLatency = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
     long operationLatencyValue =
         getAggregatedValue(
             operationLatency,
@@ -469,9 +463,8 @@ public class BuiltinMetricsTracerTest {
       rows.next();
     }
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
     MetricData applicationLatency =
-        getMetricData(allMetricData, APPLICATION_BLOCKING_LATENCIES_NAME);
+        getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
         baseAttributes
@@ -490,7 +483,7 @@ public class BuiltinMetricsTracerTest {
     assertThat(counter).isEqualTo(fakeService.getResponseCounter().get());
     assertThat(value).isAtLeast(APPLICATION_LATENCY * (counter - 1) - SERVER_LATENCY);
 
-    MetricData operationLatency = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
+    MetricData operationLatency = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
     long operationLatencyValue =
         getAggregatedValue(
             operationLatency,
@@ -503,8 +496,7 @@ public class BuiltinMetricsTracerTest {
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE, "random-row").setCell("cf", "q", "value"));
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData metricData = getMetricData(allMetricData, RETRY_COUNT_NAME);
+    MetricData metricData = getMetricData(metricReader, RETRY_COUNT_NAME);
     Attributes expectedAttributes =
         baseAttributes
             .toBuilder()
@@ -526,8 +518,7 @@ public class BuiltinMetricsTracerTest {
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE, "random-row").setCell("cf", "q", "value"));
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+    MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
         baseAttributes
@@ -570,8 +561,7 @@ public class BuiltinMetricsTracerTest {
 
     Assert.assertThrows(BatchingException.class, batcher::close);
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+    MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
         baseAttributes
@@ -601,8 +591,7 @@ public class BuiltinMetricsTracerTest {
 
     Assert.assertThrows(BatchingException.class, batcher::close);
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+    MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
         baseAttributes
@@ -624,8 +613,7 @@ public class BuiltinMetricsTracerTest {
   public void testReadRowsAttemptsTagValues() {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create("fake-table")).iterator());
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData metricData = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+    MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
         baseAttributes
@@ -669,8 +657,7 @@ public class BuiltinMetricsTracerTest {
 
       int expectedNumRequests = 6 / batchElementCount;
 
-      Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-      MetricData applicationLatency = getMetricData(allMetricData, CLIENT_BLOCKING_LATENCIES_NAME);
+      MetricData applicationLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
       Attributes expectedAttributes =
           baseAttributes
@@ -696,8 +683,7 @@ public class BuiltinMetricsTracerTest {
   public void testQueuedOnChannelServerStreamLatencies() {
     stub.readRowsCallable().all().call(Query.create(TABLE));
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData clientLatency = getMetricData(allMetricData, CLIENT_BLOCKING_LATENCIES_NAME);
+    MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
         baseAttributes
@@ -719,8 +705,7 @@ public class BuiltinMetricsTracerTest {
 
     stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData clientLatency = getMetricData(allMetricData, CLIENT_BLOCKING_LATENCIES_NAME);
+    MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
         baseAttributes
@@ -746,8 +731,7 @@ public class BuiltinMetricsTracerTest {
     } catch (NotFoundException e) {
     }
 
-    Collection<MetricData> allMetricData = metricReader.collectAllMetrics();
-    MetricData attemptLatency = getMetricData(allMetricData, ATTEMPT_LATENCIES_NAME);
+    MetricData attemptLatency = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
         baseAttributes
@@ -764,7 +748,7 @@ public class BuiltinMetricsTracerTest {
 
     verifyAttributes(attemptLatency, expected);
 
-    MetricData opLatency = getMetricData(allMetricData, OPERATION_LATENCIES_NAME);
+    MetricData opLatency = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
     verifyAttributes(opLatency, expected);
   }
 
