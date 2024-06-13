@@ -32,11 +32,11 @@ import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
 import io.grpc.CallOptions;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.internal.StringUtils;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -92,7 +92,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private Long serverLatencies = null;
 
-  private List<String> targets = new ArrayList<>();
+  private HashSet<String> targets = new HashSet<>();
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -185,9 +185,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   public void addTarget(String target) {
-    System.out.println(String.format("[IMPORTANT] Remote Address added by inteceptor: %s",target));
-    this.targets.add(target);
+    if (!StringUtils.isNullOrEmpty(target)) {
+      this.targets.add(target);
+    }
   }
+
   @Override
   public void attemptCancelled() {
     recordAttemptCompletion(new CancellationException());
@@ -306,10 +308,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
-            .put(TARGET_KEY, this.targets)
+            .put(TARGET_KEY, new ArrayList<>(this.targets))
             .build();
-
-    baseAttributes.asMap().forEach((key,value)->System.out.println(String.format("Attribute key: %s, value %s", key,value)));
 
     long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
@@ -364,10 +364,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
-            .put(TARGET_KEY, this.targets)
+            .put(TARGET_KEY, new ArrayList<>(this.targets))
             .build();
-
-    attributes.asMap().forEach((key,value)->System.out.println(String.format("Attribute key: %s, value %s", key,value)));
 
     clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
 

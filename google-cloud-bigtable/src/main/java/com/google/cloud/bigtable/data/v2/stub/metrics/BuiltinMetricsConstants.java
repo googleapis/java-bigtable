@@ -24,7 +24,6 @@ import io.opentelemetry.sdk.metrics.Aggregation;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.InstrumentType;
 import io.opentelemetry.sdk.metrics.View;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,7 +109,8 @@ public class BuiltinMetricsConstants {
           CLUSTER_ID_KEY,
           ZONE_ID_KEY,
           METHOD_KEY,
-          CLIENT_NAME_KEY);
+          CLIENT_NAME_KEY,
+          TARGET_KEY);
 
   static void defineView(
       ImmutableMap.Builder<InstrumentSelector, View> viewMap,

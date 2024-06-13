@@ -34,12 +34,12 @@ import com.google.bigtable.v2.TableName;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
-import io.grpc.Grpc;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import io.opentelemetry.api.internal.StringUtils;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -66,7 +66,8 @@ public class Util {
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
-  static final Metadata.Key<String> TARGET_METADATA_KEY = Metadata.Key.of("target",Metadata.ASCII_STRING_MARSHALLER);
+  static final Metadata.Key<String> TARGET_METADATA_KEY =
+      Metadata.Key.of("target", Metadata.ASCII_STRING_MARSHALLER);
 
   /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
@@ -154,7 +155,8 @@ public class Util {
       int attemptCount = ((BigtableTracer) apiCallContext.getTracer()).getAttempt();
       headers.put(ATTEMPT_HEADER_KEY.name(), Arrays.asList(String.valueOf(attemptCount)));
     }
-    return headers.build();}
+    return headers.build();
+  }
 
   private static Long getGfeLatency(@Nullable Metadata metadata) {
     if (metadata == null) {
@@ -214,20 +216,15 @@ public class Util {
 
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
-<<<<<<< HEAD
-
-    String target =  responseMetadata.getMetadata().get(TARGET_METADATA_KEY);
-    System.out.println(String.format("Adding target to tracer: %s",target));
-    //Record target
-    tracer.addTarget(target);
-=======
-    if(responseMetadata.getMetadata() != null) {
-      String target =  responseMetadata.getMetadata().get(TARGET_METADATA_KEY);
-      System.out.println(String.format("Adding target to tracer: %s",target));
-      //Record target
-      tracer.addTarget(target);
+    if (responseMetadata.getMetadata() != null) {
+      Metadata.Key<String> remoteAddressKey =
+          Metadata.Key.of(
+              "io.grpc.grpc.transport_attr_remote_addr", Metadata.ASCII_STRING_MARSHALLER);
+      String remoteAddr = responseMetadata.getMetadata().get(remoteAddressKey);
+      if (!StringUtils.isNullOrEmpty(remoteAddr)) {
+        tracer.addTarget(remoteAddr);
+      }
     }
->>>>>>> 20566b2b (Add target label to attributes, populated via new interceptor. Inteceptor pulls target from GRPC response header.)
   }
 
   /**

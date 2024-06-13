@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.common.collect.ImmutableList;
+import io.opentelemetry.api.internal.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -227,8 +228,10 @@ class CompositeTracer extends BigtableTracer {
   }
 
   public void addTarget(String target) {
-    for (BigtableTracer tracer : bigtableTracers) {
-      tracer.addTarget(target);
+    if (StringUtils.isNullOrEmpty(target)) {
+      for (BigtableTracer tracer : bigtableTracers) {
+        tracer.addTarget(target);
+      }
     }
   }
 }

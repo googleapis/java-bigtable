@@ -112,7 +112,6 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
-import com.google.cloud.bigtable.data.v2.stub.metrics.TargetEndpointInterceptor;
 import com.google.cloud.bigtable.data.v2.stub.metrics.TracedBatcherUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.BulkMutateRowsUserFacingCallable;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult;
@@ -276,7 +275,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
             }
 
             managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
-            managedChannelBuilder.intercept(new TargetEndpointInterceptor());
             if (oldChannelConfigurator != null) {
               managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
             }
