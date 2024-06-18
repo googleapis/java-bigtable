@@ -380,11 +380,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setJwtEnabledScopes(JWT_ENABLED_SCOPES);
   }
 
-  @Override
-  public String getServiceName() {
-    return "bigtable";
-  }
-
   /**
    * Returns the object with the settings used for calls to ReadRows.
    *
