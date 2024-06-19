@@ -49,7 +49,7 @@ public class BuiltinMetricsConstants {
   public static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
-  static AttributeKey<List<String>> TARGET_KEY = AttributeKey.stringArrayKey("target");
+  static AttributeKey<String> TARGET_KEY = AttributeKey.stringKey("target");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
 
   // Metric names

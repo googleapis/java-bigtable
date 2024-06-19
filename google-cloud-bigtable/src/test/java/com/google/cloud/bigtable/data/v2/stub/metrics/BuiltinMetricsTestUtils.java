@@ -122,7 +122,6 @@ public class BuiltinMetricsTestUtils {
       case HISTOGRAM:
         List<HistogramPointData> hd =
             metricData.getHistogramData().getPoints().stream()
-                .peek(item -> System.out.println(item))
                 .filter(pd -> pd.getAttributes().equals(attributes))
                 .collect(Collectors.toList());
 

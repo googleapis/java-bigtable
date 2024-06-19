@@ -213,15 +213,6 @@ public class Util {
 
     // Record gfe metrics
     tracer.recordGfeMetadata(latency, throwable);
-    if (responseMetadata.getMetadata() != null) {
-      Metadata.Key<String> remoteAddressKey =
-          Metadata.Key.of(
-              "io.grpc.grpc.transport_attr_remote_addr", Metadata.ASCII_STRING_MARSHALLER);
-      String remoteAddr = responseMetadata.getMetadata().get(remoteAddressKey);
-      if (!StringUtils.isNullOrEmpty(remoteAddr)) {
-        tracer.addTarget(remoteAddr);
-      }
-    }
   }
 
   /**

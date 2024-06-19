@@ -31,6 +31,7 @@ public class FakeServiceBuilder {
   private final List<BindableService> services = new ArrayList<>();
   private final List<ServerTransportFilter> transportFilters = new ArrayList<>();
 
+  private int serverPort = 0;
   public static FakeServiceBuilder create(BindableService... services) {
     return new FakeServiceBuilder(services);
   }
@@ -56,6 +57,9 @@ public class FakeServiceBuilder {
     return this;
   }
 
+  public int getServerPort() {
+    return serverPort;
+  }
   public Server start() throws IOException {
     IOException lastError = null;
 
@@ -79,6 +83,7 @@ public class FakeServiceBuilder {
       port = ss.getLocalPort();
     }
     ServerBuilder<?> builder = ServerBuilder.forPort(port);
+    serverPort = port;
     interceptors.forEach(builder::intercept);
     services.forEach(builder::addService);
     transportFilters.forEach(builder::addTransportFilter);

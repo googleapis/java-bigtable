@@ -32,11 +32,10 @@ import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
 import io.grpc.CallOptions;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.common.AttributesBuilder;
 import io.opentelemetry.api.internal.StringUtils;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -92,7 +91,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private Long serverLatencies = null;
 
-  private HashSet<String> targets = new HashSet<>();
+  private String target_endpoint = "unspecified";
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -186,7 +185,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   public void addTarget(String target) {
     if (!StringUtils.isNullOrEmpty(target)) {
-      this.targets.add(target);
+      this.target_endpoint = target;
     }
   }
 
@@ -308,7 +307,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
-            .put(TARGET_KEY, new ArrayList<>(this.targets))
             .build();
 
     long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
@@ -364,13 +362,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(CLIENT_NAME_KEY, NAME)
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
-            .put(TARGET_KEY, new ArrayList<>(this.targets))
             .build();
 
     clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
-
     attemptLatenciesHistogram.record(
-        convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
+        convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes.toBuilder().put(TARGET_KEY,target_endpoint).build());
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);
