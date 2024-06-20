@@ -29,11 +29,10 @@ import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.math.IntMath;
 import io.grpc.CallOptions;
 import io.opentelemetry.api.common.Attributes;
-import io.opentelemetry.api.common.AttributesBuilder;
-import io.opentelemetry.api.internal.StringUtils;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
 import java.util.concurrent.CancellationException;
@@ -49,9 +48,6 @@ import org.threeten.bp.Duration;
  * bigtable.googleapis.com/client namespace
  */
 class BuiltinMetricsTracer extends BigtableTracer {
-
-  static final CallOptions.Key<BuiltinMetricsTracer> BUILTIN_METRICSTRACER_KEY =
-      CallOptions.Key.create("builtin-metrics-tracer");
   private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
   private final SpanName spanName;
@@ -184,7 +180,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   public void addTarget(String target) {
-    if (!StringUtils.isNullOrEmpty(target)) {
+    if (!Strings.isNullOrEmpty(target)) {
       this.target_endpoint = target;
     }
   }
