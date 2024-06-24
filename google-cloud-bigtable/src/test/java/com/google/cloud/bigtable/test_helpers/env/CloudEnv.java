@@ -206,9 +206,7 @@ class CloudEnv extends AbstractTestEnv {
         channelProvider.getChannelConfigurator();
 
     if (enableDirectPath) {
-      channelProvider
-              .setAttemptDirectPath(true)
-              .setAttemptDirectPathXds();
+      channelProvider.setAttemptDirectPath(true).setAttemptDirectPathXds();
     }
 
     @SuppressWarnings("rawtypes")
@@ -298,7 +296,6 @@ class CloudEnv extends AbstractTestEnv {
 
     stubSettings.setHeaderProvider(FixedHeaderProvider.create(newHeaders));
   }
-
 
   @Override
   void start() throws IOException {
