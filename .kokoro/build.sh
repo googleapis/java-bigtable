@@ -27,8 +27,8 @@ source ${scriptDir}/common.sh
 mvn -version
 echo ${JOB_TYPE}
 
-sudo apt-get update
-sudo apt-get -y install libxml2-utils
+apt-get update
+apt-get -y install libxml2-utils
 
 pushd /tmp
 git clone git@github.com:googleapis/sdk-platform-java.git
