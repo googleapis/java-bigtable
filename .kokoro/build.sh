@@ -27,6 +27,37 @@ source ${scriptDir}/common.sh
 mvn -version
 echo ${JOB_TYPE}
 
+sudo apt-get update
+sudo apt-get -y install libxml2-utils
+
+pushd /tmp
+git clone git@github.com:googleapis/sdk-platform-java.git
+git checkout -b protobuf_version_update
+SHARED_DEPS_VERSION=$(sed -e 's/xmlns=".*"//' "java-shared-dependencies/pom.xml" | xmllint --xpath '/project/version/text()' -)
+mvn clean install -ntp \
+    -DskipTests=true \
+    -Dclirr.skip=true \
+    -Denforcer.skip=true \
+    -T 1C
+popd
+
+poms=($(find . -name pom.xml))
+for pom in "${poms[@]}"; do
+  if xmllint --xpath "//*[local-name()='artifactId' and text()='sdk-platform-java-config']/following-sibling::*[local-name()='version']" "$pom" &>/dev/null; then
+    found+=("$pom")
+  fi
+done
+POMS=(${found[@]})
+for pom in $POMS; do
+xmllint --shell pom.xml &>/dev/null << EOF
+  setns x=http://maven.apache.org/POM/4.0.0
+  cd .//x:artifactId[text()="sdk-platform-java-config"]
+  cd ../x:version
+  set ${SHARED_DEPS_VERSION}
+  save pom.xml
+EOF
+done
+
 # attempt to install 3 times with exponential backoff (starting with 10 seconds)
 retry_with_backoff 3 10 \
   mvn install -B -V -ntp \
