@@ -87,7 +87,7 @@ import org.threeten.bp.Duration;
  *   .setInstanceId("my-instance-id")
  *   .setAppProfileId("default");
  *
- * settingsBuilder.readRowsSettings()
+ * settingsBuilder.stubSettings().readRowsSettings()
  *  .setRetryableCodes(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
  *
  * BigtableDataSettings settings = builder.build();
@@ -359,10 +359,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .setMaxInboundMessageSize(MAX_MESSAGE_SIZE)
         .setKeepAliveTime(Duration.ofSeconds(30)) // sends ping in this interval
         .setKeepAliveTimeout(
-            Duration.ofSeconds(10)) // wait this long before considering the connection dead
-        // Attempts direct access to CBT service over gRPC to improve throughput,
-        // whether the attempt is allowed is totally controlled by service owner.
-        .setAttemptDirectPath(true);
+            Duration.ofSeconds(10)); // wait this long before considering the connection dead
   }
 
   @SuppressWarnings("WeakerAccess")
@@ -374,6 +371,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   public static GoogleCredentialsProvider.Builder defaultCredentialsProviderBuilder() {
     return BigtableStubSettings.defaultCredentialsProviderBuilder()
         .setJwtEnabledScopes(JWT_ENABLED_SCOPES);
+  }
+
+  @Override
+  public String getServiceName() {
+    return "bigtable";
   }
 
   /**
