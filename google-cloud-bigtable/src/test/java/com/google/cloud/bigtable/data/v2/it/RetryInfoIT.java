@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.it;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.assertThrows;
 
@@ -30,7 +32,6 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.base.Stopwatch;
-import com.google.common.truth.Truth;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import org.junit.AfterClass;
@@ -120,7 +121,7 @@ public class RetryInfoIT {
                       .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
                       .iterator()
                       .hasNext());
-      Truth.assertThat(e.getMessage()).contains("SPUs");
+      assertThat(e).hasMessageThat().contains("SPUs");
       enabledElapsed = stopwatch1.elapsed(TimeUnit.MILLISECONDS);
     }
 
@@ -142,13 +143,19 @@ public class RetryInfoIT {
                       .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
                       .iterator()
                       .hasNext());
-      Truth.assertThat(e.getMessage()).contains("SPUs");
+      assertThat(e).hasMessageThat().contains("SPUs");
       disabledElapsed = stopwatch2.elapsed(TimeUnit.MILLISECONDS);
     }
 
-    Truth.assertThat(disabledElapsed).isGreaterThan(0);
-    Truth.assertThat(enabledElapsed).isGreaterThan(disabledElapsed);
-    Truth.assertThat(enabledElapsed).isGreaterThan(26000);
+    assertWithMessage("Operation duration without RetryInfo")
+        .that(disabledElapsed)
+        .isGreaterThan(0);
+    assertWithMessage("Operation duration with RetryInfo > without")
+        .that(enabledElapsed)
+        .isGreaterThan(disabledElapsed);
+    assertWithMessage("operation duration with Retrying minimum duration")
+        .that(enabledElapsed)
+        .isGreaterThan(26000);
   }
 
   @Test
@@ -179,10 +186,10 @@ public class RetryInfoIT {
                       .readRows(Query.create(testEnvRule.env().getTableId()).limit(1))
                       .iterator()
                       .hasNext());
-      Truth.assertThat(e.getMessage()).contains("SPUs");
+      assertThat(e).hasMessageThat().contains("SPUs");
       enabledElapsed = stopwatch1.elapsed(TimeUnit.MILLISECONDS);
     }
 
-    Truth.assertThat(enabledElapsed).isLessThan(5000);
+    assertThat(enabledElapsed).isLessThan(5000);
   }
 }
