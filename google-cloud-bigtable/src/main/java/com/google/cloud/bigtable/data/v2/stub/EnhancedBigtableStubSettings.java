@@ -86,7 +86,7 @@ import org.threeten.bp.Duration;
  *   .setInstanceId("my-instance-id")
  *   .setAppProfileId("default");
  *
- * settingsBuilder.readRowsSettings()
+ * settingsBuilder.stubSettings().readRowsSettings()
  *  .setRetryableCodes(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
  *
  * BigtableDataSettings settings = builder.build();
@@ -378,6 +378,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   public static GoogleCredentialsProvider.Builder defaultCredentialsProviderBuilder() {
     return BigtableStubSettings.defaultCredentialsProviderBuilder()
         .setJwtEnabledScopes(JWT_ENABLED_SCOPES);
+  }
+
+  @Override
+  public String getServiceName() {
+    return "bigtable";
   }
 
   /**

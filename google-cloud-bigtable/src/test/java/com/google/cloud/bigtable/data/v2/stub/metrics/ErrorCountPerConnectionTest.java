@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 import com.google.api.gax.core.FixedExecutorProvider;
 import com.google.api.gax.grpc.ChannelPoolSettings;
@@ -43,10 +44,10 @@ import io.opentelemetry.sdk.metrics.data.HistogramPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +55,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 
 @RunWith(JUnit4.class)
 public class ErrorCountPerConnectionTest {
@@ -104,9 +106,8 @@ public class ErrorCountPerConnectionTest {
             .setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(otel));
 
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-    Mockito.when(
-            executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))
-        .thenReturn(null);
+    when(executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))
+        .then((Answer<ScheduledFuture<?>>) invocation -> Mockito.mock(ScheduledFuture.class));
   }
 
   @After
@@ -118,30 +119,30 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void readWithOneChannel() throws Exception {
-    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build());
     long errorCount = 0;
 
-    for (int i = 0; i < 20; i++) {
-      Query query;
-      if (i % 3 == 0) {
-        query = Query.create(ERROR_TABLE_NAME);
-        errorCount += 1;
-      } else {
-        query = Query.create(SUCCESS_TABLE_NAME);
-      }
-      try {
-        stub.readRowsCallable().call(query).iterator().hasNext();
-      } catch (Exception e) {
-        // noop
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
+      for (int i = 0; i < 20; i++) {
+        Query query;
+        if (i % 3 == 0) {
+          query = Query.create(ERROR_TABLE_NAME);
+          errorCount += 1;
+        } else {
+          query = Query.create(SUCCESS_TABLE_NAME);
+        }
+        try {
+          stub.readRowsCallable().call(query).iterator().hasNext();
+        } catch (Exception e) {
+          // noop
+        }
       }
     }
 
     runInterceptorTasksAndAssertCount();
 
-    Collection<MetricData> allMetrics = metricReader.collectAllMetrics();
     MetricData metricData =
         BuiltinMetricsTestUtils.getMetricData(
-            allMetrics, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
+            metricReader, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
 
     // Make sure the correct bucket is updated with the correct number of data points
     ArrayList<HistogramPointData> histogramPointData =
@@ -160,29 +161,28 @@ public class ErrorCountPerConnectionTest {
                 .toBuilder()
                 .setChannelPoolSettings(ChannelPoolSettings.staticallySized(2))
                 .build());
-    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builderWithTwoChannels.build());
     long totalErrorCount = 0;
-
-    for (int i = 0; i < 20; i++) {
-      try {
-        if (i < 10) {
-          totalErrorCount += 1;
-          stub.readRowsCallable().call(Query.create(ERROR_TABLE_NAME)).iterator().hasNext();
-        } else {
-          stub.readRowsCallable().call(Query.create(SUCCESS_TABLE_NAME)).iterator().hasNext();
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builderWithTwoChannels.build())) {
+      for (int i = 0; i < 20; i++) {
+        try {
+          if (i < 10) {
+            totalErrorCount += 1;
+            stub.readRowsCallable().call(Query.create(ERROR_TABLE_NAME)).iterator().hasNext();
+          } else {
+            stub.readRowsCallable().call(Query.create(SUCCESS_TABLE_NAME)).iterator().hasNext();
+          }
+        } catch (Exception e) {
+          // noop
         }
-      } catch (Exception e) {
-        // noop
       }
     }
     runInterceptorTasksAndAssertCount();
 
     long errorCountPerChannel = totalErrorCount / 2;
 
-    Collection<MetricData> allMetrics = metricReader.collectAllMetrics();
     MetricData metricData =
         BuiltinMetricsTestUtils.getMetricData(
-            allMetrics, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
+            metricReader, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
 
     // The 2 channels should get equal amount of errors, so the totalErrorCount / 2 bucket is
     // updated twice.
@@ -196,48 +196,48 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void readOverTwoPeriods() throws Exception {
-    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build());
     long errorCount1 = 0;
-
-    for (int i = 0; i < 20; i++) {
-      Query query;
-      if (i % 3 == 0) {
-        query = Query.create(ERROR_TABLE_NAME);
-        errorCount1 += 1;
-      } else {
-        query = Query.create(SUCCESS_TABLE_NAME);
-      }
-      try {
-        stub.readRowsCallable().call(query).iterator().hasNext();
-      } catch (Exception e) {
-        // noop
-      }
-    }
-
-    runInterceptorTasksAndAssertCount();
     long errorCount2 = 0;
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
 
-    for (int i = 0; i < 20; i++) {
-      Query query;
-      if (i % 3 == 0) {
-        query = Query.create(SUCCESS_TABLE_NAME);
-      } else {
-        query = Query.create(ERROR_TABLE_NAME);
-        errorCount2 += 1;
+      for (int i = 0; i < 20; i++) {
+        Query query;
+        if (i % 3 == 0) {
+          query = Query.create(ERROR_TABLE_NAME);
+          errorCount1 += 1;
+        } else {
+          query = Query.create(SUCCESS_TABLE_NAME);
+        }
+        try {
+          stub.readRowsCallable().call(query).iterator().hasNext();
+        } catch (Exception e) {
+          // noop
+        }
       }
-      try {
-        stub.readRowsCallable().call(query).iterator().hasNext();
-      } catch (Exception e) {
-        // noop
+
+      runInterceptorTasksAndAssertCount();
+
+      for (int i = 0; i < 20; i++) {
+        Query query;
+        if (i % 3 == 0) {
+          query = Query.create(SUCCESS_TABLE_NAME);
+        } else {
+          query = Query.create(ERROR_TABLE_NAME);
+          errorCount2 += 1;
+        }
+        try {
+          stub.readRowsCallable().call(query).iterator().hasNext();
+        } catch (Exception e) {
+          // noop
+        }
       }
     }
 
     runInterceptorTasksAndAssertCount();
 
-    Collection<MetricData> allMetrics = metricReader.collectAllMetrics();
     MetricData metricData =
         BuiltinMetricsTestUtils.getMetricData(
-            allMetrics, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
+            metricReader, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
 
     ArrayList<HistogramPointData> histogramPointData =
         new ArrayList<>(metricData.getHistogramData().getPoints());
@@ -251,20 +251,20 @@ public class ErrorCountPerConnectionTest {
 
   @Test
   public void noFailedRequests() throws Exception {
-    EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build());
-
-    for (int i = 0; i < 20; i++) {
-      try {
-        stub.readRowsCallable().call(Query.create(SUCCESS_TABLE_NAME)).iterator().hasNext();
-      } catch (Exception e) {
-        // noop
+    try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(builder.build())) {
+      for (int i = 0; i < 20; i++) {
+        try {
+          stub.readRowsCallable().call(Query.create(SUCCESS_TABLE_NAME)).iterator().hasNext();
+        } catch (Exception e) {
+          // noop
+        }
       }
     }
+
     runInterceptorTasksAndAssertCount();
-    Collection<MetricData> allMetrics = metricReader.collectAllMetrics();
     MetricData metricData =
         BuiltinMetricsTestUtils.getMetricData(
-            allMetrics, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
+            metricReader, BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME);
     long value = BuiltinMetricsTestUtils.getAggregatedValue(metricData, attributes);
     assertThat(value).isEqualTo(0);
   }

@@ -1,5 +1,49 @@
 # Changelog
 
+## [2.39.5](https://github.com/googleapis/java-bigtable/compare/v2.39.4...v2.39.5) (2024-06-10)
+
+
+### Bug Fixes
+
+* Make change stream unknown mod error more actionable ([#1938](https://github.com/googleapis/java-bigtable/issues/1938)) ([e7ba045](https://github.com/googleapis/java-bigtable/commit/e7ba045967e837129adcf979ac13cd9097fab56c))
+* Rate limiting should be ineffective when RateLimitInfo is not present ([#2243](https://github.com/googleapis/java-bigtable/issues/2243)) ([a0ec901](https://github.com/googleapis/java-bigtable/commit/a0ec901a84d8d5a2729772d165e2b305d4663824))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2252](https://github.com/googleapis/java-bigtable/issues/2252)) ([0131eb3](https://github.com/googleapis/java-bigtable/commit/0131eb33d09f0c4cb7b4984efed257f6d72b0100))
+
+## [2.39.4](https://github.com/googleapis/java-bigtable/compare/v2.39.3...v2.39.4) (2024-05-28)
+
+
+### Dependencies
+
+* Update dependency org.graalvm.buildtools:junit-platform-native to v0.10.2 ([#2236](https://github.com/googleapis/java-bigtable/issues/2236)) ([2609103](https://github.com/googleapis/java-bigtable/commit/26091035ed42cfd2945092d0c909dbf9bb6fae28))
+* Update dependency org.graalvm.buildtools:native-maven-plugin to v0.10.2 ([#2237](https://github.com/googleapis/java-bigtable/issues/2237)) ([6728931](https://github.com/googleapis/java-bigtable/commit/6728931ca904e2a2fb53f7b9e9115a9c3edd38df))
+* Update shared dependencies ([#2235](https://github.com/googleapis/java-bigtable/issues/2235)) ([8d38150](https://github.com/googleapis/java-bigtable/commit/8d3815023f7fa1c8103cb8ab02d8f71cd8a7a85e))
+
+## [2.39.3](https://github.com/googleapis/java-bigtable/compare/v2.39.2...v2.39.3) (2024-05-21)
+
+
+### Bug Fixes
+
+* Retry INTERNAL retriable auth errors ([#2239](https://github.com/googleapis/java-bigtable/issues/2239)) ([4cdb6da](https://github.com/googleapis/java-bigtable/commit/4cdb6da8920cd3346a9d79d67432cef588d93bb0))
+
+## [2.39.2](https://github.com/googleapis/java-bigtable/compare/v2.39.1...v2.39.2) (2024-05-09)
+
+
+### Dependencies
+
+* Update shared dependencies ([#2221](https://github.com/googleapis/java-bigtable/issues/2221)) ([17f7a9a](https://github.com/googleapis/java-bigtable/commit/17f7a9af3991c4744256bbfb0533d9390cada23d))
+
+## [2.39.1](https://github.com/googleapis/java-bigtable/compare/v2.39.0...v2.39.1) (2024-05-08)
+
+
+### Bug Fixes
+
+* Batch time series data when exporting client-side metric ([#2222](https://github.com/googleapis/java-bigtable/issues/2222)) ([1f9f169](https://github.com/googleapis/java-bigtable/commit/1f9f1698339ae470d821963e1037e0132016d216))
+* Remove stale module from bom ([#2218](https://github.com/googleapis/java-bigtable/issues/2218)) ([7145864](https://github.com/googleapis/java-bigtable/commit/7145864868b3f7df69f9b2db7a822f9faf903f33))
+
 ## [2.39.0](https://github.com/googleapis/java-bigtable/compare/v2.38.0...v2.39.0) (2024-04-29)
 
 
