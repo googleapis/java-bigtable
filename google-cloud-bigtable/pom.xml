@@ -498,6 +498,7 @@
                     <bigtable.enable-grpc-logs>${bigtable.enable-grpc-logs}</bigtable.enable-grpc-logs>
                     <bigtable.grpc-log-dir>${project.build.directory}/test-grpc-logs/directpath-it</bigtable.grpc-log-dir>
                     <bigtable.connection-mode>REQUIRE_DIRECT_PATH</bigtable.connection-mode>
+                    <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>
                   </systemPropertyVariables>
                   <includes>
                     <!-- TODO(igorbernstein): Once the control plane is accessible via directpath, add admin tests -->
