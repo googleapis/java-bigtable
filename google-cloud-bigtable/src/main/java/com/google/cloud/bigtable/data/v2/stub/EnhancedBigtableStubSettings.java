@@ -100,7 +100,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
 
-  // TODO: add documentation
+  // TODO(meeral-k): add documentation
   private static final String CBT_ENABLE_DIRECTPATH = "CBT_ENABLE_DIRECTPATH";
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
