@@ -22,13 +22,16 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TARGET_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Strings;
 import com.google.common.math.IntMath;
+import io.grpc.CallOptions;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
@@ -45,7 +48,6 @@ import org.threeten.bp.Duration;
  * bigtable.googleapis.com/client namespace
  */
 class BuiltinMetricsTracer extends BigtableTracer {
-
   private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
   private final SpanName spanName;
@@ -84,6 +86,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final Attributes baseAttributes;
 
   private Long serverLatencies = null;
+
+  private String target_endpoint = "unspecified";
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -173,6 +177,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
   @Override
   public void attemptSucceeded() {
     recordAttemptCompletion(null);
+  }
+
+  public void addTarget(String target) {
+    if (!Strings.isNullOrEmpty(target)) {
+      this.target_endpoint = target;
+    }
   }
 
   @Override
@@ -338,7 +348,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
 
     String statusStr = Util.extractStatus(status);
-
     Attributes attributes =
         baseAttributes
             .toBuilder()
@@ -352,9 +361,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .build();
 
     clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
-
     attemptLatenciesHistogram.record(
-        convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
+        convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes.toBuilder().put(TARGET_KEY,target_endpoint).build());
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);

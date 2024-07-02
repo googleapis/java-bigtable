@@ -100,6 +100,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final int MAX_MESSAGE_SIZE = 256 * 1024 * 1024;
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
 
+  private static final String CBT_ENABLE_DIRECTPATH = "CBT_ENABLE_DIRECTPATH";
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
 
@@ -233,6 +234,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final MetricsProvider metricsProvider;
 
+  private final Boolean isDirectpath;
+
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
 
@@ -260,6 +263,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
     metricsProvider = builder.metricsProvider;
+    isDirectpath = builder.isDirectpath;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -275,6 +279,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     readChangeStreamSettings = builder.readChangeStreamSettings.build();
     pingAndWarmSettings = builder.pingAndWarmSettings.build();
     featureFlags = builder.featureFlags.build();
+
   }
 
   /** Create a new builder. */
@@ -287,6 +292,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return projectId;
   }
 
+  public Boolean getIsDirectpath() {
+    return isDirectpath;
+  }
   /** Returns the target instance id. */
   public String getInstanceId() {
     return instanceId;
@@ -345,7 +353,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    return BigtableStubSettings.defaultGrpcTransportProviderBuilder()
+    String enableDirectpathEnv = System.getenv(CBT_ENABLE_DIRECTPATH);
+    Boolean isDirectpathEnabled = Boolean.parseBoolean(enableDirectpathEnv);
+
+    InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
+        BigtableStubSettings.defaultGrpcTransportProviderBuilder();
+    if (isDirectpathEnabled) {
+      // Attempts direct access to CBT service over gRPC to improve throughput,
+      // whether the attempt is allowed is totally controlled by service owner.
+      grpcTransportProviderBuilder.setAttemptDirectPathXds().setAttemptDirectPath(true);
+    }
+    return grpcTransportProviderBuilder
         .setChannelPoolSettings(
             ChannelPoolSettings.builder()
                 .setInitialChannelCount(10)
@@ -649,6 +667,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private MetricsProvider metricsProvider;
 
+    private Boolean isDirectpath;
+
     /**
      * Initializes a new Builder with sane defaults for all settings.
      *
@@ -774,6 +794,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
       featureFlags =
           FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
+      isDirectpath = Boolean.parseBoolean(System.getenv(CBT_ENABLE_DIRECTPATH));
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -787,6 +808,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
       metricsProvider = settings.metricsProvider;
+      isDirectpath = settings.isDirectpath;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -1097,6 +1119,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 
+      isDirectpath = Boolean.parseBoolean(System.getenv(CBT_ENABLE_DIRECTPATH));
       return new EnhancedBigtableStubSettings(this);
     }
     // </editor-fold>

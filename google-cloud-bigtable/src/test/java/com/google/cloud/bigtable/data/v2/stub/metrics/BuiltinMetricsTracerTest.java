@@ -28,6 +28,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STREAMING_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TARGET_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getAggregatedValue;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTestUtils.getMetricData;
@@ -97,6 +98,7 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -129,6 +131,7 @@ public class BuiltinMetricsTracerTest {
   private static final long SERVER_LATENCY = 100;
   private static final long APPLICATION_LATENCY = 200;
   private static final long SLEEP_VARIABILITY = 15;
+  private static final String TARGET_ENDPOINT_VALUE_FORMAT = "localhost/127.0.0.1:%s";
   private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
 
   private static final long CHANNEL_BLOCKING_LATENCY = 75;
@@ -265,8 +268,10 @@ public class BuiltinMetricsTracerTest {
           if (oldConfigurator != null) {
             builder = oldConfigurator.apply(builder);
           }
+          builder.intercept(new TargetTracerInterceptor());
           return builder.intercept(clientInterceptor);
         });
+
     stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
 
     EnhancedBigtableStubSettings stubSettings = stubSettingsBuilder.build();
@@ -514,6 +519,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.MutateRow")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, false)
+            .put(TARGET_KEY, "unspecified")
             .build();
 
     Attributes expected2 =
@@ -526,6 +532,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.MutateRow")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, false)
+            .put(TARGET_KEY, String.format(TARGET_ENDPOINT_VALUE_FORMAT,String.valueOf(server.getPort())))
             .build();
 
     verifyAttributes(metricData, expected1);
@@ -555,6 +562,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.MutateRows")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, false)
+            .put(TARGET_KEY, String.format(TARGET_ENDPOINT_VALUE_FORMAT,String.valueOf(server.getPort())))
             .build();
 
     verifyAttributes(metricData, expected);
@@ -605,6 +613,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, true)
+            .put(TARGET_KEY, "unspecified")
             .build();
 
     Attributes expected2 =
@@ -617,6 +626,7 @@ public class BuiltinMetricsTracerTest {
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .put(STREAMING_KEY, true)
+            .put(TARGET_KEY, String.format(TARGET_ENDPOINT_VALUE_FORMAT,String.valueOf(server.getPort())))
             .build();
 
     verifyAttributes(metricData, expected1);
@@ -718,12 +728,24 @@ public class BuiltinMetricsTracerTest {
             .put(STREAMING_KEY, true)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .put(TARGET_KEY, "unspecified")
             .build();
 
     verifyAttributes(attemptLatency, expected);
 
     MetricData opLatency = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
-    verifyAttributes(opLatency, expected);
+    Attributes expectedOperationLatencyAttributes =
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "NOT_FOUND")
+            .put(TABLE_ID_KEY, BAD_TABLE_ID)
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(ZONE_ID_KEY, "global")
+            .put(STREAMING_KEY, true)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
+    verifyAttributes(opLatency, expectedOperationLatencyAttributes);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

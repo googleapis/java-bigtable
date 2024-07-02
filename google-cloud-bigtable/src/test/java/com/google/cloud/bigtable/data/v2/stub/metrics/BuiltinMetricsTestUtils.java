@@ -124,6 +124,7 @@ public class BuiltinMetricsTestUtils {
             metricData.getHistogramData().getPoints().stream()
                 .filter(pd -> pd.getAttributes().equals(attributes))
                 .collect(Collectors.toList());
+
         assertThat(hd).isNotEmpty();
         break;
       case LONG_SUM:
