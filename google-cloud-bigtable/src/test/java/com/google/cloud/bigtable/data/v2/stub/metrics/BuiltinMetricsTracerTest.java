@@ -232,7 +232,7 @@ public class BuiltinMetricsTracerTest {
     stubSettingsBuilder
         .mutateRowSettings()
         .retrySettings()
-        .setInitialRetryDelay(Duration.ofMillis(200));
+        .setInitialRetryDelayDuration(java.time.Duration.ofMillis(200));
 
     stubSettingsBuilder
         .bulkMutateRowsSettings()
@@ -242,7 +242,7 @@ public class BuiltinMetricsTracerTest {
             BatchingSettings.newBuilder()
                 .setElementCountThreshold((long) batchElementCount)
                 .setRequestByteThreshold(1000L)
-                .setDelayThreshold(Duration.ofHours(1))
+                .setDelayThresholdDuration(java.time.Duration.ofHours(1))
                 .setFlowControlSettings(
                     FlowControlSettings.newBuilder()
                         .setMaxOutstandingElementCount((long) batchElementCount + 1)
