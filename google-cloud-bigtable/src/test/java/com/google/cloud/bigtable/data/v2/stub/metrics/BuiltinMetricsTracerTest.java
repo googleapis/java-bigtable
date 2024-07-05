@@ -113,7 +113,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class BuiltinMetricsTracerTest {
