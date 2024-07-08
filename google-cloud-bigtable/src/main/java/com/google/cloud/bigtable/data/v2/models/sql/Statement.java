@@ -65,10 +65,6 @@ public class Statement {
       Type.newBuilder().setBytesType(Type.Bytes.getDefaultInstance()).build();
   private static final Type INT64_TYPE =
       Type.newBuilder().setInt64Type(Type.Int64.getDefaultInstance()).build();
-  private static final Type FLOAT64_TYPE =
-      Type.newBuilder().setFloat64Type(Type.Float64.getDefaultInstance()).build();
-  private static final Type FLOAT32_TYPE =
-      Type.newBuilder().setFloat32Type(Type.Float32.getDefaultInstance()).build();
   private static final Type BOOL_TYPE =
       Type.newBuilder().setBoolType(Type.Bool.getDefaultInstance()).build();
   private static final Type TIMESTAMP_TYPE =
@@ -136,24 +132,6 @@ public class Statement {
     }
 
     /**
-     * Sets a query parameter with the name {@code paramName} and the FLOAT64 typed value {@code
-     * value}
-     */
-    public Builder setDoubleParam(String paramName, @Nullable Double value) {
-      params.put(paramName, float64ParamOf(value));
-      return this;
-    }
-
-    /**
-     * Sets a query parameter with the name {@code paramName} and the FLOAT32 typed value {@code
-     * value}
-     */
-    public Builder setFloatParam(String paramName, @Nullable Float value) {
-      params.put(paramName, float32ParamOf(value));
-      return this;
-    }
-
-    /**
      * Sets a query parameter with the name {@code paramName} and the BOOL typed value {@code value}
      */
     public Builder setBooleanParam(String paramName, @Nullable Boolean value) {
@@ -198,22 +176,6 @@ public class Statement {
       Value.Builder builder = nullValueWithType(INT64_TYPE);
       if (value != null) {
         builder.setIntValue(value);
-      }
-      return builder.build();
-    }
-
-    private static Value float64ParamOf(@Nullable Double value) {
-      Value.Builder builder = nullValueWithType(FLOAT64_TYPE);
-      if (value != null) {
-        builder.setFloatValue(value);
-      }
-      return builder.build();
-    }
-
-    private static Value float32ParamOf(@Nullable Float value) {
-      Value.Builder builder = nullValueWithType(FLOAT32_TYPE);
-      if (value != null) {
-        builder.setFloatValue(value);
       }
       return builder.build();
     }

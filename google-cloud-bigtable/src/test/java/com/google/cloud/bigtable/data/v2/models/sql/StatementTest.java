@@ -19,8 +19,6 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolTyp
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateValue;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampType;
@@ -162,76 +160,6 @@ public class StatementTest {
             ExecuteQueryRequest.newBuilder()
                 .setQuery("SELECT * FROM table WHERE 1=@number")
                 .putParams("number", Value.newBuilder().setType(int64Type()).build())
-                .setInstanceName(EXPECTED_INSTANCE_NAME)
-                .setAppProfileId(EXPECTED_APP_PROFILE)
-                .build());
-  }
-
-  @Test
-  public void statementWithFloat64Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setDoubleParam("number", 1d)
-            .build();
-
-    assertThat(s.toProto(REQUEST_CONTEXT))
-        .isEqualTo(
-            ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
-                .putParams(
-                    "number", Value.newBuilder().setType(float64Type()).setFloatValue(1d).build())
-                .setInstanceName(EXPECTED_INSTANCE_NAME)
-                .setAppProfileId(EXPECTED_APP_PROFILE)
-                .build());
-  }
-
-  @Test
-  public void statementWithNullFloat64Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setDoubleParam("number", null)
-            .build();
-
-    assertThat(s.toProto(REQUEST_CONTEXT))
-        .isEqualTo(
-            ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
-                .putParams("number", Value.newBuilder().setType(float64Type()).build())
-                .setInstanceName(EXPECTED_INSTANCE_NAME)
-                .setAppProfileId(EXPECTED_APP_PROFILE)
-                .build());
-  }
-
-  @Test
-  public void statementWithFloat32Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setFloatParam("number", 1f)
-            .build();
-
-    assertThat(s.toProto(REQUEST_CONTEXT))
-        .isEqualTo(
-            ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
-                .putParams(
-                    "number", Value.newBuilder().setType(float32Type()).setFloatValue(1f).build())
-                .setInstanceName(EXPECTED_INSTANCE_NAME)
-                .setAppProfileId(EXPECTED_APP_PROFILE)
-                .build());
-  }
-
-  @Test
-  public void statementWithNullFloat32Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setFloatParam("number", null)
-            .build();
-
-    assertThat(s.toProto(REQUEST_CONTEXT))
-        .isEqualTo(
-            ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
-                .putParams("number", Value.newBuilder().setType(float32Type()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
                 .build());

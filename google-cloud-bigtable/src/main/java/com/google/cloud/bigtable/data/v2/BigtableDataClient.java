@@ -2614,6 +2614,28 @@ public class BigtableDataClient implements AutoCloseable {
     return stub.readChangeStreamCallable();
   }
 
+  /**
+   * Executes a SQL Query and returns a ResultSet to iterate over the results. The returned
+   * ResultSet instance is not threadsafe, it can only be used from single thread.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String query = "SELECT cf['stringCol'] FROM [TABLE]";
+   *
+   *   try (ResultSet resultSet = bigtableDataClient.executeQuery(Statement.of(query))) {
+   *     while (resultSet.next()) {
+   *        String s = resultSet.getString("stringCol");
+   *        // do something with data
+   *     }
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   * }</pre>
+   *
+   * @see Statement For query options.
+   */
   @BetaApi
   public ResultSet executeQuery(Statement statement) {
     SqlServerStream stream = stub.createExecuteQueryCallable().call(statement);
