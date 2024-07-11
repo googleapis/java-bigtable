@@ -99,6 +99,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
+import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
@@ -1300,8 +1301,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * Creates a callable chain to handle streaming ExecuteQuery RPCs. The chain will:
    *
    * <ul>
-   *   <li>Convert a {@link ExecuteQueryRequest} into a {@link ExecuteQueryCallContext}, which
-   *       passes the {@link ExecuteQueryRequest} & a future for the {@link
+   *   <li>Convert a {@link Statement} into a {@link ExecuteQueryCallContext}, which passes the
+   *       {@link Statement} & a future for the {@link
    *       com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata} up the call chain.
    *   <li>Upon receiving the response stream, it will set the metadata future and translate the
    *       {@link com.google.bigtable.v2.PartialResultSet}s into {@link SqlRow}s
@@ -1310,7 +1311,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream}
    * </ul>
    */
-  // TODO update docs for Statement
   @InternalApi("For internal use only")
   public ExecuteQueryCallable createExecuteQueryCallable() {
     // TODO support resumption

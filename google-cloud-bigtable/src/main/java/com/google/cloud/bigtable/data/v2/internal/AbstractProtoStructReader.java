@@ -316,7 +316,6 @@ public abstract class AbstractProtoStructReader implements StructReader {
 
   private void checkNonNullOfType(
       int columnIndex, SqlType<?> expectedType, SqlType<?> actualType, Object columnNameForError) {
-    // TODO check on toString formatting
     Preconditions.checkState(
         SqlType.typesMatch(expectedType, actualType),
         "Column %s is not of correct type: expected %s but was %s",
