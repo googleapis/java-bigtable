@@ -954,6 +954,24 @@
     "allPublicClasses": true
   },
   {
+    "name": "com.google.bigtable.v2.ProtoRows",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "queryAllDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "com.google.bigtable.v2.ProtoRows$Builder",
+    "queryAllDeclaredConstructors": true,
+    "queryAllPublicConstructors": true,
+    "queryAllDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
     "name": "com.google.bigtable.v2.ProtoRowsBatch",
     "queryAllDeclaredConstructors": true,
     "queryAllPublicConstructors": true,
