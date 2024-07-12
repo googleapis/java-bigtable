@@ -2622,7 +2622,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
-   *   String query = "SELECT cf['stringCol'] FROM [TABLE]";
+   *   String query = "SELECT CAST(cf['stringCol'] AS STRING) FROM [TABLE]";
    *
    *   try (ResultSet resultSet = bigtableDataClient.executeQuery(Statement.of(query))) {
    *     while (resultSet.next()) {
