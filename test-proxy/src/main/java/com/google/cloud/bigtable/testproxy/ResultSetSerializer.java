@@ -71,26 +71,21 @@ public class ResultSetSerializer {
       case BYTES:
         valueBuilder.setBytesValue((ByteString) value);
         break;
-
       case STRING:
         valueBuilder.setStringValue((String) value);
         break;
       case INT64:
         valueBuilder.setIntValue((Long) value);
         break;
-
       case FLOAT32:
         valueBuilder.setFloatValue((Float) value);
         break;
-
       case FLOAT64:
         valueBuilder.setFloatValue((Double) value);
         break;
-
       case BOOL:
         valueBuilder.setBoolValue((Boolean) value);
         break;
-
       case TIMESTAMP:
         Instant ts = (Instant) value;
         valueBuilder.setTimestampValue(
@@ -99,7 +94,6 @@ public class ResultSetSerializer {
                 .setNanos(ts.getNano())
                 .build());
         break;
-
       case DATE:
         Date date = (Date) value;
         valueBuilder.setDateValue(
@@ -109,7 +103,6 @@ public class ResultSetSerializer {
                 .setDay(date.getDayOfMonth())
                 .build());
         break;
-
       case ARRAY:
         SqlType<?> elementType = ((SqlType.Array<?>) type).getElementType();
         ArrayValue.Builder arrayValue = ArrayValue.newBuilder();
@@ -118,7 +111,6 @@ public class ResultSetSerializer {
         }
         valueBuilder.setArrayValue(arrayValue.build());
         break;
-
       case MAP:
         SqlType.Map<?, ?> mapType = (SqlType.Map<?, ?>) type;
         SqlType<?> mapKeyType = mapType.getKeyType();
@@ -137,7 +129,6 @@ public class ResultSetSerializer {
                                     .build())));
         valueBuilder.setArrayValue(mapArrayValue.build());
         break;
-
       case STRUCT:
         StructReader structValue = (StructReader) value;
         SqlType.Struct structType = (SqlType.Struct) type;
@@ -148,7 +139,6 @@ public class ResultSetSerializer {
         }
         valueBuilder.setArrayValue(structArrayValue);
         break;
-
       default:
         throw new IllegalStateException("Unexpected Type: " + type);
     }
@@ -208,7 +198,9 @@ public class ResultSetSerializer {
       case TIMESTAMP:
         return Type.newBuilder().setTimestampType(Timestamp.getDefaultInstance()).build();
       case DATE:
-        return Type.newBuilder().setBytesType(Bytes.getDefaultInstance()).build();
+        return Type.newBuilder()
+            .setDateType(com.google.bigtable.v2.Type.Date.getDefaultInstance())
+            .build();
       case ARRAY:
         SqlType.Array<?> arrayType = (SqlType.Array<?>) type;
         return Type.newBuilder()

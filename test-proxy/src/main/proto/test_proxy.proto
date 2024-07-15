@@ -249,18 +249,22 @@ message ReadModifyWriteRowRequest {
   google.bigtable.v2.ReadModifyWriteRowRequest request = 2;
 }
 
+// Request to test proxy service to execute a query.
 message ExecuteQueryRequest {
   // The ID of the target client object.
   string client_id = 1;
 
+  // The raw request to the Bigtable server.
   google.bigtable.v2.ExecuteQueryRequest request = 2;
 }
 
+// Response from test proxy service for ExecuteQueryRequest.
 message ExecuteQueryResult {
   // The RPC status from the client binding.
   google.rpc.Status status = 1;
 
-  google.bigtable.v2.ResultSetMetadata result_set_metadata = 2;  // deprecated
+  // deprecated
+  google.bigtable.v2.ResultSetMetadata result_set_metadata = 2;
 
   // Name and type information for the query result.
   ResultSetMetadata metadata = 4;
@@ -269,10 +273,13 @@ message ExecuteQueryResult {
   repeated SqlRow rows = 3;
 }
 
+// Schema information for the query result.
 message ResultSetMetadata {
+  // Column metadata for each column inthe query result.
   repeated google.bigtable.v2.ColumnMetadata columns = 1;
 }
 
+// Representation of a single row in the query result.
 message SqlRow {
   // Columnar values returned by the query.
   repeated google.bigtable.v2.Value values = 1;
