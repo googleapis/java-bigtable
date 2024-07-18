@@ -1,5 +1,54 @@
 # Changelog
 
+## [2.40.0](https://github.com/googleapis/java-bigtable/compare/v2.39.5...v2.40.0) (2024-06-28)
+
+
+### Features
+
+* Add String type with Utf8Raw encoding to Bigtable API ([#2191](https://github.com/googleapis/java-bigtable/issues/2191)) ([e7f03fc](https://github.com/googleapis/java-bigtable/commit/e7f03fc7d252a7ff6c76a8e6e0a9e6ad3dcbd9d5))
+
+
+### Bug Fixes
+
+* Add getServiceName() to EnhancedBigTableStubSettings ([#2256](https://github.com/googleapis/java-bigtable/issues/2256)) ([da703db](https://github.com/googleapis/java-bigtable/commit/da703db25f6702b263dbd8ded0cb0fd3422efe31))
+* Remove grpclb ([#2033](https://github.com/googleapis/java-bigtable/issues/2033)) ([7355375](https://github.com/googleapis/java-bigtable/commit/735537571a147bfdd2a986664ff7905c8f5dc3db))
+
+
+### Dependencies
+
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.4.3 ([#2268](https://github.com/googleapis/java-bigtable/issues/2268)) ([4573220](https://github.com/googleapis/java-bigtable/commit/45732201880a13eeced3d0332bd172aae0f73dbe))
+* Update dependency org.junit.vintage:junit-vintage-engine to v5.10.3 ([#2269](https://github.com/googleapis/java-bigtable/issues/2269)) ([69fef96](https://github.com/googleapis/java-bigtable/commit/69fef968937f4d2e4cc479279a09d7b0bed6c5a2))
+* Update shared dependencies ([#2265](https://github.com/googleapis/java-bigtable/issues/2265)) ([61014ca](https://github.com/googleapis/java-bigtable/commit/61014ca89318743cf0cc0bae97a7f875bc5243ab))
+
+## [2.39.5](https://github.com/googleapis/java-bigtable/compare/v2.39.4...v2.39.5) (2024-06-10)
+
+
+### Bug Fixes
+
+* Make change stream unknown mod error more actionable ([#1938](https://github.com/googleapis/java-bigtable/issues/1938)) ([e7ba045](https://github.com/googleapis/java-bigtable/commit/e7ba045967e837129adcf979ac13cd9097fab56c))
+* Rate limiting should be ineffective when RateLimitInfo is not present ([#2243](https://github.com/googleapis/java-bigtable/issues/2243)) ([a0ec901](https://github.com/googleapis/java-bigtable/commit/a0ec901a84d8d5a2729772d165e2b305d4663824))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2252](https://github.com/googleapis/java-bigtable/issues/2252)) ([0131eb3](https://github.com/googleapis/java-bigtable/commit/0131eb33d09f0c4cb7b4984efed257f6d72b0100))
+
+## [2.39.4](https://github.com/googleapis/java-bigtable/compare/v2.39.3...v2.39.4) (2024-05-28)
+
+
+### Dependencies
+
+* Update dependency org.graalvm.buildtools:junit-platform-native to v0.10.2 ([#2236](https://github.com/googleapis/java-bigtable/issues/2236)) ([2609103](https://github.com/googleapis/java-bigtable/commit/26091035ed42cfd2945092d0c909dbf9bb6fae28))
+* Update dependency org.graalvm.buildtools:native-maven-plugin to v0.10.2 ([#2237](https://github.com/googleapis/java-bigtable/issues/2237)) ([6728931](https://github.com/googleapis/java-bigtable/commit/6728931ca904e2a2fb53f7b9e9115a9c3edd38df))
+* Update shared dependencies ([#2235](https://github.com/googleapis/java-bigtable/issues/2235)) ([8d38150](https://github.com/googleapis/java-bigtable/commit/8d3815023f7fa1c8103cb8ab02d8f71cd8a7a85e))
+
+## [2.39.3](https://github.com/googleapis/java-bigtable/compare/v2.39.2...v2.39.3) (2024-05-21)
+
+
+### Bug Fixes
+
+* Retry INTERNAL retriable auth errors ([#2239](https://github.com/googleapis/java-bigtable/issues/2239)) ([4cdb6da](https://github.com/googleapis/java-bigtable/commit/4cdb6da8920cd3346a9d79d67432cef588d93bb0))
+
 ## [2.39.2](https://github.com/googleapis/java-bigtable/compare/v2.39.1...v2.39.2) (2024-05-09)
 
 

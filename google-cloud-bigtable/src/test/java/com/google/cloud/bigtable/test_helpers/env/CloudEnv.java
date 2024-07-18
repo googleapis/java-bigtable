@@ -134,8 +134,9 @@ class CloudEnv extends AbstractTestEnv {
       dataSettings.stubSettings().setEndpoint(dataEndpoint);
     }
 
-    setupRemoteAddrInterceptor(dataSettings.stubSettings());
+    configureConnection(dataSettings.stubSettings());
     configureUserAgent(dataSettings.stubSettings());
+
     if (tracingCookie != null) {
       injectTracingCookie(tracingCookie, dataSettings.stubSettings());
     }
@@ -164,7 +165,7 @@ class CloudEnv extends AbstractTestEnv {
                 .build());
   }
 
-  private void setupRemoteAddrInterceptor(StubSettings.Builder stubSettings) {
+  private void configureConnection(StubSettings.Builder stubSettings) {
     // Build an remote address restricting interceptor
     final ClientInterceptor interceptor;
 
