@@ -188,7 +188,7 @@ public class ChangeStreamMutationTest {
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(Value.intValue(1234).toProto())
                 .build());
-    assertThat(mutateRowRequest.getMutations(3).getMergeToCell())
+    assertThat(mutateRowRequest.getMutations(4).getMergeToCell())
         .isEqualTo(
             Mutation.MergeToCell.newBuilder()
                 .setFamilyName("agg-family")
