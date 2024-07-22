@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-import java.util.Base64;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -201,7 +200,7 @@ public class MutationTest {
   @Test
   public void mergeToCellTest() {
     mutation.mergeToCell(
-        "cf1", "q", 10000, Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
+        "cf1", "q", 10000, ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
     List<com.google.bigtable.v2.Mutation> actual = mutation.getMutations();
 
     com.google.bigtable.v2.Mutation.Builder builder = com.google.bigtable.v2.Mutation.newBuilder();
@@ -211,7 +210,7 @@ public class MutationTest {
     mergeToCellBuilder.getTimestampBuilder().setRawTimestampMicros(10000);
     mergeToCellBuilder
         .getInputBuilder()
-        .setRawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
+        .setRawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
 
     assertThat(actual).containsExactly(builder.build());
   }
@@ -307,7 +306,7 @@ public class MutationTest {
             "agg-family",
             "qual2",
             1000,
-            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
+            ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
 
     List<com.google.bigtable.v2.Mutation> protoMutation = mutation.getMutations();
 

@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.math.BigInteger;
-import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,7 +72,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("col2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -161,7 +160,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -197,8 +196,7 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(
-                            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))))
                         .toProto())
                 .build());
   }
@@ -247,7 +245,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -280,8 +278,7 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(
-                            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))))
                         .toProto())
                 .build());
   }

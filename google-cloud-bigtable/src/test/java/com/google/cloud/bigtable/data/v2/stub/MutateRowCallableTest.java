@@ -21,9 +21,9 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.common.primitives.Longs;
 import com.google.common.truth.Truth;
 import java.math.BigInteger;
-import java.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -58,10 +58,7 @@ public class MutateRowCallableTest {
             .setCell("fake-family", "fake-qualifier", 1_000, "fake-value")
             .addToCell("family-2", "qualifier", 1_000, 1234)
             .mergeToCell(
-                "family-2",
-                "qualifier2",
-                1_000,
-                Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
+                "family-2", "qualifier2", 1_000, Longs.toByteArray(BigInteger.valueOf(1234)));
 
     innerResult.set(MutateRowResponse.getDefaultInstance());
     callable.call(outerRequest);
