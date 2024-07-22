@@ -74,7 +74,7 @@ public class WriteAggregate {
                                   .mergeToCell(COUNT_COLUMN_FAMILY_NAME, 
                                     "views",
                                     hourlyBucketMicros, 
-                                    Base64.encodeBase64(BigInteger.valueOf(1).toByteArray()));
+                                    Base64.getEncoder().encode(BigInteger.valueOf(1).toByteArray()));
 
       dataClient.mutateRow(rowMutation);
       System.out.printf("Successfully wrote row %s", rowKey);

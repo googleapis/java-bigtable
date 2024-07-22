@@ -201,7 +201,7 @@ public class MutationTest {
   @Test
   public void mergeToCellTest() {
     mutation.mergeToCell(
-        "cf1", "q", 10000, Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()));
+        "cf1", "q", 10000, Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
     List<com.google.bigtable.v2.Mutation> actual = mutation.getMutations();
 
     com.google.bigtable.v2.Mutation.Builder builder = com.google.bigtable.v2.Mutation.newBuilder();
@@ -211,7 +211,7 @@ public class MutationTest {
     mergeToCellBuilder.getTimestampBuilder().setRawTimestampMicros(10000);
     mergeToCellBuilder
         .getInputBuilder()
-        .setRawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()));
+        .setRawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
 
     assertThat(actual).containsExactly(builder.build());
   }
@@ -307,7 +307,7 @@ public class MutationTest {
             "agg-family",
             "qual2",
             1000,
-            Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()));
+            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
 
     List<com.google.bigtable.v2.Mutation> protoMutation = mutation.getMutations();
 

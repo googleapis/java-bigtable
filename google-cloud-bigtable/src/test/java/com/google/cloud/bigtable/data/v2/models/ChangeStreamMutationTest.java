@@ -73,7 +73,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("col2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -161,7 +161,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -197,7 +197,7 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
                         .toProto())
                 .build());
   }
@@ -246,7 +246,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray())))
+                Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray())))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -279,7 +279,7 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
                         .toProto())
                 .build());
   }

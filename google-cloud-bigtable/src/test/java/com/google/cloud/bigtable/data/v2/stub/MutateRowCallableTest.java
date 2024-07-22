@@ -61,7 +61,7 @@ public class MutateRowCallableTest {
                 "family-2",
                 "qualifier2",
                 1_000,
-                Base64.encodeBase64(BigInteger.valueOf(1234).toByteArray()));
+                Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()));
 
     innerResult.set(MutateRowResponse.getDefaultInstance());
     callable.call(outerRequest);
