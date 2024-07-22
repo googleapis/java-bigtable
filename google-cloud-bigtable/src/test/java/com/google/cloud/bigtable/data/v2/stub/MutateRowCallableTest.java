@@ -58,10 +58,7 @@ public class MutateRowCallableTest {
             .setCell("fake-family", "fake-qualifier", 1_000, "fake-value")
             .addToCell("family-2", "qualifier", 1_000, 1234)
             .mergeToCell(
-                "family-2",
-                "qualifier2",
-                1_000,
-                ByteString.copyFrom(Longs.toByteArray(1234L)));
+                "family-2", "qualifier2", 1_000, ByteString.copyFrom(Longs.toByteArray(1234L)));
 
     innerResult.set(MutateRowResponse.getDefaultInstance());
     callable.call(outerRequest);
