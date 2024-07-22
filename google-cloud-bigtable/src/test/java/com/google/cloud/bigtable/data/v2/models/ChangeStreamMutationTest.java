@@ -197,7 +197,8 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(
+                            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
                         .toProto())
                 .build());
   }
@@ -279,7 +280,8 @@ public class ChangeStreamMutationTest {
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
                 .setInput(
-                    Value.rawValue(Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
+                    Value.rawValue(
+                            Base64.getEncoder().encode(BigInteger.valueOf(1234).toByteArray()))
                         .toProto())
                 .build());
   }
