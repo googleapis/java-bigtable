@@ -22,6 +22,7 @@ import com.google.bigtable.v2.MutateRowResponse;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.common.truth.Truth;
+import java.math.BigInteger;
 import java.util.Base64;
 import org.junit.Before;
 import org.junit.Test;
