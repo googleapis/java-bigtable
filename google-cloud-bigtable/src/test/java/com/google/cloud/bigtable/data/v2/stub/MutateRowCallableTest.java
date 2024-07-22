@@ -61,7 +61,7 @@ public class MutateRowCallableTest {
                 "family-2",
                 "qualifier2",
                 1_000,
-                ByteString.copyFrom(ByteString.copyFrom(Longs.toByteArray(1234L))));
+                ByteString.copyFrom(Longs.toByteArray(1234L)));
 
     innerResult.set(MutateRowResponse.getDefaultInstance());
     callable.call(outerRequest);
