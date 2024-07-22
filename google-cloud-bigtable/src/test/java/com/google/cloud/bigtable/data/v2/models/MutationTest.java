@@ -30,7 +30,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.math.BigInteger;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -199,8 +198,7 @@ public class MutationTest {
 
   @Test
   public void mergeToCellTest() {
-    mutation.mergeToCell(
-        "cf1", "q", 10000, ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
+    mutation.mergeToCell("cf1", "q", 10000, ByteString.copyFrom(Longs.toByteArray(1234L)));
     List<com.google.bigtable.v2.Mutation> actual = mutation.getMutations();
 
     com.google.bigtable.v2.Mutation.Builder builder = com.google.bigtable.v2.Mutation.newBuilder();
@@ -208,9 +206,7 @@ public class MutationTest {
     mergeToCellBuilder.setFamilyName("cf1");
     mergeToCellBuilder.getColumnQualifierBuilder().setRawValue(ByteString.copyFromUtf8("q"));
     mergeToCellBuilder.getTimestampBuilder().setRawTimestampMicros(10000);
-    mergeToCellBuilder
-        .getInputBuilder()
-        .setRawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
+    mergeToCellBuilder.getInputBuilder().setRawValue(ByteString.copyFrom(Longs.toByteArray(1234L)));
 
     assertThat(actual).containsExactly(builder.build());
   }
@@ -302,11 +298,7 @@ public class MutationTest {
         .deleteCells("fake-family", ByteString.copyFromUtf8("fake-qualifier"))
         .deleteFamily("fake-family2")
         .addToCell("agg-family", "qual1", 1000, 1234)
-        .mergeToCell(
-            "agg-family",
-            "qual2",
-            1000,
-            ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))));
+        .mergeToCell("agg-family", "qual2", 1000, ByteString.copyFrom(Longs.toByteArray(1234L)));
 
     List<com.google.bigtable.v2.Mutation> protoMutation = mutation.getMutations();
 

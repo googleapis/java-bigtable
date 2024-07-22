@@ -29,7 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.math.BigInteger;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,7 +71,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("col2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(1234L))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -160,7 +159,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(1234L))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -195,9 +194,7 @@ public class ChangeStreamMutationTest {
                 .setFamilyName("agg-family")
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
-                .setInput(
-                    Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))))
-                        .toProto())
+                .setInput(Value.rawValue(ByteString.copyFrom(Longs.toByteArray(1234L))).toProto())
                 .build());
   }
 
@@ -245,7 +242,7 @@ public class ChangeStreamMutationTest {
                 "agg-family",
                 Value.rawValue(ByteString.copyFromUtf8("qual2")),
                 Value.rawTimestamp(1000),
-                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234)))))
+                Value.rawValue(ByteString.copyFrom(Longs.toByteArray(1234L))))
             .setToken("fake-token")
             .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
             .build();
@@ -277,9 +274,7 @@ public class ChangeStreamMutationTest {
                 .setFamilyName("agg-family")
                 .setColumnQualifier(Value.rawValue(ByteString.copyFromUtf8("qual2")).toProto())
                 .setTimestamp(Value.rawTimestamp(1000).toProto())
-                .setInput(
-                    Value.rawValue(ByteString.copyFrom(Longs.toByteArray(BigInteger.valueOf(1234))))
-                        .toProto())
+                .setInput(Value.rawValue(ByteString.copyFrom(Longs.toByteArray(1234L))).toProto())
                 .build());
   }
 
