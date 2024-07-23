@@ -25,6 +25,10 @@ public class TypeProtos {
         .build();
   }
 
+  public static com.google.bigtable.admin.v2.Type rawBytesType() {
+    return com.google.bigtable.admin.v2.Type.newBuilder().setBytesType(bytesType()).build();
+  }
+
   public static com.google.bigtable.admin.v2.Type int64Type() {
     return com.google.bigtable.admin.v2.Type.newBuilder()
         .setInt64Type(
@@ -71,7 +75,7 @@ public class TypeProtos {
     return com.google.bigtable.admin.v2.Type.newBuilder()
         .setAggregateType(
             com.google.bigtable.admin.v2.Type.Aggregate.newBuilder()
-                .setInputType(TypeProtos.bytesType())
+                .setInputType(TypeProtos.rawBytesType())
                 .setHllppUniqueCount(
                     com.google.bigtable.admin.v2.Type.Aggregate.HyperLogLogPlusPlusUniqueCount
                         .getDefaultInstance()))
