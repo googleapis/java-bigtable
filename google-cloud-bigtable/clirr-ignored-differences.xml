@@ -222,26 +222,26 @@
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</className>
-        <to></to>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Aggregate</className>
-        <to></to>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Bytes</className>
-        <to></to>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Int64</className>
-        <to></to>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Raw</className>
-        <to></to>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
 </differences>
