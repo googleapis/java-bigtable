@@ -210,4 +210,40 @@
         <className>com/google/cloud/bigtable/data/v2/models/ChangeStreamRecordAdapter$ChangeStreamRecordBuilder</className>
         <method>*</method>
     </difference>
+    <!-- BetaApi was updated -->
+    <difference>
+        <differenceType>2000</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>2000</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$Aggregate</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$Bytes</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$Int64</className>
+        <method>*</method>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$Raw</className>
+        <method>*</method>
+    </difference>
 </differences>
