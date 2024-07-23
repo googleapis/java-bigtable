@@ -71,7 +71,7 @@ public class TypeProtos {
     return com.google.bigtable.admin.v2.Type.newBuilder()
         .setAggregateType(
             com.google.bigtable.admin.v2.Type.Aggregate.newBuilder()
-                .setInputType(TypeProtos.int64Type())
+                .setInputType(TypeProtos.bytesType())
                 .setHllppUniqueCount(
                     com.google.bigtable.admin.v2.Type.Aggregate.HyperLogLogPlusPlusUniqueCount
                         .getDefaultInstance()))
