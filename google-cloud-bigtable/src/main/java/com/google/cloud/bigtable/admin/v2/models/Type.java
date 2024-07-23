@@ -31,10 +31,15 @@ public abstract class Type {
   private Type() {}
 
   /**
-   * This type is a marker type that allows types to be used as the input to the SUM aggregate
-   * function.
+   * These types are marker types that allow types to be used as the input to aggregate function.
    */
   public abstract static class SumAggregateInput extends Type {}
+
+  public abstract static class MinAggregateInput extends Type {}
+
+  public abstract static class MaxAggregateInput extends Type {}
+
+  public abstract static class HllAggregateInput extends Type {}
 
   abstract com.google.bigtable.admin.v2.Type toProto();
 
@@ -89,6 +94,36 @@ public abstract class Type {
   /** Creates an Aggregate type with a SUM aggregator and specified input type. */
   public static Aggregate sum(SumAggregateInput inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Sum.create());
+  }
+
+  /** Creates an Aggregate type with a MIN aggregator and Int64 input type. */
+  public static Aggregate int64Min() {
+    return min(bigEndianInt64());
+  }
+
+  /** Creates an Aggregate type with a MIN aggregator and specified input type. */
+  public static Aggregate min(MinAggregateInput inputType) {
+    return Aggregate.create(inputType, Aggregate.Aggregator.Min.create());
+  }
+
+  /** Creates an Aggregate type with a MAX aggregator and Int64 input type. */
+  public static Aggregate int64Max() {
+    return max(bigEndianInt64());
+  }
+
+  /** Creates an Aggregate type with a MAX aggregator and specified input type. */
+  public static Aggregate max(MaxAggregateInput inputType) {
+    return Aggregate.create(inputType, Aggregate.Aggregator.Max.create());
+  }
+
+  /** Creates an Aggregate type with a HLL aggregator and Int64 input type. */
+  public static Aggregate rawBytesHll() {
+    return hll(rawBytes());
+  }
+
+  /** Creates an Aggregate type with a HLL aggregator and specified input type. */
+  public static Aggregate hll(HllAggregateInput inputType) {
+    return Aggregate.create(inputType, Aggregate.Aggregator.Hll.create());
   }
 
   /** Represents a string of bytes with a specific encoding. */
@@ -250,6 +285,44 @@ public abstract class Type {
         }
       }
 
+      @AutoValue
+      public abstract static class Min extends Aggregator {
+        public static Min create() {
+          return new AutoValue_Type_Aggregate_Aggregator_Min();
+        }
+
+        @Override
+        void buildTo(com.google.bigtable.admin.v2.Type.Aggregate.Builder builder) {
+          builder.setMin(com.google.bigtable.admin.v2.Type.Aggregate.Min.getDefaultInstance());
+        }
+      }
+
+      @AutoValue
+      public abstract static class Max extends Aggregator {
+        public static Max create() {
+          return new AutoValue_Type_Aggregate_Aggregator_Max();
+        }
+
+        @Override
+        void buildTo(com.google.bigtable.admin.v2.Type.Aggregate.Builder builder) {
+          builder.setMax(com.google.bigtable.admin.v2.Type.Aggregate.Max.getDefaultInstance());
+        }
+      }
+
+      @AutoValue
+      public abstract static class Hll extends Aggregator {
+        public static Hll create() {
+          return new AutoValue_Type_Aggregate_Aggregator_Hll();
+        }
+
+        @Override
+        void buildTo(com.google.bigtable.admin.v2.Type.Aggregate.Builder builder) {
+          builder.setHll(
+              com.google.bigtable.admin.v2.Type.Aggregate.HyperLogLogPlusPlusUniqueCount
+                  .getDefaultInstance());
+        }
+      }
+
       abstract void buildTo(com.google.bigtable.admin.v2.Type.Aggregate.Builder builder);
     }
 
@@ -270,6 +343,15 @@ public abstract class Type {
       switch (source.getAggregatorCase()) {
         case SUM:
           aggregator = Aggregator.Sum.create();
+          break;
+        case MIN:
+          aggregator = Aggregator.Min.create();
+          break;
+        case MAX:
+          aggregator = Aggregator.Max.create();
+          break;
+        case HLL:
+          aggregator = Aggregator.Hll.create();
           break;
         case AGGREGATOR_NOT_SET:
           throw new UnsupportedOperationException();
