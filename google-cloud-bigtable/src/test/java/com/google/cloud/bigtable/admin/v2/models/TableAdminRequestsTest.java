@@ -84,8 +84,8 @@ public class TableAdminRequestsTest {
             .addFamily("cf7", GCRules.GCRULES.maxVersions(1), Type.int64Min())
             .addFamily("cf8", Type.int64Max())
             .addFamily("cf9", GCRules.GCRULES.maxVersions(1), Type.int64Max())
-            .addFamily("cf10", Type.rawBytesHll())
-            .addFamily("cf11", GCRules.GCRULES.maxVersions(1), Type.rawBytesHll())
+            .addFamily("cf10", Type.int64Hll())
+            .addFamily("cf11", GCRules.GCRULES.maxVersions(1), Type.int64Hll())
             .updateFamily("cf1", GCRules.GCRULES.maxVersions(5))
             .dropFamily("cf3")
             .toProto(PROJECT_ID, INSTANCE_ID);
@@ -159,14 +159,14 @@ public class TableAdminRequestsTest {
                     .setCreate(
                         com.google.bigtable.admin.v2.ColumnFamily.newBuilder()
                             .setGcRule(GcRule.getDefaultInstance())
-                            .setValueType(Type.rawBytesHll().toProto())))
+                            .setValueType(Type.int64Hll().toProto())))
             .addModifications(
                 com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification.newBuilder()
                     .setId("cf11")
                     .setCreate(
                         com.google.bigtable.admin.v2.ColumnFamily.newBuilder()
                             .setGcRule(GCRules.GCRULES.maxVersions(1).toProto())
-                            .setValueType(Type.rawBytesHll().toProto())))
+                            .setValueType(Type.int64Hll().toProto())))
             .addModifications(
                 com.google.bigtable.admin.v2.ModifyColumnFamiliesRequest.Modification.newBuilder()
                     .setId("cf1")

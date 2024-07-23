@@ -273,7 +273,7 @@ public class BigtableTableAdminClientTests {
                         "cf4",
                         ColumnFamily.newBuilder()
                             .setGcRule(GcRule.getDefaultInstance())
-                            .setValueType(TypeProtos.bytesHllType())
+                            .setValueType(TypeProtos.intHllType())
                             .build()))
             .build();
 
@@ -290,7 +290,7 @@ public class BigtableTableAdminClientTests {
                 .addFamily("cf1", Type.int64Sum())
                 .addFamily("cf2", Type.int64Min())
                 .addFamily("cf3", Type.int64Max())
-                .addFamily("cf4", Type.rawBytesHll()));
+                .addFamily("cf4", Type.int64Hll()));
 
     // Verify
     assertThat(result).isEqualTo(Table.fromProto(expectedResponse));

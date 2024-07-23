@@ -118,20 +118,20 @@ public class TypeTest {
 
   @Test
   public void bytesHll() {
-    Type type = Type.rawBytesHll();
-    assertThat(type.toProto()).isEqualTo(TypeProtos.bytesHllType());
+    Type type = Type.int64Hll();
+    assertThat(type.toProto()).isEqualTo(TypeProtos.intHllType());
   }
 
   @Test
   public void hll() {
-    Type type = Type.hll(Type.rawBytes());
-    assertThat(type.toProto()).isEqualTo(TypeProtos.bytesHllType());
+    Type type = Type.hll(Type.bigEndianInt64());
+    assertThat(type.toProto()).isEqualTo(TypeProtos.intHllType());
   }
 
   @Test
   public void bytesHllFromProtoToProto() {
-    com.google.bigtable.admin.v2.Type proto = TypeProtos.bytesHllType();
-    assertThat(Type.fromProto(proto)).isEqualTo(Type.rawBytesHll());
+    com.google.bigtable.admin.v2.Type proto = TypeProtos.intHllType();
+    assertThat(Type.fromProto(proto)).isEqualTo(Type.int64Hll());
     assertThat(Type.fromProto(proto).toProto()).isEqualTo(proto);
   }
 }

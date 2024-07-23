@@ -122,8 +122,8 @@ public abstract class Type {
   }
 
   /** Creates an Aggregate type with a HLL aggregator and Int64 input type. */
-  public static Aggregate rawBytesHll() {
-    return hll(rawBytes());
+  public static Aggregate int64Hll() {
+    return hll(bigEndianInt64());
   }
 
   /** Creates an Aggregate type with a HLL aggregator and specified input type. */
@@ -133,7 +133,7 @@ public abstract class Type {
 
   /** Represents a string of bytes with a specific encoding. */
   @AutoValue
-  public abstract static class Bytes extends Type implements HllAggregateInput {
+  public abstract static class Bytes extends Type {
     public static Bytes create(Encoding encoding) {
       return new AutoValue_Type_Bytes(encoding);
     }
@@ -192,7 +192,7 @@ public abstract class Type {
   /** Represents a 64-bit integer with a specific encoding. */
   @AutoValue
   public abstract static class Int64 extends Type
-      implements SumAggregateInput, MinAggregateInput, MaxAggregateInput {
+      implements SumAggregateInput, MinAggregateInput, MaxAggregateInput, HllAggregateInput {
     public static Int64 create(Encoding encoding) {
       return new AutoValue_Type_Int64(encoding);
     }
