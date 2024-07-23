@@ -241,6 +241,11 @@
     </difference>
     <difference>
         <differenceType>5001</differenceType>
+        <className>com/google/cloud/bigtable/admin/v2/models/Type$Int64</className>
+        <to>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</to>
+    </difference>
+    <difference>
+        <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Raw</className>
         <to>com/google/cloud/bigtable/admin/v2/models/Type</to>
     </difference>
