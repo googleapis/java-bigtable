@@ -90,7 +90,7 @@ public interface Type {
   }
 
   /** Creates an Aggregate type with a SUM aggregator and specified input type. */
-  public static Aggregate sum(Type inputType) {
+  public static Aggregate sum(SumAggregateInput inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Sum.create());
   }
 
@@ -100,7 +100,7 @@ public interface Type {
   }
 
   /** Creates an Aggregate type with a MIN aggregator and specified input type. */
-  public static Aggregate min(Type inputType) {
+  public static Aggregate min(MinAggregateInput inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Min.create());
   }
 
@@ -110,7 +110,7 @@ public interface Type {
   }
 
   /** Creates an Aggregate type with a MAX aggregator and specified input type. */
-  public static Aggregate max(Type inputType) {
+  public static Aggregate max(MaxAggregateInput inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Max.create());
   }
 
@@ -120,7 +120,7 @@ public interface Type {
   }
 
   /** Creates an Aggregate type with a HLL aggregator and specified input type. */
-  public static Aggregate hll(Type inputType) {
+  public static Aggregate hll(HllAggregateInput inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Hll.create());
   }
 
@@ -184,7 +184,8 @@ public interface Type {
 
   /** Represents a 64-bit integer with a specific encoding. */
   @AutoValue
-  public abstract static class Int64 implements Type {
+  public abstract static class Int64
+      implements SumAggregateInput, MinAggregateInput, MaxAggregateInput, HllAggregateInput {
     public static Int64 create(Encoding encoding) {
       return new AutoValue_Type_Int64(encoding);
     }
