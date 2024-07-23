@@ -273,7 +273,7 @@ public class BigtableTableAdminClientTests {
                         "cf4",
                         ColumnFamily.newBuilder()
                             .setGcRule(GcRule.getDefaultInstance())
-                            .setValueType(TypeProtos.rawBytesHll())
+                            .setValueType(TypeProtos.bytesHllType())
                             .build()))
             .build();
 

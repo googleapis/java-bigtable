@@ -33,11 +33,11 @@ public abstract class Type {
   /**
    * These types are marker types that allow types to be used as the input to aggregate function.
    */
-  public abstract static class SumAggregateInput extends Type {}
-
   public abstract static class MinAggregateInput extends Type {}
 
-  public abstract static class MaxAggregateInput extends Type {}
+  public abstract static class MaxAggregateInput extends MinAggregateInput {}
+
+  public abstract static class SumAggregateInput extends MaxAggregateInput {}
 
   public abstract static class HllAggregateInput extends Type {}
 
@@ -128,7 +128,7 @@ public abstract class Type {
 
   /** Represents a string of bytes with a specific encoding. */
   @AutoValue
-  public abstract static class Bytes extends Type {
+  public abstract static class Bytes extends HllAggregateInput {
     public static Bytes create(Encoding encoding) {
       return new AutoValue_Type_Bytes(encoding);
     }
@@ -317,7 +317,7 @@ public abstract class Type {
 
         @Override
         void buildTo(com.google.bigtable.admin.v2.Type.Aggregate.Builder builder) {
-          builder.setHll(
+          builder.setHllppUniqueCount(
               com.google.bigtable.admin.v2.Type.Aggregate.HyperLogLogPlusPlusUniqueCount
                   .getDefaultInstance());
         }
@@ -350,7 +350,7 @@ public abstract class Type {
         case MAX:
           aggregator = Aggregator.Max.create();
           break;
-        case HLL:
+        case HLLPP_UNIQUE_COUNT:
           aggregator = Aggregator.Hll.create();
           break;
         case AGGREGATOR_NOT_SET:
