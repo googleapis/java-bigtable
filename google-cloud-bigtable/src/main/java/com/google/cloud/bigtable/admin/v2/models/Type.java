@@ -33,13 +33,13 @@ public abstract class Type {
   /**
    * These types are marker types that allow types to be used as the input to aggregate function.
    */
-  public abstract static class MinAggregateInput extends Type {}
+  public interface SumAggregateInput {}
 
-  public abstract static class MaxAggregateInput extends MinAggregateInput {}
+  public interface MinAggregateInput {}
 
-  public abstract static class SumAggregateInput extends MaxAggregateInput {}
+  public interface MaxAggregateInput {}
 
-  public abstract static class HllAggregateInput extends Type {}
+  public interface HllAggregateInput {}
 
   abstract com.google.bigtable.admin.v2.Type toProto();
 
@@ -92,8 +92,13 @@ public abstract class Type {
   }
 
   /** Creates an Aggregate type with a SUM aggregator and specified input type. */
-  public static Aggregate sum(SumAggregateInput inputType) {
+  public static <Input extends Type & SumAggregateInput> Aggregate sum(Input inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Sum.create());
+  }
+
+  @Deprecated
+  public static Aggregate sum(SumAggregateInput inputType) {
+    return Aggregate.create((Type) inputType, Aggregate.Aggregator.Sum.create());
   }
 
   /** Creates an Aggregate type with a MIN aggregator and Int64 input type. */
@@ -102,7 +107,7 @@ public abstract class Type {
   }
 
   /** Creates an Aggregate type with a MIN aggregator and specified input type. */
-  public static Aggregate min(MinAggregateInput inputType) {
+  public static <Input extends Type & MinAggregateInput> Aggregate min(Input inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Min.create());
   }
 
@@ -112,7 +117,7 @@ public abstract class Type {
   }
 
   /** Creates an Aggregate type with a MAX aggregator and specified input type. */
-  public static Aggregate max(MaxAggregateInput inputType) {
+  public static <Input extends Type & MaxAggregateInput> Aggregate max(Input inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Max.create());
   }
 
@@ -122,13 +127,13 @@ public abstract class Type {
   }
 
   /** Creates an Aggregate type with a HLL aggregator and specified input type. */
-  public static Aggregate hll(HllAggregateInput inputType) {
+  public static <Input extends Type & HllAggregateInput> Aggregate hll(Input inputType) {
     return Aggregate.create(inputType, Aggregate.Aggregator.Hll.create());
   }
 
   /** Represents a string of bytes with a specific encoding. */
   @AutoValue
-  public abstract static class Bytes extends HllAggregateInput {
+  public abstract static class Bytes extends Type implements HllAggregateInput {
     public static Bytes create(Encoding encoding) {
       return new AutoValue_Type_Bytes(encoding);
     }
@@ -186,7 +191,8 @@ public abstract class Type {
 
   /** Represents a 64-bit integer with a specific encoding. */
   @AutoValue
-  public abstract static class Int64 extends SumAggregateInput {
+  public abstract static class Int64 extends Type
+      implements SumAggregateInput, MinAggregateInput, MaxAggregateInput {
     public static Int64 create(Encoding encoding) {
       return new AutoValue_Type_Int64(encoding);
     }
