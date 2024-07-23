@@ -214,36 +214,34 @@
     <difference>
         <differenceType>2000</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type</className>
-        <method>*</method>
     </difference>
     <difference>
         <differenceType>2000</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</className>
-        <method>*</method>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$SumAggregateInput</className>
-        <method>*</method>
+        <to></to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Aggregate</className>
-        <method>*</method>
+        <to></to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Bytes</className>
-        <method>*</method>
+        <to></to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Int64</className>
-        <method>*</method>
+        <to></to>
     </difference>
     <difference>
         <differenceType>5001</differenceType>
         <className>com/google/cloud/bigtable/admin/v2/models/Type$Raw</className>
-        <method>*</method>
+        <to></to>
     </difference>
 </differences>
