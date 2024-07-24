@@ -21,8 +21,6 @@ package com.example.bigtable;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.common.primitives.Longs;
-import com.google.protobuf.ByteString;
-import java.math.BigInteger;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
@@ -72,11 +70,10 @@ public class WriteAggregate {
       Instant hourlyBucket = viewTimestamp.truncatedTo(ChronoUnit.HOURS);
       long hourlyBucketMicros = hourlyBucket.toEpochMilli() * MICROS_PER_MILLI;
 
-      RowMutation rowMutation = RowMutation.create(tableId, rowKey)
-                                  .mergeToCell(COUNT_COLUMN_FAMILY_NAME, 
-                                    "views",
-                                    hourlyBucketMicros, 
-                                    Longs.toByteArray(1L));
+      RowMutation rowMutation =
+          RowMutation.create(tableId, rowKey)
+              .mergeToCell(
+                  COUNT_COLUMN_FAMILY_NAME, "views", hourlyBucketMicros, Longs.toByteArray(1L));
 
       dataClient.mutateRow(rowMutation);
       System.out.printf("Successfully wrote row %s", rowKey);
