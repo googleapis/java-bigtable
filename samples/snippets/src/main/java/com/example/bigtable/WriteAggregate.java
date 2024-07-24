@@ -21,6 +21,7 @@ package com.example.bigtable;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.common.primitives.Longs;
+import com.google.protobuf.ByteString;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
