@@ -71,12 +71,12 @@ public class WriteAggregate {
       long hourlyBucketMicros = hourlyBucket.toEpochMilli() * MICROS_PER_MILLI;
 
       RowMutation rowMutation =
-        RowMutation.create(tableId, rowKey)
-            .mergeToCell(
-                COUNT_COLUMN_FAMILY_NAME,
-                "views",
-                hourlyBucketMicros,
-                ByteString.copyFrom(Longs.toByteArray(1L)));
+          RowMutation.create(tableId, rowKey)
+              .mergeToCell(
+                  COUNT_COLUMN_FAMILY_NAME,
+                  "views",
+                  hourlyBucketMicros,
+                  ByteString.copyFrom(Longs.toByteArray(1L)));
 
       dataClient.mutateRow(rowMutation);
       System.out.printf("Successfully wrote row %s", rowKey);
