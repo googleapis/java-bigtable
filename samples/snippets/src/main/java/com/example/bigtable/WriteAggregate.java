@@ -73,7 +73,7 @@ public class WriteAggregate {
       RowMutation rowMutation =
           RowMutation.create(tableId, rowKey)
               .mergeToCell(
-                  COUNT_COLUMN_FAMILY_NAME, "views", hourlyBucketMicros, Longs.toByteArray(1L));
+                  COUNT_COLUMN_FAMILY_NAME, "views", hourlyBucketMicros, ByteString.copyFrom(Longs.toByteArray(1L)));
 
       dataClient.mutateRow(rowMutation);
       System.out.printf("Successfully wrote row %s", rowKey);
