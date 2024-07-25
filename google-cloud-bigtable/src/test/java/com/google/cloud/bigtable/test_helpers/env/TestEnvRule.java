@@ -108,7 +108,7 @@ public class TestEnvRule implements TestRule {
         .that(System.getenv())
         .doesNotContainKey(BIGTABLE_EMULATOR_HOST_ENV_VAR);
 
-    configureLogging(description);
+    //configureLogging(description);
 
     switch (env) {
       case "emulator":
