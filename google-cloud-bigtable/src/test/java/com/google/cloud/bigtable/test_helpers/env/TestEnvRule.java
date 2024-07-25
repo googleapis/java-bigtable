@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -145,10 +146,14 @@ public class TestEnvRule implements TestRule {
     grpcLogHandler.setFormatter(new SimpleFormatter());
     grpcLogHandler.setLevel(Level.ALL);
 
+    ConsoleHandler grpcConsoleHandler = new ConsoleHandler();
+    grpcConsoleHandler.setLevel(Level.ALL);
+    grpcConsoleHandler.setFormatter(new SimpleFormatter());
     for (String grpcLoggerName : GRPC_LOGGER_NAMES) {
       Logger logger = Logger.getLogger(grpcLoggerName);
       logger.setLevel(Level.ALL);
       logger.addHandler(grpcLogHandler);
+      logger.addHandler(grpcConsoleHandler);
     }
   }
 
