@@ -422,6 +422,7 @@
                   <includes>
                     <include>com.google.cloud.bigtable.**.it.*IT</include>
                   </includes>
+                  <redirectTestOutputToFile>true</redirectTestOutputToFile>
                   <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-prod-it.xml</summaryFile>
                   <reportsDirectory>${project.build.directory}/failsafe-reports/prod-it</reportsDirectory>
                 </configuration>
@@ -497,7 +498,7 @@
                 </goals>
                 <configuration>
                   <skip>false</skip>
-
+                  <redirectTestOutputToFile>true</redirectTestOutputToFile>
                   <systemPropertyVariables>
                     <bigtable.env>cloud</bigtable.env>
                     <bigtable.data-endpoint>${bigtable.directpath-data-endpoint}</bigtable.data-endpoint>
@@ -550,6 +551,7 @@
                   <includes>
                     <include>com.google.cloud.bigtable.**.it.*IT</include>
                   </includes>
+                  <redirectTestOutputToFile>true</redirectTestOutputToFile>
                   <summaryFile>${project.build.directory}/failsafe-reports/failsafe-summary-cfe-it.xml</summaryFile>
                   <reportsDirectory>${project.build.directory}/failsafe-reports/cfe-it</reportsDirectory>
                 </configuration>

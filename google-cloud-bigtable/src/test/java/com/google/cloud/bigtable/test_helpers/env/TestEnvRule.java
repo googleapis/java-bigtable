@@ -108,8 +108,6 @@ public class TestEnvRule implements TestRule {
         .that(System.getenv())
         .doesNotContainKey(BIGTABLE_EMULATOR_HOST_ENV_VAR);
 
-    //configureLogging(description);
-
     switch (env) {
       case "emulator":
         testEnv = EmulatorEnv.createBundled();
@@ -124,37 +122,6 @@ public class TestEnvRule implements TestRule {
                 env, ENV_PROPERTY));
     }
     testEnv.start();
-  }
-
-  private void configureLogging(Description description) throws IOException {
-    if (!BIGTABLE_ENABLE_VERBOSE_GRPC_LOGS) {
-      return;
-    }
-    Preconditions.checkState(
-        !Strings.isNullOrEmpty(BIGTABLE_GRPC_LOG_DIR),
-        "The property "
-            + BIGTABLE_GRPC_LOG_DIR
-            + " must be set when verbose grpc logs are enabled");
-
-    Files.createDirectories(Paths.get(BIGTABLE_GRPC_LOG_DIR));
-
-    String basename =
-        Joiner.on("-").useForNull("").join(description.getClassName(), description.getMethodName());
-    Path logPath = Paths.get(BIGTABLE_GRPC_LOG_DIR, basename + ".log");
-
-    grpcLogHandler = new FileHandler(logPath.toString());
-    grpcLogHandler.setFormatter(new SimpleFormatter());
-    grpcLogHandler.setLevel(Level.ALL);
-
-    ConsoleHandler grpcConsoleHandler = new ConsoleHandler();
-    grpcConsoleHandler.setLevel(Level.ALL);
-    grpcConsoleHandler.setFormatter(new SimpleFormatter());
-    for (String grpcLoggerName : GRPC_LOGGER_NAMES) {
-      Logger logger = Logger.getLogger(grpcLoggerName);
-      logger.setLevel(Level.ALL);
-      logger.addHandler(grpcLogHandler);
-      logger.addHandler(grpcConsoleHandler);
-    }
   }
 
   private void after() {
