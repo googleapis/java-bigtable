@@ -40,6 +40,7 @@
     <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. -->
     <test-protoc-grpc.version>1.65.0</test-protoc-grpc.version>
     <test-protoc.version>3.25.3</test-protoc.version>
+    <bigtable.enable-grpc-logs>false</bigtable.enable-grpc-logs>
   </properties>
 
   <dependencyManagement>
@@ -734,7 +735,6 @@
           <trimStackTrace>false</trimStackTrace>
           <systemPropertyVariables>
             <java.util.logging.config.file>${java-log-config}</java.util.logging.config.file>
-            <bigtable.enable-grpc-logs>false</bigtable.enable-grpc-logs>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -755,7 +755,6 @@
 
           <systemPropertyVariables>
             <java.util.logging.config.file>src/test/resources/logging.properties</java.util.logging.config.file>
-            <bigtable.enable-grpc-logs>false</bigtable.enable-grpc-logs>
           </systemPropertyVariables>
         </configuration>
       </plugin>
