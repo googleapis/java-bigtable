@@ -734,6 +734,7 @@
           <trimStackTrace>false</trimStackTrace>
           <systemPropertyVariables>
             <java.util.logging.config.file>${java-log-config}</java.util.logging.config.file>
+            <bigtable.enable-grpc-logs>false</bigtable.enable-grpc-logs>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -751,8 +752,10 @@
 
           <trimStackTrace>false</trimStackTrace>
 
+
           <systemPropertyVariables>
             <java.util.logging.config.file>src/test/resources/logging.properties</java.util.logging.config.file>
+            <bigtable.enable-grpc-logs>false</bigtable.enable-grpc-logs>
           </systemPropertyVariables>
         </configuration>
       </plugin>
