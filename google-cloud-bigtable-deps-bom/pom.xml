@@ -64,6 +64,11 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>3.25.4</version>
+      </dependency>
+      <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>gapic-libraries-bom</artifactId>
         <version>1.25.0</version>
