@@ -341,6 +341,7 @@
       <id>enable-verbose-grpc-logs</id>
       <properties>
         <bigtable.enable-grpc-logs>true</bigtable.enable-grpc-logs>
+        <java.util.logging.config.file>src/test/resources/logging-verbose.properties</java.util.logging.config.file>
         <!-- NOTE: bigtable.grpc-log-dir is configured separately for each execution -->
       </properties>
       <build>
