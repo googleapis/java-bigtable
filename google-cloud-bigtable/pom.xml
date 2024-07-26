@@ -25,7 +25,7 @@
     <skipTests>false</skipTests>
     <skipUnitTests>${skipTests}</skipUnitTests>
     <skipITs>${skipTests}</skipITs>
-
+    <java-log-config>src/test/resources/logging.properties</java-log-config>
     <!-- Use client defined default endpoints -->
     <!-- Can be overriden on the commandline via `-Dbigtable.cfe-data-endpoint=bigtableadmin.googleapis.com:443` -->
     <bigtable.cfe-data-endpoint/>
@@ -341,7 +341,7 @@
       <id>enable-verbose-grpc-logs</id>
       <properties>
         <bigtable.enable-grpc-logs>true</bigtable.enable-grpc-logs>
-        <java.util.logging.config.file>src/test/resources/logging-verbose.properties</java.util.logging.config.file>
+        <java-log-config>src/test/resources/logging-verbose.properties</java-log-config>
         <!-- NOTE: bigtable.grpc-log-dir is configured separately for each execution -->
       </properties>
       <build>
@@ -732,6 +732,9 @@
 
           <!-- print full stacktraces by default -->
           <trimStackTrace>false</trimStackTrace>
+          <systemPropertyVariables>
+            <java.util.logging.config.file>${java-log-config}</java.util.logging.config.file>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 
