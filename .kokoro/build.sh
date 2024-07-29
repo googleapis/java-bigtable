@@ -63,7 +63,6 @@ integration)
     mvn -B ${INTEGRATION_TEST_ARGS} \
       -ntp \
       -Penable-integration-tests \
-      -Penable-verbose-grpc-logs \
       -DtrimStackTrace=false \
       -Dclirr.skip=true \
       -Denforcer.skip=true \
