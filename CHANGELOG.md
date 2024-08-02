@@ -1,5 +1,41 @@
 # Changelog
 
+## [2.41.0](https://github.com/googleapis/java-bigtable/compare/v2.40.0...v2.41.0) (2024-07-24)
+
+
+### Features
+
+* Add MergeToCell to Mutation APIs ([#2279](https://github.com/googleapis/java-bigtable/issues/2279)) ([0ce8a2a](https://github.com/googleapis/java-bigtable/commit/0ce8a2a38703233da58208655f41f6e81e03576e))
+* Add support for MergeToCell API ([#2258](https://github.com/googleapis/java-bigtable/issues/2258)) ([191d15c](https://github.com/googleapis/java-bigtable/commit/191d15c5284dbb702e11669931272877bf05f44e))
+* Add support for new functions ([#2287](https://github.com/googleapis/java-bigtable/issues/2287)) ([dd6583a](https://github.com/googleapis/java-bigtable/commit/dd6583a22504385b7a1f7dc91b3bc3d2500ea0c5))
+* Create new environment variable to toggle directpath scoped to cloud bigtable. ([#2261](https://github.com/googleapis/java-bigtable/issues/2261)) ([9062944](https://github.com/googleapis/java-bigtable/commit/9062944610277eb7ae77f395dc79ce94239c5bee))
+* Implement ExecuteQuery API for SQL support ([#2280](https://github.com/googleapis/java-bigtable/issues/2280)) ([25218e8](https://github.com/googleapis/java-bigtable/commit/25218e8cc46f9a51d4b6515afdb8931e574b0bb1))
+
+
+### Dependencies
+
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.4.4 ([#2282](https://github.com/googleapis/java-bigtable/issues/2282)) ([d00a9e0](https://github.com/googleapis/java-bigtable/commit/d00a9e01b2b329f3bae50f48a15692d87ad0f3bf))
+
+## [2.40.0](https://github.com/googleapis/java-bigtable/compare/v2.39.5...v2.40.0) (2024-06-28)
+
+
+### Features
+
+* Add String type with Utf8Raw encoding to Bigtable API ([#2191](https://github.com/googleapis/java-bigtable/issues/2191)) ([e7f03fc](https://github.com/googleapis/java-bigtable/commit/e7f03fc7d252a7ff6c76a8e6e0a9e6ad3dcbd9d5))
+
+
+### Bug Fixes
+
+* Add getServiceName() to EnhancedBigTableStubSettings ([#2256](https://github.com/googleapis/java-bigtable/issues/2256)) ([da703db](https://github.com/googleapis/java-bigtable/commit/da703db25f6702b263dbd8ded0cb0fd3422efe31))
+* Remove grpclb ([#2033](https://github.com/googleapis/java-bigtable/issues/2033)) ([7355375](https://github.com/googleapis/java-bigtable/commit/735537571a147bfdd2a986664ff7905c8f5dc3db))
+
+
+### Dependencies
+
+* Update dependency com.google.truth.extensions:truth-proto-extension to v1.4.3 ([#2268](https://github.com/googleapis/java-bigtable/issues/2268)) ([4573220](https://github.com/googleapis/java-bigtable/commit/45732201880a13eeced3d0332bd172aae0f73dbe))
+* Update dependency org.junit.vintage:junit-vintage-engine to v5.10.3 ([#2269](https://github.com/googleapis/java-bigtable/issues/2269)) ([69fef96](https://github.com/googleapis/java-bigtable/commit/69fef968937f4d2e4cc479279a09d7b0bed6c5a2))
+* Update shared dependencies ([#2265](https://github.com/googleapis/java-bigtable/issues/2265)) ([61014ca](https://github.com/googleapis/java-bigtable/commit/61014ca89318743cf0cc0bae97a7f875bc5243ab))
+
 ## [2.39.5](https://github.com/googleapis/java-bigtable/compare/v2.39.4...v2.39.5) (2024-06-10)
 
 
