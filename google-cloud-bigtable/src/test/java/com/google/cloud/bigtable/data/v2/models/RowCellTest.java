@@ -108,7 +108,8 @@ public class RowCellTest {
 
   @Test
   public void testSerialization() throws IOException, ClassNotFoundException {
-    LazyStringArrayList lazyListNonEmpty = new LazyStringArrayList(ImmutableList.of("lazy", "very lazy"));
+    LazyStringArrayList lazyListNonEmpty =
+        new LazyStringArrayList(ImmutableList.of("lazy", "very lazy"));
     lazyListNonEmpty.makeImmutable();
     LazyStringArrayList lazyListEmpty = new LazyStringArrayList(LazyStringArrayList.emptyList());
     lazyListEmpty.makeImmutable();
