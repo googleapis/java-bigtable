@@ -111,7 +111,7 @@ public class RowCellTest {
     LazyStringArrayList lazyListNonEmpty =
         new LazyStringArrayList(ImmutableList.of("lazy", "very lazy"));
     lazyListNonEmpty.makeImmutable();
-    LazyStringArrayList lazyListEmpty = new LazyStringArrayList(LazyStringArrayList.emptyList());
+    LazyStringArrayList lazyListEmpty = LazyStringArrayList.emptyList();
     lazyListEmpty.makeImmutable();
     List[] labelLists = {
       Arrays.asList("str1", "str2", "str3"),
