@@ -378,6 +378,11 @@ class CloudEnv extends AbstractTestEnv {
   }
 
   @Override
+  public String getDataEndpoint() {
+    return dataSettings.stubSettings().getEndpoint();
+  }
+
+  @Override
   public String getTableId() {
     return tableId;
   }

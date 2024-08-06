@@ -50,6 +50,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -231,6 +232,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final Map<String, String> jwtAudienceMapping;
   private final boolean enableRoutingCookie;
   private final boolean enableRetryInfo;
+  private final boolean enableRetryFeatureFlags;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -277,6 +279,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
+    enableRetryFeatureFlags = builder.enableRetryFeatureFlags;
     metricsProvider = builder.metricsProvider;
 
     // Per method settings.
@@ -660,6 +663,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Map<String, String> jwtAudienceMapping;
     private boolean enableRoutingCookie;
     private boolean enableRetryInfo;
+    private boolean enableRetryFeatureFlags;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -697,6 +701,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
+      this.enableRetryFeatureFlags =
+          false; // this will only be set to true from the integration tests
       metricsProvider = DefaultMetricsProvider.INSTANCE;
 
       // Defaults provider
@@ -826,6 +832,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       jwtAudienceMapping = settings.jwtAudienceMapping;
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
+      enableRetryFeatureFlags = settings.enableRetryFeatureFlags;
       metricsProvider = settings.metricsProvider;
 
       // Per method settings.
@@ -1038,6 +1045,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return enableRetryInfo;
     }
 
+    @VisibleForTesting
+    @InternalApi("For use in integration tests only")
+    public Builder setEnableRetryFeatureFlags(boolean enable) {
+      this.enableRetryFeatureFlags = enable;
+      return this;
+    }
+
+    boolean getEnableRetryFeatureFlags() {
+      return enableRetryFeatureFlags;
+    }
+
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
       return readRowsSettings;
@@ -1119,8 +1137,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         featureFlags.setMutateRowsRateLimit2(true);
       }
 
-      featureFlags.setRoutingCookie(this.getEnableRoutingCookie());
-      featureFlags.setRetryInfo(this.getEnableRetryInfo());
+      featureFlags.setRoutingCookie(
+          this.getEnableRoutingCookie() || this.getEnableRetryFeatureFlags());
+      featureFlags.setRetryInfo(this.getEnableRetryInfo() || this.getEnableRetryFeatureFlags());
       // client_Side_metrics_enabled feature flag is only set when a user is running with a
       // DefaultMetricsProvider. This may cause false negatives when a user registered the
       // metrics on their CustomOpenTelemetryMetricsProvider.
