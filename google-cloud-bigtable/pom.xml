@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <artifactId>google-cloud-bigtable</artifactId>
-  <version>2.40.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+  <version>2.41.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   <packaging>jar</packaging>
   <name>Google Cloud Bigtable</name>
   <url>https://github.com/googleapis/java-bigtable</url>
@@ -12,11 +12,11 @@
   <parent>
     <groupId>com.google.cloud</groupId>
     <artifactId>google-cloud-bigtable-parent</artifactId>
-    <version>2.40.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <version>2.41.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
   </parent>
   <properties>
     <!-- The version that will be embedded in the published jar via maven-resources-plugin -->
-    <java-bigtable.version>2.40.1-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
+    <java-bigtable.version>2.41.1-SNAPSHOT</java-bigtable.version><!-- {x-version-update:google-cloud-bigtable:current} -->
 
     <site.installationModule>google-cloud-bigtable</site.installationModule>
 
@@ -25,7 +25,12 @@
     <skipTests>false</skipTests>
     <skipUnitTests>${skipTests}</skipUnitTests>
     <skipITs>${skipTests}</skipITs>
-
+    <!-- Configure test logging output. By default tests print info logs to stdout/err.
+     However for kokoro runs to enable better debugging of connection failures,
+     the `enable-verbose-grpc-logs` profile is enabled.
+     It will enable verbose logs and redirect output to a test specific file in the integration tests report directory.
+     These propeties should only be set by the `enable-verbose-grpc-logs` profile -->
+    <java-log-config>src/test/resources/logging.properties</java-log-config>
     <!-- Use client defined default endpoints -->
     <!-- Can be overriden on the commandline via `-Dbigtable.cfe-data-endpoint=bigtableadmin.googleapis.com:443` -->
     <bigtable.cfe-data-endpoint/>
@@ -39,7 +44,7 @@
 
     <!-- These are needed to compile the protobuf used by Changestream merging acceptance test. -->
     <test-protoc-grpc.version>1.65.1</test-protoc-grpc.version>
-    <test-protoc.version>3.25.3</test-protoc.version>
+    <test-protoc.version>3.25.4</test-protoc.version>
   </properties>
 
   <dependencyManagement>
@@ -47,14 +52,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-deps-bom</artifactId>
-        <version>2.40.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.41.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>google-cloud-bigtable-bom</artifactId>
-        <version>2.40.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
+        <version>2.41.1-SNAPSHOT</version><!-- {x-version-update:google-cloud-bigtable:current} -->
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -326,17 +331,19 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava-testlib</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <profiles>
     <profile>
-      <!-- Enable per-test verbose grpc logs
-      However, parallel test execution must be disabled to allow TestEnvRule to add/remove the
-      appender -->
       <id>enable-verbose-grpc-logs</id>
       <properties>
         <bigtable.enable-grpc-logs>true</bigtable.enable-grpc-logs>
-        <!-- NOTE: bigtable.grpc-log-dir is configured separately for each execution -->
+        <java-log-config>src/test/resources/logging-verbose.properties</java-log-config>
       </properties>
       <build>
         <plugins>
@@ -346,6 +353,7 @@
             <configuration>
               <forkCount>1</forkCount>
               <parallel>none</parallel>
+              <redirectTestOutputToFile>true</redirectTestOutputToFile>
             </configuration>
           </plugin>
         </plugins>
@@ -490,7 +498,6 @@
                 </goals>
                 <configuration>
                   <skip>false</skip>
-
                   <systemPropertyVariables>
                     <bigtable.env>cloud</bigtable.env>
                     <bigtable.data-endpoint>${bigtable.directpath-data-endpoint}</bigtable.data-endpoint>
@@ -725,6 +732,9 @@
 
           <!-- print full stacktraces by default -->
           <trimStackTrace>false</trimStackTrace>
+          <systemPropertyVariables>
+            <java.util.logging.config.file>${java-log-config}</java.util.logging.config.file>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
 
