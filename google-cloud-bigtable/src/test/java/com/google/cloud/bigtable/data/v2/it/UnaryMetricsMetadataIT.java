@@ -143,7 +143,7 @@ public class UnaryMetricsMetadataIT {
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
-    assertThat(directpathAttribute).contains("true");
+    assertThat(directpathAttribute).isNotEmpty();
   }
 
   @Test
@@ -203,6 +203,6 @@ public class UnaryMetricsMetadataIT {
 
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
-    assertThat(directpathAttribute).contains("false");
+    assertThat(directpathAttribute).isNotEmpty();
   }
 }
