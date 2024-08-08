@@ -192,16 +192,16 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
+    List<String> directpathAttribute = pointData.stream().map(pd -> {
+      pd.getAttributes().forEach((attributeKey, o) -> System.out.println("Found Key " + attributeKey.getKey() + " And value: " + o.toString()));
+      return pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY);
+    }).collect(
         Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
 
-    for(String dp: directpathAttribute) {
-      System.out.println("Directpath Attributes: " + dp);
-    }
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
     assertThat(directpathAttribute).contains("true");
