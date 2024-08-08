@@ -132,6 +132,8 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
+    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
+        Collectors.toList());
 
     assertThat(pointData)
         .comparingElementsUsing(POINT_DATA_CLUSTER_ID_CONTAINS)
@@ -141,6 +143,7 @@ public class UnaryMetricsMetadataIT {
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
+    assertThat(directpathAttribute).contains("true");
   }
 
   @Test
@@ -191,10 +194,7 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> {
-      pd.getAttributes().forEach((attributeKey, o) -> System.out.println("Found Key " + attributeKey.getKey() + " And value: " + o.toString()));
-      return pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY);
-    }).collect(
+    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
         Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
@@ -203,6 +203,6 @@ public class UnaryMetricsMetadataIT {
 
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
-    assertThat(directpathAttribute).contains("true");
+    assertThat(directpathAttribute).contains("false");
   }
 }
