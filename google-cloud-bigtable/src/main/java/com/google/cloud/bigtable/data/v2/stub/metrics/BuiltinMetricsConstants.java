@@ -109,7 +109,8 @@ public class BuiltinMetricsConstants {
           CLUSTER_ID_KEY,
           ZONE_ID_KEY,
           METHOD_KEY,
-          CLIENT_NAME_KEY);
+          CLIENT_NAME_KEY,
+          DIRECTPATH_ENABLED_KEY);
 
   static void defineView(
       ImmutableMap.Builder<InstrumentSelector, View> viewMap,
