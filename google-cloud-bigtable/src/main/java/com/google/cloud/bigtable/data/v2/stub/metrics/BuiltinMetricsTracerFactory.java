@@ -64,6 +64,8 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   }
 
   BuiltinMetricsTracerFactory(OpenTelemetry openTelemetry, Attributes attributes) {
+    System.out.println("Creating Built in metrics factory");
+    attributes.forEach((attributeKey, o) -> System.out.println("Found Key " + attributeKey.getKey() + " And value: " + o.toString()));
     this.attributes = attributes;
     Meter meter = openTelemetry.getMeter(METER_NAME);
 

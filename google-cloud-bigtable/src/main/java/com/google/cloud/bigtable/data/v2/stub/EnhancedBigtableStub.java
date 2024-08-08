@@ -398,6 +398,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
     if(settings.getTransportChannelProvider() !=  null && settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
+      System.out.println("Transport Channel Provider not null");
       return Attributes.of(
           BIGTABLE_PROJECT_ID_KEY,
           settings.getProjectId(),
