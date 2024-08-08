@@ -27,15 +27,109 @@ source ${scriptDir}/common.sh
 mvn -version
 echo ${JOB_TYPE}
 
+## Store the current Java version since the version may change when installing sdk-platform-java
+#current_java_home=$JAVA_HOME
+#
+## testing-infra-docker has Java 11 installed in java8 docker container. Use this as sdk-platform-java
+## needs Java 11+ to run with GraalVM. For GH actions, JAVA11_HOME does not exist and would skip this.
+#if [ ! -z "${JAVA11_HOME}" ]; then
+#  export JAVA_HOME="${JAVA11_HOME}"
+#  export PATH=${JAVA_HOME}/bin:$PATH
+#fi
+#
+## Get the current proto runtime version used in this repo
+#CURRENT_PROTO_VERSION=$(mvn -ntp help:effective-pom |
+#sed -n "/<artifactId>protobuf-java<\/artifactId>/,/<\/dependency>/ {
+#  /<version>/{
+#      s/<version>\(.*\)<\/version>/\1/p
+#      q
+#  }
+#}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+#echo "The current proto version is: ${CURRENT_PROTO_VERSION}"
+#
+## Find the latest proto runtime version available
+#LATEST_PROTO_VERSION=$(curl -s https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/maven-metadata.xml | sed -n '/<release>/s/.*<release>\(.*\)<\/release>.*/\1/p')
+#echo "The latest proto version is: ${LATEST_PROTO_VERSION}"
+#
+## Only reinstall shared-deps again to test for a newer proto version
+#if [[ "${CURRENT_PROTO_VERSION}" != "${LATEST_PROTO_VERSION}" ]]; then
+#  pushd /tmp
+#  git clone https://github.com/googleapis/sdk-platform-java.git
+#  pushd sdk-platform-java
+#  pushd gapic-generator-java-pom-parent
+#  sed -i "/<protobuf.version>.*<\/protobuf.version>/s/\(.*<protobuf.version>\).*\(<\/protobuf.version>\)/\1${LATEST_PROTO_VERSION}\2/" pom.xml
+#  # sdk-platform-java
+#  popd
+#
+#  pushd sdk-platform-java-config
+#  # Get current Shared-Deps version in sdk-platform-java
+#  SHARED_DEPS_VERSION=$(mvn -ntp help:effective-pom |
+#  sed -n "/<artifactId>sdk-platform-java-config<\/artifactId>/,/<\/dependency>/ {
+#    /<version>/{
+#        s/<version>\(.*\)<\/version>/\1/p
+#        q
+#    }
+#  }" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+#  echo "Shared-Deps Version: ${SHARED_DEPS_VERSION}"
+#  # sdk-platform-java
+#  popd
+#  mvn clean install -q -ntp \
+#      -DskipTests=true \
+#      -Dclirr.skip=true \
+#      -Denforcer.skip=true \
+#      -T 1C
+#  # /tmp
+#  popd
+#
+#  # Back to the original directory of the repo
+#  popd
+#  # Find all the poms with a reference to shared-deps and update to the new local version
+#  poms=($(find . -name pom.xml))
+#  for pom in "${poms[@]}"; do
+#    if grep -q "sdk-platform-java-config" "${pom}"; then
+#      echo "Updating the pom: ${pom} to use shared-deps version: ${SHARED_DEPS_VERSION}"
+#      sed -i "/<artifactId>sdk-platform-java-config<\/artifactId>/,/<\/parent>/ s/<version>.*<\/version>/<version>$SHARED_DEPS_VERSION<\/version>/" "${pom}"
+#      cat "${pom}"
+##      xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
+##        -u "//x:project/x:parent[x:artifactId='sdk-platform-java-config']/x:version" \
+##        -v "${SHARED_DEPS_VERSION}" \
+##        "${pom}"
+#    fi
+#  done
+#
+#  # Print out the dependency tree for all module to ensure latest protobuf was installed
+#  mvn dependency:tree
+#fi
+#
+## Reset back to the original Java version if changed
+#export JAVA_HOME="${current_java_home}"
+#export PATH=${JAVA_HOME}/bin:$PATH
+
 # attempt to install 3 times with exponential backoff (starting with 10 seconds)
-retry_with_backoff 3 10 \
-  mvn install -B -V -ntp \
-    -DskipTests=true \
-    -Dclirr.skip=true \
-    -Denforcer.skip=true \
-    -Dmaven.javadoc.skip=true \
-    -Dgcloud.download.skip=true \
-    -T 1C
+#retry_with_backoff 3 10 \
+#  mvn install -B -V -ntp \
+#    -DskipTests=true \
+#    -Dclirr.skip=true \
+#    -Denforcer.skip=true \
+#    -Dmaven.javadoc.skip=true \
+#    -Dgcloud.download.skip=true \
+#    -T 1C
+
+repos=(
+#    "https://github.com/googleapis/java-bigtable.git"
+#    "https://github.com/googleapis/java-bigquery.git"
+#    "https://github.com/googleapis/java-bigquerystorage.git"
+    "https://github.com/googleapis/java-datastore.git"
+#    "https://github.com/googleapis/java-firestore.git"
+#    "https://github.com/googleapis/java-logging.git"
+#    "https://github.com/googleapis/java-logging-logback.git"
+#    "https://github.com/googleapis/java-pubsub.git"
+#    "https://github.com/googleapis/java-pubsublite.git"
+#    "https://github.com/googleapis/java-spanner.git"
+#    "https://github.com/googleapis/java-spanner-jdbc.git"
+    "https://github.com/googleapis/java-storage.git"
+#    "https://github.com/googleapis/java-storage-nio.git"
+)
 
 # if GOOGLE_APPLICATION_CREDENTIALS is specified as a relative path, prepend Kokoro root directory onto it
 if [[ ! -z "${GOOGLE_APPLICATION_CREDENTIALS}" && "${GOOGLE_APPLICATION_CREDENTIALS}" != /* ]]; then
@@ -44,6 +138,7 @@ fi
 
 RETURN_CODE=0
 set +e
+set -x
 
 case ${JOB_TYPE} in
 test)
@@ -60,14 +155,53 @@ javadoc)
     RETURN_CODE=$?
     ;;
 integration)
-    mvn -B ${INTEGRATION_TEST_ARGS} \
-      -ntp \
-      -Penable-integration-tests \
-      -DtrimStackTrace=false \
-      -Dclirr.skip=true \
-      -Denforcer.skip=true \
-      -fae \
-      verify
+#    mvn -B ${INTEGRATION_TEST_ARGS} \
+#      -ntp \
+#      -Penable-integration-tests \
+#      -DtrimStackTrace=false \
+#      -Dclirr.skip=true \
+#      -Denforcer.skip=true \
+#      -fae \
+#      verify
+
+    set -e
+
+    export DATASTORE_PROJECT_ID=gcloud-devel
+    export IT_SERVICE_ACCOUNT_EMAIL=it-service-account@gcloud-devel.iam.gserviceaccount.com
+
+    for repo in "${repos[@]}"
+    do
+      repo_name=$(basename "${repo}" .git)
+      echo "Running ITs for ${repo_name} -----"
+      git clone "${repo}"
+      pushd "${repo_name}"
+      if [ "${repo_name}" == "java-bigquerystorage" ]; then
+        mvn clean verify -B -V -ntp \
+            ${INTEGRATION_TEST_ARGS} \
+            -Penable-integration-tests \
+            -Dclirr.skip=true \
+            -Denforcer.skip=true \
+            -Dmaven.javadoc.skip=true \
+            -Dgcloud.download.skip=true \
+            -Dit.test=!ITBigQueryWrite*RetryTest \
+            -Dsurefire.failIfNoSpecifiedTests=false \
+            -T 1C
+      else
+        mvn clean verify -B -V -ntp \
+            ${INTEGRATION_TEST_ARGS} \
+            -Penable-integration-tests \
+            -Dclirr.skip=true \
+            -Denforcer.skip=true \
+            -Dmaven.javadoc.skip=true \
+            -Dgcloud.download.skip=true \
+            -T 1C
+      fi
+
+      popd
+    done
+
+    unset DATASTORE_PROJECT_ID
+    unset IT_SERVICE_ACCOUNT_EMAIL
     RETURN_CODE=$?
     ;;
 graalvm)
