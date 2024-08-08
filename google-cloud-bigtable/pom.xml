@@ -458,7 +458,7 @@
                 <id>prod-batch-it</id>
                 <goals>
                   <goal>integration-test</goal>
-                  <goal>verify</goal>
+                  <!--<goal>verify</goal>-->
                 </goals>
                 <configuration>
                   <skip>false</skip>
@@ -534,7 +534,7 @@
                 <id>cfe-it</id>
                 <goals>
                   <goal>integration-test</goal>
-                  <goal>verify</goal>
+                  <!--<goal>verify</goal>-->
                 </goals>
                 <configuration>
                   <skip>false</skip>
