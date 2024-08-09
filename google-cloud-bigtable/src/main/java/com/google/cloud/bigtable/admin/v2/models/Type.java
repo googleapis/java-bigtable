@@ -76,7 +76,7 @@ public interface Type {
    * Creates an Int64 type with a big-endian encoding. The bytes are then encoded in "raw" format.
    */
   public static Int64 bigEndianInt64() {
-    return Int64.create(Int64.Encoding.BigEndianBytes.create(Type.rawBytes()));
+    return Int64.create(Int64.Encoding.BigEndianBytes.create());
   }
 
   /** Creates an Int64 type with the specified encoding. */
