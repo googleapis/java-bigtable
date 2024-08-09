@@ -34,6 +34,8 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
+import com.google.bigtable.v2.ExecuteQueryRequest;
+import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowRequest;
@@ -92,6 +94,8 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       generateInitialChangeStreamPartitionsSettings;
   private final ServerStreamingCallSettings<ReadChangeStreamRequest, ReadChangeStreamResponse>
       readChangeStreamSettings;
+  private final ServerStreamingCallSettings<ExecuteQueryRequest, ExecuteQueryResponse>
+      executeQuerySettings;
 
   /** Returns the object with the settings used for calls to readRows. */
   public ServerStreamingCallSettings<ReadRowsRequest, ReadRowsResponse> readRowsSettings() {
@@ -147,6 +151,12 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     return readChangeStreamSettings;
   }
 
+  /** Returns the object with the settings used for calls to executeQuery. */
+  public ServerStreamingCallSettings<ExecuteQueryRequest, ExecuteQueryResponse>
+      executeQuerySettings() {
+    return executeQuerySettings;
+  }
+
   public BigtableStub createStub() throws IOException {
     if (getTransportChannelProvider()
         .getTransportName()
@@ -156,15 +166,6 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     throw new UnsupportedOperationException(
         String.format(
             "Transport not supported: %s", getTransportChannelProvider().getTransportName()));
-  }
-
-  /** Returns the endpoint set by the user or the the service's default endpoint. */
-  @Override
-  public String getEndpoint() {
-    if (super.getEndpoint() != null) {
-      return super.getEndpoint();
-    }
-    return getDefaultEndpoint();
   }
 
   /** Returns the default service name. */
@@ -245,6 +246,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     generateInitialChangeStreamPartitionsSettings =
         settingsBuilder.generateInitialChangeStreamPartitionsSettings().build();
     readChangeStreamSettings = settingsBuilder.readChangeStreamSettings().build();
+    executeQuerySettings = settingsBuilder.executeQuerySettings().build();
   }
 
   /** Builder for BigtableStubSettings. */
@@ -270,6 +272,8 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
     private final ServerStreamingCallSettings.Builder<
             ReadChangeStreamRequest, ReadChangeStreamResponse>
         readChangeStreamSettings;
+    private final ServerStreamingCallSettings.Builder<ExecuteQueryRequest, ExecuteQueryResponse>
+        executeQuerySettings;
     private static final ImmutableMap<String, ImmutableSet<StatusCode.Code>>
         RETRYABLE_CODE_DEFINITIONS;
 
@@ -382,6 +386,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       readModifyWriteRowSettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
       generateInitialChangeStreamPartitionsSettings = ServerStreamingCallSettings.newBuilder();
       readChangeStreamSettings = ServerStreamingCallSettings.newBuilder();
+      executeQuerySettings = ServerStreamingCallSettings.newBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -405,6 +410,7 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       generateInitialChangeStreamPartitionsSettings =
           settings.generateInitialChangeStreamPartitionsSettings.toBuilder();
       readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
+      executeQuerySettings = settings.executeQuerySettings.toBuilder();
 
       unaryMethodSettingsBuilders =
           ImmutableList.<UnaryCallSettings.Builder<?, ?>>of(
@@ -471,6 +477,11 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
           .readChangeStreamSettings()
           .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_6_codes"))
           .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_6_params"));
+
+      builder
+          .executeQuerySettings()
+          .setRetryableCodes(RETRYABLE_CODE_DEFINITIONS.get("no_retry_codes"))
+          .setRetrySettings(RETRY_PARAM_DEFINITIONS.get("no_retry_params"));
 
       return builder;
     }
@@ -547,13 +558,10 @@ public class BigtableStubSettings extends StubSettings<BigtableStubSettings> {
       return readChangeStreamSettings;
     }
 
-    /** Returns the endpoint set by the user or the the service's default endpoint. */
-    @Override
-    public String getEndpoint() {
-      if (super.getEndpoint() != null) {
-        return super.getEndpoint();
-      }
-      return getDefaultEndpoint();
+    /** Returns the builder for the settings used for calls to executeQuery. */
+    public ServerStreamingCallSettings.Builder<ExecuteQueryRequest, ExecuteQueryResponse>
+        executeQuerySettings() {
+      return executeQuerySettings;
     }
 
     @Override
