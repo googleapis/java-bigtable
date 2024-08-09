@@ -166,10 +166,9 @@ public abstract class Type {
       static Encoding fromProto(com.google.bigtable.admin.v2.Type.Int64.Encoding source) {
         switch (source.getEncodingCase()) {
           case BIG_ENDIAN_BYTES:
-            return BigEndianBytes.create(
-                Bytes.fromProto(source.getBigEndianBytes().getBytesType()));
+            return BigEndianBytes.create();
           case ENCODING_NOT_SET:
-            return BigEndianBytes.create(Bytes.rawBytes());
+            return BigEndianBytes.create();
         }
         throw new UnsupportedOperationException();
       }
@@ -177,18 +176,15 @@ public abstract class Type {
       @AutoValue
       public abstract static class BigEndianBytes extends Encoding {
 
-        public static BigEndianBytes create(Bytes bytes) {
-          return new AutoValue_Type_Int64_Encoding_BigEndianBytes(bytes);
+        public static BigEndianBytes create() {
+          return new AutoValue_Type_Int64_Encoding_BigEndianBytes();
         }
-
-        @Nonnull
-        public abstract Bytes getBytes();
 
         @Override
         com.google.bigtable.admin.v2.Type.Int64.Encoding toProto() {
           com.google.bigtable.admin.v2.Type.Int64.Encoding.Builder builder =
               com.google.bigtable.admin.v2.Type.Int64.Encoding.newBuilder();
-          builder.getBigEndianBytesBuilder().setBytesType(getBytes().toProto().getBytesType());
+          builder.getBigEndianBytesBuilder();
           return builder.build();
         }
       }
