@@ -376,6 +376,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           // Allow using non-default service account in DirectPath.
           .setAllowNonDefaultServiceAccount(true);
     }
+
     return grpcTransportProviderBuilder
         .setChannelPoolSettings(
             ChannelPoolSettings.builder()
