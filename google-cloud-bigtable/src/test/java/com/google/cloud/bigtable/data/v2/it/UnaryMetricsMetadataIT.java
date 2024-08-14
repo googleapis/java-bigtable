@@ -82,6 +82,13 @@ public class UnaryMetricsMetadataIT {
     settings.setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry));
 
     client = BigtableDataClient.create(settings.build());
+    if(!(((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider()).canUseDirectPath())) {
+      System.out.println("Somehow we aren't using directpath");
+    } else {
+      System.out.println("We totally are using directpath");
+      boolean xdsEnabled = ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider()).isDirectPathXdsEnabled();
+      System.out.println("Xds is: " + String.valueOf(xdsEnabled));
+    }
   }
 
   @After
@@ -144,7 +151,7 @@ public class UnaryMetricsMetadataIT {
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
-    System.out.println("Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> s + s2 + " "));
+    System.out.println("Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> String.join(s, s2, " ")));
 
     assertThat(directpathAttribute).isNotEmpty();
   }
