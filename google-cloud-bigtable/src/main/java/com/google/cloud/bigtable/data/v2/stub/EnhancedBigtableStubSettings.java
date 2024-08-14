@@ -353,7 +353,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     if (isDirectpathEnabled) {
       // Attempts direct access to CBT service over gRPC to improve throughput,
       // whether the attempt is allowed is totally controlled by service owner.
-      grpcTransportProviderBuilder.setAttemptDirectPathXds().setAttemptDirectPath(true);
+      grpcTransportProviderBuilder.setAttemptDirectPathXds().setAttemptDirectPath(true).setAllowNonDefaultServiceAccount(true);
     }
     return grpcTransportProviderBuilder
         .setChannelPoolSettings(
