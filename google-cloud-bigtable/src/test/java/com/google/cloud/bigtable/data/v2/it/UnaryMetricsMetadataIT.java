@@ -82,12 +82,15 @@ public class UnaryMetricsMetadataIT {
     settings.setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry));
 
     client = BigtableDataClient.create(settings.build());
-    if(!(((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider()).canUseDirectPath())) {
+    InstantiatingGrpcChannelProvider provider = ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider());
+    if(!provider.canUseDirectPath()) {
       System.out.println("Somehow we aren't using directpath");
-    } else {
-      System.out.println("We totally are using directpath");
-      boolean xdsEnabled = ((InstantiatingGrpcChannelProvider) settings.stubSettings().getTransportChannelProvider()).isDirectPathXdsEnabled();
-      System.out.println("Xds is: " + String.valueOf(xdsEnabled));
+    }
+    if (provider.canUseDirectPath()) {
+      System.out.println("directpath is enabled");
+    }
+    if (provider.isDirectPathXdsEnabled()){
+      System.out.println("Directpath Xds is Enabled");
     }
   }
 
