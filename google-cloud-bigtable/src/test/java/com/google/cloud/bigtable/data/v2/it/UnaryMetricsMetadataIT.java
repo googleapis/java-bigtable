@@ -51,7 +51,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
+@RunWith(JUnit4.class)
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
@@ -60,6 +63,7 @@ public class UnaryMetricsMetadataIT {
 
   @Before
   public void setup() throws IOException {
+    System.out.println("STARTING THE TEST??");
     assume()
         .withMessage("UnaryMetricsMetadataIT is not supported on Emulator")
         .that(testEnvRule.env())
@@ -188,12 +192,18 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
+    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
+        Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
 
+    for(String dp: directpathAttribute) {
+      System.out.println("Directpath Attributes: " + dp);
+    }
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
+    assertThat(directpathAttribute).contains("true");
   }
 }
