@@ -1,4 +1,4 @@
-googleapis_commitish: c93b54fa3060c7185f6dc724f0f9ec0c12bc44fc
+googleapis_commitish: b678386866ca6ee40c84c9043beb70992309343e
 libraries_bom_version: 26.44.0
 template_excludes:
   - .gitignore
