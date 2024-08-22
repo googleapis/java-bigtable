@@ -32,8 +32,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       REPO_FULL_NAME: ${{ env.REPO_FULL_NAME }}
-    steps:
-      - run: echo "" >> /dev/null # no op - we just need to declare the env var as output
   library_generation:
     # skip pull requests coming from a forked repository
     if: needs.prepare-repo-full-name.outputs.REPO_FULL_NAME == github.repository
