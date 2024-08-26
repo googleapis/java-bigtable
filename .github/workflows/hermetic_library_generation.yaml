@@ -22,8 +22,8 @@ env:
   REPO_FULL_NAME: ${{ github.event.pull_request.head.repo.full_name }}
 
 jobs:
-  # This step is meant to inline the jobs.if of the next step "library_generation" as
-  # an env var to avoid injection vulnerabilities.
+  # This step is meant to inline the the repo full name env var in the `jobs.if` entry
+  # of the next step "library_generation".
   # Unfortunately, we can't directly reference `env` in jobs.if
   # (see https://github.com/actions/runner/issues/2372)
   # The chosen workaround is to declare an intermediate step that will output the env var
