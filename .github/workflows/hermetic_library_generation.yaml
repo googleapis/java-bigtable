@@ -20,24 +20,10 @@ on:
 env:
   HEAD_REF: ${{ github.head_ref }}
   REPO_FULL_NAME: ${{ github.event.pull_request.head.repo.full_name }}
+  GITHUB_REPOSITORY: ${{ github.repository }}
 
 jobs:
-  # This step is meant to inline the the repo full name env var in the `jobs.if` entry
-  # of the next step "library_generation".
-  # Unfortunately, we can't directly reference `env` in jobs.if
-  # (see https://github.com/actions/runner/issues/2372)
-  # The chosen workaround is to declare an intermediate step that will output the env var
-  prepare-repo-full-name:
-    name: Prepare environment
-    runs-on: ubuntu-latest
-    outputs:
-      REPO_FULL_NAME: ${{ env.REPO_FULL_NAME }}
-    steps:
-      - run: exit 0 # no op - we just need to declare the env var as output
   library_generation:
-    # skip pull requests coming from a forked repository
-    if: needs.prepare-repo-full-name.outputs.REPO_FULL_NAME == github.repository
-    needs: [prepare-repo-full-name]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -48,6 +34,10 @@ jobs:
       shell: bash
       run: |
         set -ex
+        if [[ "${GITHUB_REPOSITORY}" != "${REPO_FULL_NAME}" ]]; then
+          echo "This PR comes from a fork. Generation will be skipped"
+          exit 0
+        fi
         [ -z "$(git config user.email)" ] && git config --global user.email "cloud-java-bot@google.com"
         [ -z "$(git config user.name)" ] && git config --global user.name "cloud-java-bot"
         bash .github/scripts/hermetic_library_generation.sh \
