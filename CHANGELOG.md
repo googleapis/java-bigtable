@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.43.0](https://github.com/googleapis/java-bigtable/compare/v2.42.0...v2.43.0) (2024-08-22)
+
+
+### Features
+
+* Add fields and the BackupType proto for Hot Backups ([#2300](https://github.com/googleapis/java-bigtable/issues/2300)) ([acaa3ff](https://github.com/googleapis/java-bigtable/commit/acaa3ff26ab0d317362e2be65ac5edcf803b13a1))
+* Allow non default service account in DirectPath ([#2312](https://github.com/googleapis/java-bigtable/issues/2312)) ([09d0f23](https://github.com/googleapis/java-bigtable/commit/09d0f23032488dfa55c7a4c1c571a4f36bd94728))
+* **bigtable:** Remove deprecated Bytes from BigEndianBytesEncoding ([#2309](https://github.com/googleapis/java-bigtable/issues/2309)) ([32f244f](https://github.com/googleapis/java-bigtable/commit/32f244f13d0c8571654d314310a4756fe275d609))
+* Enable hermetic library generation ([#2234](https://github.com/googleapis/java-bigtable/issues/2234)) ([169aea5](https://github.com/googleapis/java-bigtable/commit/169aea5c43485a8d13ed53f57495609c142944df))
+
+
+### Bug Fixes
+
+* Add missing call to EqualsTester#testEquals ([#2307](https://github.com/googleapis/java-bigtable/issues/2307)) ([8b49f9c](https://github.com/googleapis/java-bigtable/commit/8b49f9ce84871f0f423f5837785604c3119ccd88))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2314](https://github.com/googleapis/java-bigtable/issues/2314)) ([ab392ee](https://github.com/googleapis/java-bigtable/commit/ab392ee8d0c4535b5d3f31b3e111cbc41b399dd9))
+
+## [2.42.0](https://github.com/googleapis/java-bigtable/compare/v2.41.0...v2.42.0) (2024-08-06)
+
+
+### Features
+
+* Support float32, float64, and array type query params ([#2297](https://github.com/googleapis/java-bigtable/issues/2297)) ([a65640e](https://github.com/googleapis/java-bigtable/commit/a65640e285950d02136544bac913b2852cfe0274))
+
+
+### Bug Fixes
+
+* Adapt toString tests to introduction of java.time in gax  ([93f66a7](https://github.com/googleapis/java-bigtable/commit/93f66a70371f8095fd5c001a977d71e5622be46d))
+
+
+### Dependencies
+
+* Update shared dependencies ([93f66a7](https://github.com/googleapis/java-bigtable/commit/93f66a70371f8095fd5c001a977d71e5622be46d))
+
 ## [2.41.0](https://github.com/googleapis/java-bigtable/compare/v2.40.0...v2.41.0) (2024-07-24)
 
 
