@@ -52,7 +52,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final BigtableTableAdminStubSettings settings;
   private final ClientContext clientContext;
 
-  private final AwaitReplicationCallable awaitReplicationCallable;
+  private final AwaitConsistencyCallable awaitReplicationCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
 
@@ -72,7 +72,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
         createOptimizeRestoredTableOperationBaseCallable();
   }
 
-  private AwaitReplicationCallable createAwaitReplicationCallable() {
+  private AwaitConsistencyCallable createAwaitReplicationCallable() {
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
         RetrySettings.newBuilder()
@@ -92,7 +92,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
-    return AwaitReplicationCallable.create(
+    return AwaitConsistencyCallable.create(
         generateConsistencyTokenCallable(),
         checkConsistencyCallable(),
         clientContext,

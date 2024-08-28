@@ -31,29 +31,25 @@ import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.admin.v2.CheckConsistencyRequest;
-import com.google.bigtable.admin.v2.CheckConsistencyResponse;
-import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
-import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
-import com.google.bigtable.admin.v2.TableName;
+import com.google.bigtable.admin.v2.*;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 
 /**
- * Callable that waits until replication has caught up to the point it was called.
+ * Callable that waits until either replication or Data Boost has caught up to the point it was called.
  *
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
-class AwaitReplicationCallable extends UnaryCallable<TableName, Void> {
+class AwaitConsistencyCallable extends UnaryCallable<TableName, Void> {
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
       generateCallable;
   private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
   private final RetryingExecutor<CheckConsistencyResponse> executor;
 
-  static AwaitReplicationCallable create(
+  static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
@@ -68,11 +64,11 @@ class AwaitReplicationCallable extends UnaryCallable<TableName, Void> {
     RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-    return new AwaitReplicationCallable(generateCallable, checkCallable, retryingExecutor);
+    return new AwaitConsistencyCallable(generateCallable, checkCallable, retryingExecutor);
   }
 
   @VisibleForTesting
-  AwaitReplicationCallable(
+  AwaitConsistencyCallable(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,

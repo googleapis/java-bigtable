@@ -47,7 +47,7 @@ import org.mockito.quality.Strictness;
 import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
-public class AwaitReplicationCallableTest {
+public class AwaitConsistencyCallableTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
   private static final TableName TABLE_NAME = TableName.of("my-project", "my-instance", "my-table");
@@ -61,7 +61,7 @@ public class AwaitReplicationCallableTest {
   private UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse>
       mockCheckConsistencyCallable;
 
-  private AwaitReplicationCallable callable;
+  private AwaitConsistencyCallable callable;
 
   @Before
   public void setUp() {
@@ -82,7 +82,7 @@ public class AwaitReplicationCallableTest {
             .build();
 
     callable =
-        AwaitReplicationCallable.create(
+        AwaitConsistencyCallable.create(
             mockGenerateConsistencyTokenCallable,
             mockCheckConsistencyCallable,
             clientContext,
