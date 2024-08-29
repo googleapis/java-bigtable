@@ -140,7 +140,7 @@ public class BigtableTableAdminClientTests {
 
   @Mock private UnaryCallable<ListTablesRequest, ListTablesPagedResponse> mockListTableCallable;
   @Mock private UnaryCallable<DropRowRangeRequest, Empty> mockDropRowRangeCallable;
-  @Mock private UnaryCallable<CheckConsistencyParams, Void> mockAwaitReplicationCallable;
+  @Mock private UnaryCallable<CheckConsistencyParams, Void> mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<
@@ -531,12 +531,12 @@ public class BigtableTableAdminClientTests {
   @Test
   public void testAwaitReplication() {
     // Setup
-    Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitReplicationCallable);
+    Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
     CheckConsistencyParams params = new CheckConsistencyParams(TableName.parse(TABLE_NAME), CheckConsistencyParams.CheckConsistencyMode.STANDARD);
-    Mockito.when(mockAwaitReplicationCallable.futureCall(params))
+    Mockito.when(mockAwaitConsistencyCallable.futureCall(params))
         .thenAnswer(
             (Answer<ApiFuture<Void>>)
                 invocationOnMock -> {
