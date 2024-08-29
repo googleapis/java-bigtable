@@ -61,21 +61,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBacku
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPage;
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
-import com.google.cloud.bigtable.admin.v2.models.Backup;
-import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.EncryptionInfo;
-import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
-import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
-import com.google.cloud.bigtable.admin.v2.models.SubsetView;
-import com.google.cloud.bigtable.admin.v2.models.Table;
-import com.google.cloud.bigtable.admin.v2.models.Type;
-import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
-import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
+import com.google.cloud.bigtable.admin.v2.models.*;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -154,7 +140,7 @@ public class BigtableTableAdminClientTests {
 
   @Mock private UnaryCallable<ListTablesRequest, ListTablesPagedResponse> mockListTableCallable;
   @Mock private UnaryCallable<DropRowRangeRequest, Empty> mockDropRowRangeCallable;
-  @Mock private UnaryCallable<TableName, Void> mockAwaitReplicationCallable;
+  @Mock private UnaryCallable<CheckConsistencyParams, Void> mockAwaitReplicationCallable;
 
   @Mock
   private OperationCallable<
@@ -547,11 +533,10 @@ public class BigtableTableAdminClientTests {
     // Setup
     Mockito.when(mockStub.awaitReplicationCallable()).thenReturn(mockAwaitReplicationCallable);
 
-    TableName expectedRequest = TableName.parse(TABLE_NAME);
-
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-    Mockito.when(mockAwaitReplicationCallable.futureCall(expectedRequest))
+    CheckConsistencyParams params = new CheckConsistencyParams(TableName.parse(TABLE_NAME), CheckConsistencyParams.CheckConsistencyMode.Standard);
+    Mockito.when(mockAwaitReplicationCallable.futureCall(params))
         .thenAnswer(
             (Answer<ApiFuture<Void>>)
                 invocationOnMock -> {
