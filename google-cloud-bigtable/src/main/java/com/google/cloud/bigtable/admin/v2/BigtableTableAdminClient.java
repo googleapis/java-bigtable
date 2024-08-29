@@ -898,10 +898,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     com.google.bigtable.admin.v2.TableName tableName =
         com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
 
-    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.Standard);
+    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
 
     ApiExceptions.callAndTranslateApiException(
-        stub.awaitReplicationCallable().futureCall(params));
+        stub.awaitConsistencyCallable().futureCall(params));
   }
 
   /**
@@ -1426,8 +1426,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     // TODO(igorbernstein2): remove usage of typesafe names
     com.google.bigtable.admin.v2.TableName tableName =
         com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
-    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.Standard);
-    return stub.awaitReplicationCallable().futureCall(params);
+    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    return stub.awaitConsistencyCallable().futureCall(params);
   }
 
   /**

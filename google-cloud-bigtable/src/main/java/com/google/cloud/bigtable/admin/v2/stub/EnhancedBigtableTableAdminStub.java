@@ -53,7 +53,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final BigtableTableAdminStubSettings settings;
   private final ClientContext clientContext;
 
-  private final AwaitConsistencyCallable awaitReplicationCallable;
+  private final AwaitConsistencyCallable awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
 
@@ -68,12 +68,12 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
 
     this.settings = settings;
     this.clientContext = clientContext;
-    this.awaitReplicationCallable = createAwaitReplicationCallable();
+    this.awaitConsistencyCallable = createAwaitConsistencyCallable();
     this.optimizeRestoredTableOperationBaseCallable =
         createOptimizeRestoredTableOperationBaseCallable();
   }
 
-  private AwaitConsistencyCallable createAwaitReplicationCallable() {
+  private AwaitConsistencyCallable createAwaitConsistencyCallable() {
     // TODO(igorbernstein2): expose polling settings
     RetrySettings pollingSettings =
         RetrySettings.newBuilder()
@@ -191,8 +191,8 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
         unusedInitialCallSettings, operationCallSettings, clientContext, getOperationsStub());
   }
 
-  public UnaryCallable<CheckConsistencyParams, Void> awaitReplicationCallable() {
-    return awaitReplicationCallable;
+  public UnaryCallable<CheckConsistencyParams, Void> awaitConsistencyCallable() {
+    return awaitConsistencyCallable;
   }
 
   public OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>

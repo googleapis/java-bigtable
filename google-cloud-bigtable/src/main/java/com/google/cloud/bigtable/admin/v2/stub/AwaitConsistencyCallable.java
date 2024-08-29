@@ -94,9 +94,9 @@ class AwaitConsistencyCallable extends UnaryCallable<CheckConsistencyParams, Voi
                     .setName(tableName.toString())
                     .setConsistencyToken(input.getConsistencyToken());
 
-//            if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.DataBoost) {
+//            if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.DATA_BOOST) {
 //              requestBuilder.setDataBoostReadLocalWrites(DataBoostReadLocalWrites.newBuilder().build());
-//            } else if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.Standard) {
+//            } else if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.STANDARD) {
 //              requestBuilder.setStandardReadRemoteWrites(StandardReadRemoteWrites.newBuilder().build());
 //            }
             return pollToken(requestBuilder.build(), context);

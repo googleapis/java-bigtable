@@ -531,11 +531,11 @@ public class BigtableTableAdminClientTests {
   @Test
   public void testAwaitReplication() {
     // Setup
-    Mockito.when(mockStub.awaitReplicationCallable()).thenReturn(mockAwaitReplicationCallable);
+    Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitReplicationCallable);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TableName.parse(TABLE_NAME), CheckConsistencyParams.CheckConsistencyMode.Standard);
+    CheckConsistencyParams params = new CheckConsistencyParams(TableName.parse(TABLE_NAME), CheckConsistencyParams.CheckConsistencyMode.STANDARD);
     Mockito.when(mockAwaitReplicationCallable.futureCall(params))
         .thenAnswer(
             (Answer<ApiFuture<Void>>)

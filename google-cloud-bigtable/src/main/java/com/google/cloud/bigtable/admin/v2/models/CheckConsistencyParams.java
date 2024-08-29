@@ -4,7 +4,7 @@ import com.google.bigtable.admin.v2.TableName;
 
 public class CheckConsistencyParams {
     public enum CheckConsistencyMode {
-        Standard, DataBoost;
+        STANDARD, DATA_BOOST;
     }
     private TableName tableName;
     private CheckConsistencyMode mode;
@@ -15,10 +15,10 @@ public class CheckConsistencyParams {
     }
 
     public TableName TableName() {
-        return this.tableName;
+        return tableName;
     }
 
     public CheckConsistencyMode Mode() {
-        return this.mode;
+        return mode;
     }
 }
