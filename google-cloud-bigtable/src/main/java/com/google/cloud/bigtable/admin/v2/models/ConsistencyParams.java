@@ -1,8 +1,10 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
+import com.google.auto.value.AutoValue;
 import com.google.bigtable.admin.v2.TableName;
 
-public class ConsistencyParams {
+@AutoValue
+public abstract class ConsistencyParams {
     public enum ConsistencyMode {
         /**
          * Checks that reads using an app profile with `StandardIsolation` can
@@ -18,19 +20,11 @@ public class ConsistencyParams {
          */
         DATA_BOOST;
     }
-    private TableName tableName;
-    private ConsistencyMode mode;
-
-    public ConsistencyParams(TableName tableName, ConsistencyMode mode) {
-        this.tableName = tableName;
-        this.mode = mode;
+    public static ConsistencyParams create(TableName tableName, ConsistencyMode mode) {
+        return new AutoValue_ConsistencyParams(tableName, mode);
     }
 
-    public TableName TableName() {
-        return tableName;
-    }
+    public abstract TableName getTableName();
 
-    public ConsistencyMode Mode() {
-        return mode;
-    }
+    public abstract ConsistencyMode getConsistencyMode();
 }

@@ -87,7 +87,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
 
   @Override
   public ApiFuture<Void> futureCall(final ConsistencyParams consistencyParams, final ApiCallContext context) {
-    TableName tableName = consistencyParams.TableName();
+    TableName tableName = consistencyParams.getTableName();
     ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(tableName, context);
 
     return ApiFutures.transformAsync(
@@ -100,9 +100,9 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
                     .setName(tableName.toString())
                     .setConsistencyToken(input.getConsistencyToken());
 
-            if (consistencyParams.Mode() == ConsistencyParams.ConsistencyMode.DATA_BOOST) {
+            if (consistencyParams.getConsistencyMode() == ConsistencyParams.ConsistencyMode.DATA_BOOST) {
               requestBuilder.setDataBoostReadLocalWrites(DataBoostReadLocalWrites.newBuilder().build());
-            } else if (consistencyParams.Mode() == ConsistencyParams.ConsistencyMode.STANDARD) {
+            } else if (consistencyParams.getConsistencyMode() == ConsistencyParams.ConsistencyMode.STANDARD) {
               requestBuilder.setStandardReadRemoteWrites(StandardReadRemoteWrites.newBuilder().build());
             }
             return pollToken(requestBuilder.build(), context);
