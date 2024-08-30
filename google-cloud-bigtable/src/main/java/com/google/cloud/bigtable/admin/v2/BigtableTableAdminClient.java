@@ -46,7 +46,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTable
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
-import com.google.cloud.bigtable.admin.v2.models.CheckConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
@@ -914,7 +914,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     com.google.bigtable.admin.v2.TableName tableName =
         com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
 
-    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(tableName, ConsistencyParams.CheckConsistencyMode.STANDARD);
 
     ApiExceptions.callAndTranslateApiException(
         stub.awaitConsistencyCallable().futureCall(params));
@@ -1442,7 +1442,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
     // TODO(igorbernstein2): remove usage of typesafe names
     com.google.bigtable.admin.v2.TableName tableName =
         com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
-    CheckConsistencyParams params = new CheckConsistencyParams(tableName, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(tableName, ConsistencyParams.CheckConsistencyMode.STANDARD);
     return stub.awaitConsistencyCallable().futureCall(params);
   }
 

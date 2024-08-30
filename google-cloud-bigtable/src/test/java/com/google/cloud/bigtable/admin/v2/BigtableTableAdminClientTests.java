@@ -63,7 +63,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTable
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
 import com.google.cloud.bigtable.admin.v2.models.Backup;
-import com.google.cloud.bigtable.admin.v2.models.CheckConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
@@ -155,7 +155,7 @@ public class BigtableTableAdminClientTests {
 
   @Mock private UnaryCallable<ListTablesRequest, ListTablesPagedResponse> mockListTableCallable;
   @Mock private UnaryCallable<DropRowRangeRequest, Empty> mockDropRowRangeCallable;
-  @Mock private UnaryCallable<CheckConsistencyParams, Void> mockAwaitConsistencyCallable;
+  @Mock private UnaryCallable<ConsistencyParams, Void> mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<
@@ -550,7 +550,7 @@ public class BigtableTableAdminClientTests {
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TableName.parse(TABLE_NAME), CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TableName.parse(TABLE_NAME), ConsistencyParams.CheckConsistencyMode.STANDARD);
     Mockito.when(mockAwaitConsistencyCallable.futureCall(params))
         .thenAnswer(
             (Answer<ApiFuture<Void>>)

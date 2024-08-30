@@ -32,7 +32,7 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.*;
-import com.google.cloud.bigtable.admin.v2.models.CheckConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
@@ -44,7 +44,7 @@ import java.util.concurrent.CancellationException;
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
-class AwaitConsistencyCallable extends UnaryCallable<CheckConsistencyParams, Void> {
+class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
   private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
       generateCallable;
   private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
@@ -80,7 +80,7 @@ class AwaitConsistencyCallable extends UnaryCallable<CheckConsistencyParams, Voi
   }
 
   @Override
-  public ApiFuture<Void> futureCall(final CheckConsistencyParams consistencyParams, final ApiCallContext context) {
+  public ApiFuture<Void> futureCall(final ConsistencyParams consistencyParams, final ApiCallContext context) {
     TableName tableName = consistencyParams.TableName();
     ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(tableName, context);
 
@@ -94,9 +94,9 @@ class AwaitConsistencyCallable extends UnaryCallable<CheckConsistencyParams, Voi
                     .setName(tableName.toString())
                     .setConsistencyToken(input.getConsistencyToken());
 
-            if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.DATA_BOOST) {
+            if (consistencyParams.Mode() == ConsistencyParams.CheckConsistencyMode.DATA_BOOST) {
               requestBuilder.setDataBoostReadLocalWrites(DataBoostReadLocalWrites.newBuilder().build());
-            } else if (consistencyParams.Mode() == CheckConsistencyParams.CheckConsistencyMode.STANDARD) {
+            } else if (consistencyParams.Mode() == ConsistencyParams.CheckConsistencyMode.STANDARD) {
               requestBuilder.setStandardReadRemoteWrites(StandardReadRemoteWrites.newBuilder().build());
             }
             return pollToken(requestBuilder.build(), context);

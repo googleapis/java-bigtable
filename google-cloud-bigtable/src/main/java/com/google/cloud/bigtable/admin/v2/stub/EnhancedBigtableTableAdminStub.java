@@ -30,8 +30,7 @@ import com.google.api.gax.rpc.OperationCallable;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
-import com.google.bigtable.admin.v2.TableName;
-import com.google.cloud.bigtable.admin.v2.models.CheckConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
@@ -191,7 +190,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
         unusedInitialCallSettings, operationCallSettings, clientContext, getOperationsStub());
   }
 
-  public UnaryCallable<CheckConsistencyParams, Void> awaitConsistencyCallable() {
+  public UnaryCallable<ConsistencyParams, Void> awaitConsistencyCallable() {
     return awaitConsistencyCallable;
   }
 

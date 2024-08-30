@@ -2,7 +2,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.bigtable.admin.v2.TableName;
 
-public class CheckConsistencyParams {
+public class ConsistencyParams {
     public enum CheckConsistencyMode {
         /**
          * Checks that reads using an app profile with `StandardIsolation` can
@@ -21,7 +21,7 @@ public class CheckConsistencyParams {
     private TableName tableName;
     private CheckConsistencyMode mode;
 
-    public CheckConsistencyParams(TableName tableName, CheckConsistencyMode mode) {
+    public ConsistencyParams(TableName tableName, CheckConsistencyMode mode) {
         this.tableName = tableName;
         this.mode = mode;
     }

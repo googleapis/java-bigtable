@@ -34,7 +34,7 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.TableName;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import com.google.cloud.bigtable.admin.v2.models.CheckConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -99,7 +99,7 @@ public class AwaitConsistencyCallableTest {
     Mockito.when(mockGenerateConsistencyTokenCallable.futureCall(expectedRequest, CALL_CONTEXT))
         .thenReturn(ApiFutures.<GenerateConsistencyTokenResponse>immediateFailedFuture(fakeError));
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TABLE_NAME, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TABLE_NAME, ConsistencyParams.CheckConsistencyMode.STANDARD);
     ApiFuture<Void> future = callable.futureCall(params, CALL_CONTEXT);
 
     Throwable actualError = null;
@@ -134,7 +134,7 @@ public class AwaitConsistencyCallableTest {
     Mockito.when(mockCheckConsistencyCallable.futureCall(expectedRequest2, CALL_CONTEXT))
         .thenReturn(ApiFutures.<CheckConsistencyResponse>immediateFailedFuture(expectedError));
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TABLE_NAME, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TABLE_NAME, ConsistencyParams.CheckConsistencyMode.STANDARD);
     ApiFuture<Void> future = callable.futureCall(params, CALL_CONTEXT);
 
     Throwable actualError = null;
@@ -170,7 +170,7 @@ public class AwaitConsistencyCallableTest {
     Mockito.when(mockCheckConsistencyCallable.futureCall(expectedRequest2, CALL_CONTEXT))
         .thenReturn(ApiFutures.immediateFuture(expectedResponse2));
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TABLE_NAME, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TABLE_NAME, ConsistencyParams.CheckConsistencyMode.STANDARD);
     ApiFuture<Void> consistentFuture = callable.futureCall(params, CALL_CONTEXT);
 
     consistentFuture.get(1, TimeUnit.MILLISECONDS);
@@ -203,7 +203,7 @@ public class AwaitConsistencyCallableTest {
         .thenReturn(ApiFutures.immediateFuture(expectedResponse2))
         .thenReturn(ApiFutures.immediateFuture(expectedResponse3));
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TABLE_NAME, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TABLE_NAME, ConsistencyParams.CheckConsistencyMode.STANDARD);
     ApiFuture<Void> consistentFuture = callable.futureCall(params, CALL_CONTEXT);
 
     consistentFuture.get(1, TimeUnit.SECONDS);
@@ -232,7 +232,7 @@ public class AwaitConsistencyCallableTest {
     Mockito.when(mockCheckConsistencyCallable.futureCall(expectedRequest2, CALL_CONTEXT))
         .thenReturn(ApiFutures.immediateFuture(expectedResponse2));
 
-    CheckConsistencyParams params = new CheckConsistencyParams(TABLE_NAME, CheckConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TABLE_NAME, ConsistencyParams.CheckConsistencyMode.STANDARD);
     ApiFuture<Void> consistentFuture = callable.futureCall(params, CALL_CONTEXT);
 
     Throwable actualError = null;
