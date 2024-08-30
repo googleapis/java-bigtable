@@ -3,7 +3,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 import com.google.bigtable.admin.v2.TableName;
 
 public class ConsistencyParams {
-    public enum CheckConsistencyMode {
+    public enum ConsistencyMode {
         /**
          * Checks that reads using an app profile with `StandardIsolation` can
          * see all writes committed before the token was created, even if the
@@ -19,9 +19,9 @@ public class ConsistencyParams {
         DATA_BOOST;
     }
     private TableName tableName;
-    private CheckConsistencyMode mode;
+    private ConsistencyMode mode;
 
-    public ConsistencyParams(TableName tableName, CheckConsistencyMode mode) {
+    public ConsistencyParams(TableName tableName, ConsistencyMode mode) {
         this.tableName = tableName;
         this.mode = mode;
     }
@@ -30,7 +30,7 @@ public class ConsistencyParams {
         return tableName;
     }
 
-    public CheckConsistencyMode Mode() {
+    public ConsistencyMode Mode() {
         return mode;
     }
 }

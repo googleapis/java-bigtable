@@ -550,7 +550,7 @@ public class BigtableTableAdminClientTests {
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-    ConsistencyParams params = new ConsistencyParams(TableName.parse(TABLE_NAME), ConsistencyParams.CheckConsistencyMode.STANDARD);
+    ConsistencyParams params = new ConsistencyParams(TableName.parse(TABLE_NAME), ConsistencyParams.ConsistencyMode.STANDARD);
     Mockito.when(mockAwaitConsistencyCallable.futureCall(params))
         .thenAnswer(
             (Answer<ApiFuture<Void>>)

@@ -94,9 +94,9 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
                     .setName(tableName.toString())
                     .setConsistencyToken(input.getConsistencyToken());
 
-            if (consistencyParams.Mode() == ConsistencyParams.CheckConsistencyMode.DATA_BOOST) {
+            if (consistencyParams.Mode() == ConsistencyParams.ConsistencyMode.DATA_BOOST) {
               requestBuilder.setDataBoostReadLocalWrites(DataBoostReadLocalWrites.newBuilder().build());
-            } else if (consistencyParams.Mode() == ConsistencyParams.CheckConsistencyMode.STANDARD) {
+            } else if (consistencyParams.Mode() == ConsistencyParams.ConsistencyMode.STANDARD) {
               requestBuilder.setStandardReadRemoteWrites(StandardReadRemoteWrites.newBuilder().build());
             }
             return pollToken(requestBuilder.build(), context);
