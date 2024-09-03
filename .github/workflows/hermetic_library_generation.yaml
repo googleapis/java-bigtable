@@ -19,8 +19,4 @@ on:
 
 jobs:
   library_generation:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: googleapis/google-cloud-java/.github/workflows/hermetic_library_generation.yaml@main
-      with:
-        token: ${{ secrets.CLOUD_JAVA_BOT_TOKEN }}
+    uses: googleapis/google-cloud-java/.github/workflows/hermetic_library_generation.yaml@main
