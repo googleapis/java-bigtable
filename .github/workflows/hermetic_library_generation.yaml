@@ -19,4 +19,4 @@ on:
 
 jobs:
   library_generation:
-    uses: googleapis/google-cloud-java/.github/workflows/hermetic_library_generation.yaml@main
+    uses: googleapis/google-cloud-java/.github/workflows/hermetic_library_generation.yaml@3df0e25e517443812f66fe9b74c9404d526a8bbd
