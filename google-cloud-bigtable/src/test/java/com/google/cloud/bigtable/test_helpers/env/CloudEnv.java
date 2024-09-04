@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
+import org.threeten.bp.Duration;
 
 /**
  * Test environment that uses an existing bigtable table. The table must have a pre-existing family
@@ -168,7 +169,10 @@ class CloudEnv extends AbstractTestEnv {
   private void configureConnection(StubSettings.Builder stubSettings) {
     // Build an remote address restricting interceptor
     final ClientInterceptor interceptor;
-
+    // Inject the interceptor into the channel provider, taking care to preserve existing channel
+    // configurator
+    InstantiatingGrpcChannelProvider.Builder channelProvider =
+        ((InstantiatingGrpcChannelProvider) stubSettings.getTransportChannelProvider()).toBuilder();
     switch (getConnectionMode()) {
       case DEFAULT:
         // nothing special
@@ -178,10 +182,18 @@ class CloudEnv extends AbstractTestEnv {
             buildRemoteAddrInterceptor(
                 "DirectPath IPv4 or IPv6",
                 Predicates.or(DIRECT_PATH_IPV4_MATCHER, DIRECT_PATH_IPV6_MATCHER));
+        channelProvider
+            .setKeepAliveTime(Duration.ofSeconds(1)) // sends ping in this interval
+            .setKeepAliveTimeout(
+                Duration.ofSeconds(10)); // wait this long before considering the connection dead
         break;
       case REQUIRE_DIRECT_PATH_IPV4:
         interceptor =
             buildRemoteAddrInterceptor("DirectPath IPv4", Predicates.or(DIRECT_PATH_IPV4_MATCHER));
+        channelProvider
+            .setKeepAliveTime(Duration.ofSeconds(1)) // sends ping in this interval
+            .setKeepAliveTimeout(
+                Duration.ofSeconds(10)); // wait this long before considering the connection dead
         break;
       case REQUIRE_CFE:
         interceptor =
@@ -192,11 +204,6 @@ class CloudEnv extends AbstractTestEnv {
       default:
         throw new IllegalStateException("Unexpected ConnectionMode: " + getConnectionMode());
     }
-
-    // Inject the interceptor into the channel provider, taking care to preserve existing channel
-    // configurator
-    InstantiatingGrpcChannelProvider.Builder channelProvider =
-        ((InstantiatingGrpcChannelProvider) stubSettings.getTransportChannelProvider()).toBuilder();
 
     @SuppressWarnings("rawtypes")
     final ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldConfigurator =
