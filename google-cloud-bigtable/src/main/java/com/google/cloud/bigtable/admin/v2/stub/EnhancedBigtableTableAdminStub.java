@@ -92,11 +92,9 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
-    return AwaitReplicationCallable.create(
-        generateConsistencyTokenCallable(),
-        checkConsistencyCallable(),
-        clientContext,
-        pollingSettings);
+  AwaitConsistencyCallable awaitConsistencyCallable = AwaitConsistencyCallable.create(
+          generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings);
+    return AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
 
   // Plug into gax operation infrastructure

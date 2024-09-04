@@ -81,12 +81,10 @@ public class AwaitReplicationCallableTest {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
+    AwaitConsistencyCallable awaitConsistencyCallable = AwaitConsistencyCallable.create(
+            mockGenerateConsistencyTokenCallable, mockCheckConsistencyCallable, clientContext, retrySettings);
     callable =
-        AwaitReplicationCallable.create(
-            mockGenerateConsistencyTokenCallable,
-            mockCheckConsistencyCallable,
-            clientContext,
-            retrySettings);
+        AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
 
   @Test
