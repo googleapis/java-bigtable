@@ -20,4 +20,5 @@ on:
 jobs:
   library_generation:
     uses: googleapis/google-cloud-java/.github/workflows/hermetic_library_generation.yaml@chore/setup-reusable-workflow
-    secrets: inherit
+    secrets:
+      token: ${{ secrets.CLOUD_JAVA_BOT_TOKEN }}
