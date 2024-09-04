@@ -48,6 +48,8 @@ import java.util.concurrent.CancellationException;
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
+/** @deprecated Please use {@link AwaitConsistencyCallable instead. */
+@Deprecated
 class AwaitReplicationCallable extends UnaryCallable<TableName, Void> {
   private final AwaitConsistencyCallable awaitConsistencyCallable;
 

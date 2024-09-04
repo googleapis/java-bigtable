@@ -31,20 +31,6 @@ public class ConsistencyParams {
         }
 
         /**
-         * Wraps the protobuf. This method is considered an internal implementation detail and not meant
-         * to be used by applications.
-         */
-        @InternalApi
-        public static ConsistencyParams.ConsistencyMode fromProto(CheckConsistencyRequest.ModeCase proto) {
-            for (ConsistencyParams.ConsistencyMode mode : values()) {
-                if (mode.proto.equals(proto)) {
-                    return mode;
-                }
-            }
-            throw new IllegalArgumentException("Unknown consistency mode: " + proto);
-        }
-
-        /**
          * Creates the request protobuf. This method is considered an internal implementation detail and
          * not meant to be used by applications.
          */
@@ -76,4 +62,7 @@ public class ConsistencyParams {
     public ConsistencyMode getConsistencyMode() {
         return consistencyMode;
     }
+
+    @InternalApi
+    public static
 }
