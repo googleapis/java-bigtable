@@ -15,32 +15,12 @@
  */
 package com.google.cloud.bigtable.admin.v2.stub;
 
-import com.google.api.core.ApiAsyncFunction;
-import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
-import com.google.api.core.ApiFutures;
-import com.google.api.gax.retrying.ExponentialPollAlgorithm;
-import com.google.api.gax.retrying.NonCancellableFuture;
-import com.google.api.gax.retrying.ResultRetryAlgorithm;
-import com.google.api.gax.retrying.RetryAlgorithm;
-import com.google.api.gax.retrying.RetrySettings;
-import com.google.api.gax.retrying.RetryingExecutor;
-import com.google.api.gax.retrying.RetryingFuture;
-import com.google.api.gax.retrying.ScheduledRetryingExecutor;
-import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.admin.v2.CheckConsistencyRequest;
-import com.google.bigtable.admin.v2.CheckConsistencyResponse;
-import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
-import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.util.concurrent.MoreExecutors;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CancellationException;
 
 /**
  * Callable that waits until replication has caught up to the point it was called.
