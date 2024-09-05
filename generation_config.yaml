@@ -1,3 +1,4 @@
+gapic_generator_version: 2.44.0
 googleapis_commitish: c93b54fa3060c7185f6dc724f0f9ec0c12bc44fc
 libraries_bom_version: 26.44.0
 template_excludes:
