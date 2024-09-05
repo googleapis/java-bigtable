@@ -19,7 +19,7 @@ on:
 
 jobs:
   library_generation:
-    uses: googleapis/google-cloud-java/.github/workflows/reusable_library_generation.yaml@chore/setup-reusable-workflow
+    uses: googleapis/google-cloud-java/.github/workflows/reusable_library_generation.yaml@98205b8bdbc8d08457212a8cb718d4c076ac47db
     with:
       repo_full_name: ${{ github.event.pull_request.head.repo.full_name }}
       repository: ${{ github.repository }}
