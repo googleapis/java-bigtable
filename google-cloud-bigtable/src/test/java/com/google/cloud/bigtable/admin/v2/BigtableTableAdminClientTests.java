@@ -61,7 +61,22 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBacku
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPage;
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
-import com.google.cloud.bigtable.admin.v2.models.*;
+import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
+import com.google.cloud.bigtable.admin.v2.models.Backup;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
+import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.EncryptionInfo;
+import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
+import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
+import com.google.cloud.bigtable.admin.v2.models.SubsetView;
+import com.google.cloud.bigtable.admin.v2.models.Table;
+import com.google.cloud.bigtable.admin.v2.models.Type;
+import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -555,14 +570,11 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testAwaitConsistency() {
+  public void testAwaitConsistencyForDataBoost() {
     // Setup
     Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
-    TableName tableName = TableName.parse(TABLE_NAME);
-    ConsistencyRequest.ConsistencyMode mode = ConsistencyRequest.ConsistencyMode.DATA_BOOST;
-
-    ConsistencyRequest expectedRequest = ConsistencyRequest.of(tableName, mode);
+    ConsistencyRequest expectedRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
@@ -574,8 +586,7 @@ public class BigtableTableAdminClientTests {
                               return ApiFutures.immediateFuture(null);
                             });
 
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.of(TABLE_ID);
-    consistencyRequest.setDataBoostMode();
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
     // Execute
     adminClient.awaitConsistency(consistencyRequest);
 
