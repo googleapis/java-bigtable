@@ -34,9 +34,12 @@ import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.TableName;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.Request;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mock;
@@ -50,7 +53,10 @@ import org.threeten.bp.Duration;
 public class AwaitReplicationCallableTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
-  private static final TableName TABLE_NAME = TableName.of("my-project", "my-instance", "my-table");
+  private static final String PROJECT_ID = "my-project";
+  private static final String INSTANCE_ID = "my-instance";
+  private static final String TABLE_ID = "my-table";
+  private static final TableName TABLE_NAME = TableName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID);
   private static final ApiCallContext CALL_CONTEXT = FakeCallContext.createDefault();
 
   @Mock
@@ -81,8 +87,10 @@ public class AwaitReplicationCallableTest {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
+    RequestContext requestContext = RequestContext.create(PROJECT_ID, INSTANCE_ID, "dummyAppProfile");
+
     AwaitConsistencyCallable awaitConsistencyCallable = AwaitConsistencyCallable.create(
-            mockGenerateConsistencyTokenCallable, mockCheckConsistencyCallable, clientContext, retrySettings);
+            mockGenerateConsistencyTokenCallable, mockCheckConsistencyCallable, clientContext, retrySettings, requestContext);
     callable =
         AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
