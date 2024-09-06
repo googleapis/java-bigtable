@@ -17,6 +17,7 @@ public class ConsistencyRequestTest {
     private final String INSTANCE_ID = "my-instance";
     private final String TABLE_ID = "my-table";
     private final String CONSISTENCY_TOKEN = "my-token";
+
     @Test
     public void testToCheckConsistencyProtoWithStandard() {
         ConsistencyRequest consistencyRequest = ConsistencyRequest.getStandardConsistencyRequest(TABLE_ID);
