@@ -16,5 +16,6 @@
   "codeowner_team": "@googleapis/api-bigtable @googleapis/api-bigtable-partners",
   "excluded_poms": "google-cloud-bigtable-bom",
   "issue_tracker": "https://issuetracker.google.com/savedsearches/559777",
-  "extra_versioned_modules": "google-cloud-bigtable-emulator,google-cloud-bigtable-emulator-core"
+  "extra_versioned_modules": "google-cloud-bigtable-emulator,google-cloud-bigtable-emulator-core",
+  "recommended_package": "com.google.cloud.bigtable"
 }
