@@ -574,11 +574,11 @@ public class BigtableTableAdminClientTests {
     // Setup
     Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
-    ConsistencyRequest expectedRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
-    Mockito.when(mockAwaitConsistencyCallable.futureCall(expectedRequest))
+    Mockito.when(mockAwaitConsistencyCallable.futureCall(consistencyRequest))
             .thenAnswer(
                     (Answer<ApiFuture<Void>>)
                             invocationOnMock -> {
@@ -586,7 +586,6 @@ public class BigtableTableAdminClientTests {
                               return ApiFutures.immediateFuture(null);
                             });
 
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
     // Execute
     adminClient.awaitConsistency(consistencyRequest);
 
