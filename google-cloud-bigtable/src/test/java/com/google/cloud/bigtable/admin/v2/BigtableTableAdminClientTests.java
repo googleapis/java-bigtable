@@ -142,7 +142,7 @@ public class BigtableTableAdminClientTests {
   @Mock private UnaryCallable<DropRowRangeRequest, Empty> mockDropRowRangeCallable;
   @Mock private UnaryCallable<TableName, Void> mockAwaitReplicationCallable;
 
-  @Mock private UnaryCallable<ConsistencyParams, Void> mockAwaitConsistencyCallable;
+  @Mock private UnaryCallable<ConsistencyRequest, Void> mockAwaitConsistencyCallable;
 
   @Mock
   private OperationCallable<
@@ -560,9 +560,9 @@ public class BigtableTableAdminClientTests {
     Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
     TableName tableName = TableName.parse(TABLE_NAME);
-    ConsistencyParams.ConsistencyMode mode = ConsistencyParams.ConsistencyMode.DATA_BOOST;
+    ConsistencyRequest.ConsistencyMode mode = ConsistencyRequest.ConsistencyMode.DATA_BOOST;
 
-    ConsistencyParams expectedRequest = ConsistencyParams.of(tableName, mode);
+    ConsistencyRequest expectedRequest = ConsistencyRequest.of(tableName, mode);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
@@ -574,8 +574,10 @@ public class BigtableTableAdminClientTests {
                               return ApiFutures.immediateFuture(null);
                             });
 
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.of(TABLE_ID);
+    consistencyRequest.setDataBoostMode();
     // Execute
-    adminClient.awaitConsistency(TABLE_ID, mode);
+    adminClient.awaitConsistency(consistencyRequest);
 
     // Verify
     assertThat(wasCalled.get()).isTrue();

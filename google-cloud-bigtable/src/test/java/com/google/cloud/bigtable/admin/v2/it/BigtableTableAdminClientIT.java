@@ -223,11 +223,19 @@ public class BigtableTableAdminClientIT {
     tableAdmin.awaitReplication(tableId);
   }
 
+  /**
+   * Note: Data Boost consistency is essentially a check that the data you are trying to read was written
+   * at least 35 minutes ago.
+   */
   @Test
-  public void awaitConsistency() {
+  public void awaitDataBoostConsistency() {
+    assume()
+            .withMessage("Data Boost consistency not supported on Emulator")
+            .that(testEnvRule.env())
+            .isNotInstanceOf(EmulatorEnv.class);
     tableAdmin.createTable(CreateTableRequest.of(tableId));
-    ConsistencyParams.ConsistencyMode mode = ConsistencyParams.ConsistencyMode.DATA_BOOST;
-    tableAdmin.awaitConsistency(tableId, mode);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(tableId);
+    tableAdmin.awaitConsistency(consistencyRequest);
   }
 
   @Test

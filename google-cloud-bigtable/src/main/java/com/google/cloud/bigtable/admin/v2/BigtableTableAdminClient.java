@@ -46,6 +46,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTable
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.*;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -57,6 +58,8 @@ import com.google.iam.v1.TestIamPermissionsRequest;
 import com.google.iam.v1.TestIamPermissionsResponse;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.google.rpc.context.AttributeContext;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -139,8 +142,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /** Constructs an instance of BigtableTableAdminClient with the given settings. */
   public static BigtableTableAdminClient create(@Nonnull BigtableTableAdminSettings settings)
       throws IOException {
+    RequestContext requestContext = RequestContext.create(settings.getProjectId(), settings.getInstanceId(), "dummyAppProfileId");
     EnhancedBigtableTableAdminStub stub =
-        EnhancedBigtableTableAdminStub.createEnhanced(settings.getStubSettings());
+        EnhancedBigtableTableAdminStub.createEnhanced(settings.getStubSettings(), requestContext);
     return create(settings.getProjectId(), settings.getInstanceId(), stub);
   }
 
@@ -902,14 +906,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
         stub.awaitReplicationCallable().futureCall(tableName));
   }
 
-  public void awaitConsistency(String tableId, ConsistencyParams.ConsistencyMode mode) {
-    com.google.bigtable.admin.v2.TableName tableName =
-            com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
-
-    ConsistencyParams consistencyParams = ConsistencyParams.of(tableName, mode);
-
+  public void awaitConsistency(ConsistencyRequest consistencyRequest) {
     ApiExceptions.callAndTranslateApiException(
-            stub.awaitConsistencyCallable().futureCall(consistencyParams));
+            stub.awaitConsistencyCallable().futureCall(consistencyRequest));
   }
 
   /**

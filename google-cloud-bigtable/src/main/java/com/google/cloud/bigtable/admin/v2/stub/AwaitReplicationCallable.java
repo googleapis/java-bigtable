@@ -18,8 +18,9 @@ package com.google.cloud.bigtable.admin.v2.stub;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.TableName;
-import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
@@ -40,9 +41,10 @@ class AwaitReplicationCallable extends UnaryCallable<TableName, Void> {
 
   @Override
   public ApiFuture<Void> futureCall(final TableName tableName, final ApiCallContext context) {
-    ConsistencyParams consistencyParams = ConsistencyParams.of(tableName, ConsistencyParams.ConsistencyMode.STANDARD);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.of(tableName.getTable());
+    consistencyRequest.setStandardMode();
 
-    return awaitConsistencyCallable.futureCall(consistencyParams);
+    return awaitConsistencyCallable.futureCall(consistencyRequest, context);
   }
 
   @VisibleForTesting

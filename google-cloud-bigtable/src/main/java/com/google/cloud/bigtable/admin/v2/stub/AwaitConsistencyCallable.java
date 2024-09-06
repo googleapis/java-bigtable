@@ -36,7 +36,8 @@ import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.bigtable.admin.v2.TableName;
-import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
@@ -48,18 +49,21 @@ import java.util.concurrent.CancellationException;
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
-class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
+class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
     private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
             generateCallable;
     private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
     private final RetryingExecutor<CheckConsistencyResponse> executor;
+
+    private final RequestContext requestContext;
 
     static AwaitConsistencyCallable create(
             UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
                     generateCallable,
             UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
             ClientContext clientContext,
-            RetrySettings pollingSettings) {
+            RetrySettings pollingSettings,
+            RequestContext requestContext) {
 
         RetryAlgorithm<CheckConsistencyResponse> retryAlgorithm =
                 new RetryAlgorithm<>(
@@ -69,7 +73,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
         RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
                 new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-        return new AwaitConsistencyCallable(generateCallable, checkCallable, retryingExecutor);
+        return new AwaitConsistencyCallable(generateCallable, checkCallable, retryingExecutor, requestContext);
     }
 
     @VisibleForTesting
@@ -77,28 +81,24 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
             UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
                     generateCallable,
             UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
-            RetryingExecutor<CheckConsistencyResponse> executor) {
+            RetryingExecutor<CheckConsistencyResponse> executor,
+            RequestContext requestContext) {
         this.generateCallable = generateCallable;
         this.checkCallable = checkCallable;
         this.executor = executor;
+        this.requestContext = requestContext;
     }
 
     @Override
-    public ApiFuture<Void> futureCall(final ConsistencyParams consistencyParams, final ApiCallContext context) {
-        TableName tableName = consistencyParams.getTableName();
-        ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(tableName, context);
+    public ApiFuture<Void> futureCall(final ConsistencyRequest consistencyRequest, final ApiCallContext context) {
+        ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(consistencyRequest.toGenerateTokenProto(requestContext), context);
 
         return ApiFutures.transformAsync(
                 tokenFuture,
                 new ApiAsyncFunction<GenerateConsistencyTokenResponse, Void>() {
                     @Override
                     public ApiFuture<Void> apply(GenerateConsistencyTokenResponse input) {
-                        CheckConsistencyRequest request =
-                                CheckConsistencyRequest.newBuilder()
-                                        .setName(tableName.toString())
-                                        .setConsistencyToken(input.getConsistencyToken())
-                                        .build();
-
+                        CheckConsistencyRequest request = consistencyRequest.toCheckConsistencyProto(requestContext, input.getConsistencyToken());
                         return pollToken(request, context);
                     }
                 },
@@ -106,9 +106,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyParams, Void> {
     }
 
     private ApiFuture<GenerateConsistencyTokenResponse> generateToken(
-            TableName tableName, ApiCallContext context) {
-        GenerateConsistencyTokenRequest generateRequest =
-                GenerateConsistencyTokenRequest.newBuilder().setName(tableName.toString()).build();
+            GenerateConsistencyTokenRequest generateRequest, ApiCallContext context) {
         return generateCallable.futureCall(generateRequest, context);
     }
 
