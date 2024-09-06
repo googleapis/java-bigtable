@@ -27,15 +27,11 @@ import static org.junit.Assert.assertTrue;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
-import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.*;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.DurationRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.IntersectionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.UnionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
-import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
-import com.google.cloud.bigtable.admin.v2.models.Table;
-import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -225,6 +221,13 @@ public class BigtableTableAdminClientIT {
   public void awaitReplication() {
     tableAdmin.createTable(CreateTableRequest.of(tableId));
     tableAdmin.awaitReplication(tableId);
+  }
+
+  @Test
+  public void awaitConsistency() {
+    tableAdmin.createTable(CreateTableRequest.of(tableId));
+    ConsistencyParams.ConsistencyMode mode = ConsistencyParams.ConsistencyMode.DATA_BOOST;
+    tableAdmin.awaitConsistency(tableId, mode);
   }
 
   @Test
