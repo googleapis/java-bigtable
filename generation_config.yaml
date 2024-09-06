@@ -32,6 +32,7 @@ libraries:
   library_type: GAPIC_COMBO
   extra_versioned_modules: google-cloud-bigtable-emulator,google-cloud-bigtable-emulator-core
   excluded_poms: google-cloud-bigtable-bom
+  recommended_package: com.google.cloud.bigtable
   GAPICs:
   - proto_path: google/bigtable/v2
   - proto_path: google/bigtable/admin/v2
