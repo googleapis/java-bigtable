@@ -56,6 +56,7 @@ public class AwaitReplicationCallableTest {
   private static final String TABLE_ID = "my-table";
   private static final TableName TABLE_NAME = TableName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID);
   private static final ApiCallContext CALL_CONTEXT = FakeCallContext.createDefault();
+  private static final RequestContext REQUEST_CONTEXT = RequestContext.create(PROJECT_ID, INSTANCE_ID, "dummyAppProfile");
 
   @Mock
   private UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
@@ -85,10 +86,8 @@ public class AwaitReplicationCallableTest {
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
-    RequestContext requestContext = RequestContext.create(PROJECT_ID, INSTANCE_ID, "dummyAppProfile");
-
     AwaitConsistencyCallable awaitConsistencyCallable = AwaitConsistencyCallable.create(
-            mockGenerateConsistencyTokenCallable, mockCheckConsistencyCallable, clientContext, retrySettings, requestContext);
+            mockGenerateConsistencyTokenCallable, mockCheckConsistencyCallable, clientContext, retrySettings, REQUEST_CONTEXT);
     callable =
         AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
