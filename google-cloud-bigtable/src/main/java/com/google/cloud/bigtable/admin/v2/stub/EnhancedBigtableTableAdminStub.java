@@ -31,6 +31,7 @@ import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.bigtable.admin.v2.TableName;
+import com.google.cloud.bigtable.admin.v2.models.ConsistencyParams;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
@@ -53,6 +54,8 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final ClientContext clientContext;
 
   private final AwaitReplicationCallable awaitReplicationCallable;
+
+  private final AwaitConsistencyCallable awaitConsistencyCallable;
   private final OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       optimizeRestoredTableOperationBaseCallable;
 
@@ -67,35 +70,40 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
 
     this.settings = settings;
     this.clientContext = clientContext;
+    this.awaitConsistencyCallable = createAwaitConsistencyCallable();
     this.awaitReplicationCallable = createAwaitReplicationCallable();
     this.optimizeRestoredTableOperationBaseCallable =
         createOptimizeRestoredTableOperationBaseCallable();
   }
 
   private AwaitReplicationCallable createAwaitReplicationCallable() {
-    // TODO(igorbernstein2): expose polling settings
-    RetrySettings pollingSettings =
-        RetrySettings.newBuilder()
-            // use overall timeout from checkConsistencyCallable
-            // NOTE: The overall timeout might exceed this value due to underlying retries
-            .setTotalTimeout(
-                settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
-            // Use constant polling with jitter
-            .setInitialRetryDelay(Duration.ofSeconds(10))
-            .setRetryDelayMultiplier(1.0)
-            .setMaxRetryDelay(Duration.ofSeconds(10))
-            .setJittered(true)
-            // These rpc timeouts are ignored, instead the rpc timeouts defined for
-            // generateConsistencyToken and checkConsistency callables will be used.
-            .setInitialRpcTimeout(Duration.ZERO)
-            .setMaxRpcTimeout(Duration.ZERO)
-            .setRpcTimeoutMultiplier(1.0)
-            .build();
-
-  AwaitConsistencyCallable awaitConsistencyCallable = AwaitConsistencyCallable.create(
-          generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings);
     return AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
+
+    private AwaitConsistencyCallable createAwaitConsistencyCallable() {
+        // TODO(igorbernstein2): expose polling settings
+        RetrySettings pollingSettings =
+                RetrySettings.newBuilder()
+                        // use overall timeout from checkConsistencyCallable
+                        // NOTE: The overall timeout might exceed this value due to underlying retries
+                        .setTotalTimeout(
+                                settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
+                        // Use constant polling with jitter
+                        .setInitialRetryDelay(Duration.ofSeconds(10))
+                        .setRetryDelayMultiplier(1.0)
+                        .setMaxRetryDelay(Duration.ofSeconds(10))
+                        .setJittered(true)
+                        // These rpc timeouts are ignored, instead the rpc timeouts defined for
+                        // generateConsistencyToken and checkConsistency callables will be used.
+                        .setInitialRpcTimeout(Duration.ZERO)
+                        .setMaxRpcTimeout(Duration.ZERO)
+                        .setRpcTimeoutMultiplier(1.0)
+                        .build();
+
+        return AwaitConsistencyCallable.create(
+                generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings);
+    }
+
 
   // Plug into gax operation infrastructure
   // gax assumes that all operations are started immediately and doesn't provide support for child
@@ -191,6 +199,10 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   public UnaryCallable<TableName, Void> awaitReplicationCallable() {
     return awaitReplicationCallable;
   }
+
+    public UnaryCallable<ConsistencyParams, Void> awaitConsistencyCallable() {
+        return awaitConsistencyCallable;
+    }
 
   public OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       awaitOptimizeRestoredTableCallable() {

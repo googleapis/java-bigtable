@@ -44,22 +44,7 @@ import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListBacku
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPage;
 import com.google.cloud.bigtable.admin.v2.BaseBigtableTableAdminClient.ListTablesPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
-import com.google.cloud.bigtable.admin.v2.models.AuthorizedView;
-import com.google.cloud.bigtable.admin.v2.models.Backup;
-import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateAuthorizedViewRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.EncryptionInfo;
-import com.google.cloud.bigtable.admin.v2.models.GCRules;
-import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
-import com.google.cloud.bigtable.admin.v2.models.OptimizeRestoredTableOperationToken;
-import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
-import com.google.cloud.bigtable.admin.v2.models.Table;
-import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
-import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
-import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.*;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -915,6 +900,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
 
     ApiExceptions.callAndTranslateApiException(
         stub.awaitReplicationCallable().futureCall(tableName));
+  }
+
+  public void awaitConsistency(String tableId, ConsistencyParams.ConsistencyMode mode) {
+    com.google.bigtable.admin.v2.TableName tableName =
+            com.google.bigtable.admin.v2.TableName.of(projectId, instanceId, tableId);
+
+    ConsistencyParams consistencyParams = ConsistencyParams.of(tableName, mode);
+
+    ApiExceptions.callAndTranslateApiException(
+            stub.awaitConsistencyCallable().futureCall(consistencyParams));
   }
 
   /**

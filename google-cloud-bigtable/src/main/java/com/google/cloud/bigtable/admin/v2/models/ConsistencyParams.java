@@ -62,7 +62,4 @@ public class ConsistencyParams {
     public ConsistencyMode getConsistencyMode() {
         return consistencyMode;
     }
-
-    @InternalApi
-    public static
 }
