@@ -90,8 +90,8 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
     }
 
     @Override
-    public ApiFuture<Void> futureCall(final ConsistencyRequest consistencyRequest, final ApiCallContext context) {
-        ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(consistencyRequest.toGenerateTokenProto(requestContext), context);
+    public ApiFuture<Void> futureCall(final ConsistencyRequest consistencyRequest, final ApiCallContext apiCallContext) {
+        ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(consistencyRequest.toGenerateTokenProto(requestContext), apiCallContext);
 
         return ApiFutures.transformAsync(
                 tokenFuture,
@@ -99,7 +99,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
                     @Override
                     public ApiFuture<Void> apply(GenerateConsistencyTokenResponse input) {
                         CheckConsistencyRequest request = consistencyRequest.toCheckConsistencyProto(requestContext, input.getConsistencyToken());
-                        return pollToken(request, context);
+                        return pollToken(request, apiCallContext);
                     }
                 },
                 MoreExecutors.directExecutor());

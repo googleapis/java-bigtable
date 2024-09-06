@@ -74,7 +74,6 @@ import com.google.iam.v1.TestIamPermissionsRequest;
 import com.google.iam.v1.TestIamPermissionsResponse;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
