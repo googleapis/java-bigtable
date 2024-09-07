@@ -1,5 +1,5 @@
 gapic_generator_version: 2.44.0
-googleapis_commitish: 070b0fd6acdfe19674f2d1e058659a30e5298988
+googleapis_commitish: 9aad398cf46352b38b6d325bd194fd5932ca054e
 libraries_bom_version: 26.45.0
 template_excludes:
   - .gitignore
