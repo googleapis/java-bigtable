@@ -32,7 +32,7 @@ import com.google.api.gax.rpc.UnaryCallable;
 import com.google.bigtable.admin.v2.OptimizeRestoredTableMetadata;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
 import com.google.longrunning.Operation;
 import com.google.protobuf.Empty;
 import io.grpc.MethodDescriptor;
@@ -54,7 +54,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   private final BigtableTableAdminStubSettings settings;
   private final ClientContext clientContext;
 
-  private final RequestContext requestContext;
+  private final RequestContextNoAP requestContext;
 
   private final AwaitReplicationCallable awaitReplicationCallable;
 
@@ -63,12 +63,12 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
       optimizeRestoredTableOperationBaseCallable;
 
   public static EnhancedBigtableTableAdminStub createEnhanced(
-      BigtableTableAdminStubSettings settings, RequestContext requestContext) throws IOException {
+      BigtableTableAdminStubSettings settings, RequestContextNoAP requestContext) throws IOException {
     return new EnhancedBigtableTableAdminStub(settings, ClientContext.create(settings), requestContext);
   }
 
   private EnhancedBigtableTableAdminStub(
-      BigtableTableAdminStubSettings settings, ClientContext clientContext, RequestContext requestContext) throws IOException {
+      BigtableTableAdminStubSettings settings, ClientContext clientContext, RequestContextNoAP requestContext) throws IOException {
     super(settings, clientContext);
 
     this.settings = settings;

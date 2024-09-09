@@ -36,7 +36,7 @@ import com.google.bigtable.admin.v2.TableName;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class AwaitConsistencyCallableTest {
   private static final String TABLE_ID = "my-table";
   private static final TableName TABLE_NAME = TableName.of(PROJECT_ID, INSTANCE_ID, TABLE_ID);
   private static final ApiCallContext CALL_CONTEXT = FakeCallContext.createDefault();
-  private static final RequestContext REQUEST_CONTEXT = RequestContext.create(PROJECT_ID, INSTANCE_ID, "dummyAppProfile");
+  private static final RequestContextNoAP REQUEST_CONTEXT = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
   @Mock
   private UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>

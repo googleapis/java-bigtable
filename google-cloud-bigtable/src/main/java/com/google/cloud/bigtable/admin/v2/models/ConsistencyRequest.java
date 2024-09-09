@@ -2,9 +2,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.bigtable.admin.v2.*;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
 import com.google.common.base.Preconditions;
-import org.checkerframework.checker.units.qual.C;
 
 public class ConsistencyRequest {
     private final String tableId;
@@ -27,7 +26,7 @@ public class ConsistencyRequest {
     }
 
     @InternalApi
-    public CheckConsistencyRequest toCheckConsistencyProto(RequestContext requestContext, String token) {
+    public CheckConsistencyRequest toCheckConsistencyProto(RequestContextNoAP requestContext, String token) {
         CheckConsistencyRequest.Builder builder = CheckConsistencyRequest.newBuilder();
         TableName tableName = TableName.of(requestContext.getProjectId(), requestContext.getInstanceId(), tableId);
 
@@ -44,7 +43,7 @@ public class ConsistencyRequest {
     }
 
     @InternalApi
-    public GenerateConsistencyTokenRequest toGenerateTokenProto(RequestContext requestContext) {
+    public GenerateConsistencyTokenRequest toGenerateTokenProto(RequestContextNoAP requestContext) {
         GenerateConsistencyTokenRequest.Builder builder =
                 GenerateConsistencyTokenRequest.newBuilder();
         TableName tableName = TableName.of(requestContext.getProjectId(), requestContext.getInstanceId(), tableId);

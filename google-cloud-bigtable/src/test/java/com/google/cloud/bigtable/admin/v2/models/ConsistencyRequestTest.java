@@ -2,10 +2,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
-import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
 import org.junit.Test;
-import org.junit.runner.Request;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
@@ -22,7 +20,7 @@ public class ConsistencyRequestTest {
     public void testToCheckConsistencyProtoWithStandard() {
         ConsistencyRequest consistencyRequest = ConsistencyRequest.getStandardConsistencyRequest(TABLE_ID);
 
-        RequestContext requestContext = RequestContext.create(PROJECT_ID, INSTANCE_ID, TABLE_ID);
+        RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
         CheckConsistencyRequest checkConsistencyRequest = consistencyRequest.toCheckConsistencyProto(requestContext, CONSISTENCY_TOKEN);
 
@@ -35,7 +33,7 @@ public class ConsistencyRequestTest {
     public void testToCheckConsistencyProtoWithDataBoost() {
         ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
 
-        RequestContext requestContext = RequestContext.create(PROJECT_ID, INSTANCE_ID, TABLE_ID);
+        RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
         CheckConsistencyRequest checkConsistencyRequest = consistencyRequest.toCheckConsistencyProto(requestContext, CONSISTENCY_TOKEN);
 
@@ -48,7 +46,7 @@ public class ConsistencyRequestTest {
     public void testToGenerateTokenProto() {
         ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
 
-        RequestContext requestContext = RequestContext.create(PROJECT_ID, INSTANCE_ID, TABLE_ID);
+        RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
         GenerateConsistencyTokenRequest generateRequest = consistencyRequest.toGenerateTokenProto(requestContext);
 
