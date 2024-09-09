@@ -18,7 +18,7 @@ public class ConsistencyRequestTest {
 
     @Test
     public void testToCheckConsistencyProtoWithStandard() {
-        ConsistencyRequest consistencyRequest = ConsistencyRequest.getStandardConsistencyRequest(TABLE_ID);
+        ConsistencyRequest consistencyRequest = ConsistencyRequest.forReplication(TABLE_ID);
 
         RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
@@ -31,7 +31,7 @@ public class ConsistencyRequestTest {
 
     @Test
     public void testToCheckConsistencyProtoWithDataBoost() {
-        ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
+        ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_ID);
 
         RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 
@@ -44,7 +44,7 @@ public class ConsistencyRequestTest {
 
     @Test
     public void testToGenerateTokenProto() {
-        ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
+        ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_ID);
 
         RequestContextNoAP requestContext = RequestContextNoAP.create(PROJECT_ID, INSTANCE_ID);
 

@@ -574,7 +574,7 @@ public class BigtableTableAdminClientTests {
     // Setup
     Mockito.when(mockStub.awaitConsistencyCallable()).thenReturn(mockAwaitConsistencyCallable);
 
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(TABLE_ID);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(TABLE_ID);
 
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 

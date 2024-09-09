@@ -62,7 +62,6 @@ import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

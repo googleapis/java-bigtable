@@ -239,7 +239,7 @@ public class BigtableTableAdminClientIT {
             .that(testEnvRule.env())
             .isNotInstanceOf(EmulatorEnv.class);
     tableAdmin.createTable(CreateTableRequest.of(tableId));
-    ConsistencyRequest consistencyRequest = ConsistencyRequest.getDataBoostConsistencyRequest(tableId);
+    ConsistencyRequest consistencyRequest = ConsistencyRequest.forDataBoost(tableId);
     tableAdmin.awaitConsistency(consistencyRequest);
   }
 
