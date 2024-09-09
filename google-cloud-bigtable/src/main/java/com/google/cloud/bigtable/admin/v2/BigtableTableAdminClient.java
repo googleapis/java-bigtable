@@ -62,7 +62,7 @@ import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.cloud.bigtable.admin.v2.stub.EnhancedBigtableTableAdminStub;
-import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
+import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -156,8 +156,8 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /** Constructs an instance of BigtableTableAdminClient with the given settings. */
   public static BigtableTableAdminClient create(@Nonnull BigtableTableAdminSettings settings)
       throws IOException {
-    RequestContextNoAP requestContext =
-        RequestContextNoAP.create(settings.getProjectId(), settings.getInstanceId());
+    TableAdminRequestContext requestContext =
+        TableAdminRequestContext.create(settings.getProjectId(), settings.getInstanceId());
     EnhancedBigtableTableAdminStub stub =
         EnhancedBigtableTableAdminStub.createEnhanced(settings.getStubSettings(), requestContext);
     return create(settings.getProjectId(), settings.getInstanceId(), stub);

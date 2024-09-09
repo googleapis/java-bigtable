@@ -36,7 +36,7 @@ import com.google.bigtable.admin.v2.CheckConsistencyResponse;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenResponse;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
-import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
+import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.Callable;
@@ -55,7 +55,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
   private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
   private final RetryingExecutor<CheckConsistencyResponse> executor;
 
-  private final RequestContextNoAP requestContext;
+  private final TableAdminRequestContext requestContext;
 
   static AwaitConsistencyCallable create(
       UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
@@ -63,7 +63,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
       ClientContext clientContext,
       RetrySettings pollingSettings,
-      RequestContextNoAP requestContext) {
+      TableAdminRequestContext requestContext) {
 
     RetryAlgorithm<CheckConsistencyResponse> retryAlgorithm =
         new RetryAlgorithm<>(
@@ -83,7 +83,7 @@ class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
           generateCallable,
       UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
       RetryingExecutor<CheckConsistencyResponse> executor,
-      RequestContextNoAP requestContext) {
+      TableAdminRequestContext requestContext) {
     this.generateCallable = generateCallable;
     this.checkCallable = checkCallable;
     this.executor = executor;

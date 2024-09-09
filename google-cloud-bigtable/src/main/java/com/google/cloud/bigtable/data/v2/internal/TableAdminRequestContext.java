@@ -31,11 +31,11 @@ import java.io.Serializable;
  */
 @InternalApi
 @AutoValue
-public abstract class RequestContextNoAP implements Serializable {
+public abstract class TableAdminRequestContext implements Serializable {
 
-  /** Creates a new instance of the {@link RequestContextNoAP}. */
-  public static RequestContextNoAP create(String projectId, String instanceId) {
-    return new AutoValue_RequestContextNoAP(projectId, instanceId);
+  /** Creates a new instance of the {@link TableAdminRequestContext}. */
+  public static TableAdminRequestContext create(String projectId, String instanceId) {
+    return new AutoValue_TableAdminRequestContext(projectId, instanceId);
   }
 
   /** The project id that the client is configured to target. */

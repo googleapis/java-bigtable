@@ -22,7 +22,7 @@ import com.google.bigtable.admin.v2.DataBoostReadLocalWrites;
 import com.google.bigtable.admin.v2.GenerateConsistencyTokenRequest;
 import com.google.bigtable.admin.v2.StandardReadRemoteWrites;
 import com.google.bigtable.admin.v2.TableName;
-import com.google.cloud.bigtable.data.v2.internal.RequestContextNoAP;
+import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
 import javax.annotation.Nonnull;
 
 @AutoValue
@@ -45,7 +45,7 @@ public abstract class ConsistencyRequest {
 
   @InternalApi
   public CheckConsistencyRequest toCheckConsistencyProto(
-      RequestContextNoAP requestContext, String token) {
+      TableAdminRequestContext requestContext, String token) {
     CheckConsistencyRequest.Builder builder = CheckConsistencyRequest.newBuilder();
     TableName tableName =
         TableName.of(requestContext.getProjectId(), requestContext.getInstanceId(), getTableId());
@@ -60,7 +60,8 @@ public abstract class ConsistencyRequest {
   }
 
   @InternalApi
-  public GenerateConsistencyTokenRequest toGenerateTokenProto(RequestContextNoAP requestContext) {
+  public GenerateConsistencyTokenRequest toGenerateTokenProto(
+      TableAdminRequestContext requestContext) {
     GenerateConsistencyTokenRequest.Builder builder = GenerateConsistencyTokenRequest.newBuilder();
     TableName tableName =
         TableName.of(requestContext.getProjectId(), requestContext.getInstanceId(), getTableId());
