@@ -43,147 +43,153 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 
 /**
- * Callable that waits until either replication or Data Boost has caught up to the point it was called.
+ * Callable that waits until either replication or Data Boost has caught up to the point it was
+ * called.
  *
  * <p>This callable wraps GenerateConsistencyToken and CheckConsistency RPCs. It will generate a
  * token then poll until isConsistent is true.
  */
 class AwaitConsistencyCallable extends UnaryCallable<ConsistencyRequest, Void> {
-    private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
-            generateCallable;
-    private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
-    private final RetryingExecutor<CheckConsistencyResponse> executor;
+  private final UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
+      generateCallable;
+  private final UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable;
+  private final RetryingExecutor<CheckConsistencyResponse> executor;
 
-    private final RequestContextNoAP requestContext;
+  private final RequestContextNoAP requestContext;
 
-    static AwaitConsistencyCallable create(
-            UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
-                    generateCallable,
-            UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
-            ClientContext clientContext,
-            RetrySettings pollingSettings,
-            RequestContextNoAP requestContext) {
+  static AwaitConsistencyCallable create(
+      UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
+          generateCallable,
+      UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
+      ClientContext clientContext,
+      RetrySettings pollingSettings,
+      RequestContextNoAP requestContext) {
 
-        RetryAlgorithm<CheckConsistencyResponse> retryAlgorithm =
-                new RetryAlgorithm<>(
-                        new PollResultAlgorithm(),
-                        new ExponentialPollAlgorithm(pollingSettings, clientContext.getClock()));
+    RetryAlgorithm<CheckConsistencyResponse> retryAlgorithm =
+        new RetryAlgorithm<>(
+            new PollResultAlgorithm(),
+            new ExponentialPollAlgorithm(pollingSettings, clientContext.getClock()));
 
-        RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
-                new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
+    RetryingExecutor<CheckConsistencyResponse> retryingExecutor =
+        new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-        return new AwaitConsistencyCallable(generateCallable, checkCallable, retryingExecutor, requestContext);
+    return new AwaitConsistencyCallable(
+        generateCallable, checkCallable, retryingExecutor, requestContext);
+  }
+
+  @VisibleForTesting
+  AwaitConsistencyCallable(
+      UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
+          generateCallable,
+      UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
+      RetryingExecutor<CheckConsistencyResponse> executor,
+      RequestContextNoAP requestContext) {
+    this.generateCallable = generateCallable;
+    this.checkCallable = checkCallable;
+    this.executor = executor;
+    this.requestContext = requestContext;
+  }
+
+  @Override
+  public ApiFuture<Void> futureCall(
+      final ConsistencyRequest consistencyRequest, final ApiCallContext apiCallContext) {
+    ApiFuture<GenerateConsistencyTokenResponse> tokenFuture =
+        generateToken(consistencyRequest.toGenerateTokenProto(requestContext), apiCallContext);
+
+    return ApiFutures.transformAsync(
+        tokenFuture,
+        new ApiAsyncFunction<GenerateConsistencyTokenResponse, Void>() {
+          @Override
+          public ApiFuture<Void> apply(GenerateConsistencyTokenResponse input) {
+            CheckConsistencyRequest request =
+                consistencyRequest.toCheckConsistencyProto(
+                    requestContext, input.getConsistencyToken());
+            return pollToken(request, apiCallContext);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  private ApiFuture<GenerateConsistencyTokenResponse> generateToken(
+      GenerateConsistencyTokenRequest generateRequest, ApiCallContext context) {
+    return generateCallable.futureCall(generateRequest, context);
+  }
+
+  private ApiFuture<Void> pollToken(CheckConsistencyRequest request, ApiCallContext context) {
+    AttemptCallable<CheckConsistencyRequest, CheckConsistencyResponse> attemptCallable =
+        new AttemptCallable<>(checkCallable, request, context);
+    RetryingFuture<CheckConsistencyResponse> retryingFuture =
+        executor.createFuture(attemptCallable);
+    attemptCallable.setExternalFuture(retryingFuture);
+    attemptCallable.call();
+
+    return ApiFutures.transform(
+        retryingFuture,
+        new ApiFunction<CheckConsistencyResponse, Void>() {
+          @Override
+          public Void apply(CheckConsistencyResponse input) {
+            return null;
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /** A callable representing an attempt to make an RPC call. */
+  private static class AttemptCallable<RequestT, ResponseT> implements Callable<ResponseT> {
+    private final UnaryCallable<RequestT, ResponseT> callable;
+    private final RequestT request;
+
+    private volatile RetryingFuture<ResponseT> externalFuture;
+    private volatile ApiCallContext callContext;
+
+    AttemptCallable(
+        UnaryCallable<RequestT, ResponseT> callable, RequestT request, ApiCallContext callContext) {
+      this.callable = callable;
+      this.request = request;
+      this.callContext = callContext;
     }
 
-    @VisibleForTesting
-    AwaitConsistencyCallable(
-            UnaryCallable<GenerateConsistencyTokenRequest, GenerateConsistencyTokenResponse>
-                    generateCallable,
-            UnaryCallable<CheckConsistencyRequest, CheckConsistencyResponse> checkCallable,
-            RetryingExecutor<CheckConsistencyResponse> executor,
-            RequestContextNoAP requestContext) {
-        this.generateCallable = generateCallable;
-        this.checkCallable = checkCallable;
-        this.executor = executor;
-        this.requestContext = requestContext;
+    void setExternalFuture(RetryingFuture<ResponseT> externalFuture) {
+      this.externalFuture = externalFuture;
     }
 
     @Override
-    public ApiFuture<Void> futureCall(final ConsistencyRequest consistencyRequest, final ApiCallContext apiCallContext) {
-        ApiFuture<GenerateConsistencyTokenResponse> tokenFuture = generateToken(consistencyRequest.toGenerateTokenProto(requestContext), apiCallContext);
+    public ResponseT call() {
+      try {
+        // NOTE: unlike gax's AttemptCallable, this ignores rpc timeouts
+        externalFuture.setAttemptFuture(new NonCancellableFuture<ResponseT>());
+        if (externalFuture.isDone()) {
+          return null;
+        }
+        ApiFuture<ResponseT> internalFuture = callable.futureCall(request, callContext);
+        externalFuture.setAttemptFuture(internalFuture);
+      } catch (Throwable e) {
+        externalFuture.setAttemptFuture(ApiFutures.<ResponseT>immediateFailedFuture(e));
+      }
 
-        return ApiFutures.transformAsync(
-                tokenFuture,
-                new ApiAsyncFunction<GenerateConsistencyTokenResponse, Void>() {
-                    @Override
-                    public ApiFuture<Void> apply(GenerateConsistencyTokenResponse input) {
-                        CheckConsistencyRequest request = consistencyRequest.toCheckConsistencyProto(requestContext, input.getConsistencyToken());
-                        return pollToken(request, apiCallContext);
-                    }
-                },
-                MoreExecutors.directExecutor());
+      return null;
+    }
+  }
+
+  /**
+   * A polling algorithm for waiting for a consistent {@link CheckConsistencyResponse}. Please note
+   * that this class doesn't handle retryable errors and expects the underlying callable chain to
+   * handle this.
+   */
+  private static class PollResultAlgorithm
+      implements ResultRetryAlgorithm<CheckConsistencyResponse> {
+    @Override
+    public TimedAttemptSettings createNextAttempt(
+        Throwable prevThrowable,
+        CheckConsistencyResponse prevResponse,
+        TimedAttemptSettings prevSettings) {
+      return null;
     }
 
-    private ApiFuture<GenerateConsistencyTokenResponse> generateToken(
-            GenerateConsistencyTokenRequest generateRequest, ApiCallContext context) {
-        return generateCallable.futureCall(generateRequest, context);
+    @Override
+    public boolean shouldRetry(Throwable prevThrowable, CheckConsistencyResponse prevResponse)
+        throws CancellationException {
+      return prevResponse != null && !prevResponse.getConsistent();
     }
-
-    private ApiFuture<Void> pollToken(CheckConsistencyRequest request, ApiCallContext context) {
-        AttemptCallable<CheckConsistencyRequest, CheckConsistencyResponse> attemptCallable =
-                new AttemptCallable<>(checkCallable, request, context);
-        RetryingFuture<CheckConsistencyResponse> retryingFuture =
-                executor.createFuture(attemptCallable);
-        attemptCallable.setExternalFuture(retryingFuture);
-        attemptCallable.call();
-
-        return ApiFutures.transform(
-                retryingFuture,
-                new ApiFunction<CheckConsistencyResponse, Void>() {
-                    @Override
-                    public Void apply(CheckConsistencyResponse input) {
-                        return null;
-                    }
-                },
-                MoreExecutors.directExecutor());
-    }
-
-    /** A callable representing an attempt to make an RPC call. */
-    private static class AttemptCallable<RequestT, ResponseT> implements Callable<ResponseT> {
-        private final UnaryCallable<RequestT, ResponseT> callable;
-        private final RequestT request;
-
-        private volatile RetryingFuture<ResponseT> externalFuture;
-        private volatile ApiCallContext callContext;
-
-        AttemptCallable(
-                UnaryCallable<RequestT, ResponseT> callable, RequestT request, ApiCallContext callContext) {
-            this.callable = callable;
-            this.request = request;
-            this.callContext = callContext;
-        }
-
-        void setExternalFuture(RetryingFuture<ResponseT> externalFuture) {
-            this.externalFuture = externalFuture;
-        }
-
-        @Override
-        public ResponseT call() {
-            try {
-                // NOTE: unlike gax's AttemptCallable, this ignores rpc timeouts
-                externalFuture.setAttemptFuture(new NonCancellableFuture<ResponseT>());
-                if (externalFuture.isDone()) {
-                    return null;
-                }
-                ApiFuture<ResponseT> internalFuture = callable.futureCall(request, callContext);
-                externalFuture.setAttemptFuture(internalFuture);
-            } catch (Throwable e) {
-                externalFuture.setAttemptFuture(ApiFutures.<ResponseT>immediateFailedFuture(e));
-            }
-
-            return null;
-        }
-    }
-
-    /**
-     * A polling algorithm for waiting for a consistent {@link CheckConsistencyResponse}. Please note
-     * that this class doesn't handle retryable errors and expects the underlying callable chain to
-     * handle this.
-     */
-    private static class PollResultAlgorithm
-            implements ResultRetryAlgorithm<CheckConsistencyResponse> {
-        @Override
-        public TimedAttemptSettings createNextAttempt(
-                Throwable prevThrowable,
-                CheckConsistencyResponse prevResponse,
-                TimedAttemptSettings prevSettings) {
-            return null;
-        }
-
-        @Override
-        public boolean shouldRetry(Throwable prevThrowable, CheckConsistencyResponse prevResponse)
-                throws CancellationException {
-            return prevResponse != null && !prevResponse.getConsistent();
-        }
-    }
+  }
 }

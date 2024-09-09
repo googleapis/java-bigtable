@@ -63,12 +63,17 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
       optimizeRestoredTableOperationBaseCallable;
 
   public static EnhancedBigtableTableAdminStub createEnhanced(
-      BigtableTableAdminStubSettings settings, RequestContextNoAP requestContext) throws IOException {
-    return new EnhancedBigtableTableAdminStub(settings, ClientContext.create(settings), requestContext);
+      BigtableTableAdminStubSettings settings, RequestContextNoAP requestContext)
+      throws IOException {
+    return new EnhancedBigtableTableAdminStub(
+        settings, ClientContext.create(settings), requestContext);
   }
 
   private EnhancedBigtableTableAdminStub(
-      BigtableTableAdminStubSettings settings, ClientContext clientContext, RequestContextNoAP requestContext) throws IOException {
+      BigtableTableAdminStubSettings settings,
+      ClientContext clientContext,
+      RequestContextNoAP requestContext)
+      throws IOException {
     super(settings, clientContext);
 
     this.settings = settings;
@@ -85,29 +90,32 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   }
 
   private AwaitConsistencyCallable createAwaitConsistencyCallable() {
-      // TODO(igorbernstein2): expose polling settings
-      RetrySettings pollingSettings =
-              RetrySettings.newBuilder()
-                      // use overall timeout from checkConsistencyCallable
-                      // NOTE: The overall timeout might exceed this value due to underlying retries
-                      .setTotalTimeout(
-                              settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
-                      // Use constant polling with jitter
-                      .setInitialRetryDelay(Duration.ofSeconds(10))
-                      .setRetryDelayMultiplier(1.0)
-                      .setMaxRetryDelay(Duration.ofSeconds(10))
-                      .setJittered(true)
-                      // These rpc timeouts are ignored, instead the rpc timeouts defined for
-                      // generateConsistencyToken and checkConsistency callables will be used.
-                      .setInitialRpcTimeout(Duration.ZERO)
-                      .setMaxRpcTimeout(Duration.ZERO)
-                      .setRpcTimeoutMultiplier(1.0)
-                      .build();
+    // TODO(igorbernstein2): expose polling settings
+    RetrySettings pollingSettings =
+        RetrySettings.newBuilder()
+            // use overall timeout from checkConsistencyCallable
+            // NOTE: The overall timeout might exceed this value due to underlying retries
+            .setTotalTimeout(
+                settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
+            // Use constant polling with jitter
+            .setInitialRetryDelay(Duration.ofSeconds(10))
+            .setRetryDelayMultiplier(1.0)
+            .setMaxRetryDelay(Duration.ofSeconds(10))
+            .setJittered(true)
+            // These rpc timeouts are ignored, instead the rpc timeouts defined for
+            // generateConsistencyToken and checkConsistency callables will be used.
+            .setInitialRpcTimeout(Duration.ZERO)
+            .setMaxRpcTimeout(Duration.ZERO)
+            .setRpcTimeoutMultiplier(1.0)
+            .build();
 
-      return AwaitConsistencyCallable.create(
-              generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings, requestContext);
+    return AwaitConsistencyCallable.create(
+        generateConsistencyTokenCallable(),
+        checkConsistencyCallable(),
+        clientContext,
+        pollingSettings,
+        requestContext);
   }
-
 
   // Plug into gax operation infrastructure
   // gax assumes that all operations are started immediately and doesn't provide support for child
@@ -205,7 +213,7 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
   }
 
   public UnaryCallable<ConsistencyRequest, Void> awaitConsistencyCallable() {
-      return awaitConsistencyCallable;
+    return awaitConsistencyCallable;
   }
 
   public OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>

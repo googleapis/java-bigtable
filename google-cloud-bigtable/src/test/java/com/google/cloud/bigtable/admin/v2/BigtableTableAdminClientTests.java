@@ -579,12 +579,12 @@ public class BigtableTableAdminClientTests {
     final AtomicBoolean wasCalled = new AtomicBoolean(false);
 
     Mockito.when(mockAwaitConsistencyCallable.futureCall(consistencyRequest))
-            .thenAnswer(
-                    (Answer<ApiFuture<Void>>)
-                            invocationOnMock -> {
-                              wasCalled.set(true);
-                              return ApiFutures.immediateFuture(null);
-                            });
+        .thenAnswer(
+            (Answer<ApiFuture<Void>>)
+                invocationOnMock -> {
+                  wasCalled.set(true);
+                  return ApiFutures.immediateFuture(null);
+                });
 
     // Execute
     adminClient.awaitConsistency(consistencyRequest);

@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.admin.v2.stub;
 import com.google.api.core.ApiFuture;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.bigtable.admin.v2.CheckConsistencyRequest;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.common.annotations.VisibleForTesting;

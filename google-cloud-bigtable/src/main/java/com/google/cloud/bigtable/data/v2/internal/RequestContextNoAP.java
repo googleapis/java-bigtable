@@ -22,9 +22,9 @@ import java.io.Serializable;
 /**
  * Contains information necessary to construct Bigtable protobuf requests from user facing models.
  *
- * <p>The intention is to extract repetitive details like instance names into a
- * configurable values in {@link com.google.cloud.bigtable.data.v2.BigtableDataSettings} and expose
- * them (via this class) to each wrapper's toProto method.
+ * <p>The intention is to extract repetitive details like instance names into a configurable values
+ * in {@link com.google.cloud.bigtable.data.v2.BigtableDataSettings} and expose them (via this
+ * class) to each wrapper's toProto method.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -33,14 +33,14 @@ import java.io.Serializable;
 @AutoValue
 public abstract class RequestContextNoAP implements Serializable {
 
-    /** Creates a new instance of the {@link RequestContextNoAP}. */
-    public static RequestContextNoAP create(String projectId, String instanceId) {
-        return new AutoValue_RequestContextNoAP(projectId, instanceId);
-    }
+  /** Creates a new instance of the {@link RequestContextNoAP}. */
+  public static RequestContextNoAP create(String projectId, String instanceId) {
+    return new AutoValue_RequestContextNoAP(projectId, instanceId);
+  }
 
-    /** The project id that the client is configured to target. */
-    public abstract String getProjectId();
+  /** The project id that the client is configured to target. */
+  public abstract String getProjectId();
 
-    /** The instance id that the client is configured to target. */
-    public abstract String getInstanceId();
+  /** The instance id that the client is configured to target. */
+  public abstract String getInstanceId();
 }
