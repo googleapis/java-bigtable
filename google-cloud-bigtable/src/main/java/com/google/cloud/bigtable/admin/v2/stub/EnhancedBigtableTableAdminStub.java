@@ -84,29 +84,29 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
     return AwaitReplicationCallable.create(awaitConsistencyCallable);
   }
 
-    private AwaitConsistencyCallable createAwaitConsistencyCallable() {
-        // TODO(igorbernstein2): expose polling settings
-        RetrySettings pollingSettings =
-                RetrySettings.newBuilder()
-                        // use overall timeout from checkConsistencyCallable
-                        // NOTE: The overall timeout might exceed this value due to underlying retries
-                        .setTotalTimeout(
-                                settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
-                        // Use constant polling with jitter
-                        .setInitialRetryDelay(Duration.ofSeconds(10))
-                        .setRetryDelayMultiplier(1.0)
-                        .setMaxRetryDelay(Duration.ofSeconds(10))
-                        .setJittered(true)
-                        // These rpc timeouts are ignored, instead the rpc timeouts defined for
-                        // generateConsistencyToken and checkConsistency callables will be used.
-                        .setInitialRpcTimeout(Duration.ZERO)
-                        .setMaxRpcTimeout(Duration.ZERO)
-                        .setRpcTimeoutMultiplier(1.0)
-                        .build();
+  private AwaitConsistencyCallable createAwaitConsistencyCallable() {
+      // TODO(igorbernstein2): expose polling settings
+      RetrySettings pollingSettings =
+              RetrySettings.newBuilder()
+                      // use overall timeout from checkConsistencyCallable
+                      // NOTE: The overall timeout might exceed this value due to underlying retries
+                      .setTotalTimeout(
+                              settings.checkConsistencySettings().getRetrySettings().getTotalTimeout())
+                      // Use constant polling with jitter
+                      .setInitialRetryDelay(Duration.ofSeconds(10))
+                      .setRetryDelayMultiplier(1.0)
+                      .setMaxRetryDelay(Duration.ofSeconds(10))
+                      .setJittered(true)
+                      // These rpc timeouts are ignored, instead the rpc timeouts defined for
+                      // generateConsistencyToken and checkConsistency callables will be used.
+                      .setInitialRpcTimeout(Duration.ZERO)
+                      .setMaxRpcTimeout(Duration.ZERO)
+                      .setRpcTimeoutMultiplier(1.0)
+                      .build();
 
-        return AwaitConsistencyCallable.create(
-                generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings, requestContext);
-    }
+      return AwaitConsistencyCallable.create(
+              generateConsistencyTokenCallable(), checkConsistencyCallable(), clientContext, pollingSettings, requestContext);
+  }
 
 
   // Plug into gax operation infrastructure
@@ -204,9 +204,9 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
     return awaitReplicationCallable;
   }
 
-    public UnaryCallable<ConsistencyRequest, Void> awaitConsistencyCallable() {
-        return awaitConsistencyCallable;
-    }
+  public UnaryCallable<ConsistencyRequest, Void> awaitConsistencyCallable() {
+      return awaitConsistencyCallable;
+  }
 
   public OperationCallable<Void, Empty, OptimizeRestoredTableMetadata>
       awaitOptimizeRestoredTableCallable() {
