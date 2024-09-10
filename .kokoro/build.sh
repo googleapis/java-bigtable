@@ -30,13 +30,6 @@ echo ${JOB_TYPE}
 # Store the current Java version since the version may change when installing sdk-platform-java
 current_java_home=$JAVA_HOME
 
-# testing-infra-docker has Java 11 installed in java8 docker container. Use this as sdk-platform-java
-# needs Java 11+ to run with GraalVM. For GH actions, JAVA11_HOME does not exist and would skip this.
-if [ ! -z "${JAVA11_HOME}" ]; then
-  export JAVA_HOME="${JAVA11_HOME}"
-  export PATH=${JAVA_HOME}/bin:$PATH
-fi
-
 # Get the current proto runtime version used in this repo
 CURRENT_PROTO_VERSION=$(mvn -ntp help:effective-pom |
 sed -n "/<artifactId>protobuf-java<\/artifactId>/,/<\/dependency>/ {
@@ -53,6 +46,13 @@ echo "The latest proto version is: ${LATEST_PROTO_VERSION}"
 
 # Only reinstall shared-deps again to test for a newer proto version
 if [[ "${CURRENT_PROTO_VERSION}" != "${LATEST_PROTO_VERSION}" ]]; then
+  # testing-infra-docker has Java 11 installed in java8 docker container. Use this as sdk-platform-java
+  # needs Java 11+ to run with GraalVM. For GH actions, JAVA11_HOME does not exist and would skip this.
+  if [ ! -z "${JAVA11_HOME}" ]; then
+    export JAVA_HOME="${JAVA11_HOME}"
+    export PATH=${JAVA_HOME}/bin:$PATH
+  fi
+
   pushd /tmp
   git clone https://github.com/googleapis/sdk-platform-java.git
   pushd sdk-platform-java
@@ -90,13 +90,17 @@ if [[ "${CURRENT_PROTO_VERSION}" != "${LATEST_PROTO_VERSION}" ]]; then
     if grep -q "sdk-platform-java-config" "${pom}"; then
       echo "Updating the pom: ${pom} to use shared-deps version: ${SHARED_DEPS_VERSION}"
       sed -i "/<artifactId>sdk-platform-java-config<\/artifactId>/,/<\/parent>/ s/<version>.*<\/version>/<version>$SHARED_DEPS_VERSION<\/version>/" "${pom}"
+#      xmlstarlet ed --inplace -N x="http://maven.apache.org/POM/4.0.0" \
+#        -u "//x:project/x:parent[x:artifactId='sdk-platform-java-config']/x:version" \
+#        -v "${SHARED_DEPS_VERSION}" \
+#        "${pom}"
     fi
   done
-fi
 
-# Reset back to the original Java version if changed
-export JAVA_HOME="${current_java_home}"
-export PATH=${JAVA_HOME}/bin:$PATH
+  # Reset back to the original Java version if changed
+  export JAVA_HOME="${current_java_home}"
+  export PATH=${JAVA_HOME}/bin:$PATH
+fi
 
 # attempt to install 3 times with exponential backoff (starting with 10 seconds)
 retry_with_backoff 3 10 \
