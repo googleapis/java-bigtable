@@ -25,6 +25,12 @@
     <difference>
         <differenceType>7006</differenceType>
         <className>com/google/bigtable/admin/v2/**</className>
+        <method>* getDefaultInstanceForType()</method>
+        <to>**</to>
+    </difference>
+    <difference>
+        <differenceType>7006</differenceType>
+        <className>com/google/bigtable/admin/v2/**</className>
         <method>* addRepeatedField(*)</method>
         <to>**</to>
     </difference>
