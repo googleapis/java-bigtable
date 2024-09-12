@@ -78,11 +78,11 @@ public class EnhancedBigtableTableAdminStub extends GrpcBigtableTableAdminStub {
 
     this.settings = settings;
     this.clientContext = clientContext;
+    this.requestContext = requestContext;
     this.awaitConsistencyCallable = createAwaitConsistencyCallable();
     this.awaitReplicationCallable = createAwaitReplicationCallable();
     this.optimizeRestoredTableOperationBaseCallable =
         createOptimizeRestoredTableOperationBaseCallable();
-    this.requestContext = requestContext;
   }
 
   private AwaitReplicationCallable createAwaitReplicationCallable() {

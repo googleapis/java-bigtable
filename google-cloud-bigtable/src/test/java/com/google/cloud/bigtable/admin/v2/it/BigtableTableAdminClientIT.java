@@ -47,6 +47,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -230,9 +231,11 @@ public class BigtableTableAdminClientIT {
 
   /**
    * Note: Data Boost consistency is essentially a check that the data you are trying to read was
-   * written at least 35 minutes ago.
+   * written at least 35 minutes ago. The test thus takes ~35 minutes, and we should add a separate profile
+   * to run this concurrently with the other tests.
    */
   @Test
+  @Ignore
   public void awaitDataBoostConsistency() {
     assume()
         .withMessage("Data Boost consistency not supported on Emulator")
