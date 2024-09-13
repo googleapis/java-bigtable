@@ -231,8 +231,8 @@ public class BigtableTableAdminClientIT {
 
   /**
    * Note: Data Boost consistency is essentially a check that the data you are trying to read was
-   * written at least 35 minutes ago. The test thus takes ~35 minutes, and we should add a separate profile
-   * to run this concurrently with the other tests.
+   * written at least 35 minutes ago. The test thus takes ~35 minutes, and we should add a separate
+   * profile to run this concurrently with the other tests.
    */
   @Test
   @Ignore
