@@ -101,4 +101,14 @@ public class CreateAppProfileRequestTest {
                 .setComputeBillingOwner(DataBoostIsolationReadOnly.ComputeBillingOwner.HOST_PAYS)
                 .build());
   }
+
+  @Test
+  public void testRowAffinity() {
+    CreateAppProfileRequest wrapper =
+            CreateAppProfileRequest.of("my-instance", "my-profile")
+                    .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity());
+
+    assertThat(wrapper.toProto("my-project").getAppProfile().getMultiClusterRoutingUseAny())
+            .isEqualTo(MultiClusterRoutingUseAny.newBuilder().setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());
+  }
 }
