@@ -36,7 +36,7 @@ public class SmokeTest {
   private static final Logger logger = Logger.getLogger(SmokeTest.class.getName());
 
   public static void main(String[] args) {
-    String projectId = "google.com:cloud-bigtable-dev"; // my-gcp-project-id
+    String projectId = "autonomous-mote-782"; // my-gcp-project-id
     String instanceId = System.getProperty("bigtable.instance"); // my-bigtable-instance-id
     String tableId = System.getProperty("bigtable.table"); // my-bigtable-table-id
 
