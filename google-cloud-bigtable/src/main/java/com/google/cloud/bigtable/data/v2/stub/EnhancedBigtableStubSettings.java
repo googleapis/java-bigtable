@@ -371,7 +371,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       // Attempts direct access to CBT service over gRPC to improve throughput,
       // whether the attempt is allowed is totally controlled by service owner.
       grpcTransportProviderBuilder.setAttemptDirectPathXds().setAttemptDirectPath(true).setAllowNonDefaultServiceAccount(true);
-      System.out.println("We configured directpath properly");
 
     }
 
@@ -391,9 +390,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   @SuppressWarnings("WeakerAccess")
   public static TransportChannelProvider defaultTransportChannelProvider() {
-    InstantiatingGrpcChannelProvider provider = defaultGrpcTransportProviderBuilder().build();
-    System.out.println("What we built [provider.canUserDirectpath()]: " + provider.canUseDirectPath());
-    return provider;
+    return defaultGrpcTransportProviderBuilder().build();
   }
 
   /** Returns a builder for the default credentials for this service. */
