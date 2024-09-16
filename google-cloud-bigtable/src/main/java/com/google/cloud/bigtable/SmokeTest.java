@@ -73,7 +73,7 @@ public class SmokeTest {
     // the "close" method on the client to safely clean up any remaining background resources.
     try (BigtableDataClient dataClient = BigtableDataClient.create(settings.build())) {
       while (true) {
-        sleep(100);
+        sleep(1000);
         String rowKey = UUID.randomUUID().toString();
         String familyId = "cf";
 
