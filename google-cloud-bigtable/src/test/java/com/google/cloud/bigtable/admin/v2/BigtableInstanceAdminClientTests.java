@@ -1035,6 +1035,135 @@ public class BigtableInstanceAdminClientTests {
   }
 
   @Test
+  public void testCreateAppProfileAddRowAffinity() {
+    // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
+    com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
+            com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
+                    .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+                    .setAppProfileId(APP_PROFILE_ID)
+                    .setAppProfile(
+                            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                                    .setDescription("my description")
+                                    .setMultiClusterRoutingUseAny(
+                                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
+                                                    .newBuilder()
+                                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())))
+                    .build();
+
+    com.google.bigtable.admin.v2.AppProfile expectedResponse =
+            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                    .setName(APP_PROFILE_NAME)
+                    .setDescription("my description")
+                    .setMultiClusterRoutingUseAny(
+                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
+                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()))
+                    .build();
+
+    Mockito.when(mockCreateAppProfileCallable.futureCall(expectedRequest))
+            .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    AppProfile actualResult =
+            adminClient.createAppProfile(
+                    CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
+                            .setDescription("my description")
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity()));
+
+    // Verify
+    assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testCreateAppProfileAddRowAffinityAddMultipleClusterIds() {
+    // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
+    com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
+            com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
+                    .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+                    .setAppProfileId(APP_PROFILE_ID)
+                    .setAppProfile(
+                            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                                    .setDescription("my description")
+                                    .setMultiClusterRoutingUseAny(
+                                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
+                                                    .newBuilder()
+                                                    .addClusterIds("cluster-id-1")
+                                                    .addClusterIds("cluster-id-2")
+                                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())))
+                    .build();
+
+    com.google.bigtable.admin.v2.AppProfile expectedResponse =
+            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                    .setName(APP_PROFILE_NAME)
+                    .setDescription("my description")
+                    .setMultiClusterRoutingUseAny(
+                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
+                                    .addClusterIds("cluster-id-1")
+                                    .addClusterIds("cluster-id-2")
+                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()))
+                    .build();
+
+    Mockito.when(mockCreateAppProfileCallable.futureCall(expectedRequest))
+            .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    AppProfile actualResult =
+            adminClient.createAppProfile(
+                    CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
+                            .setDescription("my description")
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2")));
+
+    // Verify
+    assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testCreateAppProfileAddRowAffinityAddMultipleClusterIdsWithList() {
+    // Setup
+    Mockito.when(mockStub.createAppProfileCallable()).thenReturn(mockCreateAppProfileCallable);
+
+    com.google.bigtable.admin.v2.CreateAppProfileRequest expectedRequest =
+            com.google.bigtable.admin.v2.CreateAppProfileRequest.newBuilder()
+                    .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+                    .setAppProfileId(APP_PROFILE_ID)
+                    .setAppProfile(
+                            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                                    .setDescription("my description")
+                                    .setMultiClusterRoutingUseAny(
+                                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny
+                                                    .newBuilder()
+                                                    .addAllClusterIds(ImmutableList.of("cluster-id-1", "cluster-id-2"))
+                                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())))
+                    .build();
+
+    com.google.bigtable.admin.v2.AppProfile expectedResponse =
+            com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                    .setName(APP_PROFILE_NAME)
+                    .setDescription("my description")
+                    .setMultiClusterRoutingUseAny(
+                            com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
+                                    .addAllClusterIds(ImmutableList.of("cluster-id-1", "cluster-id-2"))
+                                    .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()))
+                    .build();
+
+    Mockito.when(mockCreateAppProfileCallable.futureCall(expectedRequest))
+            .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    AppProfile actualResult =
+            adminClient.createAppProfile(
+                    CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
+                            .setDescription("my description")
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2")));
+
+    // Verify
+    assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));
+  }
+
+  @Test
   public void testGetAppProfile() {
     // Setup
     Mockito.when(mockStub.getAppProfileCallable()).thenReturn(mockGetAppProfileCallable);
