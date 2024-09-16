@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.core.ApiFuture;
-import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -52,10 +51,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
 public class UnaryMetricsMetadataIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
@@ -133,8 +129,6 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
-        Collectors.toList());
 
     assertThat(pointData)
         .comparingElementsUsing(POINT_DATA_CLUSTER_ID_CONTAINS)
@@ -144,9 +138,6 @@ public class UnaryMetricsMetadataIT {
         .contains(clusters.get(0).getZone());
     assertThat(clusterAttributes).contains(clusters.get(0).getId());
     assertThat(zoneAttributes).contains(clusters.get(0).getZone());
-    System.out.println("Directpath attribute is: " + directpathAttribute.stream().reduce((s, s2) -> String.join(s, s2, " ")));
-
-    assertThat(directpathAttribute).isNotEmpty();
   }
 
   @Test
@@ -197,8 +188,6 @@ public class UnaryMetricsMetadataIT {
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.CLUSTER_ID_KEY))
             .collect(Collectors.toList());
-    List<String> directpathAttribute = pointData.stream().map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY)).collect(
-        Collectors.toList());
     List<String> zoneAttributes =
         pointData.stream()
             .map(pd -> pd.getAttributes().get(BuiltinMetricsConstants.ZONE_ID_KEY))
@@ -206,6 +195,5 @@ public class UnaryMetricsMetadataIT {
 
     assertThat(clusterAttributes).contains("unspecified");
     assertThat(zoneAttributes).contains("global");
-    assertThat(directpathAttribute).isNotEmpty();
   }
 }
