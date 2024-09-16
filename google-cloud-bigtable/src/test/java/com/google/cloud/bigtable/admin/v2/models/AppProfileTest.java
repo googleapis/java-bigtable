@@ -291,4 +291,48 @@ public class AppProfileTest {
             AppProfile.DataBoostIsolationReadOnlyPolicy.of(
                 AppProfile.ComputeBillingOwner.UNSPECIFIED));
   }
+
+  @Test
+  public void testFromProtoWithRowAffinityNoClusterGroup() {
+    AppProfile profile =
+            AppProfile.fromProto(
+                    com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                            .setName(AppProfileName.of("my-project", "my-instance", "my-profile").toString())
+                            .setDescription("my description")
+                            .setMultiClusterRoutingUseAny(
+                                    com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
+                                            .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+                                            .build())
+                            .setEtag("my-etag")
+                            .build());
+
+    assertThat(profile.getInstanceId()).isEqualTo("my-instance");
+    assertThat(profile.getId()).isEqualTo("my-profile");
+    assertThat(profile.getDescription()).isEqualTo("my description");
+    System.out.println(profile.getPolicy());
+    System.out.println(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity());
+    assertThat(profile.getPolicy())
+            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity());
+  }
+  @Test
+  public void testFromProtoWithRowAffinityClusterGroup() {
+    AppProfile profile =
+            AppProfile.fromProto(
+                    com.google.bigtable.admin.v2.AppProfile.newBuilder()
+                            .setName(AppProfileName.of("my-project", "my-instance", "my-profile").toString())
+                            .setDescription("my description")
+                            .setMultiClusterRoutingUseAny(
+                                    com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.newBuilder()
+                                            .addAllClusterIds(ImmutableList.of("cluster-id-1", "cluster-id-2"))
+                                            .setRowAffinity(com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+                                            .build())
+                            .setEtag("my-etag")
+                            .build());
+
+    assertThat(profile.getInstanceId()).isEqualTo("my-instance");
+    assertThat(profile.getId()).isEqualTo("my-profile");
+    assertThat(profile.getDescription()).isEqualTo("my description");
+    assertThat(profile.getPolicy())
+            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2"));
+  }
 }

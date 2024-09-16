@@ -69,6 +69,10 @@ public final class AppProfile {
   @SuppressWarnings("WeakerAccess")
   public RoutingPolicy getPolicy() {
     if (proto.hasMultiClusterRoutingUseAny()) {
+      if (proto.getMultiClusterRoutingUseAny().hasRowAffinity()) {
+        return MultiClusterRoutingPolicy.ofWithRowAffinity(
+          ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
+      }
       return MultiClusterRoutingPolicy.of(
           ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
     } else if (proto.hasSingleClusterRouting()) {
@@ -265,6 +269,32 @@ public final class AppProfile {
     public static MultiClusterRoutingPolicy of(Set<String> clusterIds) {
       return new MultiClusterRoutingPolicy(
           MultiClusterRoutingUseAny.newBuilder().addAllClusterIds(clusterIds).build());
+    }
+
+    /** Creates a new instance of {@link MultiClusterRoutingPolicy}. */
+    public static MultiClusterRoutingPolicy ofWithRowAffinity() {
+      return new MultiClusterRoutingPolicy(MultiClusterRoutingUseAny.newBuilder()
+              .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());
+    }
+
+    /**
+     * Creates a new instance of {@link MultiClusterRoutingPolicy} with row affinity enabled and specified cluster ids to
+     * route to.
+     */
+    public static MultiClusterRoutingPolicy ofWithRowAffinity(String... clusterIds) {
+      return ofWithRowAffinity(ImmutableSet.copyOf(clusterIds));
+    }
+
+    /**
+     * Creates a new instance of {@link MultiClusterRoutingPolicy} with specified cluster ids to
+     * route to.
+     */
+    public static MultiClusterRoutingPolicy ofWithRowAffinity(Set<String> clusterIds) {
+      return new MultiClusterRoutingPolicy(
+              MultiClusterRoutingUseAny.newBuilder()
+                      .addAllClusterIds(clusterIds)
+                      .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+                      .build());
     }
 
     /*
