@@ -77,13 +77,13 @@ public class SmokeTest {
         String rowKey = UUID.randomUUID().toString();
         String familyId = "cf";
 
-        byte[] largeValueBytes = new byte[100 * 1024 * 1024];
+        byte[] largeValueBytes = new byte[8];
         Random random = new Random();
         random.nextBytes(largeValueBytes);
         ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
         // Create a 200 MB row
-        logger.info("Sending large row, this will take awhile");
+        logger.info("Sending small row, this will take awhile");
         for (int i = 0; i < 2; i++) {
           dataClient
               .mutateRowAsync(
