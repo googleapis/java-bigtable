@@ -505,6 +505,7 @@
                     <bigtable.enable-grpc-logs>${bigtable.enable-grpc-logs}</bigtable.enable-grpc-logs>
                     <bigtable.grpc-log-dir>${project.build.directory}/test-grpc-logs/directpath-it</bigtable.grpc-log-dir>
                     <bigtable.connection-mode>REQUIRE_DIRECT_PATH</bigtable.connection-mode>
+                    <bigtable.test-monitoring-endpoint>test-monitoring.sandbox.googleapis.com</bigtable.test-monitoring-endpoint>
                   </systemPropertyVariables>
                   <environmentVariables>
                     <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>

@@ -76,7 +76,6 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysResponse;
-import com.google.cloud.Tuple;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
@@ -152,7 +151,6 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import io.opentelemetry.api.OpenTelemetry;
-import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import java.io.IOException;
 import java.net.URI;
@@ -160,9 +158,7 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -355,19 +351,24 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID, TagValue.create(instanceId))
             .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID, TagValue.create(appProfileId));
 
-    ImmutableMap.Builder<String, String> spanAttributes= // Annotate traces with the same tags as metrics
-        ImmutableMap.<String,String>builder()
-        .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), projectId)
-        .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), instanceId)
-        .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), appProfileId)
-        // Also annotate traces with library versions
-        .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
-        .put("grpc", GaxGrpcProperties.getGrpcVersion())
-        .put("gapic", Version.VERSION);
+    ImmutableMap.Builder<String, String>
+        spanAttributes = // Annotate traces with the same tags as metrics
+        ImmutableMap.<String, String>builder()
+                .put(RpcMeasureConstants.BIGTABLE_PROJECT_ID.getName(), projectId)
+                .put(RpcMeasureConstants.BIGTABLE_INSTANCE_ID.getName(), instanceId)
+                .put(RpcMeasureConstants.BIGTABLE_APP_PROFILE_ID.getName(), appProfileId)
+                // Also annotate traces with library versions
+                .put("gax", GaxGrpcProperties.getGaxGrpcVersion())
+                .put("grpc", GaxGrpcProperties.getGrpcVersion())
+                .put("gapic", Version.VERSION);
 
-    if(transportProvider != null) {
-      attributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED, TagValue.create(String.valueOf(transportProvider.canUseDirectPath())));
-      spanAttributes.put(RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED.getName(), String.valueOf(transportProvider.canUseDirectPath()));
+    if (transportProvider != null) {
+      attributes.put(
+          RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED,
+          TagValue.create(String.valueOf(transportProvider.canUseDirectPath())));
+      spanAttributes.put(
+          RpcMeasureConstants.BIGTABLE_DIRECTPATH_ENABLED.getName(),
+          String.valueOf(transportProvider.canUseDirectPath()));
     }
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
     tracerFactories
@@ -410,7 +411,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   private static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
-    if(settings.getTransportChannelProvider() !=  null && settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
+    if (settings.getTransportChannelProvider() != null
+        && settings.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider) {
       return Attributes.of(
           BIGTABLE_PROJECT_ID_KEY,
           settings.getProjectId(),
@@ -420,8 +422,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
           settings.getAppProfileId(),
           CLIENT_NAME_KEY,
           "bigtable-java/" + Version.VERSION,
-          DIRECTPATH_ENABLED_KEY, String.valueOf(((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider()).canUseDirectPath())
-      );
+          DIRECTPATH_ENABLED_KEY,
+          String.valueOf(
+              ((InstantiatingGrpcChannelProvider) settings.getTransportChannelProvider())
+                  .canUseDirectPath()));
     }
     return Attributes.of(
         BIGTABLE_PROJECT_ID_KEY,
@@ -431,9 +435,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         APP_PROFILE_KEY,
         settings.getAppProfileId(),
         CLIENT_NAME_KEY,
-        "bigtable-java/" + Version.VERSION
-    );
-
+        "bigtable-java/" + Version.VERSION);
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)

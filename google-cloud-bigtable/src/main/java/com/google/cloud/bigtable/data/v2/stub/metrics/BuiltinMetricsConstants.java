@@ -47,7 +47,8 @@ public class BuiltinMetricsConstants {
   public static final AttributeKey<Boolean> STREAMING_KEY = AttributeKey.booleanKey("streaming");
   public static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
 
-  public static final AttributeKey<String> DIRECTPATH_ENABLED_KEY = AttributeKey.stringKey("directpath_enabled");
+  public static final AttributeKey<String> DIRECTPATH_ENABLED_KEY =
+      AttributeKey.stringKey("directpath_enabled");
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
