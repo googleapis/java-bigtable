@@ -127,6 +127,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   public static BigtableCloudMonitoringExporter create(
       String projectId, @Nullable Credentials credentials) throws IOException {
+    System.out.println("Batch exporting!");
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
@@ -134,6 +135,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
     settingsBuilder.setEndpoint("test-monitoring.sandbox.googleapis.com:443");
+
+
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
@@ -190,6 +193,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   /** Export metrics associated with a BigtableTable resource. */
   private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> collection) {
+    System.out.println("Exporting Bigtable Resource Metrics!");
     // Filter bigtable table metrics
     List<MetricData> bigtableMetricData =
         collection.stream()
@@ -222,6 +226,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     ProjectName projectName = ProjectName.of(bigtableProjectId);
+    System.out.println("Exporting project name:" + projectName);
     ApiFuture<List<Empty>> future = exportTimeSeries(projectName, bigtableTimeSeries);
 
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
@@ -337,6 +342,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private ApiFuture<List<Empty>> exportTimeSeries(
       ProjectName projectName, List<TimeSeries> timeSeries) {
+    System.out.println("Exporting Time Series for realies.");
     List<ApiFuture<Empty>> batchResults = new ArrayList<>();
 
     for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
