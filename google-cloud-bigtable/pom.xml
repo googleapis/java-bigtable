@@ -336,27 +336,6 @@
       <artifactId>guava-testlib</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.opencensus</groupId>
-      <artifactId>opencensus-impl</artifactId>
-      <version>0.31.1</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>io.opencensus</groupId>
-      <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
-      <version>0.31.1</version>
-      <exclusions>
-        <exclusion>
-          <groupId>io.grpc</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.google.auth</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
   </dependencies>
 
   <profiles>
@@ -526,7 +505,6 @@
                     <bigtable.enable-grpc-logs>${bigtable.enable-grpc-logs}</bigtable.enable-grpc-logs>
                     <bigtable.grpc-log-dir>${project.build.directory}/test-grpc-logs/directpath-it</bigtable.grpc-log-dir>
                     <bigtable.connection-mode>REQUIRE_DIRECT_PATH</bigtable.connection-mode>
-                    <bigtable.test-monitoring-endpoint>test-monitoring.sandbox.googleapis.com</bigtable.test-monitoring-endpoint>
                   </systemPropertyVariables>
                   <environmentVariables>
                     <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>
@@ -540,55 +518,6 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <version>1.2.1</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>java</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <mainClass>com.google.cloud.bigtable.SmokeTest</mainClass>
-              <skip>false</skip>
-              <systemProperties>
-                <systemProperty>
-                  <key>bigtable.env</key>
-                  <value>cloud</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.data-endpoint</key>
-                  <value>${bigtable.directpath-data-endpoint}</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.admin-endpoint</key>
-                  <value>${bigtable.directpath-admin-endpoint}</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.enable-grpc-logs</key>
-                  <value>${bigtable.enable-grpc-logs}</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.grpc-log-dir</key>
-                  <value>${project.build.directory}/test-grpc-logs/directpath-it</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.connection-mode</key>
-                  <value>REQUIRE_DIRECT_PATH</value>
-                </systemProperty>
-                <systemProperty>
-                  <key>bigtable.test-monitoring-endpoint</key>
-                  <value>test-monitoring.sandbox.googleapis.com:443</value>
-                </systemProperty>
-              </systemProperties>
-              <environmentVariables>
-                <CBT_ENABLE_DIRECTPATH>true</CBT_ENABLE_DIRECTPATH>
-              </environmentVariables>
-            </configuration>
           </plugin>
         </plugins>
       </build>
@@ -605,7 +534,7 @@
                 <id>cfe-it</id>
                 <goals>
                   <goal>integration-test</goal>
-                  <!--<goal>verify</goal>-->
+                  <goal>verify</goal>
                 </goals>
                 <configuration>
                   <skip>false</skip>

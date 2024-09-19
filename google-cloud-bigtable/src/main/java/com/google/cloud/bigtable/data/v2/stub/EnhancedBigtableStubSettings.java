@@ -373,9 +373,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       grpcTransportProviderBuilder
           .setAttemptDirectPathXds()
           .setAttemptDirectPath(true)
+          // Allow using non-default service account in DirectPath.
           .setAllowNonDefaultServiceAccount(true);
     }
-
     return grpcTransportProviderBuilder
         .setChannelPoolSettings(
             ChannelPoolSettings.builder()

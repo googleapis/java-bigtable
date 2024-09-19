@@ -127,16 +127,13 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   public static BigtableCloudMonitoringExporter create(
       String projectId, @Nullable Credentials credentials) throws IOException {
-    System.out.println("Batch exporting!");
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint("test-monitoring.sandbox.googleapis.com:443");
-
-
+    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
@@ -182,7 +179,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
-    System.out.println("Trying to export");
     CompletableResultCode bigtableExportCode = exportBigtableResourceMetrics(collection);
     CompletableResultCode applicationExportCode = exportApplicationResourceMetrics(collection);
 
@@ -194,7 +190,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   /** Export metrics associated with a BigtableTable resource. */
   private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> collection) {
-    System.out.println("Exporting Bigtable Resource Metrics!");
     // Filter bigtable table metrics
     List<MetricData> bigtableMetricData =
         collection.stream()
@@ -227,7 +222,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     ProjectName projectName = ProjectName.of(bigtableProjectId);
-    System.out.println("Exporting project name:" + projectName);
     ApiFuture<List<Empty>> future = exportTimeSeries(projectName, bigtableTimeSeries);
 
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
@@ -343,7 +337,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private ApiFuture<List<Empty>> exportTimeSeries(
       ProjectName projectName, List<TimeSeries> timeSeries) {
-    System.out.println("Exporting Time Series for realies.");
     List<ApiFuture<Empty>> batchResults = new ArrayList<>();
 
     for (List<TimeSeries> batch : Iterables.partition(timeSeries, EXPORT_BATCH_SIZE_LIMIT)) {
@@ -352,24 +345,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               .setName(projectName.toString())
               .addAllTimeSeries(batch)
               .build();
-      String endpoint = this.client.getSettings().getEndpoint();
       ApiFuture<Empty> f = this.client.createServiceTimeSeriesCallable().futureCall(req);
-      ApiFutures.addCallback(
-          f,
-          new ApiFutureCallback<Empty>() {
-            @Override
-            public void onFailure(Throwable throwable) {
-              logger.log(Level.SEVERE, throwable.getLocalizedMessage(), throwable);
-            }
-
-            @Override
-            public void onSuccess(Empty emptyList) {
-              // When an export succeeded reset the export failure flag to false so if there's a
-              // transient failure it'll be logged.
-              logger.log(Level.INFO,"Successfuly batch write metrics to: " + endpoint);
-            }
-          },
-          MoreExecutors.directExecutor());
       batchResults.add(f);
     }
 
