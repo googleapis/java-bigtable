@@ -182,7 +182,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
-
+    System.out.println("Trying to export");
     CompletableResultCode bigtableExportCode = exportBigtableResourceMetrics(collection);
     CompletableResultCode applicationExportCode = exportApplicationResourceMetrics(collection);
 
@@ -352,6 +352,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               .setName(projectName.toString())
               .addAllTimeSeries(batch)
               .build();
+      String endpoint = this.client.getSettings().getEndpoint();
       ApiFuture<Empty> f = this.client.createServiceTimeSeriesCallable().futureCall(req);
       ApiFutures.addCallback(
           f,
@@ -365,7 +366,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             public void onSuccess(Empty emptyList) {
               // When an export succeeded reset the export failure flag to false so if there's a
               // transient failure it'll be logged.
-              logger.log(Level.INFO,"Successfuly batch write metrics");
+              logger.log(Level.INFO,"Successfuly batch write metrics to: " + endpoint);
             }
           },
           MoreExecutors.directExecutor());
