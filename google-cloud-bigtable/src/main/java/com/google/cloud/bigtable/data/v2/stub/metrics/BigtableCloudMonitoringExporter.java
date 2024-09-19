@@ -182,6 +182,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
+
     CompletableResultCode bigtableExportCode = exportBigtableResourceMetrics(collection);
     CompletableResultCode applicationExportCode = exportApplicationResourceMetrics(collection);
 

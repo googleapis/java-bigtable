@@ -83,7 +83,7 @@ public class SmokeTest {
 
       // Create a 200 MB row
       logger.info("Sending small row, this will take awhile");
-      for (int i = 0; i < 200; i++) {
+      for (int i = 0; i < 2000; i++) {
         dataClient
             .mutateRowAsync(
                 RowMutation.create(tableId, rowKey)
