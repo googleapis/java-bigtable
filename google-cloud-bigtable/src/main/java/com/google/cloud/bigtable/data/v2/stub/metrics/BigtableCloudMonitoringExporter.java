@@ -346,6 +346,22 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               .addAllTimeSeries(batch)
               .build();
       ApiFuture<Empty> f = this.client.createServiceTimeSeriesCallable().futureCall(req);
+      ApiFutures.addCallback(
+          f,
+          new ApiFutureCallback<Empty>() {
+            @Override
+            public void onFailure(Throwable throwable) {
+              logger.log(Level.SEVERE, throwable.getLocalizedMessage(), throwable);
+            }
+
+            @Override
+            public void onSuccess(Empty emptyList) {
+              // When an export succeeded reset the export failure flag to false so if there's a
+              // transient failure it'll be logged.
+              logger.log(Level.INFO,"Successfuly batch write metrics");
+            }
+          },
+          MoreExecutors.directExecutor());
       batchResults.add(f);
     }
 
