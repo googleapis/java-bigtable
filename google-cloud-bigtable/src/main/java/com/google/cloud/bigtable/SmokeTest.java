@@ -49,7 +49,7 @@ public class SmokeTest {
   }
 
   public static void quickstart(String projectId, String instanceId, String tableId) {
-    try {
+    /*try {
       StackdriverTraceExporter.createAndRegister(
           StackdriverTraceConfiguration.builder().setProjectId(projectId).build());
 
@@ -62,7 +62,7 @@ public class SmokeTest {
                   .build());
     } catch (Exception exception) {
       System.err.println("failed to setup tracing.");
-    }
+    }*/
 
     BigtableDataSettings.Builder settings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
