@@ -692,9 +692,8 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long expected = CHANNEL_BLOCKING_LATENCY * 2 / 3;
     long actual = getAggregatedValue(clientLatency, attributes);
-    assertThat(actual).isAtLeast(expected);
+    assertThat(actual).isAtLeast(CHANNEL_BLOCKING_LATENCY);
   }
 
   @Test

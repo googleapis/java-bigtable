@@ -263,8 +263,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void grpcChannelQueuedLatencies(long queuedTimeNanos) {
-    totalClientBlockingTime.addAndGet(queuedTimeNanos);
+  public void grpcMessageSent() {
+    totalClientBlockingTime.addAndGet(attemptTimer.elapsed(TimeUnit.NANOSECONDS));
   }
 
   @Override
