@@ -1360,6 +1360,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
             // TODO resumption strategy and retry settings
             .build();
 
+    // Adding RetryingCallable to the callable chain so that client side metrics can be
+    // measured correctly. Retries are currently disabled.
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> retries =
         withRetries(withBigtableTracer, retrySettings);
 
