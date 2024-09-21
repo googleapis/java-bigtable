@@ -133,6 +133,35 @@ public interface ClusterOrBuilder
    *
    *
    * <pre>
+   * Immutable. The node scaling factor of this cluster.
+   * </pre>
+   *
+   * <code>
+   * .google.bigtable.admin.v2.Cluster.NodeScalingFactor node_scaling_factor = 9 [(.google.api.field_behavior) = IMMUTABLE];
+   * </code>
+   *
+   * @return The enum numeric value on the wire for nodeScalingFactor.
+   */
+  int getNodeScalingFactorValue();
+  /**
+   *
+   *
+   * <pre>
+   * Immutable. The node scaling factor of this cluster.
+   * </pre>
+   *
+   * <code>
+   * .google.bigtable.admin.v2.Cluster.NodeScalingFactor node_scaling_factor = 9 [(.google.api.field_behavior) = IMMUTABLE];
+   * </code>
+   *
+   * @return The nodeScalingFactor.
+   */
+  com.google.bigtable.admin.v2.Cluster.NodeScalingFactor getNodeScalingFactor();
+
+  /**
+   *
+   *
+   * <pre>
    * Configuration for this cluster.
    * </pre>
    *
