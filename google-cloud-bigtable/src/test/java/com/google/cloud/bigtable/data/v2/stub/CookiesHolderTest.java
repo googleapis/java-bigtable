@@ -455,8 +455,8 @@ public class CookiesHolderTest {
 
     Metadata lastMetadata = serverMetadata.get(fakeService.count.get() - 1);
 
-    assertThat(lastMetadata)
-        .doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).doesNotContainKeys(ROUTING_COOKIE_2.name(), BAD_KEY.name());
+    assertThat(lastMetadata).containsAtLeast(ROUTING_COOKIE_1.name(), routingCookie1Header);
 
     serverMetadata.clear();
   }
