@@ -685,7 +685,6 @@ public class CookiesHolderTest {
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "mutateRow");
-        responseObserver.onNext(MutateRowResponse.getDefaultInstance());
         StatusRuntimeException exception = new StatusRuntimeException(Status.UNAVAILABLE, trailers);
         responseObserver.onError(exception);
         return;
