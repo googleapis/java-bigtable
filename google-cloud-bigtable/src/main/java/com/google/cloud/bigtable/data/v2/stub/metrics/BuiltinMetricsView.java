@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
@@ -37,7 +38,7 @@ public class BuiltinMetricsView {
 
   /**
    * Register built-in metrics on the {@link SdkMeterProviderBuilder} with application default
-   * credentials.
+   * credentials and default endpoint.
    */
   public static void registerBuiltinMetrics(String projectId, SdkMeterProviderBuilder builder)
       throws IOException {
@@ -45,11 +46,29 @@ public class BuiltinMetricsView {
         projectId, GoogleCredentials.getApplicationDefault(), builder);
   }
 
-  /** Register built-in metrics on the {@link SdkMeterProviderBuilder} with credentials. */
+  /**
+   * Register built-in metrics on the {@link SdkMeterProviderBuilder} with custom credentials and
+   * default endpoint.
+   */
   public static void registerBuiltinMetrics(
       String projectId, @Nullable Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
-    MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(projectId, credentials);
+    BuiltinMetricsView.registerBuiltinMetrics(
+        projectId, credentials, builder, MetricServiceSettings.getDefaultEndpoint());
+  }
+
+  /**
+   * Register built-in metrics on the {@link SdkMeterProviderBuilder} with custom credentials and
+   * endpoint
+   */
+  public static void registerBuiltinMetrics(
+      String projectId,
+      @Nullable Credentials credentials,
+      SdkMeterProviderBuilder builder,
+      String endpoint)
+      throws IOException {
+    MetricExporter metricExporter =
+        BigtableCloudMonitoringExporter.create(projectId, credentials, endpoint);
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());

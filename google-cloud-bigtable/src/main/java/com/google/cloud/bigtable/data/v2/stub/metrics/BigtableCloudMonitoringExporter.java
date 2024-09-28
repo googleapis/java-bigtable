@@ -39,7 +39,6 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -77,13 +76,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
-
-  // This system property can be used to override the monitoring endpoint
-  // to a different environment. It's meant for internal testing only.
-  private static final String MONITORING_ENDPOINT =
-      MoreObjects.firstNonNull(
-          System.getProperty("bigtable.test-monitoring-endpoint"),
-          MetricServiceSettings.getDefaultEndpoint());
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
@@ -126,14 +118,14 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           .collect(ImmutableList.toImmutableList());
 
   public static BigtableCloudMonitoringExporter create(
-      String projectId, @Nullable Credentials credentials) throws IOException {
+      String projectId, @Nullable Credentials credentials, String endpoint) throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+    settingsBuilder.setEndpoint(endpoint);
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving

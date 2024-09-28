@@ -50,6 +50,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -250,6 +251,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final FeatureFlags featureFlags;
 
   private final MetricsProvider metricsProvider;
+  private final String metricsEndpoint;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -278,6 +280,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
     metricsProvider = builder.metricsProvider;
+    metricsEndpoint = builder.metricsEndpoint;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -360,6 +363,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @BetaApi("RetryInfo is not currently stable and may change in the future")
   public boolean getEnableRetryInfo() {
     return enableRetryInfo;
+  }
+
+  public String getMetricsEndpoint() {
+    return metricsEndpoint;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -684,6 +691,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private FeatureFlags.Builder featureFlags;
 
     private MetricsProvider metricsProvider;
+    private String metricsEndpoint;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -702,6 +710,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
+      metricsEndpoint = MetricServiceSettings.getDefaultEndpoint();
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -831,6 +840,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
       metricsProvider = settings.metricsProvider;
+      metricsEndpoint = settings.getMetricsEndpoint();
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -997,6 +1007,17 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     /** Gets the {@link MetricsProvider}. */
     public MetricsProvider getMetricsProvider() {
       return this.metricsProvider;
+    }
+
+    /** Set the endpoint for publishing client side metrics. */
+    public Builder setMetricsEndpoint(String endpoint) {
+      this.metricsEndpoint = endpoint;
+      return this;
+    }
+
+    /** Get the endpoint for client side metrics. */
+    public String getMetricsEndpoint() {
+      return metricsEndpoint;
     }
 
     @InternalApi("Used for internal testing")
@@ -1184,6 +1205,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("pingAndWarmSettings", pingAndWarmSettings)
         .add("executeQuerySettings", executeQuerySettings)
         .add("metricsProvider", metricsProvider)
+        .add("metricsEndpoint", metricsEndpoint)
         .add("parent", super.toString())
         .toString();
   }
