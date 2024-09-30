@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
@@ -53,8 +52,7 @@ public class BuiltinMetricsView {
   public static void registerBuiltinMetrics(
       String projectId, @Nullable Credentials credentials, SdkMeterProviderBuilder builder)
       throws IOException {
-    BuiltinMetricsView.registerBuiltinMetrics(
-        projectId, credentials, builder, MetricServiceSettings.getDefaultEndpoint());
+    BuiltinMetricsView.registerBuiltinMetrics(projectId, credentials, builder, null);
   }
 
   /**
