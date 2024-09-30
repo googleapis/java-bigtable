@@ -386,7 +386,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       String projectId,
       MetricsProvider metricsProvider,
       @Nullable Credentials defaultCredentials,
-      String metricsEndpoint)
+      @Nullable String metricsEndpoint)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
