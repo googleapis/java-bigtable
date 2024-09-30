@@ -59,13 +59,13 @@ public class BuiltinMetricsView {
 
   /**
    * Register built-in metrics on the {@link SdkMeterProviderBuilder} with custom credentials and
-   * endpoint
+   * endpoint.
    */
   public static void registerBuiltinMetrics(
       String projectId,
       @Nullable Credentials credentials,
       SdkMeterProviderBuilder builder,
-      String endpoint)
+      @Nullable String endpoint)
       throws IOException {
     MetricExporter metricExporter =
         BigtableCloudMonitoringExporter.create(projectId, credentials, endpoint);

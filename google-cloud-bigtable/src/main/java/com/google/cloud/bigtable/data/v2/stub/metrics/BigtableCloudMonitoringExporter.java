@@ -77,6 +77,13 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private static final Logger logger =
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
 
+  // This system property can be used to override the monitoring endpoint
+  // to a different environment. It's meant for internal testing only and
+  // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
+  // to override the endpoint.
+  private static final String MONITORING_ENDPOINT =
+      System.getProperty("bigtable.test-monitoring-endpoint");
+
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
   // This the quota limit from Cloud Monitoring. More details in
@@ -118,14 +125,22 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           .collect(ImmutableList.toImmutableList());
 
   public static BigtableCloudMonitoringExporter create(
-      String projectId, @Nullable Credentials credentials, String endpoint) throws IOException {
+      String projectId, @Nullable Credentials credentials, @Nullable String endpoint)
+      throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint(endpoint);
+    if (MONITORING_ENDPOINT != null) {
+      logger.warning(
+          "Setting the monitoring endpoint through system variable will be removed in future versions");
+      settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+    }
+    if (endpoint != null) {
+      settingsBuilder.setEndpoint(endpoint);
+    }
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving

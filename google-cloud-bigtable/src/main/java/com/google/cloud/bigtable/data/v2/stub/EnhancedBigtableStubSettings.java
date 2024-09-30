@@ -50,7 +50,6 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
-import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -66,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /**
@@ -251,7 +251,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final FeatureFlags featureFlags;
 
   private final MetricsProvider metricsProvider;
-  private final String metricsEndpoint;
+  @Nullable private final String metricsEndpoint;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -365,6 +365,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return enableRetryInfo;
   }
 
+  /**
+   * Gets the Google Cloud Monitoring endpoint for publishing client side metrics. If it's null,
+   * client will publish metrics to the default monitoring endpoint.
+   */
+  @Nullable
   public String getMetricsEndpoint() {
     return metricsEndpoint;
   }
@@ -691,7 +696,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private FeatureFlags.Builder featureFlags;
 
     private MetricsProvider metricsProvider;
-    private String metricsEndpoint;
+    @Nullable private String metricsEndpoint;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -710,7 +715,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
-      metricsEndpoint = MetricServiceSettings.getDefaultEndpoint();
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -1009,13 +1013,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this.metricsProvider;
     }
 
-    /** Set the endpoint for publishing client side metrics. */
+    /**
+     * Built-in client side metrics are published through Google Cloud Monitoring endpoint. This
+     * setting overrides the default endpoint for publishing the metrics.
+     */
     public Builder setMetricsEndpoint(String endpoint) {
       this.metricsEndpoint = endpoint;
       return this;
     }
 
-    /** Get the endpoint for client side metrics. */
+    /**
+     * Get the Google Cloud Monitoring endpoint for publishing client side metrics. If it's null,
+     * client will publish metrics to the default monitoring endpoint.
+     */
+    @Nullable
     public String getMetricsEndpoint() {
       return metricsEndpoint;
     }
