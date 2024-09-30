@@ -81,7 +81,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   // to a different environment. It's meant for internal testing only and
   // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
   // to override the endpoint.
-  private static final String MONITORING_ENDPOINT =
+  @Deprecated @Nullable
+  private static final String MONITORING_ENDPOINT_OVERRIDE_SYS_PROP =
       System.getProperty("bigtable.test-monitoring-endpoint");
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
@@ -133,10 +134,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    if (MONITORING_ENDPOINT != null) {
+    if (MONITORING_ENDPOINT_OVERRIDE_SYS_PROP != null) {
       logger.warning(
           "Setting the monitoring endpoint through system variable will be removed in future versions");
-      settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+      settingsBuilder.setEndpoint(MONITORING_ENDPOINT_OVERRIDE_SYS_PROP);
     }
     if (endpoint != null) {
       settingsBuilder.setEndpoint(endpoint);
