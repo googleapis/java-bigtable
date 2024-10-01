@@ -160,7 +160,7 @@ public class UpdateAppProfileRequestTest {
     AppProfile existingWrapper = AppProfile.fromProto(existingProto);
 
     UpdateAppProfileRequest updateWrapper =
-            UpdateAppProfileRequest.of(existingWrapper).setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity());
+            UpdateAppProfileRequest.of(existingWrapper).setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.withRowAffinity());
 
     assertThat(updateWrapper.toProto("my-project"))
             .isEqualTo(

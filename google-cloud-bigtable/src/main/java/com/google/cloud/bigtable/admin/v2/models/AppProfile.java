@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.admin.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.admin.v2.AppProfile.DataBoostIsolationReadOnly;
 import com.google.bigtable.admin.v2.AppProfile.MultiClusterRoutingUseAny;
-import com.google.bigtable.admin.v2.AppProfile.Priority;
 import com.google.bigtable.admin.v2.AppProfile.StandardIsolation;
 import com.google.bigtable.admin.v2.AppProfileName;
 import com.google.common.base.Objects;
@@ -70,7 +69,7 @@ public final class AppProfile {
   public RoutingPolicy getPolicy() {
     if (proto.hasMultiClusterRoutingUseAny()) {
       if (proto.getMultiClusterRoutingUseAny().hasRowAffinity()) {
-        return MultiClusterRoutingPolicy.ofWithRowAffinity(
+        return MultiClusterRoutingPolicy.withRowAffinity(
           ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
       }
       return MultiClusterRoutingPolicy.of(
@@ -272,7 +271,7 @@ public final class AppProfile {
     }
 
     /** Creates a new instance of {@link MultiClusterRoutingPolicy}. */
-    public static MultiClusterRoutingPolicy ofWithRowAffinity() {
+    public static MultiClusterRoutingPolicy withRowAffinity() {
       return new MultiClusterRoutingPolicy(MultiClusterRoutingUseAny.newBuilder()
               .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());
     }
@@ -281,15 +280,15 @@ public final class AppProfile {
      * Creates a new instance of {@link MultiClusterRoutingPolicy} with row affinity enabled and specified cluster ids to
      * route to.
      */
-    public static MultiClusterRoutingPolicy ofWithRowAffinity(String... clusterIds) {
-      return ofWithRowAffinity(ImmutableSet.copyOf(clusterIds));
+    public static MultiClusterRoutingPolicy withRowAffinity(String... clusterIds) {
+      return withRowAffinity(ImmutableSet.copyOf(clusterIds));
     }
 
     /**
      * Creates a new instance of {@link MultiClusterRoutingPolicy} with specified cluster ids to
      * route to.
      */
-    public static MultiClusterRoutingPolicy ofWithRowAffinity(Set<String> clusterIds) {
+    public static MultiClusterRoutingPolicy withRowAffinity(Set<String> clusterIds) {
       return new MultiClusterRoutingPolicy(
               MultiClusterRoutingUseAny.newBuilder()
                       .addAllClusterIds(clusterIds)

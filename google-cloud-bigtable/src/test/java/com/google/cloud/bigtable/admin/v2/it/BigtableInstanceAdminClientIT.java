@@ -300,12 +300,12 @@ public class BigtableInstanceAdminClientIT {
 
       CreateAppProfileRequest request =
               CreateAppProfileRequest.of(newInstanceId, testAppProfile)
-                      .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity(newClusterId, newClusterId2))
+                      .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2))
                       .setDescription("row affinity app profile");
 
       AppProfile newlyCreateAppProfile = client.createAppProfile(request);
       AppProfile.RoutingPolicy routingPolicy = newlyCreateAppProfile.getPolicy();
-      assertThat(routingPolicy).isEqualTo(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity(newClusterId, newClusterId2));
+      assertThat(routingPolicy).isEqualTo(AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2));
     } finally {
       if (client.exists(newInstanceId)) {
         client.deleteInstance(newInstanceId);

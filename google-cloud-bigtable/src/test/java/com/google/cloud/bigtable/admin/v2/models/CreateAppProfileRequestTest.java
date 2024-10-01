@@ -106,7 +106,7 @@ public class CreateAppProfileRequestTest {
   public void testRowAffinity() {
     CreateAppProfileRequest wrapper =
             CreateAppProfileRequest.of("my-instance", "my-profile")
-                    .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity());
+                    .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity());
 
     assertThat(wrapper.toProto("my-project").getAppProfile().getMultiClusterRoutingUseAny())
             .isEqualTo(MultiClusterRoutingUseAny.newBuilder().setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());

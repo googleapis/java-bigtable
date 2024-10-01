@@ -1069,7 +1069,7 @@ public class BigtableInstanceAdminClientTests {
             adminClient.createAppProfile(
                     CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
                             .setDescription("my description")
-                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity()));
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity()));
 
     // Verify
     assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));
@@ -1114,7 +1114,7 @@ public class BigtableInstanceAdminClientTests {
             adminClient.createAppProfile(
                     CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
                             .setDescription("my description")
-                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2")));
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity("cluster-id-1", "cluster-id-2")));
 
     // Verify
     assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));
@@ -1157,7 +1157,7 @@ public class BigtableInstanceAdminClientTests {
             adminClient.createAppProfile(
                     CreateAppProfileRequest.of(INSTANCE_ID, APP_PROFILE_ID)
                             .setDescription("my description")
-                            .setRoutingPolicy(MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2")));
+                            .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity("cluster-id-1", "cluster-id-2")));
 
     // Verify
     assertThat(actualResult).isEqualTo(AppProfile.fromProto(expectedResponse));

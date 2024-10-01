@@ -310,9 +310,9 @@ public class AppProfileTest {
     assertThat(profile.getId()).isEqualTo("my-profile");
     assertThat(profile.getDescription()).isEqualTo("my description");
     System.out.println(profile.getPolicy());
-    System.out.println(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity());
+    System.out.println(AppProfile.MultiClusterRoutingPolicy.withRowAffinity());
     assertThat(profile.getPolicy())
-            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity());
+            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.withRowAffinity());
   }
   @Test
   public void testFromProtoWithRowAffinityClusterGroup() {
@@ -333,6 +333,6 @@ public class AppProfileTest {
     assertThat(profile.getId()).isEqualTo("my-profile");
     assertThat(profile.getDescription()).isEqualTo("my description");
     assertThat(profile.getPolicy())
-            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.ofWithRowAffinity("cluster-id-1", "cluster-id-2"));
+            .isEqualTo(AppProfile.MultiClusterRoutingPolicy.withRowAffinity("cluster-id-1", "cluster-id-2"));
   }
 }
