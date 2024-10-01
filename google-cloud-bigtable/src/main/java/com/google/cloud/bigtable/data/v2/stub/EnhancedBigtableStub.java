@@ -223,7 +223,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
           getOpenTelemetry(
               settings.getProjectId(),
               settings.getMetricsProvider(),
-              clientContext.getCredentials());
+              clientContext.getCredentials(),
+              settings.getMetricsEndpoint());
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -268,7 +269,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       // We don't want client side metrics to crash the client, so catch any exception when getting
       // the OTEL instance and log the exception instead.
       openTelemetry =
-          getOpenTelemetry(settings.getProjectId(), settings.getMetricsProvider(), credentials);
+          getOpenTelemetry(
+              settings.getProjectId(),
+              settings.getMetricsProvider(),
+              credentials,
+              settings.getMetricsEndpoint());
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -378,7 +383,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   @Nullable
   public static OpenTelemetry getOpenTelemetry(
-      String projectId, MetricsProvider metricsProvider, @Nullable Credentials defaultCredentials)
+      String projectId,
+      MetricsProvider metricsProvider,
+      @Nullable Credentials defaultCredentials,
+      @Nullable String metricsEndpoint)
       throws IOException {
     if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
       CustomOpenTelemetryMetricsProvider customMetricsProvider =
@@ -390,7 +398,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
               ? BigtableDataSettings.getMetricsCredentials()
               : defaultCredentials;
       DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
-      return defaultMetricsProvider.getOpenTelemetry(projectId, credentials);
+      return defaultMetricsProvider.getOpenTelemetry(projectId, metricsEndpoint, credentials);
     } else if (metricsProvider instanceof NoopMetricsProvider) {
       return null;
     }
@@ -1335,9 +1343,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    ServerStreamingCallSettings<ExecuteQueryRequest, ExecuteQueryResponse> innerSettings =
+    ServerStreamingCallSettings<ExecuteQueryRequest, ExecuteQueryResponse> watchdogSettings =
         ServerStreamingCallSettings.<ExecuteQueryRequest, ExecuteQueryResponse>newBuilder()
-            // TODO resumption strategy and retry settings
             .setIdleTimeout(settings.executeQuerySettings().getIdleTimeout())
             .setWaitTimeout(settings.executeQuerySettings().getWaitTimeout())
             .build();
@@ -1345,7 +1352,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // Watchdog needs to stay above the metadata observer so that watchdog errors
     // are passed through to the metadata future.
     ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> watched =
-        Callables.watched(withStatsHeaders, innerSettings, clientContext);
+        Callables.watched(withStatsHeaders, watchdogSettings, clientContext);
 
     ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withMetadataObserver =
         new MetadataResolvingCallable(watched);
@@ -1356,10 +1363,29 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(merging);
 
+    ServerStreamingCallSettings<ExecuteQueryCallContext, SqlRow> retrySettings =
+        ServerStreamingCallSettings.<ExecuteQueryCallContext, SqlRow>newBuilder()
+            // TODO add resumption strategy and pass through retry settings unchanged
+            // we pass through retry settings to use the deadlines now but don't
+            // support retries
+            .setRetrySettings(
+                settings
+                    .executeQuerySettings()
+                    .getRetrySettings()
+                    .toBuilder()
+                    // override maxAttempts as a safeguard against changes from user
+                    .setMaxAttempts(1)
+                    .build())
+            .build();
+
+    // Adding RetryingCallable to the callable chain so that client side metrics can be
+    // measured correctly and deadlines are set. Retries are currently disabled.
+    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> retries =
+        withRetries(withBigtableTracer, retrySettings);
+
     SpanName span = getSpanName("ExecuteQuery");
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> traced =
-        new TracedServerStreamingCallable<>(
-            withBigtableTracer, clientContext.getTracerFactory(), span);
+        new TracedServerStreamingCallable<>(retries, clientContext.getTracerFactory(), span);
 
     return new ExecuteQueryCallable(
         traced.withDefaultCallContext(clientContext.getDefaultCallContext()), requestContext);
