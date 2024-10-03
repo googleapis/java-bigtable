@@ -86,4 +86,12 @@ public class BigtableTracer extends BaseApiTracer {
   public void grpcChannelQueuedLatencies(long queuedTimeMs) {
     // noop
   }
+
+  /**
+   * Set the remaining customer specified deadline so it can be exported in a metric. This will
+   * be called in BuiltinMetricsTracer.
+   */
+  public void setRemainingDeadline() {
+    // noop
+  }
 }

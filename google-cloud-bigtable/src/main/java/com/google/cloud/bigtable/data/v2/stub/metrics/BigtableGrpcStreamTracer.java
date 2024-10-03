@@ -30,9 +30,11 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final Stopwatch stopwatch = Stopwatch.createUnstarted();
   private final BigtableTracer tracer;
+  private final Deadline deadline;
 
-  public BigtableGrpcStreamTracer(BigtableTracer tracer) {
+  public BigtableGrpcStreamTracer(BigtableTracer tracer, Deadline deadline) {
     this.tracer = tracer;
+    this.deadline = deadline;
   }
 
   @Override
@@ -43,20 +45,24 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
     tracer.grpcChannelQueuedLatencies(stopwatch.elapsed(TimeUnit.NANOSECONDS));
+    // How to get the remaining deadline? Stopwatch.elapsed - Deadline?
+    tracer.setRemainingDeadline(/*remaining_deadline*/);
   }
 
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;
+    private final Deadline deadline;
 
-    Factory(BigtableTracer tracer) {
+    Factory(BigtableTracer tracer, Deadline deadline) {
       this.tracer = tracer;
+      this.deadline = deadline;
     }
 
     @Override
     public ClientStreamTracer newClientStreamTracer(
         ClientStreamTracer.StreamInfo info, Metadata headers) {
-      return new BigtableGrpcStreamTracer(tracer);
+      return new BigtableGrpcStreamTracer(tracer, deadline);
     }
   }
 }
