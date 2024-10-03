@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.gax.tracing.ApiTracer;
+import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,24 @@ class CompositeTracer extends BigtableTracer {
         }
       }
     };
+  }
+
+  @Override
+  public void overrideOperationType(ApiTracerFactory.OperationType operationType) {
+    for (ApiTracer child : children) {
+      if (child instanceof BigtableTracer) {
+        ((BigtableTracer) child).overrideOperationType(operationType);
+      }
+    }
+  }
+
+  @Override
+  public void operationFinishedEarly() {
+    for (ApiTracer child : children) {
+      if (child instanceof BigtableTracer) {
+        ((BigtableTracer) child).operationFinishedEarly();
+      }
+    }
   }
 
   @Override

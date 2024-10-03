@@ -26,6 +26,7 @@ import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.metrics.data.HistogramPointData;
 import io.opentelemetry.sdk.metrics.data.LongPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
+import io.opentelemetry.sdk.metrics.data.PointData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,6 +38,9 @@ import org.junit.Assert;
 public class BuiltinMetricsTestUtils {
   private static final Correspondence<MetricData, String> METRIC_DATA_BY_NAME =
       Correspondence.transforming(MetricData::getName, "MetricData name");
+
+  private static final Correspondence<PointData, Attributes> POINT_DATA_BY_ATTRS =
+      Correspondence.transforming((pd) -> pd.getAttributes(), "PointData attributes");
 
   private BuiltinMetricsTestUtils() {}
 
@@ -78,6 +82,9 @@ public class BuiltinMetricsTestUtils {
   public static long getAggregatedValue(MetricData metricData, Attributes attributes) {
     switch (metricData.getType()) {
       case HISTOGRAM:
+        assertThat(metricData.getHistogramData().getPoints())
+            .comparingElementsUsing(POINT_DATA_BY_ATTRS)
+            .contains(attributes);
         HistogramPointData hd =
             metricData.getHistogramData().getPoints().stream()
                 .filter(pd -> pd.getAttributes().equals(attributes))
@@ -85,6 +92,9 @@ public class BuiltinMetricsTestUtils {
                 .get(0);
         return (long) hd.getSum() / hd.getCount();
       case LONG_SUM:
+        assertThat(metricData.getLongSumData().getPoints())
+            .comparingElementsUsing(POINT_DATA_BY_ATTRS)
+            .contains(attributes);
         LongPointData ld =
             metricData.getLongSumData().getPoints().stream()
                 .filter(pd -> pd.getAttributes().equals(attributes))
@@ -120,18 +130,15 @@ public class BuiltinMetricsTestUtils {
   public static void verifyAttributes(MetricData metricData, Attributes attributes) {
     switch (metricData.getType()) {
       case HISTOGRAM:
-        List<HistogramPointData> hd =
-            metricData.getHistogramData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList());
-        assertThat(hd).isNotEmpty();
+        assertThat(metricData.getHistogramData().getPoints())
+            .comparingElementsUsing(POINT_DATA_BY_ATTRS)
+            .contains(attributes);
+
         break;
       case LONG_SUM:
-        List<LongPointData> ld =
-            metricData.getLongSumData().getPoints().stream()
-                .filter(pd -> pd.getAttributes().equals(attributes))
-                .collect(Collectors.toList());
-        assertThat(ld).isNotEmpty();
+        assertThat(metricData.getLongSumData().getPoints())
+            .comparingElementsUsing(POINT_DATA_BY_ATTRS)
+            .contains(attributes);
         break;
       default:
         Assert.fail("Unexpected type");

@@ -39,6 +39,7 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
+import com.google.api.gax.retrying.SimpleStreamResumptionStrategy;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -123,6 +124,8 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsAttemptResult
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsPartialErrorRetryAlgorithm;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
+import com.google.cloud.bigtable.data.v2.stub.opt.UnaryOverStreamingCallable;
+import com.google.cloud.bigtable.data.v2.stub.opt.UnaryOverStreamingTracerModCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsFirstCallable;
@@ -154,6 +157,7 @@ import io.opentelemetry.api.common.Attributes;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -563,11 +567,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ReadRowsFirstCallable<RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
 
-    UnaryCallable<Query, RowT> traced =
-        new TracedUnaryCallable<>(
-            firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
-
-    return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
+    UnaryOverStreamingTracerModCallable modCallable =
+        new UnaryOverStreamingTracerModCallable(firstRow);
+    TracedServerStreamingCallable<Query, RowT> traced =
+        new TracedServerStreamingCallable<>(
+            modCallable, clientContext.getTracerFactory(), getSpanName("ReadRow"));
+    UnaryOverStreamingCallable<Query, RowT> unaryAdapter = new UnaryOverStreamingCallable<>(traced);
+    return unaryAdapter.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -794,8 +800,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   private UnaryCallable<RowMutation, Void> createMutateRowCallable() {
     String methodName = "MutateRow";
-    UnaryCallable<MutateRowRequest, MutateRowResponse> base =
-        GrpcRawCallableFactory.createUnaryCallable(
+    ServerStreamingCallable<MutateRowRequest, MutateRowResponse> base =
+        GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<MutateRowRequest, MutateRowResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getMutateRowMethod())
                 .setParamsExtractor(
@@ -818,17 +824,26 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             settings.mutateRowSettings().getRetryableCodes());
 
-    UnaryCallable<MutateRowRequest, MutateRowResponse> withStatsHeaders =
-        new StatsHeadersUnaryCallable<>(base);
+    ServerStreamingCallable<MutateRowRequest, MutateRowResponse> withStatsHeaders =
+        new StatsHeadersServerStreamingCallable<>(base);
 
-    UnaryCallable<MutateRowRequest, MutateRowResponse> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(withStatsHeaders);
+    ServerStreamingCallable<MutateRowRequest, MutateRowResponse> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(withStatsHeaders);
 
-    UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
-        withRetries(withBigtableTracer, settings.mutateRowSettings());
+    ServerStreamingCallable<MutateRowRequest, MutateRowResponse> retrying =
+        withRetries(
+            withBigtableTracer,
+            convertUnaryToServerStreamingSettings(settings.mutateRowSettings()));
 
-    return createUserFacingUnaryCallable(
-        methodName, new MutateRowCallable(retrying, requestContext));
+    UnaryOverStreamingTracerModCallable<MutateRowRequest, MutateRowResponse> modCallable =
+        new UnaryOverStreamingTracerModCallable<>(retrying);
+    TracedServerStreamingCallable<MutateRowRequest, MutateRowResponse> traced =
+        new TracedServerStreamingCallable<>(
+            modCallable, clientContext.getTracerFactory(), getSpanName(methodName));
+    UnaryOverStreamingCallable<MutateRowRequest, MutateRowResponse> callable =
+        new UnaryOverStreamingCallable<>(traced);
+    MutateRowCallable mutateRowCallable = new MutateRowCallable(callable, requestContext);
+    return mutateRowCallable.withDefaultCallContext(clientContext.getDefaultCallContext());
   }
 
   /**
@@ -1510,6 +1525,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private SpanName getSpanName(String methodName) {
     return SpanName.of(CLIENT_NAME, methodName);
+  }
+
+  private <ReqT, RespT>
+      ServerStreamingCallSettings<ReqT, RespT> convertUnaryToServerStreamingSettings(
+          UnaryCallSettings<?, ?> unarySettings) {
+    return ServerStreamingCallSettings.<ReqT, RespT>newBuilder()
+        .setResumptionStrategy(new SimpleStreamResumptionStrategy<>())
+        .setRetryableCodes(unarySettings.getRetryableCodes())
+        .setRetrySettings(unarySettings.getRetrySettings())
+        .setIdleTimeoutDuration(Duration.ZERO)
+        .setWaitTimeoutDuration(Duration.ZERO)
+        .build();
   }
 
   @Override

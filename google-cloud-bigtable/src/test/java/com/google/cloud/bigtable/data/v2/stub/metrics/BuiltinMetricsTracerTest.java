@@ -492,12 +492,13 @@ public class BuiltinMetricsTracerTest {
             .put(STATUS_KEY, "OK")
             .build();
 
+    Thread.sleep(1000);
     long value = getAggregatedValue(metricData, expectedAttributes);
     assertThat(value).isEqualTo(fakeService.getAttemptCounter().get() - 1);
   }
 
   @Test
-  public void testMutateRowAttemptsTagValues() {
+  public void testMutateRowAttemptsTagValues() throws InterruptedException {
     stub.mutateRowCallable()
         .call(RowMutation.create(TABLE, "random-row").setCell("cf", "q", "value"));
 
@@ -527,6 +528,8 @@ public class BuiltinMetricsTracerTest {
             .put(STREAMING_KEY, false)
             .build();
 
+    stub.close();
+    Thread.sleep(1000);
     verifyAttributes(metricData, expected1);
     verifyAttributes(metricData, expected2);
   }
@@ -676,7 +679,7 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testQueuedOnChannelUnaryLatencies() {
+  public void testQueuedOnChannelUnaryLatencies() throws InterruptedException {
 
     stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
 
@@ -692,6 +695,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
+    Thread.sleep(1000);
     long expected = CHANNEL_BLOCKING_LATENCY * 2 / 3;
     long actual = getAggregatedValue(clientLatency, attributes);
     assertThat(actual).isAtLeast(expected);

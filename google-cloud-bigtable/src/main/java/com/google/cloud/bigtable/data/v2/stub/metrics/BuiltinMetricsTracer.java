@@ -47,7 +47,7 @@ import org.threeten.bp.Duration;
 class BuiltinMetricsTracer extends BigtableTracer {
 
   private static final String NAME = "java-bigtable/" + Version.VERSION;
-  private final OperationType operationType;
+  private volatile OperationType operationType;
   private final SpanName spanName;
 
   // Operation level metrics
@@ -130,6 +130,21 @@ class BuiltinMetricsTracer extends BigtableTracer {
       @Override
       public void close() {}
     };
+  }
+
+  @Override
+  public void overrideOperationType(OperationType operationType) {
+    this.operationType = operationType;
+  }
+
+  @Override
+  public void operationFinishedEarly() {
+    if (attemptTimer.isRunning()) {
+      attemptTimer.stop();
+    }
+    if (operationTimer.isRunning()) {
+      operationTimer.stop();
+    }
   }
 
   @Override
@@ -276,7 +291,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
-    operationTimer.stop();
+
+    // timer might've been stopped early because due to #operationFinishedEarly()
+    if (operationTimer.isRunning()) {
+      operationTimer.stop();
+    }
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
     String statusStr = Util.extractStatus(status);
