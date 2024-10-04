@@ -381,6 +381,8 @@ public class EnhancedBigtableStubTest {
     assertThat(foundSpanData.getAttributes().getAttributeMap())
         .containsEntry(
             "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion()));
+    assertThat(foundSpanData.getAttributes().getAttributeMap())
+        .containsEntry("bigtable_directpath_enabled", AttributeValue.stringAttributeValue("false"));
   }
 
   @Test
