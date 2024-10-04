@@ -58,7 +58,6 @@ public class BuiltinMetricsConstants {
   static final String SERVER_LATENCIES_NAME = "server_latencies";
   static final String FIRST_RESPONSE_LATENCIES_NAME = "first_response_latencies";
   static final String APPLICATION_BLOCKING_LATENCIES_NAME = "application_latencies";
-
   static final String REMAINING_DEADLINE_NAME = "remaining_deadline";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
   static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
