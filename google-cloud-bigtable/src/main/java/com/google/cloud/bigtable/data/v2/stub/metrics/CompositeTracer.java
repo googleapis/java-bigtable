@@ -225,4 +225,11 @@ class CompositeTracer extends BigtableTracer {
       tracer.grpcChannelQueuedLatencies(queuedTimeMs);
     }
   }
+
+  @Override
+  public void setRemainingDeadline(long deadlineRemaining) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.setRemainingDeadline(deadlineRemaining);
+    }
+  }
 }
