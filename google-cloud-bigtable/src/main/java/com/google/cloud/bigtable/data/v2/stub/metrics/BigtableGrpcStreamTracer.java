@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.common.base.Stopwatch;
 import io.grpc.Attributes;
 import io.grpc.ClientStreamTracer;
+import io.grpc.Deadline;
 import io.grpc.Metadata;
 import java.util.concurrent.TimeUnit;
 
