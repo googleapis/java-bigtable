@@ -86,6 +86,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
+  private long deadlineRemaining;
+
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
   // to milliseconds and use DoubleHistogram. This should minimize the chance of a data
@@ -275,6 +277,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   @Override
   public void setRemainingDeadline(long deadlineRemaining) {
     // update remaining deadline variable
+    this.deadlineRemaining = deadlineRemaining;
   }
 
   @Override
