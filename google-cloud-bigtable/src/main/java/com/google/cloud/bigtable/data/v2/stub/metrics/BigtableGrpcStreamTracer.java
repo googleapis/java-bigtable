@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import io.grpc.ClientStreamTracer;
+import io.grpc.Deadline;
 import io.grpc.Metadata;
 
 /**
