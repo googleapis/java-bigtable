@@ -70,6 +70,8 @@ public abstract class AbstractTestEnv {
 
   public abstract String getInstanceId();
 
+  public abstract String getDataEndpoint();
+
   /** Try to guess the primary cluster id */
   public synchronized String getPrimaryClusterId() {
     if (primaryClusterId != null) {
