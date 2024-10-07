@@ -36,7 +36,14 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
+<<<<<<< HEAD
     tracer.grpcMessageSent();
+=======
+    tracer.grpcChannelQueuedLatencies(stopwatch.elapsed(TimeUnit.NANOSECONDS));
+    if (deadline != null) {
+      tracer.setRemainingDeadline(deadline.timeRemaining(TimeUnit.MILLISECONDS));
+    }
+>>>>>>> 2651506d (Only record remaining deadline if it is not null)
   }
 
   static class Factory extends ClientStreamTracer.Factory {

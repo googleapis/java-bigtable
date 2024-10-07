@@ -23,6 +23,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.STATUS_KEY;
@@ -42,10 +43,12 @@ import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
+import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
+import com.google.api.gax.rpc.testing.FakeCallContext;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
@@ -700,6 +703,27 @@ public class BuiltinMetricsTracerTest {
 
     MetricData opLatency = getMetricData(metricReader, OPERATION_LATENCIES_NAME);
     verifyAttributes(opLatency, expected);
+  }
+
+  @Test
+  public void testRemainingDeadline() {
+//    stub.readRowsCallable().all().call(Query.create(TABLE), FakeCallContext.create());
+
+    MetricData remainingDeadline = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
+
+    Attributes attributes =
+            baseAttributes
+                    .toBuilder()
+                    .put(TABLE_ID_KEY, TABLE)
+                    .put(CLUSTER_ID_KEY, CLUSTER)
+                    .put(ZONE_ID_KEY, ZONE)
+                    .put(METHOD_KEY, "Bigtable.ReadRows")
+                    .put(CLIENT_NAME_KEY, CLIENT_NAME)
+                    .build();
+
+    long value = getAggregatedValue(remainingDeadline, attributes);
+    System.out.println("DEADLINE = ");
+    System.out.println(value);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
