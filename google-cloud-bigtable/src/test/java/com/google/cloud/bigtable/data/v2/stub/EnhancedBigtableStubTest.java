@@ -70,6 +70,7 @@ import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
 import com.google.common.io.BaseEncoding;
+import com.google.common.truth.Correspondence;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
@@ -98,9 +99,11 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -328,6 +331,7 @@ public class EnhancedBigtableStubTest {
         .containsMatch("bigtable-java/\\d+\\.\\d+\\.\\d+(?:-SNAPSHOT)?");
   }
 
+  static final Correspondence<SpanData, String> SPAN_DATA_BY_NAME = Correspondence.transforming(SpanData::getName, "SpanData.getName()");
   @Test
   public void testSpanAttributes() throws InterruptedException {
     final BlockingQueue<SpanData> spans = new ArrayBlockingQueue<>(100);
@@ -347,6 +351,7 @@ public class EnhancedBigtableStubTest {
             });
 
     SpanData foundSpanData = null;
+    List<SpanData> allSpans = new ArrayList<>();
     // Issue the rpc and grab the span
     try {
       try (Scope ignored =
@@ -357,9 +362,14 @@ public class EnhancedBigtableStubTest {
         enhancedBigtableStub.readRowCallable().call(Query.create("table-id").rowKey("row-key"));
       }
 
-      for (int i = 0; i < 100; i++) {
-        SpanData spanData = spans.poll(10, TimeUnit.SECONDS);
-        if ("Bigtable.ReadRow".equals(spanData.getName())) {
+
+      for (int i = 0; i < 10; i++) {
+        SpanData spanData = spans.poll(1, TimeUnit.SECONDS);
+        if (spanData == null) {
+          continue;
+        }
+        allSpans.add(spanData);
+        if (SPAN_DATA_BY_NAME.compare(spanData, "Bigtable.ReadRow")) {
           foundSpanData = spanData;
           break;
         }
@@ -369,18 +379,18 @@ public class EnhancedBigtableStubTest {
       Tracing.getExportComponent().getSpanExporter().unregisterHandler(handlerName);
     }
 
+
     // Examine the caught span
+    assertThat(allSpans).comparingElementsUsing(SPAN_DATA_BY_NAME).contains("Bigtable.ReadRow");
     assertThat(foundSpanData).isNotNull();
     assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry("gapic", AttributeValue.stringAttributeValue(Version.VERSION));
-    assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry(
-            "grpc",
-            AttributeValue.stringAttributeValue(
-                GrpcUtil.getGrpcBuildVersion().getImplementationVersion()));
-    assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry(
-            "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion()));
+            .containsAtLeast(
+                    "gapic", AttributeValue.stringAttributeValue(Version.VERSION),
+                    "grpc",
+                    AttributeValue.stringAttributeValue(
+                            GrpcUtil.getGrpcBuildVersion().getImplementationVersion()),
+                    "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion())
+            );
   }
 
   @Test

@@ -246,8 +246,9 @@ public class CookiesHolderTest {
   }
 
   @Test
-  public void testMutateRow() {
+  public void testMutateRow() throws InterruptedException {
     client.mutateRow(RowMutation.create("table", "key").setCell("cf", "q", "v"));
+    client.close();
 
     assertThat(fakeService.count.get()).isGreaterThan(1);
     assertThat(serverMetadata).hasSize(fakeService.count.get());
@@ -682,6 +683,7 @@ public class CookiesHolderTest {
     @Override
     public void mutateRow(
         MutateRowRequest request, StreamObserver<MutateRowResponse> responseObserver) {
+      System.out.println("server: mutateRow " + count.get());
       if (count.getAndIncrement() < 1) {
         Metadata trailers = new Metadata();
         maybePopulateCookie(trailers, "mutateRow");
@@ -801,6 +803,7 @@ public class CookiesHolderTest {
         trailers.put(ROUTING_COOKIE_2, testCookie);
         trailers.put(BAD_KEY, "bad-key");
       }
+      System.out.println("server trailers (" + returnCookie + "): " + trailers);
     }
   }
 }
