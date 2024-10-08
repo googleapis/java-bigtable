@@ -42,13 +42,13 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
-import com.google.api.gax.rpc.testing.FakeCallContext;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
@@ -73,6 +73,15 @@ import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+<<<<<<< HEAD
+=======
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.Deadline;
+import io.grpc.ForwardingClientCall;
+>>>>>>> 685c3d6b (Fix unit test)
 import io.grpc.ForwardingServerCall;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
@@ -97,6 +106,7 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -659,6 +669,7 @@ public class BuiltinMetricsTracerTest {
   @Test
   public void testQueuedOnChannelUnaryLatencies() {
 
+    System.out.print("HELLO WORLD2");
     stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
@@ -707,23 +718,26 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testRemainingDeadline() {
-//    stub.readRowsCallable().all().call(Query.create(TABLE), FakeCallContext.create());
-
-    MetricData remainingDeadline = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
+    GrpcCallContext context = GrpcCallContext.createDefault();
+    stub.readRowsCallable().all().call(Query.create(TABLE),
+            context.withCallOptions(context.getCallOptions().withDeadlineAfter(1000, TimeUnit.MILLISECONDS)));
+    MetricData remainingDeadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes attributes =
             baseAttributes
                     .toBuilder()
+                    .put(STATUS_KEY, "OK")
                     .put(TABLE_ID_KEY, TABLE)
-                    .put(CLUSTER_ID_KEY, CLUSTER)
                     .put(ZONE_ID_KEY, ZONE)
+                    .put(CLUSTER_ID_KEY, CLUSTER)
                     .put(METHOD_KEY, "Bigtable.ReadRows")
+                    .put(STREAMING_KEY, true)
                     .put(CLIENT_NAME_KEY, CLIENT_NAME)
                     .build();
 
-    long value = getAggregatedValue(remainingDeadline, attributes);
-    System.out.println("DEADLINE = ");
-    System.out.println(value);
+    long remainingDeadline = getAggregatedValue(remainingDeadlineMetric, attributes);
+    System.out.println("DEADLINE = " + remainingDeadline);
+    assertThat(remainingDeadline).isIn(Range.closed((long) 500, (long) 800));
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

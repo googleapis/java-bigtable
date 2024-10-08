@@ -321,7 +321,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
     applicationBlockingLatenciesHistogram.record(convertToMs(applicationLatencyNano), attributes);
 
-    remainingDeadlineHistogram.record(convertToMs(deadlineRemaining), attributes);
+    remainingDeadlineHistogram.record(deadlineRemaining, attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {
