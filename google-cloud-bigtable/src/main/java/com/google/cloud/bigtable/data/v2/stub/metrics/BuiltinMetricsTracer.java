@@ -85,6 +85,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   private Long serverLatencies = null;
 
+  private long deadlineRemaining;
+
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
   // to milliseconds and use DoubleHistogram. This should minimize the chance of a data
@@ -95,6 +97,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
+  private final DoubleHistogram remainingDeadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -108,6 +111,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       DoubleHistogram firstResponseLatenciesHistogram,
       DoubleHistogram clientBlockingLatenciesHistogram,
       DoubleHistogram applicationBlockingLatenciesHistogram,
+      DoubleHistogram remainingDeadlineHistogram,
       LongCounter connectivityErrorCounter,
       LongCounter retryCounter) {
     this.operationType = operationType;
@@ -120,6 +124,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.firstResponseLatenciesHistogram = firstResponseLatenciesHistogram;
     this.clientBlockingLatenciesHistogram = clientBlockingLatenciesHistogram;
     this.applicationBlockingLatenciesHistogram = applicationBlockingLatenciesHistogram;
+    this.remainingDeadlineHistogram = remainingDeadlineHistogram;
     this.connectivityErrorCounter = connectivityErrorCounter;
     this.retryCounter = retryCounter;
   }
@@ -268,6 +273,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void setRemainingDeadline(long deadlineRemaining) {
+    // update remaining deadline variable
+    this.deadlineRemaining = deadlineRemaining;
+  }
+
+  @Override
   public void disableFlowControl() {
     flowControlIsDisabled = true;
   }
@@ -308,6 +319,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
     long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
     applicationBlockingLatenciesHistogram.record(convertToMs(applicationLatencyNano), attributes);
+
+    remainingDeadlineHistogram.record(deadlineRemaining, attributes);
 
     if (operationType == OperationType.ServerStreaming
         && spanName.getMethodName().equals("ReadRows")) {

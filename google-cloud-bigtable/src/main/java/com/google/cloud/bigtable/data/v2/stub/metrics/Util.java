@@ -34,6 +34,7 @@ import com.google.bigtable.v2.TableName;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
+import io.grpc.Deadline;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
@@ -222,9 +223,10 @@ public class Util {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
+      Deadline deadline = callOptions.getDeadline();
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
-              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
+              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer, deadline))));
     } else {
       // context should always be an instance of GrpcCallContext. If not throw an exception
       // so we can see what class context is.

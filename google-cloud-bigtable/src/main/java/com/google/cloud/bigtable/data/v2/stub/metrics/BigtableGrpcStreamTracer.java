@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.common.base.Stopwatch;
 import io.grpc.Attributes;
 import io.grpc.ClientStreamTracer;
+import io.grpc.Deadline;
 import io.grpc.Metadata;
 import java.util.concurrent.TimeUnit;
 
@@ -30,9 +31,11 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final Stopwatch stopwatch = Stopwatch.createUnstarted();
   private final BigtableTracer tracer;
+  private final Deadline deadline;
 
-  public BigtableGrpcStreamTracer(BigtableTracer tracer) {
+  public BigtableGrpcStreamTracer(BigtableTracer tracer, Deadline deadline) {
     this.tracer = tracer;
+    this.deadline = deadline;
   }
 
   @Override
@@ -43,20 +46,25 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
     tracer.grpcChannelQueuedLatencies(stopwatch.elapsed(TimeUnit.NANOSECONDS));
+    if (deadline != null) {
+      tracer.setRemainingDeadline(deadline.timeRemaining(TimeUnit.MILLISECONDS));
+    }
   }
 
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;
+    private final Deadline deadline;
 
-    Factory(BigtableTracer tracer) {
+    Factory(BigtableTracer tracer, Deadline deadline) {
       this.tracer = tracer;
+      this.deadline = deadline;
     }
 
     @Override
     public ClientStreamTracer newClientStreamTracer(
         ClientStreamTracer.StreamInfo info, Metadata headers) {
-      return new BigtableGrpcStreamTracer(tracer);
+      return new BigtableGrpcStreamTracer(tracer, deadline);
     }
   }
 }
