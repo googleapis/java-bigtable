@@ -70,7 +70,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
 
   private final BigtableDataSettings defaultSettings;
   private final ClientContext sharedClientContext;
-  private final OpenTelemetry openTelemetry;
+  private final OpenTelemetry defaultOpenTelemetry;
 
   /**
    * Create a instance of this factory.
@@ -104,7 +104,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
       OpenTelemetry openTelemetry) {
     this.sharedClientContext = sharedClientContext;
     this.defaultSettings = defaultSettings;
-    this.openTelemetry = openTelemetry;
+    this.defaultOpenTelemetry = openTelemetry;
   }
 
   /**
@@ -135,7 +135,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
               .toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
-                      defaultSettings.getStubSettings(), openTelemetry))
+                      defaultSettings.getStubSettings(), defaultOpenTelemetry))
               .build();
 
       return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
@@ -164,7 +164,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), openTelemetry))
+                    settings.getStubSettings(), defaultOpenTelemetry))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
@@ -180,6 +180,21 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    */
   public BigtableDataClient createForInstance(@Nonnull String projectId, @Nonnull String instanceId)
       throws IOException {
+    OpenTelemetry openTelemetry = null;
+    if (!projectId.equals(defaultSettings.getProjectId())) {
+      try {
+        openTelemetry =
+            EnhancedBigtableStub.getOpenTelemetry(
+                projectId,
+                defaultSettings.getMetricsProvider(),
+                sharedClientContext.getCredentials(),
+                defaultSettings.getStubSettings().getMetricsEndpoint());
+      } catch (Throwable t) {
+        logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
+      }
+    } else {
+      openTelemetry = defaultOpenTelemetry;
+    }
     BigtableDataSettings settings =
         defaultSettings
             .toBuilder()
@@ -211,6 +226,21 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   public BigtableDataClient createForInstance(
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String appProfileId)
       throws IOException {
+    OpenTelemetry openTelemetry = null;
+    if (!projectId.equals(defaultSettings.getProjectId())) {
+      try {
+        openTelemetry =
+            EnhancedBigtableStub.getOpenTelemetry(
+                projectId,
+                defaultSettings.getMetricsProvider(),
+                sharedClientContext.getCredentials(),
+                defaultSettings.getStubSettings().getMetricsEndpoint());
+      } catch (Throwable t) {
+        logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
+      }
+    } else {
+      openTelemetry = defaultOpenTelemetry;
+    }
     BigtableDataSettings settings =
         defaultSettings
             .toBuilder()
