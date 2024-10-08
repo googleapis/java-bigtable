@@ -669,7 +669,6 @@ public class BuiltinMetricsTracerTest {
   @Test
   public void testQueuedOnChannelUnaryLatencies() {
 
-    System.out.print("HELLO WORLD2");
     stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
