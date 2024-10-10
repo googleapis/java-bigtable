@@ -77,7 +77,7 @@
         "^com.google.cloud:sdk-platform-java-config",
         "^com.google.cloud:gapic-libraries-bom"
       ],
-      "groupName": "shared dependencies"
+      "groupName": "sdk-platform-java dependencies"
     }
   ],
   "regexManagers": [
