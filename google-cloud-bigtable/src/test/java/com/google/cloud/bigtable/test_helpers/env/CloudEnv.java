@@ -91,7 +91,6 @@ public class CloudEnv extends AbstractTestEnv {
   private final String projectId;
   private final String instanceId;
   private final String tableId;
-  private final String tracingCookie;
   private final String kmsKeyName;
 
   private final BigtableDataSettings.Builder dataSettings;
@@ -110,7 +109,7 @@ public class CloudEnv extends AbstractTestEnv {
         getOptionalProperty(CMEK_KMS_KEY_PROPERTY_NAME, ""),
         getRequiredProperty(PROJECT_PROPERTY_NAME),
         getRequiredProperty(INSTANCE_PROPERTY_NAME),
-        getRequiredProperty(APP_PROFILE_PROPERTY_NAME),
+        getOptionalProperty(APP_PROFILE_PROPERTY_NAME),
         getRequiredProperty(TABLE_PROPERTY_NAME),
         getOptionalProperty(TRACING_COOKIE_PROPERTY_NAME));
   }
@@ -128,13 +127,15 @@ public class CloudEnv extends AbstractTestEnv {
     this.instanceId = instanceId;
     this.appProfileId = appProfileId;
     this.tableId = tableId;
-    this.tracingCookie = tracingCookie;
     this.kmsKeyName = kmsKeyName;
 
     this.dataSettings =
         BigtableDataSettings.newBuilder().setProjectId(projectId).setInstanceId(instanceId);
     if (!Strings.isNullOrEmpty(dataEndpoint)) {
       dataSettings.stubSettings().setEndpoint(dataEndpoint);
+    }
+    if (!Strings.isNullOrEmpty(appProfileId)) {
+      dataSettings.setAppProfileId(appProfileId);
     }
 
     configureConnection(dataSettings.stubSettings());
