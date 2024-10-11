@@ -70,7 +70,7 @@ public final class AppProfile {
     if (proto.hasMultiClusterRoutingUseAny()) {
       if (proto.getMultiClusterRoutingUseAny().hasRowAffinity()) {
         return MultiClusterRoutingPolicy.withRowAffinity(
-          ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
+            ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
       }
       return MultiClusterRoutingPolicy.of(
           ImmutableSet.copyOf(proto.getMultiClusterRoutingUseAny().getClusterIdsList()));
@@ -272,13 +272,15 @@ public final class AppProfile {
 
     /** Creates a new instance of {@link MultiClusterRoutingPolicy}. */
     public static MultiClusterRoutingPolicy withRowAffinity() {
-      return new MultiClusterRoutingPolicy(MultiClusterRoutingUseAny.newBuilder()
-              .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());
+      return new MultiClusterRoutingPolicy(
+          MultiClusterRoutingUseAny.newBuilder()
+              .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+              .build());
     }
 
     /**
-     * Creates a new instance of {@link MultiClusterRoutingPolicy} with row affinity enabled and specified cluster ids to
-     * route to.
+     * Creates a new instance of {@link MultiClusterRoutingPolicy} with row affinity enabled and
+     * specified cluster ids to route to.
      */
     public static MultiClusterRoutingPolicy withRowAffinity(String... clusterIds) {
       return withRowAffinity(ImmutableSet.copyOf(clusterIds));
@@ -290,10 +292,10 @@ public final class AppProfile {
      */
     public static MultiClusterRoutingPolicy withRowAffinity(Set<String> clusterIds) {
       return new MultiClusterRoutingPolicy(
-              MultiClusterRoutingUseAny.newBuilder()
-                      .addAllClusterIds(clusterIds)
-                      .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
-                      .build());
+          MultiClusterRoutingUseAny.newBuilder()
+              .addAllClusterIds(clusterIds)
+              .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+              .build());
     }
 
     /*

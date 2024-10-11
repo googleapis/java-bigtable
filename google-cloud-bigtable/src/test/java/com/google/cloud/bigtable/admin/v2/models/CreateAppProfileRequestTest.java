@@ -105,10 +105,13 @@ public class CreateAppProfileRequestTest {
   @Test
   public void testRowAffinity() {
     CreateAppProfileRequest wrapper =
-            CreateAppProfileRequest.of("my-instance", "my-profile")
-                    .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity());
+        CreateAppProfileRequest.of("my-instance", "my-profile")
+            .setRoutingPolicy(MultiClusterRoutingPolicy.withRowAffinity());
 
     assertThat(wrapper.toProto("my-project").getAppProfile().getMultiClusterRoutingUseAny())
-            .isEqualTo(MultiClusterRoutingUseAny.newBuilder().setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance()).build());
+        .isEqualTo(
+            MultiClusterRoutingUseAny.newBuilder()
+                .setRowAffinity(MultiClusterRoutingUseAny.RowAffinity.getDefaultInstance())
+                .build());
   }
 }

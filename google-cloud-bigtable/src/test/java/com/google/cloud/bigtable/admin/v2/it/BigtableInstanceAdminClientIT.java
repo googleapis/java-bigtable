@@ -286,12 +286,12 @@ public class BigtableInstanceAdminClientIT {
     String newClusterId2 = newInstanceId + "-c2";
 
     client.createInstance(
-            CreateInstanceRequest.of(newInstanceId)
-                    .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
-                    .addCluster(newClusterId2, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
-                    .setDisplayName("Row-Affinity-Instance-Test")
-                    .addLabel("state", "readytodelete")
-                    .setType(Type.PRODUCTION));
+        CreateInstanceRequest.of(newInstanceId)
+            .addCluster(newClusterId, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD)
+            .addCluster(newClusterId2, testEnvRule.env().getSecondaryZone(), 1, StorageType.SSD)
+            .setDisplayName("Row-Affinity-Instance-Test")
+            .addLabel("state", "readytodelete")
+            .setType(Type.PRODUCTION));
 
     try {
       assertThat(client.exists(newInstanceId)).isTrue();
@@ -299,13 +299,16 @@ public class BigtableInstanceAdminClientIT {
       String testAppProfile = prefixGenerator.newPrefix();
 
       CreateAppProfileRequest request =
-              CreateAppProfileRequest.of(newInstanceId, testAppProfile)
-                      .setRoutingPolicy(AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2))
-                      .setDescription("row affinity app profile");
+          CreateAppProfileRequest.of(newInstanceId, testAppProfile)
+              .setRoutingPolicy(
+                  AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2))
+              .setDescription("row affinity app profile");
 
       AppProfile newlyCreateAppProfile = client.createAppProfile(request);
       AppProfile.RoutingPolicy routingPolicy = newlyCreateAppProfile.getPolicy();
-      assertThat(routingPolicy).isEqualTo(AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2));
+      assertThat(routingPolicy)
+          .isEqualTo(
+              AppProfile.MultiClusterRoutingPolicy.withRowAffinity(newClusterId, newClusterId2));
     } finally {
       if (client.exists(newInstanceId)) {
         client.deleteInstance(newInstanceId);
