@@ -15,16 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 
 import com.google.api.gax.grpc.GrpcCallContext;
-import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi;
 import com.google.common.truth.Truth;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,21 +53,23 @@ public class ReadRowsFirstCallableTest {
 
   @Test
   public void testLimitAdded() {
+    FakeStreamingApi.ServerStreamingStashCallable<Query, Row> innerCallable =
+        new FakeStreamingApi.ServerStreamingStashCallable<>();
     ReadRowsFirstCallable<Row> callable = new ReadRowsFirstCallable<>(innerCallable);
-    callable.futureCall(Query.create("fake-table"), GrpcCallContext.createDefault());
-    verify(innerCallable)
-        .call(innerQuery.capture(), any(ResponseObserver.class), any(ApiCallContext.class));
-    Truth.assertThat(innerQuery.getValue().toProto(REQUEST_CONTEXT))
+    callable.call(Query.create("fake-table"), GrpcCallContext.createDefault());
+
+    Truth.assertThat(innerCallable.getActualRequest().toProto(REQUEST_CONTEXT))
         .isEqualTo(Query.create("fake-table").limit(1).toProto(REQUEST_CONTEXT));
   }
 
   @Test
   public void testLimitChanged() {
+    FakeStreamingApi.ServerStreamingStashCallable<Query, Row> innerCallable =
+        new FakeStreamingApi.ServerStreamingStashCallable<>();
     ReadRowsFirstCallable<Row> callable = new ReadRowsFirstCallable<>(innerCallable);
-    callable.futureCall(Query.create("fake-table").limit(10), GrpcCallContext.createDefault());
-    verify(innerCallable)
-        .call(innerQuery.capture(), any(ResponseObserver.class), any(ApiCallContext.class));
-    Truth.assertThat(innerQuery.getValue().toProto(REQUEST_CONTEXT))
+    callable.call(Query.create("fake-table").limit(10), GrpcCallContext.createDefault());
+
+    Truth.assertThat(innerCallable.getActualRequest().toProto(REQUEST_CONTEXT))
         .isEqualTo(Query.create("fake-table").limit(1).toProto(REQUEST_CONTEXT));
   }
 }

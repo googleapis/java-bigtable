@@ -36,7 +36,7 @@ import org.threeten.bp.Duration;
 
 class MetricsTracer extends BigtableTracer {
 
-  private final OperationType operationType;
+  private volatile OperationType operationType;
 
   private final Tagger tagger;
   private final StatsRecorder stats;
@@ -85,6 +85,17 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void overrideOperationType(OperationType operationType) {
+    this.operationType = operationType;
+  }
+
+  @Override
+  public void operationFinishedEarly() {
+    attemptTimer.stop();
+    operationTimer.stop();
+  }
+
+  @Override
   public void operationSucceeded() {
     recordOperationCompletion(null);
   }
@@ -103,7 +114,9 @@ class MetricsTracer extends BigtableTracer {
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
-    operationTimer.stop();
+    if (operationTimer.isRunning()) {
+      operationTimer.stop();
+    }
 
     long elapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 

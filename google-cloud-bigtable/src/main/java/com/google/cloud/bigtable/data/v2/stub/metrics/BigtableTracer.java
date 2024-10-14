@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 import com.google.api.core.BetaApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
+import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.BaseApiTracer;
 import javax.annotation.Nullable;
 
@@ -84,6 +85,14 @@ public class BigtableTracer extends BaseApiTracer {
   }
 
   public void grpcChannelQueuedLatencies(long queuedTimeMs) {
+    // noop
+  }
+
+  public void overrideOperationType(ApiTracerFactory.OperationType operationType) {
+    // noop
+  }
+
+  public void operationFinishedEarly() {
     // noop
   }
 }
