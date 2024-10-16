@@ -65,8 +65,7 @@ public class BuiltinMetricsView {
       SdkMeterProviderBuilder builder,
       @Nullable String endpoint)
       throws IOException {
-    MetricExporter metricExporter =
-        BigtableCloudMonitoringExporter.create(projectId, credentials, endpoint);
+    MetricExporter metricExporter = BigtableCloudMonitoringExporter.create(credentials, endpoint);
     for (Map.Entry<InstrumentSelector, View> entry :
         BuiltinMetricsConstants.getAllViews().entrySet()) {
       builder.registerView(entry.getKey(), entry.getValue());
