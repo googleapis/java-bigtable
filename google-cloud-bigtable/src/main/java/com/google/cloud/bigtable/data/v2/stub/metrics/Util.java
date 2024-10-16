@@ -34,12 +34,13 @@ import com.google.bigtable.v2.TableName;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
-import io.grpc.Deadline;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import org.threeten.bp.Duration;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -223,7 +224,7 @@ public class Util {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
-      Deadline deadline = callOptions.getDeadline();
+      Duration deadline = callContext.getTimeout();
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
               callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer, deadline))));
