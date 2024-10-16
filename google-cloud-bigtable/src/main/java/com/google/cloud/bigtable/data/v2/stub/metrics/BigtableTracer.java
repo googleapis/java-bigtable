@@ -93,4 +93,12 @@ public class BigtableTracer extends BaseApiTracer {
   public void grpcMessageSent() {
     // noop
   }
+
+  /**
+   * Set the remaining customer specified deadline so it can be exported in a metric. This will
+   * be called in BuiltinMetricsTracer.
+   */
+  public void setRemainingDeadline(long deadlineRemaining) {
+    // noop
+  }
 }

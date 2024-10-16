@@ -26,9 +26,11 @@ import io.grpc.Metadata;
 class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final BigtableTracer tracer;
+  private final Deadline deadline;
 
-  public BigtableGrpcStreamTracer(BigtableTracer tracer) {
+  public BigtableGrpcStreamTracer(BigtableTracer tracer, Deadline deadline) {
     this.tracer = tracer;
+    this.deadline = deadline;
   }
 
   @Override
@@ -39,15 +41,17 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;
+    private final Deadline deadline;
 
-    Factory(BigtableTracer tracer) {
+    Factory(BigtableTracer tracer, Deadline deadline) {
       this.tracer = tracer;
+      this.deadline = deadline;
     }
 
     @Override
     public ClientStreamTracer newClientStreamTracer(
         ClientStreamTracer.StreamInfo info, Metadata headers) {
-      return new BigtableGrpcStreamTracer(tracer);
+      return new BigtableGrpcStreamTracer(tracer, deadline);
     }
   }
 }
