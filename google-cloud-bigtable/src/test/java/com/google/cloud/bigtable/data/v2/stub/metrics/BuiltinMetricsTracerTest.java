@@ -44,7 +44,6 @@ import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
-import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -73,15 +72,9 @@ import com.google.common.collect.Range;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
-import io.grpc.ClientInterceptor;
-import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingServerCall;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
 import io.grpc.ProxiedSocketAddress;
 import io.grpc.ProxyDetector;
 import io.grpc.Server;
@@ -100,11 +93,9 @@ import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
-
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -113,6 +104,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -122,8 +114,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-
-import javax.annotation.Nullable;
 
 @RunWith(JUnit4.class)
 public class BuiltinMetricsTracerTest {
@@ -141,7 +131,7 @@ public class BuiltinMetricsTracerTest {
   private static final long SLEEP_VARIABILITY = 15;
   private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
 
-  private static final long CHANNEL_BLOCKING_LATENCY = 75;
+  private static final long CHANNEL_BLOCKING_LATENCY = 200;
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
 
@@ -214,6 +204,7 @@ public class BuiltinMetricsTracerTest {
             .setProjectId(PROJECT_ID)
             .setInstanceId(INSTANCE_ID)
             .setAppProfileId(APP_PROFILE_ID)
+            .setRefreshingChannel(false)
             .build();
     EnhancedBigtableStubSettings.Builder stubSettingsBuilder =
         settings.getStubSettings().toBuilder();
@@ -253,7 +244,7 @@ public class BuiltinMetricsTracerTest {
           if (oldConfigurator != null) {
             builder = oldConfigurator.apply(builder);
           }
-          return builder.intercept(clientInterceptor);
+          return builder.proxyDetector(new DelayProxyDetector());
         });
     stubSettingsBuilder.setTransportChannelProvider(channelProvider.build());
 
@@ -681,9 +672,8 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long expected = CHANNEL_BLOCKING_LATENCY * 2 / 3;
     long actual = getAggregatedValue(clientLatency, attributes);
-    assertThat(actual).isAtLeast(expected);
+    assertThat(actual).isAtLeast(CHANNEL_BLOCKING_LATENCY);
   }
 
   @Test
