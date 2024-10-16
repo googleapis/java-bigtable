@@ -20,7 +20,6 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 
-import com.google.api.core.ApiFunction;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.core.BetaApi;
@@ -35,7 +34,6 @@ import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
 import com.google.api.gax.grpc.GrpcRawCallableFactory;
-import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
@@ -76,7 +74,6 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
-import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
@@ -109,12 +106,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCal
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CompositeTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
-import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
-import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsTracerFactory;
-import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.RpcMeasureConstants;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersServerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.StatsHeadersUnaryCallable;
@@ -145,7 +137,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.MethodDescriptor;
 import io.opencensus.stats.Stats;
 import io.opencensus.stats.StatsRecorder;
@@ -165,8 +156,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -184,8 +173,6 @@ import javax.annotation.Nullable;
  */
 @InternalApi
 public class EnhancedBigtableStub implements AutoCloseable {
-
-  private static final Logger logger = Logger.getLogger(EnhancedBigtableStub.class.getName());
 
   private static final String CLIENT_NAME = "Bigtable";
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
@@ -220,22 +207,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
-    ClientContext clientContext = createClientContext(settings);
-    OpenTelemetry openTelemetry = null;
-    try {
-      // We don't want client side metrics to crash the client, so catch any exception when getting
-      // the OTEL instance and log the exception instead.
-      openTelemetry =
-          getOpenTelemetry(
-              settings.getProjectId(),
-              settings.getMetricsProvider(),
-              clientContext.getCredentials(),
-              settings.getMetricsEndpoint());
-    } catch (Throwable t) {
-      logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
-    }
+    BigtableClientContext bigtableClientContext = createBigtableClientContext(settings);
+    OpenTelemetry openTelemetry = bigtableClientContext.createOpenTelemetry();
     ClientContext contextWithTracer =
-        clientContext
+        bigtableClientContext
+            .getClientContext()
             .toBuilder()
             .setTracerFactory(createBigtableTracerFactory(settings, openTelemetry))
             .build();
@@ -248,12 +224,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new EnhancedBigtableStub(settings, clientContext, false);
   }
 
-  public static ClientContext createClientContext(EnhancedBigtableStubSettings settings)
-      throws IOException {
+  public static BigtableClientContext createBigtableClientContext(
+      EnhancedBigtableStubSettings settings) throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
-
-    // TODO: this implementation is on the cusp of unwieldy, if we end up adding more features
-    // consider splitting it up by feature.
 
     // workaround JWT audience issues
     patchCredentials(builder);
@@ -265,72 +238,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
     builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
 
-    InstantiatingGrpcChannelProvider.Builder transportProvider =
-        builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
-            ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
-            : null;
-
-    OpenTelemetry openTelemetry = null;
-    try {
-      // We don't want client side metrics to crash the client, so catch any exception when getting
-      // the OTEL instance and log the exception instead.
-      openTelemetry =
-          getOpenTelemetry(
-              settings.getProjectId(),
-              settings.getMetricsProvider(),
-              credentials,
-              settings.getMetricsEndpoint());
-    } catch (Throwable t) {
-      logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
-    }
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker;
-    // Skip setting up ErrorCountPerConnectionMetricTracker if openTelemetry is null
-    if (openTelemetry != null && transportProvider != null) {
-      errorCountPerConnectionMetricTracker =
-          new ErrorCountPerConnectionMetricTracker(
-              openTelemetry, createBuiltinAttributes(settings));
-      ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
-          transportProvider.getChannelConfigurator();
-      transportProvider.setChannelConfigurator(
-          managedChannelBuilder -> {
-            if (settings.getEnableRoutingCookie()) {
-              managedChannelBuilder.intercept(new CookiesInterceptor());
-            }
-
-            managedChannelBuilder.intercept(errorCountPerConnectionMetricTracker.getInterceptor());
-
-            if (oldChannelConfigurator != null) {
-              managedChannelBuilder = oldChannelConfigurator.apply(managedChannelBuilder);
-            }
-            return managedChannelBuilder;
-          });
-    } else {
-      errorCountPerConnectionMetricTracker = null;
-    }
-
-    // Inject channel priming
-    if (settings.isRefreshingChannel()) {
-
-      if (transportProvider != null) {
-        transportProvider.setChannelPrimer(
-            BigtableChannelPrimer.create(
-                credentials,
-                settings.getProjectId(),
-                settings.getInstanceId(),
-                settings.getAppProfileId()));
-      }
-    }
-
-    if (transportProvider != null) {
-      builder.setTransportChannelProvider(transportProvider.build());
-    }
-
-    ClientContext clientContext = ClientContext.create(builder.build());
-    if (errorCountPerConnectionMetricTracker != null) {
-      errorCountPerConnectionMetricTracker.startConnectionErrorCountTracker(
-          clientContext.getExecutor());
-    }
-    return clientContext;
+    return BigtableClientContext.create(builder.build());
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
@@ -387,31 +295,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new CompositeTracerFactory(tracerFactories.build());
   }
 
-  @Nullable
-  public static OpenTelemetry getOpenTelemetry(
-      String projectId,
-      MetricsProvider metricsProvider,
-      @Nullable Credentials defaultCredentials,
-      @Nullable String metricsEndpoint)
-      throws IOException {
-    if (metricsProvider instanceof CustomOpenTelemetryMetricsProvider) {
-      CustomOpenTelemetryMetricsProvider customMetricsProvider =
-          (CustomOpenTelemetryMetricsProvider) metricsProvider;
-      return customMetricsProvider.getOpenTelemetry();
-    } else if (metricsProvider instanceof DefaultMetricsProvider) {
-      Credentials credentials =
-          BigtableDataSettings.getMetricsCredentials() != null
-              ? BigtableDataSettings.getMetricsCredentials()
-              : defaultCredentials;
-      DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
-      return defaultMetricsProvider.getOpenTelemetry(projectId, metricsEndpoint, credentials);
-    } else if (metricsProvider instanceof NoopMetricsProvider) {
-      return null;
-    }
-    throw new IOException("Invalid MetricsProvider type " + metricsProvider);
-  }
-
-  private static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
+  static Attributes createBuiltinAttributes(EnhancedBigtableStubSettings settings) {
     return Attributes.of(
         BIGTABLE_PROJECT_ID_KEY,
         settings.getProjectId(),
