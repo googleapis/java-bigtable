@@ -89,7 +89,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
-            projectId, fakeMetricServiceClient, /* applicationResource= */ null, taskId);
+            fakeMetricServiceClient, /* applicationResource= */ null, taskId);
 
     attributes =
         Attributes.builder()
@@ -301,7 +301,6 @@ public class BigtableCloudMonitoringExporterTest {
     String gceProjectId = "fake-gce-project";
     BigtableCloudMonitoringExporter exporter =
         new BigtableCloudMonitoringExporter(
-            projectId,
             fakeMetricServiceClient,
             MonitoredResource.newBuilder()
                 .setType("gce-instance")
