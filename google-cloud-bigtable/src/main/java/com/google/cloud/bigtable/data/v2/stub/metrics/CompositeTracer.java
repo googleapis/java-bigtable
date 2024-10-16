@@ -227,6 +227,13 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void grpcMessageSent() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.grpcMessageSent();
+    }
+  }
+
+  @Override
   public void setRemainingDeadline(long deadline) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.setRemainingDeadline(deadline);

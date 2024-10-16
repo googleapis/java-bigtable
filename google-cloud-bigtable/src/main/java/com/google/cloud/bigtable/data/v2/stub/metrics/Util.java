@@ -40,7 +40,6 @@ import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
 import org.threeten.bp.Duration;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
