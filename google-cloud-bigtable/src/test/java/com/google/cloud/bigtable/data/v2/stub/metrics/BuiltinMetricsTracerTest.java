@@ -82,6 +82,8 @@ import io.grpc.ForwardingServerCall;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import io.grpc.ProxiedSocketAddress;
+import io.grpc.ProxyDetector;
 import io.grpc.Server;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -98,6 +100,9 @@ import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
+
+import java.io.IOException;
+import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -117,6 +122,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import javax.annotation.Nullable;
 
 @RunWith(JUnit4.class)
 public class BuiltinMetricsTracerTest {
@@ -197,28 +204,6 @@ public class BuiltinMetricsTracerTest {
                   }
                 },
                 metadata);
-          }
-        };
-
-    ClientInterceptor clientInterceptor =
-        new ClientInterceptor() {
-          @Override
-          public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-              MethodDescriptor<ReqT, RespT> methodDescriptor,
-              CallOptions callOptions,
-              Channel channel) {
-            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
-                channel.newCall(methodDescriptor, callOptions)) {
-              @Override
-              public void sendMessage(ReqT message) {
-                try {
-                  Thread.sleep(CHANNEL_BLOCKING_LATENCY);
-                } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-                }
-                super.sendMessage(message);
-              }
-            };
           }
         };
 
@@ -864,6 +849,20 @@ public class BuiltinMetricsTracerTest {
 
     public AtomicInteger getResponseCounter() {
       return responseCounter;
+    }
+  }
+
+  class DelayProxyDetector implements ProxyDetector {
+
+    @Nullable
+    @Override
+    public ProxiedSocketAddress proxyFor(SocketAddress socketAddress) throws IOException {
+      try {
+        Thread.sleep(CHANNEL_BLOCKING_LATENCY);
+      } catch (InterruptedException e) {
+
+      }
+      return null;
     }
   }
 }

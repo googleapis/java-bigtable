@@ -25,6 +25,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
+
 import com.google.api.core.InternalApi;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.ApiTracerFactory;
@@ -55,7 +56,6 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
-
   private final DoubleHistogram remainingDeadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
