@@ -96,6 +96,7 @@ import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -212,6 +213,8 @@ public class BuiltinMetricsTracerTest {
         .mutateRowSettings()
         .retrySettings()
         .setInitialRetryDelayDuration(java.time.Duration.ofMillis(200));
+
+    stubSettingsBuilder.readRowsSettings().retrySettings().setTotalTimeoutDuration(Duration.ofMillis(3000));
 
     stubSettingsBuilder
         .bulkMutateRowsSettings()
@@ -706,9 +709,7 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testRemainingDeadline() {
-    GrpcCallContext context = GrpcCallContext.createDefault();
-    stub.readRowsCallable().all().call(Query.create(TABLE),
-            context.withCallOptions(context.getCallOptions().withDeadlineAfter(1000, TimeUnit.MILLISECONDS)));
+    stub.readRowsCallable().all().call(Query.create(TABLE));
     MetricData remainingDeadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes attributes =
@@ -724,8 +725,7 @@ public class BuiltinMetricsTracerTest {
                     .build();
 
     long remainingDeadline = getAggregatedValue(remainingDeadlineMetric, attributes);
-    System.out.println("DEADLINE = " + remainingDeadline);
-    assertThat(remainingDeadline).isIn(Range.closed((long) 500, (long) 800));
+    assertThat(remainingDeadline).isIn(Range.closed((long) 2000, (long) 2500));
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
