@@ -46,6 +46,9 @@ public class BuiltinMetricsConstants {
   public static final AttributeKey<String> APP_PROFILE_KEY = AttributeKey.stringKey("app_profile");
   public static final AttributeKey<Boolean> STREAMING_KEY = AttributeKey.booleanKey("streaming");
   public static final AttributeKey<String> CLIENT_NAME_KEY = AttributeKey.stringKey("client_name");
+
+  public static final AttributeKey<String> DIRECTPATH_ENABLED_KEY =
+      AttributeKey.stringKey("directpath_enabled");
   static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
@@ -107,7 +110,8 @@ public class BuiltinMetricsConstants {
           CLUSTER_ID_KEY,
           ZONE_ID_KEY,
           METHOD_KEY,
-          CLIENT_NAME_KEY);
+          CLIENT_NAME_KEY,
+          DIRECTPATH_ENABLED_KEY);
 
   static void defineView(
       ImmutableMap.Builder<InstrumentSelector, View> viewMap,
