@@ -341,6 +341,7 @@ public class BuiltinMetricsTracerTest {
 
               @Override
               public void onResponse(Row response) {
+                // Server sends back 2 responses for this test
                 if (firstResponseTimer.isRunning()) {
                   firstResponseTimer.stop();
                 }
@@ -371,7 +372,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, FIRST_RESPONSE_LATENCIES_NAME);
 
     long value = getAggregatedValue(metricData, expectedAttributes);
-    assertThat(value).isLessThan(firstResponseTimer.elapsed(TimeUnit.MILLISECONDS));
+    assertThat(value).isAtMost(firstResponseTimer.elapsed(TimeUnit.MILLISECONDS));
   }
 
   @Test
