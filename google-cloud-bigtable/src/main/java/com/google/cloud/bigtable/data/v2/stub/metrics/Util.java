@@ -39,6 +39,7 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import org.threeten.bp.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -222,9 +223,10 @@ public class Util {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
+      Duration deadline = callContext.getTimeout();
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
-              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
+              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer, deadline))));
     } else {
       // context should always be an instance of GrpcCallContext. If not throw an exception
       // so we can see what class context is.

@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import io.grpc.ClientStreamTracer;
 import io.grpc.Metadata;
+import org.threeten.bp.Duration;
 
 /**
  * Records the time a request is enqueued in a grpc channel queue. This a bridge between gRPC stream
@@ -26,28 +27,33 @@ import io.grpc.Metadata;
 class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final BigtableTracer tracer;
+  private final Duration deadline;
 
-  public BigtableGrpcStreamTracer(BigtableTracer tracer) {
+  public BigtableGrpcStreamTracer(BigtableTracer tracer, Duration deadline) {
     this.tracer = tracer;
+    this.deadline = deadline;
   }
 
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
     tracer.grpcMessageSent();
+    tracer.setRemainingDeadline(deadline.toMillis());
   }
 
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;
+    private final Duration deadline;
 
-    Factory(BigtableTracer tracer) {
+    Factory(BigtableTracer tracer, Duration deadline) {
       this.tracer = tracer;
+      this.deadline = deadline;
     }
 
     @Override
     public ClientStreamTracer newClientStreamTracer(
         ClientStreamTracer.StreamInfo info, Metadata headers) {
-      return new BigtableGrpcStreamTracer(tracer);
+      return new BigtableGrpcStreamTracer(tracer, deadline);
     }
   }
 }
