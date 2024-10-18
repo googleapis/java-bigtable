@@ -139,6 +139,10 @@
       <artifactId>opencensus-api</artifactId>
     </dependency>
     <dependency>
+      <groupId>com.google.cloud.opentelemetry</groupId>
+      <artifactId>exporter-metrics</artifactId>
+    </dependency>
+    <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-alts</artifactId>
       <scope>runtime</scope>

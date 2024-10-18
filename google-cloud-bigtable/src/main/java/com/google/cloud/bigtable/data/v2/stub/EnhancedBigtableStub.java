@@ -15,11 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
-
 import com.google.api.core.ApiFunction;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
@@ -39,12 +34,15 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
+import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
+import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StatusCode.Code;
+import com.google.api.gax.rpc.StreamController;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.ApiTracerFactory;
@@ -136,11 +134,15 @@ import com.google.cloud.bigtable.data.v2.stub.sql.MetadataResolvingCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
+import com.google.cloud.opentelemetry.metric.GoogleCloudMetricExporter;
+import com.google.cloud.opentelemetry.metric.MetricConfiguration;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.protobuf.ByteString;
 import io.grpc.ManagedChannelBuilder;
 import io.opencensus.stats.Stats;
@@ -150,7 +152,22 @@ import io.opencensus.tags.TagValue;
 import io.opencensus.tags.Tagger;
 import io.opencensus.tags.Tags;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.api.metrics.DoubleHistogram;
+import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.Aggregation;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
+import io.opentelemetry.sdk.metrics.InstrumentType;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
+import io.opentelemetry.sdk.metrics.export.MetricExporter;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -161,8 +178,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
 
 /**
  * The core client that converts method calls to RPCs.
@@ -620,6 +640,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             readRowsSettings.getRetryableCodes());
 
+    base = new IgorLatencyCallable<>(base, "gapic-readrows");
+
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
@@ -645,6 +667,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ServerStreamingCallable<ReadRowsRequest, RowT> watched =
         Callables.watched(merging, innerSettings, clientContext);
+
+    watched = new IgorLatencyCallable<>(watched, "readrows");
 
     ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
         new BigtableTracerStreamingCallable<>(watched);
@@ -1548,6 +1572,131 @@ public class EnhancedBigtableStub implements AutoCloseable {
           throw new IllegalStateException("Failed to close resource", e);
         }
       }
+    }
+  }
+
+
+  public static class IgorMetrics {
+    private static final Aggregation AGGREGATION_WITH_MILLIS_HISTOGRAM =
+            Aggregation.explicitBucketHistogram(
+                    ImmutableList.of(
+                            0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0, 10.0, 13.0, 16.0, 20.0, 25.0, 30.0, 40.0,
+                            50.0, 65.0, 80.0, 100.0, 130.0, 160.0, 200.0, 250.0, 300.0, 400.0, 500.0, 650.0,
+                            800.0, 1000.0, 2000.0, 5000.0, 10000.0, 20000.0, 50000.0, 100000.0, 200000.0,
+                            400000.0, 800000.0, 1600000.0, 3200000.0)); // max is 53.3 minutes
+
+    private static final AttributeKey<String> METHOD_KEY = AttributeKey.stringKey("method");
+    private static final AttributeKey<String> TAG_KEY = AttributeKey.stringKey("tag");
+
+    public static final IgorMetrics INSTANCE = new IgorMetrics();
+
+
+    private final OpenTelemetrySdk otel;
+    private final DoubleHistogram igorLatencyUs;
+
+
+
+    IgorMetrics() {
+      MetricExporter cloudMonitoringExporter =
+              GoogleCloudMetricExporter.createWithConfiguration(
+                      MetricConfiguration.builder()
+                              .setProjectId("google.com:cloud-bigtable-dev")
+                              .build());
+
+
+      SdkMeterProviderBuilder meterProviderBuilder = SdkMeterProvider.builder()
+              .registerMetricReader(
+                      PeriodicMetricReader.builder(cloudMonitoringExporter)
+                              .setInterval(java.time.Duration.ofSeconds(60))
+                              .build());
+
+
+      InstrumentSelector selector = InstrumentSelector.builder()
+              .setName("igor-latency")
+              .setMeterName("igor-latency")
+              .setType(InstrumentType.HISTOGRAM)
+              .setUnit("us")
+              .build();
+
+      View view = View.builder()
+              .setName("igor-latency")
+              .setAggregation(AGGREGATION_WITH_MILLIS_HISTOGRAM)
+              .setAttributeFilter(ImmutableSet.of("tag", "method"))
+              .build();
+      meterProviderBuilder.registerView(selector, view);
+
+
+      otel = OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
+
+
+      Meter meter = otel.getMeter("igor-test");
+      igorLatencyUs = meter
+              .histogramBuilder("igor-latency")
+              .setDescription("igor latency tests")
+              .setUnit("us")
+              .build();
+    }
+
+    public void recordIgorLatency(String method, String tag, long us) {
+      igorLatencyUs.record(us, Attributes.of(METHOD_KEY, method, TAG_KEY, tag));
+    }
+  }
+
+  static class IgorLatencyCallable<ReqT, RespT> extends ServerStreamingCallable<ReqT, RespT> {
+    private final ServerStreamingCallable<ReqT, RespT> inner;
+    private final String method;
+
+      IgorLatencyCallable(ServerStreamingCallable<ReqT, RespT> inner, String method) {
+          this.inner = inner;
+          this.method = method;
+      }
+
+      @Override
+    public void call(ReqT reqT, ResponseObserver<RespT> responseObserver, ApiCallContext apiCallContext) {
+        inner.call(reqT, new IgorLatencyObserver<>(responseObserver, method), apiCallContext);
+    }
+  }
+  static class IgorLatencyObserver<RowT> implements ResponseObserver<RowT> {
+    private final ResponseObserver<RowT> outer;
+    private final String method;
+    Stopwatch firstRowTimer;
+    Stopwatch attemptTimer;
+
+    IgorLatencyObserver(ResponseObserver<RowT> outer, String method) {
+      this.outer = outer;
+        this.method = method;
+    }
+
+    @Override
+    public void onStart(StreamController streamController) {
+      firstRowTimer = Stopwatch.createStarted();
+      attemptTimer = Stopwatch.createStarted();
+      outer.onStart(streamController);
+    }
+
+    @Override
+    public void onResponse(RowT rowT) {
+      if (firstRowTimer.isRunning()) {
+        IgorMetrics.INSTANCE.recordIgorLatency(method, "row", firstRowTimer.elapsed(TimeUnit.MICROSECONDS));
+        firstRowTimer.stop();
+      }
+
+      outer.onResponse(rowT);
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      outer.onError(throwable);
+    }
+
+    @Override
+    public void onComplete() {
+      if (firstRowTimer.isRunning()) {
+        firstRowTimer.stop();
+        IgorMetrics.INSTANCE.recordIgorLatency(method, "no-row", firstRowTimer.elapsed(TimeUnit.MICROSECONDS));
+      }
+      IgorMetrics.INSTANCE.recordIgorLatency(method, "attempt", attemptTimer.elapsed(TimeUnit.MICROSECONDS));
+      outer.onComplete();
     }
   }
 }
