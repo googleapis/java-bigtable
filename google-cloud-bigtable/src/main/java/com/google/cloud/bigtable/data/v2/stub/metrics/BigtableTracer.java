@@ -95,7 +95,7 @@ public class BigtableTracer extends BaseApiTracer {
   }
 
   /**
-   * Set the remaining customer specified deadline so it can be exported in a metric. This will be
+   * Set the customer specified deadline so that it can be exported in a metric. This will be
    * called in BuiltinMetricsTracer.
    */
   public void setDeadline(long deadline) {
