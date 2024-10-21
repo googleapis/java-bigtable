@@ -37,7 +37,8 @@ class BigtableGrpcStreamTracer extends ClientStreamTracer {
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
     tracer.grpcMessageSent();
-    tracer.setRemainingDeadline(deadline.toMillis());
+    System.out.print("outboundMessageSent DEADLINE=" + deadline.toMillis() + "\n");
+    tracer.setDeadline(deadline.toMillis());
   }
 
   static class Factory extends ClientStreamTracer.Factory {

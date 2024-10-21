@@ -56,7 +56,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
-  private final DoubleHistogram remainingDeadlineHistogram;
+  private final DoubleHistogram deadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -110,10 +110,10 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
                 "The latency of the client application consuming available response data.")
             .setUnit(MILLISECOND)
             .build();
-    remainingDeadlineHistogram =
+    deadlineHistogram =
         meter
             .histogramBuilder(REMAINING_DEADLINE_NAME)
-            .setDescription("The remaining customer specified deadline at the end of the request.")
+            .setDescription("The customer specified operation deadline for the request.")
             .setUnit(MILLISECOND)
             .build();
     connectivityErrorCounter =
@@ -143,7 +143,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
         firstResponseLatenciesHistogram,
         clientBlockingLatenciesHistogram,
         applicationBlockingLatenciesHistogram,
-        remainingDeadlineHistogram,
+        deadlineHistogram,
         connectivityErrorCounter,
         retryCounter);
   }

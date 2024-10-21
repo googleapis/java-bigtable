@@ -711,8 +711,10 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testRemainingDeadline() {
+    // The FakeService implements a retry attempt by default. By incrementing the attemptCounter, we skip that.
+    fakeService.attemptCounter.getAndIncrement();
     stub.readRowsCallable().all().call(Query.create(TABLE));
-    MetricData remainingDeadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
+    MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes attributes =
         baseAttributes
@@ -726,8 +728,8 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long remainingDeadline = getAggregatedValue(remainingDeadlineMetric, attributes);
-    assertThat(remainingDeadline).isIn(Range.closed((long) 2000, (long) 2500));
+    long deadline = getAggregatedValue(deadlineMetric, attributes);
+    assertThat(deadline).isEqualTo(3000);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

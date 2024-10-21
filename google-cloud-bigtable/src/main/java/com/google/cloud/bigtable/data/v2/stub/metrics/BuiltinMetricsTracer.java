@@ -86,7 +86,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
-  private long deadlineRemaining = 0;
+  private long deadline = 0;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -98,7 +98,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
-  private final DoubleHistogram remainingDeadlineHistogram;
+  private final DoubleHistogram deadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -112,7 +112,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       DoubleHistogram firstResponseLatenciesHistogram,
       DoubleHistogram clientBlockingLatenciesHistogram,
       DoubleHistogram applicationBlockingLatenciesHistogram,
-      DoubleHistogram remainingDeadlineHistogram,
+      DoubleHistogram deadlineHistogram,
       LongCounter connectivityErrorCounter,
       LongCounter retryCounter) {
     this.operationType = operationType;
@@ -125,7 +125,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.firstResponseLatenciesHistogram = firstResponseLatenciesHistogram;
     this.clientBlockingLatenciesHistogram = clientBlockingLatenciesHistogram;
     this.applicationBlockingLatenciesHistogram = applicationBlockingLatenciesHistogram;
-    this.remainingDeadlineHistogram = remainingDeadlineHistogram;
+    this.deadlineHistogram = deadlineHistogram;
     this.connectivityErrorCounter = connectivityErrorCounter;
     this.retryCounter = retryCounter;
   }
@@ -274,9 +274,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void setRemainingDeadline(long deadline) {
-    long timeElapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
-    deadlineRemaining = deadline - timeElapsed;
+  public void setDeadline(long deadline) {
+    this.deadline = deadline;
   }
 
   @Override
@@ -316,8 +315,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
 
     operationLatenciesHistogram.record(convertToMs(operationLatencyNano), attributes);
-
-    remainingDeadlineHistogram.record(deadlineRemaining, attributes);
 
     // serverLatencyTimer should already be stopped in recordAttemptCompletion
     long applicationLatencyNano = operationLatencyNano - totalServerLatencyNano.get();
@@ -370,6 +367,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
+
+    deadlineHistogram.record(deadline, attributes);
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);
