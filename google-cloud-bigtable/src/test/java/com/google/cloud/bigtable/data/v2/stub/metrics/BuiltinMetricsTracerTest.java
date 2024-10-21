@@ -42,7 +42,6 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingException;
 import com.google.api.gax.batching.BatchingSettings;
 import com.google.api.gax.batching.FlowControlSettings;
-import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.NotFoundException;
@@ -214,7 +213,10 @@ public class BuiltinMetricsTracerTest {
         .retrySettings()
         .setInitialRetryDelayDuration(java.time.Duration.ofMillis(200));
 
-    stubSettingsBuilder.readRowsSettings().retrySettings().setTotalTimeoutDuration(Duration.ofMillis(3000));
+    stubSettingsBuilder
+        .readRowsSettings()
+        .retrySettings()
+        .setTotalTimeoutDuration(Duration.ofMillis(3000));
 
     stubSettingsBuilder
         .bulkMutateRowsSettings()
@@ -713,16 +715,16 @@ public class BuiltinMetricsTracerTest {
     MetricData remainingDeadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes attributes =
-            baseAttributes
-                    .toBuilder()
-                    .put(STATUS_KEY, "OK")
-                    .put(TABLE_ID_KEY, TABLE)
-                    .put(ZONE_ID_KEY, ZONE)
-                    .put(CLUSTER_ID_KEY, CLUSTER)
-                    .put(METHOD_KEY, "Bigtable.ReadRows")
-                    .put(STREAMING_KEY, true)
-                    .put(CLIENT_NAME_KEY, CLIENT_NAME)
-                    .build();
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "OK")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(ZONE_ID_KEY, ZONE)
+            .put(CLUSTER_ID_KEY, CLUSTER)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(STREAMING_KEY, true)
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
 
     long remainingDeadline = getAggregatedValue(remainingDeadlineMetric, attributes);
     assertThat(remainingDeadline).isIn(Range.closed((long) 2000, (long) 2500));

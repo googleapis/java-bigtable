@@ -216,15 +216,15 @@ public class BuiltinMetricsConstants {
             .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
             .build());
     defineView(
-            views,
-            REMAINING_DEADLINE_NAME,
-            AGGREGATION_WITH_MILLIS_HISTOGRAM,
-            InstrumentType.HISTOGRAM,
-            "ms",
-            ImmutableSet.<AttributeKey>builder()
-                    .addAll(COMMON_ATTRIBUTES)
-                    .add(STREAMING_KEY, STATUS_KEY)
-                    .build());
+        views,
+        REMAINING_DEADLINE_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(STREAMING_KEY, STATUS_KEY)
+            .build());
 
     return views.build();
   }

@@ -111,12 +111,11 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
             .setUnit(MILLISECOND)
             .build();
     remainingDeadlineHistogram =
-            meter
-                    .histogramBuilder(REMAINING_DEADLINE_NAME)
-                    .setDescription(
-                            "The remaining customer specified deadline at the end of the request.")
-                    .setUnit(MILLISECOND)
-                    .build();
+        meter
+            .histogramBuilder(REMAINING_DEADLINE_NAME)
+            .setDescription("The remaining customer specified deadline at the end of the request.")
+            .setUnit(MILLISECOND)
+            .build();
     connectivityErrorCounter =
         meter
             .counterBuilder(CONNECTIVITY_ERROR_COUNT_NAME)
