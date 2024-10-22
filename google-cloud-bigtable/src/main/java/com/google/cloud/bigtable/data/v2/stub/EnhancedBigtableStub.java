@@ -227,7 +227,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
       // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetry(
-              settings.getProjectId(),
               settings.getMetricsProvider(),
               clientContext.getCredentials(),
               settings.getMetricsEndpoint());
@@ -276,10 +275,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetry(
-              settings.getProjectId(),
-              settings.getMetricsProvider(),
-              credentials,
-              settings.getMetricsEndpoint());
+              settings.getMetricsProvider(), credentials, settings.getMetricsEndpoint());
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }
@@ -387,9 +383,23 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new CompositeTracerFactory(tracerFactories.build());
   }
 
+  /**
+   * getOpenTelemetry is called from the following places:
+   *
+   * <ul>
+   *   <li>EnhancedBigtableStub.createClientContext: gets the openTelemetry to create meter for
+   *       per_connection_error_count
+   *   <li>EnhancedBigtableStub.create(settings): gets the openTelemetry to pass into
+   *       BigtableTracerFactory to create meters for built in metrics
+   *   <li>BigtableDataClientFactory.create(defaultSettings): gets the openTelemetry to pass around
+   *       when creating BigtableTracerFactory
+   * </ul>
+   *
+   * <p>DefaultMetricsProvider will always return the same openTelemetry instance for the same
+   * credentials and metrics endpoint.
+   */
   @Nullable
   public static OpenTelemetry getOpenTelemetry(
-      String projectId,
       MetricsProvider metricsProvider,
       @Nullable Credentials defaultCredentials,
       @Nullable String metricsEndpoint)
@@ -404,7 +414,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
               ? BigtableDataSettings.getMetricsCredentials()
               : defaultCredentials;
       DefaultMetricsProvider defaultMetricsProvider = (DefaultMetricsProvider) metricsProvider;
-      return defaultMetricsProvider.getOpenTelemetry(projectId, metricsEndpoint, credentials);
+      return defaultMetricsProvider.getOpenTelemetry(metricsEndpoint, credentials);
     } else if (metricsProvider instanceof NoopMetricsProvider) {
       return null;
     }

@@ -17,12 +17,14 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
+import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 /**
@@ -36,30 +38,44 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
 
-  private OpenTelemetry openTelemetry;
-  private String projectId;
+  private final ConcurrentHashMap<Key, OpenTelemetry> otels = new ConcurrentHashMap<>();
 
   private DefaultMetricsProvider() {}
 
   @InternalApi
   public OpenTelemetry getOpenTelemetry(
-      String projectId, String metricsEndpoint, @Nullable Credentials credentials)
-      throws IOException {
-    this.projectId = projectId;
-    if (openTelemetry == null) {
+      @Nullable String metricsEndpoint, @Nullable Credentials credentials) throws IOException {
+    Key key = Key.create(metricsEndpoint, credentials);
+    OpenTelemetry otel = otels.get(key);
+    if (otel == null) {
       SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
-      BuiltinMetricsView.registerBuiltinMetrics(
-          projectId, credentials, meterProvider, metricsEndpoint);
-      openTelemetry = OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+      BuiltinMetricsView.registerBuiltinMetrics(credentials, meterProvider, metricsEndpoint);
+      otel = OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
+      otels.put(key, otel);
     }
-    return openTelemetry;
+    return otel;
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("projectId", projectId)
-        .add("openTelemetry", openTelemetry)
-        .toString();
+    // don't log credentials
+    MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(this);
+    otels.forEach(
+        (k, v) ->
+            toStringHelper.add(k.metricsEndpoint() == null ? "null" : k.metricsEndpoint(), v));
+    return toStringHelper.toString();
+  }
+
+  @AutoValue
+  abstract static class Key {
+    @Nullable
+    abstract String metricsEndpoint();
+
+    @Nullable
+    abstract Credentials credentials();
+
+    static Key create(@Nullable String metricsEndpoint, @Nullable Credentials credentials) {
+      return new AutoValue_DefaultMetricsProvider_Key(metricsEndpoint, credentials);
+    }
   }
 }
