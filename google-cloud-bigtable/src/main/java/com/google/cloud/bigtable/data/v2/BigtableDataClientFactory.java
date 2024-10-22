@@ -88,7 +88,6 @@ public final class BigtableDataClientFactory implements AutoCloseable {
       // the OTEL instance and log the exception instead.
       openTelemetry =
           EnhancedBigtableStub.getOpenTelemetry(
-              defaultSettings.getProjectId(),
               defaultSettings.getMetricsProvider(),
               sharedClientContext.getCredentials(),
               defaultSettings.getStubSettings().getMetricsEndpoint());
