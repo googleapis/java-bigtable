@@ -50,6 +50,7 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
+import org.threeten.bp.Duration;
 
 /** Utilities to help integrating with OpenCensus. */
 @InternalApi("For internal use only")
@@ -222,9 +223,11 @@ public class Util {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
+      Duration deadline = callContext.getTimeout();
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
-              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
+              callOptions.withStreamTracerFactory(
+                  new BigtableGrpcStreamTracer.Factory(tracer, deadline))));
     } else {
       // context should always be an instance of GrpcCallContext. If not throw an exception
       // so we can see what class context is.

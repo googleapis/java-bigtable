@@ -86,6 +86,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
+  private long deadline = 0;
+
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
   // to milliseconds and use DoubleHistogram. This should minimize the chance of a data
@@ -96,6 +98,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
+  private final DoubleHistogram deadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -109,6 +112,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       DoubleHistogram firstResponseLatenciesHistogram,
       DoubleHistogram clientBlockingLatenciesHistogram,
       DoubleHistogram applicationBlockingLatenciesHistogram,
+      DoubleHistogram deadlineHistogram,
       LongCounter connectivityErrorCounter,
       LongCounter retryCounter) {
     this.operationType = operationType;
@@ -121,6 +125,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.firstResponseLatenciesHistogram = firstResponseLatenciesHistogram;
     this.clientBlockingLatenciesHistogram = clientBlockingLatenciesHistogram;
     this.applicationBlockingLatenciesHistogram = applicationBlockingLatenciesHistogram;
+    this.deadlineHistogram = deadlineHistogram;
     this.connectivityErrorCounter = connectivityErrorCounter;
     this.retryCounter = retryCounter;
   }
@@ -272,6 +277,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void setDeadline(long deadline) {
+    this.deadline = deadline;
+  }
+
+  @Override
   public void disableFlowControl() {
     flowControlIsDisabled = true;
   }
@@ -360,6 +370,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
+
+    deadlineHistogram.record(deadline, attributes);
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);

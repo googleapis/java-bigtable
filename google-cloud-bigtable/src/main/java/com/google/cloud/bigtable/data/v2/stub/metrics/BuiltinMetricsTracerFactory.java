@@ -22,6 +22,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.FIRST_RESPONSE_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 
@@ -55,6 +56,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
+  private final DoubleHistogram deadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -108,6 +110,12 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
                 "The latency of the client application consuming available response data.")
             .setUnit(MILLISECOND)
             .build();
+    deadlineHistogram =
+        meter
+            .histogramBuilder(REMAINING_DEADLINE_NAME)
+            .setDescription("The customer specified operation deadline for the request.")
+            .setUnit(MILLISECOND)
+            .build();
     connectivityErrorCounter =
         meter
             .counterBuilder(CONNECTIVITY_ERROR_COUNT_NAME)
@@ -135,6 +143,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
         firstResponseLatenciesHistogram,
         clientBlockingLatenciesHistogram,
         applicationBlockingLatenciesHistogram,
+        deadlineHistogram,
         connectivityErrorCounter,
         retryCounter);
   }
