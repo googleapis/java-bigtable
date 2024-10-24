@@ -82,6 +82,7 @@ public class ErrorCountPerConnectionTest {
             .put(BuiltinMetricsConstants.INSTANCE_ID_KEY, "fake-instance")
             .put(BuiltinMetricsConstants.APP_PROFILE_KEY, "")
             .put(BuiltinMetricsConstants.CLIENT_NAME_KEY, "bigtable-java/" + Version.VERSION)
+            .put(BuiltinMetricsConstants.DIRECTPATH_ENABLED_KEY, "false")
             .build();
 
     metricReader = InMemoryMetricReader.create();
