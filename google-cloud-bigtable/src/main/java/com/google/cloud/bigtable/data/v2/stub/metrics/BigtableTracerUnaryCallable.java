@@ -68,7 +68,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
           innerCallable.futureCall(
               request,
               Util.injectBigtableStreamTracer(
-                  context, responseMetadata, (BigtableTracer) context.getTracer(), deadlineKey));
+                  context, responseMetadata, (BigtableTracer) context.getTracer()));
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {

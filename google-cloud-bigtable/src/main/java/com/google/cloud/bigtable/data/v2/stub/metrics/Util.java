@@ -22,7 +22,6 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
-import com.google.api.gax.rpc.internal.ApiCallContextOptions;
 import com.google.bigtable.v2.AuthorizedViewName;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.MutateRowRequest;
@@ -51,7 +50,6 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /** Utilities to help integrating with OpenCensus. */
 @InternalApi("For internal use only")
@@ -220,15 +218,13 @@ public class Util {
    * io.grpc.ClientStreamTracer} to the callContext.
    */
   static GrpcCallContext injectBigtableStreamTracer(
-      ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer, ApiCallContext.Key<Long> deadlineKey) {
+      ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
-      long deadline = callContext.getOption(deadlineKey);
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
-              callOptions.withStreamTracerFactory(
-                  new BigtableGrpcStreamTracer.Factory(tracer))));
+              callOptions.withStreamTracerFactory(new BigtableGrpcStreamTracer.Factory(tracer))));
     } else {
       // context should always be an instance of GrpcCallContext. If not throw an exception
       // so we can see what class context is.

@@ -186,7 +186,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
-  private final ApiCallContext.Key<Long> deadlineKey = ApiCallContext.Key.create("TEST123");
+  private final ApiCallContext.Key<Long> deadlineKey = ApiCallContext.Key.create("deadline");
 
   private final boolean closeClientContext;
   private final RequestContext requestContext;
@@ -510,7 +510,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   @BetaApi("This surface is stable yet it might be removed in the future.")
   public <RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsRawCallable(
       RowAdapter<RowT> rowAdapter) {
-    System.out.println("createReadRowsRawCallable");
     return createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter)
         .withDefaultCallContext(clientContext.getDefaultCallContext());
   }
@@ -531,7 +530,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   public <RowT> ServerStreamingCallable<Query, RowT> createReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
-    System.out.println("createReadRowsCallable");
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
         createReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
 

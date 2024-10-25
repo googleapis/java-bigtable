@@ -56,7 +56,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
-  private final DoubleHistogram deadlineHistogram;
+  private final DoubleHistogram remainingDeadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -110,7 +110,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
                 "The latency of the client application consuming available response data.")
             .setUnit(MILLISECOND)
             .build();
-    deadlineHistogram =
+    remainingDeadlineHistogram =
         meter
             .histogramBuilder(REMAINING_DEADLINE_NAME)
             .setDescription("The remaining deadline when the request is sent to grpc. This will either be the attempt timeout for the first few retries, or the reamining deadline from operation timeout after retries and back offs.")
@@ -143,7 +143,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
         firstResponseLatenciesHistogram,
         clientBlockingLatenciesHistogram,
         applicationBlockingLatenciesHistogram,
-        deadlineHistogram,
+            remainingDeadlineHistogram,
         connectivityErrorCounter,
         retryCounter);
   }
