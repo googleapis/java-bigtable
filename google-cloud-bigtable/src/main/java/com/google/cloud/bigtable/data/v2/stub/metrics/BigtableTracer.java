@@ -30,6 +30,8 @@ public class BigtableTracer extends BaseApiTracer {
 
   private volatile int attempt = 0;
 
+  public static final ApiCallContext.Key<Long> DEADLINE_KEY = ApiCallContext.Key.create("deadline");
+
   @Override
   public void attemptStarted(int attemptNumber) {
     this.attempt = attemptNumber;

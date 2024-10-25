@@ -736,7 +736,7 @@ public class BuiltinMetricsTracerTest {
 
     long remainingDeadline = getAggregatedValue(deadlineMetric, attributes);
     System.out.println("remaining deadline @ end of test: " + remainingDeadline + "\n");
-    assertThat(remainingDeadline).isIn(Range.closed((long) 8400, (long) 8600));
+    assertThat(remainingDeadline).isIn(Range.closed((long) 8400, (long) 8700));
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

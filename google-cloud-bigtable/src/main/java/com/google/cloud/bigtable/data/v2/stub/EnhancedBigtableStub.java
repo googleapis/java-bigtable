@@ -39,7 +39,6 @@ import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.RetryingExecutorWithContext;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
-import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
@@ -105,6 +104,7 @@ import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMer
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamUserCallable;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracer;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerStreamingCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracerUnaryCallable;
 import com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsTracerFactory;
@@ -186,7 +186,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private static final long FLOW_CONTROL_ADJUSTING_INTERVAL_MS = TimeUnit.SECONDS.toMillis(20);
   private final EnhancedBigtableStubSettings settings;
   private final ClientContext clientContext;
-  private final ApiCallContext.Key<Long> deadlineKey = ApiCallContext.Key.create("deadline");
 
   private final boolean closeClientContext;
   private final RequestContext requestContext;
@@ -545,7 +544,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -586,7 +585,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -659,7 +658,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Callables.watched(merging, innerSettings, clientContext);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched, deadlineKey);
+        new BigtableTracerStreamingCallable<>(watched);
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
@@ -710,7 +709,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -757,7 +756,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         withStatsHeaders = new StatsHeadersUnaryCallable<>(spoolable);
 
     UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
-        withBigtableTracer = new BigtableTracerUnaryCallable<>(withStatsHeaders, deadlineKey);
+        withBigtableTracer = new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<com.google.bigtable.v2.SampleRowKeysRequest, List<SampleRowKeysResponse>>
         retryable = withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
@@ -847,7 +846,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new StatsHeadersUnaryCallable<>(base);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(withStatsHeaders, deadlineKey);
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<MutateRowRequest, MutateRowResponse> retrying =
         withRetries(withBigtableTracer, settings.mutateRowSettings());
@@ -914,7 +913,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new ConvertExceptionCallable<>(callable);
 
     ServerStreamingCallable<MutateRowsRequest, MutateRowsResponse> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(convertException, deadlineKey);
+        new BigtableTracerStreamingCallable<>(convertException);
 
     BasicResultRetryAlgorithm<MutateRowsAttemptResult> resultRetryAlgorithm;
     if (settings.getEnableRetryInfo()) {
@@ -974,7 +973,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -1109,7 +1108,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new StatsHeadersUnaryCallable<>(base);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(withStatsHeaders, deadlineKey);
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<CheckAndMutateRowRequest, CheckAndMutateRowResponse> retrying =
         withRetries(withBigtableTracer, settings.checkAndMutateRowSettings());
@@ -1155,7 +1154,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     String methodName = "ReadModifyWriteRow";
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> withBigtableTracer =
-        new BigtableTracerUnaryCallable<>(withStatsHeaders, deadlineKey);
+        new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
     UnaryCallable<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse> retrying =
         withRetries(withBigtableTracer, settings.readModifyWriteRowSettings());
@@ -1235,7 +1234,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Callables.watched(convertException, innerSettings, clientContext);
 
     ServerStreamingCallable<String, ByteStringRange> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched, deadlineKey);
+        new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<String, ByteStringRange> retrying =
         withRetries(withBigtableTracer, innerSettings);
@@ -1248,7 +1247,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -1315,7 +1314,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Callables.watched(merging, innerSettings, clientContext);
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched, deadlineKey);
+        new BigtableTracerStreamingCallable<>(watched);
 
     ServerStreamingCallable<ReadChangeStreamRequest, ChangeStreamRecordT> readChangeStreamCallable =
         withRetries(withBigtableTracer, innerSettings);
@@ -1333,7 +1332,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -1393,7 +1392,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new SqlRowMergingCallable(withMetadataObserver);
 
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(merging, deadlineKey);
+        new BigtableTracerStreamingCallable<>(merging);
 
     ServerStreamingCallSettings<ExecuteQueryCallContext, SqlRow> retrySettings =
         ServerStreamingCallSettings.<ExecuteQueryCallContext, SqlRow>newBuilder()
@@ -1424,7 +1423,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             clientContext
                 .getDefaultCallContext()
                 .withOption(
-                    deadlineKey,
+                    BigtableTracer.DEADLINE_KEY,
                     settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis())),
         requestContext);
   }
@@ -1443,7 +1442,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
@@ -1467,7 +1466,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         clientContext
             .getDefaultCallContext()
             .withOption(
-                deadlineKey,
+                BigtableTracer.DEADLINE_KEY,
                 settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
