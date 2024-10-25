@@ -51,7 +51,8 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
   private final ApiCallContext.Key<Long> deadlineKey;
 
   public BigtableTracerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable, ApiCallContext.Key<Long> deadlineKey) {
+      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable,
+      ApiCallContext.Key<Long> deadlineKey) {
     this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
     this.deadlineKey = deadlineKey;
   }

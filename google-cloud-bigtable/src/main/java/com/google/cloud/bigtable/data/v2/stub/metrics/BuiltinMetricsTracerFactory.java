@@ -113,7 +113,8 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     remainingDeadlineHistogram =
         meter
             .histogramBuilder(REMAINING_DEADLINE_NAME)
-            .setDescription("The remaining deadline when the request is sent to grpc. This will either be the attempt timeout for the first few retries, or the reamining deadline from operation timeout after retries and back offs.")
+            .setDescription(
+                "The remaining deadline when the request is sent to grpc. This will either be the attempt timeout for the first few retries, or the reamining deadline from operation timeout after retries and back offs.")
             .setUnit(MILLISECOND)
             .build();
     connectivityErrorCounter =
@@ -143,7 +144,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
         firstResponseLatenciesHistogram,
         clientBlockingLatenciesHistogram,
         applicationBlockingLatenciesHistogram,
-            remainingDeadlineHistogram,
+        remainingDeadlineHistogram,
         connectivityErrorCounter,
         retryCounter);
   }

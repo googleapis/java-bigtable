@@ -48,7 +48,9 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
   private final ApiCallContext.Key<Long> deadlineKey;
 
-  public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable, ApiCallContext.Key<Long> deadlineKey) {
+  public BigtableTracerUnaryCallable(
+      @Nonnull UnaryCallable<RequestT, ResponseT> innerCallable,
+      ApiCallContext.Key<Long> deadlineKey) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
     this.deadlineKey = deadlineKey;
   }

@@ -95,8 +95,8 @@ public class BigtableTracer extends BaseApiTracer {
   }
 
   /**
-   * Record the deadline when the request is sent to the Bigtable server. This will be
-   * called in BuiltinMetricsTracer.
+   * Record the deadline when the request is sent to the Bigtable server. This will be called in
+   * BuiltinMetricsTracer.
    */
   public void setRemainingDeadline(long deadline) {
     // noop
