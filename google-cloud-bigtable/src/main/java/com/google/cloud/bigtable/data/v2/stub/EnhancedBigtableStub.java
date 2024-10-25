@@ -1529,7 +1529,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 BigtableTracer.DEADLINE_KEY,
-                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.pingAndWarmSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
