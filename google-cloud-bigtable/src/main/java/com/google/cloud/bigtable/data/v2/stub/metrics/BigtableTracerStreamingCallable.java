@@ -47,10 +47,12 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
+  private final ApiCallContext.Key<Long> deadlineKey;
 
   public BigtableTracerStreamingCallable(
-      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable) {
+      @Nonnull ServerStreamingCallable<RequestT, ResponseT> callable, ApiCallContext.Key<Long> deadlineKey) {
     this.innerCallable = Preconditions.checkNotNull(callable, "Inner callable must be set");
+    this.deadlineKey = deadlineKey;
   }
 
   @Override
@@ -66,7 +68,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
           request,
           innerObserver,
           Util.injectBigtableStreamTracer(
-              context, responseMetadata, (BigtableTracer) context.getTracer()));
+              context, responseMetadata, (BigtableTracer) context.getTracer(), deadlineKey));
     } else {
       innerCallable.call(request, responseObserver, context);
     }

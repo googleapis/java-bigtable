@@ -213,10 +213,18 @@ public class BuiltinMetricsTracerTest {
         .retrySettings()
         .setInitialRetryDelayDuration(java.time.Duration.ofMillis(200));
 
+    java.time.Duration timeout = java.time.Duration.ofMillis(6000);
+    java.time.Duration backOffTime = java.time.Duration.ofMillis(10);
     stubSettingsBuilder
         .readRowsSettings()
         .retrySettings()
-        .setTotalTimeoutDuration(Duration.ofMillis(3000));
+        .setTotalTimeoutDuration(Duration.ofMillis(9000))
+        .setMaxRpcTimeout(org.threeten.bp.Duration.parse(timeout.toString()))
+        .setRpcTimeoutMultiplier(1)
+        .setInitialRpcTimeout(org.threeten.bp.Duration.parse(timeout.toString()))
+        .setInitialRetryDelay(org.threeten.bp.Duration.parse(backOffTime.toString()))
+        .setRetryDelayMultiplier(1)
+        .setMaxRetryDelay(org.threeten.bp.Duration.parse(backOffTime.toString()));
 
     stubSettingsBuilder
         .bulkMutateRowsSettings()
@@ -711,8 +719,6 @@ public class BuiltinMetricsTracerTest {
 
   @Test
   public void testRemainingDeadline() {
-    // The FakeService implements a retry attempt by default. By incrementing the attemptCounter, we skip that.
-    fakeService.attemptCounter.getAndIncrement();
     stub.readRowsCallable().all().call(Query.create(TABLE));
     MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
@@ -728,8 +734,8 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long deadline = getAggregatedValue(deadlineMetric, attributes);
-    assertThat(deadline).isEqualTo(3000);
+    long remainingDeadline = getAggregatedValue(deadlineMetric, attributes);
+    assertThat(remainingDeadline).isIn(Range.closed((long) 8400, (long) 8600));
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

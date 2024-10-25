@@ -45,9 +45,11 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
     extends UnaryCallable<RequestT, ResponseT> {
 
   private final UnaryCallable<RequestT, ResponseT> innerCallable;
+  private final ApiCallContext.Key<Long> deadlineKey;
 
-  public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable) {
+  public BigtableTracerUnaryCallable(@Nonnull UnaryCallable<RequestT, ResponseT> innerCallable, ApiCallContext.Key<Long> deadlineKey) {
     this.innerCallable = Preconditions.checkNotNull(innerCallable, "Inner callable must be set");
+    this.deadlineKey = deadlineKey;
   }
 
   @Override
@@ -62,7 +64,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
           innerCallable.futureCall(
               request,
               Util.injectBigtableStreamTracer(
-                  context, responseMetadata, (BigtableTracer) context.getTracer()));
+                  context, responseMetadata, (BigtableTracer) context.getTracer(), deadlineKey));
       ApiFutures.addCallback(future, callback, MoreExecutors.directExecutor());
       return future;
     } else {

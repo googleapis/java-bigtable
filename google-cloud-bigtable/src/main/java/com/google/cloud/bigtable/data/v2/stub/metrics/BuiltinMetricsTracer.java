@@ -273,9 +273,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
     grpcMessageSentDelay.set(attemptTimer.elapsed(TimeUnit.NANOSECONDS));
   }
 
+  /*
+   In GrpcClientCalls we set the timeout in ApiContext on CallOptions. The timeout in ApiContext will be the attempt
+   timeout for the first few requests or the remaining operation timeout after retries and back offs.
+   */
   @Override
-  public void setDeadline(long deadline) {
-    this.deadline = deadline;
+  public void setRemainingDeadline(long deadline) {
+    this.deadline = deadline - operationTimer.elapsed(TimeUnit.MILLISECONDS);
   }
 
   @Override

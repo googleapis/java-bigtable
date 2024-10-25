@@ -234,9 +234,9 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
-  public void setDeadline(long deadline) {
+  public void setRemainingDeadline(long deadline) {
     for (BigtableTracer tracer : bigtableTracers) {
-      tracer.setDeadline(deadline);
+      tracer.setRemainingDeadline(deadline);
     }
   }
 }

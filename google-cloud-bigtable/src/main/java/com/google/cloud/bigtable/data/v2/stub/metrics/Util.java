@@ -22,6 +22,7 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
+import com.google.api.gax.rpc.internal.ApiCallContextOptions;
 import com.google.bigtable.v2.AuthorizedViewName;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.MutateRowRequest;
@@ -219,11 +220,11 @@ public class Util {
    * io.grpc.ClientStreamTracer} to the callContext.
    */
   static GrpcCallContext injectBigtableStreamTracer(
-      ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer) {
+      ApiCallContext context, GrpcResponseMetadata responseMetadata, BigtableTracer tracer, ApiCallContext.Key<Long> deadlineKey) {
     if (context instanceof GrpcCallContext) {
       GrpcCallContext callContext = (GrpcCallContext) context;
       CallOptions callOptions = callContext.getCallOptions();
-      Duration deadline = callContext.getTimeout();
+      long deadline = callContext.getOption(deadlineKey);
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
               callOptions.withStreamTracerFactory(
