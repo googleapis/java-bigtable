@@ -27,34 +27,28 @@ import org.threeten.bp.Duration;
 class BigtableGrpcStreamTracer extends ClientStreamTracer {
 
   private final BigtableTracer tracer;
-  private final long deadline;
 
-  public BigtableGrpcStreamTracer(BigtableTracer tracer, long deadline) {
+  public BigtableGrpcStreamTracer(BigtableTracer tracer) {
     this.tracer = tracer;
-    this.deadline = deadline;
   }
 
   @Override
   public void outboundMessageSent(int seqNo, long optionalWireSize, long optionalUncompressedSize) {
-    System.out.println("HERE " + deadline + "\n");
     tracer.grpcMessageSent();
-    tracer.setRemainingDeadline(deadline);
   }
 
   static class Factory extends ClientStreamTracer.Factory {
 
     private final BigtableTracer tracer;
-    private final long deadline;
 
-    Factory(BigtableTracer tracer, long deadline) {
+    Factory(BigtableTracer tracer) {
       this.tracer = tracer;
-      this.deadline = deadline;
     }
 
     @Override
     public ClientStreamTracer newClientStreamTracer(
         ClientStreamTracer.StreamInfo info, Metadata headers) {
-      return new BigtableGrpcStreamTracer(tracer, deadline);
+      return new BigtableGrpcStreamTracer(tracer);
     }
   }
 }

@@ -735,6 +735,7 @@ public class BuiltinMetricsTracerTest {
             .build();
 
     long remainingDeadline = getAggregatedValue(deadlineMetric, attributes);
+    System.out.println("remaining deadline @ end of test: " + remainingDeadline + "\n");
     assertThat(remainingDeadline).isIn(Range.closed((long) 8400, (long) 8600));
   }
 

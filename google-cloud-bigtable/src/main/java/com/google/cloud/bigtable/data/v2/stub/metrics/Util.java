@@ -228,7 +228,7 @@ public class Util {
       return responseMetadata.addHandlers(
           callContext.withCallOptions(
               callOptions.withStreamTracerFactory(
-                  new BigtableGrpcStreamTracer.Factory(tracer, deadline))));
+                  new BigtableGrpcStreamTracer.Factory(tracer))));
     } else {
       // context should always be an instance of GrpcCallContext. If not throw an exception
       // so we can see what class context is.

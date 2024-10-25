@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcResponseMetadata;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -24,6 +25,8 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
+import io.grpc.CallOptions;
+
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
 
@@ -64,6 +67,10 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       BigtableTracerResponseObserver<ResponseT> innerObserver =
           new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
+      GrpcCallContext callContext = (GrpcCallContext) context;
+      long deadline = callContext.getOption(deadlineKey);
+      ((BigtableTracer) context.getTracer()).setRemainingDeadline(deadline);
+      System.out.println("TracerStreamingCallable::call " + deadline + "\n");
       innerCallable.call(
           request,
           innerObserver,
