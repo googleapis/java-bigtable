@@ -545,7 +545,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext().
             withOption(deadlineKey, (long) settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
-//            withOption(ApiCallContext.Key.create("AFFINITY_TEST"), settings.readRowSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**

@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import io.grpc.ClientStreamTracer;
 import io.grpc.Metadata;
-import org.threeten.bp.Duration;
 
 /**
  * Records the time a request is enqueued in a grpc channel queue. This a bridge between gRPC stream
