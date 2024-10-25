@@ -546,8 +546,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -588,8 +587,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -713,8 +711,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -978,8 +975,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -1253,8 +1249,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -1339,8 +1334,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   /**
@@ -1431,12 +1425,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .getDefaultCallContext()
                 .withOption(
                     deadlineKey,
-                    (long)
-                        settings
-                            .readRowsSettings()
-                            .getRetrySettings()
-                            .getTotalTimeout()
-                            .toMillis())),
+                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis())),
         requestContext);
   }
 
@@ -1455,8 +1444,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
@@ -1480,8 +1468,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .getDefaultCallContext()
             .withOption(
                 deadlineKey,
-                (long)
-                    settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
+                settings.readRowsSettings().getRetrySettings().getTotalTimeout().toMillis()));
   }
 
   private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
