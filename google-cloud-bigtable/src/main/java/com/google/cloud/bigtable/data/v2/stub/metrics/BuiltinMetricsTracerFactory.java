@@ -114,7 +114,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
         meter
             .histogramBuilder(REMAINING_DEADLINE_NAME)
             .setDescription(
-                "The remaining deadline when the request is sent to grpc. This will either be the attempt timeout for the first few retries, or the reamining deadline from operation timeout after retries and back offs.")
+                "The remaining deadline when the request is sent to grpc. This will either be the operation timeout, or the remaining deadline from operation timeout after retries and back offs.")
             .setUnit(MILLISECOND)
             .build();
     connectivityErrorCounter =

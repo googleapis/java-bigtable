@@ -27,6 +27,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 /**
  * This callable will
@@ -64,8 +65,8 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
           new BigtableTracerResponseObserver<>(
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
       GrpcCallContext callContext = (GrpcCallContext) context;
-      long deadline = callContext.getOption(BigtableTracer.DEADLINE_KEY);
-      ((BigtableTracer) context.getTracer()).setRemainingDeadline(deadline);
+      Duration deadline = callContext.getOption(BigtableTracer.OPERATION_TIMEOUT_KEY);
+      ((BigtableTracer) context.getTracer()).setOperationTimeout(deadline);
       innerCallable.call(
           request,
           innerObserver,

@@ -86,7 +86,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
-  private long deadline = 0;
+  private Duration operationTimeout = Duration.ofMillis(0);
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -278,8 +278,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   timeout for the first few requests or the remaining operation timeout after retries and back offs.
   */
   @Override
-  public void setRemainingDeadline(long deadline) {
-    this.deadline = deadline - operationTimer.elapsed(TimeUnit.MILLISECONDS);
+  public void setOperationTimeout(Duration operationTimeout) {
+    this.operationTimeout = operationTimeout;
   }
 
   @Override
@@ -372,7 +372,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    deadlineHistogram.record(deadline, attributes);
+    deadlineHistogram.record(
+        operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS), attributes);
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);
