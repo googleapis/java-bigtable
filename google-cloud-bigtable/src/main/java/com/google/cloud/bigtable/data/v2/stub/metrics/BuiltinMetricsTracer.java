@@ -37,6 +37,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
@@ -45,6 +47,8 @@ import org.threeten.bp.Duration;
  * bigtable.googleapis.com/client namespace
  */
 class BuiltinMetricsTracer extends BigtableTracer {
+
+  private static final Logger logger = Logger.getLogger(BuiltinMetricsTracer.class.getName());
 
   private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
@@ -274,8 +278,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   /*
-  In GrpcClientCalls we set the timeout in ApiContext on CallOptions. The timeout in ApiContext will be the attempt
-  timeout for the first few requests or the remaining operation timeout after retries and back offs.
+  This is called by BigtableTracerCallables that sets operation timeout from user settings.
   */
   @Override
   public void setOperationTimeout(Duration operationTimeout) {
@@ -372,8 +375,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    remainingDeadlineHistogram.record(
-        operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS), attributes);
+    long remainingDeadline = operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
+    if (remainingDeadline >= 0) {
+      remainingDeadlineHistogram.record(remainingDeadline);
+    } else {
+      logger.log(Level.WARNING, "The remaining deadline was less than 0: " + remainingDeadline);
+    }
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);

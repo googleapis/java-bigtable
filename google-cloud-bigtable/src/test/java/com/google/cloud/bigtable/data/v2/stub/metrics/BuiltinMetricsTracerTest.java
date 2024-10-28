@@ -90,6 +90,7 @@ import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.View;
+import io.opentelemetry.sdk.metrics.data.HistogramPointData;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.testing.exporter.InMemoryMetricReader;
 import java.io.IOException;
@@ -104,6 +105,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Assert;
@@ -722,7 +724,28 @@ public class BuiltinMetricsTracerTest {
     stub.readRowsCallable().all().call(Query.create(TABLE));
     MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
-    Attributes attributes =
+    Attributes retryAttributes =
+            baseAttributes
+                    .toBuilder()
+                    .put(STATUS_KEY, "UNAVAILABLE")
+                    .put(TABLE_ID_KEY, TABLE)
+                    .put(METHOD_KEY, "Bigtable.ReadRows")
+                    .put(ZONE_ID_KEY, "global")
+                    .put(CLUSTER_ID_KEY, "unspecified")
+                    .put(STREAMING_KEY, true)
+                    .put(CLIENT_NAME_KEY, CLIENT_NAME)
+                    .build();
+
+    HistogramPointData retryHistogramPointData =
+            deadlineMetric.getHistogramData().getPoints().stream()
+                    .filter(pd -> pd.getAttributes().equals(retryAttributes))
+                    .collect(Collectors.toList())
+                    .get(0);
+
+    double retryRemainingDeadline = retryHistogramPointData.getSum();
+    assertThat(retryRemainingDeadline).isWithin(50).of(8500);
+
+    Attributes okAttributes =
         baseAttributes
             .toBuilder()
             .put(STATUS_KEY, "OK")
@@ -734,9 +757,14 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
 
-    long remainingDeadline = getAggregatedValue(deadlineMetric, attributes);
-    System.out.println("remaining deadline @ end of test: " + remainingDeadline + "\n");
-    assertThat(remainingDeadline).isIn(Range.closed((long) 8400, (long) 8700));
+    HistogramPointData okHistogramPointData =
+            deadlineMetric.getHistogramData().getPoints().stream()
+                    .filter(pd -> pd.getAttributes().equals(okAttributes))
+                    .collect(Collectors.toList())
+                    .get(0);
+    double okRemainingDeadline = okHistogramPointData.getSum();
+    assertThat(okRemainingDeadline).isLessThan(retryRemainingDeadline);
+    assertThat(okRemainingDeadline).isWithin(50).of(8375);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
