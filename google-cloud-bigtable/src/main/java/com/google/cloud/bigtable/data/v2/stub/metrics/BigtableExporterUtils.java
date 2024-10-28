@@ -111,9 +111,9 @@ class BigtableExporterUtils {
     return pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY);
   }
 
+  // Returns a list of timeseries by project id
   static Map<String, List<TimeSeries>> convertToBigtableTimeSeries(
       List<MetricData> collection, String taskId) {
-    // List of timeseries by project id
     Map<String, List<TimeSeries>> allTimeSeries = new HashMap<>();
 
     for (MetricData metricData : collection) {

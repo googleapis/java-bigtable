@@ -15,10 +15,15 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.Credentials;
 import com.google.cloud.NoCredentials;
+import com.google.common.collect.ImmutableMap;
 import io.opentelemetry.api.OpenTelemetry;
 import java.io.IOException;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +43,7 @@ public class DefaultMetricsProviderTest {
     // different endpoint and credential should return a different instance
     OpenTelemetry otel3 = provider.getOpenTelemetry(null, null);
     // same endpoint, different credential, should return a different instance
-    OpenTelemetry otel4 =
-        provider.getOpenTelemetry("fake-endpoint:123", GoogleCredentials.getApplicationDefault());
+    OpenTelemetry otel4 = provider.getOpenTelemetry("fake-endpoint:123", new FakeCredentials());
     // everything is the same, should return the same instance
     OpenTelemetry otel5 =
         provider.getOpenTelemetry("fake-endpoint:123", NoCredentials.getInstance());
@@ -50,5 +54,30 @@ public class DefaultMetricsProviderTest {
     Assert.assertEquals(toCompare, otel5);
 
     provider.toString();
+  }
+
+  private static class FakeCredentials extends Credentials {
+    @Override
+    public String getAuthenticationType() {
+      return "fake";
+    }
+
+    @Override
+    public Map<String, List<String>> getRequestMetadata(URI uri) throws IOException {
+      return ImmutableMap.of("my-header", Arrays.asList("fake-credential"));
+    }
+
+    @Override
+    public boolean hasRequestMetadata() {
+      return true;
+    }
+
+    @Override
+    public boolean hasRequestMetadataOnly() {
+      return true;
+    }
+
+    @Override
+    public void refresh() throws IOException {}
   }
 }
