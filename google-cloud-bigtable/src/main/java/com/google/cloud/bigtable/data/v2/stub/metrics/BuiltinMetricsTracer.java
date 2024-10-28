@@ -98,7 +98,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
-  private final DoubleHistogram deadlineHistogram;
+  private final DoubleHistogram remainingDeadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -125,7 +125,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.firstResponseLatenciesHistogram = firstResponseLatenciesHistogram;
     this.clientBlockingLatenciesHistogram = clientBlockingLatenciesHistogram;
     this.applicationBlockingLatenciesHistogram = applicationBlockingLatenciesHistogram;
-    this.deadlineHistogram = deadlineHistogram;
+    this.remainingDeadlineHistogram = deadlineHistogram;
     this.connectivityErrorCounter = connectivityErrorCounter;
     this.retryCounter = retryCounter;
   }
@@ -372,7 +372,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    deadlineHistogram.record(
+    remainingDeadlineHistogram.record(
         operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS), attributes);
 
     if (serverLatencies != null) {
