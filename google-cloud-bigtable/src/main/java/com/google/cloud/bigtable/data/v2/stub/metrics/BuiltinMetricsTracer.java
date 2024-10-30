@@ -91,6 +91,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
   private Duration operationTimeout = Duration.ofMillis(0);
+  private long remainingOperationTimeout = 0;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -177,6 +178,9 @@ class BuiltinMetricsTracer extends BigtableTracer {
           serverLatencyTimerIsRunning = true;
         }
       }
+    }
+    if (attemptCount > 1) {
+      remainingOperationTimeout = operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
     }
   }
 
@@ -375,11 +379,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    long remainingDeadline = operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
-    if (remainingDeadline >= 0) {
-      remainingDeadlineHistogram.record(remainingDeadline);
+    if (attemptCount == 1) {
+      remainingDeadlineHistogram.record(operationTimeout.toMillis(), attributes);
+    } else if (remainingOperationTimeout >= 0){
+      remainingDeadlineHistogram.record(remainingOperationTimeout, attributes);
     } else {
-      logger.log(Level.WARNING, "The remaining deadline was less than 0: " + remainingDeadline);
+      logger.log(Level.WARNING, "The remaining deadline was less than 0: " + remainingOperationTimeout);
     }
 
     if (serverLatencies != null) {

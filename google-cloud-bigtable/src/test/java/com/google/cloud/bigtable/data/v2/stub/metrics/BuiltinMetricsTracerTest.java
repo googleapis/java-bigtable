@@ -735,7 +735,6 @@ public class BuiltinMetricsTracerTest {
                     .put(STREAMING_KEY, true)
                     .put(CLIENT_NAME_KEY, CLIENT_NAME)
                     .build();
-
     HistogramPointData retryHistogramPointData =
             deadlineMetric.getHistogramData().getPoints().stream()
                     .filter(pd -> pd.getAttributes().equals(retryAttributes))
@@ -743,7 +742,8 @@ public class BuiltinMetricsTracerTest {
                     .get(0);
 
     double retryRemainingDeadline = retryHistogramPointData.getSum();
-    assertThat(retryRemainingDeadline).isWithin(50).of(8500);
+    // The retry remaining deadline should be equivalent to the original timeout.
+    assertThat(retryRemainingDeadline).isEqualTo(9000);
 
     Attributes okAttributes =
         baseAttributes
@@ -756,15 +756,14 @@ public class BuiltinMetricsTracerTest {
             .put(STREAMING_KEY, true)
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
-
     HistogramPointData okHistogramPointData =
             deadlineMetric.getHistogramData().getPoints().stream()
                     .filter(pd -> pd.getAttributes().equals(okAttributes))
                     .collect(Collectors.toList())
                     .get(0);
+
     double okRemainingDeadline = okHistogramPointData.getSum();
-    assertThat(okRemainingDeadline).isLessThan(retryRemainingDeadline);
-    assertThat(okRemainingDeadline).isWithin(50).of(8375);
+    assertThat(okRemainingDeadline).isWithin(50).of(8500);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
