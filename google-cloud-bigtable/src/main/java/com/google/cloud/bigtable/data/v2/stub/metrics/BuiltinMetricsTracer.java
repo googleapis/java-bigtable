@@ -179,6 +179,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
         }
       }
     }
+    // OperationTimeout is only set after the first attempt.
     if (attemptCount > 1) {
       remainingOperationTimeout = operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
     }
