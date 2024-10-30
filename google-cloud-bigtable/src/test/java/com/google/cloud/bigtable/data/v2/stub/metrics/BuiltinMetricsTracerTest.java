@@ -725,21 +725,21 @@ public class BuiltinMetricsTracerTest {
     MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes retryAttributes =
-            baseAttributes
-                    .toBuilder()
-                    .put(STATUS_KEY, "UNAVAILABLE")
-                    .put(TABLE_ID_KEY, TABLE)
-                    .put(METHOD_KEY, "Bigtable.ReadRows")
-                    .put(ZONE_ID_KEY, "global")
-                    .put(CLUSTER_ID_KEY, "unspecified")
-                    .put(STREAMING_KEY, true)
-                    .put(CLIENT_NAME_KEY, CLIENT_NAME)
-                    .build();
+        baseAttributes
+            .toBuilder()
+            .put(STATUS_KEY, "UNAVAILABLE")
+            .put(TABLE_ID_KEY, TABLE)
+            .put(METHOD_KEY, "Bigtable.ReadRows")
+            .put(ZONE_ID_KEY, "global")
+            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(STREAMING_KEY, true)
+            .put(CLIENT_NAME_KEY, CLIENT_NAME)
+            .build();
     HistogramPointData retryHistogramPointData =
-            deadlineMetric.getHistogramData().getPoints().stream()
-                    .filter(pd -> pd.getAttributes().equals(retryAttributes))
-                    .collect(Collectors.toList())
-                    .get(0);
+        deadlineMetric.getHistogramData().getPoints().stream()
+            .filter(pd -> pd.getAttributes().equals(retryAttributes))
+            .collect(Collectors.toList())
+            .get(0);
 
     double retryRemainingDeadline = retryHistogramPointData.getSum();
     // The retry remaining deadline should be equivalent to the original timeout.
@@ -757,10 +757,10 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
     HistogramPointData okHistogramPointData =
-            deadlineMetric.getHistogramData().getPoints().stream()
-                    .filter(pd -> pd.getAttributes().equals(okAttributes))
-                    .collect(Collectors.toList())
-                    .get(0);
+        deadlineMetric.getHistogramData().getPoints().stream()
+            .filter(pd -> pd.getAttributes().equals(okAttributes))
+            .collect(Collectors.toList())
+            .get(0);
 
     double okRemainingDeadline = okHistogramPointData.getSum();
     assertThat(okRemainingDeadline).isWithin(50).of(8500);

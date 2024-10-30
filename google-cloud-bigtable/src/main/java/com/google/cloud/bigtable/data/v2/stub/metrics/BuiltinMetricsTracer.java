@@ -181,7 +181,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
     // OperationTimeout is only set after the first attempt.
     if (attemptCount > 1) {
-      remainingOperationTimeout = operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
+      remainingOperationTimeout =
+          operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
     }
   }
 
@@ -382,10 +383,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
     if (attemptCount == 1) {
       remainingDeadlineHistogram.record(operationTimeout.toMillis(), attributes);
-    } else if (remainingOperationTimeout >= 0){
+    } else if (remainingOperationTimeout >= 0) {
       remainingDeadlineHistogram.record(remainingOperationTimeout, attributes);
     } else {
-      logger.log(Level.WARNING, "The remaining deadline was less than 0: " + remainingOperationTimeout);
+      logger.log(
+          Level.WARNING, "The remaining deadline was less than 0: " + remainingOperationTimeout);
     }
 
     if (serverLatencies != null) {
