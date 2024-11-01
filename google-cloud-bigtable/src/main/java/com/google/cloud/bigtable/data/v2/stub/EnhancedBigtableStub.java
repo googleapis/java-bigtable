@@ -602,9 +602,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
             GrpcCallSettings.<ReadRowsRequest, ReadRowsResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getReadRowsMethod())
                 .setParamsExtractor(
-                    r ->
-                        composeRequestParams(
-                            r.getAppProfileId(), r.getTableName(), r.getAuthorizedViewName()))
+                    new RequestParamsExtractor<ReadRowsRequest>() {
+                      @Override
+                      public Map<String, String> extract(ReadRowsRequest readRowsRequest) {
+                        String tableName = readRowsRequest.getTableName();
+                        String authorizedViewName = readRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
+                        return ImmutableMap.of(
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            readRowsRequest.getAppProfileId());
+                      }
+                    })
                 .build(),
             readRowsSettings.getRetryableCodes());
 
@@ -699,9 +712,25 @@ public class EnhancedBigtableStub implements AutoCloseable {
                         newBuilder()
                     .setMethodDescriptor(BigtableGrpc.getSampleRowKeysMethod())
                     .setParamsExtractor(
-                        r ->
-                            composeRequestParams(
-                                r.getAppProfileId(), r.getTableName(), r.getAuthorizedViewName()))
+                        new RequestParamsExtractor<com.google.bigtable.v2.SampleRowKeysRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              com.google.bigtable.v2.SampleRowKeysRequest sampleRowKeysRequest) {
+                            String tableName = sampleRowKeysRequest.getTableName();
+                            String authorizedViewName =
+                                sampleRowKeysRequest.getAuthorizedViewName();
+                            if (tableName.isEmpty()) {
+                              tableName =
+                                  NameUtil.extractTableNameFromAuthorizedViewName(
+                                      authorizedViewName);
+                            }
+                            return ImmutableMap.of(
+                                "table_name",
+                                tableName,
+                                "app_profile_id",
+                                sampleRowKeysRequest.getAppProfileId());
+                          }
+                        })
                     .build(),
                 settings.sampleRowKeysSettings().getRetryableCodes());
 
@@ -807,9 +836,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
             GrpcCallSettings.<MutateRowsRequest, MutateRowsResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getMutateRowsMethod())
                 .setParamsExtractor(
-                    r ->
-                        composeRequestParams(
-                            r.getAppProfileId(), r.getTableName(), r.getAuthorizedViewName()))
+                    new RequestParamsExtractor<MutateRowsRequest>() {
+                      @Override
+                      public Map<String, String> extract(MutateRowsRequest mutateRowsRequest) {
+                        String tableName = mutateRowsRequest.getTableName();
+                        String authorizedViewName = mutateRowsRequest.getAuthorizedViewName();
+                        if (tableName.isEmpty()) {
+                          tableName =
+                              NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
+                        }
+                        return ImmutableMap.of(
+                            "table_name",
+                            tableName,
+                            "app_profile_id",
+                            mutateRowsRequest.getAppProfileId());
+                      }
+                    })
                 .build(),
             settings.bulkMutateRowsSettings().getRetryableCodes());
 
@@ -1046,7 +1088,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
                     .setMethodDescriptor(
                         BigtableGrpc.getGenerateInitialChangeStreamPartitionsMethod())
                     .setParamsExtractor(
-                        r -> composeRequestParams(r.getAppProfileId(), r.getTableName(), ""))
+                        new RequestParamsExtractor<GenerateInitialChangeStreamPartitionsRequest>() {
+                          @Override
+                          public Map<String, String> extract(
+                              GenerateInitialChangeStreamPartitionsRequest
+                                  generateInitialChangeStreamPartitionsRequest) {
+                            return ImmutableMap.of(
+                                "table_name",
+                                generateInitialChangeStreamPartitionsRequest.getTableName(),
+                                "app_profile_id",
+                                generateInitialChangeStreamPartitionsRequest.getAppProfileId());
+                          }
+                        })
                     .build(),
                 settings.generateInitialChangeStreamPartitionsSettings().getRetryableCodes());
 
@@ -1115,7 +1168,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
             GrpcCallSettings.<ReadChangeStreamRequest, ReadChangeStreamResponse>newBuilder()
                 .setMethodDescriptor(BigtableGrpc.getReadChangeStreamMethod())
                 .setParamsExtractor(
-                    r -> composeRequestParams(r.getAppProfileId(), r.getTableName(), ""))
+                    new RequestParamsExtractor<ReadChangeStreamRequest>() {
+                      @Override
+                      public Map<String, String> extract(
+                          ReadChangeStreamRequest readChangeStreamRequest) {
+                        return ImmutableMap.of(
+                            "table_name", readChangeStreamRequest.getTableName(),
+                            "app_profile_id", readChangeStreamRequest.getAppProfileId());
+                      }
+                    })
                 .build(),
             settings.readChangeStreamSettings().getRetryableCodes());
 
@@ -1265,7 +1326,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private Map<String, String> composeRequestParams(
       String appProfileId, String tableName, String authorizedViewName) {
-    if (tableName.isEmpty() && !authorizedViewName.isEmpty()) {
+    if (tableName.isEmpty()) {
       tableName = NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
     }
     return ImmutableMap.of("table_name", tableName, "app_profile_id", appProfileId);
