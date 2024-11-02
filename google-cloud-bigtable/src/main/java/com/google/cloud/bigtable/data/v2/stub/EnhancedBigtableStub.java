@@ -197,8 +197,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
   private final UnaryCallable<Query, Row> readRowCallable;
   private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
-  @Deprecated
-  private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
+  @Deprecated private final UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable;
   private final UnaryCallable<SampleRowKeysRequest, List<KeyOffset>>
       sampleRowKeysCallableWithRequest;
   private final UnaryCallable<RowMutation, Void> mutateRowCallable;
@@ -702,8 +701,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * Simple wrapper around {@link #createSampleRowKeysCallableWithRequest()} to provide
-   * backwards compatibility
+   * Simple wrapper around {@link #createSampleRowKeysCallableWithRequest()} to provide backwards
+   * compatibility
+   *
    * @deprecated
    */
   @Deprecated
@@ -1459,9 +1459,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return readRowCallable;
   }
 
-  /**
-   * Deprecated, please use {@link #sampleRowKeysCallableWithRequest}
-   */
+  /** Deprecated, please use {@link #sampleRowKeysCallableWithRequest} */
   @Deprecated
   public UnaryCallable<String, List<KeyOffset>> sampleRowKeysCallable() {
     return sampleRowKeysCallable;
