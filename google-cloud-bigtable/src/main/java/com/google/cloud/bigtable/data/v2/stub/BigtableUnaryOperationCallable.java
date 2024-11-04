@@ -47,6 +47,7 @@ import javax.annotation.Nullable;
 class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, RespT> {
   private static final Logger LOGGER =
       Logger.getLogger(BigtableUnaryOperationCallable.class.getName());
+  Logger logger = LOGGER;
 
   private final ServerStreamingCallable<ReqT, RespT> inner;
   private final ApiCallContext defaultCallContext;
@@ -125,8 +126,8 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
         String msg =
             String.format(
                 "Received multiple responses for a %s unary operation. Previous: %s, New: %s",
-                spanName, resp, response);
-        LOGGER.log(Level.WARNING, msg);
+                spanName, response, resp);
+        logger.log(Level.WARNING, msg);
 
         InternalException error =
             new InternalException(msg, null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
@@ -140,7 +141,6 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
 
       responseReceived = true;
       this.response = resp;
-      this.tracer.responseReceived();
     }
 
     @Override
