@@ -1352,8 +1352,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     UnaryCallable<BaseReqT, BaseRespT> withBigtableTracer =
         new BigtableTracerUnaryCallable<>(withStatsHeaders);
 
-    UnaryCallable<BaseReqT, BaseRespT> retrying =
-        withRetries(withBigtableTracer, settings.mutateRowSettings());
+    UnaryCallable<BaseReqT, BaseRespT> retrying = withRetries(withBigtableTracer, callSettings);
 
     UnaryCallable<ReqT, RespT> transformed =
         new UnaryCallable<ReqT, RespT>() {
