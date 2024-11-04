@@ -302,7 +302,7 @@ public class EnhancedBigtableStubTest {
     ApiFuture<Boolean> f = enhancedBigtableStub.checkAndMutateRowCallable().futureCall(req, null);
     f.get();
 
-    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.take();
+    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.poll(1, TimeUnit.SECONDS);
     assertThat(protoReq)
         .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
     assertThat(f.get()).isEqualTo(true);
@@ -316,7 +316,7 @@ public class EnhancedBigtableStubTest {
     ApiFuture<Row> f = enhancedBigtableStub.readModifyWriteRowCallable().futureCall(req, null);
     f.get();
 
-    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.take();
+    ReadModifyWriteRowRequest protoReq = fakeDataService.rmwRequests.poll(1, TimeUnit.SECONDS);
     assertThat(protoReq)
         .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
     assertThat(f.get().getKey()).isEqualTo(ByteString.copyFromUtf8("my-key"));
@@ -334,7 +334,7 @@ public class EnhancedBigtableStubTest {
     ApiFuture<Void> f = enhancedBigtableStub.mutateRowCallable().futureCall(req, ctx);
     f.get();
 
-    MutateRowRequest protoReq = fakeDataService.mutateRowRequests.take();
+    MutateRowRequest protoReq = fakeDataService.mutateRowRequests.poll(1, TimeUnit.SECONDS);
     assertThat(protoReq)
         .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
     assertThat(f.get()).isEqualTo(null);
@@ -347,7 +347,7 @@ public class EnhancedBigtableStubTest {
     ApiFuture<Void> f = enhancedBigtableStub.mutateRowCallable().futureCall(req, null);
     f.get();
 
-    Metadata reqMetadata = metadataInterceptor.headers.take();
+    Metadata reqMetadata = metadataInterceptor.headers.poll(1, TimeUnit.SECONDS);
 
     // RequestParamsExtractor
     String reqParams =
