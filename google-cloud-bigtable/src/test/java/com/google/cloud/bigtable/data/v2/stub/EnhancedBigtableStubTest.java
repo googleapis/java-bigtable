@@ -45,6 +45,8 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.WatchdogTimeoutException;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
+import com.google.bigtable.v2.CheckAndMutateRowRequest;
+import com.google.bigtable.v2.CheckAndMutateRowResponse;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.FeatureFlags;
@@ -56,6 +58,8 @@ import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
+import com.google.bigtable.v2.ReadModifyWriteRowRequest;
+import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowSet;
@@ -67,9 +71,13 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
+import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.DefaultRowAdapter;
+import com.google.cloud.bigtable.data.v2.models.Filters;
+import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
+import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
@@ -281,6 +289,37 @@ public class EnhancedBigtableStubTest {
 
     assertThat(featureFlags.getReverseScans()).isTrue();
     assertThat(featureFlags.getLastScannedRowResponses()).isTrue();
+  }
+
+  @Test
+  public void testCheckAndMutateRequestResponseConversion()
+      throws ExecutionException, InterruptedException {
+    ConditionalRowMutation req =
+        ConditionalRowMutation.create(TableId.of("my-table"), "my-key")
+            .condition(Filters.FILTERS.pass())
+            .then(Mutation.create().deleteRow());
+
+    ApiFuture<Boolean> f = enhancedBigtableStub.checkAndMutateRowCallable().futureCall(req, null);
+    f.get();
+
+    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.take();
+    assertThat(protoReq)
+        .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
+    assertThat(f.get()).isEqualTo(true);
+  }
+
+  @Test
+  public void testRMWRequestResponseConversion() throws ExecutionException, InterruptedException {
+    ReadModifyWriteRow req =
+        ReadModifyWriteRow.create(TableId.of("my-table"), "my-key").append("f", "q", "v");
+
+    ApiFuture<Row> f = enhancedBigtableStub.readModifyWriteRowCallable().futureCall(req, null);
+    f.get();
+
+    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.take();
+    assertThat(protoReq)
+        .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
+    assertThat(f.get().getKey()).isEqualTo(ByteString.copyFromUtf8("my-key"));
   }
 
   @Test
@@ -829,6 +868,9 @@ public class EnhancedBigtableStubTest {
     final BlockingQueue<PingAndWarmRequest> pingRequests = Queues.newLinkedBlockingDeque();
     final BlockingQueue<ExecuteQueryRequest> executeQueryRequests = Queues.newLinkedBlockingDeque();
     final BlockingQueue<MutateRowRequest> mutateRowRequests = Queues.newLinkedBlockingDeque();
+    final BlockingQueue<CheckAndMutateRowRequest> checkAndMutateRowRequests =
+        Queues.newLinkedBlockingDeque();
+    final BlockingQueue<ReadModifyWriteRowRequest> rmwRequests = Queues.newLinkedBlockingDeque();
 
     @SuppressWarnings("unchecked")
     ReadRowsRequest popLastRequest() throws InterruptedException {
@@ -845,6 +887,28 @@ public class EnhancedBigtableStubTest {
       mutateRowRequests.add(request);
 
       responseObserver.onNext(MutateRowResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void checkAndMutateRow(
+        CheckAndMutateRowRequest request,
+        StreamObserver<CheckAndMutateRowResponse> responseObserver) {
+      checkAndMutateRowRequests.add(request);
+      responseObserver.onNext(
+          CheckAndMutateRowResponse.newBuilder().setPredicateMatched(true).build());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void readModifyWriteRow(
+        ReadModifyWriteRowRequest request,
+        StreamObserver<ReadModifyWriteRowResponse> responseObserver) {
+      rmwRequests.add(request);
+      responseObserver.onNext(
+          ReadModifyWriteRowResponse.newBuilder()
+              .setRow(com.google.bigtable.v2.Row.newBuilder().setKey(request.getRowKey()))
+              .build());
       responseObserver.onCompleted();
     }
 
