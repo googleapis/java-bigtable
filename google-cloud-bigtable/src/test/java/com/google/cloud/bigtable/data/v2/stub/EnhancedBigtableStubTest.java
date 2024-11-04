@@ -302,7 +302,8 @@ public class EnhancedBigtableStubTest {
     ApiFuture<Boolean> f = enhancedBigtableStub.checkAndMutateRowCallable().futureCall(req, null);
     f.get();
 
-    CheckAndMutateRowRequest protoReq = fakeDataService.checkAndMutateRowRequests.poll(1, TimeUnit.SECONDS);
+    CheckAndMutateRowRequest protoReq =
+        fakeDataService.checkAndMutateRowRequests.poll(1, TimeUnit.SECONDS);
     assertThat(protoReq)
         .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
     assertThat(f.get()).isEqualTo(true);
