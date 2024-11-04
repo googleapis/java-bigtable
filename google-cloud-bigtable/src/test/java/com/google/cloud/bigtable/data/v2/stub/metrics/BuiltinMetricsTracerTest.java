@@ -215,18 +215,16 @@ public class BuiltinMetricsTracerTest {
         .retrySettings()
         .setInitialRetryDelayDuration(java.time.Duration.ofMillis(200));
 
-    java.time.Duration timeout = java.time.Duration.ofMillis(6000);
-    java.time.Duration backOffTime = java.time.Duration.ofMillis(10);
     stubSettingsBuilder
         .readRowsSettings()
         .retrySettings()
         .setTotalTimeoutDuration(Duration.ofMillis(9000))
-        .setMaxRpcTimeout(org.threeten.bp.Duration.parse(timeout.toString()))
+        .setMaxRpcTimeoutDuration(Duration.ofMillis(6000))
         .setRpcTimeoutMultiplier(1)
-        .setInitialRpcTimeout(org.threeten.bp.Duration.parse(timeout.toString()))
-        .setInitialRetryDelay(org.threeten.bp.Duration.parse(backOffTime.toString()))
+        .setInitialRpcTimeoutDuration(Duration.ofMillis(6000))
+        .setInitialRetryDelayDuration(Duration.ofMillis(10))
         .setRetryDelayMultiplier(1)
-        .setMaxRetryDelay(org.threeten.bp.Duration.parse(backOffTime.toString()));
+        .setMaxRetryDelayDuration(Duration.ofMillis(10));
 
     stubSettingsBuilder
         .bulkMutateRowsSettings()
