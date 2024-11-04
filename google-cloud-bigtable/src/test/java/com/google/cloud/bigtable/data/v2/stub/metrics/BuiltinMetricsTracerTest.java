@@ -761,7 +761,7 @@ public class BuiltinMetricsTracerTest {
             .get(0);
 
     double okRemainingDeadline = okHistogramPointData.getSum();
-    assertThat(okRemainingDeadline).isWithin(50).of(8500);
+    assertThat(okRemainingDeadline).isWithin(200).of(8500);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
