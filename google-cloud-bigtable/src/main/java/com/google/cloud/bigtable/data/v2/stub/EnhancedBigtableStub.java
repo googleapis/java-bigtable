@@ -713,7 +713,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new UnaryCallable<String, List<KeyOffset>>() {
       @Override
       public ApiFuture<List<KeyOffset>> futureCall(String s, ApiCallContext apiCallContext) {
-        return baseCallable.futureCall(SampleRowKeysRequest.create(TableId.of(s)));
+        return baseCallable.futureCall(SampleRowKeysRequest.create(TableId.of(s)), apiCallContext);
       }
     };
   }
