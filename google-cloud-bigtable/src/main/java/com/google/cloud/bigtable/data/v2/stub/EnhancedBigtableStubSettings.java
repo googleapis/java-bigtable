@@ -110,7 +110,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
 
   static final boolean SKIP_TRAILERS =
-      Optional.of(System.getenv("CBT_SKIP_HEADERS"))
+      Optional.ofNullable(System.getenv("CBT_SKIP_HEADERS"))
           .map(Boolean::parseBoolean)
           .orElse(DIRECT_PATH_ENABLED);
 
