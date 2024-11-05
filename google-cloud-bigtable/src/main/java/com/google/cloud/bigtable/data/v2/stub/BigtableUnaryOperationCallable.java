@@ -29,6 +29,8 @@ import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Preconditions;
 import io.grpc.Status;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
@@ -88,6 +90,7 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
     private final boolean allowNoResponse;
 
     private StreamController controller;
+    private final AtomicBoolean upstreamCancelled = new AtomicBoolean();
     private boolean responseReceived;
     private @Nullable RespT response;
 
@@ -112,10 +115,16 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
     @Override
     public boolean cancel(boolean mayInterruptIfRunning) {
       if (super.cancel(mayInterruptIfRunning)) {
-        controller.cancel();
+        cancelUpstream();
         return true;
       }
       return false;
+    }
+
+    private void cancelUpstream() {
+      if (upstreamCancelled.compareAndSet(false, true)) {
+        controller.cancel();
+      }
     }
 
     @Override
@@ -135,7 +144,7 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
           tracer.operationFailed(error);
         }
 
-        controller.cancel();
+        cancelUpstream();
         return;
       }
 
