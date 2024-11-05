@@ -85,6 +85,12 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
+  public void operationFinishEarly() {
+    attemptTimer.stop();
+    operationTimer.stop();
+  }
+
+  @Override
   public void operationSucceeded() {
     recordOperationCompletion(null);
   }
@@ -103,7 +109,11 @@ class MetricsTracer extends BigtableTracer {
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
-    operationTimer.stop();
+
+    // Mightve stopped in operationFinishEarly()
+    if (operationTimer.isRunning()) {
+      operationTimer.stop();
+    }
 
     long elapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 

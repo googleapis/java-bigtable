@@ -52,6 +52,8 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
+  public void operationFinishEarly() {}
+
   /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
    * and should be recorded in {@link #attemptStarted(int)}. With the getter we can access it from
