@@ -126,6 +126,7 @@ import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsPartialErrorR
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsRetryingCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.FilterMarkerRowsCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsFirstCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsRetryCompletedCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
@@ -580,12 +581,21 @@ public class EnhancedBigtableStub implements AutoCloseable {
           }
         };
 
-    return new BigtableUnaryOperationCallable<>(
-        readRowCallable,
-        clientContext.getDefaultCallContext(),
-        clientContext.getTracerFactory(),
-        getSpanName("ReadRow"),
-        /*allowNoResponses=*/ true);
+    if (EnhancedBigtableStubSettings.SKIP_TRAILERS) {
+      return new BigtableUnaryOperationCallable<>(
+              readRowCallable,
+              clientContext.getDefaultCallContext(),
+              clientContext.getTracerFactory(),
+              getSpanName("ReadRow"),
+              /*allowNoResponses=*/ true);
+    } else {
+      readRowCallable = new ReadRowsUserCallable<>(readRowsCallable, requestContext);
+      UnaryCallable<Query, RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
+      return new TracedUnaryCallable<>(firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"))
+        .withDefaultCallContext(clientContext.getDefaultCallContext());
+    }
+
+
   }
 
   /**
