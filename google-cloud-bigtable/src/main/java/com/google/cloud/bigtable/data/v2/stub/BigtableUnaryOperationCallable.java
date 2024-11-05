@@ -29,7 +29,6 @@ import com.google.api.gax.tracing.ApiTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.common.base.Preconditions;
 import io.grpc.Status;
-
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
