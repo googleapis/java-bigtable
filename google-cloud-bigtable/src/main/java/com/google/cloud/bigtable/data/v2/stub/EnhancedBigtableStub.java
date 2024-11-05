@@ -583,19 +583,18 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     if (EnhancedBigtableStubSettings.SKIP_TRAILERS) {
       return new BigtableUnaryOperationCallable<>(
-              readRowCallable,
-              clientContext.getDefaultCallContext(),
-              clientContext.getTracerFactory(),
-              getSpanName("ReadRow"),
-              /*allowNoResponses=*/ true);
+          readRowCallable,
+          clientContext.getDefaultCallContext(),
+          clientContext.getTracerFactory(),
+          getSpanName("ReadRow"),
+          /*allowNoResponses=*/ true);
     } else {
       readRowCallable = new ReadRowsUserCallable<>(readRowsCallable, requestContext);
       UnaryCallable<Query, RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
-      return new TracedUnaryCallable<>(firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"))
-        .withDefaultCallContext(clientContext.getDefaultCallContext());
+      return new TracedUnaryCallable<>(
+              firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"))
+          .withDefaultCallContext(clientContext.getDefaultCallContext());
     }
-
-
   }
 
   /**
