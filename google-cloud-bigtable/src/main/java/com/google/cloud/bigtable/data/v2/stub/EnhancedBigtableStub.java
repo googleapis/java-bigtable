@@ -46,7 +46,6 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.Callables;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
-import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StatusCode.Code;
@@ -138,6 +137,7 @@ import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Functions;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -581,16 +581,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
     } else {
       ServerStreamingCallable<Query, RowT> readRowCallable =
-          new ServerStreamingCallable<Query, RowT>() {
-            @Override
-            public void call(
-                Query query,
-                ResponseObserver<RowT> responseObserver,
-                ApiCallContext apiCallContext) {
-              readRowsCallable.call(
-                  query.limit(1).toProto(requestContext), responseObserver, apiCallContext);
-            }
-          };
+          new TransformingServerStreamingCallable<>(
+              readRowsCallable,
+              (query) -> query.limit(1).toProto(requestContext),
+              Functions.identity());
+
       return new BigtableUnaryOperationCallable<>(
           readRowCallable,
           clientContext.getDefaultCallContext(),
