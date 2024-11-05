@@ -130,25 +130,26 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
     public void onResponse(RespT resp) {
       tracer.responseReceived();
 
-      if (responseReceived) {
-        String msg =
-            String.format(
-                "Received multiple responses for a %s unary operation. Previous: %s, New: %s",
-                spanName, response, resp);
-        logger.log(Level.WARNING, msg);
-
-        InternalException error =
-            new InternalException(msg, null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
-        if (setException(error)) {
-          tracer.operationFailed(error);
-        }
-
-        cancelUpstream();
+      // happy path - buffer the only responsse
+      if (!responseReceived) {
+        responseReceived = true;
+        this.response = resp;
         return;
       }
 
-      responseReceived = true;
-      this.response = resp;
+      String msg =
+          String.format(
+              "Received multiple responses for a %s unary operation. Previous: %s, New: %s",
+              spanName, response, resp);
+      logger.log(Level.WARNING, msg);
+
+      InternalException error =
+          new InternalException(msg, null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
+      if (setException(error)) {
+        tracer.operationFailed(error);
+      }
+
+      cancelUpstream();
     }
 
     @Override
@@ -163,28 +164,25 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
 
     @Override
     public void onComplete() {
-      // Sanity check server response counts
-      if (!allowNoResponse && !responseReceived) {
+      if (allowNoResponse || responseReceived) {
+        if (set(response)) {
+          tracer.operationSucceeded();
+          return;
+        }
+      } else {
         String msg = spanName + " unary operation completed without a response message";
         InternalException e =
             new InternalException(msg, null, GrpcStatusCode.of(Status.Code.INTERNAL), false);
 
         if (setException(e)) {
           tracer.operationFailed(e);
+          return;
         }
-        return;
       }
 
       // check cancellation race
       if (isCancelled()) {
         tracer.operationCancelled();
-        return;
-      }
-
-      // try to resolve the future
-      if (this.set(response)) {
-        tracer.operationSucceeded();
-        return;
       }
     }
   }
