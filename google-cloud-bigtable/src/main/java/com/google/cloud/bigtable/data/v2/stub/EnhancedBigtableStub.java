@@ -571,31 +571,33 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             rowAdapter);
 
-    ServerStreamingCallable<Query, RowT> readRowCallable =
-        new ServerStreamingCallable<Query, RowT>() {
-          @Override
-          public void call(
-              Query query, ResponseObserver<RowT> responseObserver, ApiCallContext apiCallContext) {
-            readRowsCallable.call(
-                query.limit(1).toProto(requestContext), responseObserver, apiCallContext);
-          }
-        };
-
-    if (EnhancedBigtableStubSettings.SKIP_TRAILERS) {
-      return new BigtableUnaryOperationCallable<>(
-              readRowCallable,
-              clientContext.getDefaultCallContext(),
-              clientContext.getTracerFactory(),
-              getSpanName("ReadRow"),
-              /*allowNoResponses=*/ true);
+    if (!EnhancedBigtableStubSettings.SKIP_TRAILERS) {
+      ReadRowsUserCallable<RowT> readRowCallable =
+          new ReadRowsUserCallable<>(readRowsCallable, requestContext);
+      ReadRowsFirstCallable<RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
+      UnaryCallable<Query, RowT> traced =
+          new TracedUnaryCallable<>(
+              firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"));
+      return traced.withDefaultCallContext(clientContext.getDefaultCallContext());
     } else {
-      readRowCallable = new ReadRowsUserCallable<>(readRowsCallable, requestContext);
-      UnaryCallable<Query, RowT> firstRow = new ReadRowsFirstCallable<>(readRowCallable);
-      return new TracedUnaryCallable<>(firstRow, clientContext.getTracerFactory(), getSpanName("ReadRow"))
-        .withDefaultCallContext(clientContext.getDefaultCallContext());
+      ServerStreamingCallable<Query, RowT> readRowCallable =
+          new ServerStreamingCallable<Query, RowT>() {
+            @Override
+            public void call(
+                Query query,
+                ResponseObserver<RowT> responseObserver,
+                ApiCallContext apiCallContext) {
+              readRowsCallable.call(
+                  query.limit(1).toProto(requestContext), responseObserver, apiCallContext);
+            }
+          };
+      return new BigtableUnaryOperationCallable<>(
+          readRowCallable,
+          clientContext.getDefaultCallContext(),
+          clientContext.getTracerFactory(),
+          getSpanName("ReadRow"),
+          /*allowNoResponses=*/ true);
     }
-
-
   }
 
   /**
