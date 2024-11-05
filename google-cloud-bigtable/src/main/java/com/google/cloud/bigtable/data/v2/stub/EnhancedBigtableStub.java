@@ -1426,7 +1426,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     base = new BigtableTracerStreamingCallable<>(base);
 
-    base = withRetries(base, convertUnaryToServerStreamingSettings(settings.mutateRowSettings()));
+    base = withRetries(base, convertUnaryToServerStreamingSettings(callSettings));
 
     ServerStreamingCallable<ReqT, RespT> transformed =
         new TransformingServerStreamingCallable<>(base, requestTransformer, responseTranformer);
