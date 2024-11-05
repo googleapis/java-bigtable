@@ -586,7 +586,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
               ServerStreamingCallSettings.<ReadRowsRequest, Row>newBuilder()
                   .setRetryableCodes(settings.readRowSettings().getRetryableCodes())
                   .setRetrySettings(settings.readRowSettings().getRetrySettings())
-                  .setIdleTimeout(settings.readRowSettings().getRetrySettings().getTotalTimeout())
+                  .setIdleTimeoutDuration(Duration.ZERO)
+                  .setWaitTimeoutDuration(Duration.ZERO)
                   .build(),
               rowAdapter,
               new SimpleStreamResumptionStrategy<>());
