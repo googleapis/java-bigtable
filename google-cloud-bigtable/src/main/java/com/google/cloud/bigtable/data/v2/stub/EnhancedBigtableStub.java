@@ -1329,7 +1329,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return ImmutableMap.of("table_name", tableName, "app_profile_id", appProfileId);
   }
 
-  private <BaseReqT, BaseRespT, ReqT, RespT> UnaryCallable<ReqT, RespT> 
+  private <BaseReqT, BaseRespT, ReqT, RespT> UnaryCallable<ReqT, RespT> createUnaryCallable
     (
       MethodDescriptor<BaseReqT, BaseRespT> methodDescriptor,
       RequestParamsExtractor<BaseReqT> headerParamsFn,
@@ -1386,7 +1386,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     return traced.withDefaultCallContext(clientContext.getDefaultCallContext().withOption(
                 BigtableTracer.OPERATION_TIMEOUT_KEY,
-                settings.readRowSettings().getRetrySettings().getTotalTimeout()));
+                callSettings.getRetrySettings().getTotalTimeout()));
   }
 
   private <BaseReqT, BaseRespT, ReqT, RespT> UnaryCallable<ReqT, RespT> createUnaryCallableNew(
@@ -1417,7 +1417,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         transformed,
         clientContext.getDefaultCallContext().withOption(
                 BigtableTracer.OPERATION_TIMEOUT_KEY,
-                settings.readRowSettings().getRetrySettings().getTotalTimeout()),
+                callSettings.getRetrySettings().getTotalTimeout()),
         clientContext.getTracerFactory(),
         getSpanName(methodDescriptor.getBareMethodName()),
         /* allowNoResponse= */ false);
