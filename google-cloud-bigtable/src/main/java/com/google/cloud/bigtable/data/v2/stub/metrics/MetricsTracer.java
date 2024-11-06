@@ -110,11 +110,6 @@ class MetricsTracer extends BigtableTracer {
       return;
     }
 
-    // Mightve stopped in operationFinishEarly()
-    if (operationTimer.isRunning()) {
-      operationTimer.stop();
-    }
-
     long elapsed = operationTimer.elapsed(TimeUnit.MILLISECONDS);
 
     MeasureMap measures =

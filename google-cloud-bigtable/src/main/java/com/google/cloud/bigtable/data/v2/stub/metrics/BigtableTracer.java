@@ -52,6 +52,11 @@ public class BigtableTracer extends BaseApiTracer {
     // noop
   }
 
+  /**
+   * Used by BigtableUnaryOperationCallable to signal that the user visible portion of the RPC is
+   * complete and that metrics should freeze the timers and then publish the frozen values when the
+   * internal portion of the operation completes.
+   */
   public void operationFinishEarly() {}
 
   /**

@@ -299,9 +299,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
-    if (operationTimer.isRunning()) {
-      operationTimer.stop();
-    }
+    long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
     String statusStr = Util.extractStatus(status);
@@ -319,8 +317,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
             .build();
-
-    long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
