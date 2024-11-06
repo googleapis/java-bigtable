@@ -66,7 +66,9 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
               responseObserver, (BigtableTracer) context.getTracer(), responseMetadata);
       GrpcCallContext callContext = (GrpcCallContext) context;
       Duration deadline = callContext.getOption(BigtableTracer.OPERATION_TIMEOUT_KEY);
-      ((BigtableTracer) context.getTracer()).setOperationTimeout(deadline);
+      if (deadline != null) {
+        ((BigtableTracer) context.getTracer()).setOperationTimeout(deadline);
+      }
       innerCallable.call(
           request,
           innerObserver,

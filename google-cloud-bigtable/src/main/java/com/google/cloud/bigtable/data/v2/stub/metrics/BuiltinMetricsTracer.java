@@ -378,11 +378,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    if (attemptCount == 1) {
+    if (attemptCount <= 1) {
       remainingDeadlineHistogram.record(operationTimeout.toMillis(), attributes);
     } else if (remainingOperationTimeout >= 0) {
       remainingDeadlineHistogram.record(remainingOperationTimeout, attributes);
-    } else {
+    } else if (operationTimeout.toMillis() != 0) {
+      // If the operationTimeout is set but remaining deadline is < 0, log a warning. This should
+      // never happen.
       logger.log(
           Level.WARNING, "The remaining deadline was less than 0: " + remainingOperationTimeout);
     }

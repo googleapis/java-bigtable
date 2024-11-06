@@ -800,7 +800,14 @@ public class EnhancedBigtableStub implements AutoCloseable {
         retryable = withRetries(withBigtableTracer, settings.sampleRowKeysSettings());
 
     return createUserFacingUnaryCallable(
-        methodName, new SampleRowKeysCallableWithRequest(retryable, requestContext));
+        methodName,
+        new SampleRowKeysCallableWithRequest(retryable, requestContext)
+            .withDefaultCallContext(
+                clientContext
+                    .getDefaultCallContext()
+                    .withOption(
+                        BigtableTracer.OPERATION_TIMEOUT_KEY,
+                        settings.sampleRowKeysSettings().getRetrySettings().getTotalTimeout())));
   }
 
   /**

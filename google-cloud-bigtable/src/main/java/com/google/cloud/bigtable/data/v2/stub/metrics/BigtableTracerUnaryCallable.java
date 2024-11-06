@@ -62,7 +62,9 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
               (BigtableTracer) context.getTracer(), responseMetadata);
       GrpcCallContext callContext = (GrpcCallContext) context;
       Duration deadline = callContext.getOption(BigtableTracer.OPERATION_TIMEOUT_KEY);
-      ((BigtableTracer) context.getTracer()).setOperationTimeout(deadline);
+      if (deadline != null) {
+        ((BigtableTracer) context.getTracer()).setOperationTimeout(deadline);
+      }
       ApiFuture<ResponseT> future =
           innerCallable.futureCall(
               request,
