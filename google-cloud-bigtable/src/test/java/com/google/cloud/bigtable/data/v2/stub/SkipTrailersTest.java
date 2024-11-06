@@ -195,6 +195,10 @@ public class SkipTrailersTest {
     }
   }
 
+  /**
+   * Hack the srvice definition to allow grpc server to simulate delayed trailers. This will augment
+   * the bigtable service definition to promote unary rpcs to server streaming
+   */
   class HackedBigtableService implements BindableService {
     private final LinkedBlockingDeque<ServerRpc<?, ?>> rpcs = new LinkedBlockingDeque<>();
 
