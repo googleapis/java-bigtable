@@ -241,7 +241,7 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
-  public void setOperationTimeout(Duration operationTimeout) {
+  public void setOperationTimeout(java.time.Duration operationTimeout) {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.setOperationTimeout(operationTimeout);
     }

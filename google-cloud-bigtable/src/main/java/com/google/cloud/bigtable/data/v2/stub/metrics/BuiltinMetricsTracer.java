@@ -29,6 +29,7 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
+import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
@@ -37,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
@@ -90,8 +90,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private Long serverLatencies = null;
   private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
 
-  private Duration operationTimeout = Duration.ofMillis(0);
-  private long remainingOperationTimeout = 0;
+  private Deadline operationDeadline = null;
+  private long remainingDeadline = 0;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -175,6 +175,9 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
+    if (operationDeadline != null) {
+      remainingDeadline = operationDeadline.timeRemaining(TimeUnit.MILLISECONDS);
+    }
     if (request != null) {
       this.tableId = Util.extractTableId(request);
     }
@@ -184,11 +187,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
           serverLatencyTimer.start();
         }
       }
-    }
-    // OperationTimeout is only set after the first attempt.
-    if (attemptCount > 1) {
-      remainingOperationTimeout =
-          operationTimeout.toMillis() - operationTimer.elapsed(TimeUnit.MILLISECONDS);
     }
   }
 
@@ -305,8 +303,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   This is called by BigtableTracerCallables that sets operation timeout from user settings.
   */
   @Override
-  public void setOperationTimeout(Duration operationTimeout) {
-    this.operationTimeout = operationTimeout;
+  public void setOperationTimeout(java.time.Duration operationTimeout) {
+    if (operationDeadline == null) {
+      this.operationDeadline = Deadline.after(operationTimeout.toMillis(), TimeUnit.MILLISECONDS);
+      this.remainingDeadline = operationTimeout.toMillis();
+    }
   }
 
   @Override
@@ -403,16 +404,9 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    if (attemptCount <= 1) {
-      remainingDeadlineHistogram.record(operationTimeout.toMillis(), attributes);
-    } else if (remainingOperationTimeout >= 0) {
-      remainingDeadlineHistogram.record(remainingOperationTimeout, attributes);
-    } else if (operationTimeout.toMillis() != 0) {
-      // If the operationTimeout is set but remaining deadline is < 0, log a warning. This should
-      // never happen.
-      logger.log(
-          Level.WARNING, "The remaining deadline was less than 0: " + remainingOperationTimeout);
-    }
+    // operation timeout is 0 when there's no timeout. In this case remaining deadline will be
+    // negative. Recording 0 to represent no operation timeout.
+    remainingDeadlineHistogram.record(Math.max(0, remainingDeadline), attributes);
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);
