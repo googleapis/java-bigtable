@@ -303,10 +303,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
   This is called by BigtableTracerCallables that sets operation timeout from user settings.
   */
   @Override
-  public void setOperationTimeout(java.time.Duration operationTimeout) {
+  public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
     if (operationDeadline == null) {
-      this.operationDeadline = Deadline.after(operationTimeout.toMillis(), TimeUnit.MILLISECONDS);
-      this.remainingDeadline = operationTimeout.toMillis();
+      this.operationDeadline =
+          Deadline.after(totalTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+      this.remainingDeadline = totalTimeoutDuration.toMillis();
     }
   }
 

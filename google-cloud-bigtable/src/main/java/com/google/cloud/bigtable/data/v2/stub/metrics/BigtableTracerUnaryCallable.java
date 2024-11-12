@@ -60,7 +60,7 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
           new BigtableTracerUnaryCallback<ResponseT>(
               (BigtableTracer) context.getTracer(), responseMetadata);
       if (context.getRetrySettings() != null) {
-        tracer.setOperationTimeout(context.getRetrySettings().getTotalTimeoutDuration());
+        tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
       ApiFuture<ResponseT> future =
           innerCallable.futureCall(

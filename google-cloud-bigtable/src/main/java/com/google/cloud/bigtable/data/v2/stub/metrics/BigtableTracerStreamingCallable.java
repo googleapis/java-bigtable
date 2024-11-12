@@ -63,7 +63,7 @@ public class BigtableTracerStreamingCallable<RequestT, ResponseT>
       BigtableTracerResponseObserver<ResponseT> innerObserver =
           new BigtableTracerResponseObserver<>(responseObserver, tracer, responseMetadata);
       if (context.getRetrySettings() != null) {
-        tracer.setOperationTimeout(context.getRetrySettings().getTotalTimeoutDuration());
+        tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
       }
       innerCallable.call(
           request,

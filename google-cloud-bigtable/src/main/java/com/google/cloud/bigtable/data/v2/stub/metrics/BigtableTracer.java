@@ -106,7 +106,7 @@ public class BigtableTracer extends BaseApiTracer {
    * Record the operation timeout from user settings for calculating remaining deadline. This will
    * be called in BuiltinMetricsTracer.
    */
-  public void setOperationTimeout(Duration operationTimeout) {
+  public void setTotalTimeoutDuration(Duration totalTimeoutDuration) {
     // noop
   }
 }
