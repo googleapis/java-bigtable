@@ -173,8 +173,21 @@ public class SkipTrailersTest {
       Assert.fail("timed out waiting for the trailer optimization future to resolve");
     }
 
-    verify(tracer, times(1)).operationFinishEarly();
-    verify(tracer, never()).operationSucceeded();
+    // The tracer will be notified in parallel to the future being resolved
+    // This normal and expected, but requires the test to wait a bit
+    for (int i = 10; i > 0; i--) {
+      try {
+        verify(tracer, times(1)).operationFinishEarly();
+        verify(tracer, never()).operationSucceeded();
+        break;
+      } catch (WantedButNotInvoked e) {
+        if (i > 1) {
+          Thread.sleep(100);
+        } else {
+          throw e;
+        }
+      }
+    }
 
     // clean up
     rpc.getResponseStream().onCompleted();
