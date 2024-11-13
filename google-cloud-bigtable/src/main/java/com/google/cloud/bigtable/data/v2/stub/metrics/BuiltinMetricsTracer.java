@@ -299,11 +299,11 @@ class BuiltinMetricsTracer extends BigtableTracer {
     grpcMessageSentDelay.set(attemptTimer.elapsed(TimeUnit.NANOSECONDS));
   }
 
-  /*
-  This is called by BigtableTracerCallables that sets operation timeout from user settings.
-  */
   @Override
   public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
+    // This method is called by BigtableTracerStreamingCallable and
+    // BigtableTracerUnaryCallable which is called per attempt. We only set
+    // the operationDeadline on the first attempt.
     if (operationDeadline == null) {
       this.operationDeadline =
           Deadline.after(totalTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
@@ -405,9 +405,12 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    // operation timeout is 0 when there's no timeout. In this case remaining deadline will be
-    // negative. Recording 0 to represent no operation timeout.
-    remainingDeadlineHistogram.record(Math.max(0, remainingDeadline), attributes);
+    // Total timeout is set to 0 when there's no timeout. In this case remaining deadline will be
+    // <= 0. Skip recording the value because it doesn't represent how much time is left to
+    // retry the request.
+    if (remainingDeadline > 0) {
+      remainingDeadlineHistogram.record(remainingDeadline, attributes);
+    }
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);
