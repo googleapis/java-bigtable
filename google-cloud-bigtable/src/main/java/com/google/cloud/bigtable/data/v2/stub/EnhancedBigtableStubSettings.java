@@ -62,6 +62,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 import javax.annotation.Nonnull;
@@ -105,7 +106,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private static final String SERVER_DEFAULT_APP_PROFILE_ID = "";
 
   // TODO(meeral-k): add documentation
-  private static final String CBT_ENABLE_DIRECTPATH = "CBT_ENABLE_DIRECTPATH";
+  private static final boolean DIRECT_PATH_ENABLED =
+      Boolean.parseBoolean(System.getenv("CBT_ENABLE_DIRECTPATH"));
+
+  private static final boolean SKIP_TRAILERS =
+      Optional.ofNullable(System.getenv("CBT_SKIP_HEADERS"))
+          .map(Boolean::parseBoolean)
+          .orElse(DIRECT_PATH_ENABLED);
+
   private static final Set<Code> IDEMPOTENT_RETRY_CODES =
       ImmutableSet.of(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
 
@@ -232,6 +240,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final Map<String, String> jwtAudienceMapping;
   private final boolean enableRoutingCookie;
   private final boolean enableRetryInfo;
+  private final boolean enableSkipTrailers;
 
   private final ServerStreamingCallSettings<Query, Row> readRowsSettings;
   private final UnaryCallSettings<Query, Row> readRowSettings;
@@ -279,6 +288,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
+    enableSkipTrailers = builder.enableSkipTrailers;
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
 
@@ -365,6 +375,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return enableRetryInfo;
   }
 
+  boolean getEnableSkipTrailers() {
+    return enableSkipTrailers;
+  }
+
   /**
    * Gets the Google Cloud Monitoring endpoint for publishing client side metrics. If it's null,
    * client will publish metrics to the default monitoring endpoint.
@@ -376,10 +390,9 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   /** Returns a builder for the default ChannelProvider for this service. */
   public static InstantiatingGrpcChannelProvider.Builder defaultGrpcTransportProviderBuilder() {
-    Boolean isDirectpathEnabled = Boolean.parseBoolean(System.getenv(CBT_ENABLE_DIRECTPATH));
     InstantiatingGrpcChannelProvider.Builder grpcTransportProviderBuilder =
         BigtableStubSettings.defaultGrpcTransportProviderBuilder();
-    if (isDirectpathEnabled) {
+    if (DIRECT_PATH_ENABLED) {
       // Attempts direct access to CBT service over gRPC to improve throughput,
       // whether the attempt is allowed is totally controlled by service owner.
       grpcTransportProviderBuilder
@@ -676,6 +689,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private Map<String, String> jwtAudienceMapping;
     private boolean enableRoutingCookie;
     private boolean enableRetryInfo;
+    private boolean enableSkipTrailers;
 
     private final ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings;
     private final UnaryCallSettings.Builder<Query, Row> readRowSettings;
@@ -714,6 +728,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
+      this.enableSkipTrailers = SKIP_TRAILERS;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
 
       // Defaults provider
@@ -830,7 +845,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setWaitTimeout(Duration.ofMinutes(5));
 
       featureFlags =
-          FeatureFlags.newBuilder().setReverseScans(true).setLastScannedRowResponses(true);
+          FeatureFlags.newBuilder()
+              .setReverseScans(true)
+              .setLastScannedRowResponses(true)
+              .setDirectAccessRequested(DIRECT_PATH_ENABLED)
+              .setTrafficDirectorEnabled(DIRECT_PATH_ENABLED);
     }
 
     private Builder(EnhancedBigtableStubSettings settings) {
@@ -1074,6 +1093,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return enableRetryInfo;
     }
 
+    Builder setEnableSkipTrailers(boolean enabled) {
+      this.enableSkipTrailers = enabled;
+      return this;
+    }
+
     /** Returns the builder for the settings used for calls to readRows. */
     public ServerStreamingCallSettings.Builder<Query, Row> readRowsSettings() {
       return readRowsSettings;
@@ -1201,6 +1225,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("jwtAudienceMapping", jwtAudienceMapping)
         .add("enableRoutingCookie", enableRoutingCookie)
         .add("enableRetryInfo", enableRetryInfo)
+        .add("enableSkipTrailers", enableSkipTrailers)
         .add("readRowsSettings", readRowsSettings)
         .add("readRowSettings", readRowSettings)
         .add("sampleRowKeysSettings", sampleRowKeysSettings)

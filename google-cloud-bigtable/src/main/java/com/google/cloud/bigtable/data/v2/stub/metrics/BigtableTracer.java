@@ -16,10 +16,12 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.api.gax.tracing.BaseApiTracer;
 import javax.annotation.Nullable;
+import org.threeten.bp.Duration;
 
 /**
  * A Bigtable specific {@link ApiTracer} that includes additional contexts. This class is a base
@@ -29,6 +31,10 @@ import javax.annotation.Nullable;
 public class BigtableTracer extends BaseApiTracer {
 
   private volatile int attempt = 0;
+
+  @InternalApi("for internal use only")
+  public static final ApiCallContext.Key<Duration> OPERATION_TIMEOUT_KEY =
+      ApiCallContext.Key.create("OPERATION_TIMEOUT");
 
   @Override
   public void attemptStarted(int attemptNumber) {
@@ -51,6 +57,13 @@ public class BigtableTracer extends BaseApiTracer {
   public void afterResponse(long applicationLatency) {
     // noop
   }
+
+  /**
+   * Used by BigtableUnaryOperationCallable to signal that the user visible portion of the RPC is
+   * complete and that metrics should freeze the timers and then publish the frozen values when the
+   * internal portion of the operation completes.
+   */
+  public void operationFinishEarly() {}
 
   /**
    * Get the attempt number of the current call. Attempt number for the current call is passed in
@@ -91,6 +104,14 @@ public class BigtableTracer extends BaseApiTracer {
 
   /** Called when the message is sent on a grpc channel. */
   public void grpcMessageSent() {
+    // noop
+  }
+
+  /**
+   * Record the operation timeout from user settings for calculating remaining deadline. This will
+   * be called in BuiltinMetricsTracer.
+   */
+  public void setOperationTimeout(Duration operationTimeout) {
     // noop
   }
 }

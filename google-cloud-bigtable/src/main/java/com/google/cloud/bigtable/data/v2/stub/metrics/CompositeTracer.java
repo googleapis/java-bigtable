@@ -63,6 +63,13 @@ class CompositeTracer extends BigtableTracer {
   }
 
   @Override
+  public void operationFinishEarly() {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.operationFinishEarly();
+    }
+  }
+
+  @Override
   public void operationSucceeded() {
     for (ApiTracer child : children) {
       child.operationSucceeded();
@@ -230,6 +237,13 @@ class CompositeTracer extends BigtableTracer {
   public void grpcMessageSent() {
     for (BigtableTracer tracer : bigtableTracers) {
       tracer.grpcMessageSent();
+    }
+  }
+
+  @Override
+  public void setOperationTimeout(Duration operationTimeout) {
+    for (BigtableTracer tracer : bigtableTracers) {
+      tracer.setOperationTimeout(operationTimeout);
     }
   }
 }
