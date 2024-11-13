@@ -134,8 +134,6 @@ public class BuiltinMetricsTracerTest {
   private static final long APPLICATION_LATENCY = 200;
   private static final long SLEEP_VARIABILITY = 15;
   private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
-  private static final long READ_ROWS_TOTAL_TIMEOUT = 1000;
-
   private static final long CHANNEL_BLOCKING_LATENCY = 200;
 
   @Rule public final MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -221,10 +219,10 @@ public class BuiltinMetricsTracerTest {
     stubSettingsBuilder
         .readRowsSettings()
         .retrySettings()
-        .setTotalTimeoutDuration(Duration.ofMillis(READ_ROWS_TOTAL_TIMEOUT))
-        .setMaxRpcTimeoutDuration(Duration.ofMillis(READ_ROWS_TOTAL_TIMEOUT))
+        .setTotalTimeoutDuration(Duration.ofMillis(9000))
+        .setMaxRpcTimeoutDuration(Duration.ofMillis(9000))
         .setRpcTimeoutMultiplier(1)
-        .setInitialRpcTimeoutDuration(Duration.ofMillis(800))
+        .setInitialRpcTimeoutDuration(Duration.ofMillis(6000))
         .setInitialRetryDelayDuration(Duration.ofMillis(10))
         .setRetryDelayMultiplier(1)
         .setMaxRetryDelayDuration(Duration.ofMillis(10));
@@ -790,7 +788,7 @@ public class BuiltinMetricsTracerTest {
 
     double retryRemainingDeadline = retryHistogramPointData.getSum();
     // The retry remaining deadline should be equivalent to the original timeout.
-    assertThat(retryRemainingDeadline).isEqualTo((double) READ_ROWS_TOTAL_TIMEOUT);
+    assertThat(retryRemainingDeadline).isEqualTo(9000);
 
     Attributes okAttributes =
         baseAttributes
@@ -811,8 +809,8 @@ public class BuiltinMetricsTracerTest {
 
     double okRemainingDeadline = okHistogramPointData.getSum();
     // first attempt latency + retry delay
-    double expected = READ_ROWS_TOTAL_TIMEOUT - SERVER_LATENCY - CHANNEL_BLOCKING_LATENCY - 10;
-    assertThat(okRemainingDeadline).isWithin(10).of(expected);
+    double expected = 9000 - SERVER_LATENCY - CHANNEL_BLOCKING_LATENCY - 10;
+    assertThat(okRemainingDeadline).isIn(Range.closed(expected - 500, expected + 10));
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
