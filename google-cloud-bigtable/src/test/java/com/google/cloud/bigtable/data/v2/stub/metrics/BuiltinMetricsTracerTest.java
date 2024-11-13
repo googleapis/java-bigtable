@@ -134,6 +134,7 @@ public class BuiltinMetricsTracerTest {
   private static final long APPLICATION_LATENCY = 200;
   private static final long SLEEP_VARIABILITY = 15;
   private static final String CLIENT_NAME = "java-bigtable/" + Version.VERSION;
+  private static final long READ_ROWS_TOTAL_TIMEOUT = 1000;
 
   private static final long CHANNEL_BLOCKING_LATENCY = 200;
 
@@ -220,10 +221,10 @@ public class BuiltinMetricsTracerTest {
     stubSettingsBuilder
         .readRowsSettings()
         .retrySettings()
-        .setTotalTimeoutDuration(Duration.ofMillis(9000))
-        .setMaxRpcTimeoutDuration(Duration.ofMillis(6000))
+        .setTotalTimeoutDuration(Duration.ofMillis(READ_ROWS_TOTAL_TIMEOUT))
+        .setMaxRpcTimeoutDuration(Duration.ofMillis(READ_ROWS_TOTAL_TIMEOUT))
         .setRpcTimeoutMultiplier(1)
-        .setInitialRpcTimeoutDuration(Duration.ofMillis(6000))
+        .setInitialRpcTimeoutDuration(Duration.ofMillis(800))
         .setInitialRetryDelayDuration(Duration.ofMillis(10))
         .setRetryDelayMultiplier(1)
         .setMaxRetryDelayDuration(Duration.ofMillis(10));
@@ -789,7 +790,7 @@ public class BuiltinMetricsTracerTest {
 
     double retryRemainingDeadline = retryHistogramPointData.getSum();
     // The retry remaining deadline should be equivalent to the original timeout.
-    assertThat(retryRemainingDeadline).isEqualTo(9000);
+    assertThat(retryRemainingDeadline).isEqualTo((double) READ_ROWS_TOTAL_TIMEOUT);
 
     Attributes okAttributes =
         baseAttributes
@@ -809,7 +810,9 @@ public class BuiltinMetricsTracerTest {
             .get(0);
 
     double okRemainingDeadline = okHistogramPointData.getSum();
-    assertThat(okRemainingDeadline).isWithin(200).of(8500);
+    // first attempt latency + retry delay
+    double expected = READ_ROWS_TOTAL_TIMEOUT - SERVER_LATENCY - CHANNEL_BLOCKING_LATENCY - 10;
+    assertThat(okRemainingDeadline).isWithin(10).of(expected);
   }
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {

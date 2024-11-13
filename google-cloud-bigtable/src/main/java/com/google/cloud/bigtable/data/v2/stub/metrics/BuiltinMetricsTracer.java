@@ -303,8 +303,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
   public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
     // This method is called by BigtableTracerStreamingCallable and
     // BigtableTracerUnaryCallable which is called per attempt. We only set
-    // the operationDeadline on the first attempt.
-    if (operationDeadline == null) {
+    // the operationDeadline on the first attempt and when totalTimeout is set.
+    if (operationDeadline == null && !totalTimeoutDuration.isZero()) {
       this.operationDeadline =
           Deadline.after(totalTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
       this.remainingDeadlineAtAttemptStart = totalTimeoutDuration.toMillis();
@@ -405,11 +405,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
 
-    // Total timeout is set to 0 when there's no timeout. In this case remaining deadline will be
-    // <= 0. Skip recording the value because it doesn't represent how much time is left to
-    // retry the request.
-    if (remainingDeadlineAtAttemptStart > 0) {
-      remainingDeadlineHistogram.record(remainingDeadlineAtAttemptStart, attributes);
+    // When operationDeadline is set, it's possible that the deadline is passed by the time we send
+    // a new attempt. In this case we'll record 0.
+    if (operationDeadline != null) {
+      remainingDeadlineHistogram.record(Math.max(0, remainingDeadlineAtAttemptStart), attributes);
     }
 
     if (serverLatencies != null) {
