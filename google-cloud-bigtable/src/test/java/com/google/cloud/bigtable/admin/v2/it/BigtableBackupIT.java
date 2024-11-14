@@ -159,7 +159,7 @@ public class BigtableBackupIT {
           .that(response.getSourceTableId())
           .isEqualTo(testTable.getId());
       assertWithMessage("Got wrong expire time in CreateBackup")
-          .that(response.getExpireTime())
+          .that(response.getExpireTimeInstant())
           .isEqualTo(expireTime);
 
       Backup result = tableAdmin.getBackup(targetCluster, backupId);
@@ -170,7 +170,7 @@ public class BigtableBackupIT {
           .that(result.getSourceTableId())
           .isEqualTo(testTable.getId());
       assertWithMessage("Got wrong expire time in GetBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireTimeInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got empty start time in GetBackup API")
           .that(result.getStartTime())
@@ -208,13 +208,13 @@ public class BigtableBackupIT {
           .that(response.getSourceTableId())
           .isEqualTo(testTableHot.getId());
       assertWithMessage("Got wrong expire time in CreateBackup")
-          .that(response.getExpireTime())
+          .that(response.getExpireTimeInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got wrong backup type in CreateBackup")
           .that(response.getBackupType())
           .isEqualTo(Backup.BackupType.HOT);
       assertWithMessage("Got wrong hot to standard time in CreateBackup")
-          .that(response.getHotToStandardTime())
+          .that(response.getHotToStandardTimeInstant())
           .isEqualTo(hotToStandardTime);
 
       Backup result = tableAdminHot.getBackup(targetClusterHot, backupId);
@@ -285,7 +285,9 @@ public class BigtableBackupIT {
             .clearHotToStandardTime();
     try {
       Backup backup = tableAdminHot.updateBackup(req);
-      assertWithMessage("Incorrect expire time").that(backup.getExpireTime()).isEqualTo(expireTime);
+      assertWithMessage("Incorrect expire time")
+          .that(backup.getExpireTimeInstant())
+          .isEqualTo(expireTime);
       assertWithMessage("Incorrect hot to standard time")
           .that(backup.getHotToStandardTime())
           .isNull();
@@ -422,10 +424,10 @@ public class BigtableBackupIT {
           .that(result.getSourceBackupId())
           .isEqualTo(backupId);
       assertWithMessage("Got wrong expire time in CopyBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireTimeInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got empty start time in CopyBackup API")
-          .that(result.getStartTime())
+          .that(result.getStartTimeInstant())
           .isNotNull();
       assertWithMessage("Got wrong state in CopyBackup API")
           .that(result.getState())

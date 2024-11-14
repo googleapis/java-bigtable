@@ -272,8 +272,8 @@ public class ExecuteQueryIT {
     assertThat(rs.getFloat(4)).isEqualTo(1.4f);
     assertThat(rs.getBoolean("boolCol")).isTrue();
     assertThat(rs.getBoolean(5)).isTrue();
-    assertThat(rs.getTimestamp("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
-    assertThat(rs.getTimestamp(6)).isEqualTo(Instant.ofEpochMilli(1000));
+    assertThat(rs.getTimestampInstant("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
+    assertThat(rs.getTimestampInstant(6)).isEqualTo(Instant.ofEpochMilli(1000));
     assertThat(rs.getDate("dateCol")).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(rs.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(rs.getList("byteArrayCol", SqlType.arrayOf(SqlType.bytes())))
