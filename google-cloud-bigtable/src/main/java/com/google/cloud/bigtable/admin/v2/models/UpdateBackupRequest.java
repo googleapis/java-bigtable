@@ -24,8 +24,8 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.FieldMask;
+import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.FieldMaskUtil;
-import com.google.protobuf.util.Timestamps;
 import javax.annotation.Nonnull;
 
 /** Fluent wrapper for {@link com.google.bigtable.admin.v2.UpdateBackupRequest} */
@@ -62,7 +62,11 @@ public final class UpdateBackupRequest {
     Preconditions.checkNotNull(expireTime);
     requestBuilder
         .getBackupBuilder()
-        .setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()));
+        .setExpireTime(
+            Timestamp.newBuilder()
+                .setSeconds(expireTime.getEpochSecond())
+                .setNanos(expireTime.getNano())
+                .build());
     updateFieldMask(Backup.EXPIRE_TIME_FIELD_NUMBER);
     return this;
   }
@@ -81,7 +85,11 @@ public final class UpdateBackupRequest {
     Preconditions.checkNotNull(hotToStandardTime);
     requestBuilder
         .getBackupBuilder()
-        .setHotToStandardTime(Timestamps.fromMillis(hotToStandardTime.toEpochMilli()));
+        .setHotToStandardTime(
+            Timestamp.newBuilder()
+                .setSeconds(hotToStandardTime.getEpochSecond())
+                .setNanos(hotToStandardTime.getNano())
+                .build());
     updateFieldMask(Backup.HOT_TO_STANDARD_TIME_FIELD_NUMBER);
     return this;
   }

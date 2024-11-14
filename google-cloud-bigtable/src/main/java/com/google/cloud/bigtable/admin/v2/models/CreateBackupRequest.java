@@ -22,7 +22,7 @@ import com.google.api.core.ObsoleteApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.util.Timestamps;
+import com.google.protobuf.Timestamp;
 import javax.annotation.Nonnull;
 
 /** Fluent wrapper for {@link com.google.bigtable.admin.v2.CreateBackupRequest} */
@@ -91,7 +91,11 @@ public final class CreateBackupRequest {
     Preconditions.checkNotNull(hotToStandardTime);
     requestBuilder
         .getBackupBuilder()
-        .setHotToStandardTime(Timestamps.fromMillis(hotToStandardTime.toEpochMilli()));
+        .setHotToStandardTime(
+            Timestamp.newBuilder()
+                .setSeconds(hotToStandardTime.getEpochSecond())
+                .setNanos(hotToStandardTime.getNano())
+                .build());
     return this;
   }
 

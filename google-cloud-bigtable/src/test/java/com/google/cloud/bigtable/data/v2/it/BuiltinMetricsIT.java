@@ -220,8 +220,16 @@ public class BuiltinMetricsIT {
     Instant end = Instant.now().plus(Duration.ofMinutes(3));
     TimeInterval interval =
         TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
-            .setEndTime(Timestamps.fromMillis(end.toEpochMilli()))
+            .setStartTime(
+                Timestamp.newBuilder()
+                    .setSeconds(start.getEpochSecond())
+                    .setNanos(start.getNano())
+                    .build())
+            .setEndTime(
+                Timestamp.newBuilder()
+                    .setSeconds(end.getEpochSecond())
+                    .setNanos(end.getNano())
+                    .build())
             .build();
 
     for (String view : VIEWS) {
@@ -282,8 +290,16 @@ public class BuiltinMetricsIT {
     Instant end = start.plus(Duration.ofMinutes(3));
     TimeInterval interval =
         TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromMillis(start.toEpochMilli()))
-            .setEndTime(Timestamps.fromMillis(end.toEpochMilli()))
+            .setStartTime(
+                Timestamp.newBuilder()
+                    .setSeconds(start.getEpochSecond())
+                    .setNanos(start.getNano())
+                    .build())
+            .setEndTime(
+                Timestamp.newBuilder()
+                    .setSeconds(end.getEpochSecond())
+                    .setNanos(end.getNano())
+                    .build())
             .build();
 
     for (String view : VIEWS) {

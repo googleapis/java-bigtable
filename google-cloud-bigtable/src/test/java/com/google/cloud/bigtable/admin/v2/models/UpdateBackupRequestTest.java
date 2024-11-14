@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.FieldMask;
-import com.google.protobuf.util.Timestamps;
+import com.google.protobuf.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
@@ -52,9 +52,16 @@ public class UpdateBackupRequestTest {
                 Backup.newBuilder()
                     .setName(
                         NameUtil.formatBackupName(PROJECT_ID, INSTANCE_ID, CLUSTER_ID, BACKUP_ID))
-                    .setExpireTime(Timestamps.fromMillis(EXPIRE_TIME.toEpochMilli()))
+                    .setExpireTime(
+                        Timestamp.newBuilder()
+                            .setSeconds(EXPIRE_TIME.getEpochSecond())
+                            .setNanos(EXPIRE_TIME.getNano())
+                            .build())
                     .setHotToStandardTime(
-                        Timestamps.fromMillis(HOT_TO_STANDARD_TIME.toEpochMilli()))
+                        Timestamp.newBuilder()
+                            .setSeconds(HOT_TO_STANDARD_TIME.getEpochSecond())
+                            .setNanos(HOT_TO_STANDARD_TIME.getNano())
+                            .build())
                     .build())
             .setUpdateMask(
                 FieldMask.newBuilder()
