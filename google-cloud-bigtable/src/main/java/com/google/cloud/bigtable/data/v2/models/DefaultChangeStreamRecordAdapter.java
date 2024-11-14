@@ -101,6 +101,18 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
+    public void startUserMutationInstant(
+        @Nonnull ByteString rowKey,
+        @Nonnull String sourceClusterId,
+        java.time.Instant commitTimestamp,
+        int tieBreaker) {
+      this.changeStreamMutationBuilder =
+          ChangeStreamMutation.createUserMutation(
+              rowKey, sourceClusterId, commitTimestamp, tieBreaker);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,

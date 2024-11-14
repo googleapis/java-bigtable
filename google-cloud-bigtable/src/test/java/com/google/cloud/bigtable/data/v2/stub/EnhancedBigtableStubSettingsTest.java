@@ -184,7 +184,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getEndpoint()).isEqualTo(endpoint);
     assertThat(settings.getCredentialsProvider()).isEqualTo(credentialsProvider);
     assertThat(settings.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
-    assertThat(settings.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
+    assertThat(settings.getStreamWatchdogCheckIntervalDuration()).isEqualTo(watchdogInterval);
     assertThat(settings.getEnableRoutingCookie()).isEqualTo(enableRoutingCookie);
     assertThat(settings.getEnableRetryInfo()).isEqualTo(enableRetryInfo);
     assertThat(settings.getMetricsEndpoint()).isEqualTo(metricsEndpoint);

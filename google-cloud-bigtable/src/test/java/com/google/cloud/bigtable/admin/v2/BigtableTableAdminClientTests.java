@@ -1003,7 +1003,11 @@ public class BigtableTableAdminClientTests {
             .setSourceBackup(srcBackupName)
             .setStartTime(startTime)
             .setEndTime(endTime)
-            .setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()))
+            .setExpireTime(
+                Timestamp.newBuilder()
+                    .setSeconds(expireTime.getEpochSecond())
+                    .setNanos(expireTime.getNano())
+                    .build())
             .setSizeBytes(sizeBytes)
             .build(),
         CopyBackupMetadata.newBuilder()
