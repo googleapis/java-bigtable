@@ -23,11 +23,11 @@ import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import com.google.rpc.Code;
+import java.time.Instant;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BackupTest {
@@ -91,12 +91,13 @@ public class BackupTest {
     assertThat(result.getId()).isEqualTo("backup1");
     assertThat(result.getSourceTableId()).isEqualTo("table1");
     assertThat(result.getSourceBackupId()).isEqualTo("backup2");
-    assertThat(result.getExpireTime())
+    assertThat(result.getExpireTimeInstant())
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
-    assertThat(result.getStartTime())
+    assertThat(result.getStartTimeInstant())
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(result.getEndTime()).isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
-    assertThat(result.getHotToStandardTime())
+    assertThat(result.getEndTimeInstant())
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(result.getHotToStandardTimeInstant())
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(result.getSizeBytes()).isEqualTo(123456);
     assertThat(result.getState()).isEqualTo(Backup.State.READY);

@@ -22,10 +22,10 @@ import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.bigtable.admin.v2.Table;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.FieldMask;
+import java.time.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class UpdateTableRequestTest {
@@ -36,7 +36,7 @@ public class UpdateTableRequestTest {
   @Test
   public void testEnableChangeStreamToProto() {
     UpdateTableRequest request =
-        UpdateTableRequest.of(TABLE_ID).addChangeStreamRetention(Duration.ofHours(24));
+        UpdateTableRequest.of(TABLE_ID).addChangeStreamRetentionDuration(Duration.ofHours(24));
 
     com.google.bigtable.admin.v2.UpdateTableRequest requestProto =
         com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder()
@@ -57,7 +57,7 @@ public class UpdateTableRequestTest {
   @Test
   public void testDisableChangeStreamToProto() {
     UpdateTableRequest request =
-        UpdateTableRequest.of(TABLE_ID).addChangeStreamRetention(Duration.ofHours(0));
+        UpdateTableRequest.of(TABLE_ID).addChangeStreamRetentionDuration(Duration.ofHours(0));
 
     com.google.bigtable.admin.v2.UpdateTableRequest requestProto =
         com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder()

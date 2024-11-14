@@ -15,7 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.auto.value.AutoValue;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMerger;
@@ -23,7 +27,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import javax.annotation.Nonnull;
-import org.threeten.bp.Instant;
 
 /**
  * A ChangeStreamMutation represents a list of mods(represented by List<{@link Entry}>) targeted at
@@ -73,13 +76,13 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   static Builder createUserMutation(
       @Nonnull ByteString rowKey,
       @Nonnull String sourceClusterId,
-      Instant commitTimestamp,
+      java.time.Instant commitTimestamp,
       int tieBreaker) {
     return builder()
         .setRowKey(rowKey)
         .setType(MutationType.USER)
         .setSourceClusterId(sourceClusterId)
-        .setCommitTimestamp(commitTimestamp)
+        .setCommitTimestampInstant(commitTimestamp)
         .setTieBreaker(tieBreaker);
   }
 
@@ -89,12 +92,12 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
    * mutation.
    */
   static Builder createGcMutation(
-      @Nonnull ByteString rowKey, Instant commitTimestamp, int tieBreaker) {
+      @Nonnull ByteString rowKey, java.time.Instant commitTimestamp, int tieBreaker) {
     return builder()
         .setRowKey(rowKey)
         .setType(MutationType.GARBAGE_COLLECTION)
         .setSourceClusterId("")
-        .setCommitTimestamp(commitTimestamp)
+        .setCommitTimestampInstant(commitTimestamp)
         .setTieBreaker(tieBreaker);
   }
 
@@ -110,8 +113,14 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   @Nonnull
   public abstract String getSourceClusterId();
 
+  /** This method is obsolete. Use {@link #getCommitTimestampInstant()} instead. */
+  @ObsoleteApi("Use getCommitTimestampInstant() instead")
+  public org.threeten.bp.Instant getCommitTimestamp() {
+    return toThreetenInstant(getCommitTimestampInstant());
+  }
+
   /** Get the commit timestamp of the current mutation. */
-  public abstract Instant getCommitTimestamp();
+  public abstract java.time.Instant getCommitTimestampInstant();
 
   /**
    * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
@@ -123,8 +132,14 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
   @Nonnull
   public abstract String getToken();
 
+  /** This method is obsolete. Use {@link #getCommitTimestampInstant()} instead. */
+  @ObsoleteApi("Use getEstimatedLowWatermarkInstant() instead")
+  public org.threeten.bp.Instant getEstimatedLowWatermark() {
+    return toThreetenInstant(getEstimatedLowWatermarkInstant());
+  }
+
   /** Get the low watermark of the current mutation. */
-  public abstract Instant getEstimatedLowWatermark();
+  public abstract java.time.Instant getEstimatedLowWatermarkInstant();
 
   /** Get the list of mods of the current mutation. */
   @Nonnull
@@ -145,7 +160,15 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setSourceClusterId(@Nonnull String sourceClusterId);
 
-    abstract Builder setCommitTimestamp(Instant commitTimestamp);
+    abstract Builder setCommitTimestampInstant(java.time.Instant commitTimestamp);
+
+    /**
+     * This method is obsolete. Use {@link #setCommitTimestampInstant(java.time.Instant)} instead.
+     */
+    @ObsoleteApi("Use setCommitTimestampInstant(java.time.Instant) instead")
+    Builder setCommitTimestamp(org.threeten.bp.Instant commitTimestamp) {
+      return setCommitTimestampInstant(toJavaTimeInstant(commitTimestamp));
+    }
 
     abstract Builder setTieBreaker(int tieBreaker);
 
@@ -153,7 +176,16 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setToken(@Nonnull String token);
 
-    abstract Builder setEstimatedLowWatermark(Instant estimatedLowWatermark);
+    abstract Builder setEstimatedLowWatermarkInstant(java.time.Instant estimatedLowWatermark);
+
+    /**
+     * This method is obsolete. Use {@link #setEstimatedLowWatermarkInstant(java.time.Instant)}
+     * instead.
+     */
+    @ObsoleteApi("Use setEstimatedLowWatermarkInstant(java.time.Instant) instead")
+    Builder setEstimatedLowWatermark(org.threeten.bp.Instant estimatedLowWatermark) {
+      return setEstimatedLowWatermarkInstant(toJavaTimeInstant(estimatedLowWatermark));
+    }
 
     Builder setCell(
         @Nonnull String familyName,

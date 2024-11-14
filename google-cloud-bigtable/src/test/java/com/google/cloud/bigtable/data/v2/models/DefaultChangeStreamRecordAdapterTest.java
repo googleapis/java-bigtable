@@ -25,6 +25,7 @@ import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter.Change
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.rpc.Status;
+import java.time.Instant;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,7 +33,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class DefaultChangeStreamRecordAdapterTest {
@@ -59,7 +59,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertTrue(adapter.isHeartbeat(heartbeatRecord));
     Assert.assertFalse(adapter.isHeartbeat(closeStreamRecord));
@@ -99,7 +99,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertFalse(adapter.isChangeStreamMutation(heartbeatRecord));
     Assert.assertFalse(adapter.isChangeStreamMutation(closeStreamRecord));
@@ -112,7 +112,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("change-stream-mutation-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertEquals(
         adapter.getTokenFromChangeStreamMutation(changeStreamMutationRecord),
@@ -161,14 +161,14 @@ public class DefaultChangeStreamRecordAdapterTest {
 
   @Test(expected = IllegalStateException.class)
   public void createHeartbeatWithExistingMutationShouldFailTest() {
-    changeStreamRecordBuilder.startGcMutation(
+    changeStreamRecordBuilder.startGcMutationInstant(
         ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.onHeartbeat(ReadChangeStreamResponse.Heartbeat.getDefaultInstance());
   }
 
   @Test(expected = IllegalStateException.class)
   public void createCloseStreamWithExistingMutationShouldFailTest() {
-    changeStreamRecordBuilder.startGcMutation(
+    changeStreamRecordBuilder.startGcMutationInstant(
         ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.onCloseStream(
         ReadChangeStreamResponse.CloseStream.getDefaultInstance());
@@ -186,19 +186,21 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.deleteFamily(deleteFromFamily.getFamilyName());
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
     // Call again.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
   }
 
@@ -225,11 +227,11 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.deleteCells(
         deleteFromColumn.getFamilyName(),
@@ -238,11 +240,13 @@ public class DefaultChangeStreamRecordAdapterTest {
             deleteFromColumn.getTimeRange().getStartTimestampMicros(),
             deleteFromColumn.getTimeRange().getEndTimestampMicros()));
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
     // Call again.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
   }
 
@@ -258,23 +262,25 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     // Suppose the SetCell is not chunked and the state machine calls `cellValue()` once.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.startCell(
         "fake-family", ByteString.copyFromUtf8("fake-qualifier"), 100L);
     changeStreamRecordBuilder.cellValue(ByteString.copyFromUtf8("fake-value"));
     changeStreamRecordBuilder.finishCell();
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
     // Call again.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
   }
 
@@ -290,13 +296,13 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value1-value2"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     // Suppose the SetCell is chunked into two pieces and the state machine calls `cellValue()`
     // twice.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.startCell(
         "fake-family", ByteString.copyFromUtf8("fake-qualifier"), 100L);
@@ -304,11 +310,13 @@ public class DefaultChangeStreamRecordAdapterTest {
     changeStreamRecordBuilder.cellValue(ByteString.copyFromUtf8("-value2"));
     changeStreamRecordBuilder.finishCell();
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
     // Call again.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
   }
 
@@ -327,10 +335,10 @@ public class DefaultChangeStreamRecordAdapterTest {
     }
     expectedChangeStreamMutationBuilder
         .setToken("fake-token")
-        .setEstimatedLowWatermark(FAKE_LOW_WATERMARK);
+        .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK);
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     for (int i = 0; i < 10; ++i) {
       changeStreamRecordBuilder.startCell(
@@ -342,11 +350,13 @@ public class DefaultChangeStreamRecordAdapterTest {
     }
     // Check that they're the same.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutationBuilder.build());
     // Call again.
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutationBuilder.build());
   }
 
@@ -369,10 +379,10 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("chunked-value"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK);
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK);
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.deleteFamily("fake-family");
     // Add non-chunked cell.
@@ -387,7 +397,8 @@ public class DefaultChangeStreamRecordAdapterTest {
     changeStreamRecordBuilder.cellValue(ByteString.copyFromUtf8("-value"));
     changeStreamRecordBuilder.finishCell();
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutationBuilder.build());
   }
 
@@ -418,13 +429,14 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.deleteFamily(deleteFromFamily.getDeleteFromFamily().getFamilyName());
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
 
     // Reset a build a cell.
@@ -438,10 +450,10 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value1-value2"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK)
+            .setEstimatedLowWatermarkInstant(FAKE_LOW_WATERMARK)
             .build();
 
-    changeStreamRecordBuilder.startUserMutation(
+    changeStreamRecordBuilder.startUserMutationInstant(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
     changeStreamRecordBuilder.startCell(
         "fake-family", ByteString.copyFromUtf8("fake-qualifier"), 100L);
@@ -449,7 +461,8 @@ public class DefaultChangeStreamRecordAdapterTest {
     changeStreamRecordBuilder.cellValue(ByteString.copyFromUtf8("-value2"));
     changeStreamRecordBuilder.finishCell();
     assertThat(
-            changeStreamRecordBuilder.finishChangeStreamMutation("fake-token", FAKE_LOW_WATERMARK))
+            changeStreamRecordBuilder.finishChangeStreamMutationInstant(
+                "fake-token", FAKE_LOW_WATERMARK))
         .isEqualTo(expectedChangeStreamMutation);
   }
 }

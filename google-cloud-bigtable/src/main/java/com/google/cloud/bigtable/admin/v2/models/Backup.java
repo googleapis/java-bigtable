@@ -16,7 +16,10 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.BackupName;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
@@ -24,7 +27,6 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.util.Timestamps;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.threeten.bp.Instant;
 
 /**
  * A backup lets you save a copy of a table's schema and data and restore the backup to a new table
@@ -166,23 +168,41 @@ public class Backup {
     return instanceId;
   }
 
+  /** This method is obsolete. Use {@link #getExpireTimeInstant()} instead. */
+  @ObsoleteApi("Use getExpireTimeInstant() instead")
+  public org.threeten.bp.Instant getExpireTime() {
+    return toThreetenInstant(getExpireTimeInstant());
+  }
+
   /** Get the expire time of this backup. */
-  public Instant getExpireTime() {
-    return Instant.ofEpochMilli(Timestamps.toMillis(proto.getExpireTime()));
+  public java.time.Instant getExpireTimeInstant() {
+    return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getExpireTime()));
+  }
+
+  /** This method is obsolete. Use {@link #getStartTimeInstant()} instead. */
+  @ObsoleteApi("Use getStartTimeInstant() instead")
+  public @Nullable org.threeten.bp.Instant getStartTime() {
+    return toThreetenInstant(getStartTimeInstant());
   }
 
   /** Get the start time when this backup is taken. */
-  public @Nullable Instant getStartTime() {
+  public @Nullable java.time.Instant getStartTimeInstant() {
     if (proto.hasStartTime()) {
-      return Instant.ofEpochMilli(Timestamps.toMillis(proto.getStartTime()));
+      return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getStartTime()));
     }
     return null;
   }
 
+  /** This method is obsolete. Use {@link #getStartTimeInstant()} instead. */
+  @ObsoleteApi("Use getStartTimeInstant() instead")
+  public @Nullable org.threeten.bp.Instant getEndTime() {
+    return toThreetenInstant(getEndTimeInstant());
+  }
+
   /** Get the end time when the creation of this backup has completed. */
-  public @Nullable Instant getEndTime() {
+  public @Nullable java.time.Instant getEndTimeInstant() {
     if (proto.hasEndTime()) {
-      return Instant.ofEpochMilli(Timestamps.toMillis(proto.getEndTime()));
+      return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getEndTime()));
     }
     return null;
   }
@@ -202,11 +222,18 @@ public class Backup {
     return BackupType.fromProto(proto.getBackupType());
   }
 
+  /** This method is obsolete. Use {@link #getHotToStandardTimeInstant()} instead. */
+  @ObsoleteApi("Use getHotToStandardTimeInstant() instead.")
+  @Nullable
+  public org.threeten.bp.Instant getHotToStandardTime() {
+    return toThreetenInstant(getHotToStandardTimeInstant());
+  }
+
   /** Get the time at which this backup will be converted from a hot backup to a standard backup. */
   @Nullable
-  public Instant getHotToStandardTime() {
+  public java.time.Instant getHotToStandardTimeInstant() {
     if (proto.hasHotToStandardTime()) {
-      return Instant.ofEpochMilli(Timestamps.toMillis(proto.getHotToStandardTime()));
+      return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getHotToStandardTime()));
     }
     return null;
   }

@@ -24,7 +24,6 @@ import com.google.protobuf.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.threeten.bp.Instant;
 
 public class StatementDeserializer {
 

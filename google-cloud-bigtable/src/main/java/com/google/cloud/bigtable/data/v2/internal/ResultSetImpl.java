@@ -15,8 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.rpc.ApiExceptions;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.cloud.Date;
@@ -31,7 +34,6 @@ import com.google.protobuf.ByteString;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.threeten.bp.Instant;
 
 /**
  * The primary implementation of a ResultSet.
@@ -167,13 +169,25 @@ public class ResultSetImpl implements ResultSet, StructReader {
   }
 
   @Override
-  public Instant getTimestamp(int columnIndex) {
-    return getCurrentRow().getTimestamp(columnIndex);
+  @ObsoleteApi("Use getTimestampInstant(int) instead")
+  public org.threeten.bp.Instant getTimestamp(int columnIndex) {
+    return toThreetenInstant(getTimestampInstant(columnIndex));
   }
 
   @Override
-  public Instant getTimestamp(String columnName) {
-    return getCurrentRow().getTimestamp(columnName);
+  public java.time.Instant getTimestampInstant(int columnIndex) {
+    return getCurrentRow().getTimestampInstant(columnIndex);
+  }
+
+  @Override
+  @ObsoleteApi("Use getTimestampInstant(String) instead")
+  public org.threeten.bp.Instant getTimestamp(String columnName) {
+    return toThreetenInstant(getTimestampInstant(columnName));
+  }
+
+  @Override
+  public java.time.Instant getTimestampInstant(String columnName) {
+    return getCurrentRow().getTimestampInstant(columnName);
   }
 
   @Override

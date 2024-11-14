@@ -15,7 +15,10 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
+
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
@@ -24,7 +27,6 @@ import com.google.protobuf.FieldMask;
 import com.google.protobuf.util.FieldMaskUtil;
 import com.google.protobuf.util.Timestamps;
 import javax.annotation.Nonnull;
-import org.threeten.bp.Instant;
 
 /** Fluent wrapper for {@link com.google.bigtable.admin.v2.UpdateBackupRequest} */
 public final class UpdateBackupRequest {
@@ -50,7 +52,13 @@ public final class UpdateBackupRequest {
     requestBuilder.setUpdateMask(FieldMaskUtil.union(requestBuilder.getUpdateMask(), newMask));
   }
 
-  public UpdateBackupRequest setExpireTime(Instant expireTime) {
+  /** This method is obsolete. Use {@link #setExpireTimeInstant(java.time.Instant)} instead. */
+  @ObsoleteApi("Use setExpireTimeInstant(java.time.Instant) instead.")
+  public UpdateBackupRequest setExpireTime(org.threeten.bp.Instant expireTime) {
+    return setExpireTimeInstant(toJavaTimeInstant(expireTime));
+  }
+
+  public UpdateBackupRequest setExpireTimeInstant(java.time.Instant expireTime) {
     Preconditions.checkNotNull(expireTime);
     requestBuilder
         .getBackupBuilder()
@@ -58,11 +66,18 @@ public final class UpdateBackupRequest {
     updateFieldMask(Backup.EXPIRE_TIME_FIELD_NUMBER);
     return this;
   }
+  /**
+   * This method is obsolete. Use {@link #setHotToStandardTimeInstant(java.time.Instant)} instead.
+   */
+  @ObsoleteApi("Use setHotToStandardTimeInstant(java.time.Instant) instead.")
+  public UpdateBackupRequest setHotToStandardTime(org.threeten.bp.Instant hotToStandardTime) {
+    return setHotToStandardTimeInstant(toJavaTimeInstant(hotToStandardTime));
+  }
 
   // The time at which this backup will be converted from a hot backup to a standard backup. Only
   // applicable for hot backups. If not set, the backup will remain as a hot backup until it is
   // deleted.
-  public UpdateBackupRequest setHotToStandardTime(Instant hotToStandardTime) {
+  public UpdateBackupRequest setHotToStandardTimeInstant(java.time.Instant hotToStandardTime) {
     Preconditions.checkNotNull(hotToStandardTime);
     requestBuilder
         .getBackupBuilder()

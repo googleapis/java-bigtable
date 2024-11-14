@@ -70,7 +70,6 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.threeten.bp.Duration;
 
 /** Java implementation of the CBT test proxy. Used to test the Java CBT client. */
 public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Closeable {
@@ -108,8 +107,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
    * @param settingsBuilder The Builder object of BigtableDataSettings.
    * @param newTimeout The value that is used to set the timeout.
    */
-  private static BigtableDataSettings.Builder overrideTimeoutSetting(
-      Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
+  private static BigtableDataSettings.Builder overrideTimeoutSettingDuration(
+      java.time.Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
 
     updateTimeout(
         settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
@@ -128,16 +127,16 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     return settingsBuilder;
   }
 
-  private static void updateTimeout(RetrySettings.Builder settings, Duration newTimeout) {
-    Duration rpcTimeout = settings.getInitialRpcTimeout();
+  private static void updateTimeout(RetrySettings.Builder settings, java.time.Duration newTimeout) {
+    java.time.Duration rpcTimeout = settings.getInitialRpcTimeoutDuration();
 
     // TODO: this should happen in gax
     // Clamp the rpcTimeout to the overall timeout
     if (rpcTimeout != null && rpcTimeout.compareTo(newTimeout) > 0) {
-      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeout(newTimeout);
+      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeoutDuration(newTimeout);
     }
 
-    settings.setTotalTimeout(newTimeout);
+    settings.setTotalTimeoutDuration(newTimeout);
   }
 
   /** Helper method to get a client object by its id. */
@@ -180,7 +179,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
             .setAppProfileId(request.getAppProfileId());
 
     if (request.hasPerOperationTimeout()) {
-      Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
+      java.time.Duration newTimeout = java.time.Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
       settingsBuilder = overrideTimeoutSetting(newTimeout, settingsBuilder);
       logger.info(
           String.format(

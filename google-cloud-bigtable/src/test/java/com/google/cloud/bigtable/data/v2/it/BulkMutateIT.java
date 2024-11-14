@@ -37,13 +37,13 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class BulkMutateIT {
@@ -158,7 +158,7 @@ public class BulkMutateIT {
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(
-            batchingSettings.toBuilder().setDelayThreshold(Duration.ofHours(1)).build());
+            batchingSettings.toBuilder().setDelayThresholdDuration(Duration.ofHours(1)).build());
     try (BigtableDataClient client = BigtableDataClient.create(settings);
         BatcherImpl<RowMutationEntry, Void, BulkMutation, Void> batcher =
             (BatcherImpl<RowMutationEntry, Void, BulkMutation, Void>)
@@ -207,7 +207,7 @@ public class BulkMutateIT {
         .stubSettings()
         .bulkMutateRowsSettings()
         .setBatchingSettings(
-            batchingSettings.toBuilder().setDelayThreshold(Duration.ofHours(1)).build());
+            batchingSettings.toBuilder().setDelayThresholdDuration(Duration.ofHours(1)).build());
     try (BigtableDataClient client = BigtableDataClient.create(settings);
         Batcher<RowMutationEntry, Void> batcher =
             client.newBulkMutationBatcher(

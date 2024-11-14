@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
+
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
@@ -22,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.threeten.bp.Instant;
 
 /**
  * Default implementation of a {@link ChangeStreamRecordAdapter} that uses {@link
@@ -103,17 +104,23 @@ public class DefaultChangeStreamRecordAdapter
     public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        Instant commitTimestamp,
+        org.threeten.bp.Instant commitTimestamp,
         int tieBreaker) {
-      this.changeStreamMutationBuilder =
-          ChangeStreamMutation.createUserMutation(
-              rowKey, sourceClusterId, commitTimestamp, tieBreaker);
+      startUserMutationInstant(
+          rowKey, sourceClusterId, toJavaTimeInstant(commitTimestamp), tieBreaker);
     }
 
     /** {@inheritDoc} */
     @Override
     public void startGcMutation(
-        @Nonnull ByteString rowKey, Instant commitTimestamp, int tieBreaker) {
+        @Nonnull ByteString rowKey, org.threeten.bp.Instant commitTimestamp, int tieBreaker) {
+      startGcMutationInstant(rowKey, toJavaTimeInstant(commitTimestamp), tieBreaker);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void startGcMutationInstant(
+        ByteString rowKey, java.time.Instant commitTimestamp, int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createGcMutation(rowKey, commitTimestamp, tieBreaker);
     }
@@ -176,9 +183,16 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public ChangeStreamRecord finishChangeStreamMutation(
-        @Nonnull String token, Instant estimatedLowWatermark) {
+        @Nonnull String token, org.threeten.bp.Instant estimatedLowWatermark) {
+      return finishChangeStreamMutationInstant(token, toJavaTimeInstant(estimatedLowWatermark));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public ChangeStreamRecord finishChangeStreamMutationInstant(
+        String token, java.time.Instant estimatedLowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
-      this.changeStreamMutationBuilder.setEstimatedLowWatermark(estimatedLowWatermark);
+      this.changeStreamMutationBuilder.setEstimatedLowWatermarkInstant(estimatedLowWatermark);
       return this.changeStreamMutationBuilder.build();
     }
 

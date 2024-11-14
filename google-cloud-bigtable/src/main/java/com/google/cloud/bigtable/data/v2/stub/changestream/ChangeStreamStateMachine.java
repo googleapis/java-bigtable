@@ -22,7 +22,6 @@ import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecordAdapter.Change
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.cloud.bigtable.data.v2.models.Value;
 import com.google.common.base.Preconditions;
-import org.threeten.bp.Instant;
 
 /**
  * A state machine to produce change stream records from a stream of {@link
@@ -332,9 +331,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             validate(
                 dataChange.getSourceClusterId().isEmpty(),
                 "AWAITING_NEW_STREAM_RECORD: GC mutation shouldn't have source cluster id.");
-            builder.startGcMutation(
+            builder.startGcMutationInstant(
                 dataChange.getRowKey(),
-                Instant.ofEpochSecond(
+                java.time.Instant.ofEpochSecond(
                     dataChange.getCommitTimestamp().getSeconds(),
                     dataChange.getCommitTimestamp().getNanos()),
                 dataChange.getTiebreaker());
@@ -342,10 +341,10 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             validate(
                 !dataChange.getSourceClusterId().isEmpty(),
                 "AWAITING_NEW_STREAM_RECORD: User initiated data change missing source cluster id.");
-            builder.startUserMutation(
+            builder.startUserMutationInstant(
                 dataChange.getRowKey(),
                 dataChange.getSourceClusterId(),
-                Instant.ofEpochSecond(
+                java.time.Instant.ofEpochSecond(
                     dataChange.getCommitTimestamp().getSeconds(),
                     dataChange.getCommitTimestamp().getNanos()),
                 dataChange.getTiebreaker());
@@ -576,9 +575,9 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       validate(!dataChange.getToken().isEmpty(), "Last data change missing token");
       validate(dataChange.hasEstimatedLowWatermark(), "Last data change missing lowWatermark");
       completeChangeStreamRecord =
-          builder.finishChangeStreamMutation(
+          builder.finishChangeStreamMutationInstant(
               dataChange.getToken(),
-              Instant.ofEpochSecond(
+              java.time.Instant.ofEpochSecond(
                   dataChange.getEstimatedLowWatermark().getSeconds(),
                   dataChange.getEstimatedLowWatermark().getNanos()));
       return AWAITING_STREAM_RECORD_CONSUME;

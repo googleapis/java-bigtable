@@ -105,7 +105,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 /**
@@ -307,7 +306,7 @@ public class BigtableTableAdminClientTests {
 
     com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest request =
         com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest.of(TABLE_ID)
-            .addChangeStreamRetention(org.threeten.bp.Duration.ofHours(24));
+            .addChangeStreamRetentionDuration(java.time.Duration.ofHours(24));
 
     com.google.bigtable.admin.v2.Table expectedResponse =
         com.google.bigtable.admin.v2.Table.newBuilder()
@@ -329,8 +328,10 @@ public class BigtableTableAdminClientTests {
 
     // Verify
     assertThat(actualResult.getId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getChangeStreamRetention())
-        .isEqualTo(org.threeten.bp.Duration.ofHours(24));
+    assertThat(actualResult.getChangeStreamRetentionDuration())
+        .isEqualTo(java.time.Duration.ofHours(24));
+    assertThat(actualResult.getChangeStreamRetentionDuration().toMillis())
+        .isEqualTo(actualResult.getChangeStreamRetention().toMillis());
   }
 
   @Test
@@ -644,7 +645,7 @@ public class BigtableTableAdminClientTests {
     CreateBackupRequest req =
         CreateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
             .setSourceTableId(TABLE_ID)
-            .setExpireTime(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+            .setExpireTimeInstant(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     mockOperationResult(
         mockCreateBackupOperationCallable,
         req.toProto(PROJECT_ID, INSTANCE_ID),
@@ -668,12 +669,12 @@ public class BigtableTableAdminClientTests {
     // Verify
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getStartTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(actualResult.getEndTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
-    assertThat(actualResult.getExpireTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+    assertThat(actualResult.getStartTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+    assertThat(actualResult.getEndTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(actualResult.getExpireTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -692,9 +693,10 @@ public class BigtableTableAdminClientTests {
     CreateBackupRequest req =
         CreateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
             .setSourceTableId(TABLE_ID)
-            .setExpireTime(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)))
+            .setExpireTimeInstant(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)))
             .setBackupType(Backup.BackupType.HOT)
-            .setHotToStandardTime(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+            .setHotToStandardTimeInstant(
+                java.time.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     mockOperationResult(
         mockCreateBackupOperationCallable,
         req.toProto(PROJECT_ID, INSTANCE_ID),
@@ -720,15 +722,15 @@ public class BigtableTableAdminClientTests {
     // Verify
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getStartTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(actualResult.getEndTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
-    assertThat(actualResult.getExpireTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+    assertThat(actualResult.getStartTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+    assertThat(actualResult.getEndTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(actualResult.getExpireTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getBackupType()).isEqualTo(Backup.BackupType.HOT);
-    assertThat(actualResult.getHotToStandardTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+    assertThat(actualResult.getHotToStandardTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -767,12 +769,12 @@ public class BigtableTableAdminClientTests {
     // Verify
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getExpireTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
-    assertThat(actualResult.getStartTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(actualResult.getEndTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(actualResult.getExpireTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+    assertThat(actualResult.getStartTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+    assertThat(actualResult.getEndTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
     assertThat(actualResult.getState()).isEqualTo(Backup.State.fromProto(state));
     assertThat(actualResult.getBackupType()).isEqualTo(Backup.BackupType.STANDARD);
@@ -805,10 +807,10 @@ public class BigtableTableAdminClientTests {
     // Verify
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getExpireTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
-    assertThat(actualResult.getHotToStandardTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+    assertThat(actualResult.getExpireTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+    assertThat(actualResult.getHotToStandardTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -978,7 +980,7 @@ public class BigtableTableAdminClientTests {
     String srcTableId = "src-table";
     String srcClusterId = "src-cluster";
     String srcBackupId = "src-backup";
-    Instant expireTime = Instant.now().plus(org.threeten.bp.Duration.ofDays(15));
+    java.time.Instant expireTime = java.time.Instant.now().plus(java.time.Duration.ofDays(15));
     long sizeBytes = 123456789;
 
     String dstBackupName =
@@ -991,7 +993,7 @@ public class BigtableTableAdminClientTests {
         CopyBackupRequest.of(srcClusterId, srcBackupId)
             .setSourceInstance(srcProjectId, srcInstanceId)
             .setDestination(CLUSTER_ID, BACKUP_ID)
-            .setExpireTime(expireTime);
+            .setExpireTimeInstant(expireTime);
     mockOperationResult(
         mockCopyBackupOperationCallable,
         req.toProto(PROJECT_ID, INSTANCE_ID),
@@ -1022,11 +1024,11 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(srcTableId);
     assertThat(actualResult.getSourceBackupId()).isEqualTo(srcBackupId);
-    assertThat(actualResult.getStartTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(actualResult.getEndTime())
-        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
-    assertThat(actualResult.getExpireTime()).isEqualTo(expireTime);
+    assertThat(actualResult.getStartTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+    assertThat(actualResult.getEndTimeInstant())
+        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(actualResult.getExpireTimeInstant()).isEqualTo(expireTime);
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 

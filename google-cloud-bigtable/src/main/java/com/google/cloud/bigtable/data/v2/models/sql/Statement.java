@@ -15,6 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
+
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ArrayValue;
@@ -31,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.threeten.bp.Instant;
 
 /**
  * A SQL statement that can be executed by calling {@link
@@ -163,11 +164,14 @@ public class Statement {
       return this;
     }
 
+    public Builder setTimestampParam(String paramName, @Nullable org.threeten.bp.Instant value) {
+      return setTimestampParamInstant(paramName, toJavaTimeInstant(value));
+    }
     /**
      * Sets a query parameter with the name {@code paramName} and the TIMESTAMP typed value {@code
      * value}
      */
-    public Builder setTimestampParam(String paramName, @Nullable Instant value) {
+    public Builder setTimestampParamInstant(String paramName, @Nullable java.time.Instant value) {
       params.put(paramName, timestampParamOf(value));
       return this;
     }
@@ -239,7 +243,7 @@ public class Statement {
       return builder.build();
     }
 
-    private static Value timestampParamOf(@Nullable Instant value) {
+    private static Value timestampParamOf(@Nullable java.time.Instant value) {
       Value.Builder builder = nullValueWithType(TIMESTAMP_TYPE);
       if (value != null) {
         builder.setTimestampValue(toTimestamp(value));
@@ -325,7 +329,7 @@ public class Statement {
             valueBuilder.addValues(Value.newBuilder().setBoolValue(boolElem).build());
             break;
           case TIMESTAMP:
-            Instant timestampElem = (Instant) element;
+            java.time.Instant timestampElem = (java.time.Instant) element;
             valueBuilder.addValues(
                 Value.newBuilder().setTimestampValue(toTimestamp(timestampElem)).build());
             break;
@@ -341,7 +345,7 @@ public class Statement {
       return valueBuilder.build();
     }
 
-    private static Timestamp toTimestamp(Instant instant) {
+    private static Timestamp toTimestamp(java.time.Instant instant) {
       return Timestamp.newBuilder()
           .setSeconds(instant.getEpochSecond())
           .setNanos(instant.getNano())

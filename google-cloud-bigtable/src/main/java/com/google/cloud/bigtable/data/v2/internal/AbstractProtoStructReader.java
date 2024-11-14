@@ -15,7 +15,10 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.Value;
 import com.google.bigtable.v2.Value.KindCase;
 import com.google.cloud.Date;
@@ -30,7 +33,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.threeten.bp.Instant;
 
 @InternalApi
 public abstract class AbstractProtoStructReader implements StructReader {
@@ -166,14 +168,26 @@ public abstract class AbstractProtoStructReader implements StructReader {
   }
 
   @Override
-  public Instant getTimestamp(int columnIndex) {
+  @ObsoleteApi("Use getTimestampInstant(int) instead")
+  public org.threeten.bp.Instant getTimestamp(int columnIndex) {
+    return toThreetenInstant(getTimestampInstant(columnIndex));
+  }
+
+  @Override
+  public java.time.Instant getTimestampInstant(int columnIndex) {
     checkNonNullOfType(columnIndex, SqlType.timestamp(), columnIndex);
     Value value = values().get(columnIndex);
     return toInstant(value.getTimestampValue());
   }
 
   @Override
-  public Instant getTimestamp(String columnName) {
+  @ObsoleteApi("Use getTimestampInstant(String) instead")
+  public org.threeten.bp.Instant getTimestamp(String columnName) {
+    return toThreetenInstant(getTimestampInstant(columnName));
+  }
+
+  @Override
+  public java.time.Instant getTimestampInstant(String columnName) {
     int columnIndex = getColumnIndex(columnName);
     checkNonNullOfType(columnIndex, SqlType.timestamp(), columnName);
     Value value = values().get(columnIndex);
@@ -329,8 +343,8 @@ public abstract class AbstractProtoStructReader implements StructReader {
     }
   }
 
-  private Instant toInstant(Timestamp timestamp) {
-    return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+  private java.time.Instant toInstant(Timestamp timestamp) {
+    return java.time.Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
   }
 
   private Date fromProto(com.google.type.Date proto) {

@@ -41,12 +41,12 @@ import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class StatementTest {
@@ -218,7 +218,7 @@ public class StatementTest {
     Statement s =
         Statement.newBuilder(
                 "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
-            .setTimestampParam("timeParam", Instant.ofEpochSecond(1000, 100))
+            .setTimestampParamInstant("timeParam", Instant.ofEpochSecond(1000, 100))
             .build();
 
     assertThat(s.toProto(REQUEST_CONTEXT))

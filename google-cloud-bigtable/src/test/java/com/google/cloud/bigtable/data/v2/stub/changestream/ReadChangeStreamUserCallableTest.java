@@ -21,11 +21,11 @@ import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.common.truth.Truth;
+import java.time.Duration;
+import java.time.Instant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ReadChangeStreamUserCallableTest {
@@ -41,9 +41,9 @@ public class ReadChangeStreamUserCallableTest {
     ReadChangeStreamQuery query =
         ReadChangeStreamQuery.create("fake-table")
             .streamPartition("begin", "end")
-            .startTime(Instant.ofEpochSecond(0L, 1000L))
-            .endTime(Instant.ofEpochSecond(0L, 2000L))
-            .heartbeatDuration(Duration.ofSeconds(1));
+            .startTimeInstant(Instant.ofEpochSecond(0L, 1000L))
+            .endTimeInstant(Instant.ofEpochSecond(0L, 2000L))
+            .heartbeatDurationDuration(Duration.ofSeconds(1));
     callable.call(query);
     Truth.assertThat(innerCallable.getActualRequest()).isEqualTo(query.toProto(REQUEST_CONTEXT));
   }

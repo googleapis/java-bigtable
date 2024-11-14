@@ -24,7 +24,6 @@ import com.google.cloud.bigtable.common.Type.StructWithSchema;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
 import java.util.List;
-import org.threeten.bp.Instant;
 
 /**
  * Represents a data type in a SQL query.
@@ -150,7 +149,7 @@ public interface SqlType<T> extends Serializable {
   }
 
   /** returns a {@link SqlType} for the {@code TIMESTAMP} type. */
-  static SqlType<Instant> timestamp() {
+  static SqlType<java.time.Instant> timestamp() {
     return Type.Timestamp.create();
   }
 

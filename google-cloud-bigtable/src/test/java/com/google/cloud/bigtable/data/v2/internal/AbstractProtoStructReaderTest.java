@@ -57,6 +57,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Struct;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -71,7 +72,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
-import org.threeten.bp.Instant;
 
 @RunWith(Enclosed.class)
 public class AbstractProtoStructReaderTest {
@@ -311,8 +311,8 @@ public class AbstractProtoStructReaderTest {
               Collections.singletonList(timestampValue(1000000, 100)),
               0,
               "testField",
-              (BiFunction<TestProtoStruct, String, Instant>) TestProtoStruct::getTimestamp,
-              (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestamp,
+              (BiFunction<TestProtoStruct, String, Instant>) TestProtoStruct::getTimestampInstant,
+              (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestampInstant,
               Instant.ofEpochSecond(1000000, 100)
             },
             // MAX long timestamp - bigtable allows users to set timestamp micros to any long
@@ -323,8 +323,8 @@ public class AbstractProtoStructReaderTest {
               Collections.singletonList(timestampValue(MAX_TS_SECONDS, 0)),
               0,
               "testField",
-              (BiFunction<TestProtoStruct, String, Instant>) TestProtoStruct::getTimestamp,
-              (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestamp,
+              (BiFunction<TestProtoStruct, String, Instant>) TestProtoStruct::getTimestampInstant,
+              (BiFunction<TestProtoStruct, Integer, Instant>) TestProtoStruct::getTimestampInstant,
               Instant.ofEpochSecond(MAX_TS_SECONDS)
             },
             // Date

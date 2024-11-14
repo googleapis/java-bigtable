@@ -47,13 +47,13 @@ import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ProtoStructTest {
@@ -101,7 +101,7 @@ public class ProtoStructTest {
     assertThat(struct.getDouble(3)).isEqualTo(1.23d);
     assertThat(struct.getFloat(4)).isEqualTo(1.23f);
     assertThat(struct.getBoolean(5)).isTrue();
-    assertThat(struct.getTimestamp(6)).isEqualTo(Instant.ofEpochSecond(100000, 100));
+    assertThat(struct.getTimestampInstant(6)).isEqualTo(Instant.ofEpochSecond(100000, 100));
     assertThat(struct.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(struct.getStruct(8))
         .isEqualTo(
@@ -129,7 +129,8 @@ public class ProtoStructTest {
     assertThat(struct.getDouble("doubleField")).isEqualTo(1.23d);
     assertThat(struct.getFloat("floatField")).isEqualTo(1.23f);
     assertThat(struct.getBoolean("booleanField")).isTrue();
-    assertThat(struct.getTimestamp("timestampField")).isEqualTo(Instant.ofEpochSecond(100000, 100));
+    assertThat(struct.getTimestampInstant("timestampField"))
+        .isEqualTo(Instant.ofEpochSecond(100000, 100));
     assertThat(struct.getDate("dateField")).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(struct.getStruct("structField"))
         .isEqualTo(

@@ -54,6 +54,7 @@ import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStreamImpl;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -62,7 +63,6 @@ import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ResultSetImplTest {
@@ -126,8 +126,8 @@ public class ResultSetImplTest {
       assertThat(resultSet.getFloat("float")).isEqualTo(1.23f);
       assertThat(resultSet.getBoolean(5)).isTrue();
       assertThat(resultSet.getBoolean("boolean")).isTrue();
-      assertThat(resultSet.getTimestamp(6)).isEqualTo(Instant.ofEpochSecond(10000000, 100));
-      assertThat(resultSet.getTimestamp("timestamp"))
+      assertThat(resultSet.getTimestampInstant(6)).isEqualTo(Instant.ofEpochSecond(10000000, 100));
+      assertThat(resultSet.getTimestampInstant("timestamp"))
           .isEqualTo(Instant.ofEpochSecond(10000000, 100));
       assertThat(resultSet.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 5));
       assertThat(resultSet.getDate("date")).isEqualTo(Date.fromYearMonthDay(2024, 6, 5));

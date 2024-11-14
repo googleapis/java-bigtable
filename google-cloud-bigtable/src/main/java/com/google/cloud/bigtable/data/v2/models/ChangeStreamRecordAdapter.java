@@ -15,12 +15,14 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.protobuf.ByteString;
 import javax.annotation.Nonnull;
-import org.threeten.bp.Instant;
 
 /**
  * An extension point that allows end users to plug in a custom implementation of logical change
@@ -109,22 +111,46 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     ChangeStreamRecordT onCloseStream(ReadChangeStreamResponse.CloseStream closeStream);
 
     /**
+     * This method is obsolete. Use {@link #startUserMutationInstant(ByteString, String,
+     * java.time.Instant, int)} instead.
+     */
+    @ObsoleteApi("Use startUserMutationInstant(ByteString, String, java.time.Instant, int) instead")
+    void startUserMutation(
+        @Nonnull ByteString rowKey,
+        @Nonnull String sourceClusterId,
+        org.threeten.bp.Instant commitTimestamp,
+        int tieBreaker);
+
+    /**
      * Called to start a new user initiated ChangeStreamMutation. This will be called at most once.
      * If called, the current change stream record must not include any close stream message or
      * heartbeat.
      */
-    void startUserMutation(
+    default void startUserMutationInstant(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        Instant commitTimestamp,
-        int tieBreaker);
+        java.time.Instant commitTimestamp,
+        int tieBreaker) {
+      startUserMutation(rowKey, sourceClusterId, toThreetenInstant(commitTimestamp), tieBreaker);
+    }
+
+    /**
+     * This method is obsolete. Use {@link #startGcMutationInstant(ByteString, java.time.Instant,
+     * int)} instead.
+     */
+    @ObsoleteApi("Use startGcMutationInstant(ByteString, java.time.Instant, int) instead")
+    void startGcMutation(
+        @Nonnull ByteString rowKey, org.threeten.bp.Instant commitTimestamp, int tieBreaker);
 
     /**
      * Called to start a new Garbage Collection ChangeStreamMutation. This will be called at most
      * once. If called, the current change stream record must not include any close stream message
      * or heartbeat.
      */
-    void startGcMutation(@Nonnull ByteString rowKey, Instant commitTimestamp, int tieBreaker);
+    default void startGcMutationInstant(
+        @Nonnull ByteString rowKey, java.time.Instant commitTimestamp, int tieBreaker) {
+      startGcMutation(rowKey, toThreetenInstant(commitTimestamp), tieBreaker);
+    }
 
     /** Called to add a DeleteFamily mod. */
     void deleteFamily(@Nonnull String familyName);
@@ -175,9 +201,19 @@ public interface ChangeStreamRecordAdapter<ChangeStreamRecordT> {
     /** Called once per cell to signal the end of the value (unless reset). */
     void finishCell();
 
-    /** Called once per stream record to signal that all mods have been processed (unless reset). */
+    /**
+     * This method is obsolete. Use {@link #finishChangeStreamMutationInstant(String,
+     * java.time.Instant)} instead.
+     */
+    @ObsoleteApi("Use finishChangeStreamMutationInstant(String, java.time.Instant) instead")
     ChangeStreamRecordT finishChangeStreamMutation(
-        @Nonnull String token, Instant estimatedLowWatermark);
+        @Nonnull String token, org.threeten.bp.Instant estimatedLowWatermark);
+
+    /** Called once per stream record to signal that all mods have been processed (unless reset). */
+    default ChangeStreamRecordT finishChangeStreamMutationInstant(
+        @Nonnull String token, java.time.Instant estimatedLowWatermark) {
+      return finishChangeStreamMutation(token, toThreetenInstant(estimatedLowWatermark));
+    }
 
     /** Called when the current in progress change stream record should be dropped */
     void reset();

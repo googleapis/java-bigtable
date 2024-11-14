@@ -62,6 +62,7 @@ import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,7 +75,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class CookiesHolderTest {
@@ -145,8 +145,8 @@ public class CookiesHolderTest {
         .checkAndMutateRowSettings()
         .setRetrySettings(
             RetrySettings.newBuilder()
-                .setInitialRetryDelay(Duration.ofMillis(10))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
+                .setInitialRetryDelayDuration(Duration.ofMillis(10))
+                .setMaxRetryDelayDuration(Duration.ofMinutes(1))
                 .setMaxAttempts(2)
                 .build())
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE);
@@ -156,8 +156,8 @@ public class CookiesHolderTest {
         .readModifyWriteRowSettings()
         .setRetrySettings(
             RetrySettings.newBuilder()
-                .setInitialRetryDelay(Duration.ofMillis(10))
-                .setMaxRetryDelay(Duration.ofMinutes(1))
+                .setInitialRetryDelayDuration(Duration.ofMillis(10))
+                .setMaxRetryDelayDuration(Duration.ofMinutes(1))
                 .setMaxAttempts(2)
                 .build())
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE);

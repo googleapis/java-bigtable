@@ -51,6 +51,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -62,7 +63,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class ReadChangeStreamRetryTest {
@@ -392,7 +392,7 @@ public class ReadChangeStreamRetryTest {
 
   private List<ChangeStreamRecord> getResults() {
     ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID).startTime(REQUEST_START_TIME);
+        ReadChangeStreamQuery.create(TABLE_ID).startTimeInstant(REQUEST_START_TIME);
     // Always give it this partition. We don't care.
     ServerStream<ChangeStreamRecord> actualRecords =
         client.readChangeStream(query.streamPartition(START_KEY_CLOSED, END_KEY_OPEN));

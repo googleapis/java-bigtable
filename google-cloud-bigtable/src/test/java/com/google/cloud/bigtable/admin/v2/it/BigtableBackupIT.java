@@ -45,6 +45,8 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -59,8 +61,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableBackupIT {
@@ -149,7 +149,7 @@ public class BigtableBackupIT {
     CreateBackupRequest request =
         CreateBackupRequest.of(targetCluster, backupId)
             .setSourceTableId(testTable.getId())
-            .setExpireTime(expireTime);
+            .setExpireTimeInstant(expireTime);
     try {
       Backup response = tableAdmin.createBackup(request);
       assertWithMessage("Got wrong backup Id in CreateBackup")
@@ -196,9 +196,9 @@ public class BigtableBackupIT {
     CreateBackupRequest request =
         CreateBackupRequest.of(targetClusterHot, backupId)
             .setSourceTableId(testTableHot.getId())
-            .setExpireTime(expireTime)
+            .setExpireTimeInstant(expireTime)
             .setBackupType(Backup.BackupType.HOT)
-            .setHotToStandardTime(hotToStandardTime);
+            .setHotToStandardTimeInstant(hotToStandardTime);
     try {
       Backup response = tableAdminHot.createBackup(request);
       assertWithMessage("Got wrong backup Id in CreateBackup")
@@ -274,14 +274,14 @@ public class BigtableBackupIT {
     tableAdminHot.createBackup(
         CreateBackupRequest.of(targetClusterHot, backupId)
             .setSourceTableId(testTableHot.getId())
-            .setExpireTime(Instant.now().plus(Duration.ofDays(15)))
+            .setExpireTimeInstant(Instant.now().plus(Duration.ofDays(15)))
             .setBackupType(Backup.BackupType.HOT)
-            .setHotToStandardTime(Instant.now().plus(Duration.ofDays(10))));
+            .setHotToStandardTimeInstant(Instant.now().plus(Duration.ofDays(10))));
 
     Instant expireTime = Instant.now().plus(Duration.ofDays(20));
     UpdateBackupRequest req =
         UpdateBackupRequest.of(targetClusterHot, backupId)
-            .setExpireTime(expireTime)
+            .setExpireTimeInstant(expireTime)
             .clearHotToStandardTime();
     try {
       Backup backup = tableAdminHot.updateBackup(req);
@@ -347,7 +347,7 @@ public class BigtableBackupIT {
     tableAdmin.createBackup(
         CreateBackupRequest.of(targetCluster, backupId)
             .setSourceTableId(testTable.getId())
-            .setExpireTime(Instant.now().plus(Duration.ofHours(6))));
+            .setExpireTimeInstant(Instant.now().plus(Duration.ofHours(6))));
 
     Stopwatch stopwatch = Stopwatch.createStarted();
 
@@ -407,13 +407,13 @@ public class BigtableBackupIT {
     tableAdmin.createBackup(
         CreateBackupRequest.of(targetCluster, backupId)
             .setSourceTableId(testTable.getId())
-            .setExpireTime(expireTime));
+            .setExpireTimeInstant(expireTime));
 
     try {
       CopyBackupRequest req =
           CopyBackupRequest.of(targetCluster, backupId)
               .setDestination(targetCluster, copiedBackupId)
-              .setExpireTime(expireTime);
+              .setExpireTimeInstant(expireTime);
       Backup result = tableAdmin.copyBackup(req);
       assertWithMessage("Got wrong copied backup id in CopyBackup API")
           .that(result.getId())
@@ -448,7 +448,7 @@ public class BigtableBackupIT {
     tableAdmin.createBackup(
         CreateBackupRequest.of(targetCluster, backupId)
             .setSourceTableId(testTable.getId())
-            .setExpireTime(expireTime));
+            .setExpireTimeInstant(expireTime));
 
     // Set up a new instance to test cross-instance copy. The backup will be copied here
     String destInstance = prefixGenerator.newPrefix();
@@ -468,7 +468,7 @@ public class BigtableBackupIT {
             CopyBackupRequest.of(targetCluster, backupId)
                 .setSourceInstance(testEnvRule.env().getInstanceId())
                 .setDestination(destCluster, copiedBackupId)
-                .setExpireTime(expireTime);
+                .setExpireTimeInstant(expireTime);
         Backup result = destTableAdmin.copyBackup(req);
         assertWithMessage("Got wrong copied backup id in CopyBackup API")
             .that(result.getId())
@@ -529,7 +529,7 @@ public class BigtableBackupIT {
   private CreateBackupRequest createBackupRequest(String backupId) {
     return CreateBackupRequest.of(targetCluster, backupId)
         .setSourceTableId(testTable.getId())
-        .setExpireTime(Instant.now().plus(Duration.ofDays(15)));
+        .setExpireTimeInstant(Instant.now().plus(Duration.ofDays(15)));
   }
 
   private static Table createAndPopulateTestTable(

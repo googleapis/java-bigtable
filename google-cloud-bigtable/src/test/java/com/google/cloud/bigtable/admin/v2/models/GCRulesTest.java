@@ -27,18 +27,18 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.DurationRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.IntersectionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.UnionRule;
 import com.google.cloud.bigtable.admin.v2.models.GCRules.VersionRule;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class GCRulesTest {
 
   @Test
   public void duration() {
-    DurationRule actual = GCRULES.maxAge(Duration.ofSeconds(61, 9));
+    DurationRule actual = GCRULES.maxAgeDuration(Duration.ofSeconds(61, 9));
     GcRule expected = buildAgeRule(61, 9);
     assertNotNull(actual.getMaxAge());
     assertThat(actual.toProto()).isEqualTo(expected);
@@ -46,14 +46,14 @@ public class GCRulesTest {
 
   @Test
   public void durationSeconds() {
-    GcRule actual = GCRULES.maxAge(Duration.ofSeconds(1)).toProto();
+    GcRule actual = GCRULES.maxAgeDuration(Duration.ofSeconds(1)).toProto();
     GcRule expected = buildAgeRule(1, 0);
     assertThat(actual).isEqualTo(expected);
   }
 
   @Test
   public void durationNanos() {
-    GcRule actual = GCRULES.maxAge(Duration.ofNanos(11)).toProto();
+    GcRule actual = GCRULES.maxAgeDuration(Duration.ofNanos(11)).toProto();
     GcRule expected = buildAgeRule(0, 11);
     assertThat(actual).isEqualTo(expected);
   }
@@ -114,7 +114,7 @@ public class GCRulesTest {
         GCRULES
             .union()
             .rule(GCRULES.maxVersions(1))
-            .rule(GCRULES.maxAge(Duration.ofSeconds(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1)))
             .toProto();
 
     GcRule expected =
@@ -132,8 +132,8 @@ public class GCRulesTest {
         GCRULES
             .union()
             .rule(GCRULES.maxVersions(1))
-            .rule(GCRULES.maxAge(Duration.ofSeconds(1)))
-            .rule(GCRULES.maxAge(Duration.ofNanos(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofNanos(1)))
             .toProto();
 
     GcRule expected =
@@ -168,7 +168,7 @@ public class GCRulesTest {
         GCRULES
             .intersection()
             .rule(GCRULES.maxVersions(1))
-            .rule(GCRULES.maxAge(Duration.ofSeconds(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1)))
             .toProto();
 
     GcRule expected =
@@ -188,8 +188,8 @@ public class GCRulesTest {
         GCRULES
             .intersection()
             .rule(GCRULES.maxVersions(1))
-            .rule(GCRULES.maxAge(Duration.ofSeconds(1)))
-            .rule(GCRULES.maxAge(Duration.ofNanos(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofNanos(1)))
             .toProto();
 
     GcRule expected =
@@ -213,12 +213,12 @@ public class GCRulesTest {
                 GCRULES
                     .intersection()
                     .rule(GCRULES.maxVersions(1))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(1))))
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1))))
             .rule(
                 GCRULES
                     .intersection()
                     .rule(GCRULES.maxVersions(1))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(1))));
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1))));
 
     GcRule expected =
         GcRule.newBuilder()
@@ -251,12 +251,12 @@ public class GCRulesTest {
                 GCRULES
                     .union()
                     .rule(GCRULES.maxVersions(1))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(1))))
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1))))
             .rule(
                 GCRULES
                     .union()
                     .rule(GCRULES.maxVersions(1))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(1))));
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1))));
 
     GcRule expected =
         GcRule.newBuilder()
@@ -294,9 +294,9 @@ public class GCRulesTest {
     GCRules.GCRule modelGCRule =
         GCRULES
             .union()
-            .rule(GCRULES.maxAge(Duration.ofSeconds(10)))
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(10)))
             .rule(GCRULES.maxVersions(1))
-            .rule(GCRULES.maxAge(Duration.ofSeconds(20, 2)));
+            .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(20, 2)));
     assertThat(GCRULES.fromProto(protoGCRule)).isEqualTo(modelGCRule);
   }
 
@@ -314,7 +314,7 @@ public class GCRulesTest {
     GCRules.GCRule modelGCRule =
         GCRules.GCRULES
             .intersection()
-            .rule(GCRULES.maxAge(org.threeten.bp.Duration.ofSeconds(10, 5)))
+            .rule(GCRULES.maxAgeDuration(java.time.Duration.ofSeconds(10, 5)))
             .rule(GCRULES.maxVersions(1))
             .rule(GCRULES.maxVersions(2));
     assertThat(GCRULES.fromProto(protoGCRule)).isEqualTo(modelGCRule);
@@ -351,12 +351,12 @@ public class GCRulesTest {
                 GCRULES
                     .intersection()
                     .rule(GCRULES.maxVersions(10))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(2, 4))))
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(2, 4))))
             .rule(
                 GCRULES
                     .intersection()
                     .rule(GCRULES.maxVersions(1))
-                    .rule(GCRULES.maxAge(Duration.ofSeconds(1, 1))));
+                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(1, 1))));
     assertThat(GCRules.GCRULES.fromProto(protoGCRule)).isEqualTo(modelGCRule);
   }
 
