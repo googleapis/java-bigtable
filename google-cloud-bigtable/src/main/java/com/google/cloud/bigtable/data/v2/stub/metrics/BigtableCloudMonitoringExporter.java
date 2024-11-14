@@ -23,6 +23,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 
@@ -39,7 +40,6 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -79,11 +79,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
 
   // This system property can be used to override the monitoring endpoint
-  // to a different environment. It's meant for internal testing only.
-  private static final String MONITORING_ENDPOINT =
-      MoreObjects.firstNonNull(
-          System.getProperty("bigtable.test-monitoring-endpoint"),
-          MetricServiceSettings.getDefaultEndpoint());
+  // to a different environment. It's meant for internal testing only and
+  // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
+  // to override the endpoint.
+  @Deprecated @Nullable
+  private static final String MONITORING_ENDPOINT_OVERRIDE_SYS_PROP =
+      System.getProperty("bigtable.test-monitoring-endpoint");
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
@@ -115,7 +116,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               CLIENT_BLOCKING_LATENCIES_NAME,
               APPLICATION_BLOCKING_LATENCIES_NAME,
               RETRY_COUNT_NAME,
-              CONNECTIVITY_ERROR_COUNT_NAME)
+              CONNECTIVITY_ERROR_COUNT_NAME,
+              REMAINING_DEADLINE_NAME)
           .stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableList.toImmutableList());
@@ -126,14 +128,22 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           .collect(ImmutableList.toImmutableList());
 
   public static BigtableCloudMonitoringExporter create(
-      String projectId, @Nullable Credentials credentials) throws IOException {
+      String projectId, @Nullable Credentials credentials, @Nullable String endpoint)
+      throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+    if (MONITORING_ENDPOINT_OVERRIDE_SYS_PROP != null) {
+      logger.warning(
+          "Setting the monitoring endpoint through system variable will be removed in future versions");
+      settingsBuilder.setEndpoint(MONITORING_ENDPOINT_OVERRIDE_SYS_PROP);
+    }
+    if (endpoint != null) {
+      settingsBuilder.setEndpoint(endpoint);
+    }
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving

@@ -29,6 +29,7 @@ import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.Version;
 import com.google.common.base.Stopwatch;
 import com.google.common.math.IntMath;
+import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
@@ -46,11 +48,14 @@ import org.threeten.bp.Duration;
  */
 class BuiltinMetricsTracer extends BigtableTracer {
 
+  private static final Logger logger = Logger.getLogger(BuiltinMetricsTracer.class.getName());
+
   private static final String NAME = "java-bigtable/" + Version.VERSION;
   private final OperationType operationType;
   private final SpanName spanName;
 
   // Operation level metrics
+  private final AtomicBoolean operationFinishedEarly = new AtomicBoolean();
   private final AtomicBoolean opFinished = new AtomicBoolean();
   private final Stopwatch operationTimer = Stopwatch.createStarted();
   private final Stopwatch firstResponsePerOpTimer = Stopwatch.createStarted();
@@ -67,7 +72,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
   // Stopwatch is not thread safe so this is a workaround to check if the stopwatch changes is
   // flushed to memory.
   private final Stopwatch serverLatencyTimer = Stopwatch.createUnstarted();
-  private boolean serverLatencyTimerIsRunning = false;
   private final Object timerLock = new Object();
 
   private boolean flowControlIsDisabled = false;
@@ -84,6 +88,10 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final Attributes baseAttributes;
 
   private Long serverLatencies = null;
+  private final AtomicLong grpcMessageSentDelay = new AtomicLong(0);
+
+  private Deadline operationDeadline = null;
+  private volatile long remainingDeadlineAtAttemptStart = 0;
 
   // OpenCensus (and server) histogram buckets use [start, end), however OpenTelemetry uses (start,
   // end]. To work around this, we measure all the latencies in nanoseconds and convert them
@@ -95,6 +103,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   private final DoubleHistogram firstResponseLatenciesHistogram;
   private final DoubleHistogram clientBlockingLatenciesHistogram;
   private final DoubleHistogram applicationBlockingLatenciesHistogram;
+  private final DoubleHistogram remainingDeadlineHistogram;
   private final LongCounter connectivityErrorCounter;
   private final LongCounter retryCounter;
 
@@ -108,6 +117,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
       DoubleHistogram firstResponseLatenciesHistogram,
       DoubleHistogram clientBlockingLatenciesHistogram,
       DoubleHistogram applicationBlockingLatenciesHistogram,
+      DoubleHistogram deadlineHistogram,
       LongCounter connectivityErrorCounter,
       LongCounter retryCounter) {
     this.operationType = operationType;
@@ -120,6 +130,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.firstResponseLatenciesHistogram = firstResponseLatenciesHistogram;
     this.clientBlockingLatenciesHistogram = clientBlockingLatenciesHistogram;
     this.applicationBlockingLatenciesHistogram = applicationBlockingLatenciesHistogram;
+    this.remainingDeadlineHistogram = deadlineHistogram;
     this.connectivityErrorCounter = connectivityErrorCounter;
     this.retryCounter = retryCounter;
   }
@@ -130,6 +141,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
       @Override
       public void close() {}
     };
+  }
+
+  @Override
+  public void operationFinishEarly() {
+    operationFinishedEarly.set(true);
+    attemptTimer.stop();
+    operationTimer.stop();
   }
 
   @Override
@@ -157,14 +175,16 @@ class BuiltinMetricsTracer extends BigtableTracer {
     this.attempt = attemptNumber;
     attemptCount++;
     attemptTimer = Stopwatch.createStarted();
+    if (operationDeadline != null) {
+      remainingDeadlineAtAttemptStart = operationDeadline.timeRemaining(TimeUnit.MILLISECONDS);
+    }
     if (request != null) {
       this.tableId = Util.extractTableId(request);
     }
     if (!flowControlIsDisabled) {
       synchronized (timerLock) {
-        if (!serverLatencyTimerIsRunning) {
+        if (!serverLatencyTimer.isRunning()) {
           serverLatencyTimer.start();
-          serverLatencyTimerIsRunning = true;
         }
       }
     }
@@ -193,13 +213,17 @@ class BuiltinMetricsTracer extends BigtableTracer {
   @Override
   public void onRequest(int requestCount) {
     requestLeft.accumulateAndGet(requestCount, IntMath::saturatedAdd);
+
+    if (operationFinishedEarly.get()) {
+      return;
+    }
+
     if (flowControlIsDisabled) {
       // On request is only called when auto flow control is disabled. When auto flow control is
       // disabled, server latency is measured between onRequest and onResponse.
       synchronized (timerLock) {
-        if (!serverLatencyTimerIsRunning) {
+        if (!serverLatencyTimer.isRunning()) {
           serverLatencyTimer.start();
-          serverLatencyTimerIsRunning = true;
         }
       }
     }
@@ -207,6 +231,13 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void responseReceived() {
+    if (operationFinishedEarly.get()) {
+      return;
+    }
+
+    if (firstResponsePerOpTimer.isRunning()) {
+      firstResponsePerOpTimer.stop();
+    }
     // When auto flow control is enabled, server latency is measured between afterResponse and
     // responseReceived.
     // When auto flow control is disabled, server latency is measured between onRequest and
@@ -215,10 +246,9 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // latency is measured between afterResponse and responseReceived.
     // In all the cases, we want to stop the serverLatencyTimer here.
     synchronized (timerLock) {
-      if (serverLatencyTimerIsRunning) {
+      if (serverLatencyTimer.isRunning()) {
         totalServerLatencyNano.addAndGet(serverLatencyTimer.elapsed(TimeUnit.NANOSECONDS));
         serverLatencyTimer.reset();
-        serverLatencyTimerIsRunning = false;
       }
     }
   }
@@ -226,14 +256,16 @@ class BuiltinMetricsTracer extends BigtableTracer {
   @Override
   public void afterResponse(long applicationLatency) {
     if (!flowControlIsDisabled || requestLeft.decrementAndGet() > 0) {
+      if (operationFinishedEarly.get()) {
+        return;
+      }
       // When auto flow control is enabled, request will never be called, so server latency is
       // measured between after the last response is processed and before the next response is
       // received. If flow control is disabled but requestLeft is greater than 0,
       // also start the timer to count the time between afterResponse and responseReceived.
       synchronized (timerLock) {
-        if (!serverLatencyTimerIsRunning) {
+        if (!serverLatencyTimer.isRunning()) {
           serverLatencyTimer.start();
-          serverLatencyTimerIsRunning = true;
         }
       }
     }
@@ -263,8 +295,20 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void grpcChannelQueuedLatencies(long queuedTimeNanos) {
-    totalClientBlockingTime.addAndGet(queuedTimeNanos);
+  public void grpcMessageSent() {
+    grpcMessageSentDelay.set(attemptTimer.elapsed(TimeUnit.NANOSECONDS));
+  }
+
+  @Override
+  public void setTotalTimeoutDuration(java.time.Duration totalTimeoutDuration) {
+    // This method is called by BigtableTracerStreamingCallable and
+    // BigtableTracerUnaryCallable which is called per attempt. We only set
+    // the operationDeadline on the first attempt and when totalTimeout is set.
+    if (operationDeadline == null && !totalTimeoutDuration.isZero()) {
+      this.operationDeadline =
+          Deadline.after(totalTimeoutDuration.toMillis(), TimeUnit.MILLISECONDS);
+      this.remainingDeadlineAtAttemptStart = totalTimeoutDuration.toMillis();
+    }
   }
 
   @Override
@@ -273,10 +317,14 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private void recordOperationCompletion(@Nullable Throwable status) {
+    if (operationFinishedEarly.get()) {
+      status = null; // force an ok
+    }
+
     if (!opFinished.compareAndSet(false, true)) {
       return;
     }
-    operationTimer.stop();
+    long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
     boolean isStreaming = operationType == OperationType.ServerStreaming;
     String statusStr = Util.extractStatus(status);
@@ -294,8 +342,6 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(STREAMING_KEY, isStreaming)
             .put(STATUS_KEY, statusStr)
             .build();
-
-    long operationLatencyNano = operationTimer.elapsed(TimeUnit.NANOSECONDS);
 
     // Only record when retry count is greater than 0 so the retry
     // graph will be less confusing
@@ -317,14 +363,16 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   private void recordAttemptCompletion(@Nullable Throwable status) {
+    if (operationFinishedEarly.get()) {
+      status = null; // force an ok
+    }
     // If the attempt failed, the time spent in retry should be counted in application latency.
     // Stop the stopwatch and decrement requestLeft.
     synchronized (timerLock) {
-      if (serverLatencyTimerIsRunning) {
+      if (serverLatencyTimer.isRunning()) {
         requestLeft.decrementAndGet();
         totalServerLatencyNano.addAndGet(serverLatencyTimer.elapsed(TimeUnit.NANOSECONDS));
         serverLatencyTimer.reset();
-        serverLatencyTimerIsRunning = false;
       }
     }
 
@@ -351,10 +399,17 @@ class BuiltinMetricsTracer extends BigtableTracer {
             .put(STATUS_KEY, statusStr)
             .build();
 
+    totalClientBlockingTime.addAndGet(grpcMessageSentDelay.get());
     clientBlockingLatenciesHistogram.record(convertToMs(totalClientBlockingTime.get()), attributes);
 
     attemptLatenciesHistogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)), attributes);
+
+    // When operationDeadline is set, it's possible that the deadline is passed by the time we send
+    // a new attempt. In this case we'll record 0.
+    if (operationDeadline != null) {
+      remainingDeadlineHistogram.record(Math.max(0, remainingDeadlineAtAttemptStart), attributes);
+    }
 
     if (serverLatencies != null) {
       serverLatenciesHistogram.record(serverLatencies, attributes);

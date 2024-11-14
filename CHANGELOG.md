@@ -1,5 +1,94 @@
 # Changelog
 
+## [2.47.0](https://github.com/googleapis/java-bigtable/compare/v2.46.0...v2.47.0) (2024-11-13)
+
+
+### Features
+
+* Add an experimental feature to skip waiting for trailers for unary ops ([#2404](https://github.com/googleapis/java-bigtable/issues/2404)) ([cf58f26](https://github.com/googleapis/java-bigtable/commit/cf58f260fd7d3cb0dee4fee8e2d43367db6eadb1))
+* Add internal "deadline remaining" client side metric [#2341](https://github.com/googleapis/java-bigtable/issues/2341) ([#2370](https://github.com/googleapis/java-bigtable/issues/2370)) ([75d4105](https://github.com/googleapis/java-bigtable/commit/75d4105e0376dbe5810d6b96d71daa74b85e68ce))
+
+
+### Bug Fixes
+
+* Simplify remaining deadline metric impl ([#2410](https://github.com/googleapis/java-bigtable/issues/2410)) ([9796d57](https://github.com/googleapis/java-bigtable/commit/9796d57b60d928d3390e4ad311d5704dcbe808ec))
+
+## [2.46.0](https://github.com/googleapis/java-bigtable/compare/v2.45.1...v2.46.0) (2024-10-29)
+
+
+### Features
+
+* Test proxy support SSL backend ([#2381](https://github.com/googleapis/java-bigtable/issues/2381)) ([3cbf4ab](https://github.com/googleapis/java-bigtable/commit/3cbf4abe79d61daba0704abfccfb5558b026e6b7))
+
+
+### Bug Fixes
+
+* Fix client blocking latency ([#2346](https://github.com/googleapis/java-bigtable/issues/2346)) ([3801961](https://github.com/googleapis/java-bigtable/commit/380196174fb9b8cd97beb79d4faf49b30561be7f))
+* Fix first response latencies ([#2382](https://github.com/googleapis/java-bigtable/issues/2382)) ([8b2953e](https://github.com/googleapis/java-bigtable/commit/8b2953ed9c69c23b3e0c5c35d0538dc83f9dad80))
+
+
+### Dependencies
+
+* Update sdk-platform-java dependencies ([#2384](https://github.com/googleapis/java-bigtable/issues/2384)) ([81d7215](https://github.com/googleapis/java-bigtable/commit/81d72150b60d29e4e2ac17c6cb1fbdc89be0e16e))
+
+## [2.45.1](https://github.com/googleapis/java-bigtable/compare/v2.45.0...v2.45.1) (2024-10-14)
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.47.0 ([cdc2cc7](https://github.com/googleapis/java-bigtable/commit/cdc2cc7e085af42a2078373098b5f8ef8c752ea7))
+
+
+### Dependencies
+
+* Update sdk-platform-java dependencies ([#2378](https://github.com/googleapis/java-bigtable/issues/2378)) ([2499a3c](https://github.com/googleapis/java-bigtable/commit/2499a3cd5e0d0404666c7f9cf0c74f9edb90d894))
+
+## [2.45.0](https://github.com/googleapis/java-bigtable/compare/v2.44.1...v2.45.0) (2024-10-03)
+
+
+### Features
+
+* Add support for Cloud Bigtable Node Scaling Factor for CBT Clusters ([caf879c](https://github.com/googleapis/java-bigtable/commit/caf879cb4086d74bd4571662510014b27e6113a7))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.46.1 ([caf879c](https://github.com/googleapis/java-bigtable/commit/caf879cb4086d74bd4571662510014b27e6113a7))
+* Support override monitoring endpoint ([#2364](https://github.com/googleapis/java-bigtable/issues/2364)) ([a341eb8](https://github.com/googleapis/java-bigtable/commit/a341eb8530d959edabac0282c52c3e928abf733d))
+
+
+### Dependencies
+
+* Downgrade grpc to 1.67.1 ([#2366](https://github.com/googleapis/java-bigtable/issues/2366)) ([1baecb3](https://github.com/googleapis/java-bigtable/commit/1baecb3f6cd34a1daab632c322a1fb415efb9895))
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.45.0 ([#2363](https://github.com/googleapis/java-bigtable/issues/2363)) ([9d24c45](https://github.com/googleapis/java-bigtable/commit/9d24c45b389f2edef0b02f6a8c3badbca2fd3946))
+
+## [2.44.1](https://github.com/googleapis/java-bigtable/compare/v2.44.0...v2.44.1) (2024-09-26)
+
+
+### Bug Fixes
+
+* Add RetryCallable to the callable chain ([#2348](https://github.com/googleapis/java-bigtable/issues/2348)) ([0330d77](https://github.com/googleapis/java-bigtable/commit/0330d77ac29d47e8610ddd23c324a55d1f9912cb))
+* Pass deadline through ExecuteQuery RetrySettings ([#2355](https://github.com/googleapis/java-bigtable/issues/2355)) ([6bc9820](https://github.com/googleapis/java-bigtable/commit/6bc98202897cebe09be8a4a78316cf5463106866))
+* Time based flakiness in execute query deadline test ([#2358](https://github.com/googleapis/java-bigtable/issues/2358)) ([b474173](https://github.com/googleapis/java-bigtable/commit/b474173a778cba273d2713e667000c5633de75bd))
+
+
+### Dependencies
+
+* Update dependency com.google.cloud:sdk-platform-java-config to v3.36.1 ([#2351](https://github.com/googleapis/java-bigtable/issues/2351)) ([40c428e](https://github.com/googleapis/java-bigtable/commit/40c428ec8e8cccb4dc3bb10d6674c94e9527e797))
+
+## [2.44.0](https://github.com/googleapis/java-bigtable/compare/v2.43.0...v2.44.0) (2024-09-16)
+
+
+### Features
+
+* Add APIs to enable hot backups ([#2313](https://github.com/googleapis/java-bigtable/issues/2313)) ([6d004cd](https://github.com/googleapis/java-bigtable/commit/6d004cd0809d02eeff05d5e90faf5e145f13d11e))
+* Add support for awaiting Data Boost ([#2329](https://github.com/googleapis/java-bigtable/issues/2329)) ([8556574](https://github.com/googleapis/java-bigtable/commit/85565742645537d1b55a1a52521d2ccf44b4d00c))
+
+
+### Dependencies
+
+* Update shared dependencies ([#2337](https://github.com/googleapis/java-bigtable/issues/2337)) ([dc65bd5](https://github.com/googleapis/java-bigtable/commit/dc65bd5a39cfe0c25a6b955f9f4d9367df334211))
+
 ## [2.43.0](https://github.com/googleapis/java-bigtable/compare/v2.42.0...v2.43.0) (2024-08-22)
 
 

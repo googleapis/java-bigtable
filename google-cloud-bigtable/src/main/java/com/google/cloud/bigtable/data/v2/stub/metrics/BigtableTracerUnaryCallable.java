@@ -54,10 +54,14 @@ public class BigtableTracerUnaryCallable<RequestT, ResponseT>
   public ApiFuture<ResponseT> futureCall(RequestT request, ApiCallContext context) {
     // tracer should always be an instance of BigtableTracer
     if (context.getTracer() instanceof BigtableTracer) {
+      BigtableTracer tracer = (BigtableTracer) context.getTracer();
       final GrpcResponseMetadata responseMetadata = new GrpcResponseMetadata();
       BigtableTracerUnaryCallback<ResponseT> callback =
           new BigtableTracerUnaryCallback<ResponseT>(
               (BigtableTracer) context.getTracer(), responseMetadata);
+      if (context.getRetrySettings() != null) {
+        tracer.setTotalTimeoutDuration(context.getRetrySettings().getTotalTimeoutDuration());
+      }
       ApiFuture<ResponseT> future =
           innerCallable.futureCall(
               request,
