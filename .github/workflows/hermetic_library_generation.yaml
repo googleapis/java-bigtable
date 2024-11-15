@@ -20,7 +20,7 @@ on:
 env:
   REPO_FULL_NAME: ${{ github.event.pull_request.head.repo.full_name }}
   GITHUB_REPOSITORY: ${{ github.repository }}
-  IMAGE_TAG: 2.47.0
+  IMAGE_TAG: 2.50.0
 jobs:
   library_generation:
     runs-on: ubuntu-latest
