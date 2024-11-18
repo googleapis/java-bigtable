@@ -176,7 +176,6 @@ public class Backup {
 
   /** Get the expire time of this backup. */
   public java.time.Instant getExpireTimeInstant() {
-    // return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getExpireTime()));
     return java.time.Instant.ofEpochSecond(
         proto.getExpireTime().getSeconds(), proto.getExpireTime().getNanos());
   }

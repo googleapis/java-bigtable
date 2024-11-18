@@ -103,7 +103,7 @@ public class BigtableTableAdminClientIT {
     assertFalse(columnFamilyById.get("cf1").hasGCRule());
     assertTrue(columnFamilyById.get("cf2").hasGCRule());
     assertEquals(10, ((VersionRule) columnFamilyById.get("cf2").getGCRule()).getMaxVersions());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
 
     // Disable change stream so the table can be deleted.
     UpdateTableRequest updateTableRequest =
@@ -124,18 +124,18 @@ public class BigtableTableAdminClientIT {
             .addChangeStreamRetentionDuration(Duration.ofDays(2));
     Table tableResponse = tableAdmin.createTable(createTableReq);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
 
     UpdateTableRequest updateTableRequest =
         UpdateTableRequest.of(tableId).addChangeStreamRetentionDuration(Duration.ofDays(4));
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetentionDuration());
 
     updateTableRequest = UpdateTableRequest.of(tableId).disableChangeStreamRetention();
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertNull(tableResponse.getChangeStreamRetention());
+    assertNull(tableResponse.getChangeStreamRetentionDuration());
   }
 
   @Test
