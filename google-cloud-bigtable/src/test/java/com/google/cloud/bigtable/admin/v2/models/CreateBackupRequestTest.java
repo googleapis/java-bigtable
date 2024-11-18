@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.bigtable.admin.v2.Backup;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.Backup.BackupType;
-import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
@@ -53,17 +53,10 @@ public class CreateBackupRequestTest {
             .setBackup(
                 Backup.newBuilder()
                     .setSourceTable(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
-                    .setExpireTime(
-                        Timestamp.newBuilder()
-                            .setSeconds(EXPIRE_TIME.getEpochSecond())
-                            .setNanos(EXPIRE_TIME.getNano())
-                            .build())
+                    .setExpireTime(Timestamps.fromMillis(EXPIRE_TIME.toEpochMilli()))
                     .setBackupType(Backup.BackupType.HOT)
                     .setHotToStandardTime(
-                        Timestamp.newBuilder()
-                            .setSeconds(HOT_TO_STANDARD_TIME.getEpochSecond())
-                            .setNanos(HOT_TO_STANDARD_TIME.getNano())
-                            .build())
+                        Timestamps.fromMillis(HOT_TO_STANDARD_TIME.toEpochMilli()))
                     .build())
             .setParent(NameUtil.formatClusterName(PROJECT_ID, INSTANCE_ID, CLUSTER_ID))
             .build();
