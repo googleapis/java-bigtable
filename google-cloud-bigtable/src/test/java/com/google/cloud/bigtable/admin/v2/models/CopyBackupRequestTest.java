@@ -19,6 +19,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.Timestamp;
+import com.google.protobuf.util.Timestamps;
 import java.time.Duration;
 import java.time.Instant;
 import org.junit.Test;
@@ -38,10 +39,7 @@ public class CopyBackupRequestTest {
   private static final String SOURCE_PROJECT_ID = "source-project-id";
   private static final Instant EXPIRE_TIME = Instant.now().plus(Duration.ofDays(15));
   private static final Timestamp EXPIRE_TIME_PROTOBUF =
-      Timestamp.newBuilder()
-          .setSeconds(EXPIRE_TIME.getEpochSecond())
-          .setNanos(EXPIRE_TIME.getNano())
-          .build();
+      Timestamps.fromMillis(EXPIRE_TIME.toEpochMilli());
 
   @Test
   public void testToProto() {

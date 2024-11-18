@@ -62,11 +62,7 @@ public final class CreateBackupRequest {
     Preconditions.checkNotNull(expireTime);
     requestBuilder
         .getBackupBuilder()
-        .setExpireTime(
-            com.google.protobuf.Timestamp.newBuilder()
-                .setSeconds(expireTime.getEpochSecond())
-                .setNanos(expireTime.getNano())
-                .build());
+        .setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()));
     return this;
   }
 

@@ -90,6 +90,7 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.grpc.Status;
 import io.grpc.Status.Code;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -980,7 +981,12 @@ public class BigtableTableAdminClientTests {
     String srcTableId = "src-table";
     String srcClusterId = "src-cluster";
     String srcBackupId = "src-backup";
-    java.time.Instant expireTime = java.time.Instant.now().plus(java.time.Duration.ofDays(15));
+
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    java.time.Instant expireTime =
+        java.time.Instant.now().plus(java.time.Duration.ofDays(15)).truncatedTo(ChronoUnit.MILLIS);
     long sizeBytes = 123456789;
 
     String dstBackupName =
@@ -1003,11 +1009,7 @@ public class BigtableTableAdminClientTests {
             .setSourceBackup(srcBackupName)
             .setStartTime(startTime)
             .setEndTime(endTime)
-            .setExpireTime(
-                Timestamp.newBuilder()
-                    .setSeconds(expireTime.getEpochSecond())
-                    .setNanos(expireTime.getNano())
-                    .build())
+            .setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()))
             .setSizeBytes(sizeBytes)
             .build(),
         CopyBackupMetadata.newBuilder()
