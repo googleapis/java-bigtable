@@ -115,12 +115,12 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
   /** This method is obsolete. Use {@link #getCommitTimestampInstant()} instead. */
   @ObsoleteApi("Use getCommitTimestampInstant() instead")
-  public org.threeten.bp.Instant getCommitTimestamp() {
-    return toThreetenInstant(getCommitTimestampInstant());
-  }
+  public abstract org.threeten.bp.Instant getCommitTimestamp();
 
   /** Get the commit timestamp of the current mutation. */
-  public abstract java.time.Instant getCommitTimestampInstant();
+  public java.time.Instant getCommitTimestampInstant() {
+    return toJavaTimeInstant(getCommitTimestamp());
+  }
 
   /**
    * Get the tie breaker of the current mutation. This is used to resolve conflicts when multiple
@@ -134,12 +134,12 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
   /** This method is obsolete. Use {@link #getCommitTimestampInstant()} instead. */
   @ObsoleteApi("Use getEstimatedLowWatermarkInstant() instead")
-  public org.threeten.bp.Instant getEstimatedLowWatermark() {
-    return toThreetenInstant(getEstimatedLowWatermarkInstant());
-  }
+  public abstract org.threeten.bp.Instant getEstimatedLowWatermark();
 
   /** Get the low watermark of the current mutation. */
-  public abstract java.time.Instant getEstimatedLowWatermarkInstant();
+  public java.time.Instant getEstimatedLowWatermarkInstant() {
+    return toJavaTimeInstant(getEstimatedLowWatermark());
+  }
 
   /** Get the list of mods of the current mutation. */
   @Nonnull
@@ -160,15 +160,15 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setSourceClusterId(@Nonnull String sourceClusterId);
 
-    abstract Builder setCommitTimestampInstant(java.time.Instant commitTimestamp);
+    Builder setCommitTimestampInstant(java.time.Instant commitTimestamp) {
+      return setCommitTimestamp(toThreetenInstant(commitTimestamp));
+    }
 
     /**
      * This method is obsolete. Use {@link #setCommitTimestampInstant(java.time.Instant)} instead.
      */
     @ObsoleteApi("Use setCommitTimestampInstant(java.time.Instant) instead")
-    Builder setCommitTimestamp(org.threeten.bp.Instant commitTimestamp) {
-      return setCommitTimestampInstant(toJavaTimeInstant(commitTimestamp));
-    }
+    abstract Builder setCommitTimestamp(org.threeten.bp.Instant commitTimestamp);
 
     abstract Builder setTieBreaker(int tieBreaker);
 
@@ -176,16 +176,16 @@ public abstract class ChangeStreamMutation implements ChangeStreamRecord, Serial
 
     abstract Builder setToken(@Nonnull String token);
 
-    abstract Builder setEstimatedLowWatermarkInstant(java.time.Instant estimatedLowWatermark);
+    Builder setEstimatedLowWatermarkInstant(java.time.Instant estimatedLowWatermark) {
+      return setEstimatedLowWatermark(toThreetenInstant(estimatedLowWatermark));
+    }
 
     /**
      * This method is obsolete. Use {@link #setEstimatedLowWatermarkInstant(java.time.Instant)}
      * instead.
      */
     @ObsoleteApi("Use setEstimatedLowWatermarkInstant(java.time.Instant) instead")
-    Builder setEstimatedLowWatermark(org.threeten.bp.Instant estimatedLowWatermark) {
-      return setEstimatedLowWatermarkInstant(toJavaTimeInstant(estimatedLowWatermark));
-    }
+    abstract Builder setEstimatedLowWatermark(org.threeten.bp.Instant estimatedLowWatermark);
 
     Builder setCell(
         @Nonnull String familyName,

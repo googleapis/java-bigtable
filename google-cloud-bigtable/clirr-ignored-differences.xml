@@ -275,4 +275,10 @@
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/DefaultMetricsProvider</className>
         <method>*</method>
     </difference>
+    <difference>
+        <!-- We ignore these methods because they have `default` behavior -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/StructReader</className>
+        <method>java.time.Instant getTimestampInstant(*)</method>
+    </difference>
 </differences>
