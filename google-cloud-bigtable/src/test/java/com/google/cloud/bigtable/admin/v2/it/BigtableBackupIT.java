@@ -233,13 +233,13 @@ public class BigtableBackupIT {
           .that(result.getSourceTableId())
           .isEqualTo(testTableHot.getId());
       assertWithMessage("Got wrong expire time in GetBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireTimeInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got wrong hot to standard time in GetBackup API")
-          .that(result.getHotToStandardTime())
+          .that(result.getHotToStandardTimeInstant())
           .isEqualTo(hotToStandardTime);
       assertWithMessage("Got empty start time in GetBackup API")
-          .that(result.getStartTime())
+          .that(result.getStartTimeInstant())
           .isNotNull();
       assertWithMessage("Got wrong size bytes in GetBackup API")
           .that(result.getSizeBytes())
