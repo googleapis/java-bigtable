@@ -777,7 +777,7 @@ public class BuiltinMetricsTracerTest {
             .put(TABLE_ID_KEY, TABLE)
             .put(METHOD_KEY, "Bigtable.ReadRows")
             .put(ZONE_ID_KEY, "global")
-            .put(CLUSTER_ID_KEY, "unspecified")
+            .put(CLUSTER_ID_KEY, "<unspecified>")
             .put(STREAMING_KEY, true)
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
