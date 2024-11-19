@@ -47,6 +47,7 @@ import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -144,7 +145,10 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    Instant expireTime = Instant.now().plus(Duration.ofHours(6)).truncatedTo(ChronoUnit.MILLIS);
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetCluster, backupId)
@@ -190,8 +194,12 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetHotBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(24));
-    Instant hotToStandardTime = Instant.now().plus(Duration.ofHours(24));
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    Instant expireTime = Instant.now().plus(Duration.ofHours(24)).truncatedTo(ChronoUnit.MILLIS);
+    Instant hotToStandardTime =
+        Instant.now().plus(Duration.ofHours(24)).truncatedTo(ChronoUnit.MILLIS);
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetClusterHot, backupId)
@@ -278,7 +286,10 @@ public class BigtableBackupIT {
             .setBackupType(Backup.BackupType.HOT)
             .setHotToStandardTimeInstant(Instant.now().plus(Duration.ofDays(10))));
 
-    Instant expireTime = Instant.now().plus(Duration.ofDays(20));
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    Instant expireTime = Instant.now().plus(Duration.ofDays(20)).truncatedTo(ChronoUnit.MILLIS);
     UpdateBackupRequest req =
         UpdateBackupRequest.of(targetClusterHot, backupId)
             .setExpireTimeInstant(expireTime)
@@ -403,7 +414,10 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    Instant expireTime = Instant.now().plus(Duration.ofHours(36)).truncatedTo(ChronoUnit.MILLIS);
 
     // Create the backup
     tableAdmin.createBackup(
@@ -444,7 +458,10 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
+    // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
+    // bigtable's millisecond precision api.
+    // see https://bugs.openjdk.org/browse/JDK-8242504
+    Instant expireTime = Instant.now().plus(Duration.ofDays(36)).truncatedTo(ChronoUnit.MILLIS);
 
     // Create the backup
     tableAdmin.createBackup(
