@@ -309,6 +309,9 @@ public class EnhancedBigtableStubTest {
 
       assertThat(featureFlags.getReverseScans()).isTrue();
       assertThat(featureFlags.getLastScannedRowResponses()).isTrue();
+      assertThat(featureFlags.getRoutingCookie()).isTrue();
+      assertThat(featureFlags.getRetryInfo()).isTrue();
+      assertThat(featureFlags.getClientSideMetricsEnabled()).isTrue();
     }
   }
 
