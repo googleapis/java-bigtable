@@ -107,7 +107,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
    * @param settingsBuilder The Builder object of BigtableDataSettings.
    * @param newTimeout The value that is used to set the timeout.
    */
-  private static BigtableDataSettings.Builder overrideTimeoutSettingDuration(
+  private static BigtableDataSettings.Builder overrideTimeoutSetting(
       java.time.Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
 
     updateTimeout(
@@ -133,7 +133,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     // TODO: this should happen in gax
     // Clamp the rpcTimeout to the overall timeout
     if (rpcTimeout != null && rpcTimeout.compareTo(newTimeout) > 0) {
-      settings.setInitialRpcTimeout(newTimeout).setMaxRpcTimeoutDuration(newTimeout);
+      settings.setInitialRpcTimeoutDuration(newTimeout).setMaxRpcTimeoutDuration(newTimeout);
     }
 
     settings.setTotalTimeoutDuration(newTimeout);

@@ -33,6 +33,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -88,7 +89,7 @@ public class ResultSetSerializer {
       case TIMESTAMP:
         Instant ts = (Instant) value;
         valueBuilder.setTimestampValue(
-            com.google.protobuf.Timestamp.newBuilder().setSeconds(ts.getEpochSeconds()).setNanos(ts.getNano()).build())
+            com.google.protobuf.Timestamp.newBuilder().setSeconds(ts.getEpochSecond()).setNanos(ts.getNano()).build());
         break;
       case DATE:
         Date date = (Date) value;

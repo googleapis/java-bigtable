@@ -19,6 +19,7 @@ import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.ArrayValue;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.Type;
@@ -29,6 +30,7 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,6 +166,11 @@ public class Statement {
       return this;
     }
 
+    /**
+     * This method is obsolete. Use {@link #setTimestampParamInstant(String, java.time.Instant)}
+     * instead.
+     */
+    @ObsoleteApi("Use setTimestampParamInstant(String, java.time.Instant) instead")
     public Builder setTimestampParam(String paramName, @Nullable org.threeten.bp.Instant value) {
       return setTimestampParamInstant(paramName, toJavaTimeInstant(value));
     }
