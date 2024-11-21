@@ -81,6 +81,7 @@ public class UpdateTableRequestTest {
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
   }
+
   @Test
   public void testEnableDeletionProtection() {
     UpdateTableRequest request =
