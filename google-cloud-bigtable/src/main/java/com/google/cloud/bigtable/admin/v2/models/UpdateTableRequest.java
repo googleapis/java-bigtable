@@ -74,6 +74,13 @@ public class UpdateTableRequest {
     return addChangeStreamRetention(Duration.ZERO);
   }
 
+  /** Changes the deletion protection of an existing table. */
+  public UpdateTableRequest setDeletionProtection(boolean deletionProtection) {
+    requestBuilder.getTableBuilder().setDeletionProtection(deletionProtection);
+    requestBuilder.getUpdateMaskBuilder().addPaths("deletion_protection");
+    return this;
+  }
+
   @InternalApi
   public com.google.bigtable.admin.v2.UpdateTableRequest toProto(
       String projectId, String instanceId) {
@@ -88,11 +95,11 @@ public class UpdateTableRequest {
     if (this == o) return true;
     if (!(o instanceof UpdateTableRequest)) return false;
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equals(requestBuilder, that.requestBuilder);
+    return Objects.equals(requestBuilder.build(), that.requestBuilder.build());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestBuilder);
+    return Objects.hash(requestBuilder.build());
   }
 }
