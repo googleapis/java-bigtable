@@ -67,7 +67,7 @@ public class TableTest {
                                     .setSeconds(1)
                                     .setNanos(99)))
                     .build())
-                .setDeletionProtection(true)
+            .setDeletionProtection(true)
             .build();
 
     Table result = Table.fromProto(proto);

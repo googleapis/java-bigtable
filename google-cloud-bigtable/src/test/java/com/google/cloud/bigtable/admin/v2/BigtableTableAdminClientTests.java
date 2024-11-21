@@ -305,32 +305,32 @@ public class BigtableTableAdminClientTests {
     Mockito.when(mockStub.createTableCallable()).thenReturn(mockCreateTableCallable);
 
     com.google.bigtable.admin.v2.CreateTableRequest expectedRequest =
-            com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
-                    .setParent(INSTANCE_NAME)
-                    .setTableId(TABLE_ID)
-                    .setTable(
-                            com.google.bigtable.admin.v2.Table.newBuilder()
-                                    .setDeletionProtection(true)
-                                    .putColumnFamilies(
-                                            "cf1",
-                                            ColumnFamily.newBuilder()
-                                                    .setGcRule(GcRule.getDefaultInstance())
-                                                    .setValueType(TypeProtos.intSumType())
-                                                    .build()))
-                    .build();
+        com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
+            .setParent(INSTANCE_NAME)
+            .setTableId(TABLE_ID)
+            .setTable(
+                com.google.bigtable.admin.v2.Table.newBuilder()
+                    .setDeletionProtection(true)
+                    .putColumnFamilies(
+                        "cf1",
+                        ColumnFamily.newBuilder()
+                            .setGcRule(GcRule.getDefaultInstance())
+                            .setValueType(TypeProtos.intSumType())
+                            .build()))
+            .build();
 
     com.google.bigtable.admin.v2.Table expectedResponse =
-            com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build();
+        com.google.bigtable.admin.v2.Table.newBuilder().setName(TABLE_NAME).build();
 
     Mockito.when(mockCreateTableCallable.futureCall(expectedRequest))
-            .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
 
     // Execute
     Table result =
-            adminClient.createTable(
-                    CreateTableRequest.of(TABLE_ID)
-                            .addFamily("cf1", Type.int64Sum())
-                            .setDeletionProtection(true));
+        adminClient.createTable(
+            CreateTableRequest.of(TABLE_ID)
+                .addFamily("cf1", Type.int64Sum())
+                .setDeletionProtection(true));
 
     // Verify
     assertThat(result).isEqualTo(Table.fromProto(expectedResponse));
