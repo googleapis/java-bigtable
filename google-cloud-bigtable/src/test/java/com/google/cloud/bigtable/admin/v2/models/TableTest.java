@@ -79,7 +79,7 @@ public class TableTest {
             "cluster1", Table.ReplicationState.READY,
             "cluster2", Table.ReplicationState.INITIALIZING);
     assertThat(result.getColumnFamilies()).hasSize(3);
-    assertThat(result.isProtected()).isTrue();
+    assertThat(result.isDeletionProtected()).isTrue();
 
     for (Entry<String, ColumnFamily> entry : proto.getColumnFamiliesMap().entrySet()) {
       assertThat(result.getColumnFamilies())

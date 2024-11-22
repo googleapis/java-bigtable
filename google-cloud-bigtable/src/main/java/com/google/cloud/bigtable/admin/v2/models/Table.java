@@ -176,7 +176,8 @@ public final class Table {
     return changeStreamRetention;
   }
 
-  public boolean isProtected() {
+  /** Returns whether this table is deletion protected. */
+  public boolean isDeletionProtected() {
     return deletionProtection;
   }
 

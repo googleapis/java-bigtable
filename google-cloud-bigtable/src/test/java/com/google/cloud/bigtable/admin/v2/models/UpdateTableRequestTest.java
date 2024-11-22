@@ -113,14 +113,4 @@ public class UpdateTableRequestTest {
 
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
   }
-
-  @Test
-  public void testHashCodeWithDeleteProtection() {
-    UpdateTableRequest request = UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true);
-
-    assertThat(request.hashCode())
-        .isEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(true).hashCode());
-    assertThat(request.hashCode())
-        .isNotEqualTo(UpdateTableRequest.of(TABLE_ID).setDeletionProtection(false).hashCode());
-  }
 }

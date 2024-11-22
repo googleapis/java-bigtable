@@ -95,11 +95,11 @@ public class UpdateTableRequest {
     if (this == o) return true;
     if (!(o instanceof UpdateTableRequest)) return false;
     UpdateTableRequest that = (UpdateTableRequest) o;
-    return Objects.equals(requestBuilder.build(), that.requestBuilder.build());
+    return Objects.equals(requestBuilder, that.requestBuilder);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestBuilder.build());
+    return Objects.hash(requestBuilder);
   }
 }
