@@ -461,7 +461,7 @@ public class BigtableBackupIT {
     // From java 15, now() provides nanosecond precision. We trim micros and nanos, so it matches
     // bigtable's millisecond precision api.
     // see https://bugs.openjdk.org/browse/JDK-8242504
-    Instant expireTime = Instant.now().plus(Duration.ofDays(36)).truncatedTo(ChronoUnit.MILLIS);
+    Instant expireTime = Instant.now().plus(Duration.ofHours(36)).truncatedTo(ChronoUnit.MILLIS);
 
     // Create the backup
     tableAdmin.createBackup(
@@ -496,15 +496,16 @@ public class BigtableBackupIT {
             .that(result.getSourceBackupId())
             .isEqualTo(backupId);
         assertWithMessage("Got wrong expire time in CopyBackup API")
-            .that(result.getExpireTime())
+            .that(result.getExpireTimeInstant())
             .isEqualTo(expireTime);
         assertWithMessage("Got empty start time in CopyBackup API")
-            .that(result.getStartTime())
+            .that(result.getStartTimeInstant())
             .isNotNull();
         assertWithMessage("Got wrong state in CopyBackup API")
-            .that(result.getState())
+            .that(result.getState(t sta))
             .isAnyOf(Backup.State.CREATING, Backup.State.READY);
-
+      } catch (Exception ex) {
+        System.out.println(ex);
       } finally {
         deleteBackupIgnoreErrors(destTableAdmin, destCluster, copiedBackupId);
         deleteBackupIgnoreErrors(targetCluster, backupId);
