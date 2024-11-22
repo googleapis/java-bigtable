@@ -502,7 +502,7 @@ public class BigtableBackupIT {
             .that(result.getStartTimeInstant())
             .isNotNull();
         assertWithMessage("Got wrong state in CopyBackup API")
-            .that(result.getState(t sta))
+            .that(result.getState())
             .isAnyOf(Backup.State.CREATING, Backup.State.READY);
       } catch (Exception ex) {
         System.out.println(ex);

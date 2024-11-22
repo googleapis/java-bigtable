@@ -174,10 +174,9 @@ public class Backup {
     return toThreetenInstant(getExpireTimeInstant());
   }
 
-  /** Get the expire time of this backup. */
+  /** Gets the expiry time of this backup. */
   public java.time.Instant getExpireTimeInstant() {
-    return java.time.Instant.ofEpochSecond(
-        proto.getExpireTime().getSeconds(), proto.getExpireTime().getNanos());
+    return java.time.Instant.ofEpochMilli(Timestamps.toMillis(proto.getExpireTime()));
   }
 
   /** This method is obsolete. Use {@link #getStartTimeInstant()} instead. */
