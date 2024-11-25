@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.models;
 import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
@@ -113,6 +114,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
+    @ObsoleteApi("Use startUserMutationInstant(ByteString, String, java.time.Instant, int) instead")
     public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
@@ -124,6 +126,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
+    @ObsoleteApi("Use startUserMutationInstant(ByteString, java.time.Instant, int) instead")
     public void startGcMutation(
         @Nonnull ByteString rowKey, org.threeten.bp.Instant commitTimestamp, int tieBreaker) {
       startGcMutationInstant(rowKey, toJavaTimeInstant(commitTimestamp), tieBreaker);
@@ -194,6 +197,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
+    @ObsoleteApi("Use finishChangeStreamMutationInstant(String, java.time.Instant) instead")
     public ChangeStreamRecord finishChangeStreamMutation(
         @Nonnull String token, org.threeten.bp.Instant estimatedLowWatermark) {
       return finishChangeStreamMutationInstant(token, toJavaTimeInstant(estimatedLowWatermark));

@@ -197,15 +197,15 @@ public final class ReadChangeStreamQuery implements Serializable, Cloneable {
   }
 
   /**
-   * This method is obsolete. Use {@link #heartbeatDurationDuration(java.time.Duration)} instead.
+   * This method is obsolete. Use {@link #heartbeatDurationJavaTime(java.time.Duration)} instead.
    */
-  @ObsoleteApi("Use heartbeatDurationDuration(java.time.Duration) instead")
+  @ObsoleteApi("Use heartbeatDurationJavaTime(java.time.Duration) instead")
   public ReadChangeStreamQuery heartbeatDuration(org.threeten.bp.Duration duration) {
-    return heartbeatDurationDuration(toJavaTimeDuration(duration));
+    return heartbeatDurationJavaTime(toJavaTimeDuration(duration));
   }
 
   /** Sets the heartbeat duration for the change stream. */
-  public ReadChangeStreamQuery heartbeatDurationDuration(java.time.Duration duration) {
+  public ReadChangeStreamQuery heartbeatDurationJavaTime(java.time.Duration duration) {
     builder.setHeartbeatDuration(
         Duration.newBuilder()
             .setSeconds(duration.getSeconds())

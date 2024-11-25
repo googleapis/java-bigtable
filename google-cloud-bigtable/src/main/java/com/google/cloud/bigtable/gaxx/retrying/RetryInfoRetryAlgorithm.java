@@ -22,7 +22,7 @@ import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
-import org.checkerframework.checker.nullness.qual.Nullable;
+import javax.annotation.Nullable;
 
 // TODO move this algorithm to gax
 /**

@@ -168,6 +168,7 @@ public class ResultSetImpl implements ResultSet, StructReader {
     return getCurrentRow().getBoolean(columnName);
   }
 
+  /** This method is obsolete. Use {@link #getTimestampInstant(int)} instead. */
   @Override
   @ObsoleteApi("Use getTimestampInstant(int) instead")
   public org.threeten.bp.Instant getTimestamp(int columnIndex) {
@@ -179,6 +180,7 @@ public class ResultSetImpl implements ResultSet, StructReader {
     return getCurrentRow().getTimestampInstant(columnIndex);
   }
 
+  /** This method is obsolete. Use {@link #getTimestampInstant(String)} instead. */
   @Override
   @ObsoleteApi("Use getTimestampInstant(String) instead")
   public org.threeten.bp.Instant getTimestamp(String columnName) {

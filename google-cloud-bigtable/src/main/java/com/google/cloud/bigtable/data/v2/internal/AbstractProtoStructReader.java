@@ -167,6 +167,7 @@ public abstract class AbstractProtoStructReader implements StructReader {
     return value.getBoolValue();
   }
 
+  /** This method is obsolete. Use {@link #getTimestampInstant(int)} instead */
   @Override
   @ObsoleteApi("Use getTimestampInstant(int) instead")
   public org.threeten.bp.Instant getTimestamp(int columnIndex) {
@@ -180,6 +181,7 @@ public abstract class AbstractProtoStructReader implements StructReader {
     return toInstant(value.getTimestampValue());
   }
 
+  /** This method is obsolete. Use {@link #getTimestampInstant(String)} instead */
   @Override
   @ObsoleteApi("Use getTimestampInstant(String) instead")
   public org.threeten.bp.Instant getTimestamp(String columnName) {

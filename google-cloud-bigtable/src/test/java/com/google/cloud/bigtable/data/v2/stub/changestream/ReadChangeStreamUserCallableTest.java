@@ -43,7 +43,7 @@ public class ReadChangeStreamUserCallableTest {
             .streamPartition("begin", "end")
             .startTimeInstant(Instant.ofEpochSecond(0L, 1000L))
             .endTimeInstant(Instant.ofEpochSecond(0L, 2000L))
-            .heartbeatDurationDuration(Duration.ofSeconds(1));
+            .heartbeatDurationJavaTime(Duration.ofSeconds(1));
     callable.call(query);
     Truth.assertThat(innerCallable.getActualRequest()).isEqualTo(query.toProto(REQUEST_CONTEXT));
   }
