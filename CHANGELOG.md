@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.48.0](https://github.com/googleapis/java-bigtable/compare/v2.47.0...v2.48.0) (2024-11-19)
+
+
+### Features
+
+* Enable trailer optimization by default ([#2421](https://github.com/googleapis/java-bigtable/issues/2421)) ([7b2c4e4](https://github.com/googleapis/java-bigtable/commit/7b2c4e45dce828f506dac16ffc2b71995564a477))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.50.0 ([6b35b47](https://github.com/googleapis/java-bigtable/commit/6b35b478e10efce77d95bffcd7a64e84e1bcc5b0))
+* Make client side metrics tag in sync with server ([#2401](https://github.com/googleapis/java-bigtable/issues/2401)) ([bba4183](https://github.com/googleapis/java-bigtable/commit/bba41837febc10e9507afc7117e2e4ec2d15fb11))
+
+
+### Dependencies
+
+* Revert downgrade grpc to 1.67.1 [#2366](https://github.com/googleapis/java-bigtable/issues/2366) ([#2414](https://github.com/googleapis/java-bigtable/issues/2414)) ([710fa52](https://github.com/googleapis/java-bigtable/commit/710fa52a05ce4fc81ee8e980d87e0ca86676219f))
+* Update dependency com.google.cloud:gapic-libraries-bom to v1.48.0 ([#2422](https://github.com/googleapis/java-bigtable/issues/2422)) ([2088a39](https://github.com/googleapis/java-bigtable/commit/2088a399bd8b71e98035cc475637f41d5873082d))
+* Update sdk-platform-java dependencies ([#2418](https://github.com/googleapis/java-bigtable/issues/2418)) ([c12bb01](https://github.com/googleapis/java-bigtable/commit/c12bb01a6c5be0a72285db0505407f3e1c2534fb))
+
+## [2.47.0](https://github.com/googleapis/java-bigtable/compare/v2.46.0...v2.47.0) (2024-11-13)
+
+
+### Features
+
+* Add an experimental feature to skip waiting for trailers for unary ops ([#2404](https://github.com/googleapis/java-bigtable/issues/2404)) ([cf58f26](https://github.com/googleapis/java-bigtable/commit/cf58f260fd7d3cb0dee4fee8e2d43367db6eadb1))
+* Add internal "deadline remaining" client side metric [#2341](https://github.com/googleapis/java-bigtable/issues/2341) ([#2370](https://github.com/googleapis/java-bigtable/issues/2370)) ([75d4105](https://github.com/googleapis/java-bigtable/commit/75d4105e0376dbe5810d6b96d71daa74b85e68ce))
+
+
+### Bug Fixes
+
+* Simplify remaining deadline metric impl ([#2410](https://github.com/googleapis/java-bigtable/issues/2410)) ([9796d57](https://github.com/googleapis/java-bigtable/commit/9796d57b60d928d3390e4ad311d5704dcbe808ec))
+
 ## [2.46.0](https://github.com/googleapis/java-bigtable/compare/v2.45.1...v2.46.0) (2024-10-29)
 
 

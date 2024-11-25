@@ -107,6 +107,7 @@ public final class Table {
   private final List<ColumnFamily> columnFamilies;
 
   private final java.time.Duration changeStreamRetention;
+  private final boolean deletionProtection;
 
   @InternalApi
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
@@ -137,19 +138,22 @@ public final class Table {
         TableName.parse(proto.getName()),
         replicationStates.build(),
         columnFamilies.build(),
-        changeStreamConfig);
+        changeStreamConfig,
+        proto.getDeletionProtection());
   }
 
   private Table(
       TableName tableName,
       Map<String, ReplicationState> replicationStatesByClusterId,
       List<ColumnFamily> columnFamilies,
-      java.time.Duration changeStreamRetention) {
+      java.time.Duration changeStreamRetention,
+      boolean deletionProtection) {
     this.instanceId = tableName.getInstance();
     this.id = tableName.getTable();
     this.replicationStatesByClusterId = replicationStatesByClusterId;
     this.columnFamilies = columnFamilies;
     this.changeStreamRetention = changeStreamRetention;
+    this.deletionProtection = deletionProtection;
   }
 
   /** Gets the table's id. */
@@ -180,6 +184,11 @@ public final class Table {
     return changeStreamRetention;
   }
 
+  /** Returns whether this table is deletion protected. */
+  public boolean isDeletionProtected() {
+    return deletionProtection;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -193,12 +202,18 @@ public final class Table {
         && Objects.equal(instanceId, table.instanceId)
         && Objects.equal(replicationStatesByClusterId, table.replicationStatesByClusterId)
         && Objects.equal(columnFamilies, table.columnFamilies)
-        && Objects.equal(changeStreamRetention, table.changeStreamRetention);
+        && Objects.equal(changeStreamRetention, table.changeStreamRetention)
+        && Objects.equal(deletionProtection, table.deletionProtection);
   }
 
   @Override
   public int hashCode() {
     return Objects.hashCode(
-        id, instanceId, replicationStatesByClusterId, columnFamilies, changeStreamRetention);
+        id,
+        instanceId,
+        replicationStatesByClusterId,
+        columnFamilies,
+        changeStreamRetention,
+        deletionProtection);
   }
 }
