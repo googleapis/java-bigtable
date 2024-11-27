@@ -73,9 +73,7 @@ public class BigtableClientContext {
       // the OTEL instance and log the exception instead.
       openTelemetry =
           getOpenTelemetryFromMetricsProvider(
-              settings.getMetricsProvider(),
-              credentials,
-              settings.getMetricsEndpoint());
+              settings.getMetricsProvider(), credentials, settings.getMetricsEndpoint());
     } catch (Throwable t) {
       logger.log(Level.WARNING, "Failed to get OTEL, will skip exporting client side metrics", t);
     }

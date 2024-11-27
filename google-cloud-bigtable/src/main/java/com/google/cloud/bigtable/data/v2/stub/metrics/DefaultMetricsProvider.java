@@ -17,17 +17,11 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
-<<<<<<< HEAD
-import com.google.auto.value.AutoValue;
-import com.google.common.base.MoreObjects;
-=======
->>>>>>> main
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 /**
@@ -45,8 +39,7 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   @InternalApi
   public OpenTelemetry getOpenTelemetry(
- @Nullable String metricsEndpoint, @Nullable Credentials credentials)
-      throws IOException {
+      @Nullable String metricsEndpoint, @Nullable Credentials credentials) throws IOException {
     SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
     BuiltinMetricsView.registerBuiltinMetrics(credentials, meterProvider, metricsEndpoint);
     return OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
