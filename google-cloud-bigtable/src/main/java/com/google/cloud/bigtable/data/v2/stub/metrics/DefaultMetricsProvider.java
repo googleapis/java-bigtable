@@ -17,8 +17,11 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
+<<<<<<< HEAD
 import com.google.auto.value.AutoValue;
 import com.google.common.base.MoreObjects;
+=======
+>>>>>>> main
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -38,44 +41,19 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
 
-  private final ConcurrentHashMap<Key, OpenTelemetry> otels = new ConcurrentHashMap<>();
-
   private DefaultMetricsProvider() {}
 
   @InternalApi
   public OpenTelemetry getOpenTelemetry(
-      @Nullable String metricsEndpoint, @Nullable Credentials credentials) throws IOException {
-    Key key = Key.create(metricsEndpoint, credentials);
-    OpenTelemetry otel = otels.get(key);
-    if (otel == null) {
-      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
-      BuiltinMetricsView.registerBuiltinMetrics(credentials, meterProvider, metricsEndpoint);
-      otel = OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
-      otels.put(key, otel);
-    }
-    return otel;
+ @Nullable String metricsEndpoint, @Nullable Credentials credentials)
+      throws IOException {
+    SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
+    BuiltinMetricsView.registerBuiltinMetrics(credentials, meterProvider, metricsEndpoint);
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
   }
 
   @Override
   public String toString() {
-    // don't log credentials
-    MoreObjects.ToStringHelper toStringHelper = MoreObjects.toStringHelper(this);
-    otels.forEach(
-        (k, v) ->
-            toStringHelper.add(k.metricsEndpoint() == null ? "null" : k.metricsEndpoint(), v));
-    return toStringHelper.toString();
-  }
-
-  @AutoValue
-  abstract static class Key {
-    @Nullable
-    abstract String metricsEndpoint();
-
-    @Nullable
-    abstract Credentials credentials();
-
-    static Key create(@Nullable String metricsEndpoint, @Nullable Credentials credentials) {
-      return new AutoValue_DefaultMetricsProvider_Key(metricsEndpoint, credentials);
-    }
+    return "DefaultMetricsProvider";
   }
 }
