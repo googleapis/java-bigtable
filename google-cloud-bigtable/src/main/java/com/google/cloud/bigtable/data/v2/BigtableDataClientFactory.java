@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2;
 
 import com.google.api.core.BetaApi;
-import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.cloud.bigtable.data.v2.stub.BigtableClientContext;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
@@ -94,10 +93,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
    */
   @Override
   public void close() throws Exception {
-    for (BackgroundResource resource :
-        sharedClientContext.getClientContext().getBackgroundResources()) {
-      resource.close();
-    }
+    sharedClientContext.close();
   }
 
   /**
@@ -117,7 +113,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
               .toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
-                      defaultSettings.getStubSettings(), sharedClientContext.createOpenTelemetry()))
+                      defaultSettings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
               .build();
 
       return BigtableDataClient.createWithClientContext(defaultSettings, clientContext);
@@ -147,7 +143,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.createOpenTelemetry()))
+                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }
@@ -177,7 +173,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.createOpenTelemetry()))
+                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
             .build();
 
     return BigtableDataClient.createWithClientContext(settings, clientContext);
@@ -208,7 +204,7 @@ public final class BigtableDataClientFactory implements AutoCloseable {
             .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
-                    settings.getStubSettings(), sharedClientContext.createOpenTelemetry()))
+                    settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
             .build();
     return BigtableDataClient.createWithClientContext(settings, clientContext);
   }

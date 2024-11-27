@@ -28,8 +28,6 @@ import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatcherImpl;
 import com.google.api.gax.batching.FlowController;
 import com.google.api.gax.core.BackgroundResource;
-import com.google.api.gax.core.CredentialsProvider;
-import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.grpc.GaxGrpcProperties;
 import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.api.gax.grpc.GrpcCallSettings;
@@ -55,8 +53,6 @@ import com.google.api.gax.tracing.OpencensusTracerFactory;
 import com.google.api.gax.tracing.SpanName;
 import com.google.api.gax.tracing.TracedServerStreamingCallable;
 import com.google.api.gax.tracing.TracedUnaryCallable;
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.CheckAndMutateRowResponse;
 import com.google.bigtable.v2.ExecuteQueryRequest;
@@ -74,7 +70,6 @@ import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
-import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
@@ -147,8 +142,6 @@ import io.opencensus.tags.Tags;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -208,7 +201,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
     BigtableClientContext bigtableClientContext = createBigtableClientContext(settings);
-    OpenTelemetry openTelemetry = bigtableClientContext.createOpenTelemetry();
+    OpenTelemetry openTelemetry = bigtableClientContext.getOpenTelemetry();
     ClientContext contextWithTracer =
         bigtableClientContext
             .getClientContext()
@@ -226,19 +219,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   public static BigtableClientContext createBigtableClientContext(
       EnhancedBigtableStubSettings settings) throws IOException {
-    EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
-
-    // workaround JWT audience issues
-    patchCredentials(builder);
-
-    // Fix the credentials so that they can be shared
-    Credentials credentials = null;
-    if (builder.getCredentialsProvider() != null) {
-      credentials = builder.getCredentialsProvider().getCredentials();
-    }
-    builder.setCredentialsProvider(FixedCredentialsProvider.create(credentials));
-
-    return BigtableClientContext.create(builder.build());
+    return BigtableClientContext.create(settings);
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
@@ -305,41 +286,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         settings.getAppProfileId(),
         CLIENT_NAME_KEY,
         "bigtable-java/" + Version.VERSION);
-  }
-
-  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
-      throws IOException {
-    int i = settings.getEndpoint().lastIndexOf(":");
-    String host = settings.getEndpoint().substring(0, i);
-    String audience = settings.getJwtAudienceMapping().get(host);
-
-    if (audience == null) {
-      return;
-    }
-    URI audienceUri = null;
-    try {
-      audienceUri = new URI(audience);
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
-    }
-
-    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
-    if (credentialsProvider == null) {
-      return;
-    }
-
-    Credentials credentials = credentialsProvider.getCredentials();
-    if (credentials == null) {
-      return;
-    }
-
-    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
-      return;
-    }
-
-    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
-    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
-    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
 
   public EnhancedBigtableStub(EnhancedBigtableStubSettings settings, ClientContext clientContext) {
