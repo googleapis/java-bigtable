@@ -41,8 +41,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /**
- * This class wraps a gax {@link ClientContext} and an {@link OpenTelemetry} instance that needs to
- * be created before creating the client context.
+ * This class wraps all state needed during the lifetime of the Bigtable client. This includes gax's
+ * {@link ClientContext} plus any additional state that Bigtable Client needs.
  */
 @InternalApi
 public class BigtableClientContext {
