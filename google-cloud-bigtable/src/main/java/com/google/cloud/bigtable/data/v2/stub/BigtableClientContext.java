@@ -71,6 +71,8 @@ public class BigtableClientContext {
     try {
       // We don't want client side metrics to crash the client, so catch any exception when getting
       // the OTEL instance and log the exception instead.
+      // TODO openTelemetry doesn't need to be tied to a project id. This is incorrect and will be
+      // fixed in the following PR.
       openTelemetry =
           getOpenTelemetryFromMetricsProvider(
               settings.getProjectId(),
