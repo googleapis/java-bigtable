@@ -188,7 +188,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   private final UnaryCallable<BulkMutation, Void> externalBulkMutateRowsCallable;
   private final UnaryCallable<ConditionalRowMutation, Boolean> checkAndMutateRowCallable;
   private final UnaryCallable<ReadModifyWriteRow, Row> readModifyWriteRowCallable;
-  private final UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable;
 
   private final ServerStreamingCallable<String, ByteStringRange>
       generateInitialChangeStreamPartitionsCallable;
@@ -321,7 +320,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         createGenerateInitialChangeStreamPartitionsCallable();
     readChangeStreamCallable =
         createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
-    pingAndWarmCallable = createPingAndWarmCallable();
     executeQueryCallable = createExecuteQueryCallable();
   }
 
@@ -1252,28 +1250,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         .build();
   }
 
-  private UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> createPingAndWarmCallable() {
-    UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarm =
-        GrpcRawCallableFactory.createUnaryCallable(
-            GrpcCallSettings.<PingAndWarmRequest, PingAndWarmResponse>newBuilder()
-                .setMethodDescriptor(BigtableGrpc.getPingAndWarmMethod())
-                .setParamsExtractor(
-                    new RequestParamsExtractor<PingAndWarmRequest>() {
-                      @Override
-                      public Map<String, String> extract(PingAndWarmRequest request) {
-                        return ImmutableMap.of(
-                            "name", request.getName(),
-                            "app_profile_id", request.getAppProfileId());
-                      }
-                    })
-                .build(),
-            Collections.emptySet());
-    return pingAndWarm.withDefaultCallContext(
-        clientContext
-            .getDefaultCallContext()
-            .withRetrySettings(settings.pingAndWarmSettings().getRetrySettings()));
-  }
-
   private <RequestT, ResponseT> UnaryCallable<RequestT, ResponseT> withRetries(
       UnaryCallable<RequestT, ResponseT> innerCallable, UnaryCallSettings<?, ?> unaryCallSettings) {
     UnaryCallable<RequestT, ResponseT> retrying;
@@ -1379,10 +1355,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /** Returns an {@link com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable} */
   public ExecuteQueryCallable executeQueryCallable() {
     return executeQueryCallable;
-  }
-
-  UnaryCallable<PingAndWarmRequest, PingAndWarmResponse> pingAndWarmCallable() {
-    return pingAndWarmCallable;
   }
 
   // </editor-fold>
