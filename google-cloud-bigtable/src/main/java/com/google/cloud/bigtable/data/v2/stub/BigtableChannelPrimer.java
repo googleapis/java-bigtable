@@ -26,6 +26,7 @@ import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.common.net.PercentEscaper;
 import io.grpc.CallCredentials;
 import io.grpc.ClientCall;
+import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
@@ -80,11 +81,11 @@ class BigtableChannelPrimer implements ChannelPrimer {
         .getHeaders()
         .forEach((k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
 
+    String escapedName = escaper.escape(request.getName());
+    String escapedAppProfile = escaper.escape(request.getAppProfileId());
     metadata.put(
         requestParams,
-        escaper.escape(
-            String.format(
-                "name=%s&app_profile_id=%s", request.getName(), request.getAppProfileId())));
+        escaper.escape(String.format("name=%s&app_profile_id=%s", escapedName, escapedAppProfile)));
   }
 
   @Override
@@ -106,7 +107,10 @@ class BigtableChannelPrimer implements ChannelPrimer {
       ClientCall<PingAndWarmRequest, PingAndWarmResponse> clientCall =
           managedChannel.newCall(
               BigtableGrpc.getPingAndWarmMethod(),
-              GrpcCallContext.createDefault().getCallOptions().withCallCredentials(credentials));
+              GrpcCallContext.createDefault()
+                  .getCallOptions()
+                  .withCallCredentials(credentials)
+                  .withDeadline(Deadline.after(1, TimeUnit.MINUTES)));
 
       SettableApiFuture<PingAndWarmResponse> future = SettableApiFuture.create();
       clientCall.start(
@@ -130,7 +134,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
           metadata);
       clientCall.sendMessage(request);
       clientCall.halfClose();
-      clientCall.request(1);
+      clientCall.request(Integer.MAX_VALUE);
 
       future.get(1, TimeUnit.MINUTES);
     } catch (Throwable e) {
