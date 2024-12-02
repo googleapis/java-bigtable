@@ -19,6 +19,7 @@ import com.google.api.core.BetaApi;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcCallContext;
+import com.google.auth.Credentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.InstanceName;
 import com.google.bigtable.v2.PingAndWarmRequest;
@@ -32,6 +33,7 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.auth.MoreCallCredentials;
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -50,21 +52,29 @@ class BigtableChannelPrimer implements ChannelPrimer {
       Metadata.Key.of("x-goog-request-params", Metadata.ASCII_STRING_MARSHALLER);
   private final PingAndWarmRequest request;
   private final Metadata metadata = new Metadata();
-  private final CallCredentials credentials;
+  private final CallCredentials callCredentials;
 
-  static BigtableChannelPrimer create(EnhancedBigtableStubSettings settings) throws IOException {
-    return new BigtableChannelPrimer(settings);
+  static BigtableChannelPrimer create(
+      String projectId,
+      String instanceId,
+      String appProfileId,
+      Credentials credentials,
+      Map<String, String> headers)
+      throws IOException {
+    return new BigtableChannelPrimer(projectId, instanceId, appProfileId, credentials, headers);
   }
 
-  BigtableChannelPrimer(EnhancedBigtableStubSettings settings) throws IOException {
-    String projectId = settings.getProjectId();
-    String instanceId = settings.getInstanceId();
-    String appProfileId = settings.getAppProfileId();
-
-    if (settings.getCredentialsProvider().getCredentials() != null) {
-      credentials = MoreCallCredentials.from(settings.getCredentialsProvider().getCredentials());
+  BigtableChannelPrimer(
+      String projectId,
+      String instanceId,
+      String appProfileId,
+      Credentials credentials,
+      Map<String, String> headers)
+      throws IOException {
+    if (credentials != null) {
+      callCredentials = MoreCallCredentials.from(credentials);
     } else {
-      credentials = null;
+      callCredentials = null;
     }
 
     request =
@@ -76,10 +86,8 @@ class BigtableChannelPrimer implements ChannelPrimer {
     PercentEscaper escaper = new PercentEscaper("._-~", false);
 
     Metadata metadata = new Metadata();
-    settings
-        .getHeaderProvider()
-        .getHeaders()
-        .forEach((k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
+    headers.forEach(
+        (k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
 
     metadata.put(
         requestParams,
@@ -110,7 +118,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
               BigtableGrpc.getPingAndWarmMethod(),
               GrpcCallContext.createDefault()
                   .getCallOptions()
-                  .withCallCredentials(credentials)
+                  .withCallCredentials(callCredentials)
                   .withDeadline(Deadline.after(1, TimeUnit.MINUTES)));
 
       SettableApiFuture<PingAndWarmResponse> future = SettableApiFuture.create();
