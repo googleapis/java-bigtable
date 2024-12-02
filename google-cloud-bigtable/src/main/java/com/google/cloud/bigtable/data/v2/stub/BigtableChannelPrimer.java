@@ -81,11 +81,12 @@ class BigtableChannelPrimer implements ChannelPrimer {
         .getHeaders()
         .forEach((k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
 
-    String escapedName = escaper.escape(request.getName());
-    String escapedAppProfile = escaper.escape(request.getAppProfileId());
     metadata.put(
         requestParams,
-        escaper.escape(String.format("name=%s&app_profile_id=%s", escapedName, escapedAppProfile)));
+        escaper.escape(
+            String.format(
+                "name=%s&app_profile_id=%s",
+                escaper.escape(request.getName()), escaper.escape(request.getAppProfileId()))));
   }
 
   @Override
