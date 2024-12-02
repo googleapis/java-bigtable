@@ -61,8 +61,6 @@ import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
-import com.google.bigtable.v2.PingAndWarmRequest;
-import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
