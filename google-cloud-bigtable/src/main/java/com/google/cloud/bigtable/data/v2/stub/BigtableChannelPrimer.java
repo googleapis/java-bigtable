@@ -91,10 +91,9 @@ class BigtableChannelPrimer implements ChannelPrimer {
 
     metadata.put(
         requestParams,
-        escaper.escape(
-            String.format(
-                "name=%s&app_profile_id=%s",
-                escaper.escape(request.getName()), escaper.escape(request.getAppProfileId()))));
+        String.format(
+            "name=%s&app_profile_id=%s",
+            escaper.escape(request.getName()), escaper.escape(request.getAppProfileId())));
   }
 
   @Override
