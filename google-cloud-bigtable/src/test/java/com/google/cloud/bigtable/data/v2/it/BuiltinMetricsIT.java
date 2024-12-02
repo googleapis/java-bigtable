@@ -275,9 +275,7 @@ public class BuiltinMetricsIT {
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
                   + " AND resource.labels.table=\"%s\"",
-              view,
-              testEnvRule.env().getInstanceId(),
-              tableCustomOtel.getId());
+              view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
               .setName(name.toString())
@@ -295,9 +293,7 @@ public class BuiltinMetricsIT {
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
                   + " AND resource.labels.table=\"%s\"",
-              view,
-              testEnvRule.env().getInstanceId(),
-              tableCustomOtel.getId());
+              view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       requestBuilder.setFilter(metricFilter);
 
       response = verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
