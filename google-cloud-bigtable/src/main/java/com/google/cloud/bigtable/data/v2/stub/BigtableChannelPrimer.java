@@ -36,6 +36,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -94,7 +95,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
               URLEncoder.encode(request.getName(), "UTF-8"),
               URLEncoder.encode(request.getAppProfileId(), "UTF-8")));
     } catch (UnsupportedEncodingException e) {
-      LOG.warning(String.format("failed to encode request params %s", e));
+      LOG.log(Level.WARNING, "Failed to encode request params", e);
     }
   }
 
