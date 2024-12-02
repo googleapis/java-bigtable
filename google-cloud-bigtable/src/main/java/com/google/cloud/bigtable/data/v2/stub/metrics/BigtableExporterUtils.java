@@ -124,7 +124,8 @@ class BigtableExporterUtils {
 
       for (PointData pd : metricData.getData().getPoints()) {
         String projectId = getProjectId(pd);
-        List<TimeSeries> current = allTimeSeries.getOrDefault(projectId, new ArrayList<>());
+        List<TimeSeries> current =
+            allTimeSeries.computeIfAbsent(projectId, ignored -> new ArrayList<>());
         current.add(convertPointToBigtableTimeSeries(metricData, pd, taskId));
         allTimeSeries.put(projectId, current);
       }
