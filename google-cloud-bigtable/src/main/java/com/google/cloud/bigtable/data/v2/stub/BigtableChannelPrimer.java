@@ -24,7 +24,6 @@ import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.InstanceName;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
-import com.google.common.net.PercentEscaper;
 import io.grpc.CallCredentials;
 import io.grpc.ClientCall;
 import io.grpc.Deadline;
@@ -33,6 +32,8 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.auth.MoreCallCredentials;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -59,8 +60,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       String instanceId,
       String appProfileId,
       Credentials credentials,
-      Map<String, String> headers)
-      throws IOException {
+      Map<String, String> headers) {
     return new BigtableChannelPrimer(projectId, instanceId, appProfileId, credentials, headers);
   }
 
@@ -69,8 +69,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       String instanceId,
       String appProfileId,
       Credentials credentials,
-      Map<String, String> headers)
-      throws IOException {
+      Map<String, String> headers) {
     if (credentials != null) {
       callCredentials = MoreCallCredentials.from(credentials);
     } else {
@@ -83,17 +82,20 @@ class BigtableChannelPrimer implements ChannelPrimer {
             .setAppProfileId(appProfileId)
             .build();
 
-    PercentEscaper escaper = new PercentEscaper("._-~", false);
-
     Metadata metadata = new Metadata();
     headers.forEach(
         (k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
 
-    metadata.put(
-        requestParams,
-        String.format(
-            "name=%s&app_profile_id=%s",
-            escaper.escape(request.getName()), escaper.escape(request.getAppProfileId())));
+    try {
+      metadata.put(
+          requestParams,
+          String.format(
+              "name=%s&app_profile_id=%s",
+              URLEncoder.encode(request.getName(), "UTF-8"),
+              URLEncoder.encode(request.getAppProfileId(), "UTF-8")));
+    } catch (UnsupportedEncodingException e) {
+      LOG.warning(String.format("failed to encode request params %s", e));
+    }
   }
 
   @Override
