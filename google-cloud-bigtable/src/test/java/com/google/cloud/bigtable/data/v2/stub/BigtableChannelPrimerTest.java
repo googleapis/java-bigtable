@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.core.ApiFunction;
+import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.OAuth2Credentials;
 import com.google.bigtable.v2.BigtableGrpc.BigtableImplBase;
@@ -67,12 +68,16 @@ public class BigtableChannelPrimerTest {
 
     server = FakeServiceBuilder.create(fakeService).intercept(metadataInterceptor).start();
 
-    primer =
-        BigtableChannelPrimer.create(
-            OAuth2Credentials.create(new AccessToken(TOKEN_VALUE, null)),
-            "fake-project",
-            "fake-instance",
-            "fake-app-profile");
+    EnhancedBigtableStubSettings settings =
+        EnhancedBigtableStubSettings.newBuilder()
+            .setProjectId("fake-project")
+            .setInstanceId("fake-instance")
+            .setAppProfileId("fake-app-profile")
+            .setCredentialsProvider(
+                FixedCredentialsProvider.create(
+                    OAuth2Credentials.create(new AccessToken(TOKEN_VALUE, null))))
+            .build();
+    primer = BigtableChannelPrimer.create(settings);
 
     channel =
         ManagedChannelBuilder.forAddress("localhost", server.getPort()).usePlaintext().build();

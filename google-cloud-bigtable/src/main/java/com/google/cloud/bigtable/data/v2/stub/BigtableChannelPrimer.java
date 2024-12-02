@@ -16,12 +16,11 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.BetaApi;
-import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.core.InstantiatingExecutorProvider;
 import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
-import com.google.auth.Credentials;
+import com.google.api.gax.rpc.InstantiatingWatchdogProvider;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
@@ -43,18 +42,13 @@ class BigtableChannelPrimer implements ChannelPrimer {
 
   private final EnhancedBigtableStubSettings settingsTemplate;
 
-  static BigtableChannelPrimer create(
-      Credentials credentials, String projectId, String instanceId, String appProfileId) {
-    EnhancedBigtableStubSettings.Builder builder =
-        EnhancedBigtableStubSettings.newBuilder()
-            .setProjectId(projectId)
-            .setInstanceId(instanceId)
-            .setAppProfileId(appProfileId)
-            .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-            // Disable refreshing channel here to avoid creating settings in a loop
-            .setRefreshingChannel(false)
-            .setExecutorProvider(
-                InstantiatingExecutorProvider.newBuilder().setExecutorThreadCount(1).build());
+  static BigtableChannelPrimer create(EnhancedBigtableStubSettings settings) {
+    EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
+    builder
+        .setRefreshingChannel(false)
+        .setBackgroundExecutorProvider(
+            InstantiatingExecutorProvider.newBuilder().setExecutorThreadCount(1).build())
+        .setStreamWatchdogProvider(InstantiatingWatchdogProvider.create());
 
     return new BigtableChannelPrimer(builder.build());
   }

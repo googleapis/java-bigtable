@@ -103,12 +103,7 @@ public class BigtableClientContext {
       }
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
-        transportProvider.setChannelPrimer(
-            BigtableChannelPrimer.create(
-                credentials,
-                settings.getProjectId(),
-                settings.getInstanceId(),
-                settings.getAppProfileId()));
+        transportProvider.setChannelPrimer(BigtableChannelPrimer.create(builder.build()));
       }
 
       builder.setTransportChannelProvider(transportProvider.build());
