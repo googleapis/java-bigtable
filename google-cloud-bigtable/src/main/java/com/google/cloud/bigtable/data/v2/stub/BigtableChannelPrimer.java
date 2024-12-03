@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.core.BetaApi;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.grpc.ChannelPrimer;
-import com.google.api.gax.grpc.GrpcCallContext;
 import com.google.auth.Credentials;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.InstanceName;
