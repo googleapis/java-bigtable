@@ -50,11 +50,11 @@ import java.util.logging.Logger;
 class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
 
-  private final Metadata.Key<String> requestParams =
+  static final Metadata.Key<String> REQUEST_PARAMS =
       Metadata.Key.of("x-goog-request-params", Metadata.ASCII_STRING_MARSHALLER);
   private final PingAndWarmRequest request;
-  private final Metadata metadata = new Metadata();
   private final CallCredentials callCredentials;
+  private final Map<String, String> headers;
 
   static BigtableChannelPrimer create(
       String projectId,
@@ -83,20 +83,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
             .setAppProfileId(appProfileId)
             .build();
 
-    Metadata metadata = new Metadata();
-    headers.forEach(
-        (k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
-
-    try {
-      metadata.put(
-          requestParams,
-          String.format(
-              "name=%s&app_profile_id=%s",
-              URLEncoder.encode(request.getName(), "UTF-8"),
-              URLEncoder.encode(request.getAppProfileId(), "UTF-8")));
-    } catch (UnsupportedEncodingException e) {
-      LOG.log(Level.WARNING, "Failed to encode request params", e);
-    }
+    this.headers = headers;
   }
 
   @Override
@@ -104,8 +91,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
     try {
       primeChannelUnsafe(managedChannel);
     } catch (IOException | RuntimeException e) {
-      LOG.warning(
-          String.format("Unexpected error while trying to prime a channel: %s", e.getMessage()));
+      LOG.log(Level.WARNING, "Unexpected error while trying to prime a channel", e);
     }
   }
 
@@ -142,7 +128,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
               }
             }
           },
-          metadata);
+          createMetadata(headers, request));
       clientCall.sendMessage(request);
       clientCall.halfClose();
       clientCall.request(Integer.MAX_VALUE);
@@ -154,5 +140,24 @@ class BigtableChannelPrimer implements ChannelPrimer {
       // channel is bad.
       LOG.warning(String.format("Failed to prime channel: %s", e));
     }
+  }
+
+  private Metadata createMetadata(Map<String, String> headers, PingAndWarmRequest request) {
+    Metadata metadata = new Metadata();
+
+    headers.forEach(
+        (k, v) -> metadata.put(Metadata.Key.of(k, Metadata.ASCII_STRING_MARSHALLER), v));
+    try {
+      metadata.put(
+          REQUEST_PARAMS,
+          String.format(
+              "name=%s&app_profile_id=%s",
+              URLEncoder.encode(request.getName(), "UTF-8"),
+              URLEncoder.encode(request.getAppProfileId(), "UTF-8")));
+    } catch (UnsupportedEncodingException e) {
+      LOG.log(Level.WARNING, "Failed to encode request params", e);
+    }
+
+    return metadata;
   }
 }
