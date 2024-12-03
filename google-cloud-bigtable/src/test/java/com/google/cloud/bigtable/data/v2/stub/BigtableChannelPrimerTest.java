@@ -135,7 +135,7 @@ public class BigtableChannelPrimerTest {
 
     assertThat(logHandler.logs).hasSize(1);
     for (LogRecord log : logHandler.logs) {
-      assertThat(log.getMessage()).contains("FAILED_PRECONDITION");
+      assertThat(log.getThrown().getMessage()).contains("FAILED_PRECONDITION");
     }
   }
 
@@ -148,7 +148,7 @@ public class BigtableChannelPrimerTest {
 
     assertThat(logHandler.logs).hasSize(1);
     for (LogRecord log : logHandler.logs) {
-      assertThat(log.getMessage()).contains("UnsupportedOperationException");
+      assertThat(log.getThrown()).isInstanceOf(UnsupportedOperationException.class);
     }
   }
 

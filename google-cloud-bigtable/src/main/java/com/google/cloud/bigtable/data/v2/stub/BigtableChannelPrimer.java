@@ -137,7 +137,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       // TODO: Not sure if we should swallow the error here. We are pre-emptively swapping
       // channels if the new
       // channel is bad.
-      LOG.log(Level.WARNING, "failed to prime channel", e);
+      LOG.log(Level.WARNING, "Failed to prime channel", e);
     }
   }
 
