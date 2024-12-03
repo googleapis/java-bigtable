@@ -19,6 +19,8 @@ branchProtectionRules:
       - 'Kokoro - Test: Java 17 GraalVM Native Image'
       - javadoc
       - conformance
+      - library_generation
+      - unmanaged_dependency_check
   - pattern: 1.22.0-sp
     isAdminEnforced: true
     requiredApprovingReviewCount: 1

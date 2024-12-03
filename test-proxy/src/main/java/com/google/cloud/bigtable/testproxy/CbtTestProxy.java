@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Google LLC
+ * Copyright 2024 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,8 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ServerStream;
-import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.AccessToken;
+import com.google.auth.oauth2.OAuth2Credentials;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.Column;
 import com.google.bigtable.v2.Family;
@@ -41,6 +42,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
+import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.cloud.bigtable.testproxy.CloudBigtableV2TestProxyGrpc.CloudBigtableV2TestProxyImplBase;
 import com.google.common.base.Preconditions;
@@ -50,6 +52,7 @@ import com.google.rpc.Code;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContext;
@@ -57,19 +60,16 @@ import io.grpc.stub.StreamObserver;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import org.threeten.bp.Duration;
 
 /** Java implementation of the CBT test proxy. Used to test the Java CBT client. */
@@ -92,50 +92,13 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
 
   private static final Logger logger = Logger.getLogger(CbtTestProxy.class.getName());
 
-  private CbtTestProxy(
-      boolean encrypted,
-      @Nullable String rootCerts,
-      @Nullable String sslTarget,
-      @Nullable String credential) {
-    this.encrypted = encrypted;
-    this.rootCerts = rootCerts;
-    this.sslTarget = sslTarget;
-    this.credential = credential;
+  private CbtTestProxy() {
     this.idClientMap = new ConcurrentHashMap<>();
   }
 
-  /**
-   * Factory method to return a proxy instance that interacts with server unencrypted and
-   * unauthenticated.
-   */
-  public static CbtTestProxy createUnencrypted() {
-    return new CbtTestProxy(false, null, null, null);
-  }
-
-  /**
-   * Factory method to return a proxy instance that interacts with server encrypted. Default
-   * authority and public certificates are used if null values are passed in.
-   *
-   * @param rootCertsPemPath The path to a root certificate PEM file
-   * @param sslTarget The override of SSL target name
-   * @param credentialJsonPath The path to a credential JSON file
-   */
-  public static CbtTestProxy createEncrypted(
-      @Nullable String rootCertsPemPath,
-      @Nullable String sslTarget,
-      @Nullable String credentialJsonPath)
-      throws IOException {
-    String tmpRootCerts = null, tmpCredential = null;
-    if (rootCertsPemPath != null) {
-      Path file = Paths.get(rootCertsPemPath);
-      tmpRootCerts = new String(Files.readAllBytes(file), UTF_8);
-    }
-    if (credentialJsonPath != null) {
-      Path file = Paths.get(credentialJsonPath);
-      tmpCredential = new String(Files.readAllBytes(file), UTF_8);
-    }
-
-    return new CbtTestProxy(true, tmpRootCerts, sslTarget, tmpCredential);
+  /** Factory method to return a proxy instance. */
+  public static CbtTestProxy create() {
+    return new CbtTestProxy();
   }
 
   /**
@@ -159,6 +122,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
         settingsBuilder.stubSettings().readModifyWriteRowSettings().retrySettings(), newTimeout);
     updateTimeout(
         settingsBuilder.stubSettings().sampleRowKeysSettings().retrySettings(), newTimeout);
+    updateTimeout(
+        settingsBuilder.stubSettings().executeQuerySettings().retrySettings(), newTimeout);
 
     return settingsBuilder;
   }
@@ -191,8 +156,12 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     Preconditions.checkArgument(!request.getProjectId().isEmpty(), "project id must be provided");
     Preconditions.checkArgument(!request.getInstanceId().isEmpty(), "instance id must be provided");
     Preconditions.checkArgument(!request.getDataTarget().isEmpty(), "data target must be provided");
+    Preconditions.checkArgument(
+        !request.getSecurityOptions().getUseSsl()
+            || !request.getSecurityOptions().getSslRootCertsPemBytes().isEmpty(),
+        "security_options.ssl_root_certs_pem must be provided if security_options.use_ssl is true");
 
-    if (idClientMap.contains(request.getClientId())) {
+    if (idClientMap.containsKey(request.getClientId())) {
       responseObserver.onError(
           Status.ALREADY_EXISTS
               .withDescription("Client " + request.getClientId() + " already exists.")
@@ -200,6 +169,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
       return;
     }
 
+    // setRefreshingChannel is needed for now.
+    @SuppressWarnings("deprecation")
     BigtableDataSettings.Builder settingsBuilder =
         BigtableDataSettings.newBuilder()
             // Disable channel refreshing when not using the real server
@@ -207,9 +178,6 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
             .setProjectId(request.getProjectId())
             .setInstanceId(request.getInstanceId())
             .setAppProfileId(request.getAppProfileId());
-
-    settingsBuilder.stubSettings().setEnableRoutingCookie(false);
-    settingsBuilder.stubSettings().setEnableRetryInfo(false);
 
     if (request.hasPerOperationTimeout()) {
       Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
@@ -244,8 +212,13 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
         settingsBuilder
             .stubSettings()
             .setEndpoint(request.getDataTarget())
-            .setTransportChannelProvider(getTransportChannel())
-            .setCredentialsProvider(getCredentialsProvider());
+            .setTransportChannelProvider(
+                getTransportChannel(
+                    request.getSecurityOptions().getUseSsl(),
+                    request.getSecurityOptions().getSslRootCertsPem(),
+                    request.getSecurityOptions().getSslEndpointOverride()))
+            .setCredentialsProvider(
+                getCredentialsProvider(request.getSecurityOptions().getAccessToken()));
       }
       BigtableDataSettings settings = settingsBuilder.build();
       BigtableDataClient client = BigtableDataClient.create(settings);
@@ -699,6 +672,64 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
   }
 
   @Override
+  public void executeQuery(
+      ExecuteQueryRequest request, StreamObserver<ExecuteQueryResult> responseObserver) {
+    CbtClient client;
+    try {
+      client = getClient(request.getClientId());
+    } catch (StatusException e) {
+      responseObserver.onError(e);
+      return;
+    }
+    try (ResultSet resultSet =
+        client.dataClient().executeQuery(StatementDeserializer.toStatement(request))) {
+      responseObserver.onNext(ResultSetSerializer.toExecuteQueryResult(resultSet));
+    } catch (InterruptedException e) {
+      responseObserver.onError(e);
+      return;
+    } catch (ExecutionException e) {
+      responseObserver.onError(e);
+      return;
+    } catch (ApiException e) {
+      responseObserver.onNext(
+          ExecuteQueryResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatusCode().getCode().ordinal())
+                      .setMessage(e.getMessage())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
+    } catch (StatusRuntimeException e) {
+      responseObserver.onNext(
+          ExecuteQueryResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(e.getStatus().getCode().value())
+                      .setMessage(e.getStatus().getDescription())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
+    } catch (RuntimeException e) {
+      // If client encounters problem, don't return any results.
+      responseObserver.onNext(
+          ExecuteQueryResult.newBuilder()
+              .setStatus(
+                  com.google.rpc.Status.newBuilder()
+                      .setCode(Code.INTERNAL.getNumber())
+                      .setMessage(e.getMessage())
+                      .build())
+              .build());
+      responseObserver.onCompleted();
+      return;
+    }
+    responseObserver.onCompleted();
+    return;
+  }
+
+  @Override
   public synchronized void close() {
     Iterator<Map.Entry<String, CbtClient>> it = idClientMap.entrySet().iterator();
     while (it.hasNext()) {
@@ -717,52 +748,60 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     return matcher.group(3);
   }
 
-  private InstantiatingGrpcChannelProvider getTransportChannel() throws IOException {
+  @SuppressWarnings("rawtypes")
+  private InstantiatingGrpcChannelProvider getTransportChannel(
+      boolean encrypted, String rootCertsPem, String sslTarget) {
     if (!encrypted) {
       return EnhancedBigtableStubSettings.defaultGrpcTransportProviderBuilder()
           .setChannelConfigurator(ManagedChannelBuilder::usePlaintext)
           .build();
     }
 
-    if (rootCerts == null) {
-      return EnhancedBigtableStubSettings.defaultGrpcTransportProviderBuilder().build();
+    final SslContext sslContext;
+    if (rootCertsPem.isEmpty()) {
+      sslContext = null;
+    } else {
+      try {
+        sslContext =
+            GrpcSslContexts.forClient()
+                .trustManager(new ByteArrayInputStream(rootCertsPem.getBytes(UTF_8)))
+                .build();
+      } catch (IOException e) {
+        throw new IllegalArgumentException(e);
+      }
     }
 
-    final SslContext secureContext =
-        GrpcSslContexts.forClient()
-            .trustManager(new ByteArrayInputStream(rootCerts.getBytes(UTF_8)))
-            .build();
     return EnhancedBigtableStubSettings.defaultGrpcTransportProviderBuilder()
         .setChannelConfigurator(
             new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
               @Override
               public ManagedChannelBuilder apply(ManagedChannelBuilder input) {
                 NettyChannelBuilder channelBuilder = (NettyChannelBuilder) input;
-                channelBuilder.sslContext(secureContext).overrideAuthority(sslTarget);
+
+                if (sslContext != null) {
+                  channelBuilder.sslContext(sslContext);
+                }
+
+                if (!sslTarget.isEmpty()) {
+                  channelBuilder.overrideAuthority(sslTarget);
+                }
+
                 return channelBuilder;
               }
             })
         .build();
   }
 
-  private CredentialsProvider getCredentialsProvider() throws IOException {
-    if (credential == null) {
+  private CredentialsProvider getCredentialsProvider(String accessToken) {
+    if (accessToken.isEmpty()) {
       return NoCredentialsProvider.create();
     }
 
-    final GoogleCredentials creds =
-        GoogleCredentials.fromStream(new ByteArrayInputStream(credential.getBytes(UTF_8)));
-
-    return FixedCredentialsProvider.create(creds);
+    return FixedCredentialsProvider.create(
+        OAuth2Credentials.create(new AccessToken(accessToken, null)));
   }
 
   private final ConcurrentHashMap<String, CbtClient> idClientMap;
-  private final boolean encrypted;
-
-  // Parameters that may be needed when "encrypted" is true.
-  private final String rootCerts;
-  private final String sslTarget;
-  private final String credential;
 
   private static final Pattern tablePattern =
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)");

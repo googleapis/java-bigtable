@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import com.google.api.core.InternalApi;
 import com.google.auth.Credentials;
-import com.google.common.base.MoreObjects;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -36,28 +35,18 @@ public final class DefaultMetricsProvider implements MetricsProvider {
 
   public static DefaultMetricsProvider INSTANCE = new DefaultMetricsProvider();
 
-  private OpenTelemetry openTelemetry;
-  private String projectId;
-
   private DefaultMetricsProvider() {}
 
   @InternalApi
-  public OpenTelemetry getOpenTelemetry(String projectId, @Nullable Credentials credentials)
-      throws IOException {
-    this.projectId = projectId;
-    if (openTelemetry == null) {
-      SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
-      BuiltinMetricsView.registerBuiltinMetrics(projectId, credentials, meterProvider);
-      openTelemetry = OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
-    }
-    return openTelemetry;
+  public OpenTelemetry getOpenTelemetry(
+      @Nullable String metricsEndpoint, @Nullable Credentials credentials) throws IOException {
+    SdkMeterProviderBuilder meterProvider = SdkMeterProvider.builder();
+    BuiltinMetricsView.registerBuiltinMetrics(credentials, meterProvider, metricsEndpoint);
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProvider.build()).build();
   }
 
   @Override
   public String toString() {
-    return MoreObjects.toStringHelper(this)
-        .add("projectId", projectId)
-        .add("openTelemetry", openTelemetry)
-        .toString();
+    return "DefaultMetricsProvider";
   }
 }
