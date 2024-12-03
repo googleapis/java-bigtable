@@ -25,6 +25,7 @@ import com.google.bigtable.v2.InstanceName;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
 import io.grpc.CallCredentials;
+import io.grpc.CallOptions;
 import io.grpc.ClientCall;
 import io.grpc.Deadline;
 import io.grpc.ManagedChannel;
@@ -104,8 +105,7 @@ class BigtableChannelPrimer implements ChannelPrimer {
       ClientCall<PingAndWarmRequest, PingAndWarmResponse> clientCall =
           managedChannel.newCall(
               BigtableGrpc.getPingAndWarmMethod(),
-              GrpcCallContext.createDefault()
-                  .getCallOptions()
+              CallOptions.DEFAULT
                   .withCallCredentials(callCredentials)
                   .withDeadline(Deadline.after(1, TimeUnit.MINUTES)));
 
@@ -138,11 +138,11 @@ class BigtableChannelPrimer implements ChannelPrimer {
       // TODO: Not sure if we should swallow the error here. We are pre-emptively swapping
       // channels if the new
       // channel is bad.
-      LOG.warning(String.format("Failed to prime channel: %s", e));
+      LOG.log(Level.WARNING, "failed to prime channel", e);
     }
   }
 
-  private Metadata createMetadata(Map<String, String> headers, PingAndWarmRequest request) {
+  private static Metadata createMetadata(Map<String, String> headers, PingAndWarmRequest request) {
     Metadata metadata = new Metadata();
 
     headers.forEach(
