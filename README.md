@@ -19,7 +19,7 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
     <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>libraries-bom</artifactId>
-      <version>26.37.0</version>
+      <version>26.50.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -36,7 +36,6 @@ If you are using Maven with [BOM][libraries-bom], add this to your pom.xml file:
 
 If you are using Maven without the BOM, add this to your dependencies:
 
-<!-- {x-version-update-start:google-cloud-bigtable:released} -->
 
 ```xml
 <dependency>
@@ -50,22 +49,21 @@ If you are using Maven without the BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.43.0')
+implementation platform('com.google.cloud:libraries-bom:26.50.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.41.0'
+implementation 'com.google.cloud:google-cloud-bigtable:2.49.0'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.41.0"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.49.0"
 ```
-<!-- {x-version-update-end} -->
 
 ## Authentication
 
@@ -80,7 +78,7 @@ The client application making API calls must be granted [authorization scopes][a
 ### Prerequisites
 
 You will need a [Google Cloud Platform Console][developer-console] project with the Cloud Bigtable [API enabled][enable-api].
-
+You will need to [enable billing][enable-billing] to use Google Cloud Bigtable.
 [Follow these instructions][create-project] to get your project set up. You will also need to set up the local development environment by
 [installing the Google Cloud Command Line Interface][cloud-cli] and running the following commands in command line:
 `gcloud auth login` and `gcloud config set project [YOUR PROJECT ID]`.
@@ -93,7 +91,7 @@ to add `google-cloud-bigtable` as a dependency in your code.
 ## About Cloud Bigtable
 
 
-[Cloud Bigtable][product-docs] 
+[Cloud Bigtable][product-docs] API for reading and writing the contents of Bigtables associated with a cloud project.
 
 See the [Cloud Bigtable client library docs][javadocs] to learn how to
 use this Cloud Bigtable Client Library.
@@ -420,7 +418,6 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 
 | Sample                      | Source Code                       | Try it |
 | --------------------------- | --------------------------------- | ------ |
-| Native Image Bigtable Sample | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/native-image-sample/src/main/java/com/example/bigtable/NativeImageBigtableSample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/native-image-sample/src/main/java/com/example/bigtable/NativeImageBigtableSample.java) |
 | Authorized View Example | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/AuthorizedViewExample.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/AuthorizedViewExample.java) |
 | Configure Connection Pool | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/ConfigureConnectionPool.java) |
 | Filters | [source code](https://github.com/googleapis/java-bigtable/blob/main/samples/snippets/src/main/java/com/example/bigtable/Filters.java) | [![Open in Cloud Shell][shell_img]](https://console.cloud.google.com/cloudshell/open?git_repo=https://github.com/googleapis/java-bigtable&page=editor&open_in_editor=samples/snippets/src/main/java/com/example/bigtable/Filters.java) |
@@ -449,6 +446,10 @@ Samples are in the [`samples/`](https://github.com/googleapis/java-bigtable/tree
 ## Troubleshooting
 
 To get help, follow the instructions in the [shared Troubleshooting document][troubleshooting].
+
+## Transport
+
+Cloud Bigtable uses gRPC for the transport layer.
 
 ## Supported Java Versions
 
@@ -542,7 +543,7 @@ Java is a registered trademark of Oracle and/or its affiliates.
 [kokoro-badge-link-5]: http://storage.googleapis.com/cloud-devrel-public/java/badges/java-bigtable/java11.html
 [stability-image]: https://img.shields.io/badge/stability-stable-green
 [maven-version-image]: https://img.shields.io/maven-central/v/com.google.cloud/google-cloud-bigtable.svg
-[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.41.0
+[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.49.0
 [authentication]: https://github.com/googleapis/google-cloud-java#authentication
 [auth-scopes]: https://developers.google.com/identity/protocols/oauth2/scopes
 [predefined-iam-roles]: https://cloud.google.com/iam/docs/understanding-roles#predefined_roles
@@ -554,7 +555,7 @@ Java is a registered trademark of Oracle and/or its affiliates.
 [contributing]: https://github.com/googleapis/java-bigtable/blob/main/CONTRIBUTING.md
 [code-of-conduct]: https://github.com/googleapis/java-bigtable/blob/main/CODE_OF_CONDUCT.md#contributor-code-of-conduct
 [license]: https://github.com/googleapis/java-bigtable/blob/main/LICENSE
-
+[enable-billing]: https://cloud.google.com/apis/docs/getting-started#enabling_billing
 [enable-api]: https://console.cloud.google.com/flows/enableapi?apiid=bigtable.googleapis.com
 [libraries-bom]: https://github.com/GoogleCloudPlatform/cloud-opensource-java/wiki/The-Google-Cloud-Platform-Libraries-BOM
 [shell_img]: https://gstatic.com/cloudssh/images/open-btn.png
