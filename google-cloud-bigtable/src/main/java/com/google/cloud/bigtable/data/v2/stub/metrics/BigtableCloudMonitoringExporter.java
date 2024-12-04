@@ -23,6 +23,7 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METER_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.OPERATION_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.PER_CONNECTION_ERROR_COUNT_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.REMAINING_DEADLINE_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.RETRY_COUNT_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.SERVER_LATENCIES_NAME;
 
@@ -39,7 +40,6 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -58,6 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -79,11 +80,12 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       Logger.getLogger(BigtableCloudMonitoringExporter.class.getName());
 
   // This system property can be used to override the monitoring endpoint
-  // to a different environment. It's meant for internal testing only.
-  private static final String MONITORING_ENDPOINT =
-      MoreObjects.firstNonNull(
-          System.getProperty("bigtable.test-monitoring-endpoint"),
-          MetricServiceSettings.getDefaultEndpoint());
+  // to a different environment. It's meant for internal testing only and
+  // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
+  // to override the endpoint.
+  @Deprecated @Nullable
+  private static final String MONITORING_ENDPOINT_OVERRIDE_SYS_PROP =
+      System.getProperty("bigtable.test-monitoring-endpoint");
 
   private static final String APPLICATION_RESOURCE_PROJECT_ID = "project_id";
 
@@ -93,7 +95,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private final MetricServiceClient client;
 
-  private final String bigtableProjectId;
   private final String taskId;
 
   // The resource the client application is running on
@@ -115,7 +116,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
               CLIENT_BLOCKING_LATENCIES_NAME,
               APPLICATION_BLOCKING_LATENCIES_NAME,
               RETRY_COUNT_NAME,
-              CONNECTIVITY_ERROR_COUNT_NAME)
+              CONNECTIVITY_ERROR_COUNT_NAME,
+              REMAINING_DEADLINE_NAME)
           .stream()
           .map(m -> METER_NAME + m)
           .collect(ImmutableList.toImmutableList());
@@ -126,14 +128,21 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
           .collect(ImmutableList.toImmutableList());
 
   public static BigtableCloudMonitoringExporter create(
-      String projectId, @Nullable Credentials credentials) throws IOException {
+      @Nullable Credentials credentials, @Nullable String endpoint) throws IOException {
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
             .<CredentialsProvider>map(FixedCredentialsProvider::create)
             .orElse(NoCredentialsProvider.create());
     settingsBuilder.setCredentialsProvider(credentialsProvider);
-    settingsBuilder.setEndpoint(MONITORING_ENDPOINT);
+    if (MONITORING_ENDPOINT_OVERRIDE_SYS_PROP != null) {
+      logger.warning(
+          "Setting the monitoring endpoint through system variable will be removed in future versions");
+      settingsBuilder.setEndpoint(MONITORING_ENDPOINT_OVERRIDE_SYS_PROP);
+    }
+    if (endpoint != null) {
+      settingsBuilder.setEndpoint(endpoint);
+    }
 
     org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
@@ -154,7 +163,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     }
 
     return new BigtableCloudMonitoringExporter(
-        projectId,
         MetricServiceClient.create(settingsBuilder.build()),
         applicationResource,
         BigtableExporterUtils.getDefaultTaskValue());
@@ -162,14 +170,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   @VisibleForTesting
   BigtableCloudMonitoringExporter(
-      String projectId,
-      MetricServiceClient client,
-      @Nullable MonitoredResource applicationResource,
-      String taskId) {
+      MetricServiceClient client, @Nullable MonitoredResource applicationResource, String taskId) {
     this.client = client;
     this.taskId = taskId;
     this.applicationResource = applicationResource;
-    this.bigtableProjectId = projectId;
   }
 
   @Override
@@ -201,15 +205,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofSuccess();
     }
 
-    // Verifies metrics project id are the same as the bigtable project id set on this client
-    if (!bigtableMetricData.stream()
-        .flatMap(metricData -> metricData.getData().getPoints().stream())
-        .allMatch(pd -> bigtableProjectId.equals(BigtableExporterUtils.getProjectId(pd)))) {
-      logger.log(Level.WARNING, "Metric data has different a projectId. Skip exporting.");
-      return CompletableResultCode.ofFailure();
-    }
-
-    List<TimeSeries> bigtableTimeSeries;
+    // List of timeseries by project id
+    Map<String, List<TimeSeries>> bigtableTimeSeries;
     try {
       bigtableTimeSeries =
           BigtableExporterUtils.convertToBigtableTimeSeries(bigtableMetricData, taskId);
@@ -221,37 +218,39 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return CompletableResultCode.ofFailure();
     }
 
-    ProjectName projectName = ProjectName.of(bigtableProjectId);
-    ApiFuture<List<Empty>> future = exportTimeSeries(projectName, bigtableTimeSeries);
-
     CompletableResultCode bigtableExportCode = new CompletableResultCode();
-    ApiFutures.addCallback(
-        future,
-        new ApiFutureCallback<List<Empty>>() {
-          @Override
-          public void onFailure(Throwable throwable) {
-            if (bigtableExportFailureLogged.compareAndSet(false, true)) {
-              String msg = "createServiceTimeSeries request failed for bigtable metrics.";
-              if (throwable instanceof PermissionDeniedException) {
-                msg +=
-                    String.format(
-                        " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
-                        projectName.getProject());
-              }
-              logger.log(Level.WARNING, msg, throwable);
-            }
-            bigtableExportCode.fail();
-          }
+    bigtableTimeSeries.forEach(
+        (projectId, ts) -> {
+          ProjectName projectName = ProjectName.of(projectId);
+          ApiFuture<List<Empty>> future = exportTimeSeries(projectName, ts);
+          ApiFutures.addCallback(
+              future,
+              new ApiFutureCallback<List<Empty>>() {
+                @Override
+                public void onFailure(Throwable throwable) {
+                  if (bigtableExportFailureLogged.compareAndSet(false, true)) {
+                    String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+                    if (throwable instanceof PermissionDeniedException) {
+                      msg +=
+                          String.format(
+                              " Need monitoring metric writer permission on project=%s. Follow https://cloud.google.com/bigtable/docs/client-side-metrics-setup to set up permissions.",
+                              projectName.getProject());
+                    }
+                    logger.log(Level.WARNING, msg, throwable);
+                  }
+                  bigtableExportCode.fail();
+                }
 
-          @Override
-          public void onSuccess(List<Empty> emptyList) {
-            // When an export succeeded reset the export failure flag to false so if there's a
-            // transient failure it'll be logged.
-            bigtableExportFailureLogged.set(false);
-            bigtableExportCode.succeed();
-          }
-        },
-        MoreExecutors.directExecutor());
+                @Override
+                public void onSuccess(List<Empty> emptyList) {
+                  // When an export succeeded reset the export failure flag to false so if there's a
+                  // transient failure it'll be logged.
+                  bigtableExportFailureLogged.set(false);
+                  bigtableExportCode.succeed();
+                }
+              },
+              MoreExecutors.directExecutor());
+        });
 
     return bigtableExportCode;
   }
