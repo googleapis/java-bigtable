@@ -21,11 +21,11 @@ import com.google.bigtable.admin.v2.Backup;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.FieldMask;
 import com.google.protobuf.util.Timestamps;
-import java.time.Duration;
-import java.time.Instant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Duration;
+import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class UpdateBackupRequestTest {
@@ -43,8 +43,8 @@ public class UpdateBackupRequestTest {
   public void testToProto() {
     UpdateBackupRequest request =
         UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-            .setExpireTimeInstant(EXPIRE_TIME)
-            .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME);
+            .setExpireTime(EXPIRE_TIME)
+            .setHotToStandardTime(HOT_TO_STANDARD_TIME);
 
     com.google.bigtable.admin.v2.UpdateBackupRequest requestProto =
         com.google.bigtable.admin.v2.UpdateBackupRequest.newBuilder()
@@ -69,22 +69,22 @@ public class UpdateBackupRequestTest {
   public void testEquality() {
     UpdateBackupRequest request =
         UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-            .setExpireTimeInstant(EXPIRE_TIME)
-            .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME);
+            .setExpireTime(EXPIRE_TIME)
+            .setHotToStandardTime(HOT_TO_STANDARD_TIME);
     assertThat(request)
         .isEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME)
-                .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME));
+                .setExpireTime(EXPIRE_TIME)
+                .setHotToStandardTime(HOT_TO_STANDARD_TIME));
     assertThat(request)
         .isNotEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME_2)
-                .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME));
+                .setExpireTime(EXPIRE_TIME_2)
+                .setHotToStandardTime(HOT_TO_STANDARD_TIME));
     assertThat(request)
         .isNotEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME)
+                .setExpireTime(EXPIRE_TIME)
                 .clearHotToStandardTime());
   }
 
@@ -92,24 +92,24 @@ public class UpdateBackupRequestTest {
   public void testHashCode() {
     UpdateBackupRequest request =
         UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-            .setExpireTimeInstant(EXPIRE_TIME)
-            .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME);
+            .setExpireTime(EXPIRE_TIME)
+            .setHotToStandardTime(HOT_TO_STANDARD_TIME);
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME)
-                .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME)
+                .setExpireTime(EXPIRE_TIME)
+                .setHotToStandardTime(HOT_TO_STANDARD_TIME)
                 .hashCode());
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME_2)
-                .setHotToStandardTimeInstant(HOT_TO_STANDARD_TIME)
+                .setExpireTime(EXPIRE_TIME_2)
+                .setHotToStandardTime(HOT_TO_STANDARD_TIME)
                 .hashCode());
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateBackupRequest.of(CLUSTER_ID, BACKUP_ID)
-                .setExpireTimeInstant(EXPIRE_TIME)
+                .setExpireTime(EXPIRE_TIME)
                 .clearHotToStandardTime()
                 .hashCode());
   }

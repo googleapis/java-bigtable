@@ -42,7 +42,6 @@ import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -53,6 +52,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class BigtableTableAdminClientIT {
@@ -90,7 +90,7 @@ public class BigtableTableAdminClientIT {
             .addFamily("cf2", GCRULES.maxVersions(10))
             .addSplit(ByteString.copyFromUtf8("b"))
             .addSplit(ByteString.copyFromUtf8("q"))
-            .addChangeStreamRetentionDuration(Duration.ofDays(2));
+            .addChangeStreamRetention(Duration.ofDays(2));
 
     Table tableResponse = tableAdmin.createTable(createTableReq);
     assertEquals(tableId, tableResponse.getId());
@@ -103,7 +103,7 @@ public class BigtableTableAdminClientIT {
     assertFalse(columnFamilyById.get("cf1").hasGCRule());
     assertTrue(columnFamilyById.get("cf2").hasGCRule());
     assertEquals(10, ((VersionRule) columnFamilyById.get("cf2").getGCRule()).getMaxVersions());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
 
     // Disable change stream so the table can be deleted.
     UpdateTableRequest updateTableRequest =
@@ -121,21 +121,21 @@ public class BigtableTableAdminClientIT {
     CreateTableRequest createTableReq =
         CreateTableRequest.of(tableId)
             .addFamily("cf1")
-            .addChangeStreamRetentionDuration(Duration.ofDays(2));
+            .addChangeStreamRetention(Duration.ofDays(2));
     Table tableResponse = tableAdmin.createTable(createTableReq);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
 
     UpdateTableRequest updateTableRequest =
-        UpdateTableRequest.of(tableId).addChangeStreamRetentionDuration(Duration.ofDays(4));
+        UpdateTableRequest.of(tableId).addChangeStreamRetention(Duration.ofDays(4));
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetentionDuration());
+    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetention());
 
     updateTableRequest = UpdateTableRequest.of(tableId).disableChangeStreamRetention();
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertNull(tableResponse.getChangeStreamRetentionDuration());
+    assertNull(tableResponse.getChangeStreamRetention());
   }
 
   @Test
@@ -145,21 +145,20 @@ public class BigtableTableAdminClientIT {
     ModifyColumnFamiliesRequest modifyFamiliesReq =
         ModifyColumnFamiliesRequest.of(tableId)
             .addFamily("mf1")
-            .addFamily("mf2", GCRULES.maxAgeDuration(Duration.ofSeconds(1000, 20000)))
+            .addFamily("mf2", GCRULES.maxAge(Duration.ofSeconds(1000, 20000)))
             .updateFamily(
                 "mf1",
                 GCRULES
                     .union()
-                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(100)))
+                    .rule(GCRULES.maxAge(Duration.ofSeconds(100)))
                     .rule(GCRULES.maxVersions(1)))
             .addFamily(
                 "mf3",
                 GCRULES
                     .intersection()
-                    .rule(GCRULES.maxAgeDuration(Duration.ofSeconds(2000)))
+                    .rule(GCRULES.maxAge(Duration.ofSeconds(2000)))
                     .rule(GCRULES.maxVersions(10)))
-            .addFamily(
-                "mf4", GCRULES.intersection().rule(GCRULES.maxAgeDuration(Duration.ofSeconds(360))))
+            .addFamily("mf4", GCRULES.intersection().rule(GCRULES.maxAge(Duration.ofSeconds(360))))
             .addFamily("mf5")
             .addFamily("mf6")
             .dropFamily("mf5")

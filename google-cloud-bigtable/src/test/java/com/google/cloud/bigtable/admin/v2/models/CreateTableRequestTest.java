@@ -24,11 +24,11 @@ import com.google.bigtable.admin.v2.GcRule;
 import com.google.bigtable.admin.v2.Table;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class CreateTableRequestTest {
@@ -48,7 +48,7 @@ public class CreateTableRequestTest {
             .addFamily("another-family", GCRULES.maxAge(100, TimeUnit.HOURS))
             .addSplit(splitKey)
             .addSplit(secondSplitKey)
-            .addChangeStreamRetentionDuration(Duration.ofHours(24))
+            .addChangeStreamRetention(Duration.ofHours(24))
             .setDeletionProtection(true);
 
     com.google.bigtable.admin.v2.CreateTableRequest requestProto =
@@ -142,7 +142,7 @@ public class CreateTableRequestTest {
         .isEqualTo(
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
-                .addFamily("another-family", GCRULES.maxAgeDuration(Duration.ofHours(100)))
+                .addFamily("another-family", GCRULES.maxAge(Duration.ofHours(100)))
                 .addSplit(splitKey));
 
     assertThat(request)
