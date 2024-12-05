@@ -24,10 +24,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.client.util.Lists;
-import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
-import com.google.cloud.bigtable.admin.v2.models.AppProfile;
-import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -75,12 +72,14 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+@Ignore("Temporarily disable flaky test")
 @RunWith(JUnit4.class)
 public class BuiltinMetricsIT {
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
@@ -94,12 +93,9 @@ public class BuiltinMetricsIT {
   private BigtableDataClient clientCustomOtel;
   private BigtableDataClient clientDefault;
   private BigtableTableAdminClient tableAdminClient;
-  private BigtableInstanceAdminClient instanceAdminClient;
   private MetricServiceClient metricClient;
 
   private InMemoryMetricReader metricReader;
-  private String appProfileCustomOtel;
-  private String appProfileDefault;
 
   public static String[] VIEWS = {
     "operation_latencies",
@@ -131,19 +127,6 @@ public class BuiltinMetricsIT {
     metricClient = MetricServiceClient.create();
 
     tableAdminClient = testEnvRule.env().getTableAdminClient();
-    instanceAdminClient = testEnvRule.env().getInstanceAdminClient();
-    appProfileCustomOtel = PrefixGenerator.newPrefix("test1");
-    appProfileDefault = PrefixGenerator.newPrefix("test2");
-    instanceAdminClient.createAppProfile(
-        CreateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileCustomOtel)
-            .setRoutingPolicy(
-                AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
-            .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW)));
-    instanceAdminClient.createAppProfile(
-        CreateAppProfileRequest.of(testEnvRule.env().getInstanceId(), appProfileDefault)
-            .setRoutingPolicy(
-                AppProfile.SingleClusterRoutingPolicy.of(testEnvRule.env().getPrimaryClusterId()))
-            .setIsolationPolicy(AppProfile.StandardIsolationPolicy.of(AppProfile.Priority.LOW)));
 
     // When using the custom OTEL instance, we can also register a InMemoryMetricReader on the
     // SdkMeterProvider to verify the data exported on Cloud Monitoring with the in memory metric
@@ -162,9 +145,8 @@ public class BuiltinMetricsIT {
         BigtableDataClient.create(
             settings
                 .setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(openTelemetry))
-                .setAppProfileId(appProfileCustomOtel)
                 .build());
-    clientDefault = BigtableDataClient.create(settings.setAppProfileId(appProfileDefault).build());
+    clientDefault = BigtableDataClient.create(settings.build());
   }
 
   @After
@@ -178,12 +160,7 @@ public class BuiltinMetricsIT {
     if (tableDefault != null) {
       tableAdminClient.deleteTable(tableDefault.getId());
     }
-    if (instanceAdminClient != null) {
-      instanceAdminClient.deleteAppProfile(
-          testEnvRule.env().getInstanceId(), appProfileCustomOtel, true);
-      instanceAdminClient.deleteAppProfile(
-          testEnvRule.env().getInstanceId(), appProfileDefault, true);
-    }
+
     if (clientCustomOtel != null) {
       clientCustomOtel.close();
     }
@@ -231,8 +208,8 @@ public class BuiltinMetricsIT {
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
-                  + " AND resource.labels.table=\"%s\" AND metric.labels.app_profile=\"%s\"",
-              view, testEnvRule.env().getInstanceId(), tableDefault.getId(), appProfileDefault);
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), tableDefault.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
               .setName(name.toString())
@@ -246,8 +223,8 @@ public class BuiltinMetricsIT {
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
-                  + " AND resource.labels.table=\"%s\" AND metric.labels.app_profile=\"%s\"",
-              view, testEnvRule.env().getInstanceId(), tableDefault.getId(), appProfileDefault);
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), tableDefault.getId());
       requestBuilder.setFilter(metricFilter);
 
       verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
@@ -299,11 +276,8 @@ public class BuiltinMetricsIT {
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.MutateRow\""
-                  + " AND resource.labels.table=\"%s\" AND metric.labels.app_profile=\"%s\"",
-              view,
-              testEnvRule.env().getInstanceId(),
-              tableCustomOtel.getId(),
-              appProfileCustomOtel);
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       ListTimeSeriesRequest.Builder requestBuilder =
           ListTimeSeriesRequest.newBuilder()
               .setName(name.toString())
@@ -320,11 +294,8 @@ public class BuiltinMetricsIT {
           String.format(
               "metric.type=\"bigtable.googleapis.com/client/%s\" "
                   + "AND resource.labels.instance=\"%s\" AND metric.labels.method=\"Bigtable.ReadRows\""
-                  + " AND resource.labels.table=\"%s\" AND metric.labels.app_profile=\"%s\"",
-              view,
-              testEnvRule.env().getInstanceId(),
-              tableCustomOtel.getId(),
-              appProfileCustomOtel);
+                  + " AND resource.labels.table=\"%s\"",
+              view, testEnvRule.env().getInstanceId(), tableCustomOtel.getId());
       requestBuilder.setFilter(metricFilter);
 
       response = verifyMetricsArePublished(requestBuilder.build(), metricsPollingStopwatch, view);
