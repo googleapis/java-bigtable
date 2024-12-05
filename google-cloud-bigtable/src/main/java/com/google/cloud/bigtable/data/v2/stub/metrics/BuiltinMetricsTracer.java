@@ -16,7 +16,6 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.api.gax.tracing.ApiTracerFactory.OperationType;
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.METHOD_KEY;
@@ -25,7 +24,6 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.TABLE_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ZONE_ID_KEY;
 
-import com.google.api.core.ObsoleteApi;
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.SpanName;
 import com.google.cloud.bigtable.Version;
@@ -35,6 +33,7 @@ import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
+import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -201,18 +200,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     recordAttemptCompletion(new CancellationException());
   }
 
-  /**
-   * This method is obsolete. Use {@link #attemptFailedDuration(Throwable, java.time.Duration)}
-   * instead.
-   */
-  @ObsoleteApi("Use attemptFailedDuration(Throwable, java.time.Duration) instead")
   @Override
-  public void attemptFailed(Throwable error, org.threeten.bp.Duration delay) {
-    attemptFailedDuration(error, toJavaTimeDuration(delay));
-  }
-
-  @Override
-  public void attemptFailedDuration(Throwable error, java.time.Duration delay) {
+  public void attemptFailedDuration(Throwable error, Duration delay) {
     recordAttemptCompletion(error);
   }
 
