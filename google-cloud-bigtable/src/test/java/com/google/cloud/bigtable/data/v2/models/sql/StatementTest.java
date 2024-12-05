@@ -218,7 +218,7 @@ public class StatementTest {
     Statement s =
         Statement.newBuilder(
                 "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
-            .setTimestampParamInstant("timeParam", Instant.ofEpochSecond(1000, 100))
+            .setTimestampParam("timeParam", Instant.ofEpochSecond(1000, 100))
             .build();
 
     assertThat(s.toProto(REQUEST_CONTEXT))

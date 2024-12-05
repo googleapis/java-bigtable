@@ -366,7 +366,8 @@ public class BigtableTableAdminClientTests {
 
     // Verify
     assertThat(actualResult.getId()).isEqualTo(TABLE_ID);
-    assertThat(actualResult.getChangeStreamRetention()).isEqualTo(java.time.Duration.ofHours(24));
+    assertThat(actualResult.getChangeStreamRetention())
+        .isEqualTo(org.threeten.bp.Duration.ofHours(24));
     assertThat(actualResult.getChangeStreamRetention().toMillis())
         .isEqualTo(actualResult.getChangeStreamRetention().toMillis());
   }
@@ -763,7 +764,7 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getEndTime())
         .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getExpireTime())
-        .isEqualTo(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getBackupType()).isEqualTo(Backup.BackupType.HOT);
     assertThat(actualResult.getHotToStandardTime())
         .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));

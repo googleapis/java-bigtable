@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.Value;
 import com.google.bigtable.v2.Value.KindCase;

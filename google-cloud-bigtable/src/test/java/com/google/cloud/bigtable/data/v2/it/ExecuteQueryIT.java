@@ -124,10 +124,10 @@ public class ExecuteQueryIT {
       Struct rowAQual_0 = rowAQual.get(0);
       assertThat(rowAQual_0.getBytes("value")).isEqualTo(ByteString.copyFromUtf8("val"));
       // timestamp in micros above so we divide by 1000
-      assertThat(rowAQual_0.getTimestampInstant("timestamp")).isEqualTo(Instant.ofEpochMilli(10));
+      assertThat(rowAQual_0.getTimestamp("timestamp")).isEqualTo(Instant.ofEpochMilli(10));
       Struct rowAQual_1 = rowAQual.get(1);
       assertThat(rowAQual_1.getBytes("value")).isEqualTo(ByteString.copyFromUtf8("old"));
-      assertThat(rowAQual_1.getTimestampInstant("timestamp")).isEqualTo(Instant.ofEpochMilli(1));
+      assertThat(rowAQual_1.getTimestamp("timestamp")).isEqualTo(Instant.ofEpochMilli(1));
 
       assertThat(rs.next()).isTrue();
       assertThat(rs.getBytes("_key")).isEqualTo(ByteString.copyFromUtf8(uniquePrefix + "b"));
@@ -169,8 +169,8 @@ public class ExecuteQueryIT {
       assertThat(rs.getDouble(4)).isEqualTo(1.3d);
       assertThat(rs.getBoolean("boolCol")).isTrue();
       assertThat(rs.getBoolean(5)).isTrue();
-      assertThat(rs.getTimestampInstant("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
-      assertThat(rs.getTimestampInstant(6)).isEqualTo(Instant.ofEpochMilli(1000));
+      assertThat(rs.getTimestamp("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
+      assertThat(rs.getTimestamp(6)).isEqualTo(Instant.ofEpochMilli(1000));
       assertThat(rs.getDate("dateCol")).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
       assertThat(rs.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
       assertThat(rs.getStruct("structCol").getLong("a")).isEqualTo(1);
@@ -222,7 +222,7 @@ public class ExecuteQueryIT {
                 .setDoubleParam("doubleParam", 1.3d)
                 .setFloatParam("floatParam", 1.4f)
                 .setBooleanParam("boolParam", true)
-                .setTimestampParamInstant("tsParam", Instant.ofEpochMilli(1000))
+                .setTimestampParam("tsParam", Instant.ofEpochMilli(1000))
                 .setDateParam("dateParam", Date.fromYearMonthDay(2024, 6, 1))
                 .setListParam(
                     "byteArrayParam",
@@ -272,8 +272,8 @@ public class ExecuteQueryIT {
     assertThat(rs.getFloat(4)).isEqualTo(1.4f);
     assertThat(rs.getBoolean("boolCol")).isTrue();
     assertThat(rs.getBoolean(5)).isTrue();
-    assertThat(rs.getTimestampInstant("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
-    assertThat(rs.getTimestampInstant(6)).isEqualTo(Instant.ofEpochMilli(1000));
+    assertThat(rs.getTimestamp("tsCol")).isEqualTo(Instant.ofEpochMilli(1000));
+    assertThat(rs.getTimestamp(6)).isEqualTo(Instant.ofEpochMilli(1000));
     assertThat(rs.getDate("dateCol")).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(rs.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(rs.getList("byteArrayCol", SqlType.arrayOf(SqlType.bytes())))

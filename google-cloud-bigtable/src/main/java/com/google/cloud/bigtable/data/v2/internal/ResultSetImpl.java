@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-
 import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.rpc.ApiExceptions;

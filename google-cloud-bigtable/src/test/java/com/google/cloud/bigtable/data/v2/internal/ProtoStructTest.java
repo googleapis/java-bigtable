@@ -101,7 +101,7 @@ public class ProtoStructTest {
     assertThat(struct.getDouble(3)).isEqualTo(1.23d);
     assertThat(struct.getFloat(4)).isEqualTo(1.23f);
     assertThat(struct.getBoolean(5)).isTrue();
-    assertThat(struct.getTimestampInstant(6)).isEqualTo(Instant.ofEpochSecond(100000, 100));
+    assertThat(struct.getTimestamp(6)).isEqualTo(Instant.ofEpochSecond(100000, 100));
     assertThat(struct.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(struct.getStruct(8))
         .isEqualTo(
@@ -129,8 +129,7 @@ public class ProtoStructTest {
     assertThat(struct.getDouble("doubleField")).isEqualTo(1.23d);
     assertThat(struct.getFloat("floatField")).isEqualTo(1.23f);
     assertThat(struct.getBoolean("booleanField")).isTrue();
-    assertThat(struct.getTimestampInstant("timestampField"))
-        .isEqualTo(Instant.ofEpochSecond(100000, 100));
+    assertThat(struct.getTimestamp("timestampField")).isEqualTo(Instant.ofEpochSecond(100000, 100));
     assertThat(struct.getDate("dateField")).isEqualTo(Date.fromYearMonthDay(2024, 6, 1));
     assertThat(struct.getStruct("structField"))
         .isEqualTo(

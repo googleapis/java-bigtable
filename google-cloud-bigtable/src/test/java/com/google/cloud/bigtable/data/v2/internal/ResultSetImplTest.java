@@ -126,8 +126,8 @@ public class ResultSetImplTest {
       assertThat(resultSet.getFloat("float")).isEqualTo(1.23f);
       assertThat(resultSet.getBoolean(5)).isTrue();
       assertThat(resultSet.getBoolean("boolean")).isTrue();
-      assertThat(resultSet.getTimestampInstant(6)).isEqualTo(Instant.ofEpochSecond(10000000, 100));
-      assertThat(resultSet.getTimestampInstant("timestamp"))
+      assertThat(resultSet.getTimestamp(6)).isEqualTo(Instant.ofEpochSecond(10000000, 100));
+      assertThat(resultSet.getTimestamp("timestamp"))
           .isEqualTo(Instant.ofEpochSecond(10000000, 100));
       assertThat(resultSet.getDate(7)).isEqualTo(Date.fromYearMonthDay(2024, 6, 5));
       assertThat(resultSet.getDate("date")).isEqualTo(Date.fromYearMonthDay(2024, 6, 5));
