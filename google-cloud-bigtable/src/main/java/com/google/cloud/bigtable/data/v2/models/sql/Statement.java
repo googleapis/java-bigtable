@@ -15,11 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.ArrayValue;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.Type;
@@ -30,6 +28,7 @@ import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,18 +165,10 @@ public class Statement {
     }
 
     /**
-     * This method is obsolete. Use {@link #setTimestampParamInstant(String, java.time.Instant)}
-     * instead.
-     */
-    @ObsoleteApi("Use setTimestampParamInstant(String, java.time.Instant) instead")
-    public Builder setTimestampParam(String paramName, @Nullable org.threeten.bp.Instant value) {
-      return setTimestampParamInstant(paramName, toJavaTimeInstant(value));
-    }
-    /**
      * Sets a query parameter with the name {@code paramName} and the TIMESTAMP typed value {@code
      * value}
      */
-    public Builder setTimestampParamInstant(String paramName, @Nullable java.time.Instant value) {
+    public Builder setTimestampParam(String paramName, @Nullable Instant value) {
       params.put(paramName, timestampParamOf(value));
       return this;
     }
@@ -249,7 +240,7 @@ public class Statement {
       return builder.build();
     }
 
-    private static Value timestampParamOf(@Nullable java.time.Instant value) {
+    private static Value timestampParamOf(@Nullable Instant value) {
       Value.Builder builder = nullValueWithType(TIMESTAMP_TYPE);
       if (value != null) {
         builder.setTimestampValue(toTimestamp(value));
@@ -335,7 +326,7 @@ public class Statement {
             valueBuilder.addValues(Value.newBuilder().setBoolValue(boolElem).build());
             break;
           case TIMESTAMP:
-            java.time.Instant timestampElem = (java.time.Instant) element;
+            Instant timestampElem = (Instant) element;
             valueBuilder.addValues(
                 Value.newBuilder().setTimestampValue(toTimestamp(timestampElem)).build());
             break;
@@ -351,7 +342,7 @@ public class Statement {
       return valueBuilder.build();
     }
 
-    private static Timestamp toTimestamp(java.time.Instant instant) {
+    private static Timestamp toTimestamp(Instant instant) {
       return Timestamp.newBuilder()
           .setSeconds(instant.getEpochSecond())
           .setNanos(instant.getNano())

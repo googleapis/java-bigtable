@@ -15,10 +15,8 @@
  */
 package com.google.cloud.bigtable.data.v2.internal;
 
-import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.Value;
 import com.google.bigtable.v2.Value.KindCase;
 import com.google.cloud.Date;
@@ -28,6 +26,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.StructReader;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -167,29 +166,15 @@ public abstract class AbstractProtoStructReader implements StructReader {
     return value.getBoolValue();
   }
 
-  /** This method is obsolete. Use {@link #getTimestampInstant(int)} instead */
   @Override
-  @ObsoleteApi("Use getTimestampInstant(int) instead")
-  public org.threeten.bp.Instant getTimestamp(int columnIndex) {
-    return toThreetenInstant(getTimestampInstant(columnIndex));
-  }
-
-  @Override
-  public java.time.Instant getTimestampInstant(int columnIndex) {
+  public Instant getTimestamp(int columnIndex) {
     checkNonNullOfType(columnIndex, SqlType.timestamp(), columnIndex);
     Value value = values().get(columnIndex);
     return toInstant(value.getTimestampValue());
   }
 
-  /** This method is obsolete. Use {@link #getTimestampInstant(String)} instead */
   @Override
-  @ObsoleteApi("Use getTimestampInstant(String) instead")
-  public org.threeten.bp.Instant getTimestamp(String columnName) {
-    return toThreetenInstant(getTimestampInstant(columnName));
-  }
-
-  @Override
-  public java.time.Instant getTimestampInstant(String columnName) {
+  public Instant getTimestamp(String columnName) {
     int columnIndex = getColumnIndex(columnName);
     checkNonNullOfType(columnIndex, SqlType.timestamp(), columnName);
     Value value = values().get(columnIndex);
@@ -345,8 +330,8 @@ public abstract class AbstractProtoStructReader implements StructReader {
     }
   }
 
-  private java.time.Instant toInstant(Timestamp timestamp) {
-    return java.time.Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+  private Instant toInstant(Timestamp timestamp) {
+    return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
   }
 
   private Date fromProto(com.google.type.Date proto) {

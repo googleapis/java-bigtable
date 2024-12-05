@@ -15,12 +15,10 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
-
 import com.google.api.core.BetaApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.cloud.Date;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -133,29 +131,17 @@ public interface StructReader {
    */
   boolean getBoolean(String columnName);
 
-  /** This method is obsolete. Use {@link #getTimestampInstant(int)} instead. */
-  @ObsoleteApi("Use getTimestampInstant(int) instead")
-  org.threeten.bp.Instant getTimestamp(int columnIndex);
-
   /**
    * @param columnIndex index of the column
-   * @return {@link java.time.Instant} type value of a non-{@code NULL} column
+   * @return {@link Instant} type value of a non-{@code NULL} column
    */
-  default java.time.Instant getTimestampInstant(int columnIndex) {
-    return toJavaTimeInstant(getTimestamp(columnIndex));
-  }
-
-  /** This method is obsolete. Use {@link #getTimestampInstant(String)} instead. */
-  @ObsoleteApi("Use getTimestampInstant(String) instead")
-  org.threeten.bp.Instant getTimestamp(String columnName);
+  Instant getTimestamp(int columnIndex);
 
   /**
    * @param columnName name of the column
-   * @return {@link java.time.Instant} type value of a non-{@code NULL} column
+   * @return {@link Instant} type value of a non-{@code NULL} column
    */
-  default java.time.Instant getTimestampInstant(String columnName) {
-    return toJavaTimeInstant(getTimestamp(columnName));
-  }
+  Instant getTimestamp(String columnName);
 
   /**
    * @param columnIndex index of the column

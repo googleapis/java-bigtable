@@ -23,6 +23,7 @@ import com.google.cloud.bigtable.common.Type.SchemalessStruct;
 import com.google.cloud.bigtable.common.Type.StructWithSchema;
 import com.google.protobuf.ByteString;
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -149,7 +150,7 @@ public interface SqlType<T> extends Serializable {
   }
 
   /** returns a {@link SqlType} for the {@code TIMESTAMP} type. */
-  static SqlType<java.time.Instant> timestamp() {
+  static SqlType<Instant> timestamp() {
     return Type.Timestamp.create();
   }
 
