@@ -41,9 +41,9 @@ public class ReadChangeStreamUserCallableTest {
     ReadChangeStreamQuery query =
         ReadChangeStreamQuery.create("fake-table")
             .streamPartition("begin", "end")
-            .startTimeInstant(Instant.ofEpochSecond(0L, 1000L))
-            .endTimeInstant(Instant.ofEpochSecond(0L, 2000L))
-            .heartbeatDurationJavaTime(Duration.ofSeconds(1));
+            .startTime(Instant.ofEpochSecond(0L, 1000L))
+            .endTime(Instant.ofEpochSecond(0L, 2000L))
+            .heartbeatDuration(Duration.ofSeconds(1));
     callable.call(query);
     Truth.assertThat(innerCallable.getActualRequest()).isEqualTo(query.toProto(REQUEST_CONTEXT));
   }

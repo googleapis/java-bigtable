@@ -121,8 +121,7 @@ public class ReadChangeStreamQueryTest {
 
   @Test
   public void startTimeTest() {
-    ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID).startTimeInstant(FAKE_START_TIME);
+    ReadChangeStreamQuery query = ReadChangeStreamQuery.create(TABLE_ID).startTime(FAKE_START_TIME);
 
     Builder expectedProto =
         expectedProtoBuilder()
@@ -137,8 +136,7 @@ public class ReadChangeStreamQueryTest {
 
   @Test
   public void endTimeTest() {
-    ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID).endTimeInstant(FAKE_END_TIME);
+    ReadChangeStreamQuery query = ReadChangeStreamQuery.create(TABLE_ID).endTime(FAKE_END_TIME);
 
     Builder expectedProto =
         expectedProtoBuilder()
@@ -154,8 +152,7 @@ public class ReadChangeStreamQueryTest {
   @Test
   public void heartbeatDurationTest() {
     ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID)
-            .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5));
+        ReadChangeStreamQuery.create(TABLE_ID).heartbeatDuration(java.time.Duration.ofSeconds(5));
 
     Builder expectedProto =
         expectedProtoBuilder().setHeartbeatDuration(Duration.newBuilder().setSeconds(5).build());
@@ -208,7 +205,7 @@ public class ReadChangeStreamQueryTest {
     ChangeStreamContinuationToken token = ChangeStreamContinuationToken.fromProto(tokenProto);
     ReadChangeStreamQuery query =
         ReadChangeStreamQuery.create(TABLE_ID)
-            .startTimeInstant(FAKE_START_TIME)
+            .startTime(FAKE_START_TIME)
             .continuationTokens(Collections.singletonList(token));
     expect.expect(IllegalArgumentException.class);
     expect.expectMessage("startTime and continuationTokens can't be specified together");
@@ -233,8 +230,8 @@ public class ReadChangeStreamQueryTest {
         ReadChangeStreamQuery.create(TABLE_ID)
             .streamPartition("simple-begin", "simple-end")
             .continuationTokens(Collections.singletonList(token))
-            .endTimeInstant(FAKE_END_TIME)
-            .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5));
+            .endTime(FAKE_END_TIME)
+            .heartbeatDuration(java.time.Duration.ofSeconds(5));
 
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(bos);
@@ -302,9 +299,9 @@ public class ReadChangeStreamQueryTest {
     ReadChangeStreamQuery request =
         ReadChangeStreamQuery.create(TABLE_ID)
             .streamPartition("simple-begin", "simple-end")
-            .startTimeInstant(FAKE_START_TIME)
-            .endTimeInstant(FAKE_END_TIME)
-            .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5));
+            .startTime(FAKE_START_TIME)
+            .endTime(FAKE_END_TIME)
+            .heartbeatDuration(java.time.Duration.ofSeconds(5));
 
     // ReadChangeStreamQuery#toProto should not change the ReadChangeStreamQuery instance state
     request.toProto(requestContext);
@@ -312,26 +309,24 @@ public class ReadChangeStreamQueryTest {
         .isEqualTo(
             ReadChangeStreamQuery.create(TABLE_ID)
                 .streamPartition("simple-begin", "simple-end")
-                .startTimeInstant(FAKE_START_TIME)
-                .endTimeInstant(FAKE_END_TIME)
-                .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5)));
+                .startTime(FAKE_START_TIME)
+                .endTime(FAKE_END_TIME)
+                .heartbeatDuration(java.time.Duration.ofSeconds(5)));
 
     assertThat(ReadChangeStreamQuery.create(TABLE_ID).streamPartition("begin-1", "end-1"))
         .isNotEqualTo(ReadChangeStreamQuery.create(TABLE_ID).streamPartition("begin-2", "end-1"));
-    assertThat(ReadChangeStreamQuery.create(TABLE_ID).startTimeInstant(FAKE_START_TIME))
+    assertThat(ReadChangeStreamQuery.create(TABLE_ID).startTime(FAKE_START_TIME))
         .isNotEqualTo(
-            ReadChangeStreamQuery.create(TABLE_ID)
-                .startTimeInstant(Instant.ofEpochSecond(1L, 1001L)));
-    assertThat(ReadChangeStreamQuery.create(TABLE_ID).endTimeInstant(FAKE_END_TIME))
+            ReadChangeStreamQuery.create(TABLE_ID).startTime(Instant.ofEpochSecond(1L, 1001L)));
+    assertThat(ReadChangeStreamQuery.create(TABLE_ID).endTime(FAKE_END_TIME))
         .isNotEqualTo(
-            ReadChangeStreamQuery.create(TABLE_ID)
-                .endTimeInstant(Instant.ofEpochSecond(1L, 1001L)));
+            ReadChangeStreamQuery.create(TABLE_ID).endTime(Instant.ofEpochSecond(1L, 1001L)));
     assertThat(
             ReadChangeStreamQuery.create(TABLE_ID)
-                .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5)))
+                .heartbeatDuration(java.time.Duration.ofSeconds(5)))
         .isNotEqualTo(
             ReadChangeStreamQuery.create(TABLE_ID)
-                .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(6)));
+                .heartbeatDuration(java.time.Duration.ofSeconds(6)));
   }
 
   @Test
@@ -353,8 +348,8 @@ public class ReadChangeStreamQueryTest {
         ReadChangeStreamQuery.create(TABLE_ID)
             .streamPartition("begin", "end")
             .continuationTokens(Collections.singletonList(token))
-            .endTimeInstant(FAKE_END_TIME)
-            .heartbeatDurationJavaTime(java.time.Duration.ofSeconds(5));
+            .endTime(FAKE_END_TIME)
+            .heartbeatDuration(java.time.Duration.ofSeconds(5));
     ReadChangeStreamRequest request =
         ReadChangeStreamRequest.newBuilder()
             .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))

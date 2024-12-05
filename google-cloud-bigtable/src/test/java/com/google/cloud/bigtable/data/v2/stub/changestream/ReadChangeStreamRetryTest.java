@@ -392,7 +392,7 @@ public class ReadChangeStreamRetryTest {
 
   private List<ChangeStreamRecord> getResults() {
     ReadChangeStreamQuery query =
-        ReadChangeStreamQuery.create(TABLE_ID).startTimeInstant(REQUEST_START_TIME);
+        ReadChangeStreamQuery.create(TABLE_ID).startTime(REQUEST_START_TIME);
     // Always give it this partition. We don't care.
     ServerStream<ChangeStreamRecord> actualRecords =
         client.readChangeStream(query.streamPartition(START_KEY_CLOSED, END_KEY_OPEN));

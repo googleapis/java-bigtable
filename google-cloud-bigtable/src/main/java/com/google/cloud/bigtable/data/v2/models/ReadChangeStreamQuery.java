@@ -146,14 +146,14 @@ public final class ReadChangeStreamQuery implements Serializable, Cloneable {
     return streamPartition(rangeBuilder.build());
   }
 
-  /** This method is obsolete. Use {@link #startTimeInstant(java.time.Instant)} instead. */
-  @ObsoleteApi("Use startTimeInstant(java.time.Instant) instead")
+  /** This method is obsolete. Use {@link #startTime(java.time.Instant)} instead. */
+  @ObsoleteApi("Use startTime(java.time.Instant) instead")
   public ReadChangeStreamQuery startTime(org.threeten.bp.Instant value) {
-    return startTimeInstant(toJavaTimeInstant(value));
+    return startTime(toJavaTimeInstant(value));
   }
 
   /** Sets the startTime to read the change stream. */
-  public ReadChangeStreamQuery startTimeInstant(java.time.Instant value) {
+  public ReadChangeStreamQuery startTime(java.time.Instant value) {
     Preconditions.checkState(
         !builder.hasContinuationTokens(),
         "startTime and continuationTokens can't be specified together");
@@ -165,14 +165,14 @@ public final class ReadChangeStreamQuery implements Serializable, Cloneable {
     return this;
   }
 
-  /** This method is obsolete. Use {@link #endTimeInstant(java.time.Instant)} instead. */
-  @ObsoleteApi("Use endTimeInstant(java.time.Instant) instead")
+  /** This method is obsolete. Use {@link #endTime(java.time.Instant)} instead. */
+  @ObsoleteApi("Use endTime(java.time.Instant) instead")
   public ReadChangeStreamQuery endTime(org.threeten.bp.Instant value) {
-    return endTimeInstant(toJavaTimeInstant(value));
+    return endTime(toJavaTimeInstant(value));
   }
 
   /** Sets the endTime to read the change stream. */
-  public ReadChangeStreamQuery endTimeInstant(java.time.Instant value) {
+  public ReadChangeStreamQuery endTime(java.time.Instant value) {
     builder.setEndTime(
         Timestamp.newBuilder()
             .setSeconds(value.getEpochSecond())
@@ -196,16 +196,14 @@ public final class ReadChangeStreamQuery implements Serializable, Cloneable {
     return this;
   }
 
-  /**
-   * This method is obsolete. Use {@link #heartbeatDurationJavaTime(java.time.Duration)} instead.
-   */
-  @ObsoleteApi("Use heartbeatDurationJavaTime(java.time.Duration) instead")
+  /** This method is obsolete. Use {@link #heartbeatDuration(java.time.Duration)} instead. */
+  @ObsoleteApi("Use heartbeatDuration(java.time.Duration) instead")
   public ReadChangeStreamQuery heartbeatDuration(org.threeten.bp.Duration duration) {
-    return heartbeatDurationJavaTime(toJavaTimeDuration(duration));
+    return heartbeatDuration(toJavaTimeDuration(duration));
   }
 
   /** Sets the heartbeat duration for the change stream. */
-  public ReadChangeStreamQuery heartbeatDurationJavaTime(java.time.Duration duration) {
+  public ReadChangeStreamQuery heartbeatDuration(java.time.Duration duration) {
     builder.setHeartbeatDuration(
         Duration.newBuilder()
             .setSeconds(duration.getSeconds())

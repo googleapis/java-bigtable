@@ -331,7 +331,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             validate(
                 dataChange.getSourceClusterId().isEmpty(),
                 "AWAITING_NEW_STREAM_RECORD: GC mutation shouldn't have source cluster id.");
-            builder.startGcMutationInstant(
+            builder.startGcMutation(
                 dataChange.getRowKey(),
                 java.time.Instant.ofEpochSecond(
                     dataChange.getCommitTimestamp().getSeconds(),
@@ -341,7 +341,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
             validate(
                 !dataChange.getSourceClusterId().isEmpty(),
                 "AWAITING_NEW_STREAM_RECORD: User initiated data change missing source cluster id.");
-            builder.startUserMutationInstant(
+            builder.startUserMutation(
                 dataChange.getRowKey(),
                 dataChange.getSourceClusterId(),
                 java.time.Instant.ofEpochSecond(
@@ -575,7 +575,7 @@ final class ChangeStreamStateMachine<ChangeStreamRecordT> {
       validate(!dataChange.getToken().isEmpty(), "Last data change missing token");
       validate(dataChange.hasEstimatedLowWatermark(), "Last data change missing lowWatermark");
       completeChangeStreamRecord =
-          builder.finishChangeStreamMutationInstant(
+          builder.finishChangeStreamMutation(
               dataChange.getToken(),
               java.time.Instant.ofEpochSecond(
                   dataChange.getEstimatedLowWatermark().getSeconds(),

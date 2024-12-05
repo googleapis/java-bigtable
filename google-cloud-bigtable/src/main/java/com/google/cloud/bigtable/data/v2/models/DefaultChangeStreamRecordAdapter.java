@@ -15,14 +15,13 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.time.Instant;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -102,10 +101,10 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    public void startUserMutationInstant(
+    public void startUserMutation(
         @Nonnull ByteString rowKey,
         @Nonnull String sourceClusterId,
-        java.time.Instant commitTimestamp,
+        Instant commitTimestamp,
         int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createUserMutation(
@@ -114,27 +113,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    @ObsoleteApi("Use startUserMutationInstant(ByteString, String, java.time.Instant, int) instead")
-    public void startUserMutation(
-        @Nonnull ByteString rowKey,
-        @Nonnull String sourceClusterId,
-        org.threeten.bp.Instant commitTimestamp,
-        int tieBreaker) {
-      startUserMutationInstant(
-          rowKey, sourceClusterId, toJavaTimeInstant(commitTimestamp), tieBreaker);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    @ObsoleteApi("Use startUserMutationInstant(ByteString, java.time.Instant, int) instead")
     public void startGcMutation(
-        @Nonnull ByteString rowKey, org.threeten.bp.Instant commitTimestamp, int tieBreaker) {
-      startGcMutationInstant(rowKey, toJavaTimeInstant(commitTimestamp), tieBreaker);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void startGcMutationInstant(
         ByteString rowKey, java.time.Instant commitTimestamp, int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createGcMutation(rowKey, commitTimestamp, tieBreaker);
@@ -197,18 +176,10 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    @ObsoleteApi("Use finishChangeStreamMutationInstant(String, java.time.Instant) instead")
     public ChangeStreamRecord finishChangeStreamMutation(
-        @Nonnull String token, org.threeten.bp.Instant estimatedLowWatermark) {
-      return finishChangeStreamMutationInstant(token, toJavaTimeInstant(estimatedLowWatermark));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public ChangeStreamRecord finishChangeStreamMutationInstant(
         String token, java.time.Instant estimatedLowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
-      this.changeStreamMutationBuilder.setEstimatedLowWatermarkInstant(estimatedLowWatermark);
+      this.changeStreamMutationBuilder.setLowWatermarkTime(estimatedLowWatermark);
       return this.changeStreamMutationBuilder.build();
     }
 
