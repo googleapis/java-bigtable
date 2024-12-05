@@ -15,10 +15,7 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
-
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -28,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 /** Wrapper for {@link Table} protocol buffer object */
 public final class Table {
@@ -106,7 +104,7 @@ public final class Table {
   private final Map<String, ReplicationState> replicationStatesByClusterId;
   private final List<ColumnFamily> columnFamilies;
 
-  private final java.time.Duration changeStreamRetention;
+  private final Duration changeStreamRetention;
   private final boolean deletionProtection;
 
   @InternalApi
@@ -126,10 +124,10 @@ public final class Table {
       columnFamilies.add(ColumnFamily.fromProto(entry.getKey(), entry.getValue()));
     }
 
-    java.time.Duration changeStreamConfig = null;
+    Duration changeStreamConfig = null;
     if (proto.hasChangeStreamConfig()) {
       changeStreamConfig =
-          java.time.Duration.ofSeconds(
+          Duration.ofSeconds(
               proto.getChangeStreamConfig().getRetentionPeriod().getSeconds(),
               proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
     }
@@ -146,7 +144,7 @@ public final class Table {
       TableName tableName,
       Map<String, ReplicationState> replicationStatesByClusterId,
       List<ColumnFamily> columnFamilies,
-      java.time.Duration changeStreamRetention,
+      Duration changeStreamRetention,
       boolean deletionProtection) {
     this.instanceId = tableName.getInstance();
     this.id = tableName.getTable();
@@ -174,13 +172,7 @@ public final class Table {
     return columnFamilies;
   }
 
-  /** This method is obsolete. Use {@link #getChangeStreamRetentionDuration()} instead. */
-  @ObsoleteApi("Use getChangeStreamRetention() instead.")
-  public org.threeten.bp.Duration getChangeStreamRetention() {
-    return toThreetenDuration(getChangeStreamRetentionDuration());
-  }
-
-  public java.time.Duration getChangeStreamRetentionDuration() {
+  public Duration getChangeStreamRetention() {
     return changeStreamRetention;
   }
 

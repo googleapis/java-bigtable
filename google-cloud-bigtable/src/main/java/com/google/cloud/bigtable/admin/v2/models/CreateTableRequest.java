@@ -15,10 +15,7 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
-
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.bigtable.admin.v2.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
@@ -26,8 +23,8 @@ import com.google.cloud.bigtable.admin.v2.models.GCRules.GCRule;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Duration;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 /**
  * Fluent wrapper for {@link com.google.bigtable.admin.v2.CreateTableRequest}
@@ -110,24 +107,15 @@ public final class CreateTableRequest {
     return this;
   }
 
-  /**
-   * This method is obsolete. Use {@link #addChangeStreamRetentionDuration(java.time.Duration)}
-   * instead.
-   */
-  @ObsoleteApi("Use addChangeStreamRetentionDuration(java.time.Duration) instead.")
-  public CreateTableRequest addChangeStreamRetention(org.threeten.bp.Duration retention) {
-    return addChangeStreamRetentionDuration(toJavaTimeDuration(retention));
-  }
-
   /** Add change stream retention period between 1 day and 7 days */
-  public CreateTableRequest addChangeStreamRetentionDuration(java.time.Duration retention) {
+  public CreateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     requestBuilder
         .getTableBuilder()
         .setChangeStreamConfig(
             ChangeStreamConfig.newBuilder()
                 .setRetentionPeriod(
-                    Duration.newBuilder()
+                    com.google.protobuf.Duration.newBuilder()
                         .setSeconds(retention.getSeconds())
                         .setNanos(retention.getNano())
                         .build())

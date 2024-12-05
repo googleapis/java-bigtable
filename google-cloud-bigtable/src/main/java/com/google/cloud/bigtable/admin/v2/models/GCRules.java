@@ -15,12 +15,8 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
-import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
-
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.GcRule;
 import com.google.bigtable.admin.v2.GcRule.Intersection;
 import com.google.bigtable.admin.v2.GcRule.Union;
@@ -30,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Duration;
 
 // TODO(igorbernstein2): the distinction between GcRule & GCRule is too subtle, use fully qualified
 // names for the protos.
@@ -73,21 +70,15 @@ public final class GCRules {
    * @param timeUnit - timeunit for the age
    */
   public DurationRule maxAge(long maxAge, TimeUnit timeUnit) {
-    return maxAgeDuration(
-        java.time.Duration.ofNanos(TimeUnit.NANOSECONDS.convert(maxAge, timeUnit)));
+    return maxAge(Duration.ofNanos(TimeUnit.NANOSECONDS.convert(maxAge, timeUnit)));
   }
 
-  /** This method is obsolete. Use {@link #maxAgeDuration(java.time.Duration)} instead. */
-  @ObsoleteApi("Use maxAgeDuration(java.time.Duration) instead.")
-  public DurationRule maxAge(org.threeten.bp.Duration duration) {
-    return maxAgeDuration(toJavaTimeDuration(duration));
-  }
   /**
    * Creates a new instance of the DurationRule
    *
    * @param duration - age expressed as duration
    */
-  public DurationRule maxAgeDuration(java.time.Duration duration) {
+  public DurationRule maxAge(Duration duration) {
     return new DurationRule(duration);
   }
 
@@ -100,9 +91,8 @@ public final class GCRules {
   public GCRule fromProto(GcRule source) {
     switch (source.getRuleCase()) {
       case MAX_AGE:
-        return GCRULES.maxAgeDuration(
-            java.time.Duration.ofSeconds(
-                source.getMaxAge().getSeconds(), source.getMaxAge().getNanos()));
+        return GCRULES.maxAge(
+            Duration.ofSeconds(source.getMaxAge().getSeconds(), source.getMaxAge().getNanos()));
 
       case MAX_NUM_VERSIONS:
         return GCRULES.maxVersions(source.getMaxNumVersions());
@@ -297,22 +287,16 @@ public final class GCRules {
   public static final class DurationRule implements GCRule {
     private final com.google.protobuf.Duration.Builder builder;
 
-    private DurationRule(java.time.Duration duration) {
+    private DurationRule(Duration duration) {
       this.builder =
           com.google.protobuf.Duration.newBuilder()
               .setSeconds(duration.getSeconds())
               .setNanos(duration.getNano());
     }
 
-    /** This method is obsolete. Use {@link #getMaxAgeDuration()} instead. */
-    @ObsoleteApi("Use getMaxAgeDuration() instead.")
-    public org.threeten.bp.Duration getMaxAge() {
-      return toThreetenDuration(getMaxAgeDuration());
-    }
-
     /** Gets the configured maximum age */
-    public java.time.Duration getMaxAgeDuration() {
-      return java.time.Duration.ofSeconds(builder.getSeconds(), builder.getNanos());
+    public Duration getMaxAge() {
+      return Duration.ofSeconds(builder.getSeconds(), builder.getNanos());
     }
 
     @Override

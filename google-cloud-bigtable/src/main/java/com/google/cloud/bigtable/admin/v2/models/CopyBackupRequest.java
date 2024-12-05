@@ -15,16 +15,13 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
-
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import javax.annotation.Nonnull;
+import org.threeten.bp.Instant;
 
 /** Build CopyBackupRequest for {@link com.google.bigtable.admin.v2.CopyBackupRequest}. */
 public final class CopyBackupRequest {
@@ -78,16 +75,9 @@ public final class CopyBackupRequest {
     return this;
   }
 
-  /** This method is obsolete. Use {@link #setExpireTimeInstant(java.time.Instant)} instead. */
-  @ObsoleteApi("Use setExpireTimeInstant(java.time.Instant) instead.")
-  public CopyBackupRequest setExpireTime(org.threeten.bp.Instant expireTime) {
-    return setExpireTimeInstant(toJavaTimeInstant(expireTime));
-  }
-
-  public CopyBackupRequest setExpireTimeInstant(java.time.Instant expireTime) {
+  public CopyBackupRequest setExpireTime(Instant expireTime) {
     Preconditions.checkNotNull(expireTime);
-    Timestamp value = Timestamps.fromMillis(expireTime.toEpochMilli());
-    requestBuilder.setExpireTime(value);
+    requestBuilder.setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()));
     return this;
   }
 

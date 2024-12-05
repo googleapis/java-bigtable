@@ -16,14 +16,12 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
-
 import com.google.api.core.InternalApi;
-import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
 import java.util.Objects;
+import org.threeten.bp.Duration;
 
 /**
  * Wrapper for {@link com.google.bigtable.admin.v2.UpdateTableRequest}
@@ -49,17 +47,8 @@ public class UpdateTableRequest {
     this.tableId = tableId;
   }
 
-  /**
-   * This method is obsolete. Use {@link #addChangeStreamRetentionDuration(java.time.Duration
-   * retention)} instead.
-   */
-  @ObsoleteApi("Use addChangeStreamRetentionDuration(java.time.Duration) instead.")
-  public UpdateTableRequest addChangeStreamRetention(org.threeten.bp.Duration retention) {
-    return addChangeStreamRetentionDuration(toJavaTimeDuration(retention));
-  }
-
   /** Update change stream retention period between 1 day and 7 days. */
-  public UpdateTableRequest addChangeStreamRetentionDuration(java.time.Duration retention) {
+  public UpdateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     if (!retention.isZero()) {
       requestBuilder
@@ -82,7 +71,7 @@ public class UpdateTableRequest {
 
   /** Disable change stream for table */
   public UpdateTableRequest disableChangeStreamRetention() {
-    return addChangeStreamRetentionDuration(java.time.Duration.ZERO);
+    return addChangeStreamRetention(Duration.ZERO);
   }
 
   /** Changes the deletion protection of an existing table. */
