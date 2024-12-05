@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-
 import com.google.api.gax.tracing.ApiTracer;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;

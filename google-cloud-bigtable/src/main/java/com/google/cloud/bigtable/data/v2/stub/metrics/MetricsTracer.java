@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
-
 import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.tracing.ApiTracerFactory.OperationType;
 import com.google.api.gax.tracing.SpanName;
