@@ -180,8 +180,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
             .setAppProfileId(request.getAppProfileId());
 
     if (request.hasPerOperationTimeout()) {
-      Duration newTimeout =
-          Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
+      Duration newTimeout = Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
       settingsBuilder = overrideTimeoutSetting(newTimeout, settingsBuilder);
       logger.info(
           String.format(
