@@ -112,8 +112,7 @@ public class DefaultChangeStreamRecordAdapter
 
     /** {@inheritDoc} */
     @Override
-    public void startGcMutation(
-        ByteString rowKey, java.time.Instant commitTimestamp, int tieBreaker) {
+    public void startGcMutation(ByteString rowKey, Instant commitTimestamp, int tieBreaker) {
       this.changeStreamMutationBuilder =
           ChangeStreamMutation.createGcMutation(rowKey, commitTimestamp, tieBreaker);
     }
@@ -176,7 +175,7 @@ public class DefaultChangeStreamRecordAdapter
     /** {@inheritDoc} */
     @Override
     public ChangeStreamRecord finishChangeStreamMutation(
-        String token, java.time.Instant estimatedLowWatermark) {
+        String token, Instant estimatedLowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
       this.changeStreamMutationBuilder.setLowWatermarkTime(estimatedLowWatermark);
       return this.changeStreamMutationBuilder.build();

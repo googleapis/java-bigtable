@@ -60,6 +60,7 @@ import io.grpc.stub.StreamObserver;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -108,7 +109,7 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
    * @param newTimeout The value that is used to set the timeout.
    */
   private static BigtableDataSettings.Builder overrideTimeoutSetting(
-      java.time.Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
+      Duration newTimeout, BigtableDataSettings.Builder settingsBuilder) {
 
     updateTimeout(
         settingsBuilder.stubSettings().bulkMutateRowsSettings().retrySettings(), newTimeout);
@@ -127,8 +128,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
     return settingsBuilder;
   }
 
-  private static void updateTimeout(RetrySettings.Builder settings, java.time.Duration newTimeout) {
-    java.time.Duration rpcTimeout = settings.getInitialRpcTimeoutDuration();
+  private static void updateTimeout(RetrySettings.Builder settings, Duration newTimeout) {
+    Duration rpcTimeout = settings.getInitialRpcTimeoutDuration();
 
     // TODO: this should happen in gax
     // Clamp the rpcTimeout to the overall timeout
@@ -179,8 +180,8 @@ public class CbtTestProxy extends CloudBigtableV2TestProxyImplBase implements Cl
             .setAppProfileId(request.getAppProfileId());
 
     if (request.hasPerOperationTimeout()) {
-      java.time.Duration newTimeout =
-          java.time.Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
+      Duration newTimeout =
+          Duration.ofMillis(Durations.toMillis(request.getPerOperationTimeout()));
       settingsBuilder = overrideTimeoutSetting(newTimeout, settingsBuilder);
       logger.info(
           String.format(

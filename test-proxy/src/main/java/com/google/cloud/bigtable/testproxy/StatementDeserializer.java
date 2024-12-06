@@ -21,6 +21,7 @@ import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.protobuf.Timestamp;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -156,8 +157,8 @@ public class StatementDeserializer {
     }
   }
 
-  private static java.time.Instant toInstant(Timestamp timestamp) {
-    return java.time.Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
+  private static Instant toInstant(Timestamp timestamp) {
+    return Instant.ofEpochSecond(timestamp.getSeconds(), timestamp.getNanos());
   }
 
   private static Date fromProto(com.google.type.Date proto) {
