@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +40,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class CompositeTracerTest {
@@ -149,11 +149,11 @@ public class CompositeTracerTest {
   public void testAttemptFailed() {
     RuntimeException error = new RuntimeException();
     Duration delay = Duration.ofMillis(10);
-    compositeTracer.attemptFailed(error, delay);
-    verify(child1, times(1)).attemptFailed(error, delay);
-    verify(child2, times(1)).attemptFailed(error, delay);
-    verify(child3, times(1)).attemptFailed(error, delay);
-    verify(child4, times(1)).attemptFailed(error, delay);
+    compositeTracer.attemptFailedDuration(error, delay);
+    verify(child1, times(1)).attemptFailedDuration(error, delay);
+    verify(child2, times(1)).attemptFailedDuration(error, delay);
+    verify(child3, times(1)).attemptFailedDuration(error, delay);
+    verify(child4, times(1)).attemptFailedDuration(error, delay);
   }
 
   @Test

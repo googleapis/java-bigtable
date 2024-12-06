@@ -24,11 +24,11 @@ import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
 import com.google.common.collect.ImmutableSet;
+import java.time.Duration;
 import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class BigtableBulkReadRowsCallSettingsTest {
@@ -37,7 +37,7 @@ public class BigtableBulkReadRowsCallSettingsTest {
       BatchingSettings.newBuilder()
           .setElementCountThreshold(10L)
           .setRequestByteThreshold(20L)
-          .setDelayThreshold(Duration.ofMillis(5))
+          .setDelayThresholdDuration(Duration.ofMillis(5))
           .setFlowControlSettings(
               FlowControlSettings.newBuilder()
                   .setMaxOutstandingElementCount(100L)
@@ -78,7 +78,7 @@ public class BigtableBulkReadRowsCallSettingsTest {
     BigtableBulkReadRowsCallSettings.Builder builder =
         BigtableBulkReadRowsCallSettings.newBuilder(new ReadRowsBatchingDescriptor());
     RetrySettings retrySettings =
-        RetrySettings.newBuilder().setTotalTimeout(Duration.ofMinutes(1)).build();
+        RetrySettings.newBuilder().setTotalTimeoutDuration(Duration.ofMinutes(1)).build();
     builder
         .setBatchingSettings(BATCHING_SETTINGS)
         .setRetryableCodes(StatusCode.Code.UNAVAILABLE, StatusCode.Code.UNAUTHENTICATED)

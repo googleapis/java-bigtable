@@ -22,11 +22,11 @@ import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableInstanceAdminStubSettings;
 import java.io.IOException;
+import java.time.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
-import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class BigtableInstanceAdminSettingsTest {
@@ -139,7 +139,7 @@ public class BigtableInstanceAdminSettingsTest {
     stubSettings
         .getInstanceSettings()
         .setRetrySettings(
-            RetrySettings.newBuilder().setTotalTimeout(Duration.ofMinutes(812)).build());
+            RetrySettings.newBuilder().setTotalTimeoutDuration(Duration.ofMinutes(812)).build());
 
     BigtableInstanceAdminSettings settings = builder.build();
     checkToString(settings);
