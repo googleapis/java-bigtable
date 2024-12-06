@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.cloud.bigtable.data.v2.models.Range.TimestampRange;
