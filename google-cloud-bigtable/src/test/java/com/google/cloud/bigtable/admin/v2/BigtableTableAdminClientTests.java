@@ -708,11 +708,11 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
     assertThat(actualResult.getStartTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
     assertThat(actualResult.getEndTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getExpireTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -760,14 +760,14 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
     assertThat(actualResult.getStartTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
     assertThat(actualResult.getEndTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getExpireTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getBackupType()).isEqualTo(Backup.BackupType.HOT);
     assertThat(actualResult.getHotToStandardTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -807,11 +807,11 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
     assertThat(actualResult.getExpireTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getStartTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
     assertThat(actualResult.getEndTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
     assertThat(actualResult.getState()).isEqualTo(Backup.State.fromProto(state));
     assertThat(actualResult.getBackupType()).isEqualTo(Backup.BackupType.STANDARD);
@@ -845,9 +845,9 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getId()).isEqualTo(BACKUP_ID);
     assertThat(actualResult.getSourceTableId()).isEqualTo(TABLE_ID);
     assertThat(actualResult.getExpireTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(actualResult.getHotToStandardTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
 
@@ -1063,9 +1063,9 @@ public class BigtableTableAdminClientTests {
     assertThat(actualResult.getSourceTableId()).isEqualTo(srcTableId);
     assertThat(actualResult.getSourceBackupId()).isEqualTo(srcBackupId);
     assertThat(actualResult.getStartTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
     assertThat(actualResult.getEndTime())
-        .isEqualTo(org.threeten.bp.Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(actualResult.getExpireTime()).isEqualTo(expireTime);
     assertThat(actualResult.getSizeBytes()).isEqualTo(sizeBytes);
   }
