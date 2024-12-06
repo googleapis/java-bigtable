@@ -90,10 +90,10 @@ public class StatementDeserializer {
           break;
         case TIMESTAMP_TYPE:
           if (value.getKindCase().equals(KindCase.KIND_NOT_SET)) {
-            statementBuilder.setTimestampParamInstant(name, null);
+            statementBuilder.setTimestampParam(name, null);
           } else if (value.getKindCase().equals(KindCase.TIMESTAMP_VALUE)) {
             Timestamp ts = value.getTimestampValue();
-            statementBuilder.setTimestampParamInstant(name, toInstant(ts));
+            statementBuilder.setTimestampParam(name, toInstant(ts));
           } else {
             throw new IllegalArgumentException("Malformed timestamp value: " + value);
           }
