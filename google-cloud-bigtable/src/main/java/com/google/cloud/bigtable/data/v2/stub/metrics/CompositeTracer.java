@@ -20,7 +20,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /**
  * Combines multiple {@link ApiTracer}s and {@link BigtableTracer}s into a single {@link ApiTracer}.
@@ -124,9 +123,10 @@ class CompositeTracer extends BigtableTracer {
     }
   }
 
-  public void attemptFailed(Throwable error, Duration delay) {
+  @Override
+  public void attemptFailedDuration(Throwable error, java.time.Duration delay) {
     for (ApiTracer child : children) {
-      child.attemptFailed(error, delay);
+      child.attemptFailedDuration(error, delay);
     }
   }
 

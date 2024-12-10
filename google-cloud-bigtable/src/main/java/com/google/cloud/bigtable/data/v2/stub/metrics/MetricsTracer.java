@@ -32,7 +32,6 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 class MetricsTracer extends BigtableTracer {
 
@@ -153,7 +152,7 @@ class MetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void attemptFailed(Throwable throwable, Duration duration) {
+  public void attemptFailedDuration(Throwable throwable, java.time.Duration duration) {
     recordAttemptCompletion(throwable);
   }
 

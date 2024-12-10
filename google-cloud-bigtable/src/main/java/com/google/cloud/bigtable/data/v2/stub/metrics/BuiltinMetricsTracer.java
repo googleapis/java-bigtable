@@ -33,6 +33,7 @@ import io.grpc.Deadline;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.metrics.DoubleHistogram;
 import io.opentelemetry.api.metrics.LongCounter;
+import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /**
  * A {@link BigtableTracer} that records built-in metrics and publish under the
@@ -201,7 +201,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
   }
 
   @Override
-  public void attemptFailed(Throwable error, Duration delay) {
+  public void attemptFailedDuration(Throwable error, Duration delay) {
     recordAttemptCompletion(error);
   }
 
@@ -291,7 +291,7 @@ class BuiltinMetricsTracer extends BigtableTracer {
 
   @Override
   public void batchRequestThrottled(long throttledTimeNanos) {
-    totalClientBlockingTime.addAndGet(Duration.ofNanos(throttledTimeNanos).toMillis());
+    totalClientBlockingTime.addAndGet(java.time.Duration.ofNanos(throttledTimeNanos).toMillis());
   }
 
   @Override
