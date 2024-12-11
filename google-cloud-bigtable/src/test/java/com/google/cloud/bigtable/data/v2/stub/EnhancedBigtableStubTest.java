@@ -119,7 +119,6 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
@@ -134,6 +133,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class EnhancedBigtableStubTest {
@@ -616,7 +616,7 @@ public class EnhancedBigtableStubTest {
 
       // Override the timeout
       GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault().withTimeoutDuration(Duration.ofMinutes(10));
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<RowMutationEntry, Void> batcher =
@@ -647,7 +647,7 @@ public class EnhancedBigtableStubTest {
 
       // Override the timeout
       GrpcCallContext clientCtx =
-          GrpcCallContext.createDefault().withTimeoutDuration(Duration.ofMinutes(10));
+          GrpcCallContext.createDefault().withTimeout(Duration.ofMinutes(10));
 
       // Send a batch
       try (Batcher<ByteString, Row> batcher =
@@ -709,9 +709,9 @@ public class EnhancedBigtableStubTest {
   public void testWaitTimeoutIsSet() throws Exception {
     EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
     // Set a shorter wait timeout and make watchdog checks more frequently
-    settings.readRowsSettings().setWaitTimeoutDuration(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.readRowsSettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
     settings.setStreamWatchdogProvider(
-        InstantiatingWatchdogProvider.create().withCheckIntervalDuration(WATCHDOG_CHECK_DURATION));
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
 
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build())) {
       ServerStream<Row> results = stub.readRowsCallable().call(Query.create(WAIT_TIME_TABLE_ID));
@@ -726,11 +726,9 @@ public class EnhancedBigtableStubTest {
   public void testReadChangeStreamWaitTimeoutIsSet() throws Exception {
     EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
     // Set a shorter wait timeout and make watchdog checks more frequently
-    settings
-        .readChangeStreamSettings()
-        .setWaitTimeoutDuration(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.readChangeStreamSettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
     settings.setStreamWatchdogProvider(
-        InstantiatingWatchdogProvider.create().withCheckIntervalDuration(WATCHDOG_CHECK_DURATION));
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
 
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build())) {
       ServerStream<ChangeStreamRecord> results =
@@ -824,9 +822,9 @@ public class EnhancedBigtableStubTest {
   public void testExecuteQueryWaitTimeoutIsSet() throws IOException {
     EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
     // Set a shorter wait timeout and make watchdog checks more frequently
-    settings.executeQuerySettings().setWaitTimeoutDuration(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.executeQuerySettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
     settings.setStreamWatchdogProvider(
-        InstantiatingWatchdogProvider.create().withCheckIntervalDuration(WATCHDOG_CHECK_DURATION));
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
 
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
     Iterator<SqlRow> iterator =
@@ -840,9 +838,9 @@ public class EnhancedBigtableStubTest {
       throws IOException, InterruptedException {
     EnhancedBigtableStubSettings.Builder settings = defaultSettings.toBuilder();
     // Set a shorter wait timeout and make watchdog checks more frequently
-    settings.executeQuerySettings().setWaitTimeoutDuration(WATCHDOG_CHECK_DURATION.dividedBy(2));
+    settings.executeQuerySettings().setWaitTimeout(WATCHDOG_CHECK_DURATION.dividedBy(2));
     settings.setStreamWatchdogProvider(
-        InstantiatingWatchdogProvider.create().withCheckIntervalDuration(WATCHDOG_CHECK_DURATION));
+        InstantiatingWatchdogProvider.create().withCheckInterval(WATCHDOG_CHECK_DURATION));
 
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build())) {
       ApiFuture<ResultSetMetadata> future =

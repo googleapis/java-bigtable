@@ -42,7 +42,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URI;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,6 +51,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class EnhancedBigtableStubSettingsTest {
@@ -92,7 +92,7 @@ public class EnhancedBigtableStubSettingsTest {
             .setEndpoint(endpoint)
             .setCredentialsProvider(credentialsProvider)
             .setStreamWatchdogProvider(watchdogProvider)
-            .setStreamWatchdogCheckIntervalDuration(watchdogInterval)
+            .setStreamWatchdogCheckInterval(watchdogInterval)
             .setEnableRoutingCookie(enableRoutingCookie)
             .setEnableRetryInfo(enableRetryInfo)
             .setMetricsEndpoint(metricsEndpoint);
@@ -158,7 +158,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.getEndpoint()).isEqualTo(endpoint);
     assertThat(builder.getCredentialsProvider()).isEqualTo(credentialsProvider);
     assertThat(builder.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
-    assertThat(builder.getStreamWatchdogCheckIntervalDuration()).isEqualTo(watchdogInterval);
+    assertThat(builder.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(builder.getEnableRoutingCookie()).isEqualTo(enableRoutingCookie);
     assertThat(builder.getEnableRetryInfo()).isEqualTo(enableRetryInfo);
     assertThat(builder.getMetricsEndpoint()).isEqualTo(metricsEndpoint);
@@ -184,7 +184,7 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(settings.getEndpoint()).isEqualTo(endpoint);
     assertThat(settings.getCredentialsProvider()).isEqualTo(credentialsProvider);
     assertThat(settings.getStreamWatchdogProvider()).isSameInstanceAs(watchdogProvider);
-    assertThat(settings.getStreamWatchdogCheckIntervalDuration()).isEqualTo(watchdogInterval);
+    assertThat(settings.getStreamWatchdogCheckInterval()).isEqualTo(watchdogInterval);
     assertThat(settings.getEnableRoutingCookie()).isEqualTo(enableRoutingCookie);
     assertThat(settings.getEnableRetryInfo()).isEqualTo(enableRetryInfo);
     assertThat(settings.getMetricsEndpoint()).isEqualTo(metricsEndpoint);
@@ -222,16 +222,16 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
     builder
         .readRowsSettings()
-        .setIdleTimeoutDuration(Duration.ofMinutes(5))
+        .setIdleTimeout(Duration.ofMinutes(5))
         .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
         .setRetrySettings(retrySettings)
         .build();
@@ -240,19 +240,18 @@ public class EnhancedBigtableStubSettingsTest {
     builder.readRowSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     builder.bulkReadRowsSettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
 
-    assertThat(builder.readRowsSettings().getIdleTimeoutDuration())
-        .isEqualTo(Duration.ofMinutes(5));
+    assertThat(builder.readRowsSettings().getIdleTimeout()).isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.readRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(builder.readRowsSettings().getRetrySettings()).isEqualTo(retrySettings);
 
-    assertThat(builder.build().readRowsSettings().getIdleTimeoutDuration())
+    assertThat(builder.build().readRowsSettings().getIdleTimeout())
         .isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.build().readRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(builder.build().readRowsSettings().getRetrySettings()).isEqualTo(retrySettings);
 
-    assertThat(builder.build().toBuilder().readRowsSettings().getIdleTimeoutDuration())
+    assertThat(builder.build().toBuilder().readRowsSettings().getIdleTimeout())
         .isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.build().toBuilder().readRowsSettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -282,10 +281,10 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
@@ -370,10 +369,10 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
@@ -418,10 +417,10 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
@@ -468,10 +467,10 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
@@ -580,10 +579,10 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
@@ -627,7 +626,7 @@ public class EnhancedBigtableStubSettingsTest {
 
     verifyRetrySettingAreSane(builder.getRetryableCodes(), builder.getRetrySettings());
 
-    assertThat(builder.getBatchingSettings().getDelayThresholdDuration())
+    assertThat(builder.getBatchingSettings().getDelayThreshold())
         .isIn(Range.open(Duration.ZERO, Duration.ofMinutes(1)));
     assertThat(builder.getBatchingSettings().getElementCountThreshold())
         .isIn(Range.open(0L, 1_000L));
@@ -769,8 +768,7 @@ public class EnhancedBigtableStubSettingsTest {
         EnhancedBigtableStubSettings.newBuilder().pingAndWarmSettings();
 
     assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
-    assertThat(builder.getRetrySettings().getInitialRpcTimeoutDuration())
-        .isAtMost(Duration.ofSeconds(30));
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isAtMost(Duration.ofSeconds(30));
   }
 
   @Test
@@ -791,35 +789,34 @@ public class EnhancedBigtableStubSettingsTest {
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
             .setMaxAttempts(10)
-            .setTotalTimeoutDuration(Duration.ofHours(1))
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setTotalTimeout(Duration.ofHours(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(10))
             .setRpcTimeoutMultiplier(1)
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(10))
+            .setMaxRpcTimeout(Duration.ofSeconds(10))
             .setJittered(true)
             .build();
 
     builder
         .executeQuerySettings()
-        .setIdleTimeoutDuration(Duration.ofMinutes(5))
+        .setIdleTimeout(Duration.ofMinutes(5))
         .setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED)
         .setRetrySettings(retrySettings)
         .build();
 
     builder.executeQuerySettings().setRetryableCodes(Code.ABORTED, Code.DEADLINE_EXCEEDED);
 
-    assertThat(builder.executeQuerySettings().getIdleTimeoutDuration())
-        .isEqualTo(Duration.ofMinutes(5));
+    assertThat(builder.executeQuerySettings().getIdleTimeout()).isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.executeQuerySettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(builder.executeQuerySettings().getRetrySettings()).isEqualTo(retrySettings);
 
-    assertThat(builder.build().executeQuerySettings().getIdleTimeoutDuration())
+    assertThat(builder.build().executeQuerySettings().getIdleTimeout())
         .isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.build().executeQuerySettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(builder.build().executeQuerySettings().getRetrySettings()).isEqualTo(retrySettings);
 
-    assertThat(builder.build().toBuilder().executeQuerySettings().getIdleTimeoutDuration())
+    assertThat(builder.build().toBuilder().executeQuerySettings().getIdleTimeout())
         .isEqualTo(Duration.ofMinutes(5));
     assertThat(builder.build().toBuilder().executeQuerySettings().getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
@@ -835,10 +832,8 @@ public class EnhancedBigtableStubSettingsTest {
     // Retries aren't supported right now
     // call verifyRetrySettingAreSane when we do
     assertThat(builder.getRetryableCodes()).containsExactlyElementsIn(Collections.emptySet());
-    assertThat(builder.getRetrySettings().getInitialRpcTimeoutDuration())
-        .isEqualTo(Duration.ofSeconds(30));
-    assertThat(builder.getRetrySettings().getMaxRpcTimeoutDuration())
-        .isEqualTo(Duration.ofSeconds(30));
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isEqualTo(Duration.ofSeconds(30));
+    assertThat(builder.getRetrySettings().getMaxRpcTimeout()).isEqualTo(Duration.ofSeconds(30));
     assertThat(builder.getRetrySettings().getMaxAttempts()).isEqualTo(1);
   }
 
@@ -848,22 +843,21 @@ public class EnhancedBigtableStubSettingsTest {
         EnhancedBigtableStubSettings.newBuilder().executeQuerySettings();
 
     assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
-    assertThat(builder.getRetrySettings().getInitialRpcTimeoutDuration())
-        .isAtMost(Duration.ofSeconds(30));
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isAtMost(Duration.ofSeconds(30));
   }
 
   private void verifyRetrySettingAreSane(Set<Code> retryCodes, RetrySettings retrySettings) {
     assertThat(retryCodes).containsAtLeast(Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
 
-    assertThat(retrySettings.getTotalTimeoutDuration()).isGreaterThan(Duration.ZERO);
+    assertThat(retrySettings.getTotalTimeout()).isGreaterThan(Duration.ZERO);
 
-    assertThat(retrySettings.getInitialRetryDelayDuration()).isGreaterThan(Duration.ZERO);
+    assertThat(retrySettings.getInitialRetryDelay()).isGreaterThan(Duration.ZERO);
     assertThat(retrySettings.getRetryDelayMultiplier()).isAtLeast(1.0);
-    assertThat(retrySettings.getMaxRetryDelayDuration()).isGreaterThan(Duration.ZERO);
+    assertThat(retrySettings.getMaxRetryDelay()).isGreaterThan(Duration.ZERO);
 
-    assertThat(retrySettings.getInitialRpcTimeoutDuration()).isGreaterThan(Duration.ZERO);
+    assertThat(retrySettings.getInitialRpcTimeout()).isGreaterThan(Duration.ZERO);
     assertThat(retrySettings.getRpcTimeoutMultiplier()).isAtLeast(1.0);
-    assertThat(retrySettings.getMaxRpcTimeoutDuration()).isGreaterThan(Duration.ZERO);
+    assertThat(retrySettings.getMaxRpcTimeout()).isGreaterThan(Duration.ZERO);
   }
 
   @Test

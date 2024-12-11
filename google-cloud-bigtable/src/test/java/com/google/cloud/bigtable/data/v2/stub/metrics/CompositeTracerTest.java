@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -29,7 +30,6 @@ import com.google.common.collect.ImmutableList;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Before;
@@ -148,7 +148,19 @@ public class CompositeTracerTest {
   @Test
   public void testAttemptFailed() {
     RuntimeException error = new RuntimeException();
-    Duration delay = Duration.ofMillis(10);
+    java.time.Duration delay = java.time.Duration.ofMillis(10);
+    compositeTracer.attemptFailed(error, toThreetenDuration(delay));
+    // the implementation of CompositeTracer.attemptFailed delegates to attemptFailedDuration.
+    verify(child1, times(1)).attemptFailedDuration(error, delay);
+    verify(child2, times(1)).attemptFailedDuration(error, delay);
+    verify(child3, times(1)).attemptFailedDuration(error, delay);
+    verify(child4, times(1)).attemptFailedDuration(error, delay);
+  }
+
+  @Test
+  public void testAttemptFailedDuration() {
+    RuntimeException error = new RuntimeException();
+    java.time.Duration delay = java.time.Duration.ofMillis(10);
     compositeTracer.attemptFailedDuration(error, delay);
     verify(child1, times(1)).attemptFailedDuration(error, delay);
     verify(child2, times(1)).attemptFailedDuration(error, delay);

@@ -165,7 +165,7 @@ public class BigtableTableAdminSettingsTest {
         .getBackupSettings()
         .setRetrySettings(
             RetrySettings.newBuilder()
-                .setTotalTimeoutDuration(java.time.Duration.ofMinutes(812))
+                .setTotalTimeout(org.threeten.bp.Duration.ofMinutes(812))
                 .build());
 
     BigtableTableAdminSettings settings = builder.build();

@@ -35,7 +35,6 @@ import com.google.bigtable.admin.v2.StandardReadRemoteWrites;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.cloud.bigtable.admin.v2.models.ConsistencyRequest;
 import com.google.cloud.bigtable.data.v2.internal.TableAdminRequestContext;
-import java.time.Duration;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -48,6 +47,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.quality.Strictness;
+import org.threeten.bp.Duration;
 
 @RunWith(JUnit4.class)
 public class AwaitConsistencyCallableTest {
@@ -80,14 +80,14 @@ public class AwaitConsistencyCallableTest {
 
     RetrySettings retrySettings =
         RetrySettings.newBuilder()
-            .setTotalTimeoutDuration(Duration.ofMillis(100))
+            .setTotalTimeout(Duration.ofMillis(100))
             // Delay settings: 1 ms const
-            .setInitialRetryDelayDuration(Duration.ofMillis(1))
-            .setMaxRetryDelayDuration(Duration.ofMillis(1))
+            .setInitialRetryDelay(Duration.ofMillis(1))
+            .setMaxRetryDelay(Duration.ofMillis(1))
             .setRetryDelayMultiplier(1.0)
             // RPC timeout: ignored const 1 s
-            .setInitialRpcTimeoutDuration(Duration.ofSeconds(1))
-            .setMaxRpcTimeoutDuration(Duration.ofSeconds(1))
+            .setInitialRpcTimeout(Duration.ofSeconds(1))
+            .setMaxRpcTimeout(Duration.ofSeconds(1))
             .setRpcTimeoutMultiplier(1.0)
             .build();
 
