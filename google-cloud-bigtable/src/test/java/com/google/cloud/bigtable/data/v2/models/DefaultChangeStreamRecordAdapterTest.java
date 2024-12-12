@@ -62,7 +62,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertTrue(adapter.isHeartbeat(heartbeatRecord));
     Assert.assertFalse(adapter.isHeartbeat(closeStreamRecord));
@@ -102,7 +102,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertFalse(adapter.isChangeStreamMutation(heartbeatRecord));
     Assert.assertFalse(adapter.isChangeStreamMutation(closeStreamRecord));
@@ -115,7 +115,7 @@ public class DefaultChangeStreamRecordAdapterTest {
         ChangeStreamMutation.createGcMutation(
                 ByteString.copyFromUtf8("key"), FAKE_COMMIT_TIMESTAMP, 0)
             .setToken("change-stream-mutation-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
     Assert.assertEquals(
         adapter.getTokenFromChangeStreamMutation(changeStreamMutationRecord),
@@ -189,7 +189,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
@@ -228,7 +228,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("fake-qualifier"),
                 Range.TimestampRange.create(1000L, 2000L))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
@@ -261,7 +261,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
@@ -293,7 +293,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value1-value2"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
@@ -330,7 +330,7 @@ public class DefaultChangeStreamRecordAdapterTest {
     }
     expectedChangeStreamMutationBuilder
         .setToken("fake-token")
-        .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN);
+        .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK);
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
@@ -372,7 +372,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("chunked-value"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN);
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK);
 
     // Create the ChangeStreamMutation through the ChangeStreamRecordBuilder.
     changeStreamRecordBuilder.startUserMutation(
@@ -421,7 +421,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0)
             .deleteFamily("fake-family")
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
     changeStreamRecordBuilder.startUserMutation(
         ByteString.copyFromUtf8("key"), "fake-source-cluster-id", FAKE_COMMIT_TIMESTAMP, 0);
@@ -441,7 +441,7 @@ public class DefaultChangeStreamRecordAdapterTest {
                 100L,
                 ByteString.copyFromUtf8("fake-value1-value2"))
             .setToken("fake-token")
-            .setEstimatedLowWatermark(FAKE_LOW_WATERMARK_THREETEN)
+            .setEstimatedLowWatermarkTime(FAKE_LOW_WATERMARK)
             .build();
 
     changeStreamRecordBuilder.startUserMutation(

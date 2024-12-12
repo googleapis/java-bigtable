@@ -85,7 +85,7 @@ public class ChangeStreamRecordMergingCallableTest {
             Instant.ofEpochSecond(
                 heartbeatProto.getEstimatedLowWatermark().getSeconds(),
                 heartbeatProto.getEstimatedLowWatermark().getNanos()));
-    assertThat(heartbeat.getEstimatedLowWatermarkInstant())
+    assertThat(heartbeat.getEstimatedLowWatermarkTime())
         .isEqualTo(
             java.time.Instant.ofEpochSecond(
                 heartbeatProto.getEstimatedLowWatermark().getSeconds(),

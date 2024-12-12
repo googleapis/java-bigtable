@@ -129,7 +129,7 @@ public class ChangeStreamRecordTest {
             .build();
     Heartbeat actualHeartbeat = Heartbeat.fromProto(heartbeatProto);
 
-    assertThat(actualHeartbeat.getEstimatedLowWatermarkInstant())
+    assertThat(actualHeartbeat.getEstimatedLowWatermarkTime())
         .isEqualTo(Instant.ofEpochSecond(lowWatermark.getSeconds(), lowWatermark.getNanos()));
     assertThat(actualHeartbeat.getChangeStreamContinuationToken().getPartition())
         .isEqualTo(ByteStringRange.create(rowRange.getStartKeyClosed(), rowRange.getEndKeyOpen()));

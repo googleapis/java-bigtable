@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models;
 
-import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
 
 import com.google.api.core.InternalApi;
@@ -34,8 +33,7 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   private static Heartbeat create(
       ChangeStreamContinuationToken changeStreamContinuationToken,
       java.time.Instant estimatedLowWatermark) {
-    return new AutoValue_Heartbeat(
-        changeStreamContinuationToken, toThreetenInstant(estimatedLowWatermark));
+    return new AutoValue_Heartbeat(changeStreamContinuationToken, estimatedLowWatermark);
   }
 
   /** Wraps the protobuf {@link ReadChangeStreamResponse.Heartbeat}. */
@@ -50,12 +48,12 @@ public abstract class Heartbeat implements ChangeStreamRecord, Serializable {
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
   public abstract ChangeStreamContinuationToken getChangeStreamContinuationToken();
 
-  /** This method is obsolete. Use {@link #getEstimatedLowWatermarkInstant()} instead. */
-  @ObsoleteApi("Use getEstimatedLowWatermarkInstant() instead")
-  public abstract org.threeten.bp.Instant getEstimatedLowWatermark();
+  /** This method is obsolete. Use {@link #getEstimatedLowWatermarkTime()} instead. */
+  @ObsoleteApi("Use getEstimatedLowWatermarkTime() instead")
+  public org.threeten.bp.Instant getEstimatedLowWatermark() {
+    return toThreetenInstant(getEstimatedLowWatermarkTime());
+  }
 
   @InternalApi("Intended for use by the BigtableIO in apache/beam only.")
-  public java.time.Instant getEstimatedLowWatermarkInstant() {
-    return toJavaTimeInstant(getEstimatedLowWatermark());
-  }
+  public abstract java.time.Instant getEstimatedLowWatermarkTime();
 }
