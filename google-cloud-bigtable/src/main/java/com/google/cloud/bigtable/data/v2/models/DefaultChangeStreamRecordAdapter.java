@@ -177,7 +177,7 @@ public class DefaultChangeStreamRecordAdapter
     public ChangeStreamRecord finishChangeStreamMutation(
         String token, Instant estimatedLowWatermark) {
       this.changeStreamMutationBuilder.setToken(token);
-      this.changeStreamMutationBuilder.setEstimatedLowWatermark(estimatedLowWatermark);
+      this.changeStreamMutationBuilder.setLowWatermarkTime(estimatedLowWatermark);
       return this.changeStreamMutationBuilder.build();
     }
 

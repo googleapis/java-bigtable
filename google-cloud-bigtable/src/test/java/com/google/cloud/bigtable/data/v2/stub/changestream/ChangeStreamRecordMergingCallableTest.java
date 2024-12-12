@@ -33,13 +33,13 @@ import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingSt
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.rpc.Status;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.threeten.bp.Instant;
 
 /**
  * Additional tests in addition to {@link ReadChangeStreamMergingAcceptanceTest}.
@@ -85,9 +85,9 @@ public class ChangeStreamRecordMergingCallableTest {
             Instant.ofEpochSecond(
                 heartbeatProto.getEstimatedLowWatermark().getSeconds(),
                 heartbeatProto.getEstimatedLowWatermark().getNanos()));
-    assertThat(heartbeat.getEstimatedLowWatermark())
+    assertThat(heartbeat.getEstimatedLowWatermarkInstant())
         .isEqualTo(
-            Instant.ofEpochSecond(
+            java.time.Instant.ofEpochSecond(
                 heartbeatProto.getEstimatedLowWatermark().getSeconds(),
                 heartbeatProto.getEstimatedLowWatermark().getNanos()));
   }
