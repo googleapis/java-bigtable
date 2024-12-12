@@ -98,8 +98,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   private final String taskId;
 
   // The resource the client application is running on
-  private final MonitoredResource applicationResource;
+  private MonitoredResource applicationResource;
 
+  private final AtomicBoolean initializedAppResource = new AtomicBoolean(false);
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private CompletableResultCode lastExportCode;
@@ -149,22 +150,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
 
-    // Detect the resource that the client application is running on. For example,
-    // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
-    // GKE pod. This method will return null for everything else.
-    MonitoredResource applicationResource = null;
-    try {
-      applicationResource = BigtableExporterUtils.detectResource();
-    } catch (Exception e) {
-      logger.log(
-          Level.WARNING,
-          "Failed to detect resource, will skip exporting application level metrics ",
-          e);
-    }
-
     return new BigtableCloudMonitoringExporter(
         MetricServiceClient.create(settingsBuilder.build()),
-        applicationResource,
+        null,
         BigtableExporterUtils.getDefaultTaskValue());
   }
 
@@ -173,7 +161,11 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       MetricServiceClient client, @Nullable MonitoredResource applicationResource, String taskId) {
     this.client = client;
     this.taskId = taskId;
-    this.applicationResource = applicationResource;
+    if (applicationResource != null) {
+      // for test to set a fake resource
+      initializedAppResource.set(true);
+      this.applicationResource = applicationResource;
+    }
   }
 
   @Override
@@ -258,6 +250,23 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
+    // Initialize the application resource on the first export which runs on a background thread
+    // to avoid slowness when starting the client.
+    if (initializedAppResource.compareAndSet(false, true)) {
+      // Detect the resource that the client application is running on. For example,
+      // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
+      // GKE pod. This method will return null for everything else.
+      applicationResource = null;
+      try {
+        applicationResource = BigtableExporterUtils.detectResource();
+      } catch (Exception e) {
+        logger.log(
+            Level.WARNING,
+            "Failed to detect resource, will skip exporting application level metrics ",
+            e);
+      }
+    }
+
     if (applicationResource == null) {
       return CompletableResultCode.ofSuccess();
     }
