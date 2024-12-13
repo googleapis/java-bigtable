@@ -40,6 +40,8 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -97,10 +99,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private final String taskId;
 
-  // The resource the client application is running on
-  private MonitoredResource applicationResource;
+  // Application resource is initialized on the first export, which runs on a background thread
+  // to avoid slowness when starting the client.
+  private Supplier<MonitoredResource> applicationResource;
 
-  private final AtomicBoolean initializedAppResource = new AtomicBoolean(false);
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
   private CompletableResultCode lastExportCode;
@@ -162,9 +164,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     this.client = client;
     this.taskId = taskId;
     if (applicationResource != null) {
-      // for test to set a fake resource
-      initializedAppResource.set(true);
-      this.applicationResource = applicationResource;
+      this.applicationResource = Suppliers.ofInstance(applicationResource);
     }
   }
 
@@ -250,24 +250,15 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
-    // Initialize the application resource on the first export which runs on a background thread
-    // to avoid slowness when starting the client.
-    if (initializedAppResource.compareAndSet(false, true)) {
+    // applicationResource will only not be null when this class is initialized by test
+    if (applicationResource == null) {
       // Detect the resource that the client application is running on. For example,
       // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
       // GKE pod. This method will return null for everything else.
-      applicationResource = null;
-      try {
-        applicationResource = BigtableExporterUtils.detectResource();
-      } catch (Exception e) {
-        logger.log(
-            Level.WARNING,
-            "Failed to detect resource, will skip exporting application level metrics ",
-            e);
-      }
+      applicationResource = Suppliers.memoize(BigtableExporterUtils::detectResourceSafe);
     }
 
-    if (applicationResource == null) {
+    if (applicationResource.get() == null) {
       return CompletableResultCode.ofSuccess();
     }
 
@@ -286,7 +277,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     try {
       timeSeries =
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              metricData, taskId, applicationResource);
+              metricData, taskId, applicationResource.get());
     } catch (Throwable e) {
       logger.log(
           Level.WARNING,
@@ -301,7 +292,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     CompletableResultCode exportCode = new CompletableResultCode();
     try {
       ProjectName projectName =
-          ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
+          ProjectName.of(
+              applicationResource.get().getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
 
       gceOrGkeFuture = exportTimeSeries(projectName, timeSeries);
 
