@@ -155,6 +155,7 @@ class BigtableExporterUtils {
     return allTimeSeries;
   }
 
+  @Nullable
   static MonitoredResource detectResourceSafe() {
     try {
       return detectResource();
@@ -168,7 +169,7 @@ class BigtableExporterUtils {
   }
 
   @Nullable
-  static MonitoredResource detectResource() {
+  private static MonitoredResource detectResource() {
     GCPPlatformDetector detector = GCPPlatformDetector.DEFAULT_INSTANCE;
     DetectedPlatform detectedPlatform = detector.detectPlatform();
     MonitoredResource monitoredResource = null;

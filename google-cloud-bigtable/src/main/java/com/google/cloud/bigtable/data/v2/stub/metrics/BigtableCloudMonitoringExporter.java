@@ -160,12 +160,15 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   @VisibleForTesting
   BigtableCloudMonitoringExporter(
-      MetricServiceClient client, @Nullable MonitoredResource applicationResource, String taskId) {
+      MetricServiceClient client,
+      @Nullable Supplier<MonitoredResource> applicationResource,
+      String taskId) {
     this.client = client;
     this.taskId = taskId;
-    if (applicationResource != null) {
-      this.applicationResource = Suppliers.ofInstance(applicationResource);
-    }
+    this.applicationResource =
+        applicationResource != null
+            ? applicationResource
+            : Suppliers.memoize(BigtableExporterUtils::detectResourceSafe);
   }
 
   @Override
@@ -250,14 +253,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
-    // applicationResource will only not be null when this class is initialized by test
-    if (applicationResource == null) {
-      // Detect the resource that the client application is running on. For example,
-      // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
-      // GKE pod. This method will return null for everything else.
-      applicationResource = Suppliers.memoize(BigtableExporterUtils::detectResourceSafe);
-    }
-
     if (applicationResource.get() == null) {
       return CompletableResultCode.ofSuccess();
     }
