@@ -67,7 +67,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /**
  * Bigtable Cloud Monitoring OpenTelemetry Exporter.
@@ -147,10 +146,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       settingsBuilder.setEndpoint(endpoint);
     }
 
-    org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
+    java.time.Duration timeout = java.time.Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
-    settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
+    settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetriesDuration(timeout);
 
     return new BigtableCloudMonitoringExporter(
         MetricServiceClient.create(settingsBuilder.build()),
