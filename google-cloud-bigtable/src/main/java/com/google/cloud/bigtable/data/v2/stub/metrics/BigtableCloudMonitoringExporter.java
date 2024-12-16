@@ -100,7 +100,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   // Application resource is initialized on the first export, which runs on a background thread
   // to avoid slowness when starting the client.
-  private Supplier<MonitoredResource> applicationResource;
+  private final Supplier<MonitoredResource> applicationResource;
 
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
@@ -153,21 +153,16 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     return new BigtableCloudMonitoringExporter(
         MetricServiceClient.create(settingsBuilder.build()),
-        null,
+        Suppliers.memoize(BigtableExporterUtils::detectResourceSafe),
         BigtableExporterUtils.getDefaultTaskValue());
   }
 
   @VisibleForTesting
   BigtableCloudMonitoringExporter(
-      MetricServiceClient client,
-      @Nullable Supplier<MonitoredResource> applicationResource,
-      String taskId) {
+      MetricServiceClient client, Supplier<MonitoredResource> applicationResource, String taskId) {
     this.client = client;
     this.taskId = taskId;
-    this.applicationResource =
-        applicationResource != null
-            ? applicationResource
-            : Suppliers.memoize(BigtableExporterUtils::detectResourceSafe);
+    this.applicationResource = applicationResource;
   }
 
   @Override
