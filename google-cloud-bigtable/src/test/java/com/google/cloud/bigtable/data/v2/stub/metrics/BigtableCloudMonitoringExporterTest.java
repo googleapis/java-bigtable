@@ -96,7 +96,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
-            fakeMetricServiceClient, /* applicationResource= */ null, taskId);
+            fakeMetricServiceClient, /* applicationResource= */ Suppliers.ofInstance(null), taskId);
 
     attributes =
         Attributes.builder()
