@@ -24,9 +24,13 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
+import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAuthorizedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateTableRequest;
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,8 +41,6 @@ import java.util.logging.Logger;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.threeten.bp.Instant;
-import org.threeten.bp.temporal.ChronoUnit;
 
 /**
  * JUnit rule to start and stop the target test environment.
@@ -178,8 +180,19 @@ public class TestEnvRule implements TestRule {
   }
 
   private void prepTableForDelete(String tableId) {
-    // Unprotected views
     if (!(env() instanceof EmulatorEnv)) {
+      // unprotect table
+      Table table = env().getTableAdminClient().getTable(tableId);
+      if (table.isDeletionProtected() || table.getChangeStreamRetention() != null) {
+        env()
+            .getTableAdminClient()
+            .updateTable(
+                UpdateTableRequest.of(tableId)
+                    .setDeletionProtection(false)
+                    .disableChangeStreamRetention());
+      }
+
+      // Unprotected views
       for (String viewId : env().getTableAdminClient().listAuthorizedViews(tableId)) {
         try {
           env()
