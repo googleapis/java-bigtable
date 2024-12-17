@@ -40,6 +40,8 @@ import com.google.auth.Credentials;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.MetricServiceSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -65,7 +67,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import org.threeten.bp.Duration;
 
 /**
  * Bigtable Cloud Monitoring OpenTelemetry Exporter.
@@ -97,8 +98,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private final String taskId;
 
-  // The resource the client application is running on
-  private final MonitoredResource applicationResource;
+  // Application resource is initialized on the first export, which runs on a background thread
+  // to avoid slowness when starting the client.
+  private final Supplier<MonitoredResource> applicationResource;
 
   private final AtomicBoolean isShutdown = new AtomicBoolean(false);
 
@@ -144,33 +146,20 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       settingsBuilder.setEndpoint(endpoint);
     }
 
-    org.threeten.bp.Duration timeout = Duration.ofMinutes(1);
+    java.time.Duration timeout = java.time.Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
-    settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetries(timeout);
-
-    // Detect the resource that the client application is running on. For example,
-    // this could be a GCE instance or a GKE pod. Currently, we only support GCE instance and
-    // GKE pod. This method will return null for everything else.
-    MonitoredResource applicationResource = null;
-    try {
-      applicationResource = BigtableExporterUtils.detectResource();
-    } catch (Exception e) {
-      logger.log(
-          Level.WARNING,
-          "Failed to detect resource, will skip exporting application level metrics ",
-          e);
-    }
+    settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetriesDuration(timeout);
 
     return new BigtableCloudMonitoringExporter(
         MetricServiceClient.create(settingsBuilder.build()),
-        applicationResource,
+        Suppliers.memoize(BigtableExporterUtils::detectResourceSafe),
         BigtableExporterUtils.getDefaultTaskValue());
   }
 
   @VisibleForTesting
   BigtableCloudMonitoringExporter(
-      MetricServiceClient client, @Nullable MonitoredResource applicationResource, String taskId) {
+      MetricServiceClient client, Supplier<MonitoredResource> applicationResource, String taskId) {
     this.client = client;
     this.taskId = taskId;
     this.applicationResource = applicationResource;
@@ -258,7 +247,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   /** Export metrics associated with the resource the Application is running on. */
   private CompletableResultCode exportApplicationResourceMetrics(
       Collection<MetricData> collection) {
-    if (applicationResource == null) {
+    if (applicationResource.get() == null) {
       return CompletableResultCode.ofSuccess();
     }
 
@@ -277,7 +266,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     try {
       timeSeries =
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              metricData, taskId, applicationResource);
+              metricData, taskId, applicationResource.get());
     } catch (Throwable e) {
       logger.log(
           Level.WARNING,
@@ -292,7 +281,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     CompletableResultCode exportCode = new CompletableResultCode();
     try {
       ProjectName projectName =
-          ProjectName.of(applicationResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
+          ProjectName.of(
+              applicationResource.get().getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID));
 
       gceOrGkeFuture = exportTimeSeries(projectName, timeSeries);
 
