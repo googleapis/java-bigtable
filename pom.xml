@@ -150,6 +150,12 @@
         <dependencies>
             <!-- Production Deps have been moved to google-cloud-bigtable-deps-bom -->
 
+          <dependency>
+  <groupId>com.google.protobuf</groupId>
+  <artifactId>protobuf-java</artifactId>
+  <version>4.29.0</version>
+</dependency>
+
             <dependency>
                 <groupId>com.google.api.grpc</groupId>
                 <artifactId>proto-google-cloud-bigtable-v2</artifactId>
