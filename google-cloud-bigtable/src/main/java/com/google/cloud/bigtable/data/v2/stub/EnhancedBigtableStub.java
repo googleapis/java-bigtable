@@ -475,17 +475,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
                 .build(),
             readRowsSettings.getRetryableCodes());
 
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
-        new StatsHeadersServerStreamingCallable<>(base);
+//    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
+//        new StatsHeadersServerStreamingCallable<>(base);
 
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
-    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ConvertExceptionCallable<>(withStatsHeaders);
+//    ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
+//        new ConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
-        new RowMergingCallable<>(convertException, rowAdapter);
+        new RowMergingCallable<>(base, rowAdapter);
 
     // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
     // ReadRowsRequest -> ReadRowsResponse callable).
@@ -498,21 +498,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .setWaitTimeout(readRowsSettings.getWaitTimeout())
             .build();
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> watched =
-        Callables.watched(merging, innerSettings, clientContext);
+//    ServerStreamingCallable<ReadRowsRequest, RowT> watched =
+//        Callables.watched(merging, innerSettings, clientContext);
 
-    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(watched);
+//    ServerStreamingCallable<ReadRowsRequest, RowT> withBigtableTracer =
+//        new BigtableTracerStreamingCallable<>(watched);
 
     // Retry logic is split into 2 parts to workaround a rare edge case described in
     // ReadRowsRetryCompletedCallable
-    ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
-        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
+//    ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
+//        new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
-        withRetries(retrying1, innerSettings);
+        withRetries(merging, innerSettings);
 
-    return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
+    return retrying2;
+//    return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
 
   /**
@@ -1268,18 +1269,22 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
-    ServerStreamingCallable<RequestT, ResponseT> retrying;
-    if (settings.getEnableRetryInfo()) {
-      retrying =
-          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
-              innerCallable, serverStreamingCallSettings, clientContext);
-    } else {
-      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
-    }
-    if (settings.getEnableRoutingCookie()) {
-      return new CookiesServerStreamingCallable<>(retrying);
-    }
-    return retrying;
+//    ServerStreamingCallable<RequestT, ResponseT> retrying;
+//    if (settings.getEnableRetryInfo()) {
+//      retrying =
+//          com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
+//              innerCallable, serverStreamingCallSettings, clientContext);
+//    } else {
+//      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
+//    }
+//    if (settings.getEnableRoutingCookie()) {
+//      return new CookiesServerStreamingCallable<>(retrying);
+//    }
+//    return retrying;
+
+    Callable2<RequestT, ResponseT> toNewCallable = new ToNewCallableAdapter(innerCallable);
+    Callable2<RequestT, ResponseT> retryCallable = new RetryCallable<>(toNewCallable, serverStreamingCallSettings.getResumptionStrategy(), clientContext.getExecutor(), serverStreamingCallSettings.getRetrySettings());
+    return new ToOldCallableAdapter<>(retryCallable);
   }
 
   // </editor-fold>
