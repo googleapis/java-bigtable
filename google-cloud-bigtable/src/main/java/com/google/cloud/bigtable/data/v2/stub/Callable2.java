@@ -89,7 +89,7 @@ class ToOldObserverAdapter<ResponseT> implements ResponseObserver2<ResponseT> {
     private ResponseObserver<ResponseT> userOberver;
     private StreamController2 grpcController;
     private AtomicInteger userRequested = new AtomicInteger(0);
-    private boolean autoFlowControl = true;
+    private volatile boolean autoFlowControl = true;
 
     ToOldObserverAdapter(ResponseObserver<ResponseT> observer) {
         this.userOberver = observer;
@@ -130,9 +130,7 @@ class ToOldObserverAdapter<ResponseT> implements ResponseObserver2<ResponseT> {
         userOberver.onResponse(response);
         if (userRequested.decrementAndGet() > 0) {
             grpcController.onReady();
-        }
-
-        if (autoFlowControl) {
+        } else if (autoFlowControl) {
             grpcController.onReady();
         }
     }

@@ -3,17 +3,17 @@ package com.google.cloud.bigtable.data.v2.stub;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.retrying.StreamResumptionStrategy;
 import com.google.api.gax.rpc.ApiCallContext;
-import com.google.api.gax.rpc.StreamingCallSettings;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableTracer;
 import io.grpc.Deadline;
 import io.grpc.Status;
 
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 public class Operation<RequestT, ResponseT> {
 
@@ -30,14 +30,16 @@ public class Operation<RequestT, ResponseT> {
 
     Operation(Callable2<RequestT, ResponseT> callable, StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy, ResponseObserver2<ResponseT> outerObserver,
               ScheduledExecutorService executor, RequestT request, ApiCallContext context, RetrySettings settings) {
+        // TODO future debuggability
+        // TODO for example: ring buffer to buffer the last few steps
         this.callable = callable;
         this.resumptionStrategy = resumptionStrategy;
         this.outerObserver = outerObserver;
         this.executor = executor;
-        operationState = new Idle(this, outerObserver);
+        this.operationState = new Idle(this, outerObserver);
         this.request = request;
-        this.context = context;
         this.settings = settings;
+        this.context = context;
         this.attempt = new AtomicInteger(0);
     }
 
@@ -51,29 +53,21 @@ public class Operation<RequestT, ResponseT> {
             @Override
             public void onReady() {
                 deadline = Deadline.after(settings.getTotalTimeoutDuration().toMillis(), TimeUnit.MILLISECONDS);
+                if (context.getTracer() instanceof BigtableTracer) {
+                    ((BigtableTracer) context.getTracer()).attemptStarted(attempt.get());
+                }
+
                 operationState.onReady();
             }
         });
     }
 
     void onCancel(String reason) {
-
+        operationState.onCancel(reason);
     }
 
     public void onStateChange(StateListener state) {
         this.operationState = state;
-    }
-
-    public StateListener getState() {
-        return this.operationState;
-    }
-
-    public void updateRequest(RequestT updated) {
-        this.request = updated;
-    }
-
-    public void updateContext(ApiCallContext updated) {
-        this.context = updated;
     }
 
     long getRetryDelay() {
@@ -87,9 +81,8 @@ public class Operation<RequestT, ResponseT> {
 
     long getTimeout() {
         long rpcTimeout = settings.getInitialRpcTimeoutDuration().toMillis();
-        long timeout = Math.min(rpcTimeout, deadline.timeRemaining(TimeUnit.MILLISECONDS));
 
-        return timeout;
+        return Math.min(rpcTimeout, deadline.timeRemaining(TimeUnit.MILLISECONDS));
     }
 
     abstract class StateListener {
@@ -103,7 +96,7 @@ public class Operation<RequestT, ResponseT> {
         }
 
         abstract public void onReady();
-        abstract public void onCancel();
+        abstract public void onCancel(String reason);
     }
 
     private class Idle extends StateListener {
@@ -114,15 +107,15 @@ public class Operation<RequestT, ResponseT> {
 
         @Override
         public void onReady() {
-            System.out.println("attempt=" + attempt.get() + " timeout=" + context.getTimeoutDuration());
             Active active = new Active(super.operation, super.outerObserver);
-            callable.call(operation.request, active, operation.context);
+            callable.call(operation.request, active, operation.context.withTimeoutDuration(Duration.ofMillis(getTimeout())));
+            System.out.println("attempt=" + attempt.get() + " timeout=" + context.getTimeoutDuration());
             operation.onStateChange(active);
         }
 
         @Override
-        public void onCancel() {
-            outerObserver.onClose(Status.CANCELLED);
+        public void onCancel(String reason) {
+            outerObserver.onClose(Status.CANCELLED.withDescription(reason));
         }
     }
 
@@ -142,8 +135,8 @@ public class Operation<RequestT, ResponseT> {
         }
 
         @Override
-        public void onCancel() {
-            grpcController.cancel("user cancelled");
+        public void onCancel(String reason) {
+            grpcController.cancel(reason);
         }
 
         @Override
@@ -162,27 +155,33 @@ public class Operation<RequestT, ResponseT> {
         @Override
         public void onClose(Status status) {
             if (!status.isOk()) {
+                // TODO placeholder, need to check for retryable code and error details
                 if (status.equals(Status.DEADLINE_EXCEEDED) || status.equals(Status.UNAVAILABLE)) {
                     attempt.getAndIncrement();
-                    operation.updateRequest(resumptionStrategy.getResumeRequest(request));
-                    operation.updateContext(context.withTimeoutDuration(Duration.ofMillis(getTimeout())));
+                    request = resumptionStrategy.getResumeRequest(request);
                     if (!userWaitingResponse) {
+                        // TODO wait retry delay ?
                         Idle idle = new Idle(super.operation, outerObserver);
                         onStateChange(idle);
+                        return;
                     } else {
-                        Scheduled scheduled = new Scheduled(super.operation, outerObserver);
-                        ScheduledFuture future = executor.schedule(scheduled::onReady, 5, TimeUnit.SECONDS);
-                        scheduled.setScheduledFuture(future);
-                        onStateChange(scheduled);
+                        long retryDelay = getRetryDelay();
+                        if (deadline.timeRemaining(TimeUnit.MILLISECONDS) - retryDelay > 1) {
+                            Scheduled scheduled = new Scheduled(super.operation, outerObserver);
+                            ScheduledFuture future = executor.schedule(scheduled::onReady, retryDelay, TimeUnit.MILLISECONDS);
+                            scheduled.setScheduledFuture(future);
+                            onStateChange(scheduled);
+                            return;
+                        }
                     }
-                } else {
-                    outerObserver.onClose(status);
                 }
-            } else {
-                outerObserver.onClose(status);
             }
+            outerObserver.onClose(status);
         }
+
+        // TODO state transition
     }
+
 
     class Scheduled extends StateListener {
 
@@ -194,13 +193,13 @@ public class Operation<RequestT, ResponseT> {
         @Override
         public void onReady() {
             Active active = new Active(super.operation, super.outerObserver);
+            callable.call(request, active, context.withTimeoutDuration(Duration.ofMillis(getTimeout())));
             System.out.println("attempt=" + attempt.get() + " timeout=" + context.getTimeoutDuration());
-            callable.call(request, active, context);
             onStateChange(active);
         }
 
         @Override
-        public void onCancel() {
+        public void onCancel(String reason) {
             if (scheduledFuture != null) {
                 scheduledFuture.cancel(true);
                 scheduledFuture = null;

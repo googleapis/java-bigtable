@@ -163,12 +163,17 @@ public class TestRetry {
 
 //        userCallable.all().call(request);
 
-        stub.readRowsCallable().all().call(Query.create("test"));
-//        ServerStream<Row> stream = stub.readRowsCallable().call(Query.create("table"));
-//
-//        for (Row row : stream) {
-//            System.out.println(row);
-//        }
+//        stub.readRowsCallable().all().call(Query.create("test"));
+        ServerStream<Row> stream = stub.readRowsCallable().call(Query.create("table"));
+
+        int count = 0;
+        for (Row row : stream) {
+            System.out.println(row);
+            count++;
+            if (count == 2) {
+                stream.cancel();
+            }
+        }
     }
 
     class FakeService extends BigtableGrpc.BigtableImplBase {
