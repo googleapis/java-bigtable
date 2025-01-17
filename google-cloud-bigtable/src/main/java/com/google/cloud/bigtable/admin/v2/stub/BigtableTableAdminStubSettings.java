@@ -950,9 +950,9 @@ public class BigtableTableAdminStubSettings extends StubSettings<BigtableTableAd
               .setInitialRetryDelayDuration(Duration.ofMillis(1000L))
               .setRetryDelayMultiplier(2.0)
               .setMaxRetryDelayDuration(Duration.ofMillis(60000L))
-              .setInitialRpcTimeoutDuration(Duration.ofMillis(3600000L))
+              .setInitialRpcTimeoutDuration(Duration.ofMillis(60000L))
               .setRpcTimeoutMultiplier(1.0)
-              .setMaxRpcTimeoutDuration(Duration.ofMillis(3600000L))
+              .setMaxRpcTimeoutDuration(Duration.ofMillis(60000L))
               .setTotalTimeoutDuration(Duration.ofMillis(3600000L))
               .build();
       definitions.put("retry_policy_3_params", settings);
