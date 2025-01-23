@@ -247,7 +247,7 @@ public class BigtableSinkConfig extends AbstractConfig {
             DEFAULT_NULL_VALUE_MODE.name(),
             enumValidator(NullValueMode.values()),
             ConfigDef.Importance.MEDIUM,
-            "Defines what to do with `null` Kafka values. Supported modes are:"
+            "Defines what to do with `null`s within Kafka values. Supported modes are:"
                 + "\n- write - Serialize `null`s to empty byte arrays."
                 + "\n- ignore - Ignore `null`s."
                 + "\n- delete - Use them to issue DELETE commands. Root-level `null` deletes a"
