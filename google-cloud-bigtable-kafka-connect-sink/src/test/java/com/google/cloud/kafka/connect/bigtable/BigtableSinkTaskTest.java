@@ -160,11 +160,10 @@ public class BigtableSinkTaskTest {
 
   @Test
   public void testGetTableName() {
-    SinkRecord record = new SinkRecord("topic${test}", 1, null, null, null, null, 1);
+    SinkRecord record = new SinkRecord("topic", 1, null, null, null, null, 1);
     for (Map.Entry<String, String> test :
         List.of(
-            new AbstractMap.SimpleImmutableEntry<>(
-                "prefix_${topic}_suffix", "prefix_topic${test}_suffix"),
+            new AbstractMap.SimpleImmutableEntry<>("prefix_${topic}_suffix", "prefix_topic_suffix"),
             new AbstractMap.SimpleImmutableEntry<>(
                 "prefix_${topic_suffix", "prefix_${topic_suffix"),
             new AbstractMap.SimpleImmutableEntry<>("prefix_$topic_suffix", "prefix_$topic_suffix"),
