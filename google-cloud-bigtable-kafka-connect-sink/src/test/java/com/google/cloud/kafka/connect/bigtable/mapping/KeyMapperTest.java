@@ -443,45 +443,37 @@ public class KeyMapperTest {
 
   @Test
   public void testDifferentStructMappings() {
-    final String innerFieldStringName = "InnerString";
-    final String innerFieldIntegerName = "InnerInt";
-    final String innerStringValue = "forty two";
-    final Integer innerIntegerValue = 42;
+    final String fieldStringName = "String";
+    final String fieldIntegerName = "Int";
+    final String stringValue = "forty two";
+    final Integer integerValue = 42;
 
     Schema kafkaConnectInnerSchema =
         SchemaBuilder.struct()
-            .field(innerFieldStringName, Schema.STRING_SCHEMA)
-            .field(innerFieldIntegerName, Schema.INT32_SCHEMA)
+            .field(fieldStringName, Schema.STRING_SCHEMA)
+            .field(fieldIntegerName, Schema.INT32_SCHEMA)
             .build();
-    Struct kafkaConnectInnerStruct = new Struct(kafkaConnectInnerSchema);
-    kafkaConnectInnerStruct.put(innerFieldStringName, innerStringValue);
-    kafkaConnectInnerStruct.put(innerFieldIntegerName, innerIntegerValue);
+    Struct struct = new Struct(kafkaConnectInnerSchema);
+    struct.put(fieldStringName, stringValue);
+    struct.put(fieldIntegerName, integerValue);
 
     // Note that it preserves field order from the Schema.
     assertTrue(
         Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectInnerStruct),
-            (innerStringValue + DELIMITER + innerIntegerValue).getBytes(StandardCharsets.UTF_8)));
+            calculateKey(List.of(), DELIMITER, struct),
+            (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
     // Force another order.
     assertTrue(
         Arrays.equals(
-            calculateKey(
-                List.of(innerFieldIntegerName, innerFieldStringName),
-                DELIMITER,
-                kafkaConnectInnerStruct),
-            (innerIntegerValue + DELIMITER + innerStringValue).getBytes(StandardCharsets.UTF_8)));
+            calculateKey(List.of(fieldIntegerName, fieldStringName), DELIMITER, struct),
+            (integerValue + DELIMITER + stringValue).getBytes(StandardCharsets.UTF_8)));
     // Use the same field twice.
     assertTrue(
         Arrays.equals(
-            calculateKey(
-                List.of(innerFieldIntegerName, innerFieldIntegerName),
-                DELIMITER,
-                kafkaConnectInnerStruct),
-            (innerIntegerValue + DELIMITER + innerIntegerValue).getBytes(StandardCharsets.UTF_8)));
+            calculateKey(List.of(fieldIntegerName, fieldIntegerName), DELIMITER, struct),
+            (integerValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
     // Try accessing nonexistent key.
-    assertThrows(
-        DataException.class,
-        () -> calculateKey(List.of("invalid"), DELIMITER, kafkaConnectInnerStruct));
+    assertThrows(DataException.class, () -> calculateKey(List.of("invalid"), DELIMITER, struct));
   }
 
   @Test
