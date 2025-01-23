@@ -626,9 +626,6 @@ public class BigtableSchemaManagerTest {
   }
 
   @Test
-  public void testErrorsCreatingColumnFamilies() {}
-
-  @Test
   public void testAwaitResourceCreationAndHandleInvalidInputErrors() {
     int uniqueKafkaOffset = 0;
     SinkRecord ok1 = spoofSinkRecord("topic1", uniqueKafkaOffset++);
