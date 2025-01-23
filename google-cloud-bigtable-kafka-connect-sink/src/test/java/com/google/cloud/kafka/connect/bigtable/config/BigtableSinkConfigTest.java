@@ -87,7 +87,7 @@ public class BigtableSinkConfigTest {
   }
 
   @Test
-  public void testMultipleValuesValidationInsert() {
+  public void testInsertModeOnlyAllowsMaxBatchSizeOf1() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
     props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
     props.put(BigtableSinkConfig.CONFIG_MAX_BATCH_SIZE, "2");
@@ -96,7 +96,7 @@ public class BigtableSinkConfigTest {
   }
 
   @Test
-  public void testMultipleValuesValidationCredentials() {
+  public void testMultipleCredentialsAreDisallowed() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
     props.put(BigtableSinkConfig.CONFIG_GCP_CREDENTIALS_JSON, "nonempty");
     props.put(BigtableSinkConfig.CONFIG_GCP_CREDENTIALS_PATH, "nonempty");
