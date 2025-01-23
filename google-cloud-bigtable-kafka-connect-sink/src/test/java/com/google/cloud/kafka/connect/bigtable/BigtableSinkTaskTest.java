@@ -55,6 +55,7 @@ import com.google.cloud.kafka.connect.bigtable.autocreate.ResourceCreationResult
 import com.google.cloud.kafka.connect.bigtable.config.BigtableErrorMode;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
+import com.google.cloud.kafka.connect.bigtable.config.NullValueMode;
 import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
 import com.google.cloud.kafka.connect.bigtable.mapping.KeyMapper;
 import com.google.cloud.kafka.connect.bigtable.mapping.MutationData;
@@ -188,29 +189,14 @@ public class BigtableSinkTaskTest {
 
   @Test
   public void testCreateRecordMutationDataNonemptyKey() {
-    SinkRecord record = new SinkRecord("topic", 1, null, new Object(), null, null, 1);
+    SinkRecord emptyRecord = new SinkRecord("topic", 1, null, "key", null, null, 1);
+    SinkRecord okRecord = new SinkRecord("topic", 1, null, "key", null, "value", 2);
+    keyMapper = new KeyMapper("#", List.of());
+    valueMapper = new ValueMapper("default", "KAFKA_VALUE", NullValueMode.IGNORE);
     task = new TestBigtableSinkTask(config, null, null, keyMapper, valueMapper, null, null);
 
-    byte[] rowKey = "rowKey".getBytes(StandardCharsets.UTF_8);
-    doReturn(rowKey).when(keyMapper).getKey(any());
-    doAnswer(
-            i -> {
-              MutationDataBuilder builder = new MutationDataBuilder();
-              return builder;
-            })
-        .when(valueMapper)
-        .getRecordMutationDataBuilder(any(), anyLong());
-    assertTrue(task.createRecordMutationData(record).isEmpty());
-
-    doAnswer(
-            i -> {
-              MutationDataBuilder builder = new MutationDataBuilder();
-              builder.deleteRow();
-              return builder;
-            })
-        .when(valueMapper)
-        .getRecordMutationDataBuilder(any(), anyLong());
-    assertTrue(task.createRecordMutationData(record).isPresent());
+    assertTrue(task.createRecordMutationData(emptyRecord).isEmpty());
+    assertTrue(task.createRecordMutationData(okRecord).isPresent());
   }
 
   @Test
