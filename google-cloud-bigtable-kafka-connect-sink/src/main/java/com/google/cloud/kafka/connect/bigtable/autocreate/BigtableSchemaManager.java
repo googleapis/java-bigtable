@@ -370,7 +370,7 @@ public class BigtableSchemaManager {
    *       way all errors not caused by invalid input can be handled generally.
    * </ul>
    *
-   * @param createdColumnFamilyFuturesAndRecords {@link Map} of {@link ApiFuture ApiFuture(s)} and
+   * @param resourceCreationFuturesAndRecords {@link Map} of {@link ApiFuture ApiFuture(s)} and
    *     information what resource is created and for which {@link SinkRecord SinkRecord(s)}.
    * @param errorMessageTemplate The Java format string template of error message with which Cloud
    *     Bigtable exceptions for valid input data are logged.
@@ -381,10 +381,10 @@ public class BigtableSchemaManager {
    */
   @VisibleForTesting
   <Fut extends ApiFuture<?>, Id> Set<SinkRecord> awaitResourceCreationAndHandleInvalidInputErrors(
-      Map<Fut, ResourceAndRecords<Id>> createdColumnFamilyFuturesAndRecords,
+      Map<Fut, ResourceAndRecords<Id>> resourceCreationFuturesAndRecords,
       String errorMessageTemplate) {
     Set<SinkRecord> dataErrors = new HashSet<>();
-    createdColumnFamilyFuturesAndRecords.forEach(
+    resourceCreationFuturesAndRecords.forEach(
         (fut, resourceAndRecords) -> {
           Object resource = resourceAndRecords.getResource();
           List<SinkRecord> sinkRecords = resourceAndRecords.getRecords();
