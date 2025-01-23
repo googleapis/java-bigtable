@@ -365,7 +365,9 @@ public class BigtableSchemaManager {
    *       invalid, it is assumed that input {@link SinkRecord SinkRecord(s)} map to invalid values,
    *       so all the {@link SinkRecord SinkRecord(s)} needing the resource whose creation failed
    *       are returned.
-   *   <li>Other resource creation errors are logged.
+   *   <li>Other resource creation errors are only logged. A different section of code is
+   *       responsible for checking whether the resources exist despite these futures' errors. This
+   *       way all errors not caused by invalid input can be handled generally.
    * </ul>
    *
    * @param createdColumnFamilyFuturesAndRecords {@link Map} of {@link ApiFuture ApiFuture(s)} and
