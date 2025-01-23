@@ -187,6 +187,7 @@ public class KeyMapper {
       Map<?, ?> map = (Map<?, ?>) keyElement;
       return concatenateByteArrays(
           "{",
+          // Note that it inherits ordering of entries from the configured converter.
           map.entrySet().stream()
               .map(
                   e ->
