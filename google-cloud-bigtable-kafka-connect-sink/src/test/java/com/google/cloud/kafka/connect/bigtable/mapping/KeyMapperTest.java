@@ -424,6 +424,8 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field("f", SchemaBuilder.bool().optional()).build();
     Struct structNoOptionalFields = new Struct(structOnlyOptionalFieldsSchema);
 
+    // The following two invocations throw since `null` cannot be serialized in a key directly (only
+    // as a member of a Struct/List/Map/...) to preserve compatibility with the Confluent's sink.
     assertThrows(DataException.class, () -> calculateKey(List.of(), DELIMITER, null));
     assertThrows(
         DataException.class, () -> calculateKey(List.of(), DELIMITER, structNoOptionalFields));
@@ -738,6 +740,8 @@ public class KeyMapperTest {
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(nullableFieldName, nullableFieldValue);
     kafkaConnectStruct.put(requiredFieldName, requiredFieldValue);
+    // The following two invocations throw since `null` cannot be serialized in a key directly (only
+    // as a member of a Struct/List/Map/...) to preserve compatibility with the Confluent's sink.
     assertThrows(DataException.class, () -> calculateKey(List.of(), DELIMITER, kafkaConnectStruct));
     assertThrows(
         DataException.class,
@@ -765,10 +769,13 @@ public class KeyMapperTest {
 
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(nullableFieldName, null);
+    // The following two invocations throw since `null` cannot be serialized in a key directly (only
+    // as a member of a Struct/List/Map/...) to preserve compatibility with the Confluent's sink.
     assertThrows(DataException.class, () -> calculateKey(List.of(), DELIMITER, kafkaConnectStruct));
     assertThrows(
         DataException.class,
         () -> calculateKey(List.of(nullableFieldName), DELIMITER, kafkaConnectStruct));
+    // Access to a field of a nonexistent struct.
     assertThrows(
         DataException.class,
         () ->
