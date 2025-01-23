@@ -58,10 +58,8 @@ public class KeyMapperTest {
   public void testBoolean() {
     final String fieldName = "Boolean";
     final Boolean fieldValue = true;
-
     Schema kafkaConnectSchema =
         SchemaBuilder.struct().field(fieldName, Schema.BOOLEAN_SCHEMA).build();
-
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValue);
 
@@ -80,13 +78,13 @@ public class KeyMapperTest {
   }
 
   @Test
-  public void testInteger() {
-    final String fieldName = "Integer";
+  public void testByte() {
+    final String fieldName = "Byte";
     final Byte fieldByteValue = (byte) 42;
     Schema kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.INT8_SCHEMA).build();
-
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldByteValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldByteValue),
@@ -99,12 +97,17 @@ public class KeyMapperTest {
         Arrays.equals(
             calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
             fieldByteValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
 
+  @Test
+  public void testShort() {
+    final String fieldName = "Short";
     final Short fieldShortValue = (short) 4242;
-    kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.INT16_SCHEMA).build();
-
-    kafkaConnectStruct = new Struct(kafkaConnectSchema);
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct().field(fieldName, Schema.INT16_SCHEMA).build();
+    Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldShortValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldShortValue),
@@ -117,12 +120,17 @@ public class KeyMapperTest {
         Arrays.equals(
             calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
             fieldShortValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
 
+  @Test
+  public void testInteger() {
+    String fieldName = "Integer";
     final Integer fieldIntegerValue = 424242;
-    kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.INT32_SCHEMA).build();
-
-    kafkaConnectStruct = new Struct(kafkaConnectSchema);
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct().field(fieldName, Schema.INT32_SCHEMA).build();
+    Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldIntegerValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldIntegerValue),
@@ -135,12 +143,17 @@ public class KeyMapperTest {
         Arrays.equals(
             calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
             fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
 
+  @Test
+  public void testLong() {
+    String fieldName = "Long";
     final Long fieldLongValue = 424242424242L;
-    kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.INT64_SCHEMA).build();
-
-    kafkaConnectStruct = new Struct(kafkaConnectSchema);
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct().field(fieldName, Schema.INT64_SCHEMA).build();
+    Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldLongValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldLongValue),
@@ -161,9 +174,9 @@ public class KeyMapperTest {
     final Float fieldFloatValue = 4242424242.4242F;
     Schema kafkaConnectSchema =
         SchemaBuilder.struct().field(fieldName, Schema.FLOAT32_SCHEMA).build();
-
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldFloatValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldFloatValue),
@@ -176,12 +189,17 @@ public class KeyMapperTest {
         Arrays.equals(
             calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
             fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
 
+  @Test
+  public void testDouble() {
+    final String fieldName = "Double";
     final Double fieldDoubleValue = 4242424242.4242;
-    kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.FLOAT64_SCHEMA).build();
-
-    kafkaConnectStruct = new Struct(kafkaConnectSchema);
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct().field(fieldName, Schema.FLOAT64_SCHEMA).build();
+    Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldDoubleValue);
+
     assertTrue(
         Arrays.equals(
             calculateKey(List.of(), DELIMITER, fieldDoubleValue),
