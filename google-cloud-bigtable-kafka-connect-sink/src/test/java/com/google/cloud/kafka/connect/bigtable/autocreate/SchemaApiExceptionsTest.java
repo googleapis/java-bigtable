@@ -143,6 +143,5 @@ public class SchemaApiExceptionsTest {
             expectedResult, BigtableSchemaManager.SchemaApiExceptions.isCausedByInputError(e));
       }
     }
-    ;
   }
 }
