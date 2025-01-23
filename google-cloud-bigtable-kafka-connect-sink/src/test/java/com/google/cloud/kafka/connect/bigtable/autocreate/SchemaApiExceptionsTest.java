@@ -44,7 +44,12 @@ public class SchemaApiExceptionsTest {
     }
 
     for (Code notCausedByInputError :
-        List.of(Code.NOT_FOUND, Code.RESOURCE_EXHAUSTED, Code.CANCELLED, Code.UNKNOWN)) {
+        List.of(
+            Code.ALREADY_EXISTS,
+            Code.NOT_FOUND,
+            Code.RESOURCE_EXHAUSTED,
+            Code.CANCELLED,
+            Code.UNKNOWN)) {
       assertFalse(
           BigtableSchemaManager.SchemaApiExceptions.isStatusCodeCausedByInputError(
               notCausedByInputError));
