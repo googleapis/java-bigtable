@@ -927,6 +927,23 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
+   * Creates an automated backup with the specified configuration.
+   *
+   * <p>Sample code
+   *
+   * <pre>{@code
+   * CreateBackupRequest request =
+   *         CreateBackupRequest.of(clusterId, backupId)
+   *             .setSourceTableId(tableId)
+   *             .setExpireTime(expireTime);
+   * Backup response = client.createBackup(request);
+   * }</pre>
+   */
+  public Backup createBackup(CreateBackupRequest request) {
+    return ApiExceptions.callAndTranslateApiException(createBackupAsync(request));
+  }
+
+  /**
    * Creates a backup with the specified configuration.
    *
    * <p>Sample code

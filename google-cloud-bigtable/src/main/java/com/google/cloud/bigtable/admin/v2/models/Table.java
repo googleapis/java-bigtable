@@ -99,6 +99,36 @@ public final class Table {
     }
   }
 
+  public final class AutomatedBackupPolicy {
+    private final com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto;
+
+    /**
+     * Wraps the protobuf. This method is considered an internal implementation detail and not meant
+     * to be used by applications.
+     */
+    @InternalApi
+    public AutomatedBackupPolicy fromProto(
+        @Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+      return new AutomatedBackupPolicy(proto);
+    }
+
+    private AutomatedBackupPolicy(@Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+      Preconditions.checkNotNull(proto);
+      Preconditions.checkArgument(!proto.getRetentionPeriod().isInitialized(), "Retention Period must be set");
+      Preconditions.checkArgument(!proto.getFrequency().isInitialized(), "Frequency must be set");
+      this.proto = proto;
+    }
+
+    /**
+     * Creates the request protobuf. This method is considered an internal implementation detail and
+     * not meant to be used by applications.
+     */
+    @InternalApi
+    public com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy toProto() {
+      return proto;
+    }
+  }
+
   private final String id;
   private final String instanceId;
   private final Map<String, ReplicationState> replicationStatesByClusterId;
