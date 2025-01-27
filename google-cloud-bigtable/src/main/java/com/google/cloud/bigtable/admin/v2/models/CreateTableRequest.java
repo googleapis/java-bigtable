@@ -129,6 +129,12 @@ public final class CreateTableRequest {
     return this;
   }
 
+  /** Set if the table has an automated backup policy. */
+  public CreateTableRequest setAutomatedBackup(Table.AutomatedBackupPolicy policy) {
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy.toProto());
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
