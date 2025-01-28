@@ -39,6 +39,9 @@ public class UpdateTableRequest {
   private final com.google.bigtable.admin.v2.UpdateTableRequest.Builder requestBuilder =
       com.google.bigtable.admin.v2.UpdateTableRequest.newBuilder();
 
+  private final com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.Builder automatedPolicyBuilder =
+      com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder();
+
   public static UpdateTableRequest of(String tableId) {
     return new UpdateTableRequest(tableId);
   }
@@ -69,7 +72,7 @@ public class UpdateTableRequest {
     return this;
   }
 
-  /** Disable change stream for table */
+  /** Disable change stream for table. */
   public UpdateTableRequest disableChangeStreamRetention() {
     return addChangeStreamRetention(Duration.ZERO);
   }
@@ -80,6 +83,47 @@ public class UpdateTableRequest {
     requestBuilder.getUpdateMaskBuilder().addPaths("deletion_protection");
     return this;
   }
+
+    /** Disables table automated backup policy. */
+  public UpdateTableRequest disableAutomatedBackup(String tableId) {
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(
+      automatedPolicyBuilder.build());
+    requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy");
+    return this;
+  }
+
+  /** Updates table automated backup policy. */
+  public UpdateTableRequest setAutomatedBackup(Table.AutomatedBackupPolicy policy) {
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy.toProto());
+    requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy");
+    return this;
+  }
+
+  /** Updates table automated backup policy retention period. */
+  public UpdateTableRequest setAutomatedBackupRetentionPeriod(Duration retention) {
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(
+      automatedPolicyBuilder
+        .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+                          .setSeconds(retention.getSeconds())
+                          .setNanos(retention.getNano())
+                          .build())
+        .build());
+    requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy.retention_period");
+    return this;
+  }
+
+  /** Updates table automated backup policy frequency. */
+  public UpdateTableRequest setAutomatedBackupFrequency(Duration frequency) {
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(
+      automatedPolicyBuilder
+        .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+                          .setSeconds(frequency.getSeconds())
+                          .setNanos(frequency.getNano())
+                          .build())
+        .build());    
+    requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy.frequency");
+    return this;
+  } 
 
   @InternalApi
   public com.google.bigtable.admin.v2.UpdateTableRequest toProto(

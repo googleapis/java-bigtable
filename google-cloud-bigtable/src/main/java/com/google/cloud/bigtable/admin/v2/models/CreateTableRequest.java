@@ -100,14 +100,14 @@ public final class CreateTableRequest {
     return this;
   }
 
-  /** Adds split at the specified key to the configuration */
+  /** Adds split at the specified key to the configuration. */
   public CreateTableRequest addSplit(ByteString key) {
     Preconditions.checkNotNull(key);
     requestBuilder.addInitialSplitsBuilder().setKey(key);
     return this;
   }
 
-  /** Add change stream retention period between 1 day and 7 days */
+  /** Add change stream retention period between 1 day and 7 days. */
   public CreateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     requestBuilder
