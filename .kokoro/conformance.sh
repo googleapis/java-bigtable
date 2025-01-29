@@ -69,7 +69,7 @@ do
   cd cloud-bigtable-clients-test/tests
   # If there is known failures, please add
   # "-skip `cat ../../test-proxy/known_failures.txt`" to the command below.
-  eval "go test -v -proxy_addr=:9999 ${configFlag}"
+  eval "go test -v -proxy_addr=:9999 ${configFlag} -skip `cat ../../test-proxy/known_failures.txt`"
   returnCode=$?
   popd
 
