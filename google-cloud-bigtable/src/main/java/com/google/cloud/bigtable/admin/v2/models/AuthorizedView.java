@@ -24,23 +24,26 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 
 /**
- * A class that wraps the {@link com.google.bigtable.admin.v2.AuthorizedView} protocol buffer
- * object.
+ * A class that wraps the {@link com.google.bigtable.admin.v2.AuthorizedView}
+ * protocol buffer object.
  *
- * <p>An AuthorizedView represents subsets of a particular table based on rules. The access to each
- * AuthorizedView can be configured separately from the Table.
+ * <p>
+ * An AuthorizedView represents subsets of a particular table based on rules.
+ * The access to each AuthorizedView can be configured separately from the
+ * Table.
  *
- * <p>Users can perform read/write operation on an AuthorizedView by providing an authorizedView id
- * besides a table id, in which case the semantics remain identical as reading/writing on a Table
- * except that visibility is restricted to the subset of the Table that the AuthorizedView
- * represents.
+ * <p>
+ * Users can perform read/write operation on an AuthorizedView by providing an
+ * authorizedView id besides a table id, in which case the semantics remain
+ * identical as reading/writing on a Table except that visibility is restricted
+ * to the subset of the Table that the AuthorizedView represents.
  */
 public final class AuthorizedView {
   private final com.google.bigtable.admin.v2.AuthorizedView proto;
 
   /**
-   * Wraps the protobuf. This method is considered an internal implementation detail and not meant
-   * to be used by applications.
+   * Wraps the protobuf. This method is considered an internal implementation
+   * detail and not meant to be used by applications.
    */
   @InternalApi
   public static AuthorizedView fromProto(
@@ -61,7 +64,7 @@ public final class AuthorizedView {
     // Constructor ensures that name is not null.
     AuthorizedViewName fullName = AuthorizedViewName.parse(proto.getName());
 
-    //noinspection ConstantConditions
+    // noinspection ConstantConditions
     return fullName.getAuthorizedView();
   }
 
@@ -70,7 +73,7 @@ public final class AuthorizedView {
     // Constructor ensures that name is not null.
     AuthorizedViewName fullName = AuthorizedViewName.parse(proto.getName());
 
-    //noinspection ConstantConditions
+    // noinspection ConstantConditions
     return fullName.getTable();
   }
 
@@ -79,7 +82,10 @@ public final class AuthorizedView {
     return proto.getDeletionProtection();
   }
 
-  /** Gets the type of this authorized view, which currently can only be a subset view. */
+  /**
+   * Gets the type of this authorized view, which currently can only be a subset
+   * view.
+   */
   public AuthorizedViewType getAuthorizedViewType() {
     if (proto.hasSubsetView()) {
       return SubsetView.fromProto(proto.getSubsetView());
@@ -90,8 +96,8 @@ public final class AuthorizedView {
   }
 
   /**
-   * Creates the request protobuf. This method is considered an internal implementation detail and
-   * not meant to be used by applications.
+   * Creates the request protobuf. This method is considered an internal
+   * implementation detail and not meant to be used by applications.
    */
   @InternalApi
   public com.google.bigtable.admin.v2.AuthorizedView toProto() {
@@ -116,9 +122,10 @@ public final class AuthorizedView {
   }
 
   /**
-   * Represents a subset of a Table. Please check the implementations of this interface for more
-   * details.
+   * Represents a subset of a Table. Please check the implementations of this
+   * interface for more details.
    */
   @InternalExtensionOnly
-  public interface AuthorizedViewType {}
+  public interface AuthorizedViewType {
+  }
 }
