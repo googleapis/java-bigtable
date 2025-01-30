@@ -63,12 +63,30 @@ public class MutationDataBuilder {
 
   public void deleteFamily(String columnFamily) {
     mutationIsEmpty = false;
+    // Cloud Bigtable (but not the Java-based emulator!) returns an error when a mutation contains
+    // a deletion of a nonexistent column family, thus rolling not only the deletion, but also other
+    // operations within the row back.
+    // Thus, we need to make a choice to either:
+    // a) ensure that the needed column family exists.
+    // b) modify the record as if it didn't contain the deletion of columns that don't exist so that
+    // other operations within the row have a chance to execute successfully.
+    // I think the option a) is clearer to reason about, so we mark the column family as required.
+    requiredColumnFamilies.add(columnFamily);
     mutation.deleteFamily(columnFamily);
   }
 
   public void deleteCells(
       String columnFamily, ByteString columnQualifier, Range.TimestampRange timestampRange) {
     mutationIsEmpty = false;
+    // Cloud Bigtable returns an error when a mutation contains a deletion of a cell within
+    // a nonexistent column family, thus rolling not only the deletion, but also other
+    // operations within the row back.
+    // Thus, we need to make a choice to either:
+    // a) ensure that the needed column family exists.
+    // b) modify the record as if it didn't contain the deletion of columns that don't exist so that
+    // other operations within the row have a chance to execute successfully.
+    // I think the option a) is clearer to reason about, so we mark the column family as required.
+    requiredColumnFamilies.add(columnFamily);
     mutation.deleteCells(columnFamily, columnQualifier, timestampRange);
   }
 

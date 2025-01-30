@@ -67,7 +67,7 @@ public class MutationDataBuilderTest {
     Optional<MutationData> mutationData =
         mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY);
     assertTrue(mutationData.isPresent());
-    assertEquals(mutationData.get().getRequiredColumnFamilies(), Set.of());
+    assertTrue(mutationData.get().getRequiredColumnFamilies().isEmpty());
   }
 
   @Test
@@ -77,7 +77,7 @@ public class MutationDataBuilderTest {
     Optional<MutationData> mutationData =
         mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY);
     assertTrue(mutationData.isPresent());
-    assertTrue(mutationData.get().getRequiredColumnFamilies().isEmpty());
+    assertEquals(Set.of(COLUMN_FAMILY), mutationData.get().getRequiredColumnFamilies());
   }
 
   @Test
@@ -87,7 +87,7 @@ public class MutationDataBuilderTest {
     Optional<MutationData> mutationData =
         mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY);
     assertTrue(mutationData.isPresent());
-    assertTrue(mutationData.get().getRequiredColumnFamilies().isEmpty());
+    assertEquals(Set.of(COLUMN_FAMILY), mutationData.get().getRequiredColumnFamilies());
   }
 
   @Test
@@ -97,6 +97,6 @@ public class MutationDataBuilderTest {
     Optional<MutationData> mutationData =
         mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY);
     assertTrue(mutationData.isPresent());
-    assertEquals(mutationData.get().getRequiredColumnFamilies(), Set.of(COLUMN_FAMILY));
+    assertEquals(Set.of(COLUMN_FAMILY), mutationData.get().getRequiredColumnFamilies());
   }
 }
