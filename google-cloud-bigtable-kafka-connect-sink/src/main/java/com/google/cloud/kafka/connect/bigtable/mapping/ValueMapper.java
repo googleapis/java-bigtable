@@ -15,13 +15,14 @@
  */
 package com.google.cloud.kafka.connect.bigtable.mapping;
 
+import static com.google.cloud.kafka.connect.bigtable.mapping.LogicalTypeUtils.logIfLogicalTypeUnsupported;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.google.cloud.ByteArray;
 import com.google.cloud.bigtable.data.v2.models.Range;
 import com.google.cloud.kafka.connect.bigtable.config.ConfigInterpolation;
 import com.google.cloud.kafka.connect.bigtable.config.NullValueMode;
@@ -29,19 +30,24 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.kafka.common.utils.Utils;
+import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.data.Time;
+import org.apache.kafka.connect.data.Timestamp;
 import org.apache.kafka.connect.errors.DataException;
 
 /**
@@ -78,31 +84,42 @@ public class ValueMapper {
    * Creates a {@link MutationDataBuilder} that can be used to create a {@link MutationData}
    * representing the input Kafka Connect value as Cloud Bigtable mutations that need to be applied.
    *
-   * @param rootKafkaValue The value to be converted into Cloud Bigtable {@link
-   *     com.google.cloud.bigtable.data.v2.models.Mutation Mutation(s)}.
+   * @param kafkaValueAndSchema The value to be converted into Cloud Bigtable {@link
+   *     com.google.cloud.bigtable.data.v2.models.Mutation Mutation(s)} and its optional {@link
+   *     Schema}.
    * @param topic The name of Kafka topic this value originates from.
    * @param timestampMicros The timestamp the mutations will be created at in microseconds.
    */
   public MutationDataBuilder getRecordMutationDataBuilder(
-      Object rootKafkaValue, String topic, long timestampMicros) {
+      SchemaAndValue kafkaValueAndSchema, String topic, long timestampMicros) {
+    Object rootKafkaValue = kafkaValueAndSchema.value();
+    Optional<Schema> rootKafkaSchema = Optional.ofNullable(kafkaValueAndSchema.schema());
+    logIfLogicalTypeUnsupported(rootKafkaSchema);
     MutationDataBuilder mutationDataBuilder = createMutationDataBuilder();
     if (rootKafkaValue == null && nullMode == NullValueMode.IGNORE) {
       // Do nothing
     } else if (rootKafkaValue == null && nullMode == NullValueMode.DELETE) {
       mutationDataBuilder.deleteRow();
-    } else if (rootKafkaValue instanceof Map || rootKafkaValue instanceof Struct) {
-      for (Map.Entry<Object, Object> field : getChildren(rootKafkaValue)) {
+    } else if (rootKafkaValue instanceof Struct) {
+      for (Map.Entry<Object, SchemaAndValue> field :
+          getChildren((Struct) rootKafkaValue, rootKafkaSchema)) {
         String kafkaFieldName = field.getKey().toString();
-        Object kafkaFieldValue = field.getValue();
+        Object kafkaFieldValue = field.getValue().value();
+        Optional<Schema> kafkaFieldSchema = Optional.ofNullable(field.getValue().schema());
+        logIfLogicalTypeUnsupported(kafkaFieldSchema);
         if (kafkaFieldValue == null && nullMode == NullValueMode.IGNORE) {
           continue;
         } else if (kafkaFieldValue == null && nullMode == NullValueMode.DELETE) {
           mutationDataBuilder.deleteFamily(kafkaFieldName);
-        } else if (kafkaFieldValue instanceof Map || kafkaFieldValue instanceof Struct) {
-          for (Map.Entry<Object, Object> subfield : getChildren(kafkaFieldValue)) {
+        } else if (kafkaFieldValue instanceof Struct) {
+          for (Map.Entry<Object, SchemaAndValue> subfield :
+              getChildren((Struct) kafkaFieldValue, kafkaFieldSchema)) {
             ByteString kafkaSubfieldName =
                 ByteString.copyFrom(subfield.getKey().toString().getBytes(StandardCharsets.UTF_8));
-            Object kafkaSubfieldValue = subfield.getValue();
+            Object kafkaSubfieldValue = subfield.getValue().value();
+            Optional<Schema> kafkaSubfieldSchema =
+                Optional.ofNullable(subfield.getValue().schema());
+            logIfLogicalTypeUnsupported(kafkaSubfieldSchema);
             if (kafkaSubfieldValue == null && nullMode == NullValueMode.IGNORE) {
               continue;
             } else if (kafkaSubfieldValue == null && nullMode == NullValueMode.DELETE) {
@@ -115,7 +132,7 @@ public class ValueMapper {
                   kafkaFieldName,
                   kafkaSubfieldName,
                   timestampMicros,
-                  ByteString.copyFrom(serialize(kafkaSubfieldValue)));
+                  ByteString.copyFrom(serialize(kafkaSubfieldValue, kafkaSubfieldSchema)));
             }
           }
         } else {
@@ -124,7 +141,7 @@ public class ValueMapper {
                 getDefaultColumnFamily(topic),
                 ByteString.copyFrom(kafkaFieldName.getBytes(StandardCharsets.UTF_8)),
                 timestampMicros,
-                ByteString.copyFrom(serialize(kafkaFieldValue)));
+                ByteString.copyFrom(serialize(kafkaFieldValue, kafkaFieldSchema)));
           }
         }
       }
@@ -134,7 +151,7 @@ public class ValueMapper {
             getDefaultColumnFamily(topic),
             defaultColumnQualifier,
             timestampMicros,
-            ByteString.copyFrom(serialize(rootKafkaValue)));
+            ByteString.copyFrom(serialize(rootKafkaValue, rootKafkaSchema)));
       }
     }
     return mutationDataBuilder;
@@ -151,40 +168,37 @@ public class ValueMapper {
   }
 
   /**
-   * @param mapOrStruct {@link Map} or {@link Struct} whose children we want to list
-   * @return {@link List} of names or keys of input value's child entries.
+   * @param struct {@link Struct} whose children we want to list
+   * @return {@link List} of pairs of field names and values (with optional schemas) of {@code
+   *     struct}'s fields.
    */
-  private static List<Map.Entry<Object, Object>> getChildren(Object mapOrStruct) {
-    if (mapOrStruct instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<Object, Object> kafkaMapValue = (Map<Object, Object>) mapOrStruct;
-      return new ArrayList<>(kafkaMapValue.entrySet());
-    } else if (mapOrStruct instanceof Struct) {
-      Struct kafkaStructValue = (Struct) mapOrStruct;
-      return kafkaStructValue.schema().fields().stream()
-          .map(
-              f ->
-                  new AbstractMap.SimpleImmutableEntry<>(
-                      (Object) f.name(), kafkaStructValue.get(f)))
-          .collect(Collectors.toList());
-    } else {
-      throw new IllegalStateException();
-    }
+  private static List<Map.Entry<Object, SchemaAndValue>> getChildren(
+      Struct struct, Optional<Schema> schema) {
+    return struct.schema().fields().stream()
+        .map(Field::name)
+        .map(
+            f ->
+                new AbstractMap.SimpleImmutableEntry<>(
+                    (Object) f,
+                    new SchemaAndValue(
+                        SchemaUtils.maybeExtractFieldSchema(schema, f).orElse(null),
+                        struct.get(f))))
+        .collect(Collectors.toList());
   }
 
   /**
    * @param value Input value.
+   * @param schema An optional schema of {@code value}.
    * @return Input value's serialization's bytes that will be written to Cloud Bigtable as a cell's
    *     value.
    */
-  private static byte[] serialize(Object value) {
+  private static byte[] serialize(Object value, Optional<Schema> schema) {
     if (value == null) {
       return new byte[0];
-    }
-    if (value instanceof byte[]) {
+    } else if (value instanceof byte[]) {
       return (byte[]) value;
-    } else if (value instanceof ByteArray) {
-      return serialize(((ByteArray) value).toByteArray());
+    } else if (value instanceof ByteBuffer) {
+      return serialize(((ByteBuffer) value).array(), Optional.empty());
     } else if (value instanceof Integer) {
       return Bytes.toBytes((Integer) value);
     } else if (value instanceof Long) {
@@ -202,22 +216,23 @@ public class ValueMapper {
     } else if (value instanceof String) {
       return Bytes.toBytes((String) value);
     } else if (value instanceof Character) {
-      return serialize(Character.toString((Character) value));
+      return serialize(Character.toString((Character) value), Optional.empty());
     } else if (value instanceof Date) {
-      // TODO: implement.
-      throw new DataException("TODO");
+      // Note that the value might have different Kafka Connect schema: Date, Time or Timestamp.
+      return serialize(((Date) value).getTime(), Optional.empty());
     } else if (value instanceof BigDecimal) {
-      // TODO: implement.
-      throw new DataException("TODO");
+      return Bytes.toBytes((BigDecimal) value);
     } else if (value instanceof Map || value instanceof Struct || value instanceof List) {
       try {
         return jsonMapper.writeValueAsBytes(value);
       } catch (JsonProcessingException e) {
-        throw new DataException("Failed to deserialize a(n) " + value.getClass(), e);
+        throw new DataException("Failed to deserialize a(n) " + value.getClass().getName(), e);
       }
     } else {
       throw new DataException(
-          "Unsupported serialization of an unexpected class `" + value.getClass() + "`.");
+          "Unsupported serialization of an unexpected class `"
+              + value.getClass().getName()
+              + "` in value.");
     }
   }
 
@@ -241,12 +256,35 @@ public class ValueMapper {
     public void serialize(Struct value, JsonGenerator gen, SerializerProvider provider)
         throws IOException {
       Schema schema = value.schema();
+      logIfLogicalTypeUnsupported(Optional.ofNullable(schema));
       gen.writeStartObject();
       for (Field field : schema.fields()) {
         String fieldName = field.name();
-        gen.writeObjectField(fieldName, value.getWithoutDefault(fieldName));
+        Schema fieldSchema = field.schema();
+        logIfLogicalTypeUnsupported(Optional.ofNullable(fieldSchema));
+        Object logicalFieldValue = value.getWithoutDefault(fieldName);
+        Object physicalFieldValue = convertToPhysicalValue(logicalFieldValue, fieldSchema);
+        gen.writeObjectField(fieldName, physicalFieldValue);
       }
       gen.writeEndObject();
+    }
+
+    private Object convertToPhysicalValue(Object logicalFieldValue, Schema fieldSchema) {
+      if (logicalFieldValue instanceof Date) {
+        Date date = (Date) logicalFieldValue;
+        String logicalName = Optional.ofNullable(fieldSchema).map(Schema::name).orElse("");
+        switch (logicalName) {
+          case Timestamp.LOGICAL_NAME:
+            return Timestamp.fromLogical(fieldSchema, date);
+          case Time.LOGICAL_NAME:
+            return Time.fromLogical(fieldSchema, date);
+          case org.apache.kafka.connect.data.Date.LOGICAL_NAME:
+            return org.apache.kafka.connect.data.Date.fromLogical(fieldSchema, date);
+        }
+      } else if (logicalFieldValue instanceof BigDecimal) {
+        return Decimal.fromLogical(fieldSchema, (BigDecimal) logicalFieldValue);
+      }
+      return logicalFieldValue;
     }
   }
 }

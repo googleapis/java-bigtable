@@ -50,6 +50,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.errors.DataException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
@@ -220,14 +221,17 @@ public class BigtableSinkTask extends SinkTask {
   @VisibleForTesting
   Optional<MutationData> createRecordMutationData(SinkRecord record) {
     String recordTableId = getTableName(record);
-    ByteString rowKey = ByteString.copyFrom(keyMapper.getKey(record.key()));
+    SchemaAndValue kafkaKey = new SchemaAndValue(record.keySchema(), record.key());
+    ByteString rowKey = ByteString.copyFrom(keyMapper.getKey(kafkaKey));
     if (rowKey.isEmpty()) {
       throw new DataException(
           "The record's key converts into an illegal empty Cloud Bigtable row key.");
     }
+    SchemaAndValue kafkaValue = new SchemaAndValue(record.valueSchema(), record.value());
     long timestamp = getTimestampMicros(record);
     MutationDataBuilder mutationDataBuilder =
-        valueMapper.getRecordMutationDataBuilder(record.value(), record.topic(), timestamp);
+        valueMapper.getRecordMutationDataBuilder(kafkaValue, record.topic(), timestamp);
+
     return mutationDataBuilder.maybeBuild(recordTableId, rowKey);
   }
 
@@ -286,7 +290,7 @@ public class BigtableSinkTask extends SinkTask {
       reporter.report(record, throwable);
       logger.warn(
           "Used DLQ for reporting a problem with a record (throwableClass={}).",
-          throwable.getClass().getSimpleName());
+          throwable.getClass().getName());
     } else {
       BigtableErrorMode errorMode = config.getBigtableErrorMode();
       switch (errorMode) {

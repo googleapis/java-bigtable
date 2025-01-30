@@ -18,11 +18,15 @@ package com.google.cloud.kafka.connect.bigtable.mapping;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +34,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.kafka.connect.data.Field;
+import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.data.Time;
+import org.apache.kafka.connect.data.Timestamp;
 import org.apache.kafka.connect.errors.DataException;
 
 /**
@@ -62,16 +70,22 @@ public class KeyMapper {
    * Converts input data into Cloud Bigtable row key bytes as described in {@link
    * BigtableSinkConfig#getDefinition()}.
    *
-   * @param kafkaKey An {@link Object} to be converted into Cloud Bigtable row key.
+   * @param kafkaKeyAndSchema Value and optional {@link Schema} of a Kafka message's key to be
+   *     converted into a Cloud Bigtable row key.
    * @return {@link Optional#empty()} if the input doesn't convert into a valid Cloud Bigtable row
    *     key, {@link Optional} containing row Cloud Bigtable row key bytes the input converts into
    *     otherwise.
    */
-  public byte[] getKey(Object kafkaKey) {
+  public byte[] getKey(SchemaAndValue kafkaKeyAndSchema) {
+    Object kafkaKey = kafkaKeyAndSchema.value();
+    Optional<Schema> kafkaKeySchema = Optional.ofNullable(kafkaKeyAndSchema.schema());
     ensureKeyElementIsNotNull(kafkaKey);
     Stream<byte[]> keyParts =
         this.getDefinition(kafkaKey).stream()
-            .map((d) -> serializeTopLevelKeyElement(extractField(kafkaKey, d.iterator())));
+            .map(
+                (d) ->
+                    serializeTopLevelKeyElement(
+                        extractField(kafkaKey, kafkaKeySchema, d.iterator())));
     return concatenateByteArrays(new byte[0], keyParts, delimiter, new byte[0]);
   }
 
@@ -82,8 +96,8 @@ public class KeyMapper {
    * @param kafkaKey {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key.
    * @return {@link List} containing {@link List Lists} of key fields that need to be retrieved and
    *     concatenated to construct the Cloud Bigtable row key.
-   *     <p>See {@link KeyMapper#extractField(Object, Iterator)} for details on semantics of the
-   *     inner list.
+   *     <p>See {@link KeyMapper#extractField(Object, Optional, Iterator)} for details on semantics
+   *     of the inner list.
    */
   private List<List<String>> getDefinition(Object kafkaKey) {
     if (this.definition.isEmpty()) {
@@ -112,10 +126,6 @@ public class KeyMapper {
       return Optional.of(
           ((Struct) kafkaKey)
               .schema().fields().stream().map(Field::name).collect(Collectors.toList()));
-    } else if (kafkaKey instanceof Map) {
-      return Optional.of(
-          ((Map<?, ?>) kafkaKey)
-              .keySet().stream().map(Object::toString).collect(Collectors.toList()));
     } else {
       return Optional.empty();
     }
@@ -126,39 +136,39 @@ public class KeyMapper {
    *
    * @param value {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key or some its
    *     child.
+   * @param schema A schema of {@code value}.
    * @param fields Fields that need to be accessed before the target value is reached.
    * @return Extracted nested field.
    */
-  private Object extractField(Object value, Iterator<String> fields) {
+  private SchemaAndValue extractField(
+      Object value, Optional<Schema> schema, Iterator<String> fields) {
     ensureKeyElementIsNotNull(value);
+    LogicalTypeUtils.logIfLogicalTypeUnsupported(schema);
     if (!fields.hasNext()) {
-      return value;
+      return new SchemaAndValue(schema.orElse(null), value);
     }
     String field = fields.next();
     if (value instanceof Struct) {
       Struct struct = (Struct) value;
       // Note that getWithoutDefault() throws if such a field does not exist.
-      return extractField(struct.getWithoutDefault(field), fields);
-    } else if (value instanceof Map) {
-      Map<?, ?> map = (Map<?, ?>) value;
-      if (!map.containsKey(field)) {
-        throw new DataException("Map contains no value for key `" + field + "`.");
-      }
-      return extractField(map.get(field), fields);
+      return extractField(
+          struct.getWithoutDefault(field),
+          SchemaUtils.maybeExtractFieldSchema(schema, field),
+          fields);
     } else {
       throw new DataException(
           "Unexpected class `"
-              + value.getClass()
-              + "` doesn't "
-              + "support extracting field `"
+              + value.getClass().getName()
+              + "` doesn't support extracting field `"
               + field
               + "` using a dot.");
     }
   }
 
-  private static byte[] serializeTopLevelKeyElement(Object keyElement) {
+  private static byte[] serializeTopLevelKeyElement(SchemaAndValue keyElementAndSchema) {
+    Object keyElement = keyElementAndSchema.value();
     ensureKeyElementIsNotNull(keyElement);
-    return serializeKeyElement(keyElement);
+    return serializeKeyElement(keyElement, Optional.ofNullable(keyElementAndSchema.schema()));
   }
 
   /**
@@ -168,23 +178,41 @@ public class KeyMapper {
    *
    * @param keyElement {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key to be
    *     serialized.
+   * @param keyElementSchema An optional schema of {@code keyElement}.
    * @return Serialization of the input value.
    */
-  private static byte[] serializeKeyElement(Object keyElement) {
+  private static byte[] serializeKeyElement(Object keyElement, Optional<Schema> keyElementSchema) {
     if (keyElement == null) {
       // Note that it's needed for serializing null-containing Maps and Lists.
-      return "null".getBytes(StandardCharsets.UTF_8);
+      return serializeKeyElement("null", Optional.empty());
     } else if (keyElement instanceof byte[]) {
-      // Note that it breaks compatibility with Confluent's sink.
       return (byte[]) keyElement;
+    } else if (keyElement instanceof String) {
+      return ((String) keyElement).getBytes(StandardCharsets.UTF_8);
     } else if (keyElement instanceof ByteBuffer) {
       return ((ByteBuffer) keyElement).array();
+    } else if (keyElement instanceof Boolean
+        || keyElement instanceof Byte
+        || keyElement instanceof Short
+        || keyElement instanceof Integer
+        || keyElement instanceof Long
+        || keyElement instanceof Float
+        || keyElement instanceof Double
+        || keyElement instanceof Character) {
+      return serializeKeyElement(keyElement.toString(), Optional.empty());
     } else if (keyElement instanceof List) {
+      // Note that it breaks compatibility with Confluent's sink when serializing byte array
+      // elements.
       List<?> list = (List<?>) keyElement;
+      Optional<Schema> elementSchema = SchemaUtils.maybeExtractValueSchema(keyElementSchema);
       return concatenateByteArrays(
-          "[", list.stream().map(o -> o.toString().getBytes(StandardCharsets.UTF_8)), ", ", "]");
+          "[", list.stream().map(e -> serializeKeyElement(e, elementSchema)), ", ", "]");
     } else if (keyElement instanceof Map) {
+      // Note that it breaks compatibility with Confluent's sink when serializing byte array keys or
+      // values.
       Map<?, ?> map = (Map<?, ?>) keyElement;
+      Optional<Schema> keySchema = SchemaUtils.maybeExtractKeySchema(keyElementSchema);
+      Optional<Schema> valueSchema = SchemaUtils.maybeExtractValueSchema(keyElementSchema);
       return concatenateByteArrays(
           "{",
           // Note that it inherits ordering of entries from the configured converter.
@@ -194,14 +222,17 @@ public class KeyMapper {
                       concatenateByteArrays(
                           new byte[0],
                           Stream.of(
-                              serializeKeyElement(e.getKey()), serializeKeyElement(e.getValue())),
+                              serializeKeyElement(e.getKey(), keySchema),
+                              serializeKeyElement(e.getValue(), valueSchema)),
                           "=".getBytes(StandardCharsets.UTF_8),
                           new byte[0])),
           // Note that Map and Struct have different delimiters for compatibility's sake.
           ", ",
           "}");
     } else if (keyElement instanceof Struct) {
+      // Note that it breaks compatibility with Confluent's sink when serializing byte array fields.
       Struct struct = (Struct) keyElement;
+      Optional<Schema> fieldNameSchema = Optional.empty();
       return concatenateByteArrays(
           "Struct{",
           struct.schema().fields().stream()
@@ -215,15 +246,41 @@ public class KeyMapper {
                       concatenateByteArrays(
                           new byte[0],
                           Stream.of(
-                              serializeKeyElement(e.getKey()), serializeKeyElement(e.getValue())),
+                              serializeKeyElement(e.getKey(), Optional.empty()),
+                              serializeKeyElement(
+                                  e.getValue(),
+                                  SchemaUtils.maybeExtractFieldSchema(
+                                      keyElementSchema, e.getKey()))),
                           "=".getBytes(StandardCharsets.UTF_8),
                           new byte[0])),
           // Note that Map and Struct have different delimiters for compatibility's sake.
           ",",
           "}");
+    } else if (keyElement instanceof Date) {
+      // Note that it breaks compatibility with Confluent's sink, which seems to use toString().
+      DateTimeFormatter fmt;
+      switch (keyElementSchema.map(Schema::name).orElse(Timestamp.LOGICAL_NAME)) {
+        case org.apache.kafka.connect.data.Date.LOGICAL_NAME:
+          fmt = DateTimeFormatter.ISO_LOCAL_DATE;
+          break;
+        case Time.LOGICAL_NAME:
+          fmt = DateTimeFormatter.ISO_LOCAL_TIME;
+          break;
+        default:
+          fmt = DateTimeFormatter.ISO_INSTANT;
+          break;
+      }
+      String formatted = fmt.format(((Date) keyElement).toInstant().atZone(ZoneOffset.UTC));
+      return serializeKeyElement(formatted, Optional.empty());
+    } else if (keyElement instanceof BigDecimal) {
+      // Note that it breaks compatibility with Confluent's sink when serializing values for which
+      // toString() returns values using scientific notation.
+      return serializeKeyElement(((BigDecimal) keyElement).toPlainString(), Optional.empty());
     } else {
-      // TODO: handle logical data types.
-      return keyElement.toString().getBytes(StandardCharsets.UTF_8);
+      throw new DataException(
+          "Unsupported serialization of an unexpected class `"
+              + keyElement.getClass().getName()
+              + "` in key.");
     }
   }
 

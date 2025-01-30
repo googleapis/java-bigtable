@@ -25,7 +25,6 @@ package com.google.cloud.kafka.connect.bigtable.mapping;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.kafka.connect.bigtable.util.JsonConverterFactory;
 import java.io.ByteArrayOutputStream;
@@ -33,6 +32,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -52,7 +53,7 @@ import org.junit.runners.JUnit4;
 // Confluent sink's implementations.
 @RunWith(JUnit4.class)
 public class KeyMapperTest {
-  private static String DELIMITER = "##";
+  private static final String DELIMITER = "##";
 
   @Test
   public void testBoolean() {
@@ -63,18 +64,15 @@ public class KeyMapperTest {
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValue);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldValue),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldValue),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -84,19 +82,15 @@ public class KeyMapperTest {
     Schema kafkaConnectSchema = SchemaBuilder.struct().field(fieldName, Schema.INT8_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldByteValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldByteValue),
-            fieldByteValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldByteValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldByteValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldByteValue),
+        fieldByteValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldByteValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldByteValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -107,19 +101,15 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field(fieldName, Schema.INT16_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldShortValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldShortValue),
-            fieldShortValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldShortValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldShortValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldShortValue),
+        fieldShortValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldShortValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldShortValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -130,19 +120,15 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field(fieldName, Schema.INT32_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldIntegerValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldIntegerValue),
-            fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldIntegerValue),
+        fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldIntegerValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -153,19 +139,15 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field(fieldName, Schema.INT64_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldLongValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldLongValue),
-            fieldLongValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldLongValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldLongValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldLongValue),
+        fieldLongValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldLongValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldLongValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -176,19 +158,15 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field(fieldName, Schema.FLOAT32_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldFloatValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldFloatValue),
-            fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldFloatValue),
+        fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldFloatValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -199,19 +177,15 @@ public class KeyMapperTest {
         SchemaBuilder.struct().field(fieldName, Schema.FLOAT64_SCHEMA).build();
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldDoubleValue);
-
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldDoubleValue),
-            fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldDoubleValue),
+        fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldDoubleValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -224,25 +198,21 @@ public class KeyMapperTest {
         Arrays.asList(Double.MAX_VALUE, Double.MIN_VALUE, Double.MIN_VALUE);
     assertEquals(testValues.size(), expectedValues.size());
 
-    for (int test = 0; test < testValues.size(); ++test) {
+    for (Double testValue : testValues) {
       Schema kafkaConnectSchema =
           SchemaBuilder.struct().field(fieldName, Schema.FLOAT64_SCHEMA).build();
-      Double testValue = testValues.get(test);
 
       Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
       kafkaConnectStruct.put(fieldName, testValue);
-      assertTrue(
-          Arrays.equals(
-              calculateKey(List.of(), DELIMITER, testValue),
-              testValue.toString().getBytes(StandardCharsets.UTF_8)));
-      assertTrue(
-          Arrays.equals(
-              calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-              testValue.toString().getBytes(StandardCharsets.UTF_8)));
-      assertTrue(
-          Arrays.equals(
-              calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-              testValue.toString().getBytes(StandardCharsets.UTF_8)));
+      assertArrayEquals(
+          calculateKey(List.of(), DELIMITER, testValue),
+          testValue.toString().getBytes(StandardCharsets.UTF_8));
+      assertArrayEquals(
+          calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+          testValue.toString().getBytes(StandardCharsets.UTF_8));
+      assertArrayEquals(
+          calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+          testValue.toString().getBytes(StandardCharsets.UTF_8));
     }
   }
 
@@ -255,18 +225,15 @@ public class KeyMapperTest {
 
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValue);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, fieldValue),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, fieldValue),
+        fieldValue.getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldValue.getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldValue.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -286,18 +253,15 @@ public class KeyMapperTest {
     kafkaConnectInnerStruct.put(fieldStringName, stringValue);
     kafkaConnectInnerStruct.put(fieldIntegerName, integerValue);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectInnerStruct),
-            (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldStringName), DELIMITER, kafkaConnectInnerStruct),
-            stringValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldIntegerName), DELIMITER, kafkaConnectInnerStruct),
-            integerValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectInnerStruct),
+        (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldStringName), DELIMITER, kafkaConnectInnerStruct),
+        stringValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldIntegerName), DELIMITER, kafkaConnectInnerStruct),
+        integerValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -329,33 +293,28 @@ public class KeyMapperTest {
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(innerFieldStructName, kafkaConnectInnerStruct);
     kafkaConnectStruct.put(fieldArrayName, arrayValue);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            (kafkaConnectInnerStruct.toString() + DELIMITER + arrayValue.toString())
-                .getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectStruct),
-            kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldArrayName), DELIMITER, kafkaConnectStruct),
-            arrayValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldStringName),
-                DELIMITER,
-                kafkaConnectStruct),
-            innerStringValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldIntegerName),
-                DELIMITER,
-                kafkaConnectStruct),
-            innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        (kafkaConnectInnerStruct.toString() + DELIMITER + arrayValue.toString())
+            .getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectStruct),
+        kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldArrayName), DELIMITER, kafkaConnectStruct),
+        arrayValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(
+            List.of(innerFieldStructName + "." + innerFieldStringName),
+            DELIMITER,
+            kafkaConnectStruct),
+        innerStringValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(
+            List.of(innerFieldStructName + "." + innerFieldIntegerName),
+            DELIMITER,
+            kafkaConnectStruct),
+        innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -399,38 +358,29 @@ public class KeyMapperTest {
     kafkaConnectOuterStruct.put(innerFieldStructName, kafkaConnectInnerStruct);
     kafkaConnectOuterStruct.put(middleFieldStructName, kafkaConnectMiddleStruct);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct),
-            (kafkaConnectInnerStruct.toString() + DELIMITER + kafkaConnectMiddleStruct.toString())
-                .getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
-            kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(middleFieldStructName), DELIMITER, kafkaConnectOuterStruct),
-            kafkaConnectMiddleStruct.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldStringName),
-                DELIMITER,
-                kafkaConnectOuterStruct),
-            innerStringValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(
-                    middleFieldStructName
-                        + "."
-                        + innerFieldStructName
-                        + "."
-                        + innerFieldIntegerName),
-                DELIMITER,
-                kafkaConnectOuterStruct),
-            innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct),
+        (kafkaConnectInnerStruct.toString() + DELIMITER + kafkaConnectMiddleStruct.toString())
+            .getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
+        kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(middleFieldStructName), DELIMITER, kafkaConnectOuterStruct),
+        kafkaConnectMiddleStruct.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(
+            List.of(innerFieldStructName + "." + innerFieldStringName),
+            DELIMITER,
+            kafkaConnectOuterStruct),
+        innerStringValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(
+            List.of(
+                middleFieldStructName + "." + innerFieldStructName + "." + innerFieldIntegerName),
+            DELIMITER,
+            kafkaConnectOuterStruct),
+        innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -452,19 +402,15 @@ public class KeyMapperTest {
     Struct kafkaConnectOuterStruct = new Struct(kafkaConnectOuterSchema);
     kafkaConnectOuterStruct.put(innerFieldStructName, kafkaConnectInnerStruct);
     kafkaConnectOuterStruct.put(innerFieldStringName, innerStringValue);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct),
-            (kafkaConnectInnerStruct + DELIMITER + innerStringValue)
-                .getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
-            kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
-            "Struct{}".getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct),
+        (kafkaConnectInnerStruct + DELIMITER + innerStringValue).getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
+        kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
+        "Struct{}".getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -488,7 +434,6 @@ public class KeyMapperTest {
     byte[] expected = new byte[0];
     assertArrayEquals(expected, calculateKey(List.of(), DELIMITER, ""));
     assertArrayEquals(expected, calculateKey(List.of(), DELIMITER, new byte[0]));
-    assertArrayEquals(expected, calculateKey(List.of(), DELIMITER, new HashMap<>()));
     assertArrayEquals(expected, calculateKey(List.of(), DELIMITER, structNoFields));
   }
 
@@ -509,20 +454,17 @@ public class KeyMapperTest {
     struct.put(fieldIntegerName, integerValue);
 
     // Note that it preserves field order from the Schema.
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, struct),
-            (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, struct),
+        (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8));
     // Force another order.
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldIntegerName, fieldStringName), DELIMITER, struct),
-            (integerValue + DELIMITER + stringValue).getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(fieldIntegerName, fieldStringName), DELIMITER, struct),
+        (integerValue + DELIMITER + stringValue).getBytes(StandardCharsets.UTF_8));
     // Use the same field twice.
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldIntegerName, fieldIntegerName), DELIMITER, struct),
-            (integerValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(fieldIntegerName, fieldIntegerName), DELIMITER, struct),
+        (integerValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8));
     // Try accessing nonexistent key.
     assertThrows(DataException.class, () -> calculateKey(List.of("invalid"), DELIMITER, struct));
   }
@@ -566,27 +508,23 @@ public class KeyMapperTest {
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldNameIntegerMap, integerMap);
     kafkaConnectStruct.put(fieldNameStringMap, stringMap);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            (integerMap.toString() + DELIMITER + stringMap.toString())
-                .getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldNameIntegerMap), DELIMITER, kafkaConnectStruct),
-            integerMap.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldNameStringMap), DELIMITER, kafkaConnectStruct),
-            stringMap.toString().getBytes(StandardCharsets.UTF_8)));
-    // The key is Integer, not String - we don't support it
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        (integerMap.toString() + DELIMITER + stringMap.toString())
+            .getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldNameIntegerMap), DELIMITER, kafkaConnectStruct),
+        integerMap.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldNameStringMap), DELIMITER, kafkaConnectStruct),
+        stringMap.toString().getBytes(StandardCharsets.UTF_8));
+    // Accessing map keys is not supported.
     assertThrows(
         DataException.class,
         () -> calculateKey(List.of(fieldNameIntegerMap + ".3"), DELIMITER, kafkaConnectStruct));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldNameStringMap + ".3"), DELIMITER, kafkaConnectStruct),
-            "true".getBytes(StandardCharsets.UTF_8)));
+    assertThrows(
+        DataException.class,
+        () -> calculateKey(List.of(fieldNameStringMap + ".3"), DELIMITER, kafkaConnectStruct));
   }
 
   @Test
@@ -601,14 +539,12 @@ public class KeyMapperTest {
 
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValue);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -636,14 +572,12 @@ public class KeyMapperTest {
     List<Struct> innerStructList = List.of(kafkaConnectInnerStruct);
     kafkaConnectStruct.put(middleFieldArrayName, innerStructList);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            innerStructList.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(middleFieldArrayName), DELIMITER, kafkaConnectStruct),
-            innerStructList.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        innerStructList.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(middleFieldArrayName), DELIMITER, kafkaConnectStruct),
+        innerStructList.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -660,14 +594,12 @@ public class KeyMapperTest {
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValue);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
-            fieldValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct),
+        fieldValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -680,9 +612,8 @@ public class KeyMapperTest {
 
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
     kafkaConnectStruct.put(fieldName, fieldValueKafkaConnect);
-    assertTrue(Arrays.equals(calculateKey(List.of(), DELIMITER, kafkaConnectStruct), fieldBytes));
-    assertTrue(
-        Arrays.equals(calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct), fieldBytes));
+    assertArrayEquals(calculateKey(List.of(), DELIMITER, kafkaConnectStruct), fieldBytes);
+    assertArrayEquals(calculateKey(List.of(fieldName), DELIMITER, kafkaConnectStruct), fieldBytes);
   }
 
   @Test
@@ -712,21 +643,17 @@ public class KeyMapperTest {
     expectedBuilder.write("}".getBytes(StandardCharsets.UTF_8));
     byte[] expectedStructSerialization = expectedBuilder.toByteArray();
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct),
-            expectedStructSerialization));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
-            expectedStructSerialization));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldBytesName),
-                DELIMITER,
-                kafkaConnectOuterStruct),
-            innerBytesValue));
+    assertArrayEquals(
+        calculateKey(List.of(), DELIMITER, kafkaConnectOuterStruct), expectedStructSerialization);
+    assertArrayEquals(
+        calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectOuterStruct),
+        expectedStructSerialization);
+    assertArrayEquals(
+        calculateKey(
+            List.of(innerFieldStructName + "." + innerFieldBytesName),
+            DELIMITER,
+            kafkaConnectOuterStruct),
+        innerBytesValue);
   }
 
   @Test
@@ -735,18 +662,24 @@ public class KeyMapperTest {
     final String timestampFieldName = "KafkaTimestamp";
     final String timeFieldName = "KafkaTime";
     final String decimalFieldName = "KafkaDecimal";
-    final Long dateLong = 1488406838808L;
-    final Date date = new Date(dateLong);
-    final String decimalString = "0.30000000000000004";
-    final Integer decimalScale = 0;
+    final Date date = new Date(1488406838808L);
+    final String decimalString = "-1.23E-12";
     final BigDecimal decimal = new BigDecimal(decimalString);
+
+    final String formattedDate =
+        DateTimeFormatter.ISO_LOCAL_DATE.format(date.toInstant().atZone(ZoneOffset.UTC));
+    final String formattedTimestamp =
+        DateTimeFormatter.ISO_INSTANT.format(date.toInstant().atZone(ZoneOffset.UTC));
+    final String formattedTime =
+        DateTimeFormatter.ISO_LOCAL_TIME.format(date.toInstant().atZone(ZoneOffset.UTC));
+    final String formattedDecimal = decimal.toPlainString();
 
     Schema kafkaConnectSchema =
         SchemaBuilder.struct()
             .field(dateFieldName, org.apache.kafka.connect.data.Date.SCHEMA)
             .field(timestampFieldName, org.apache.kafka.connect.data.Timestamp.SCHEMA)
-            .field(timeFieldName, org.apache.kafka.connect.data.Timestamp.SCHEMA)
-            .field(decimalFieldName, org.apache.kafka.connect.data.Decimal.schema(decimalScale))
+            .field(timeFieldName, org.apache.kafka.connect.data.Time.SCHEMA)
+            .field(decimalFieldName, org.apache.kafka.connect.data.Decimal.schema(decimal.scale()))
             .build();
 
     Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
@@ -754,23 +687,43 @@ public class KeyMapperTest {
     kafkaConnectStruct.put(timestampFieldName, date);
     kafkaConnectStruct.put(timeFieldName, date);
     kafkaConnectStruct.put(decimalFieldName, decimal);
-    // TODO: test in practice whether the Confluent sink works exactly like this.
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(dateFieldName), DELIMITER, kafkaConnectStruct),
-            date.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(timestampFieldName), DELIMITER, kafkaConnectStruct),
-            date.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(timeFieldName), DELIMITER, kafkaConnectStruct),
-            date.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(decimalFieldName), DELIMITER, kafkaConnectStruct),
-            decimalString.getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(dateFieldName), DELIMITER, kafkaConnectStruct, kafkaConnectSchema),
+        formattedDate.getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(
+            List.of(timestampFieldName), DELIMITER, kafkaConnectStruct, kafkaConnectSchema),
+        formattedTimestamp.getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(timeFieldName), DELIMITER, kafkaConnectStruct, kafkaConnectSchema),
+        formattedTime.getBytes(StandardCharsets.UTF_8));
+    assertArrayEquals(
+        calculateKey(List.of(decimalFieldName), DELIMITER, kafkaConnectStruct, kafkaConnectSchema),
+        formattedDecimal.getBytes(StandardCharsets.UTF_8));
+  }
+
+  @Test
+  public void testKafkaLogicalTypeInStructField() {
+    Date epochDate = new Date(0L);
+
+    String dateFieldName = "date";
+    String structFieldName = "struct";
+    Schema innerStructSchema =
+        SchemaBuilder.struct()
+            .field(dateFieldName, org.apache.kafka.connect.data.Date.SCHEMA)
+            .build();
+    Schema outerStructSchema =
+        SchemaBuilder.struct().field(structFieldName, innerStructSchema).build();
+
+    Struct innerStruct = new Struct(innerStructSchema);
+    innerStruct.put(dateFieldName, epochDate);
+
+    Struct outerStruct = new Struct(outerStructSchema);
+    outerStruct.put(structFieldName, innerStruct);
+
+    byte[] keyBytes =
+        calculateKey(List.of(structFieldName), DELIMITER, outerStruct, outerStructSchema);
+    assertEquals("Struct{date=1970-01-01}", new String(keyBytes, StandardCharsets.UTF_8));
   }
 
   @Test
@@ -795,10 +748,9 @@ public class KeyMapperTest {
     assertThrows(
         DataException.class,
         () -> calculateKey(List.of(nullableFieldName), DELIMITER, kafkaConnectStruct));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(requiredFieldName), DELIMITER, kafkaConnectStruct),
-            requiredFieldValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertArrayEquals(
+        calculateKey(List.of(requiredFieldName), DELIMITER, kafkaConnectStruct),
+        requiredFieldValue.toString().getBytes(StandardCharsets.UTF_8));
   }
 
   @Test
@@ -844,58 +796,58 @@ public class KeyMapperTest {
     for (Object[] testCase :
         List.of(
             // Default key definition and all kinds of types.
-            // I know of no way to pass unserialized bytes or logical types here. I think it's only
-            // possible using some kind of schema.
+            // Note that logical types cannot be used without schema.
             new Object[] {List.of(), "2.130", "2.13"},
             new Object[] {List.of(), "7", "7"},
             new Object[] {List.of(), "\"x\"", "x"},
             new Object[] {List.of(), "true", "true"},
             new Object[] {List.of(), "[]", "[]"},
             new Object[] {List.of(), "[1,\"s\",true]", "[1, s, true]"},
-            // Default key definition when using on a map (schemaless data is converted into Map not
-            // Struct!).
-            new Object[] {List.of(), "{\"a\":1,\"b\":true,\"c\":\"str\"}", "1##true##str"},
-            new Object[] {
-              List.of(), "{\"b\":1,\"a\":3}", "3##1"
-            }, // Note it doesn't keep key ordering.
+            // Default key definition when using on a map (schemaless data is converted into a Map
+            // rather than a Struct, so its fields are not accessed when serializing!).
+            new Object[] {List.of(), "{\"a\":1,\"b\":true,\"c\":\"str\"}", "{a=1, b=true, c=str}"},
+            new Object[] {List.of(), "{\"b\":1,\"a\":3}", "{a=3, b=1}"},
             new Object[] {
               List.of(),
               "{\"b\":[1,2],\"a\":3,\"c\":{\"x\":\"D\",\"y\":2137}}",
-              "3##[1, 2]##{x=D, y=2137}"
-            },
-            // Key extraction and serialization of nested beings.
-            new Object[] {List.of("f"), "{\"f\":{}}", "{}"},
-            new Object[] {List.of("f"), "{\"f\":1}", "1"},
-            new Object[] {List.of("f"), "{\"f\":true}", "true"},
-            new Object[] {List.of("f"), "{\"f\":\"s\"}", "s"},
-            new Object[] {List.of("f"), "{\"f\":[]}", "[]"},
-            new Object[] {List.of("f"), "{\"f\":[1,\"a\"]}", "[1, a]"},
-            new Object[] {List.of("f"), "{\"f\":{\"b\":1,\"a\":3}}", "{a=3, b=1}"},
-            new Object[] {List.of("f"), "{\"f\":{\"a\":{\"b\": true}}}", "{a={b=true}}"},
-            new Object[] {
-              List.of("f"), "{\"f\":{\"a\":{\"b\": true,\"c\":2}}}", "{a={b=true, c=2}}"
-            },
-            new Object[] {List.of("f.a"), "{\"f\":{\"b\":1,\"a\":3}}", "3"})) {
+              "{a=3, b=[1, 2], c={x=D, y=2137}}"
+            }
+            // Note that there are no tests for accessing fields of the values. Maps, to which
+            // schemaless JSON data deserializes when using JsonConverter, does not support
+            // accessing its values by keys.
+            )) {
       KeyMapper mapper = new KeyMapper(delimiter, (List<String>) testCase[0]);
       SchemaAndValue connectData =
           jsonConverter.toConnectData(
               topic, ((String) testCase[1]).getBytes(StandardCharsets.UTF_8));
       byte[] expectedResult = ((String) testCase[2]).getBytes(StandardCharsets.UTF_8);
-      byte[] result = mapper.getKey(connectData.value());
-      assertTrue(Arrays.equals(expectedResult, result));
+      byte[] result = mapper.getKey(new SchemaAndValue(null, connectData.value()));
+      List<String> expectedAndReal =
+          List.of((String) testCase[2], new String(result, StandardCharsets.UTF_8));
+      assertArrayEquals(expectedResult, result);
     }
-    ;
   }
 
   @Test
   public void testAccessingSchemalessPrimitiveField() {
     KeyMapper mapper = new KeyMapper("#", List.of("fieldName"));
-    assertThrows(DataException.class, () -> mapper.getKey("primitiveString"));
+    assertThrows(
+        DataException.class, () -> mapper.getKey(new SchemaAndValue(null, "primitiveString")));
   }
 
   private static byte[] calculateKey(
       List<String> mapperDefinition, String mapperDelimiter, Object kafkaKey) {
+    // We use `null` in this test since our code for now uses  Schema only to warn the user when an
+    // unsupported logical type is encountered.
+    return calculateKey(mapperDefinition, mapperDelimiter, kafkaKey, null);
+  }
+
+  private static byte[] calculateKey(
+      List<String> mapperDefinition,
+      String mapperDelimiter,
+      Object kafkaKey,
+      Schema kafkaKeySchema) {
     KeyMapper mapper = new KeyMapper(mapperDelimiter, mapperDefinition);
-    return mapper.getKey(kafkaKey);
+    return mapper.getKey(new SchemaAndValue(kafkaKeySchema, kafkaKey));
   }
 }
