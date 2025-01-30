@@ -1,0 +1,33 @@
+{
+  "type": "record",
+  "name": "containers",
+  "fields": [
+    {
+      "name": "map",
+      "type": {
+        "type": "map",
+        "values": "int"
+      }
+    },
+    {
+      "name": "array",
+      "type": {
+        "type": "array",
+        "items": "int"
+      }
+    },
+    {
+      "name": "struct",
+      "type": {
+        "type": "record",
+        "name": "structure",
+        "fields": [
+          {
+            "name": "integer",
+            "type": "int"
+          }
+        ]  
+      }
+    }
+  ]
+}

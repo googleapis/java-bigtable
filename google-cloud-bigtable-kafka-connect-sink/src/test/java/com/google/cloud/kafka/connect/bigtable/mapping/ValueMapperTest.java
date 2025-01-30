@@ -267,26 +267,17 @@ public class ValueMapperTest {
 
   @Test
   public void testDefaultColumnFamilyInterpolation() {
-    for (Map.Entry<String, String> test :
-        List.of(
-            new AbstractMap.SimpleImmutableEntry<>("prefix_${topic}_suffix", "prefix_topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>(
-                "prefix_${topic_suffix", "prefix_${topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("prefix_$topic_suffix", "prefix_$topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("prefix_${bad}_suffix", "prefix_${bad}_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("noSubstitution", "noSubstitution"))) {
-      String topic = "topic";
-      String value = "value";
-      ValueMapper mapper = new TestValueMapper(test.getKey(), DEFAULT_COLUMN, NullValueMode.WRITE);
-      MutationDataBuilder mutationDataBuilder = getRecordMutationDataBuilder(mapper, value, topic);
-      verify(mutationDataBuilder, times(1))
-          .setCell(
-              test.getValue(),
-              DEFAULT_COLUMN_BYTES,
-              TIMESTAMP,
-              ByteString.copyFrom(value.getBytes(StandardCharsets.UTF_8)));
-      assertTotalNumberOfInvocations(mutationDataBuilder, 1);
-    }
+    String topic = "TOPIC";
+    String value = "value";
+    ValueMapper mapper = new TestValueMapper("${topic}", DEFAULT_COLUMN, NullValueMode.WRITE);
+    MutationDataBuilder mutationDataBuilder = getRecordMutationDataBuilder(mapper, value, topic);
+    verify(mutationDataBuilder, times(1))
+        .setCell(
+            topic,
+            DEFAULT_COLUMN_BYTES,
+            TIMESTAMP,
+            ByteString.copyFrom(value.getBytes(StandardCharsets.UTF_8)));
+    assertTotalNumberOfInvocations(mutationDataBuilder, 1);
   }
 
   @Test

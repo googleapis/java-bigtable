@@ -29,8 +29,11 @@ import java.net.http.HttpResponse;
 import java.util.Arrays;
 import org.apache.kafka.connect.runtime.rest.entities.PluginInfo;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
-public class VersionIT extends BaseIT {
+@RunWith(JUnit4.class)
+public class VersionIT extends BaseKafkaConnectIT {
   @Test
   public void testVersionIsSet() throws IOException, InterruptedException {
     String url = connect.endpointForResource("connector-plugins");

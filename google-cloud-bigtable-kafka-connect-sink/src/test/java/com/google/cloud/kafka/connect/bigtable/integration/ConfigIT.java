@@ -23,7 +23,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class ConfigIT extends BaseIT {
+public class ConfigIT extends BaseKafkaConnectIT {
   @Test
   public void testBaseSuccess() throws InterruptedException {
     String topic = getTestCaseId();
