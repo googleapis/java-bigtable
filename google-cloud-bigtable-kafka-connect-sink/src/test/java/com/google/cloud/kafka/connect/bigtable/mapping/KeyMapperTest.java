@@ -270,7 +270,96 @@ public class KeyMapperTest {
   }
 
   @Test
-  public void testStruct() {
+  public void testFlatStruct() {
+    final String fieldStringName = "InnerString";
+    final String fieldIntegerName = "InnerInt";
+    final String stringValue = "forty two";
+    final Integer integerValue = 42;
+
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct()
+            .field(fieldStringName, Schema.STRING_SCHEMA)
+            .field(fieldIntegerName, Schema.INT32_SCHEMA)
+            .build();
+
+    Struct kafkaConnectInnerStruct = new Struct(kafkaConnectSchema);
+    kafkaConnectInnerStruct.put(fieldStringName, stringValue);
+    kafkaConnectInnerStruct.put(fieldIntegerName, integerValue);
+
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(), DELIMITER, kafkaConnectInnerStruct),
+            (stringValue + DELIMITER + integerValue).getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(fieldStringName), DELIMITER, kafkaConnectInnerStruct),
+            stringValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(fieldIntegerName), DELIMITER, kafkaConnectInnerStruct),
+            integerValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
+
+  @Test
+  public void testStructNestedOnce() {
+    final String fieldArrayName = "MiddleArray";
+    final String innerFieldStructName = "InnerStruct";
+    final String innerFieldStringName = "InnerString";
+    final String innerFieldIntegerName = "InnerInt";
+    final String innerStringValue = "forty two";
+    final Integer innerIntegerValue = 42;
+    final List<Float> arrayValue = Arrays.asList(42.0f, 42.4f, 42.42f, 42.424f, 42.4242f);
+
+    Schema kafkaConnectInnerSchema =
+        SchemaBuilder.struct()
+            .field(innerFieldStringName, Schema.STRING_SCHEMA)
+            .field(innerFieldIntegerName, Schema.INT32_SCHEMA)
+            .build();
+
+    Struct kafkaConnectInnerStruct = new Struct(kafkaConnectInnerSchema);
+    kafkaConnectInnerStruct.put(innerFieldStringName, innerStringValue);
+    kafkaConnectInnerStruct.put(innerFieldIntegerName, innerIntegerValue);
+
+    Schema kafkaConnectSchema =
+        SchemaBuilder.struct()
+            .field(innerFieldStructName, kafkaConnectInnerSchema)
+            .field(fieldArrayName, SchemaBuilder.array(Schema.FLOAT32_SCHEMA).build())
+            .build();
+
+    Struct kafkaConnectStruct = new Struct(kafkaConnectSchema);
+    kafkaConnectStruct.put(innerFieldStructName, kafkaConnectInnerStruct);
+    kafkaConnectStruct.put(fieldArrayName, arrayValue);
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(), DELIMITER, kafkaConnectStruct),
+            (kafkaConnectInnerStruct.toString() + DELIMITER + arrayValue.toString())
+                .getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectStruct),
+            kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(List.of(fieldArrayName), DELIMITER, kafkaConnectStruct),
+            arrayValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(
+                List.of(innerFieldStructName + "." + innerFieldStringName),
+                DELIMITER,
+                kafkaConnectStruct),
+            innerStringValue.toString().getBytes(StandardCharsets.UTF_8)));
+    assertTrue(
+        Arrays.equals(
+            calculateKey(
+                List.of(innerFieldStructName + "." + innerFieldIntegerName),
+                DELIMITER,
+                kafkaConnectStruct),
+            innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
+  }
+
+  @Test
+  public void testStructNestedTwice() {
     final String middleFieldStructName = "MiddleStruct";
     final String middleFieldArrayName = "MiddleArray";
     final String innerFieldStructName = "InnerStruct";
@@ -290,19 +379,6 @@ public class KeyMapperTest {
     kafkaConnectInnerStruct.put(innerFieldStringName, innerStringValue);
     kafkaConnectInnerStruct.put(innerFieldIntegerName, innerIntegerValue);
 
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectInnerStruct),
-            (innerStringValue + DELIMITER + innerIntegerValue).getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStringName), DELIMITER, kafkaConnectInnerStruct),
-            innerStringValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldIntegerName), DELIMITER, kafkaConnectInnerStruct),
-            innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
-
     Schema kafkaConnectMiddleSchema =
         SchemaBuilder.struct()
             .field(innerFieldStructName, kafkaConnectInnerSchema)
@@ -312,33 +388,6 @@ public class KeyMapperTest {
     Struct kafkaConnectMiddleStruct = new Struct(kafkaConnectMiddleSchema);
     kafkaConnectMiddleStruct.put(innerFieldStructName, kafkaConnectInnerStruct);
     kafkaConnectMiddleStruct.put(middleFieldArrayName, middleArrayValue);
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(), DELIMITER, kafkaConnectMiddleStruct),
-            (kafkaConnectInnerStruct.toString() + DELIMITER + middleArrayValue.toString())
-                .getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(innerFieldStructName), DELIMITER, kafkaConnectMiddleStruct),
-            kafkaConnectInnerStruct.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(List.of(middleFieldArrayName), DELIMITER, kafkaConnectMiddleStruct),
-            middleArrayValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldStringName),
-                DELIMITER,
-                kafkaConnectMiddleStruct),
-            innerStringValue.toString().getBytes(StandardCharsets.UTF_8)));
-    assertTrue(
-        Arrays.equals(
-            calculateKey(
-                List.of(innerFieldStructName + "." + innerFieldIntegerName),
-                DELIMITER,
-                kafkaConnectMiddleStruct),
-            innerIntegerValue.toString().getBytes(StandardCharsets.UTF_8)));
 
     Schema kafkaConnectOuterSchema =
         SchemaBuilder.struct()
