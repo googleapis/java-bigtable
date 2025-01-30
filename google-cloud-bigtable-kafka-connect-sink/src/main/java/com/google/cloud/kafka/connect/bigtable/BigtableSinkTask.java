@@ -29,6 +29,7 @@ import com.google.cloud.kafka.connect.bigtable.autocreate.ResourceCreationResult
 import com.google.cloud.kafka.connect.bigtable.config.BigtableErrorMode;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig;
+import com.google.cloud.kafka.connect.bigtable.config.ConfigInterpolation;
 import com.google.cloud.kafka.connect.bigtable.exception.BatchException;
 import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
 import com.google.cloud.kafka.connect.bigtable.mapping.KeyMapper;
@@ -226,7 +227,7 @@ public class BigtableSinkTask extends SinkTask {
     }
     long timestamp = getTimestampMicros(record);
     MutationDataBuilder mutationDataBuilder =
-        valueMapper.getRecordMutationDataBuilder(record.value(), timestamp);
+        valueMapper.getRecordMutationDataBuilder(record.value(), record.topic(), timestamp);
     return mutationDataBuilder.maybeBuild(recordTableId, rowKey);
   }
 
@@ -238,9 +239,8 @@ public class BigtableSinkTask extends SinkTask {
    */
   @VisibleForTesting
   String getTableName(SinkRecord record) {
-    return config
-        .getString(BigtableSinkTaskConfig.CONFIG_TABLE_NAME_FORMAT)
-        .replace("${topic}", record.topic());
+    String template = config.getString(BigtableSinkTaskConfig.CONFIG_TABLE_NAME_FORMAT);
+    return ConfigInterpolation.replace(template, record.topic());
   }
 
   /**

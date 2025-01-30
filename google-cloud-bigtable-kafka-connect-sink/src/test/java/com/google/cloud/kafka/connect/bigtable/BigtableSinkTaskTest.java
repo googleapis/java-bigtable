@@ -66,7 +66,6 @@ import com.google.cloud.kafka.connect.bigtable.util.BasicPropertiesFactory;
 import com.google.cloud.kafka.connect.bigtable.util.FutureUtil;
 import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -161,22 +160,14 @@ public class BigtableSinkTaskTest {
 
   @Test
   public void testGetTableName() {
+    String tableFormat = "table";
     SinkRecord record = new SinkRecord("topic", 1, null, null, null, null, 1);
-    for (Map.Entry<String, String> test :
-        List.of(
-            new AbstractMap.SimpleImmutableEntry<>("prefix_${topic}_suffix", "prefix_topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>(
-                "prefix_${topic_suffix", "prefix_${topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("prefix_$topic_suffix", "prefix_$topic_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("prefix_${bad}_suffix", "prefix_${bad}_suffix"),
-            new AbstractMap.SimpleImmutableEntry<>("noSubstitution", "noSubstitution"))) {
-      Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-      props.put(CONFIG_TABLE_NAME_FORMAT, test.getKey());
-      task =
-          new TestBigtableSinkTask(
-              new BigtableSinkTaskConfig(props), null, null, null, null, null, null);
-      assertEquals(test.getValue(), task.getTableName(record));
-    }
+    Map<String, String> props = BasicPropertiesFactory.getTaskProps();
+    props.put(CONFIG_TABLE_NAME_FORMAT, tableFormat);
+    task =
+        new TestBigtableSinkTask(
+            new BigtableSinkTaskConfig(props), null, null, null, null, null, null);
+    assertEquals(tableFormat, task.getTableName(record));
   }
 
   @Test
@@ -541,7 +532,7 @@ public class BigtableSinkTaskTest {
                 return builder;
               })
           .when(valueMapper)
-          .getRecordMutationDataBuilder(any(), anyLong());
+          .getRecordMutationDataBuilder(any(), anyString(), anyLong());
 
       Batcher<RowMutationEntry, Void> batcher = mock(Batcher.class);
       doReturn(completedApiFuture(null)).when(batcher).add(any());

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.google.cloud.ByteArray;
 import com.google.cloud.bigtable.data.v2.models.Range;
+import com.google.cloud.kafka.connect.bigtable.config.ConfigInterpolation;
 import com.google.cloud.kafka.connect.bigtable.config.NullValueMode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.protobuf.ByteString;
@@ -49,7 +50,7 @@ import org.apache.kafka.connect.errors.DataException;
  * Mutation(s)}.
  */
 public class ValueMapper {
-  public final String defaultColumnFamily;
+  public final String defaultColumnFamilyTemplate;
   public final ByteString defaultColumnQualifier;
   private final NullValueMode nullMode;
   private static final ObjectMapper jsonMapper = getJsonMapper();
@@ -64,7 +65,8 @@ public class ValueMapper {
    */
   public ValueMapper(
       String defaultColumnFamily, String defaultColumnQualifier, @Nonnull NullValueMode nullMode) {
-    this.defaultColumnFamily = Utils.isBlank(defaultColumnFamily) ? null : defaultColumnFamily;
+    this.defaultColumnFamilyTemplate =
+        Utils.isBlank(defaultColumnFamily) ? null : defaultColumnFamily;
     this.defaultColumnQualifier =
         Utils.isBlank(defaultColumnQualifier)
             ? null
@@ -78,10 +80,11 @@ public class ValueMapper {
    *
    * @param rootKafkaValue The value to be converted into Cloud Bigtable {@link
    *     com.google.cloud.bigtable.data.v2.models.Mutation Mutation(s)}.
+   * @param topic The name of Kafka topic this value originates from.
    * @param timestampMicros The timestamp the mutations will be created at in microseconds.
    */
   public MutationDataBuilder getRecordMutationDataBuilder(
-      Object rootKafkaValue, long timestampMicros) {
+      Object rootKafkaValue, String topic, long timestampMicros) {
     MutationDataBuilder mutationDataBuilder = createMutationDataBuilder();
     if (rootKafkaValue == null && nullMode == NullValueMode.IGNORE) {
       // Do nothing
@@ -116,9 +119,9 @@ public class ValueMapper {
             }
           }
         } else {
-          if (defaultColumnFamily != null) {
+          if (defaultColumnFamilyTemplate != null) {
             mutationDataBuilder.setCell(
-                defaultColumnFamily,
+                getDefaultColumnFamily(topic),
                 ByteString.copyFrom(kafkaFieldName.getBytes(StandardCharsets.UTF_8)),
                 timestampMicros,
                 ByteString.copyFrom(serialize(kafkaFieldValue)));
@@ -126,9 +129,9 @@ public class ValueMapper {
         }
       }
     } else {
-      if (defaultColumnFamily != null && defaultColumnQualifier != null) {
+      if (defaultColumnFamilyTemplate != null && defaultColumnQualifier != null) {
         mutationDataBuilder.setCell(
-            defaultColumnFamily,
+            getDefaultColumnFamily(topic),
             defaultColumnQualifier,
             timestampMicros,
             ByteString.copyFrom(serialize(rootKafkaValue)));
@@ -141,6 +144,10 @@ public class ValueMapper {
   // Method only needed for use in tests. It could be inlined otherwise.
   protected MutationDataBuilder createMutationDataBuilder() {
     return new MutationDataBuilder();
+  }
+
+  protected String getDefaultColumnFamily(String topic) {
+    return ConfigInterpolation.replace(defaultColumnFamilyTemplate, topic);
   }
 
   /**

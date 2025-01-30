@@ -36,6 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.kafka.connect.bigtable.util.BasicPropertiesFactory;
 import java.util.HashMap;
 import java.util.List;
@@ -105,15 +106,26 @@ public class BigtableSinkConfigTest {
   }
 
   @Test
+  public void testNullDeletionIsIncompatibleWithInsertMode() {
+    Map<String, String> props = BasicPropertiesFactory.getSinkProps();
+    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
+    props.put(CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
+    BigtableSinkConfig config = new BigtableSinkConfig(props);
+    assertFalse(configIsValid(config));
+  }
+
+  @Test
   public void testGetBigtableDataClient() {
     BigtableSinkConfig config = new BigtableSinkConfig(BasicPropertiesFactory.getSinkProps());
-    config.getBigtableDataClient();
+    BigtableDataClient client = config.getBigtableDataClient();
+    client.close();
   }
 
   @Test
   public void testGetBigtableAdminClient() {
     BigtableSinkConfig config = new BigtableSinkConfig(BasicPropertiesFactory.getSinkProps());
-    config.getBigtableAdminClient();
+    BigtableTableAdminClient client = config.getBigtableAdminClient();
+    client.close();
   }
 
   @Test

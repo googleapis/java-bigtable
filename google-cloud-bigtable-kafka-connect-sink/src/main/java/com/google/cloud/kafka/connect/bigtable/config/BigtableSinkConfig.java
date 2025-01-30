@@ -123,9 +123,12 @@ public class BigtableSinkConfig extends AbstractConfig {
     String credentialsPath = props.get(CONFIG_GCP_CREDENTIALS_PATH);
     String credentialsJson = props.get(CONFIG_GCP_CREDENTIALS_JSON);
     String insertMode = props.get(CONFIG_INSERT_MODE);
+    String nullValueMode = props.get(CONFIG_VALUE_NULL_MODE);
     String maxBatchSize = props.get(CONFIG_MAX_BATCH_SIZE);
     String effectiveInsertMode =
         Optional.ofNullable(insertMode).orElse(DEFAULT_INSERT_MODE.name()).toUpperCase();
+    String effectiveNullValueMode =
+        Optional.ofNullable(nullValueMode).orElse(DEFAULT_NULL_VALUE_MODE.name()).toUpperCase();
     String effectiveMaxBatchSize =
         Optional.ofNullable(maxBatchSize).orElse(DEFAULT_MAX_BATCH_SIZE.toString()).trim();
 
@@ -144,11 +147,28 @@ public class BigtableSinkConfig extends AbstractConfig {
       String errorMessage =
           "When using `"
               + CONFIG_INSERT_MODE
-              + "` of `insert`, "
+              + "` of `"
+              + InsertMode.INSERT.name()
+              + "`, "
               + CONFIG_MAX_BATCH_SIZE
               + " must be set to `1`.";
       addErrorMessage(validationResult, CONFIG_INSERT_MODE, insertMode, errorMessage);
       addErrorMessage(validationResult, CONFIG_MAX_BATCH_SIZE, maxBatchSize, errorMessage);
+    }
+    if (effectiveInsertMode.equals(InsertMode.INSERT.name())
+        && effectiveNullValueMode.equals(NullValueMode.DELETE.name())) {
+      String errorMessage =
+          "When using `"
+              + CONFIG_VALUE_NULL_MODE
+              + "` of `"
+              + NullValueMode.DELETE.name()
+              + "`, "
+              + CONFIG_INSERT_MODE
+              + " must not be set to `"
+              + InsertMode.INSERT.name()
+              + "`.";
+      addErrorMessage(validationResult, CONFIG_INSERT_MODE, insertMode, errorMessage);
+      addErrorMessage(validationResult, CONFIG_VALUE_NULL_MODE, nullValueMode, errorMessage);
     }
 
     if (accessBigtableToValidateConfiguration
@@ -271,13 +291,16 @@ public class BigtableSinkConfig extends AbstractConfig {
         .define(
             CONFIG_TABLE_NAME_FORMAT,
             ConfigDef.Type.STRING,
-            "${topic}",
+            ConfigInterpolation.TOPIC_PLACEHOLDER,
             ConfigDef.CompositeValidator.of(
                 new ConfigDef.NonNullValidator(), new ConfigDef.NonEmptyString()),
             ConfigDef.Importance.MEDIUM,
-            "Name of the destination table. Use `${topic}` within the table name to specify"
-                + " the originating topic name.\nFor example, `user_${topic}` for the topic `stats`"
-                + " will map to the table name `user_stats`.")
+            "Name of the destination table. Use `"
+                + ConfigInterpolation.TOPIC_PLACEHOLDER
+                + "` within the table name to specify the originating topic name.\n"
+                + "For example, `user_"
+                + ConfigInterpolation.TOPIC_PLACEHOLDER
+                + "` for the topic `stats` will map to the table name `user_stats`.")
         .define(
             CONFIG_ROW_KEY_DEFINITION,
             ConfigDef.Type.LIST,
@@ -320,18 +343,22 @@ public class BigtableSinkConfig extends AbstractConfig {
             new ConfigDef.NonNullValidator(),
             ConfigDef.Importance.MEDIUM,
             "Whether to automatically create missing columns families in the table relative to the"
-                + " record schema."
-                + "\nDoes not imply auto-creation of tables."
-                + "\nWhen enabled, the records for which the auto-creation fails, are failed."
-                + "\nRecreation of column families deleted by other Cloud Bigtable users is not"
+                + " record schema.\n"
+                + "Does not imply auto-creation of tables.\n"
+                + "When enabled, the records for which the auto-creation fails, are failed.\n"
+                + "When enabled, column families will be created also for deletions of nonexistent"
+                + " column families and cells within them.\n"
+                + "Recreation of column families deleted by other Cloud Bigtable users is not"
                 + " supported.")
         .define(
             CONFIG_DEFAULT_COLUMN_FAMILY,
             ConfigDef.Type.STRING,
-            "default",
+            ConfigInterpolation.TOPIC_PLACEHOLDER,
             ConfigDef.Importance.MEDIUM,
             "Any root-level fields on the SinkRecord that aren't objects will be added to this"
-                + " column family. If empty, the fields will be ignored.")
+                + " column family. If empty, the fields will be ignored. Use `"
+                + ConfigInterpolation.TOPIC_PLACEHOLDER
+                + "` within the column family name to specify the originating topic name.")
         .define(
             CONFIG_DEFAULT_COLUMN_QUALIFIER,
             ConfigDef.Type.STRING,
