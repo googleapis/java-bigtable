@@ -337,7 +337,7 @@ public class BigtableSchemaManager {
   }
 
   private ApiFuture<Table> createTable(String tableName) {
-    logger.info("Creating table '{}'", tableName);
+    logger.info("Creating table `{}`", tableName);
     CreateTableRequest createTableRequest = CreateTableRequest.of(tableName);
     return bigtable.createTableAsync(createTableRequest);
   }
@@ -349,7 +349,7 @@ public class BigtableSchemaManager {
   private ApiFuture<Table> createColumnFamily(Map.Entry<String, String> tableNameAndColumnFamily) {
     String tableName = tableNameAndColumnFamily.getKey();
     String columnFamily = tableNameAndColumnFamily.getValue();
-    logger.info("Creating column family '{}' in table '{}'", columnFamily, tableName);
+    logger.info("Creating column family `{}` in table `{}`", columnFamily, tableName);
     ModifyColumnFamiliesRequest request =
         ModifyColumnFamiliesRequest.of(tableName).addFamily(columnFamily);
     return bigtable.modifyFamiliesAsync(request);
