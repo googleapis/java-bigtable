@@ -17,11 +17,12 @@ package com.google.cloud.kafka.connect.bigtable.util;
 
 import java.util.Map;
 import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.json.JsonConverterConfig;
 
 public class JsonConverterFactory {
   public static JsonConverter create(boolean schemasEnable, boolean isKafkaKeyConverter) {
     Map<String, String> jsonConverterProps =
-        Map.of("schemas.enable", Boolean.toString(schemasEnable));
+        Map.of(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, Boolean.toString(schemasEnable));
     JsonConverter jsonConverter = new JsonConverter();
     jsonConverter.configure(jsonConverterProps, isKafkaKeyConverter);
     return jsonConverter;
