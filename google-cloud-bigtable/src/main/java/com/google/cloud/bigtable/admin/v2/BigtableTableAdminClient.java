@@ -927,7 +927,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Creates an automated backup with the specified configuration.
+   * Creates a backup with the specified configuration.
    *
    * <p>Sample code
    *
