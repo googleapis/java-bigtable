@@ -105,7 +105,7 @@ public final class Table {
     }
   }
 
-  public final static class AutomatedBackupPolicy {
+  public static class AutomatedBackupPolicy {
     private final com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto;
 
     /**
@@ -232,7 +232,7 @@ public final class Table {
     return automatedBackupPolicy == null ? false : true;
   }
 
-  /** Returns the automated backup policy. */
+  /** Returns the automated backup policy config. */
   public AutomatedBackupPolicy getAutomatedBackupPolicy() {
     return automatedBackupPolicy;
   }
