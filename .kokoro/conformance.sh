@@ -71,7 +71,7 @@ do
   # "-skip `cat ../../java-bigtable/test-proxy/known_failures.txt`" to the command below.
   # working dir when running this is (...)/cloud-bigtable-client-tests/tests/
   # known_failures.txt is in (...)/java-bigtable/test-proxy/
-  eval "go test -v -proxy_addr=:9999 ${configFlag} -skip `tr -d '\n' < ../../java-bigtable/testproxy/known_failures.txt`"
+  eval "go test -v -proxy_addr=:9999 ${configFlag} -skip `cat ../../java-bigtable/testproxy/known_failures.txt`"
   returnCode=$?
   popd
 
