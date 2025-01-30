@@ -68,10 +68,8 @@ do
   pushd .
   cd cloud-bigtable-clients-test/tests
   # If there is known failures, please add
-  # "-skip `cat ../../java-bigtable/test-proxy/known_failures.txt`" to the command below.
-  # working dir when running this is (...)/cloud-bigtable-client-tests/tests/
-  # known_failures.txt is in (...)/java-bigtable/test-proxy/
-  eval "go test -v -proxy_addr=:9999 ${configFlag} -skip `cat ../../java-bigtable/test-proxy/known_failures.txt`"
+  # "-skip `cat ../../test-proxy/known_failures.txt`" to the command below.
+  eval "go test -v -proxy_addr=:9999 ${configFlag} -skip '`cat ../../test-proxy/known_failures.txt`'"
   returnCode=$?
   popd
 
