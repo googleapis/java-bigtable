@@ -1,2 +1,1 @@
-TestFeatureGap/traffic_director_enabled|
-TestFeatureGap/direct_access_requested
+TestFeatureGap/(traffic_director_enabled|direct_access_requested)
