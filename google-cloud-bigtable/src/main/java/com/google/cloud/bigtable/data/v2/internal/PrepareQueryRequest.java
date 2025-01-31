@@ -17,7 +17,9 @@ package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
 import com.google.auto.value.AutoValue;
+import com.google.bigtable.v2.Type;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -39,14 +41,19 @@ public abstract class PrepareQueryRequest {
   }
 
   public com.google.bigtable.v2.PrepareQueryRequest toProto(RequestContext requestContext) {
+    HashMap<String, Type> protoParamTypes = new HashMap<>(paramTypes().size());
+    for (Map.Entry<String, SqlType<?>> entry : paramTypes().entrySet()) {
+      Type proto = QueryParamUtil.convertToQueryParamProto(entry.getValue());
+      protoParamTypes.put(entry.getKey(), proto);
+    }
+
     return com.google.bigtable.v2.PrepareQueryRequest.newBuilder()
         .setInstanceName(
             NameUtil.formatInstanceName(
                 requestContext.getProjectId(), requestContext.getInstanceId()))
         .setAppProfileId(requestContext.getAppProfileId())
         .setQuery(query())
-        // TODO validate and convert params to protobuf types
-        //        .putAllParamTypes()
+        .putAllParamTypes(protoParamTypes)
         .build();
   }
 }

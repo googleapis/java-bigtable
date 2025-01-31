@@ -23,6 +23,7 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
+import com.google.cloud.bigtable.data.v2.internal.QueryParamUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
@@ -60,23 +61,6 @@ import javax.annotation.Nullable;
  */
 @BetaApi
 public class Statement {
-
-  private static final Type STRING_TYPE =
-      Type.newBuilder().setStringType(Type.String.getDefaultInstance()).build();
-  private static final Type BYTES_TYPE =
-      Type.newBuilder().setBytesType(Type.Bytes.getDefaultInstance()).build();
-  private static final Type INT64_TYPE =
-      Type.newBuilder().setInt64Type(Type.Int64.getDefaultInstance()).build();
-  private static final Type FLOAT32_TYPE =
-      Type.newBuilder().setFloat32Type(Type.Float32.getDefaultInstance()).build();
-  private static final Type FLOAT64_TYPE =
-      Type.newBuilder().setFloat64Type(Type.Float64.getDefaultInstance()).build();
-  private static final Type BOOL_TYPE =
-      Type.newBuilder().setBoolType(Type.Bool.getDefaultInstance()).build();
-  private static final Type TIMESTAMP_TYPE =
-      Type.newBuilder().setTimestampType(Type.Timestamp.getDefaultInstance()).build();
-  private static final Type DATE_TYPE =
-      Type.newBuilder().setDateType(Type.Date.getDefaultInstance()).build();
 
   private final String sql;
   private final Map<String, Value> params;
@@ -192,7 +176,8 @@ public class Statement {
     }
 
     private static Value stringParamOf(@Nullable String value) {
-      Value.Builder builder = nullValueWithType(STRING_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.string());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setStringValue(value);
       }
@@ -200,7 +185,8 @@ public class Statement {
     }
 
     private static Value bytesParamOf(@Nullable ByteString value) {
-      Value.Builder builder = nullValueWithType(BYTES_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.bytes());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setBytesValue(value);
       }
@@ -208,7 +194,8 @@ public class Statement {
     }
 
     private static Value int64ParamOf(@Nullable Long value) {
-      Value.Builder builder = nullValueWithType(INT64_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.int64());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setIntValue(value);
       }
@@ -216,7 +203,8 @@ public class Statement {
     }
 
     private static Value float32ParamOf(@Nullable Float value) {
-      Value.Builder builder = nullValueWithType(FLOAT32_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.float32());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setFloatValue(value);
       }
@@ -224,7 +212,8 @@ public class Statement {
     }
 
     private static Value float64ParamOf(@Nullable Double value) {
-      Value.Builder builder = nullValueWithType(FLOAT64_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.float64());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setFloatValue(value);
       }
@@ -232,7 +221,8 @@ public class Statement {
     }
 
     private static Value booleanParamOf(@Nullable Boolean value) {
-      Value.Builder builder = nullValueWithType(BOOL_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.bool());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setBoolValue(value);
       }
@@ -240,7 +230,8 @@ public class Statement {
     }
 
     private static Value timestampParamOf(@Nullable Instant value) {
-      Value.Builder builder = nullValueWithType(TIMESTAMP_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.timestamp());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setTimestampValue(toTimestamp(value));
       }
@@ -248,7 +239,8 @@ public class Statement {
     }
 
     private static Value dateParamOf(@Nullable Date value) {
-      Value.Builder builder = nullValueWithType(DATE_TYPE);
+      Type type = QueryParamUtil.convertToQueryParamProto(SqlType.date());
+      Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setDateValue(toProtoDate(value));
       }
@@ -256,40 +248,12 @@ public class Statement {
     }
 
     private static <T> Value arrayParamOf(@Nullable List<T> value, SqlType.Array<T> arrayType) {
-      Type type =
-          Type.newBuilder()
-              .setArrayType(
-                  Type.Array.newBuilder().setElementType(getElementType(arrayType)).build())
-              .build();
+      Type type = QueryParamUtil.convertToQueryParamProto(arrayType);
       Value.Builder builder = nullValueWithType(type);
       if (value != null) {
         builder.setArrayValue(arrayValueOf(value, arrayType));
       }
       return builder.build();
-    }
-
-    private static Type getElementType(SqlType.Array<?> arrayType) {
-      switch (arrayType.getElementType().getCode()) {
-        case BYTES:
-          return BYTES_TYPE;
-        case STRING:
-          return STRING_TYPE;
-        case INT64:
-          return INT64_TYPE;
-        case FLOAT32:
-          return FLOAT32_TYPE;
-        case FLOAT64:
-          return FLOAT64_TYPE;
-        case BOOL:
-          return BOOL_TYPE;
-        case TIMESTAMP:
-          return TIMESTAMP_TYPE;
-        case DATE:
-          return DATE_TYPE;
-        default:
-          throw new IllegalArgumentException(
-              "Unsupported query parameter Array element type: " + arrayType.getElementType());
-      }
     }
 
     private static ArrayValue arrayValueOf(List<?> value, SqlType.Array<?> arrayType) {
