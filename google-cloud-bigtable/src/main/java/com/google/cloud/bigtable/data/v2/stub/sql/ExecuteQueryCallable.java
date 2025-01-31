@@ -24,8 +24,8 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 
 /**
  * Callable that creates {@link SqlServerStream}s from {@link ExecuteQueryRequest}s.
@@ -48,11 +48,10 @@ public class ExecuteQueryCallable extends ServerStreamingCallable<ExecuteQueryCa
     this.requestContext = requestContext;
   }
 
-  public SqlServerStream call(Statement statement) {
-    ExecuteQueryRequest request = statement.toProto(requestContext);
+  public SqlServerStream call(BoundStatement boundStatement) {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStream<SqlRow> rowStream =
-        this.call(ExecuteQueryCallContext.create(request, metadataFuture));
+        this.call(ExecuteQueryCallContext.create(boundStatement, metadataFuture));
     return SqlServerStreamImpl.create(metadataFuture, rowStream);
   }
 

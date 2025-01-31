@@ -16,14 +16,13 @@
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
-import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 
@@ -37,10 +36,13 @@ import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 public class MetadataResolvingCallable
     extends ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> {
   private final ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> inner;
+  private final RequestContext requestContext;
 
   public MetadataResolvingCallable(
-      ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> inner) {
+      ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> inner,
+      RequestContext requestContext) {
     this.inner = inner;
+    this.requestContext = requestContext;
   }
 
   @Override
@@ -48,25 +50,23 @@ public class MetadataResolvingCallable
       ExecuteQueryCallContext callContext,
       ResponseObserver<ExecuteQueryResponse> responseObserver,
       ApiCallContext apiCallContext) {
-    MetadataObserver observer =
-        new MetadataObserver(responseObserver, callContext.resultSetMetadataFuture());
-    inner.call(callContext.request(), observer, apiCallContext);
+    MetadataObserver observer = new MetadataObserver(responseObserver, callContext);
+    inner.call(callContext.toRequest(requestContext), observer, apiCallContext);
   }
 
   static final class MetadataObserver extends SafeResponseObserver<ExecuteQueryResponse> {
 
-    private final SettableApiFuture<ResultSetMetadata> metadataFuture;
+    private final ExecuteQueryCallContext callContext;
     private final ResponseObserver<ExecuteQueryResponse> outerObserver;
     // This doesn't need to be synchronized because this is called above the reframer
     // so onResponse will be called sequentially
     private boolean isFirstResponse;
 
     MetadataObserver(
-        ResponseObserver<ExecuteQueryResponse> outerObserver,
-        SettableApiFuture<ResultSetMetadata> metadataFuture) {
+        ResponseObserver<ExecuteQueryResponse> outerObserver, ExecuteQueryCallContext callContext) {
       super(outerObserver);
       this.outerObserver = outerObserver;
-      this.metadataFuture = metadataFuture;
+      this.callContext = callContext;
       this.isFirstResponse = true;
     }
 
@@ -77,22 +77,10 @@ public class MetadataResolvingCallable
 
     @Override
     protected void onResponseImpl(ExecuteQueryResponse response) {
-      if (isFirstResponse && !response.hasMetadata()) {
-        IllegalStateException e =
-            new IllegalStateException("First response must always contain metadata");
-        metadataFuture.setException(e);
-        throw e;
+      if (isFirstResponse) {
+        callContext.firstResponseReceived();
       }
       isFirstResponse = false;
-      if (response.hasMetadata()) {
-        try {
-          ResultSetMetadata md = ProtoResultSetMetadata.fromProto(response.getMetadata());
-          metadataFuture.set(md);
-        } catch (Throwable t) {
-          metadataFuture.setException(t);
-          throw t;
-        }
-      }
       outerObserver.onResponse(response);
     }
 
@@ -100,17 +88,16 @@ public class MetadataResolvingCallable
     protected void onErrorImpl(Throwable throwable) {
       // When we support retries this will have to move after the retrying callable in a separate
       // observer.
-      metadataFuture.setException(throwable);
+      callContext.setMetadataException(throwable);
       outerObserver.onError(throwable);
     }
 
+    // TODO this becomes a valid state
     @Override
     protected void onCompleteImpl() {
-      if (!metadataFuture.isDone()) {
-        IllegalStateException missingMetadataException =
-            new IllegalStateException("Unexpected Stream complete without receiving metadata");
-        metadataFuture.setException(missingMetadataException);
-        throw missingMetadataException;
+      if (isFirstResponse) {
+        // If the stream completes successfully we know we used the current metadata
+        callContext.firstResponseReceived();
       }
       outerObserver.onComplete();
     }

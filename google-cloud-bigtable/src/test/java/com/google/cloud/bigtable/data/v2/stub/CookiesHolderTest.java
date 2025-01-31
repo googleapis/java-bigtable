@@ -856,7 +856,7 @@ public class CookiesHolderTest {
       responseObserver.onNext(
           // Need to set metadata for response to parse
           PrepareQueryResponse.newBuilder()
-              .setMetadata(metadata(columnMetadata("foo", stringType())).getMetadata())
+              .setMetadata(metadata(columnMetadata("foo", stringType())))
               .build());
       responseObserver.onCompleted();
     }

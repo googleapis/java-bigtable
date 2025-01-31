@@ -16,7 +16,27 @@
 package com.google.cloud.bigtable.data.v2.models.sql;
 
 import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 
-// TODO document once you can do something with this
+/**
+ * The results of query preparation that can be used to create {@link BoundStatement}s to execute
+ * queries.
+ *
+ * <p>Whenever possible this should be shared across different instances the same query, in order to
+ * amortize query preparation costs.
+ */
 @BetaApi
-public interface PreparedStatement {}
+public interface PreparedStatement extends AutoCloseable {
+
+  /**
+   * @return {@link BoundStatement.Builder} to bind query params to and pass to {@link
+   *     com.google.cloud.bigtable.data.v2.BigtableDataClient#executeQuery(BoundStatement)}
+   */
+  BoundStatement.Builder bind();
+
+  // TODO once refresh is implemented this will return a future so we can
+  // wait while plan is refreshing
+  @InternalApi("For internal use only")
+  PrepareResponse getPrepareResponse();
+}

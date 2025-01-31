@@ -16,6 +16,8 @@
 package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement.Builder;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 
 /**
@@ -23,7 +25,6 @@ import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
  *
  * <p>This is considered an internal implementation detail and should not be used by applications.
  */
-// TODO Add ability to create BoundStatement
 // TODO implement plan refresh
 @InternalApi("For internal use only")
 public class PreparedStatementImpl implements PreparedStatement {
@@ -35,5 +36,21 @@ public class PreparedStatementImpl implements PreparedStatement {
 
   public static PreparedStatement create(PrepareResponse response) {
     return new PreparedStatementImpl(response);
+  }
+
+  @Override
+  public BoundStatement.Builder bind() {
+    return new Builder(this);
+  }
+
+  // TODO update when plan refresh is implement
+  @Override
+  public PrepareResponse getPrepareResponse() {
+    return response;
+  }
+
+  @Override
+  public void close() throws Exception {
+    // TODO cancel any background refresh
   }
 }

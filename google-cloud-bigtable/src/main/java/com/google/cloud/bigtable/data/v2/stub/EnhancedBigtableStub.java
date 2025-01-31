@@ -92,7 +92,7 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ChangeStreamRecordMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.GenerateInitialChangeStreamPartitionsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.changestream.ReadChangeStreamResumptionStrategy;
@@ -1139,8 +1139,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * Creates a callable chain to handle streaming ExecuteQuery RPCs. The chain will:
    *
    * <ul>
-   *   <li>Convert a {@link Statement} into a {@link ExecuteQueryCallContext}, which passes the
-   *       {@link Statement} & a future for the {@link
+   *   <li>Convert a {@link BoundStatement} into a {@link ExecuteQueryCallContext}, which passes the
+   *       {@link BoundStatement} & a future for the {@link
    *       com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata} up the call chain.
    *   <li>Upon receiving the response stream, it will set the metadata future and translate the
    *       {@link com.google.bigtable.v2.PartialResultSet}s into {@link SqlRow}s
@@ -1185,7 +1185,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         Callables.watched(withStatsHeaders, watchdogSettings, clientContext);
 
     ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withMetadataObserver =
-        new MetadataResolvingCallable(watched);
+        new MetadataResolvingCallable(watched, requestContext);
 
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> merging =
         new SqlRowMergingCallable(withMetadataObserver);

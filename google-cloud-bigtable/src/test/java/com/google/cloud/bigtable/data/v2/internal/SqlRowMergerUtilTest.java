@@ -46,40 +46,27 @@ public class SqlRowMergerUtilTest {
 
   @Test
   public void close_succeedsWhenEmpty() {
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {}
+    com.google.bigtable.v2.ResultSetMetadata md = metadata(columnMetadata("a", stringType()));
+    try (SqlRowMergerUtil util = new SqlRowMergerUtil(md)) {}
 
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
+    try (SqlRowMergerUtil util = new SqlRowMergerUtil(md)) {
       // Metadata with no rows
-      List<SqlRow> unused =
-          util.parseExecuteQueryResponses(
-              ImmutableList.of(metadata(columnMetadata("a", stringType()))));
-    }
-  }
-
-  @Test
-  public void parseExecuteQueryResponses_failsWithoutMetadata_serializedProtoRows() {
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
-      // users must pass metadata, as it should always be returned by the server.
-      assertThrows(
-          IllegalStateException.class,
-          () ->
-              util.parseExecuteQueryResponses(
-                  ImmutableList.of(partialResultSetWithToken(stringValue("val")))));
+      List<SqlRow> unused = util.parseExecuteQueryResponses(ImmutableList.of());
     }
   }
 
   @Test
   public void parseExecuteQueryResponses_handlesSingleValue_serializedProtoRows() {
-    ExecuteQueryResponse metadata = metadata(columnMetadata("str", stringType()));
+    com.google.bigtable.v2.ResultSetMetadata metadata =
+        metadata(columnMetadata("str", stringType()));
     ImmutableList<ExecuteQueryResponse> responses =
-        ImmutableList.of(metadata, partialResultSetWithToken(stringValue("val")));
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
+        ImmutableList.of(partialResultSetWithToken(stringValue("val")));
+    try (SqlRowMergerUtil util = new SqlRowMergerUtil(metadata)) {
       List<SqlRow> rows = util.parseExecuteQueryResponses(responses);
       assertThat(rows)
           .containsExactly(
               ProtoSqlRow.create(
-                  ProtoResultSetMetadata.fromProto(
-                      metadata(columnMetadata("str", stringType())).getMetadata()),
+                  ProtoResultSetMetadata.fromProto(metadata(columnMetadata("str", stringType()))),
                   ImmutableList.of(stringValue("val"))));
       ;
     }
@@ -94,10 +81,10 @@ public class SqlRowMergerUtilTest {
       columnMetadata("strArr", arrayType(stringType())),
       columnMetadata("map", mapType(stringType(), bytesType()))
     };
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata metadataProto = metadata(columns);
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     ImmutableList<ExecuteQueryResponse> responses =
         ImmutableList.of(
-            metadata(columns),
             partialResultSetWithoutToken(
                 stringValue("str1"),
                 bytesValue("bytes1"),
@@ -113,7 +100,7 @@ public class SqlRowMergerUtilTest {
                 bytesValue("bytes3"),
                 arrayValue(stringValue("arr3")),
                 mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
+    try (SqlRowMergerUtil util = new SqlRowMergerUtil(metadataProto)) {
       List<SqlRow> rows = util.parseExecuteQueryResponses(responses);
       assertThat(rows)
           .containsExactly(
@@ -143,12 +130,12 @@ public class SqlRowMergerUtilTest {
 
   @Test
   public void parseExecuteQueryResponses_throwsOnCloseWithPartialBatch_serializedProtoRows() {
+    com.google.bigtable.v2.ResultSetMetadata metadata =
+        metadata(columnMetadata("str", stringType()));
     ImmutableList<ExecuteQueryResponse> responses =
-        ImmutableList.of(
-            metadata(columnMetadata("str", stringType())),
-            partialResultSetWithoutToken(stringValue("str1")));
+        ImmutableList.of(partialResultSetWithoutToken(stringValue("str1")));
 
-    SqlRowMergerUtil util = new SqlRowMergerUtil();
+    SqlRowMergerUtil util = new SqlRowMergerUtil(metadata);
     List<SqlRow> unused = util.parseExecuteQueryResponses(responses);
     assertThrows(IllegalStateException.class, util::close);
   }
@@ -156,13 +143,14 @@ public class SqlRowMergerUtilTest {
   @Test
   public void
       parseExecuteQueryResponses_throwsOnParseWithPartialRowsInCompleteBatch_serializedProtoRows() {
+    com.google.bigtable.v2.ResultSetMetadata metadata =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
     ImmutableList<ExecuteQueryResponse> responses =
         ImmutableList.of(
-            metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())),
             partialResultSetWithToken(
                 stringValue("str1"), bytesValue("bytes1"), stringValue("str2")));
 
-    SqlRowMergerUtil util = new SqlRowMergerUtil();
+    SqlRowMergerUtil util = new SqlRowMergerUtil(metadata);
     assertThrows(IllegalStateException.class, () -> util.parseExecuteQueryResponses(responses));
   }
 
@@ -174,10 +162,10 @@ public class SqlRowMergerUtilTest {
       columnMetadata("strArr", arrayType(stringType())),
       columnMetadata("map", mapType(stringType(), bytesType()))
     };
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
+    com.google.bigtable.v2.ResultSetMetadata metadataProto = metadata(columns);
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     ImmutableList<ExecuteQueryResponse> responses =
         ImmutableList.of(
-            metadata(columns),
             partialResultSetWithoutToken(
                 stringValue("str1"),
                 bytesValue("bytes1"),
@@ -193,12 +181,11 @@ public class SqlRowMergerUtilTest {
                 bytesValue("bytes3"),
                 arrayValue(stringValue("arr3")),
                 mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
-    try (SqlRowMergerUtil util = new SqlRowMergerUtil()) {
+    try (SqlRowMergerUtil util = new SqlRowMergerUtil(metadataProto)) {
       List<SqlRow> rows = new ArrayList<>();
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(0, 1)));
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(1, 2)));
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(2, 3)));
-      rows.addAll(util.parseExecuteQueryResponses(responses.subList(3, 4)));
 
       assertThat(rows)
           .containsExactly(

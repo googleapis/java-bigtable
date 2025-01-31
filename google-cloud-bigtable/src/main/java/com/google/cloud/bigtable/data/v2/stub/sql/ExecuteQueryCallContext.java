@@ -17,29 +17,62 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import com.google.api.core.InternalApi;
 import com.google.api.core.SettableApiFuture;
-import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.ExecuteQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 
 /**
- * POJO used to provide a future to the ExecuteQuery callable chain in order to return metadata to
- * users outside of the stream of rows.
+ * Used to provide a future to the ExecuteQuery callable chain in order to return metadata to users
+ * outside of the stream of rows.
  *
  * <p>This should only be constructed by {@link ExecuteQueryCallable} not directly by users.
  *
  * <p>This is considered an internal implementation detail and should not be used by applications.
  */
 @InternalApi("For internal use only")
-@AutoValue
-public abstract class ExecuteQueryCallContext {
+public class ExecuteQueryCallContext {
 
-  @InternalApi("For internal use only")
-  public static ExecuteQueryCallContext create(
-      ExecuteQueryRequest request, SettableApiFuture<ResultSetMetadata> metadataFuture) {
-    return new AutoValue_ExecuteQueryCallContext(request, metadataFuture);
+  private final BoundStatement boundStatement;
+  private final SettableApiFuture<ResultSetMetadata> metadataFuture;
+  private final PrepareResponse latestPrepareResponse;
+  // TODO this will be used to track latest resume token here
+
+  private ExecuteQueryCallContext(
+      BoundStatement boundStatement, SettableApiFuture<ResultSetMetadata> metadataFuture) {
+    this.boundStatement = boundStatement;
+    this.metadataFuture = metadataFuture;
+    this.latestPrepareResponse = boundStatement.getLatestPrepareResponse();
   }
 
-  abstract ExecuteQueryRequest request();
+  public static ExecuteQueryCallContext create(
+      BoundStatement boundStatement, SettableApiFuture<ResultSetMetadata> metadataFuture) {
+    return new ExecuteQueryCallContext(boundStatement, metadataFuture);
+  }
 
-  abstract SettableApiFuture<ResultSetMetadata> resultSetMetadataFuture();
+  ExecuteQueryRequest toRequest(RequestContext requestContext) {
+    return boundStatement.toProto(latestPrepareResponse.preparedQuery(), requestContext);
+  }
+
+  /**
+   * Metadata can change as the plan is refreshed. Once a response or complete has been received
+   * from the stream we know that the {@link com.google.bigtable.v2.PrepareQueryResponse} can no
+   * longer change, so we can set the metadata.
+   */
+  void firstResponseReceived() {
+    metadataFuture.set(latestPrepareResponse.resultSetMetadata());
+  }
+
+  /**
+   * If the stream receives an error before receiving any response it needs to be passed through to
+   * the metadata future
+   */
+  void setMetadataException(Throwable t) {
+    metadataFuture.setException(t);
+  }
+
+  SettableApiFuture<ResultSetMetadata> resultSetMetadataFuture() {
+    return this.metadataFuture;
+  }
 }

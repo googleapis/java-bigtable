@@ -23,6 +23,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Va
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.common.truth.Truth.assertThat;
@@ -30,11 +31,13 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.rpc.ServerStream;
-import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
-import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.common.collect.Lists;
@@ -55,28 +58,31 @@ public class SqlRowMergingCallableTest {
 
   @Test
   public void testMerging() {
-    ExecuteQueryResponse metadataResponse =
-        metadata(
-            columnMetadata("stringCol", stringType()),
-            columnMetadata("intCol", int64Type()),
-            columnMetadata("arrayCol", arrayType(stringType())));
     ServerStreamingStashCallable<ExecuteQueryCallContext, ExecuteQueryResponse> inner =
         new ServerStreamingStashCallable<>(
             Lists.newArrayList(
-                metadataResponse,
                 partialResultSetWithoutToken(
                     stringValue("foo"),
                     int64Value(1),
                     arrayValue(stringValue("foo"), stringValue("bar"))),
                 partialResultSetWithToken(stringValue("test"), int64Value(10), arrayValue())));
 
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(
+            PrepareResponse.fromProto(
+                prepareResponse(
+                    metadata(
+                        columnMetadata("stringCol", stringType()),
+                        columnMetadata("intCol", int64Type()),
+                        columnMetadata("arrayCol", arrayType(stringType()))))));
+    BoundStatement boundStatement = preparedStatement.bind().build();
+    ResultSetMetadata metadata = preparedStatement.getPrepareResponse().resultSetMetadata();
+    SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
+    mdFuture.set(metadata);
     SqlRowMergingCallable rowMergingCallable = new SqlRowMergingCallable(inner);
     ServerStream<SqlRow> results =
-        rowMergingCallable.call(
-            ExecuteQueryCallContext.create(
-                ExecuteQueryRequest.getDefaultInstance(), SettableApiFuture.create()));
+        rowMergingCallable.call(ExecuteQueryCallContext.create(boundStatement, mdFuture));
     List<SqlRow> resultsList = results.stream().collect(Collectors.toList());
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataResponse.getMetadata());
     assertThat(resultsList)
         .containsExactly(
             ProtoSqlRow.create(
@@ -91,16 +97,53 @@ public class SqlRowMergingCallableTest {
 
   @Test
   public void testError() {
-    // empty metadata is invalid
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(
+            PrepareResponse.fromProto(
+                prepareResponse(
+                    metadata(
+                        columnMetadata("stringCol", stringType()),
+                        columnMetadata("intCol", int64Type()),
+                        columnMetadata("arrayCol", arrayType(stringType()))))));
+    BoundStatement boundStatement = preparedStatement.bind().build();
+
+    // empty response is invalid
     ServerStreamingStashCallable<ExecuteQueryCallContext, ExecuteQueryResponse> inner =
-        new ServerStreamingStashCallable<>(Lists.newArrayList(metadata()));
+        new ServerStreamingStashCallable<>(
+            Lists.newArrayList(ExecuteQueryResponse.getDefaultInstance()));
 
     SqlRowMergingCallable rowMergingCallable = new SqlRowMergingCallable(inner);
+    SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
+    mdFuture.set(preparedStatement.getPrepareResponse().resultSetMetadata());
     ServerStream<SqlRow> results =
-        rowMergingCallable.call(
-            ExecuteQueryCallContext.create(
-                ExecuteQueryRequest.getDefaultInstance(), SettableApiFuture.create()));
+        rowMergingCallable.call(ExecuteQueryCallContext.create(boundStatement, mdFuture));
 
     assertThrows(IllegalStateException.class, () -> results.iterator().next());
+  }
+
+  @Test
+  public void testMetdataFutureError() {
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(
+            PrepareResponse.fromProto(
+                prepareResponse(
+                    metadata(
+                        columnMetadata("stringCol", stringType()),
+                        columnMetadata("intCol", int64Type()),
+                        columnMetadata("arrayCol", arrayType(stringType()))))));
+    BoundStatement boundStatement = preparedStatement.bind().build();
+
+    // empty response is invalid
+    ServerStreamingStashCallable<ExecuteQueryCallContext, ExecuteQueryResponse> inner =
+        new ServerStreamingStashCallable<>(
+            Lists.newArrayList(ExecuteQueryResponse.getDefaultInstance()));
+
+    SqlRowMergingCallable rowMergingCallable = new SqlRowMergingCallable(inner);
+    SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
+    mdFuture.setException(new RuntimeException("test"));
+    ServerStream<SqlRow> results =
+        rowMergingCallable.call(ExecuteQueryCallContext.create(boundStatement, mdFuture));
+
+    assertThrows(RuntimeException.class, () -> results.iterator().next());
   }
 }

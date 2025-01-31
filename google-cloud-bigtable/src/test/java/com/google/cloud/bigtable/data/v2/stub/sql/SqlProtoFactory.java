@@ -19,6 +19,7 @@ import com.google.bigtable.v2.ArrayValue;
 import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.PartialResultSet;
+import com.google.bigtable.v2.PrepareQueryResponse;
 import com.google.bigtable.v2.ProtoRows;
 import com.google.bigtable.v2.ProtoRowsBatch;
 import com.google.bigtable.v2.ProtoSchema;
@@ -35,6 +36,19 @@ import java.util.Arrays;
 public class SqlProtoFactory {
 
   private SqlProtoFactory() {}
+
+  public static PrepareQueryResponse prepareResponse(
+      ByteString preparedQuery, ResultSetMetadata metadata) {
+    return PrepareQueryResponse.newBuilder()
+        .setPreparedQuery(preparedQuery)
+        .setValidUntil(Timestamp.newBuilder().setSeconds(1000).setNanos(1000).build())
+        .setMetadata(metadata)
+        .build();
+  }
+
+  public static PrepareQueryResponse prepareResponse(ResultSetMetadata metadata) {
+    return prepareResponse(ByteString.copyFromUtf8("foo"), metadata);
+  }
 
   public static ColumnMetadata columnMetadata(String name, Type type) {
     return ColumnMetadata.newBuilder().setName(name).setType(type).build();
@@ -190,11 +204,9 @@ public class SqlProtoFactory {
         .build();
   }
 
-  public static ExecuteQueryResponse metadata(ColumnMetadata... columnMetadata) {
+  public static ResultSetMetadata metadata(ColumnMetadata... columnMetadata) {
     ProtoSchema schema =
         ProtoSchema.newBuilder().addAllColumns(Arrays.asList(columnMetadata)).build();
-    ResultSetMetadata metadata = ResultSetMetadata.newBuilder().setProtoSchema(schema).build();
-
-    return ExecuteQueryResponse.newBuilder().setMetadata(metadata).build();
+    return ResultSetMetadata.newBuilder().setProtoSchema(schema).build();
   }
 }

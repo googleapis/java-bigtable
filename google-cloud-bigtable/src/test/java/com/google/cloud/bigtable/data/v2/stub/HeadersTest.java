@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -41,13 +42,16 @@ import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.rpc.Status;
 import io.grpc.Metadata;
 import io.grpc.Server;
@@ -171,7 +175,11 @@ public class HeadersTest {
 
   @Test
   public void executeQueryTest() {
-    client.executeQuery(Statement.of("SELECT * FROM table"));
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(
+            PrepareResponse.fromProto(
+                prepareResponse(metadata(columnMetadata("foo", stringType())))));
+    client.executeQuery(new BoundStatement.Builder(preparedStatement).build());
     verifyHeaderSent(true);
   }
 
@@ -278,7 +286,7 @@ public class HeadersTest {
       responseObserver.onNext(
           // Need to set metadata for response to parse
           PrepareQueryResponse.newBuilder()
-              .setMetadata(metadata(columnMetadata("foo", stringType())).getMetadata())
+              .setMetadata(metadata(columnMetadata("foo", stringType())))
               .build());
       responseObserver.onCompleted();
     }

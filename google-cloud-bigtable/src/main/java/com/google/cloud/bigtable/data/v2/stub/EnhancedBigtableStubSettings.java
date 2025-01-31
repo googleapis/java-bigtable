@@ -47,7 +47,7 @@ import com.google.cloud.bigtable.data.v2.models.ReadChangeStreamQuery;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
@@ -271,7 +271,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final ServerStreamingCallSettings<ReadChangeStreamQuery, ChangeStreamRecord>
       readChangeStreamSettings;
   private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
-  private final ServerStreamingCallSettings<Statement, SqlRow> executeQuerySettings;
+  private final ServerStreamingCallSettings<BoundStatement, SqlRow> executeQuerySettings;
   private final UnaryCallSettings<PrepareQueryRequest, PrepareResponse> prepareQuerySettings;
 
   private final FeatureFlags featureFlags;
@@ -678,7 +678,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return readChangeStreamSettings;
   }
 
-  public ServerStreamingCallSettings<Statement, SqlRow> executeQuerySettings() {
+  public ServerStreamingCallSettings<BoundStatement, SqlRow> executeQuerySettings() {
     return executeQuerySettings;
   }
 
@@ -748,7 +748,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private final ServerStreamingCallSettings.Builder<ReadChangeStreamQuery, ChangeStreamRecord>
         readChangeStreamSettings;
     private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
-    private final ServerStreamingCallSettings.Builder<Statement, SqlRow> executeQuerySettings;
+    private final ServerStreamingCallSettings.Builder<BoundStatement, SqlRow> executeQuerySettings;
     private final UnaryCallSettings.Builder<PrepareQueryRequest, PrepareResponse>
         prepareQuerySettings;
 
@@ -1215,7 +1215,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
      * requests will not be retried currently.
      */
     @BetaApi
-    public ServerStreamingCallSettings.Builder<Statement, SqlRow> executeQuerySettings() {
+    public ServerStreamingCallSettings.Builder<BoundStatement, SqlRow> executeQuerySettings() {
       return executeQuerySettings;
     }
 

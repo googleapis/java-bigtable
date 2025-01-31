@@ -62,8 +62,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_hasCompleteBatch_falseWhenEmpty() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       assertThat(stateMachine).hasCompleteBatch(false);
     }
@@ -71,8 +70,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_hasCompleteBatch_falseWhenAwaitingPartialBatch() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(
           partialResultSetWithoutToken(stringValue("foo")).getResults());
@@ -82,8 +80,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_hasCompleteBatch_trueWhenAwaitingBatchConsume() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(
           partialResultSetWithoutToken(stringValue("foo")).getResults());
@@ -94,8 +91,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_isBatchInProgress_falseWhenEmpty() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       assertThat(stateMachine).isBatchInProgress(false);
     }
@@ -103,8 +99,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_isBatchInProgress_trueWhenAwaitingPartialBatch() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(
           partialResultSetWithoutToken(stringValue("foo")).getResults());
@@ -114,8 +109,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_isBatchInProgress_trueWhenAwaitingBatchConsume() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(
           partialResultSetWithoutToken(stringValue("foo")).getResults());
@@ -126,8 +120,7 @@ public final class ProtoRowsMergingStateMachineTest {
     public void stateMachine_consumeRow_throwsExceptionWhenColumnsArentComplete() {
       ResultSetMetadata metadata =
           ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType()), columnMetadata("b", stringType()))
-                  .getMetadata());
+              metadata(columnMetadata("a", stringType()), columnMetadata("b", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       // this is a valid partial result set so we don't expect an error until we call populateQueue
       stateMachine.addPartialResultSet(partialResultSetWithToken(stringValue("foo")).getResults());
@@ -138,8 +131,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_consumeRow_throwsExceptionWhenAwaitingPartialBatch() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       // this doesn't have a token so we shouldn't allow results to be processed
       stateMachine.addPartialResultSet(
@@ -151,8 +143,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_mergesPartialBatches() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(
           partialResultSetWithoutToken(stringValue("foo")).getResults());
@@ -171,7 +162,7 @@ public final class ProtoRowsMergingStateMachineTest {
     public void stateMachine_mergesPartialBatches_withRandomChunks() {
       ResultSetMetadata metadata =
           ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("map", mapType(stringType(), bytesType()))).getMetadata());
+              metadata(columnMetadata("map", mapType(stringType(), bytesType()))));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       Value mapVal =
           mapValue(
@@ -201,11 +192,10 @@ public final class ProtoRowsMergingStateMachineTest {
       ResultSetMetadata metadata =
           ProtoResultSetMetadata.fromProto(
               metadata(
-                      columnMetadata("a", stringType()),
-                      columnMetadata("b", bytesType()),
-                      columnMetadata("c", arrayType(stringType())),
-                      columnMetadata("d", mapType(stringType(), bytesType())))
-                  .getMetadata());
+                  columnMetadata("a", stringType()),
+                  columnMetadata("b", bytesType()),
+                  columnMetadata("c", arrayType(stringType())),
+                  columnMetadata("d", mapType(stringType(), bytesType()))));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
 
       Value stringVal = stringValue("test");
@@ -237,8 +227,7 @@ public final class ProtoRowsMergingStateMachineTest {
     public void stateMachine_throwsExceptionWhenValuesDontMatchSchema() {
       ResultSetMetadata metadata =
           ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType()), columnMetadata("b", bytesType()))
-                  .getMetadata());
+              metadata(columnMetadata("a", stringType()), columnMetadata("b", bytesType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
 
       // values in wrong order
@@ -251,8 +240,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_handlesResumeTokenWithNoValues() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
 
       stateMachine.addPartialResultSet(partialResultSetWithToken().getResults());
@@ -262,8 +250,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void stateMachine_handlesResumeTokenWithOpenBatch() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
 
       stateMachine.addPartialResultSet(
@@ -277,8 +264,7 @@ public final class ProtoRowsMergingStateMachineTest {
     @Test
     public void addPartialResultSet_throwsExceptionWhenAwaitingRowConsume() {
       ResultSetMetadata metadata =
-          ProtoResultSetMetadata.fromProto(
-              metadata(columnMetadata("a", stringType())).getMetadata());
+          ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
       ProtoRowsMergingStateMachine stateMachine = new ProtoRowsMergingStateMachine(metadata);
       stateMachine.addPartialResultSet(partialResultSetWithToken(stringValue("test")).getResults());
 

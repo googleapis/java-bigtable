@@ -21,6 +21,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolTyp
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
@@ -28,6 +29,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.floatValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Value;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.nullValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
@@ -36,11 +38,17 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timesta
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
+import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryRequest;
+import com.google.bigtable.v2.PrepareQueryResponse;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.Timestamp;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.protobuf.ByteString;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -49,22 +57,43 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class StatementTest {
+public class BoundStatementTest {
 
   private static final String EXPECTED_APP_PROFILE = "test-profile";
   private static final RequestContext REQUEST_CONTEXT =
       RequestContext.create("test-project", "test-instance", EXPECTED_APP_PROFILE);
   private static final String EXPECTED_INSTANCE_NAME =
       "projects/test-project/instances/test-instance";
+  private static final ByteString EXPECTED_PREPARED_QUERY = ByteString.copyFromUtf8("foo");
+  // BoundStatement doesn't validate params against schema right now, so we can use hardcoded
+  // columns for now
+  private static final ColumnMetadata[] DEFAULT_COLUMNS = {
+    columnMetadata("_key", bytesType()), columnMetadata("cf", stringType())
+  };
+
+  public static BoundStatement.Builder boundStatementBuilder() {
+    // This doesn't impact bound statement, but set it so it looks like a real response
+    Instant expiry = Instant.now().plus(Duration.ofMinutes(1));
+    return PreparedStatementImpl.create(
+            PrepareResponse.fromProto(
+                PrepareQueryResponse.newBuilder()
+                    .setPreparedQuery(EXPECTED_PREPARED_QUERY)
+                    .setMetadata(metadata(DEFAULT_COLUMNS))
+                    .setValidUntil(
+                        Timestamp.ofTimeSecondsAndNanos(expiry.getEpochSecond(), expiry.getNano())
+                            .toProto())
+                    .build()))
+        .bind();
+  }
 
   @Test
   public void statementWithoutParameters() {
-    Statement s = Statement.of("SELECT * FROM table");
+    BoundStatement s = boundStatementBuilder().build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
                 .build());
@@ -72,15 +101,13 @@ public class StatementTest {
 
   @Test
   public void statementWithBytesParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE _key=@key")
-            .setBytesParam("key", ByteString.copyFromUtf8("test"))
-            .build();
+    BoundStatement s =
+        boundStatementBuilder().setBytesParam("key", ByteString.copyFromUtf8("test")).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE _key=@key")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "key",
                     Value.newBuilder()
@@ -94,15 +121,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullBytesParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE _key=@key")
-            .setBytesParam("key", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setBytesParam("key", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE _key=@key")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("key", Value.newBuilder().setType(bytesType()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -111,15 +135,12 @@ public class StatementTest {
 
   @Test
   public void statementWithStringParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE _key=@key")
-            .setStringParam("key", "test")
-            .build();
+    BoundStatement s = boundStatementBuilder().setStringParam("key", "test").build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE _key=@key")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "key", Value.newBuilder().setType(stringType()).setStringValue("test").build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
@@ -129,15 +150,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullStringParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE _key=@key")
-            .setStringParam("key", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setStringParam("key", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE _key=@key")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("key", Value.newBuilder().setType(stringType()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -146,15 +164,12 @@ public class StatementTest {
 
   @Test
   public void statementWithInt64Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setLongParam("number", 1L)
-            .build();
+    BoundStatement s = boundStatementBuilder().setLongParam("number", 1L).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("number", Value.newBuilder().setType(int64Type()).setIntValue(1).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -163,15 +178,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullInt64Param() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE 1=@number")
-            .setLongParam("number", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setLongParam("number", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE 1=@number")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("number", Value.newBuilder().setType(int64Type()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -180,15 +192,12 @@ public class StatementTest {
 
   @Test
   public void statementWithBoolParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE @bool")
-            .setBooleanParam("bool", true)
-            .build();
+    BoundStatement s = boundStatementBuilder().setBooleanParam("bool", true).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE @bool")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "bool", Value.newBuilder().setType(boolType()).setBoolValue(true).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
@@ -198,15 +207,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullBoolParam() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE @bool")
-            .setBooleanParam("bool", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setBooleanParam("bool", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE @bool")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("bool", Value.newBuilder().setType(boolType()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -215,17 +221,15 @@ public class StatementTest {
 
   @Test
   public void statementWithTimestampParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
+    BoundStatement s =
+        boundStatementBuilder()
             .setTimestampParam("timeParam", Instant.ofEpochSecond(1000, 100))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "timeParam",
                     Value.newBuilder()
@@ -239,17 +243,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullTimestampParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
-            .setTimestampParam("timeParam", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setTimestampParam("timeParam", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT * FROM table WHERE PARSE_TIMESTAMP(\"%Y/%m/%dT%H:%M:%S\", CAST(cf[\"ts\"] AS STRING)) < @timeParam")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("timeParam", Value.newBuilder().setType(timestampType()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -258,17 +257,15 @@ public class StatementTest {
 
   @Test
   public void statementWithDateParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT * FROM table WHERE PARSE_DATE(\"%Y%m%d\", CAST(cf[\"date\"] AS STRING)) < @dateParam")
+    BoundStatement s =
+        boundStatementBuilder()
             .setDateParam("dateParam", Date.fromYearMonthDay(2024, 6, 11))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT * FROM table WHERE PARSE_DATE(\"%Y%m%d\", CAST(cf[\"date\"] AS STRING)) < @dateParam")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "dateParam",
                     Value.newBuilder()
@@ -282,17 +279,12 @@ public class StatementTest {
 
   @Test
   public void statementWithNullDateParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT * FROM table WHERE PARSE_DATE(\"%Y%m%d\", CAST(cf[\"date\"] AS STRING)) < @dateParam")
-            .setDateParam("dateParam", null)
-            .build();
+    BoundStatement s = boundStatementBuilder().setDateParam("dateParam", null).build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT * FROM table WHERE PARSE_DATE(\"%Y%m%d\", CAST(cf[\"date\"] AS STRING)) < @dateParam")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams("dateParam", Value.newBuilder().setType(dateType()).build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
@@ -301,9 +293,8 @@ public class StatementTest {
 
   @Test
   public void statementWithBytesListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam",
                 Arrays.asList(ByteString.copyFromUtf8("foo"), ByteString.copyFromUtf8("bar")),
@@ -316,11 +307,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.bytes()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -350,9 +340,8 @@ public class StatementTest {
 
   @Test
   public void statementWithStringListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam", Arrays.asList("foo", "bar"), SqlType.arrayOf(SqlType.string()))
             .setListParam(
@@ -363,11 +352,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.string()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -397,9 +385,8 @@ public class StatementTest {
 
   @Test
   public void statementWithInt64ListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam("listParam", Arrays.asList(1L, 2L), SqlType.arrayOf(SqlType.int64()))
             .setListParam(
                 "listWithNullElem", Arrays.asList(null, 3L, 4L), SqlType.arrayOf(SqlType.int64()))
@@ -407,11 +394,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.int64()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -439,9 +425,8 @@ public class StatementTest {
 
   @Test
   public void statementWithFloat32ListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam", Arrays.asList(1.1f, 1.2f), SqlType.arrayOf(SqlType.float32()))
             .setListParam(
@@ -452,11 +437,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.float32()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -486,9 +470,8 @@ public class StatementTest {
 
   @Test
   public void statementWithFloat64ListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam", Arrays.asList(1.1d, 1.2d), SqlType.arrayOf(SqlType.float64()))
             .setListParam(
@@ -499,11 +482,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.float64()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -532,9 +514,8 @@ public class StatementTest {
 
   @Test
   public void statementWithBooleanListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam("listParam", Arrays.asList(true, false), SqlType.arrayOf(SqlType.bool()))
             .setListParam(
                 "listWithNullElem",
@@ -544,11 +525,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.bool()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -578,9 +558,8 @@ public class StatementTest {
 
   @Test
   public void statementWithTimestampListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam",
                 Arrays.asList(Instant.ofEpochSecond(3000, 100), Instant.ofEpochSecond(4000, 100)),
@@ -595,11 +574,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.timestamp()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -634,9 +612,8 @@ public class StatementTest {
 
   @Test
   public void statementWithDateListParam() {
-    Statement s =
-        Statement.newBuilder(
-                "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+    BoundStatement s =
+        boundStatementBuilder()
             .setListParam(
                 "listParam",
                 Arrays.asList(Date.fromYearMonthDay(2024, 6, 1), Date.fromYearMonthDay(2024, 7, 1)),
@@ -650,11 +627,10 @@ public class StatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.date()))
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery(
-                    "SELECT cf, @listParam, @listWithNullElem, @emptyList, @nullList FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "listParam",
                     Value.newBuilder()
@@ -685,7 +661,7 @@ public class StatementTest {
 
   @Test
   public void setListParamRejectsUnsupportedElementTypes() {
-    Statement.Builder statement = Statement.newBuilder("SELECT @param");
+    BoundStatement.Builder statement = boundStatementBuilder();
 
     assertThrows(
         IllegalArgumentException.class,
@@ -704,18 +680,18 @@ public class StatementTest {
 
   @Test
   public void statementBuilderAllowsParamsToBeOverridden() {
-    Statement s =
-        Statement.newBuilder("SELECT * FROM table WHERE _key=@key")
+    BoundStatement s =
+        boundStatementBuilder()
             .setStringParam("key", "test1")
             .setStringParam("key", "test2")
             .setStringParam("key", "test3")
             .setStringParam("key", "test4")
             .build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table WHERE _key=@key")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .putParams(
                     "key", Value.newBuilder().setType(stringType()).setStringValue("test4").build())
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
@@ -725,12 +701,12 @@ public class StatementTest {
 
   @Test
   public void builderWorksWithNoParams() {
-    Statement s = Statement.newBuilder("SELECT * FROM table").build();
+    BoundStatement s = boundStatementBuilder().build();
 
-    assertThat(s.toProto(REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
-                .setQuery("SELECT * FROM table")
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
                 .build());

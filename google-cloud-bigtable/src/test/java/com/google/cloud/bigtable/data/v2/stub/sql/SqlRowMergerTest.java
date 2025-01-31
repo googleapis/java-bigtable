@@ -33,7 +33,6 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.tokenOn
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMergerSubject.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import com.google.bigtable.v2.ColumnMetadata;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
@@ -42,6 +41,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,67 +49,70 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class SqlRowMergerTest {
 
+  static Supplier<ResultSetMetadata> toSupplier(
+      com.google.bigtable.v2.ResultSetMetadata metadataProto) {
+    return () -> ProtoResultSetMetadata.fromProto(metadataProto);
+  }
+
   @Test
   public void sqlRowMerger_handlesEmptyState() {
-    SqlRowMerger merger = new SqlRowMerger();
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     assertThat(merger).hasPartialFrame(false);
     assertThat(merger).hasFullFrame(false);
   }
 
   @Test
   public void sqlRowMerger_handlesMetadata() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()),
-      columnMetadata("bytes", bytesType()),
-      columnMetadata("strArr", arrayType(stringType())),
-      columnMetadata("strByteMap", mapType(stringType(), bytesType()))
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(
+            columnMetadata("str", stringType()),
+            columnMetadata("bytes", bytesType()),
+            columnMetadata("strArr", arrayType(stringType())),
+            columnMetadata("strByteMap", mapType(stringType(), bytesType())));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     assertThat(merger).hasPartialFrame(false);
     assertThat(merger).hasFullFrame(false);
   }
 
   @Test
-  public void sqlRowMerger_rejectsMetadataOfUnrecognizedType() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ExecuteQueryResponse unrecognizedMetadata =
-        ExecuteQueryResponse.newBuilder()
-            .setMetadata(com.google.bigtable.v2.ResultSetMetadata.newBuilder().build())
-            .build();
+  public void sqlRowMerger_doesntResolveMetadataUntilFirstPush() {
+    SqlRowMerger merger =
+        new SqlRowMerger(
+            () -> {
+              throw new RuntimeException("test");
+            });
 
-    assertThrows(IllegalStateException.class, () -> merger.push(unrecognizedMetadata));
+    assertThat(merger).hasPartialFrame(false);
+    assertThat(merger).hasFullFrame(false);
+    assertThrows(
+        RuntimeException.class, () -> merger.push(ExecuteQueryResponse.getDefaultInstance()));
   }
 
   @Test
   public void hasPartialFrame_trueWithIncompleteBatch() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     assertThat(merger).hasPartialFrame(true);
   }
 
   @Test
   public void hasPartialFrame_trueWithFullRow() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     merger.push(partialResultSetWithToken(stringValue("test"), bytesValue("test")));
     assertThat(merger).hasPartialFrame(true);
   }
 
   @Test
   public void push_failsOnCompleteBatchWithIncompleteRow() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     assertThrows(
         IllegalStateException.class,
         () -> merger.push(partialResultSetWithToken(stringValue("test"))));
@@ -117,11 +120,9 @@ public class SqlRowMergerTest {
 
   @Test
   public void hasFullFrame_trueWithFullRow() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     merger.push(partialResultSetWithToken(bytesValue("test")));
     assertThat(merger).hasFullFrame(true);
@@ -129,26 +130,23 @@ public class SqlRowMergerTest {
 
   @Test
   public void hasFullFrame_falseWithIncompleteBatch() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType())
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     assertThat(merger).hasFullFrame(false);
   }
 
   @Test
   public void sqlRowMerger_handlesResponseStream() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()),
-      columnMetadata("bytes", bytesType()),
-      columnMetadata("strArr", arrayType(stringType())),
-      columnMetadata("strByteMap", mapType(stringType(), bytesType()))
-    };
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(
+            columnMetadata("str", stringType()),
+            columnMetadata("bytes", bytesType()),
+            columnMetadata("strArr", arrayType(stringType())),
+            columnMetadata("strByteMap", mapType(stringType(), bytesType())));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
 
     // Three logical rows worth of values split across two responses
     Value[] values = {
@@ -181,7 +179,9 @@ public class SqlRowMergerTest {
 
   @Test
   public void addValue_failsWithoutMetadataFirst() {
-    SqlRowMerger merger = new SqlRowMerger();
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     assertThrows(
         IllegalStateException.class,
         () -> merger.push(partialResultSetWithToken(stringValue("test"))));
@@ -189,12 +189,10 @@ public class SqlRowMergerTest {
 
   @Test
   public void sqlRowMerger_handlesTokenWithOpenPartialBatch() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()),
-    };
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     merger.push(partialResultSetWithoutToken(bytesValue("test")));
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token")));
@@ -209,11 +207,9 @@ public class SqlRowMergerTest {
 
   @Test
   public void sqlRowMerger_handlesTokensWithNoData() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()),
-    };
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token1")));
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token2")));
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token3")));
@@ -224,12 +220,10 @@ public class SqlRowMergerTest {
 
   @Test
   public void sqlRowMerger_handlesLeadingTokens() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {
-      columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()),
-    };
-    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadata(columns).getMetadata());
-    merger.push(metadata(columns));
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
+    ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     merger.push(tokenOnlyResultSet(ByteString.copyFromUtf8("token1")));
     merger.push(partialResultSetWithoutToken(stringValue("test")));
     merger.push(partialResultSetWithToken(bytesValue("test")));
@@ -243,18 +237,21 @@ public class SqlRowMergerTest {
   }
 
   @Test
-  public void addValue_failsOnDuplicateMetadata() {
-    SqlRowMerger merger = new SqlRowMerger();
-    ColumnMetadata[] columns = {columnMetadata("str", stringType())};
-    merger.push(metadata(columns));
-    merger.push(partialResultSetWithToken(stringValue("test")));
+  public void addValue_failsOnMetadataResponse() {
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
 
-    assertThrows(IllegalStateException.class, () -> merger.push(metadata(columns)));
+    ExecuteQueryResponse deprecatedMetadataResponse =
+        ExecuteQueryResponse.newBuilder().setMetadata(metadataProto).build();
+    assertThrows(IllegalStateException.class, () -> merger.push(deprecatedMetadataResponse));
   }
 
   @Test
   public void pop_failsWhenQueueIsEmpty() {
-    SqlRowMerger merger = new SqlRowMerger();
+    com.google.bigtable.v2.ResultSetMetadata metadataProto =
+        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
+    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
     assertThrows(NullPointerException.class, merger::pop);
   }
 }

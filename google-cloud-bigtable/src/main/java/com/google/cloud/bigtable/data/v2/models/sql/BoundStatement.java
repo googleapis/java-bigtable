@@ -23,6 +23,7 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 import com.google.cloud.bigtable.data.v2.internal.QueryParamUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.common.collect.ImmutableMap;
@@ -34,9 +35,10 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
+// TODO update doc
 /**
  * A SQL statement that can be executed by calling {@link
- * com.google.cloud.bigtable.data.v2.BigtableDataClient#executeQuery(Statement)}.
+ * com.google.cloud.bigtable.data.v2.BigtableDataClient#executeQuery(BoundStatement)}.
  *
  * <p>A statement contains a SQL string and optional parameters. A parameterized query should
  * contain placeholders in the form of {@literal @} followed by the parameter name. Parameter names
@@ -60,38 +62,47 @@ import javax.annotation.Nullable;
  * }</pre>
  */
 @BetaApi
-public class Statement {
+public class BoundStatement {
 
-  private final String sql;
+  private final PreparedStatement preparedStatement;
   private final Map<String, Value> params;
 
-  private Statement(String sql, Map<String, Value> params) {
-    this.sql = sql;
+  private BoundStatement(PreparedStatement preparedStatement, Map<String, Value> params) {
+    this.preparedStatement = preparedStatement;
     this.params = params;
   }
 
-  /** Creates a {@code Statement} with the given SQL query and no query parameters. */
-  public static Statement of(String sql) {
-    return newBuilder(sql).build();
+  // TODO return a future when plan refresh is implemented
+  /**
+   * Get's the most recent version of the PrepareResponse associated with this query.
+   *
+   * <p>This is considered an internal implementation detail and should not be used by applications.
+   */
+  @InternalApi("For internal use only")
+  public PrepareResponse getLatestPrepareResponse() {
+    return preparedStatement.getPrepareResponse();
   }
 
-  /** Creates a new {@code Builder} with the given SQL query */
-  public static Builder newBuilder(String sql) {
-    return new Builder(sql);
-  }
-
+  // TODO pass in paramTypes, to support validation
   public static class Builder {
-    private final String sql;
+    private final PreparedStatement preparedStatement;
     private final Map<String, Value> params;
 
-    private Builder(String sql) {
-      this.sql = sql;
+    /**
+     * Creates a builder from a {@link PreparedStatement}
+     *
+     * <p>This is considered an internal implementation detail and should not be used by
+     * applications.
+     */
+    @InternalApi("For internal use only")
+    public Builder(PreparedStatement preparedStatement) {
+      this.preparedStatement = preparedStatement;
       this.params = new HashMap<>();
     }
 
     /** Builds a {@code Statement} from the builder */
-    public Statement build() {
-      return new Statement(sql, ImmutableMap.copyOf(params));
+    public BoundStatement build() {
+      return new BoundStatement(preparedStatement, ImmutableMap.copyOf(params));
     }
 
     /**
@@ -330,13 +341,13 @@ public class Statement {
    * not meant to be used by applications.
    */
   @InternalApi("For internal use only")
-  public ExecuteQueryRequest toProto(RequestContext requestContext) {
+  public ExecuteQueryRequest toProto(ByteString preparedQuery, RequestContext requestContext) {
     return ExecuteQueryRequest.newBuilder()
         .setInstanceName(
             NameUtil.formatInstanceName(
                 requestContext.getProjectId(), requestContext.getInstanceId()))
         .setAppProfileId(requestContext.getAppProfileId())
-        .setQuery(sql)
+        .setPreparedQuery(preparedQuery)
         .putAllParams(params)
         .build();
   }

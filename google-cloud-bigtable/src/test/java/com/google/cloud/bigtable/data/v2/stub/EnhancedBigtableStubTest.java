@@ -70,6 +70,7 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
@@ -86,8 +87,8 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.TableId;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
@@ -156,6 +157,14 @@ public class EnhancedBigtableStubTest {
   private static final String WAIT_TIME_TABLE_ID = "test-wait-timeout";
   private static final String WAIT_TIME_QUERY = "test-wait-timeout";
   private static final Duration WATCHDOG_CHECK_DURATION = Duration.ofMillis(100);
+  private static final PrepareResponse PREPARE_RESPONSE =
+      PrepareResponse.fromProto(
+          PrepareQueryResponse.newBuilder()
+              .setPreparedQuery(ByteString.copyFromUtf8(WAIT_TIME_QUERY))
+              .setMetadata(metadata(columnMetadata("foo", stringType())))
+              .build());
+  private static final PreparedStatement WAIT_TIME_PREPARED_STATEMENT =
+      PreparedStatementImpl.create(PREPARE_RESPONSE);
 
   private Server server;
   private MetadataInterceptor metadataInterceptor;
@@ -430,9 +439,7 @@ public class EnhancedBigtableStubTest {
     assertThat(protoReq)
         .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
     assertThat(f.get().resultSetMetadata())
-        .isEqualTo(
-            ProtoResultSetMetadata.fromProto(
-                metadata(columnMetadata("foo", stringType())).getMetadata()));
+        .isEqualTo(ProtoResultSetMetadata.fromProto(metadata(columnMetadata("foo", stringType()))));
     assertThat(f.get().preparedQuery()).isEqualTo(ByteString.copyFromUtf8("foo"));
     assertThat(f.get().validUntil()).isEqualTo(Instant.ofEpochSecond(1000, 1000));
   }
@@ -459,9 +466,7 @@ public class EnhancedBigtableStubTest {
     assertThat(reqMetadata.keys()).contains("bigtable-client-attempt-epoch-usec");
 
     assertThat(f.get().resultSetMetadata())
-        .isEqualTo(
-            ProtoResultSetMetadata.fromProto(
-                metadata(columnMetadata("foo", stringType())).getMetadata()));
+        .isEqualTo(ProtoResultSetMetadata.fromProto(metadata(columnMetadata("foo", stringType()))));
     assertThat(f.get().preparedQuery()).isEqualTo(ByteString.copyFromUtf8("foo"));
     assertThat(f.get().validUntil()).isEqualTo(Instant.ofEpochSecond(1000, 1000));
   }
@@ -894,13 +899,19 @@ public class EnhancedBigtableStubTest {
   @Test
   public void testCreateExecuteQueryCallable() throws InterruptedException {
     ExecuteQueryCallable streamingCallable = enhancedBigtableStub.createExecuteQueryCallable();
-
-    SqlServerStream sqlServerStream = streamingCallable.call(Statement.of("SELECT * FROM table"));
+    PrepareResponse prepareResponse =
+        PrepareResponse.fromProto(
+            PrepareQueryResponse.newBuilder()
+                .setPreparedQuery(ByteString.copyFromUtf8("abc"))
+                .setMetadata(metadata(columnMetadata("foo", stringType())))
+                .build());
+    PreparedStatement preparedStatement = PreparedStatementImpl.create(prepareResponse);
+    SqlServerStream sqlServerStream = streamingCallable.call(preparedStatement.bind().build());
     ExecuteQueryRequest expectedRequest =
         ExecuteQueryRequest.newBuilder()
             .setInstanceName(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .setAppProfileId(APP_PROFILE_ID)
-            .setQuery("SELECT * FROM table")
+            .setPreparedQuery(ByteString.copyFromUtf8("abc"))
             .build();
     assertThat(sqlServerStream.rows().iterator().next()).isNotNull();
     assertThat(sqlServerStream.metadataFuture().isDone()).isTrue();
@@ -917,7 +928,10 @@ public class EnhancedBigtableStubTest {
 
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build());
     Iterator<SqlRow> iterator =
-        stub.executeQueryCallable().call(Statement.of(WAIT_TIME_QUERY)).rows().iterator();
+        stub.executeQueryCallable()
+            .call(WAIT_TIME_PREPARED_STATEMENT.bind().build())
+            .rows()
+            .iterator();
     WatchdogTimeoutException e = assertThrows(WatchdogTimeoutException.class, iterator::next);
     assertThat(e).hasMessageThat().contains("Canceled due to timeout waiting for next response");
   }
@@ -933,7 +947,9 @@ public class EnhancedBigtableStubTest {
 
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.build())) {
       ApiFuture<ResultSetMetadata> future =
-          stub.executeQueryCallable().call(Statement.of(WAIT_TIME_QUERY)).metadataFuture();
+          stub.executeQueryCallable()
+              .call(WAIT_TIME_PREPARED_STATEMENT.bind().build())
+              .metadataFuture();
 
       ExecutionException e = assertThrows(ExecutionException.class, future::get);
       assertThat(e.getCause()).isInstanceOf(WatchdogTimeoutException.class);
@@ -1085,7 +1101,7 @@ public class EnhancedBigtableStubTest {
     @Override
     public void executeQuery(
         ExecuteQueryRequest request, StreamObserver<ExecuteQueryResponse> responseObserver) {
-      if (request.getQuery().contains(WAIT_TIME_QUERY)) {
+      if (request.getPreparedQuery().startsWith(ByteString.copyFromUtf8(WAIT_TIME_QUERY))) {
         try {
           Thread.sleep(WATCHDOG_CHECK_DURATION.toMillis() * 2);
         } catch (Exception e) {
@@ -1093,8 +1109,8 @@ public class EnhancedBigtableStubTest {
         }
       }
       executeQueryRequests.add(request);
-      responseObserver.onNext(metadata(columnMetadata("foo", stringType())));
       responseObserver.onNext(partialResultSetWithToken(stringValue("test")));
+      responseObserver.onCompleted();
     }
 
     @Override
@@ -1111,7 +1127,7 @@ public class EnhancedBigtableStubTest {
       responseObserver.onNext(
           PrepareQueryResponse.newBuilder()
               .setPreparedQuery(ByteString.copyFromUtf8("foo"))
-              .setMetadata(metadata(columnMetadata("foo", stringType())).getMetadata())
+              .setMetadata(metadata(columnMetadata("foo", stringType())))
               .setValidUntil(Timestamp.newBuilder().setSeconds(1000).setNanos(1000).build())
               .build());
       responseObserver.onCompleted();

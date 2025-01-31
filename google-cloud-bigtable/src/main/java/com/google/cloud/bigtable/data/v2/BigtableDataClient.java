@@ -51,10 +51,10 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
+import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
-import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -2716,26 +2716,40 @@ public class BigtableDataClient implements AutoCloseable {
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String query = "SELECT CAST(cf['stringCol'] AS STRING) FROM [TABLE]";
-   *
-   *   try (ResultSet resultSet = bigtableDataClient.executeQuery(Statement.of(query))) {
-   *     while (resultSet.next()) {
-   *        String s = resultSet.getString("stringCol");
-   *        // do something with data
-   *     }
-   *   } catch (RuntimeException e) {
-   *     e.printStackTrace();
+   *   Map<String, SqlType<?>> paramTypes = new HashMap<>();
+   *   try (PreparedStatement preparedStatement = bigtableDataClient.prepareStatement(query, paramTypes)) {
+   *       // Ideally one PreparedStatement should be reused across requests
+   *       BoundStatement boundStatement = preparedStatement.bind()
+   *          // set any query params before calling build
+   *          .build();
+   *       try (ResultSet resultSet = bigtableDataClient.executeQuery(boundStatement)) {
+   *           while (resultSet.next()) {
+   *               String s = resultSet.getString("stringCol");
+   *                // do something with data
+   *           }
+   *        } catch (RuntimeException e) {
+   *            e.printStackTrace();
+   *        }
    *   }
    * }</pre>
    *
-   * @see Statement For query options.
+   * @see {@link PreparedStatement} & {@link BoundStatement} For query options.
    */
   @BetaApi
-  public ResultSet executeQuery(Statement statement) {
-    SqlServerStream stream = stub.createExecuteQueryCallable().call(statement);
+  public ResultSet executeQuery(BoundStatement boundStatement) {
+    SqlServerStream stream = stub.createExecuteQueryCallable().call(boundStatement);
     return ResultSetImpl.create(stream);
   }
 
-  // TODO document once BoundStatement exists and executeQuery is updated so usage is clear
+  /**
+   * Prepares a query for execution. If possible this should be called once and reused across
+   * requests. This will amortize the cost of query preparation.
+   *
+   * @param query sql query string to prepare
+   * @param paramTypes a Map of the parameter names and the corresponding {@link SqlType} for all
+   *     query parameters in 'query'
+   * @return {@link PreparedStatement} which is used to create {@link BoundStatement}s to execute
+   */
   @BetaApi
   public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
     PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
