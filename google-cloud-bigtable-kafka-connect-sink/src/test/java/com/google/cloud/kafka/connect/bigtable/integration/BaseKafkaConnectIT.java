@@ -17,16 +17,14 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.connect.data.SchemaAndValue;
 import org.apache.kafka.connect.runtime.SinkConnectorConfig;
 import org.apache.kafka.connect.runtime.errors.ToleranceType;
@@ -48,10 +46,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
   }
 
   public KafkaProducer<byte[], byte[]> getKafkaProducer() {
-    Map<String, Object> producerProps = new HashMap<>();
-    producerProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, connect.kafka().bootstrapServers());
-    producerProps.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, maxKafkaMessageSizeBytes);
-    return new KafkaProducer<>(producerProps, new ByteArraySerializer(), new ByteArraySerializer());
+    return connect.kafka().createProducer(Collections.emptyMap());
   }
 
   public void sendRecords(

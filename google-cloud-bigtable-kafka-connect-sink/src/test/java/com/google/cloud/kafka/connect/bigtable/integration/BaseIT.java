@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import org.apache.kafka.clients.admin.Admin;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.utils.Utils;
 import org.apache.kafka.connect.runtime.SinkConnectorConfig;
 import org.apache.kafka.connect.runtime.WorkerConfig;
@@ -51,7 +53,7 @@ public abstract class BaseIT {
   protected int numWorkers = 1;
   protected int numBrokers = 1;
   protected int numTasks = 1;
-  protected int maxKafkaMessageSizeBytes = 10 * 1024 * 1024;
+  protected int maxKafkaMessageSizeBytes = 300 * 1024 * 1024;
 
   protected void startConnect() {
     logger.info("Starting embedded Kafka Connect cluster...");
@@ -60,9 +62,18 @@ public abstract class BaseIT {
     workerProps.put(WorkerConfig.PLUGIN_DISCOVERY_CONFIG, PluginDiscoveryMode.HYBRID_WARN.name());
 
     Properties brokerProps = new Properties();
+    brokerProps.put("socket.request.max.bytes", maxKafkaMessageSizeBytes);
     brokerProps.put("message.max.bytes", maxKafkaMessageSizeBytes);
     brokerProps.put("auto.create.topics.enable", "false");
     brokerProps.put("delete.topic.enable", "true");
+
+    Map<String, String> clientConfigs = new HashMap<>();
+    clientConfigs.put(
+        ProducerConfig.MAX_REQUEST_SIZE_CONFIG, String.valueOf(maxKafkaMessageSizeBytes));
+    clientConfigs.put(
+        ProducerConfig.BUFFER_MEMORY_CONFIG, String.valueOf(maxKafkaMessageSizeBytes));
+    clientConfigs.put(
+        ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, String.valueOf(maxKafkaMessageSizeBytes));
     connect =
         new EmbeddedConnectCluster.Builder()
             .name("kcbt-connect-cluster-" + getTestClassId())
@@ -70,6 +81,7 @@ public abstract class BaseIT {
             .numBrokers(numBrokers)
             .brokerProps(brokerProps)
             .workerProps(workerProps)
+            .clientConfigs(clientConfigs)
             .build();
 
     // Start the clusters
