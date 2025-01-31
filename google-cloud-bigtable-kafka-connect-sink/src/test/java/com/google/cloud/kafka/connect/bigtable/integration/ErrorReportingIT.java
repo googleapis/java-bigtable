@@ -27,8 +27,6 @@ import java.util.Arrays;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.kafka.connect.runtime.SinkConnectorConfig;
-import org.apache.kafka.connect.runtime.errors.ToleranceType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -76,15 +74,10 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
 
   @Test
   public void testErrorModeDLQOverridesErrorMode() throws InterruptedException {
-    String dlqTopic = getTestCaseId() + System.currentTimeMillis();
-    connect.kafka().createTopic(dlqTopic, numBrokers);
-
+    String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.FAIL.name());
-    props.put(SinkConnectorConfig.DLQ_TOPIC_NAME_CONFIG, dlqTopic);
-    props.put(SinkConnectorConfig.DLQ_CONTEXT_HEADERS_ENABLE_CONFIG, String.valueOf(true));
-    props.put(SinkConnectorConfig.DLQ_TOPIC_REPLICATION_FACTOR_CONFIG, String.valueOf(numBrokers));
-    props.put(SinkConnectorConfig.ERRORS_TOLERANCE_CONFIG, ToleranceType.ALL.value());
+    configureDlq(props, dlqTopic);
 
     String key = "key";
     String value = "value";

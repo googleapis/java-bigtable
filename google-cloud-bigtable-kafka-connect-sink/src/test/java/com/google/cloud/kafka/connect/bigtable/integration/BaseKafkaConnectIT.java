@@ -28,6 +28,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
 import org.apache.kafka.connect.data.SchemaAndValue;
+import org.apache.kafka.connect.runtime.SinkConnectorConfig;
+import org.apache.kafka.connect.runtime.errors.ToleranceType;
 import org.apache.kafka.connect.storage.Converter;
 import org.junit.After;
 import org.junit.Before;
@@ -80,5 +82,18 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
                 }
               });
     }
+  }
+
+  public String createDlq() {
+    String dlqTopic = getTestCaseId() + System.currentTimeMillis();
+    connect.kafka().createTopic(dlqTopic, numBrokers);
+    return dlqTopic;
+  }
+
+  public void configureDlq(Map<String, String> props, String dlqTopic) {
+    props.put(SinkConnectorConfig.DLQ_TOPIC_NAME_CONFIG, dlqTopic);
+    props.put(SinkConnectorConfig.DLQ_CONTEXT_HEADERS_ENABLE_CONFIG, String.valueOf(true));
+    props.put(SinkConnectorConfig.DLQ_TOPIC_REPLICATION_FACTOR_CONFIG, String.valueOf(numBrokers));
+    props.put(SinkConnectorConfig.ERRORS_TOLERANCE_CONFIG, ToleranceType.ALL.value());
   }
 }

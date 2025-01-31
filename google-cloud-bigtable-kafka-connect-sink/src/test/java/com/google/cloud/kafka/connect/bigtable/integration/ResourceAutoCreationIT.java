@@ -28,8 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.connect.data.Schema;
@@ -38,8 +36,6 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.json.JsonConverterConfig;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
-import org.apache.kafka.connect.runtime.SinkConnectorConfig;
-import org.apache.kafka.connect.runtime.errors.ToleranceType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -49,10 +45,16 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
   private final JsonConverter jsonConverter = JsonConverterFactory.create(true, false);
 
   @Test
-  public void testMissingAndLaterCreatedTableAndColumnFamily()
-      throws InterruptedException, ExecutionException, TimeoutException {
+  public void testMissingAndLaterCreatedTableAndColumnFamily() throws InterruptedException {
     String dlqTopic = createDlq();
-    Map<String, String> props = dlqAndJsonValuesProps(dlqTopic);
+    Map<String, String> props = baseConnectorProps();
+    configureDlq(props, dlqTopic);
+    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
+    props.put(
+        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
+            + "."
+            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
+        String.valueOf(true));
 
     String testId = startSingleTopicConnector(props);
 
@@ -134,26 +136,5 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(
             testId, numTasks, "Wrong number of tasks is running");
-  }
-
-  private String createDlq() {
-    String dlqTopic = getTestCaseId() + System.currentTimeMillis();
-    connect.kafka().createTopic(dlqTopic, numBrokers);
-    return dlqTopic;
-  }
-
-  private Map<String, String> dlqAndJsonValuesProps(String dlqTopic) {
-    Map<String, String> props = baseConnectorProps();
-    props.put(SinkConnectorConfig.DLQ_TOPIC_NAME_CONFIG, dlqTopic);
-    props.put(SinkConnectorConfig.DLQ_CONTEXT_HEADERS_ENABLE_CONFIG, String.valueOf(false));
-    props.put(SinkConnectorConfig.DLQ_TOPIC_REPLICATION_FACTOR_CONFIG, String.valueOf(numBrokers));
-    props.put(SinkConnectorConfig.ERRORS_TOLERANCE_CONFIG, ToleranceType.ALL.value());
-    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
-    props.put(
-        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
-            + "."
-            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
-        String.valueOf(true));
-    return props;
   }
 }
