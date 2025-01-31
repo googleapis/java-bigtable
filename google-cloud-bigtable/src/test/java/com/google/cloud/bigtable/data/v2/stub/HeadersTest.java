@@ -15,6 +15,9 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.batching.Batcher;
@@ -27,6 +30,8 @@ import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowResponse;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
+import com.google.bigtable.v2.PrepareQueryRequest;
+import com.google.bigtable.v2.PrepareQueryResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
 import com.google.bigtable.v2.ReadModifyWriteRowResponse;
 import com.google.bigtable.v2.ReadRowsRequest;
@@ -50,6 +55,7 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.stub.StreamObserver;
+import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import org.junit.After;
@@ -169,6 +175,12 @@ public class HeadersTest {
     verifyHeaderSent(true);
   }
 
+  @Test
+  public void prepareQueryTest() {
+    client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    verifyHeaderSent(true);
+  }
+
   private void verifyHeaderSent() {
     verifyHeaderSent(false);
   }
@@ -257,6 +269,17 @@ public class HeadersTest {
         ReadModifyWriteRowRequest request,
         StreamObserver<ReadModifyWriteRowResponse> responseObserver) {
       responseObserver.onNext(ReadModifyWriteRowResponse.getDefaultInstance());
+      responseObserver.onCompleted();
+    }
+
+    @Override
+    public void prepareQuery(
+        PrepareQueryRequest request, StreamObserver<PrepareQueryResponse> responseObserver) {
+      responseObserver.onNext(
+          // Need to set metadata for response to parse
+          PrepareQueryResponse.newBuilder()
+              .setMetadata(metadata(columnMetadata("foo", stringType())).getMetadata())
+              .build());
       responseObserver.onCompleted();
     }
   }

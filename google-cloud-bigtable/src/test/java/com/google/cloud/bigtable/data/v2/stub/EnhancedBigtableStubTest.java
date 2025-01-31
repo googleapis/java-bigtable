@@ -56,6 +56,8 @@ import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsResponse;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.bigtable.v2.PrepareQueryRequest;
+import com.google.bigtable.v2.PrepareQueryResponse;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
 import com.google.bigtable.v2.ReadChangeStreamResponse;
 import com.google.bigtable.v2.ReadModifyWriteRowRequest;
@@ -67,6 +69,8 @@ import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -94,6 +98,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+import com.google.protobuf.Timestamp;
 import com.google.rpc.Code;
 import com.google.rpc.Status;
 import io.grpc.CallOptions;
@@ -120,8 +125,10 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -141,6 +148,7 @@ public class EnhancedBigtableStubTest {
 
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
+  private static final String INSTANCE_NAME = NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID);
   private static final String TABLE_ID = "fake-table";
   private static final String TABLE_NAME =
       NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID);
@@ -398,6 +406,86 @@ public class EnhancedBigtableStubTest {
 
     RowMutation req = RowMutation.create(TableId.of(TABLE_ID), "my-key").deleteRow();
     ApiFuture<Void> f = enhancedBigtableStub.mutateRowCallable().futureCall(req, null);
+
+    ExecutionException e = assertThrows(ExecutionException.class, f::get);
+    assertThat(e.getCause()).isInstanceOf(FailedPreconditionException.class);
+    assertThat(invocationCount.get()).isEqualTo(2);
+  }
+
+  @Test
+  public void testPrepareQueryRequestResponseConversion()
+      throws ExecutionException, InterruptedException {
+    com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest req =
+        com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest.create(
+            "SELECT * FROM TABLE", new HashMap<>());
+    CallOptions.Key<String> testKey = CallOptions.Key.create("test-key");
+
+    GrpcCallContext ctx =
+        GrpcCallContext.createDefault()
+            .withCallOptions(CallOptions.DEFAULT.withOption(testKey, "callopt-value"));
+    ApiFuture<PrepareResponse> f = enhancedBigtableStub.prepareQueryCallable().futureCall(req, ctx);
+    f.get();
+
+    PrepareQueryRequest protoReq = fakeDataService.prepareRequests.poll(1, TimeUnit.SECONDS);
+    assertThat(protoReq)
+        .isEqualTo(req.toProto(RequestContext.create(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID)));
+    assertThat(f.get().resultSetMetadata())
+        .isEqualTo(
+            ProtoResultSetMetadata.fromProto(
+                metadata(columnMetadata("foo", stringType())).getMetadata()));
+    assertThat(f.get().preparedQuery()).isEqualTo(ByteString.copyFromUtf8("foo"));
+    assertThat(f.get().validUntil()).isEqualTo(Instant.ofEpochSecond(1000, 1000));
+  }
+
+  @Test
+  public void testPrepareQueryRequestParams() throws ExecutionException, InterruptedException {
+    com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest req =
+        com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest.create(
+            "SELECT * FROM TABLE", new HashMap<>());
+
+    ApiFuture<PrepareResponse> f =
+        enhancedBigtableStub.prepareQueryCallable().futureCall(req, null);
+    f.get();
+
+    Metadata reqMetadata = metadataInterceptor.headers.poll(1, TimeUnit.SECONDS);
+
+    // RequestParamsExtractor
+    String reqParams =
+        reqMetadata.get(Key.of("x-goog-request-params", Metadata.ASCII_STRING_MARSHALLER));
+    assertThat(reqParams).contains("name=" + INSTANCE_NAME.replace("/", "%2F"));
+    assertThat(reqParams).contains(String.format("app_profile_id=%s", APP_PROFILE_ID));
+
+    // StatsHeadersUnaryCallable
+    assertThat(reqMetadata.keys()).contains("bigtable-client-attempt-epoch-usec");
+
+    assertThat(f.get().resultSetMetadata())
+        .isEqualTo(
+            ProtoResultSetMetadata.fromProto(
+                metadata(columnMetadata("foo", stringType())).getMetadata()));
+    assertThat(f.get().preparedQuery()).isEqualTo(ByteString.copyFromUtf8("foo"));
+    assertThat(f.get().validUntil()).isEqualTo(Instant.ofEpochSecond(1000, 1000));
+  }
+
+  @Test
+  public void testPrepareQueryErrorPropagation() {
+    AtomicInteger invocationCount = new AtomicInteger();
+    Mockito.doAnswer(
+            invocationOnMock -> {
+              StreamObserver<PrepareQueryResponse> observer = invocationOnMock.getArgument(1);
+              if (invocationCount.getAndIncrement() == 0) {
+                observer.onError(io.grpc.Status.UNAVAILABLE.asRuntimeException());
+              } else {
+                observer.onError(io.grpc.Status.FAILED_PRECONDITION.asRuntimeException());
+              }
+              return null;
+            })
+        .when(fakeDataService)
+        .prepareQuery(Mockito.any(), Mockito.any(StreamObserver.class));
+    com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest req =
+        com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest.create(
+            "SELECT * FROM TABLE", new HashMap<>());
+    ApiFuture<PrepareResponse> f =
+        enhancedBigtableStub.prepareQueryCallable().futureCall(req, null);
 
     ExecutionException e = assertThrows(ExecutionException.class, f::get);
     assertThat(e.getCause()).isInstanceOf(FailedPreconditionException.class);
@@ -891,6 +979,7 @@ public class EnhancedBigtableStubTest {
     final BlockingQueue<CheckAndMutateRowRequest> checkAndMutateRowRequests =
         Queues.newLinkedBlockingDeque();
     final BlockingQueue<ReadModifyWriteRowRequest> rmwRequests = Queues.newLinkedBlockingDeque();
+    final BlockingQueue<PrepareQueryRequest> prepareRequests = Queues.newLinkedBlockingDeque();
 
     @SuppressWarnings("unchecked")
     ReadRowsRequest popLastRequest() throws InterruptedException {
@@ -1006,6 +1095,26 @@ public class EnhancedBigtableStubTest {
       executeQueryRequests.add(request);
       responseObserver.onNext(metadata(columnMetadata("foo", stringType())));
       responseObserver.onNext(partialResultSetWithToken(stringValue("test")));
+    }
+
+    @Override
+    public void prepareQuery(
+        PrepareQueryRequest request, StreamObserver<PrepareQueryResponse> responseObserver) {
+      if (request.getQuery().contains(WAIT_TIME_QUERY)) {
+        try {
+          Thread.sleep(WATCHDOG_CHECK_DURATION.toMillis() * 2);
+        } catch (Exception e) {
+
+        }
+      }
+      prepareRequests.add(request);
+      responseObserver.onNext(
+          PrepareQueryResponse.newBuilder()
+              .setPreparedQuery(ByteString.copyFromUtf8("foo"))
+              .setMetadata(metadata(columnMetadata("foo", stringType())).getMetadata())
+              .setValidUntil(Timestamp.newBuilder().setSeconds(1000).setNanos(1000).build())
+              .build());
+      responseObserver.onCompleted();
     }
   }
 }

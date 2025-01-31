@@ -30,6 +30,9 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
+import com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ResultSetImpl;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
@@ -48,7 +51,9 @@ import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.SampleRowKeysRequest;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.models.sql.Statement;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
@@ -56,6 +61,7 @@ import com.google.common.util.concurrent.MoreExecutors;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -2727,6 +2733,14 @@ public class BigtableDataClient implements AutoCloseable {
   public ResultSet executeQuery(Statement statement) {
     SqlServerStream stream = stub.createExecuteQueryCallable().call(statement);
     return ResultSetImpl.create(stream);
+  }
+
+  // TODO document once BoundStatement exists and executeQuery is updated so usage is clear
+  @BetaApi
+  public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
+    PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
+    PrepareResponse response = stub.prepareQueryCallable().call(request);
+    return PreparedStatementImpl.create(response);
   }
 
   /** Close the clients and releases all associated resources. */

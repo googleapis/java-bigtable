@@ -69,6 +69,8 @@ import com.google.bigtable.v2.RowRange;
 import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.Version;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
+import com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.BulkMutation;
@@ -198,6 +200,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
       readChangeStreamCallable;
 
   private final ExecuteQueryCallable executeQueryCallable;
+  private final UnaryCallable<PrepareQueryRequest, PrepareResponse> prepareQueryCallable;
 
   public static EnhancedBigtableStub create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -324,6 +327,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     readChangeStreamCallable =
         createReadChangeStreamCallable(new DefaultChangeStreamRecordAdapter());
     executeQueryCallable = createExecuteQueryCallable();
+    prepareQueryCallable = createPrepareQueryCallable();
   }
 
   // <editor-fold desc="Callable creators">
@@ -1221,6 +1225,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
         requestContext);
   }
 
+  private UnaryCallable<PrepareQueryRequest, PrepareResponse> createPrepareQueryCallable() {
+    return createUnaryCallable(
+        BigtableGrpc.getPrepareQueryMethod(),
+        req -> composeInstanceLevelRequestParams(req.getInstanceName(), req.getAppProfileId()),
+        settings.prepareQuerySettings(),
+        req -> req.toProto(requestContext),
+        PrepareResponse::fromProto);
+  }
+
   /**
    * Wraps a callable chain in a user presentable callable that will inject the default call context
    * and trace the call.
@@ -1240,6 +1253,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
       tableName = NameUtil.extractTableNameFromAuthorizedViewName(authorizedViewName);
     }
     return ImmutableMap.of("table_name", tableName, "app_profile_id", appProfileId);
+  }
+
+  private Map<String, String> composeInstanceLevelRequestParams(
+      String instanceName, String appProfileId) {
+    return ImmutableMap.of("name", instanceName, "app_profile_id", appProfileId);
   }
 
   private <BaseReqT, BaseRespT, ReqT, RespT> UnaryCallable<ReqT, RespT> createUnaryCallable(
@@ -1470,6 +1488,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
   /** Returns an {@link com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable} */
   public ExecuteQueryCallable executeQueryCallable() {
     return executeQueryCallable;
+  }
+
+  public UnaryCallable<PrepareQueryRequest, PrepareResponse> prepareQueryCallable() {
+    return prepareQueryCallable;
   }
 
   // </editor-fold>

@@ -35,6 +35,8 @@ import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
+import com.google.cloud.bigtable.data.v2.internal.PrepareQueryRequest;
+import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.ChangeStreamRecord;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
@@ -211,6 +213,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setInitialRpcTimeout(Duration.ofSeconds(30))
           .setMaxRpcTimeout(Duration.ofSeconds(30))
           .build();
+
+  // Similar to IDEMPOTENT but with a lower initial rpc timeout since we expect
+  // these calls to be quick in most circumestances
+  private static final RetrySettings PREPARE_QUERY_RETRY_SETTINGS =
+      RetrySettings.newBuilder()
+          .setInitialRetryDelay(Duration.ofMillis(10))
+          .setRetryDelayMultiplier(2)
+          .setMaxRetryDelay(Duration.ofMinutes(1))
+          .setInitialRpcTimeout(Duration.ofSeconds(5))
+          .setRpcTimeoutMultiplier(1.0)
+          .setMaxRpcTimeout(Duration.ofSeconds(20))
+          .setTotalTimeout(Duration.ofMinutes(10))
+          .build();
+
   /**
    * Scopes that are equivalent to JWT's audience.
    *
@@ -256,6 +272,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       readChangeStreamSettings;
   private final UnaryCallSettings<PingAndWarmRequest, Void> pingAndWarmSettings;
   private final ServerStreamingCallSettings<Statement, SqlRow> executeQuerySettings;
+  private final UnaryCallSettings<PrepareQueryRequest, PrepareResponse> prepareQuerySettings;
 
   private final FeatureFlags featureFlags;
 
@@ -306,6 +323,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     readChangeStreamSettings = builder.readChangeStreamSettings.build();
     pingAndWarmSettings = builder.pingAndWarmSettings.build();
     executeQuerySettings = builder.executeQuerySettings.build();
+    prepareQuerySettings = builder.prepareQuerySettings.build();
     featureFlags = builder.featureFlags.build();
   }
 
@@ -665,6 +683,31 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   }
 
   /**
+   * Returns the object with the settings used for a PrepareQuery request. This is used by
+   * PreparedStatement to manage PreparedQueries.
+   *
+   * <p>This is an idempotent and non-streaming operation.
+   *
+   * <p>Default retry and timeout settings:
+   *
+   * <ul>
+   *   <li>Retry {@link UnaryCallSettings.Builder#setRetryableCodes error codes} are: {@link
+   *       Code#DEADLINE_EXCEEDED} and {@link Code#UNAVAILABLE}
+   *   <li>RetryDelay between failed attempts {@link RetrySettings.Builder#setInitialRetryDelay
+   *       starts} at 10ms and {@link RetrySettings.Builder#setRetryDelayMultiplier increases
+   *       exponentially} by a factor of 2 until a {@link RetrySettings.Builder#setMaxRetryDelay
+   *       maximum of} 1 minute.
+   *   <li>The default timeout for {@link RetrySettings.Builder#setMaxRpcTimeout each attempt} is 5
+   *       seconds and the timeout for the {@link RetrySettings.Builder#setTotalTimeout entire
+   *       operation} across all of the attempts is 10 mins.
+   * </ul>
+   *
+   * @see RetrySettings for more explanation.
+   */
+  public UnaryCallSettings<PrepareQueryRequest, PrepareResponse> prepareQuerySettings() {
+    return prepareQuerySettings;
+  }
+  /**
    * Returns the object with the settings used for calls to PingAndWarm.
    *
    * <p>By default the retries are disabled for PingAndWarm and deadline is set to 30 seconds.
@@ -706,6 +749,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         readChangeStreamSettings;
     private final UnaryCallSettings.Builder<PingAndWarmRequest, Void> pingAndWarmSettings;
     private final ServerStreamingCallSettings.Builder<Statement, SqlRow> executeQuerySettings;
+    private final UnaryCallSettings.Builder<PrepareQueryRequest, PrepareResponse>
+        prepareQuerySettings;
 
     private FeatureFlags.Builder featureFlags;
 
@@ -844,6 +889,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setIdleTimeout(Duration.ofMinutes(5))
           .setWaitTimeout(Duration.ofMinutes(5));
 
+      prepareQuerySettings = UnaryCallSettings.newUnaryCallSettingsBuilder();
+      prepareQuerySettings
+          .setRetryableCodes(IDEMPOTENT_RETRY_CODES)
+          .setRetrySettings(PREPARE_QUERY_RETRY_SETTINGS);
+
       featureFlags =
           FeatureFlags.newBuilder()
               .setReverseScans(true)
@@ -879,6 +929,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       readChangeStreamSettings = settings.readChangeStreamSettings.toBuilder();
       pingAndWarmSettings = settings.pingAndWarmSettings.toBuilder();
       executeQuerySettings = settings.executeQuerySettings().toBuilder();
+      prepareQuerySettings = settings.prepareQuerySettings().toBuilder();
       featureFlags = settings.featureFlags.toBuilder();
     }
     // <editor-fold desc="Private Helpers">
@@ -1168,6 +1219,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return executeQuerySettings;
     }
 
+    /** Returns the builder with the settings used for calls to PrepareQuery */
+    @BetaApi
+    public UnaryCallSettings.Builder<PrepareQueryRequest, PrepareResponse> prepareQuerySettings() {
+      return prepareQuerySettings;
+    }
+
     @SuppressWarnings("unchecked")
     public EnhancedBigtableStubSettings build() {
       Preconditions.checkState(projectId != null, "Project id must be set");
@@ -1240,6 +1297,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("readChangeStreamSettings", readChangeStreamSettings)
         .add("pingAndWarmSettings", pingAndWarmSettings)
         .add("executeQuerySettings", executeQuerySettings)
+        .add("prepareQuerySettings", prepareQuerySettings)
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
         .add("parent", super.toString())
