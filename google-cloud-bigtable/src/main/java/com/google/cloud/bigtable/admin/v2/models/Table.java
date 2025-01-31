@@ -114,16 +114,12 @@ public final class Table {
      */
     @InternalApi
     public static AutomatedBackupPolicy fromProto(
-        @Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+        com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
       return new AutomatedBackupPolicy(proto);
     }
 
     private AutomatedBackupPolicy(
         @Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
-      Preconditions.checkNotNull(proto);
-      Preconditions.checkArgument(
-          !proto.getRetentionPeriod().isInitialized(), "Retention Period must be set");
-      Preconditions.checkArgument(!proto.getFrequency().isInitialized(), "Frequency must be set");
       this.proto = proto;
     }
 
@@ -134,6 +130,14 @@ public final class Table {
     @InternalApi
     public com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy toProto() {
       return proto;
+    }
+
+    /**
+     * Returns policy config contents as a string.
+     */
+    public String viewConfig() {
+      AutomatedBackupPolicy config = fromProto(proto);
+      return config.proto.getAllFields().toString();
     }
   }
 
