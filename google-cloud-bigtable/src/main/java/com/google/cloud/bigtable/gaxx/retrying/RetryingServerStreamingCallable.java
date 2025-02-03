@@ -76,6 +76,9 @@ public final class RetryingServerStreamingCallable<RequestT, ResponseT>
     attemptCallable.setExternalFuture(retryingFuture);
     attemptCallable.start();
 
+    // sarthak
+    // attemptCallable -> retryingFuture -> new ApiFutureCallback<Void>()
+
     // Bridge the future result back to the external responseObserver
     ApiFutures.addCallback(
         retryingFuture,

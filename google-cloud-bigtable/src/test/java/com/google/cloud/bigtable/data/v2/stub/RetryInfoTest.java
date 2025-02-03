@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ErrorDetails;
+import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
@@ -639,6 +640,9 @@ public class RetryInfoTest {
             GrpcStatusCode.of(Status.Code.UNAVAILABLE),
             true,
             errorDetails);
+    // sarthak
+
+    // ApiException largeRowException = new FailedPreconditionException(new Exception("LargeRows"),);
 
     service.expectations.add(exception);
   }

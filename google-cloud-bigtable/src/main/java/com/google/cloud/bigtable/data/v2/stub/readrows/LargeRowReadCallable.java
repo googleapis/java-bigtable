@@ -13,27 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.data.v2.stub.readrows;
 
+import com.google.api.gax.retrying.StreamResumptionStrategy;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
+import com.google.bigtable.v2.ReadRowsRequest;
+import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
 import com.google.common.base.Throwables;
 
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-final class  ConvertExceptionCallable<RequestT, ResponseT>
+public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public  ConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
+  private final LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy;
+
+
+  public LargeRowReadCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable, LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy) {
     this.innerCallable = innerCallable;
+    this.resumptionStrategy = resumptionStrategy;
   }
+
 
   @Override
   public void call(
@@ -71,7 +79,8 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
     // Sarthak - checked here -> it is adding the error in the buffer || would this be analysed in procesResponse now? or where would this error be catched?
     @Override
     protected void onErrorImpl(Throwable t) {
-      outerObserver.onError(convertException(t));
+      resumptionStrategy.setLargeRowKey(t);
+      outerObserver.onError(t);
     }
 
     @Override
@@ -80,38 +89,5 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
     }
   }
 
-  private Throwable convertException(Throwable t) {
-    // Long lived connections sometimes are disconnected via an RST frame or a goaway. These errors
-    // are transient and should be retried.
-    if (isRstStreamError(t) || isGoAway(t) || isRetriableAuthError(t)) {
-      return new InternalException(t, ((InternalException) t).getStatusCode(), true);
-    }
-    return t;
-  }
 
-  private boolean isRetriableAuthError(Throwable t) {
-    if (t instanceof InternalException && t.getMessage() != null) {
-      String error = t.getMessage();
-      return error.contains("Authentication backend internal server error. Please retry");
-    }
-    return false;
-  }
-
-  private boolean isRstStreamError(Throwable t) {
-    if (t instanceof InternalException && t.getMessage() != null) {
-      String error = t.getMessage().toLowerCase();
-      return error.contains("rst_stream") || error.contains("rst stream");
-    }
-    return false;
-  }
-
-  private boolean isGoAway(Throwable t) {
-    if (t instanceof InternalException) {
-      Throwable rootCause = Throwables.getRootCause(t);
-      String rootCauseMessage = rootCause.getMessage();
-      return rootCauseMessage != null
-          && rootCauseMessage.contains("Stream closed before write could take place");
-    }
-    return false;
-  }
 }

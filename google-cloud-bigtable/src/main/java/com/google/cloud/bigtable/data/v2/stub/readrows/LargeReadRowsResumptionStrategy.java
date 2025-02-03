@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.StreamResumptionStrategy;
+import com.google.api.gax.rpc.InternalException;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsRequest.Builder;
 import com.google.bigtable.v2.RowSet;
@@ -34,14 +35,19 @@ import com.google.protobuf.ByteString;
  * applications.
  */
 @InternalApi
-public class ReadRowsResumptionStrategy<RowT>
+public class LargeReadRowsResumptionStrategy<RowT>
     implements StreamResumptionStrategy<ReadRowsRequest, RowT> {
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
   private long numProcessed;
+  private ByteString largeRowKey = ByteString.EMPTY;
 
-  public ReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
+
+  // sarthak - would this be threadsafe? we can have multiple readrowrequest going async at the same time. this won't create an issue, ri8?
+  private ReadRowsRequest originalRequest;
+
+  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
     this.rowAdapter = rowAdapter;
   }
 
@@ -52,8 +58,14 @@ public class ReadRowsResumptionStrategy<RowT>
 
   @Override
   public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew() {
-    return new ReadRowsResumptionStrategy<>(rowAdapter);
+    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
   }
+
+  public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew(ReadRowsRequest originalRequest) {
+    this.originalRequest = originalRequest;
+    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
+  }
+
 
   // Sarthak - what's a synthetic row marker
   @Override
@@ -67,7 +79,20 @@ public class ReadRowsResumptionStrategy<RowT>
       // Only real rows count towards the rows limit.
       numProcessed++;
     }
+    this.largeRowKey = ByteString.EMPTY;
     return response;
+  }
+
+  public void setLargeRowKey(Throwable t){
+    this.largeRowKey = ByteString.copyFromUtf8(extractLargeRowKey(t));
+  }
+
+
+  private String extractLargeRowKey(Throwable t){
+    if (t instanceof InternalException && ((InternalException) t).getReason().equals("LargeRowReadError")){
+      return  ((InternalException) t).getMetadata().get("rowKey");
+    }
+    return null;
   }
 
   /**
@@ -80,14 +105,34 @@ public class ReadRowsResumptionStrategy<RowT>
    */
   @Override
     public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
+
+    // Sarthak - sarthakImp - assuming that I am getting largeRowKey from the error & I am not incrementing numsProcessed on OnError or on processResponse of this faulty error.
+    // Sarthak - sarthakImp - make sure you dont increase the numsProcessed for the same row on retry
+    Boolean lastRowWasLargeRow = Boolean.FALSE;
+    if (largeRowKey.isEmpty()){
+      lastRowWasLargeRow = Boolean.TRUE;
+    }
+
     // An empty lastKey means that we have not successfully read the first row,
     // so resume with the original request object.
-    if (lastKey.isEmpty()) {
+    if (lastKey.isEmpty() && largeRowKey.isEmpty()) {
       return originalRequest;
     }
 
-    RowSet remaining =
-        RowSetUtil.erase(originalRequest.getRows(), lastKey, !originalRequest.getReversed());
+    RowSet remaining;
+
+    if(lastRowWasLargeRow){
+      // Sarthak -> skip the row that was faulty -> that would be the split point
+      remaining =
+          RowSetUtil.erase(originalRequest.getRows(), largeRowKey, !originalRequest.getReversed());
+    //   cant set as largeRowKey => null, because what if its retried - but, we should, right?
+    }
+    else{
+      // sarthak - what about the buffered keys, that we didn't record?
+      remaining =
+          RowSetUtil.erase(originalRequest.getRows(), lastKey, !originalRequest.getReversed());
+    }
+    this.largeRowKey = ByteString.EMPTY;
 
     // Edge case: retrying a fulfilled request.
     // A fulfilled request is one that has had all of its row keys and ranges fulfilled, or if it
@@ -110,6 +155,6 @@ public class ReadRowsResumptionStrategy<RowT>
     }
 
     return builder.build();
-  //   Sarthak - we are building the new request here - where & how is it getting sent -> is this after retry block or before -> not able to tie them together
+  //   we are building the new request here - where & how is it getting sent -> is this after retry block or before -> not able to tie them together
   }
 }

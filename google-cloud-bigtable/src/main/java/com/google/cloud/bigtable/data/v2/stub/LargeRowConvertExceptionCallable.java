@@ -26,23 +26,20 @@ import com.google.common.base.Throwables;
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-final class  ConvertExceptionCallable<RequestT, ResponseT>
+final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public  ConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
+  public LargeRowConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = innerCallable;
   }
 
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-
     ConvertExceptionResponseObserver<ResponseT> observer =
         new ConvertExceptionResponseObserver<>(responseObserver);
-
-    // calling outerObserver.onError ->
     innerCallable.call(request, observer, context);
     // innerCallable is RetryingServerStreamingCallable
     // Sarthak -  cannot find the actual implementation of this
@@ -68,7 +65,6 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
       outerObserver.onResponse(response);
     }
 
-    // Sarthak - checked here -> it is adding the error in the buffer || would this be analysed in procesResponse now? or where would this error be catched?
     @Override
     protected void onErrorImpl(Throwable t) {
       outerObserver.onError(convertException(t));
@@ -83,12 +79,18 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
   private Throwable convertException(Throwable t) {
     // Long lived connections sometimes are disconnected via an RST frame or a goaway. These errors
     // are transient and should be retried.
-    if (isRstStreamError(t) || isGoAway(t) || isRetriableAuthError(t)) {
-      return new InternalException(t, ((InternalException) t).getStatusCode(), true);
+    if (isRstStreamError(t) || isGoAway(t) || isRetriableAuthError(t) || isLargeRowError(t)) {
+      return new InternalException(t, ((InternalException) t).getStatusCode(), true, ((InternalException) t).getErrorDetails());
     }
     return t;
   }
 
+  private boolean isLargeRowError(Throwable t){
+    if (t instanceof InternalException && ((InternalException) t).getReason().equals("LargeRowReadError")){
+      return true;
+    }
+    return false;
+  }
   private boolean isRetriableAuthError(Throwable t) {
     if (t instanceof InternalException && t.getMessage() != null) {
       String error = t.getMessage();
