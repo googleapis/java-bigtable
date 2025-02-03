@@ -118,7 +118,7 @@ public final class Table {
       return new AutomatedBackupPolicy(proto);
     }
 
-    private AutomatedBackupPolicy(
+    AutomatedBackupPolicy(
         @Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
       this.proto = proto;
     }

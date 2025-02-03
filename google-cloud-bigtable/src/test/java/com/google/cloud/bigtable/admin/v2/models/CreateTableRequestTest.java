@@ -49,7 +49,8 @@ public class CreateTableRequestTest {
             .addSplit(splitKey)
             .addSplit(secondSplitKey)
             .addChangeStreamRetention(Duration.ofHours(24))
-            .setDeletionProtection(true);
+            .setDeletionProtection(true)
+            .setAutomatedBackup(Duration.ofHours(24), Duration.ofHours(24));
 
     com.google.bigtable.admin.v2.CreateTableRequest requestProto =
         com.google.bigtable.admin.v2.CreateTableRequest.newBuilder()
@@ -71,6 +72,14 @@ public class CreateTableRequestTest {
                         ChangeStreamConfig.newBuilder()
                             .setRetentionPeriod(
                                 com.google.protobuf.Duration.newBuilder().setSeconds(86400))
+                            .build())
+                    .setAutomatedBackupPolicy(com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
+                            .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+                                    .setSeconds(86400)
+                                    .setNanos(0))
+                            .setFrequency(com.google.protobuf.Duration.newBuilder()
+                                    .setSeconds(86400)
+                                    .setNanos(0))
                             .build())
                     .setDeletionProtection(true))
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
@@ -136,6 +145,7 @@ public class CreateTableRequestTest {
         CreateTableRequest.of(TABLE_ID)
             .addFamily("family-id")
             .addFamily("another-family", GCRULES.maxAge(100, TimeUnit.HOURS))
+            // automatedbackup
             .addSplit(splitKey);
 
     assertThat(request)
@@ -143,6 +153,7 @@ public class CreateTableRequestTest {
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
                 .addFamily("another-family", GCRULES.maxAge(Duration.ofHours(100)))
+                // automatedbackup
                 .addSplit(splitKey));
 
     assertThat(request)

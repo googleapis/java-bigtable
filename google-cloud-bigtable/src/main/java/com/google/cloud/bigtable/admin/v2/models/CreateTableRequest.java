@@ -29,17 +29,18 @@ import org.threeten.bp.Duration;
 /**
  * Fluent wrapper for {@link com.google.bigtable.admin.v2.CreateTableRequest}
  *
- * <p>Allows for creating table with:
+ * <p>
+ * Allows for creating table with:
  *
  * <ul>
- *   <li>optional columnFamilies, including optional {@link GCRule}
- *   <li>optional granularity
- *   <li>and optional split points
+ * <li>optional columnFamilies, including optional {@link GCRule}
+ * <li>optional granularity
+ * <li>and optional split points
  * </ul>
  */
 public final class CreateTableRequest {
-  private final com.google.bigtable.admin.v2.CreateTableRequest.Builder requestBuilder =
-      com.google.bigtable.admin.v2.CreateTableRequest.newBuilder();
+  private final com.google.bigtable.admin.v2.CreateTableRequest.Builder requestBuilder = com.google.bigtable.admin.v2.CreateTableRequest
+      .newBuilder();
 
   public static CreateTableRequest of(String tableId) {
     return new CreateTableRequest(tableId);
@@ -58,7 +59,8 @@ public final class CreateTableRequest {
   }
 
   /**
-   * Adds a new columnFamily with {@link GCRule} to the configuration. Please note that calling this
+   * Adds a new columnFamily with {@link GCRule} to the configuration. Please note
+   * that calling this
    * method with the same familyId will overwrite the previous family.
    *
    * @see GCRule for available options.
@@ -68,7 +70,8 @@ public final class CreateTableRequest {
   }
 
   /**
-   * Adds a new columnFamily with a {@link Type} to the configuration. Please note that calling this
+   * Adds a new columnFamily with a {@link Type} to the configuration. Please note
+   * that calling this
    * method with the same familyId will overwrite the previous family.
    *
    * @see Type for available options.
@@ -78,8 +81,10 @@ public final class CreateTableRequest {
   }
 
   /**
-   * Adds a new columnFamily with a {@link GCRule} and {@link Type} to the configuration. Please
-   * note that calling this method with the same familyId will overwrite the previous family.
+   * Adds a new columnFamily with a {@link GCRule} and {@link Type} to the
+   * configuration. Please
+   * note that calling this method with the same familyId will overwrite the
+   * previous family.
    *
    * @see GCRule for available options.
    * @see Type for available options.
@@ -129,9 +134,22 @@ public final class CreateTableRequest {
     return this;
   }
 
-  /** Set if the table has an automated backup policy. */
-  public CreateTableRequest setAutomatedBackup(Table.AutomatedBackupPolicy policy) {
-    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy.toProto());
+  /** Set an automated backup policy for the table. */
+  public CreateTableRequest setAutomatedBackup(Duration retentionPeriod,
+      Duration frequency) {
+    com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy policy = com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy
+        .newBuilder()
+        .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+            .setSeconds(retentionPeriod.getSeconds())
+            .setNanos(retentionPeriod.getNano())
+            .build())
+        .setFrequency(com.google.protobuf.Duration.newBuilder()
+            .setSeconds(frequency.getSeconds())
+            .setNanos(frequency.getNano())
+            .build())
+        .build();
+
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy);
     return this;
   }
 
