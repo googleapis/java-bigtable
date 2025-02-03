@@ -15,19 +15,9 @@
  */
 package com.google.cloud.kafka.connect.bigtable.integration;
 
-import static org.apache.kafka.connect.runtime.errors.DeadLetterQueueReporter.ERROR_HEADER_EXCEPTION;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import com.google.cloud.kafka.connect.bigtable.config.BigtableErrorMode;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.Map;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -84,18 +74,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
     String value = "value";
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, key, value);
-    ConsumerRecords<byte[], byte[]> dlqRecords =
-        connect.kafka().consume(1, Duration.ofSeconds(120).toMillis(), dlqTopic);
-    assertEquals(1, dlqRecords.count());
-    ConsumerRecord<byte[], byte[]> record = dlqRecords.iterator().next();
-    assertArrayEquals(record.key(), key.getBytes(StandardCharsets.UTF_8));
-    assertArrayEquals(record.value(), value.getBytes(StandardCharsets.UTF_8));
-    assertTrue(
-        Arrays.stream(record.headers().toArray())
-            .anyMatch(h -> h.key().equals(ERROR_HEADER_EXCEPTION)));
-    connect
-        .assertions()
-        .assertConnectorAndExactlyNumTasksAreRunning(
-            testId, numTasks, "Wrong number of tasks is running.");
+    assertSingleDlqEntry(dlqTopic, key, value, null);
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 }

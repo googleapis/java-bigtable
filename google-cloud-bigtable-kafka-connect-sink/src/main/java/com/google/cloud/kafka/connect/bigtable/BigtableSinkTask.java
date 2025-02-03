@@ -174,6 +174,7 @@ public class BigtableSinkTask extends SinkTask {
     if (config.getBoolean(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES)) {
       mutations = autoCreateColumnFamiliesAndHandleErrors(mutations);
     }
+    // Needed so that the batch ordering is more predictable from the user's point of view.
     mutations = orderMap(mutations, records);
 
     Map<SinkRecord, Future<Void>> perRecordResults = new HashMap<>();

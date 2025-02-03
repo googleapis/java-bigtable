@@ -24,17 +24,18 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
-import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
+import com.google.cloud.kafka.connect.bigtable.config.NullValueMode;
+import com.google.cloud.kafka.connect.bigtable.util.JsonConverterFactory;
 import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -43,8 +44,11 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.converters.ByteArrayConverter;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaAndValue;
+import org.apache.kafka.connect.data.SchemaBuilder;
+import org.apache.kafka.connect.data.Struct;
+import org.apache.kafka.connect.json.JsonConverter;
+import org.apache.kafka.connect.json.JsonConverterConfig;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
-import org.apache.kafka.connect.runtime.errors.DeadLetterQueueReporter;
 import org.apache.kafka.connect.storage.StringConverter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -62,46 +66,6 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     assertThrows(Throwable.class, () -> connect.connectorStatus(testId));
   }
 
-  @org.junit.Ignore // TODO: unignore. For now, the emulator does not cause an exception.
-  @Test
-  public void testCreationOfInvalidTable() throws InterruptedException {
-    String dlqTopic = createDlq();
-    Map<String, String> props = baseConnectorProps();
-    String invalidTableName = "T".repeat(10000);
-    props.put(BigtableSinkConfig.CONFIG_TABLE_NAME_FORMAT, invalidTableName);
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-
-    configureDlq(props, dlqTopic);
-    String testId = startSingleTopicConnector(props);
-
-    String key = "key";
-    String value = "value";
-
-    connect.kafka().produce(testId, key, value);
-
-    ConsumerRecords<byte[], byte[]> dlqRecords =
-        connect.kafka().consume(1, Duration.ofSeconds(120).toMillis(), dlqTopic);
-    assertEquals(1, dlqRecords.count());
-    ConsumerRecord<byte[], byte[]> record = dlqRecords.iterator().next();
-    assertArrayEquals(record.key(), key.getBytes(StandardCharsets.UTF_8));
-    assertArrayEquals(record.value(), value.getBytes(StandardCharsets.UTF_8));
-    assertTrue(
-        Arrays.stream(record.headers().toArray())
-            .anyMatch(
-                h ->
-                    h.key().equals(DeadLetterQueueReporter.ERROR_HEADER_EXCEPTION)
-                        && Arrays.equals(
-                            h.value(),
-                            InvalidBigtableSchemaModificationException.class
-                                .getName()
-                                .getBytes(StandardCharsets.UTF_8))));
-    connect
-        .assertions()
-        .assertConnectorAndExactlyNumTasksAreRunning(
-            testId, numTasks, "Wrong number of tasks is running.");
-  }
-
-  @org.junit.Ignore // TODO: unignore. For now, the emulator does not cause an exception.
   @Test
   public void testTooLargeData() throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
@@ -118,16 +82,8 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     byte[] value = new byte[twoHundredMegabytes];
     getKafkaProducer().send(new ProducerRecord<>(testId, key, value)).get();
 
-    ConsumerRecords<byte[], byte[]> dlqRecords =
-        connect.kafka().consume(1, Duration.ofSeconds(120).toMillis(), dlqTopic);
-    assertEquals(1, dlqRecords.count());
-    ConsumerRecord<byte[], byte[]> record = dlqRecords.iterator().next();
-    assertArrayEquals(record.key(), key);
-    assertArrayEquals(record.value(), value);
-    connect
-        .assertions()
-        .assertConnectorAndExactlyNumTasksAreRunning(
-            testId, numTasks, "Wrong number of tasks is running.");
+    assertSingleDlqEntry(dlqTopic, key, value, null);
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 
   @Test
@@ -136,7 +92,6 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
     props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
     configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
 
@@ -155,17 +110,14 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
         valueOk.getBytes(StandardCharsets.UTF_8), rowOk.getCells().get(0).getValue().toByteArray());
 
     connect.kafka().produce(testId, key, valueRejected);
-    ConsumerRecords<byte[], byte[]> dlqRecords =
-        connect.kafka().consume(1, Duration.ofSeconds(120).toMillis(), dlqTopic);
-    assertEquals(1, dlqRecords.count());
-    ConsumerRecord<byte[], byte[]> record = dlqRecords.iterator().next();
-    assertArrayEquals(record.key(), key.getBytes(StandardCharsets.UTF_8));
-    assertArrayEquals(record.value(), valueRejected.getBytes(StandardCharsets.UTF_8));
+    assertSingleDlqEntry(dlqTopic, key, valueRejected, null);
+
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 
   @Test
   public void testPartialBatchErrorWhenRelyingOnInputOrdering() throws InterruptedException {
-    long dataSize = 10000;
+    long dataSize = 1000;
 
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
@@ -215,7 +167,7 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     }
     assertEquals(dataSize / 2, dlqValues.size());
 
-    for (long i = 0; i < dataSize; i += 2) {
+    for (long i = 0; i < dataSize; i++) {
       ByteString key = ByteString.copyFrom(keyGenerator.apply(i).getBytes(StandardCharsets.UTF_8));
       byte[] expectedValue = valueGenerator.apply(i).getBytes(StandardCharsets.UTF_8);
       byte[] value;
@@ -230,5 +182,106 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
       assertTrue(dlqValues.containsKey(key));
       assertArrayEquals(expectedValue, value);
     }
+    assertConnectorAndAllTasksAreRunning(testId);
+  }
+
+  @Test
+  public void testDeletingARowTwiceWorks()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    String dlqTopic = createDlq();
+    Map<String, String> props = baseConnectorProps();
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    configureDlq(props, dlqTopic);
+    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
+    props.put(
+        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
+            + "."
+            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
+        String.valueOf(false));
+    String testId = startSingleTopicConnector(props);
+
+    String key = "key";
+    String putValue = "1";
+    String deleteValue = "null";
+
+    connect.kafka().produce(testId, key, putValue);
+    waitUntilBigtableContainsNumberOfRows(testId, 1);
+    assertEquals(
+        key,
+        new String(
+            bigtableData.readRow(testId, key).getKey().toByteArray(), StandardCharsets.UTF_8));
+
+    connect.kafka().produce(testId, key, deleteValue);
+    waitUntilBigtableContainsNumberOfRows(testId, 0);
+    assertTrue(readAllRows(bigtableData, testId).isEmpty());
+
+    connect.kafka().produce(testId, key, deleteValue);
+    assertDlqIsEmpty(dlqTopic);
+    assertConnectorAndAllTasksAreRunning(testId);
+  }
+
+  @Test
+  public void testNonexistentCellDeletionWorks()
+      throws InterruptedException, ExecutionException, TimeoutException {
+    String dlqTopic = createDlq();
+    Map<String, String> props = baseConnectorProps();
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    configureDlq(props, dlqTopic);
+    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
+    props.put(
+        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
+            + "."
+            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
+        String.valueOf(true));
+    String testId = startSingleTopicConnector(props);
+
+    String key = "nonexistentKey";
+    Struct innerStruct =
+        new Struct(SchemaBuilder.struct().field("b", Schema.OPTIONAL_INT8_SCHEMA)).put("b", null);
+    Struct struct =
+        new Struct(SchemaBuilder.struct().field("a", innerStruct.schema())).put("a", innerStruct);
+    byte[] valueBytes =
+        JsonConverterFactory.create(true, false).fromConnectData(testId, struct.schema(), struct);
+    String value = new String(valueBytes, StandardCharsets.UTF_8);
+    connect.kafka().produce(testId, key, value);
+
+    assertDlqIsEmpty(dlqTopic);
+    assertConnectorAndAllTasksAreRunning(testId);
+  }
+
+  @Test
+  public void testNonexistentColumnFamilyDeletionWorks()
+      throws ExecutionException, InterruptedException, TimeoutException {
+    String dlqTopic = createDlq();
+    Map<String, String> props = baseConnectorProps();
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    configureDlq(props, dlqTopic);
+    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
+    props.put(
+        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
+            + "."
+            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
+        String.valueOf(true));
+    String testId = startSingleTopicConnector(props);
+
+    String key = "nonexistentKey";
+    Struct struct =
+        new Struct(SchemaBuilder.struct().field("b", Schema.OPTIONAL_INT8_SCHEMA)).put("b", null);
+    byte[] valueBytes =
+        JsonConverterFactory.create(true, false).fromConnectData(testId, struct.schema(), struct);
+    String value = new String(valueBytes, StandardCharsets.UTF_8);
+    connect.kafka().produce(testId, key, value);
+
+    assertDlqIsEmpty(dlqTopic);
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 }

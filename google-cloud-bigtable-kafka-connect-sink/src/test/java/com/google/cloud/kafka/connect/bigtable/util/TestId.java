@@ -27,6 +27,6 @@ public class TestId {
         StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
             .walk(s -> Streams.findLast(s.filter(f -> f.getDeclaringClass().equals(testClass))))
             .get();
-    return getTestClassId(frame.getDeclaringClass()) + frame.getMethodName();
+    return frame.getMethodName();
   }
 }

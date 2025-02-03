@@ -57,8 +57,6 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -70,20 +68,6 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
 
   private String testCase;
   private Compatibility compatibility;
-
-  @BeforeEach
-  public void setUp() throws Exception {
-    setUpConnect();
-    setUpBigtable();
-    setUpSchemaRegistry();
-  }
-
-  @AfterEach
-  public void tearDown() throws Exception {
-    tearDownSchemaRegistry();
-    tearDownBigtable();
-    tearDownConnect();
-  }
 
   public ConfluentCompatibilityIT(String testCase, Compatibility compatibility) {
     this.testCase = testCase;

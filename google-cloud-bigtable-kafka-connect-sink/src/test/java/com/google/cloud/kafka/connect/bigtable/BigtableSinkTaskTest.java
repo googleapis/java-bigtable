@@ -360,8 +360,7 @@ public class BigtableSinkTaskTest {
   @Test
   public void testOrderMapError() {
     Map<Integer, String> map = Map.of(1, "1", 2, "2", -1, "-1");
-    assertThrows(
-        BigtableSinkLogicError.class, () -> BigtableSinkTask.orderMap(map, Set.of(1, 2)));
+    assertThrows(BigtableSinkLogicError.class, () -> BigtableSinkTask.orderMap(map, Set.of(1, 2)));
   }
 
   @Test

@@ -24,7 +24,9 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
-  public static long CONSUME_TIMEOUT_MILLIS = 30000;
+  // Not copied from BigtableSinkConfig since it isn't present in its public API.
+  public static long DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS = 90000;
+
   protected BigtableDataClient bigtableData;
   protected BigtableTableAdminClient bigtableAdmin;
 
@@ -49,7 +51,27 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
       throws InterruptedException {
     waitForCondition(
         () -> readAllRows(bigtableData, tableId).size() == numberOfRows,
-        CONSUME_TIMEOUT_MILLIS,
+        DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Records not consumed in time.");
+  }
+
+  public void waitUntilBigtableTableExists(String tableId) throws InterruptedException {
+    waitForCondition(
+        () -> {
+          bigtableAdmin.getTable(tableId);
+          return true;
+        },
+        DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
+        "Table not created in time.");
+  }
+
+  public void waitUntilBigtableTableHasColumnFamily(String tableId, String columnFamily)
+      throws InterruptedException {
+    waitForCondition(
+        () ->
+            bigtableAdmin.getTable(tableId).getColumnFamilies().stream()
+                .anyMatch(cf -> cf.getId().equals(columnFamily)),
+        DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
+        "Column Family not created in time.");
   }
 }

@@ -30,14 +30,18 @@ import com.google.cloud.kafka.connect.bigtable.BigtableSinkConnector;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.util.TestId;
 import com.google.protobuf.ByteString;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.utils.Utils;
+import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.runtime.SinkConnectorConfig;
 import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.runtime.isolation.PluginDiscoveryMode;
@@ -47,6 +51,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class BaseIT {
+  // https://cloud.google.com/bigtable/docs/reference/admin/rpc/google.bigtable.admin.v2#createtablerequest
+  public static int MAX_BIGTABLE_TABLE_NAME_LENGTH = 50;
+
   private final Logger logger = LoggerFactory.getLogger(BaseIT.class);
   protected EmbeddedConnectCluster connect;
   private Admin kafkaAdminClient;
@@ -117,6 +124,16 @@ public abstract class BaseIT {
     result.put(TASKS_MAX_CONFIG, Integer.toString(numTasks));
     result.put(KEY_CONVERTER_CLASS_CONFIG, StringConverter.class.getName());
     result.put(VALUE_CONVERTER_CLASS_CONFIG, StringConverter.class.getName());
+    // Needed so that all messages we send to the input topics can be also sent to the DLQ by
+    // DeadLetterQueueReporter.
+    result.put(
+        ConnectorConfig.CONNECTOR_CLIENT_PRODUCER_OVERRIDES_PREFIX
+            + ProducerConfig.MAX_REQUEST_SIZE_CONFIG,
+        String.valueOf(maxKafkaMessageSizeBytes));
+    result.put(
+        ConnectorConfig.CONNECTOR_CLIENT_PRODUCER_OVERRIDES_PREFIX
+            + ProducerConfig.BUFFER_MEMORY_CONFIG,
+        String.valueOf(maxKafkaMessageSizeBytes));
 
     // TODO: get it from environment variables after migrating to kokoro.
     result.put(CONFIG_GCP_PROJECT_ID, "todotodo");
@@ -148,9 +165,30 @@ public abstract class BaseIT {
 
   protected String startSingleTopicConnector(Map<String, String> configProps)
       throws InterruptedException {
-    String id = getTestCaseId() + System.currentTimeMillis();
-    configProps.put(SinkConnectorConfig.TOPICS_CONFIG, id);
-    connect.kafka().createTopic(id, numBrokers);
+    return startConnector(configProps, Collections.emptySet());
+  }
+
+  protected String startMultipleTopicConnector(
+      Map<String, String> configProps, Set<String> topicNameSuffixes) throws InterruptedException {
+    return startConnector(configProps, topicNameSuffixes);
+  }
+
+  private String startConnector(Map<String, String> configProps, Set<String> topicNameSuffixes)
+      throws InterruptedException {
+    int longestSuffix = topicNameSuffixes.stream().mapToInt(String::length).max().orElse(0);
+    String id =
+        StringUtils.right(
+            getTestCaseId() + System.currentTimeMillis(),
+            MAX_BIGTABLE_TABLE_NAME_LENGTH - longestSuffix);
+    if (topicNameSuffixes.isEmpty()) {
+      configProps.put(SinkConnectorConfig.TOPICS_CONFIG, id);
+      connect.kafka().createTopic(id, numBrokers);
+    } else {
+      configProps.put(SinkConnectorConfig.TOPICS_REGEX_CONFIG, id + ".*");
+      for (String suffix : topicNameSuffixes) {
+        connect.kafka().createTopic(id + suffix, numBrokers);
+      }
+    }
     connect.configureConnector(id, configProps);
     connect
         .assertions()
