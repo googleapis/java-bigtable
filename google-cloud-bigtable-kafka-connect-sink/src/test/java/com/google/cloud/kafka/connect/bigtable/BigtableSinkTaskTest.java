@@ -56,6 +56,7 @@ import com.google.cloud.kafka.connect.bigtable.config.BigtableErrorMode;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
 import com.google.cloud.kafka.connect.bigtable.config.NullValueMode;
+import com.google.cloud.kafka.connect.bigtable.exception.BigtableSinkLogicError;
 import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
 import com.google.cloud.kafka.connect.bigtable.mapping.KeyMapper;
 import com.google.cloud.kafka.connect.bigtable.mapping.MutationData;
@@ -66,6 +67,7 @@ import com.google.cloud.kafka.connect.bigtable.util.BasicPropertiesFactory;
 import com.google.cloud.kafka.connect.bigtable.util.FutureUtil;
 import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -80,6 +82,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.ErrantRecordReporter;
@@ -305,6 +308,60 @@ public class BigtableSinkTaskTest {
     assertEquals(Map.of(okRecord, okMutationData), result);
     verify(errorReporter, times(1)).report(exceptionRecord, exception);
     assertTotalNumberOfInvocations(errorReporter, 1);
+  }
+
+  @Test
+  public void testOrderMapSuccesses() {
+    Integer key1 = 1;
+    Integer key2 = 2;
+    Integer key3 = 3;
+    Integer key4 = 4;
+
+    String value1 = "value1";
+    String value2 = "value2";
+    String value3 = "value3";
+    String value4 = "value4";
+
+    Map<Integer, String> map1 = new LinkedHashMap<>();
+    map1.put(key4, value4);
+    map1.put(key3, value3);
+    map1.put(key2, value2);
+    map1.put(key1, value1);
+
+    assertEquals(List.of(key4, key3, key2, key1), new ArrayList<>(map1.keySet()));
+    assertEquals(List.of(value4, value3, value2, value1), new ArrayList<>(map1.values()));
+    assertEquals(
+        List.of(key1, key2, key3, key4),
+        new ArrayList<>(BigtableSinkTask.orderMap(map1, List.of(key1, key2, key3, key4)).keySet()));
+    assertEquals(
+        List.of(value1, value2, value3, value4),
+        new ArrayList<>(BigtableSinkTask.orderMap(map1, List.of(key1, key2, key3, key4)).values()));
+    assertEquals(
+        List.of(
+            new AbstractMap.SimpleImmutableEntry<>(key1, value1),
+            new AbstractMap.SimpleImmutableEntry<>(key2, value2),
+            new AbstractMap.SimpleImmutableEntry<>(key3, value3),
+            new AbstractMap.SimpleImmutableEntry<>(key4, value4)),
+        new ArrayList<>(
+            BigtableSinkTask.orderMap(map1, List.of(key1, key2, key3, key4)).entrySet()));
+
+    assertEquals(
+        List.of(key1, key2, key3, key4),
+        new ArrayList<>(
+            BigtableSinkTask.orderMap(map1, List.of(-1, key1, -2, key2, -3, key3, -4, key4, -5))
+                .keySet()));
+
+    PermutationIterator<Integer> permutations =
+        new PermutationIterator<>(List.of(key1, key2, key3, key4));
+    permutations.forEachRemaining(
+        p -> assertEquals(p, new ArrayList<>(BigtableSinkTask.orderMap(map1, p).keySet())));
+  }
+
+  @Test
+  public void testOrderMapError() {
+    Map<Integer, String> map = Map.of(1, "1", 2, "2", -1, "-1");
+    assertThrows(
+        BigtableSinkLogicError.class, () -> BigtableSinkTask.orderMap(map, Set.of(1, 2)));
   }
 
   @Test

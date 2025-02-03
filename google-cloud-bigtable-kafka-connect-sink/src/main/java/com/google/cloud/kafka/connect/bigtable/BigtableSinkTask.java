@@ -31,6 +31,7 @@ import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig;
 import com.google.cloud.kafka.connect.bigtable.config.ConfigInterpolation;
 import com.google.cloud.kafka.connect.bigtable.exception.BatchException;
+import com.google.cloud.kafka.connect.bigtable.exception.BigtableSinkLogicError;
 import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
 import com.google.cloud.kafka.connect.bigtable.mapping.KeyMapper;
 import com.google.cloud.kafka.connect.bigtable.mapping.MutationData;
@@ -43,6 +44,7 @@ import com.google.protobuf.ByteString;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -172,6 +174,7 @@ public class BigtableSinkTask extends SinkTask {
     if (config.getBoolean(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES)) {
       mutations = autoCreateColumnFamiliesAndHandleErrors(mutations);
     }
+    mutations = orderMap(mutations, records);
 
     Map<SinkRecord, Future<Void>> perRecordResults = new HashMap<>();
     switch (config.getInsertMode()) {
@@ -303,6 +306,32 @@ public class BigtableSinkTask extends SinkTask {
           throw new BatchException(throwable);
       }
     }
+  }
+
+  /**
+   * Generates a {@link Map} with desired key ordering.
+   *
+   * @param map A {@link Map} to be sorted.
+   * @param order A {@link Collection} defining desired order of the output {@link Map}. Must be a
+   *     superset of {@code mutations}'s key set.
+   * @return A {@link Map} with the same keys and corresponding values as {@code map} with the same
+   *     key ordering as {@code order}.
+   */
+  @VisibleForTesting
+  // It is generic so that we can test it with naturally ordered values easily.
+  static <K, V> Map<K, V> orderMap(Map<K, V> map, Collection<K> order) {
+    if (!order.containsAll(map.keySet())) {
+      throw new BigtableSinkLogicError(
+          "A collection defining order of keys must be a superset of the input map's key set.");
+    }
+    Map<K, V> sorted = new LinkedHashMap<>();
+    for (K key : order) {
+      V value = map.get(key);
+      if (value != null) {
+        sorted.put(key, value);
+      }
+    }
+    return sorted;
   }
 
   /**

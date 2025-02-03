@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
 import com.google.cloud.kafka.connect.bigtable.exception.InvalidBigtableSchemaModificationException;
@@ -163,8 +164,8 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testPartialBatchError() throws InterruptedException {
-    long dataSize = 1000;
+  public void testPartialBatchErrorWhenRelyingOnInputOrdering() throws InterruptedException {
+    long dataSize = 10000;
 
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
@@ -189,7 +190,7 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     connect.pauseConnector(testId);
     List<Map.Entry<SchemaAndValue, SchemaAndValue>> keysAndValues = new ArrayList<>();
     // Every second record fails since every two consecutive records share a key and we use insert
-    // mode.
+    // mode. We rely on max batch size of 1 to know which of the records is going to fail.
     Function<Long, String> keyGenerator = i -> "key" + (i / 2);
     Function<Long, String> valueGenerator = i -> "value" + i;
     for (long i = 0; i < dataSize; i++) {
@@ -214,14 +215,20 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
     }
     assertEquals(dataSize / 2, dlqValues.size());
 
-    // TODO: consider if we want to fix the fact that we do not know the order the batch records
-    // will be executed in since we use unordered hashmaps in BigtableSinkTask and
-    // BigtableSchemaManager. It also makes batch size related setting unintuitive. If we fix it,
-    // then we can assert against values here.
     for (long i = 0; i < dataSize; i += 2) {
       ByteString key = ByteString.copyFrom(keyGenerator.apply(i).getBytes(StandardCharsets.UTF_8));
+      byte[] expectedValue = valueGenerator.apply(i).getBytes(StandardCharsets.UTF_8);
+      byte[] value;
+      if (i % 2 == 0) {
+        List<RowCell> cells = rows.get(key).getCells();
+        assertEquals(1, cells.size());
+        value = cells.get(0).getValue().toByteArray();
+      } else {
+        value = dlqValues.get(key);
+      }
       assertTrue(rows.containsKey(key));
       assertTrue(dlqValues.containsKey(key));
+      assertArrayEquals(expectedValue, value);
     }
   }
 }
