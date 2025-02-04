@@ -23,7 +23,9 @@ package com.google.cloud.kafka.connect.bigtable.integration;
  */
 
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
+import io.confluent.connect.avro.AvroConverter;
 import io.confluent.connect.json.JsonSchemaConverter;
+import io.confluent.connect.protobuf.ProtobufConverter;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.math.BigDecimal;
 import java.util.AbstractMap;
@@ -99,7 +101,7 @@ public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistr
   @Test
   public void testAvro() throws InterruptedException {
     testConverter(
-        JsonSchemaConverter::new,
+        AvroConverter::new,
         Map.of(
             AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
             schemaRegistry.schemaRegistryUrl()));
@@ -108,7 +110,7 @@ public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistr
   @Test
   public void testProtobuf() throws InterruptedException {
     testConverter(
-        JsonSchemaConverter::new,
+        ProtobufConverter::new,
         Map.of(
             AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
             schemaRegistry.schemaRegistryUrl()));
