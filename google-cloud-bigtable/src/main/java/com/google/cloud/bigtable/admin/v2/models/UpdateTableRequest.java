@@ -92,9 +92,22 @@ public class UpdateTableRequest {
     return this;
   }
 
-  /** Updates table automated backup policy. */
-  public UpdateTableRequest setAutomatedBackup(Table.AutomatedBackupPolicy policy) {
-    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy.toProto());
+  /** Set an automated backup policy for the table. */
+  public UpdateTableRequest setAutomatedBackup(Duration retentionPeriod,
+      Duration frequency) {
+    com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy policy = com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy
+        .newBuilder()
+        .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+            .setSeconds(retentionPeriod.getSeconds())
+            .setNanos(retentionPeriod.getNano())
+            .build())
+        .setFrequency(com.google.protobuf.Duration.newBuilder()
+            .setSeconds(frequency.getSeconds())
+            .setNanos(frequency.getNano())
+            .build())
+        .build();
+
+    requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy);
     requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy");
     return this;
   }
