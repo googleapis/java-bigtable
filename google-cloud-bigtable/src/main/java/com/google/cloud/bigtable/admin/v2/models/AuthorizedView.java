@@ -16,13 +16,12 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
-import javax.annotation.Nonnull;
-
 import com.google.api.core.InternalApi;
 import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.admin.v2.AuthorizedViewName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import javax.annotation.Nonnull;
 
 /**
  * A class that wraps the {@link com.google.bigtable.admin.v2.AuthorizedView} protocol buffer
