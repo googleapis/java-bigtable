@@ -32,7 +32,10 @@ import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
+import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -43,9 +46,11 @@ public class ExecuteQueryCallContextTest {
   private static final ByteString PREPARED_QUERY = ByteString.copyFromUtf8("test");
   private static final com.google.bigtable.v2.ResultSetMetadata METADATA =
       metadata(columnMetadata("foo", stringType()), columnMetadata("bar", bytesType()));
+  private static final Map<String, SqlType<?>> PARAM_TYPES =
+      ImmutableMap.of("foo", SqlType.string());
   private static final PreparedStatement PREPARED_STATEMENT =
       PreparedStatementImpl.create(
-          PrepareResponse.fromProto(prepareResponse(PREPARED_QUERY, METADATA)));
+          PrepareResponse.fromProto(prepareResponse(PREPARED_QUERY, METADATA)), PARAM_TYPES);
 
   @Test
   public void testToRequest() {

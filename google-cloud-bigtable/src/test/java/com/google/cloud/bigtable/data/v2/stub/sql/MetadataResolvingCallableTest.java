@@ -42,6 +42,7 @@ import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreami
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCallable;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockStreamController;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
@@ -70,7 +71,8 @@ public class MetadataResolvingCallableTest {
             PrepareResponse.fromProto(
                 prepareResponse(
                     metadata(
-                        columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))));
+                        columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))),
+            new HashMap<>());
 
     ExecuteQueryCallContext callContext =
         ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
@@ -176,7 +178,8 @@ public class MetadataResolvingCallableTest {
             PrepareResponse.fromProto(
                 prepareResponse(
                     metadata(
-                        columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))));
+                        columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))),
+            new HashMap<>());
 
     ExecuteQueryCallContext callContext =
         ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);

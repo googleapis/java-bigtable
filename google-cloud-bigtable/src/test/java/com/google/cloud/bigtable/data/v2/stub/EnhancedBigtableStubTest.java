@@ -164,7 +164,7 @@ public class EnhancedBigtableStubTest {
               .setMetadata(metadata(columnMetadata("foo", stringType())))
               .build());
   private static final PreparedStatement WAIT_TIME_PREPARED_STATEMENT =
-      PreparedStatementImpl.create(PREPARE_RESPONSE);
+      PreparedStatementImpl.create(PREPARE_RESPONSE, new HashMap<>());
 
   private Server server;
   private MetadataInterceptor metadataInterceptor;
@@ -905,7 +905,8 @@ public class EnhancedBigtableStubTest {
                 .setPreparedQuery(ByteString.copyFromUtf8("abc"))
                 .setMetadata(metadata(columnMetadata("foo", stringType())))
                 .build());
-    PreparedStatement preparedStatement = PreparedStatementImpl.create(prepareResponse);
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
     SqlServerStream sqlServerStream = streamingCallable.call(preparedStatement.bind().build());
     ExecuteQueryRequest expectedRequest =
         ExecuteQueryRequest.newBuilder()

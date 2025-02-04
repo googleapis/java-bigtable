@@ -51,6 +51,7 @@ import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
@@ -66,7 +67,7 @@ public class ExecuteQueryCallableTest {
 
     @Override
     public Builder bind() {
-      return new BoundStatement.Builder(this);
+      return new BoundStatement.Builder(this, new HashMap<>());
     }
 
     @Override

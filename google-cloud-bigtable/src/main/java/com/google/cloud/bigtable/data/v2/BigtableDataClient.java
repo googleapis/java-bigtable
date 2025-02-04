@@ -2754,7 +2754,7 @@ public class BigtableDataClient implements AutoCloseable {
   public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
     PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
     PrepareResponse response = stub.prepareQueryCallable().call(request);
-    return PreparedStatementImpl.create(response);
+    return PreparedStatementImpl.create(response, paramTypes);
   }
 
   /** Close the clients and releases all associated resources. */

@@ -47,7 +47,6 @@ import static org.junit.Assert.assertThrows;
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.Date;
-import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
@@ -78,7 +77,7 @@ public class ResultSetImplTest {
     ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     future.set(metadata);
     PrepareResponse response = PrepareResponse.fromProto(prepareResponse(protoMetadata));
-    PreparedStatement preparedStatement = PreparedStatementImpl.create(response);
+    PreparedStatement preparedStatement = PreparedStatementImpl.create(response, new HashMap<>());
     ExecuteQueryCallContext fakeCallContext =
         ExecuteQueryCallContext.create(preparedStatement.bind().build(), future);
     return ResultSetImpl.create(SqlServerStreamImpl.create(future, stream.call(fakeCallContext)));
@@ -325,10 +324,10 @@ public class ResultSetImplTest {
         new ServerStreamingStashCallable<>(Collections.emptyList());
     PrepareResponse prepareResponse =
         PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("foo", stringType()))));
-    PreparedStatement preparedStatement = PreparedStatementImpl.create(prepareResponse);
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(
-            new BoundStatement.Builder(preparedStatement).build(), metadataFuture);
+        ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));
@@ -344,10 +343,10 @@ public class ResultSetImplTest {
         new ServerStreamingStashCallable<>(Collections.emptyList());
     PrepareResponse prepareResponse =
         PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("foo", stringType()))));
-    PreparedStatement preparedStatement = PreparedStatementImpl.create(prepareResponse);
+    PreparedStatement preparedStatement =
+        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(
-            new BoundStatement.Builder(preparedStatement).build(), metadataFuture);
+        ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));

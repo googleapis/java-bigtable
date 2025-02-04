@@ -26,6 +26,7 @@ import com.google.cloud.bigtable.data.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 import com.google.cloud.bigtable.data.v2.internal.QueryParamUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
@@ -83,9 +84,9 @@ public class BoundStatement {
     return preparedStatement.getPrepareResponse();
   }
 
-  // TODO pass in paramTypes, to support validation
   public static class Builder {
     private final PreparedStatement preparedStatement;
+    private final Map<String, SqlType<?>> paramTypes;
     private final Map<String, Value> params;
 
     /**
@@ -95,13 +96,21 @@ public class BoundStatement {
      * applications.
      */
     @InternalApi("For internal use only")
-    public Builder(PreparedStatement preparedStatement) {
+    public Builder(PreparedStatement preparedStatement, Map<String, SqlType<?>> paramTypes) {
       this.preparedStatement = preparedStatement;
+      this.paramTypes = paramTypes;
       this.params = new HashMap<>();
     }
 
     /** Builds a {@code Statement} from the builder */
     public BoundStatement build() {
+      for (Map.Entry<String, SqlType<?>> paramType : paramTypes.entrySet()) {
+        String paramName = paramType.getKey();
+        if (!params.containsKey(paramName)) {
+          throw new IllegalArgumentException(
+              "Attempting to build BoundStatement without binding parameter: " + paramName);
+        }
+      }
       return new BoundStatement(preparedStatement, ImmutableMap.copyOf(params));
     }
 
@@ -110,6 +119,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setStringParam(String paramName, @Nullable String value) {
+      validateMatchesParamTypes(paramName, SqlType.string());
       params.put(paramName, stringParamOf(value));
       return this;
     }
@@ -119,6 +129,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setBytesParam(String paramName, @Nullable ByteString value) {
+      validateMatchesParamTypes(paramName, SqlType.bytes());
       params.put(paramName, bytesParamOf(value));
       return this;
     }
@@ -128,6 +139,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setLongParam(String paramName, @Nullable Long value) {
+      validateMatchesParamTypes(paramName, SqlType.int64());
       params.put(paramName, int64ParamOf(value));
       return this;
     }
@@ -137,6 +149,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setFloatParam(String paramName, @Nullable Float value) {
+      validateMatchesParamTypes(paramName, SqlType.float32());
       params.put(paramName, float32ParamOf(value));
       return this;
     }
@@ -146,6 +159,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setDoubleParam(String paramName, @Nullable Double value) {
+      validateMatchesParamTypes(paramName, SqlType.float64());
       params.put(paramName, float64ParamOf(value));
       return this;
     }
@@ -154,6 +168,7 @@ public class BoundStatement {
      * Sets a query parameter with the name {@code paramName} and the BOOL typed value {@code value}
      */
     public Builder setBooleanParam(String paramName, @Nullable Boolean value) {
+      validateMatchesParamTypes(paramName, SqlType.bool());
       params.put(paramName, booleanParamOf(value));
       return this;
     }
@@ -163,6 +178,7 @@ public class BoundStatement {
      * value}
      */
     public Builder setTimestampParam(String paramName, @Nullable Instant value) {
+      validateMatchesParamTypes(paramName, SqlType.timestamp());
       params.put(paramName, timestampParamOf(value));
       return this;
     }
@@ -171,6 +187,7 @@ public class BoundStatement {
      * Sets a query parameter with the name {@code paramName} and the DATE typed value {@code value}
      */
     public Builder setDateParam(String paramName, @Nullable Date value) {
+      validateMatchesParamTypes(paramName, SqlType.date());
       params.put(paramName, dateParamOf(value));
       return this;
     }
@@ -182,8 +199,23 @@ public class BoundStatement {
      */
     public <T> Builder setListParam(
         String paramName, @Nullable List<T> value, SqlType.Array<T> arrayType) {
+      validateMatchesParamTypes(paramName, arrayType);
       params.put(paramName, arrayParamOf(value, arrayType));
       return this;
+    }
+
+    private void validateMatchesParamTypes(String paramName, SqlType<?> expectedType) {
+      Preconditions.checkArgument(
+          paramTypes.containsKey(paramName), "No parameter named: " + paramName);
+      SqlType<?> actualType = paramTypes.get(paramName);
+      Preconditions.checkArgument(
+          SqlType.typesMatch(expectedType, actualType),
+          "Invalid type passed for query param '"
+              + paramName
+              + "'. Expected: "
+              + expectedType
+              + " received: "
+              + actualType);
     }
 
     private static Value stringParamOf(@Nullable String value) {

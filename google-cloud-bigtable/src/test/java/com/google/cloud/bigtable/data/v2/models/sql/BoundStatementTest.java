@@ -52,6 +52,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -71,7 +72,12 @@ public class BoundStatementTest {
     columnMetadata("_key", bytesType()), columnMetadata("cf", stringType())
   };
 
-  public static BoundStatement.Builder boundStatementBuilder() {
+  // Use ColumnMetadata as a more concise way of specifying params
+  public static BoundStatement.Builder boundStatementBuilder(ColumnMetadata... paramColumns) {
+    HashMap<String, SqlType<?>> paramTypes = new HashMap<>(paramColumns.length);
+    for (ColumnMetadata c : paramColumns) {
+      paramTypes.put(c.getName(), SqlType.fromProto(c.getType()));
+    }
     // This doesn't impact bound statement, but set it so it looks like a real response
     Instant expiry = Instant.now().plus(Duration.ofMinutes(1));
     return PreparedStatementImpl.create(
@@ -82,7 +88,8 @@ public class BoundStatementTest {
                     .setValidUntil(
                         Timestamp.ofTimeSecondsAndNanos(expiry.getEpochSecond(), expiry.getNano())
                             .toProto())
-                    .build()))
+                    .build()),
+            paramTypes)
         .bind();
   }
 
@@ -102,7 +109,9 @@ public class BoundStatementTest {
   @Test
   public void statementWithBytesParam() {
     BoundStatement s =
-        boundStatementBuilder().setBytesParam("key", ByteString.copyFromUtf8("test")).build();
+        boundStatementBuilder(columnMetadata("key", bytesType()))
+            .setBytesParam("key", ByteString.copyFromUtf8("test"))
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -121,7 +130,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullBytesParam() {
-    BoundStatement s = boundStatementBuilder().setBytesParam("key", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("key", bytesType()))
+            .setBytesParam("key", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -135,7 +147,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithStringParam() {
-    BoundStatement s = boundStatementBuilder().setStringParam("key", "test").build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("key", stringType()))
+            .setStringParam("key", "test")
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -150,7 +165,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullStringParam() {
-    BoundStatement s = boundStatementBuilder().setStringParam("key", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("key", stringType()))
+            .setStringParam("key", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -164,7 +182,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithInt64Param() {
-    BoundStatement s = boundStatementBuilder().setLongParam("number", 1L).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("number", int64Type()))
+            .setLongParam("number", 1L)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -178,7 +199,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullInt64Param() {
-    BoundStatement s = boundStatementBuilder().setLongParam("number", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("number", int64Type()))
+            .setLongParam("number", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -192,7 +216,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithBoolParam() {
-    BoundStatement s = boundStatementBuilder().setBooleanParam("bool", true).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("bool", boolType()))
+            .setBooleanParam("bool", true)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -207,7 +234,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullBoolParam() {
-    BoundStatement s = boundStatementBuilder().setBooleanParam("bool", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("bool", boolType()))
+            .setBooleanParam("bool", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -222,7 +252,7 @@ public class BoundStatementTest {
   @Test
   public void statementWithTimestampParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(columnMetadata("timeParam", timestampType()))
             .setTimestampParam("timeParam", Instant.ofEpochSecond(1000, 100))
             .build();
 
@@ -243,7 +273,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullTimestampParam() {
-    BoundStatement s = boundStatementBuilder().setTimestampParam("timeParam", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("timeParam", timestampType()))
+            .setTimestampParam("timeParam", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -258,7 +291,7 @@ public class BoundStatementTest {
   @Test
   public void statementWithDateParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(columnMetadata("dateParam", dateType()))
             .setDateParam("dateParam", Date.fromYearMonthDay(2024, 6, 11))
             .build();
 
@@ -279,7 +312,10 @@ public class BoundStatementTest {
 
   @Test
   public void statementWithNullDateParam() {
-    BoundStatement s = boundStatementBuilder().setDateParam("dateParam", null).build();
+    BoundStatement s =
+        boundStatementBuilder(columnMetadata("dateParam", dateType()))
+            .setDateParam("dateParam", null)
+            .build();
 
     assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
         .isEqualTo(
@@ -294,7 +330,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithBytesListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(bytesType())),
+                columnMetadata("listWithNullElem", arrayType(bytesType())),
+                columnMetadata("emptyList", arrayType(bytesType())),
+                columnMetadata("nullList", arrayType(bytesType())))
             .setListParam(
                 "listParam",
                 Arrays.asList(ByteString.copyFromUtf8("foo"), ByteString.copyFromUtf8("bar")),
@@ -341,7 +381,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithStringListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(stringType())),
+                columnMetadata("listWithNullElem", arrayType(stringType())),
+                columnMetadata("emptyList", arrayType(stringType())),
+                columnMetadata("nullList", arrayType(stringType())))
             .setListParam(
                 "listParam", Arrays.asList("foo", "bar"), SqlType.arrayOf(SqlType.string()))
             .setListParam(
@@ -386,7 +430,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithInt64ListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(int64Type())),
+                columnMetadata("listWithNullElem", arrayType(int64Type())),
+                columnMetadata("emptyList", arrayType(int64Type())),
+                columnMetadata("nullList", arrayType(int64Type())))
             .setListParam("listParam", Arrays.asList(1L, 2L), SqlType.arrayOf(SqlType.int64()))
             .setListParam(
                 "listWithNullElem", Arrays.asList(null, 3L, 4L), SqlType.arrayOf(SqlType.int64()))
@@ -426,7 +474,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithFloat32ListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(float32Type())),
+                columnMetadata("listWithNullElem", arrayType(float32Type())),
+                columnMetadata("emptyList", arrayType(float32Type())),
+                columnMetadata("nullList", arrayType(float32Type())))
             .setListParam(
                 "listParam", Arrays.asList(1.1f, 1.2f), SqlType.arrayOf(SqlType.float32()))
             .setListParam(
@@ -471,7 +523,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithFloat64ListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(float64Type())),
+                columnMetadata("listWithNullElem", arrayType(float64Type())),
+                columnMetadata("emptyList", arrayType(float64Type())),
+                columnMetadata("nullList", arrayType(float64Type())))
             .setListParam(
                 "listParam", Arrays.asList(1.1d, 1.2d), SqlType.arrayOf(SqlType.float64()))
             .setListParam(
@@ -515,7 +571,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithBooleanListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(boolType())),
+                columnMetadata("listWithNullElem", arrayType(boolType())),
+                columnMetadata("emptyList", arrayType(boolType())),
+                columnMetadata("nullList", arrayType(boolType())))
             .setListParam("listParam", Arrays.asList(true, false), SqlType.arrayOf(SqlType.bool()))
             .setListParam(
                 "listWithNullElem",
@@ -559,7 +619,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithTimestampListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(timestampType())),
+                columnMetadata("listWithNullElem", arrayType(timestampType())),
+                columnMetadata("emptyList", arrayType(timestampType())),
+                columnMetadata("nullList", arrayType(timestampType())))
             .setListParam(
                 "listParam",
                 Arrays.asList(Instant.ofEpochSecond(3000, 100), Instant.ofEpochSecond(4000, 100)),
@@ -613,7 +677,11 @@ public class BoundStatementTest {
   @Test
   public void statementWithDateListParam() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(
+                columnMetadata("listParam", arrayType(dateType())),
+                columnMetadata("listWithNullElem", arrayType(dateType())),
+                columnMetadata("emptyList", arrayType(dateType())),
+                columnMetadata("nullList", arrayType(dateType())))
             .setListParam(
                 "listParam",
                 Arrays.asList(Date.fromYearMonthDay(2024, 6, 1), Date.fromYearMonthDay(2024, 7, 1)),
@@ -681,7 +749,7 @@ public class BoundStatementTest {
   @Test
   public void statementBuilderAllowsParamsToBeOverridden() {
     BoundStatement s =
-        boundStatementBuilder()
+        boundStatementBuilder(columnMetadata("key", stringType()))
             .setStringParam("key", "test1")
             .setStringParam("key", "test2")
             .setStringParam("key", "test3")
@@ -710,5 +778,80 @@ public class BoundStatementTest {
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
                 .build());
+  }
+
+  @Test
+  public void builderValidatesParameterNames() {
+    BoundStatement.Builder builder = boundStatementBuilder();
+
+    IllegalArgumentException e =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setStringParam("non-existent", "test"));
+    assertThat(e.getMessage()).contains("No parameter named: non-existent");
+  }
+
+  @Test
+  public void builderValidatesTypesMatch() {
+    BoundStatement.Builder builder =
+        boundStatementBuilder(
+            columnMetadata("stringParam", stringType()),
+            columnMetadata("bytesParam", bytesType()),
+            columnMetadata("stringListParam", stringType()));
+
+    IllegalArgumentException eString =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> builder.setBytesParam("stringParam", ByteString.copyFromUtf8("foo")));
+    assertThat(eString.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eBytes =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setStringParam("bytesParam", "foo"));
+    assertThat(eBytes.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eLong =
+        assertThrows(IllegalArgumentException.class, () -> builder.setLongParam("bytesParam", 1L));
+    assertThat(eLong.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eDouble =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setDoubleParam("bytesParam", 1.1d));
+    assertThat(eLong.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eFloat =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setFloatParam("bytesParam", 1.1f));
+    assertThat(eFloat.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eBool =
+        assertThrows(
+            IllegalArgumentException.class, () -> builder.setBooleanParam("bytesParam", true));
+    assertThat(eBool.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eTs =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> builder.setTimestampParam("bytesParam", Instant.now()));
+    assertThat(eTs.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eDate =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> builder.setDateParam("bytesParam", Date.fromYearMonthDay(2025, 1, 1)));
+    assertThat(eDate.getMessage()).contains("Invalid type passed for query param");
+    IllegalArgumentException eList =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                builder.setListParam(
+                    "stringListParam",
+                    Collections.singletonList(ByteString.copyFromUtf8("foo")),
+                    SqlType.arrayOf(SqlType.bytes())));
+    assertThat(eList.getMessage()).contains("Invalid type passed for query param");
+  }
+
+  @Test
+  public void builderValidatesAllParamsAreSet() {
+    BoundStatement.Builder builder =
+        boundStatementBuilder(
+            columnMetadata("stringParam", stringType()), columnMetadata("bytesParam", bytesType()));
+    builder.setStringParam("stringParam", "s");
+
+    IllegalArgumentException e = assertThrows(IllegalArgumentException.class, builder::build);
+    assertThat(e.getMessage())
+        .contains("Attempting to build BoundStatement without binding parameter: bytesParam");
   }
 }

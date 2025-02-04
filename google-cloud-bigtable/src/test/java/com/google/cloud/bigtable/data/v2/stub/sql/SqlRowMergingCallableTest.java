@@ -42,6 +42,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
@@ -74,7 +75,8 @@ public class SqlRowMergingCallableTest {
                     metadata(
                         columnMetadata("stringCol", stringType()),
                         columnMetadata("intCol", int64Type()),
-                        columnMetadata("arrayCol", arrayType(stringType()))))));
+                        columnMetadata("arrayCol", arrayType(stringType()))))),
+            new HashMap<>());
     BoundStatement boundStatement = preparedStatement.bind().build();
     ResultSetMetadata metadata = preparedStatement.getPrepareResponse().resultSetMetadata();
     SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
@@ -104,7 +106,8 @@ public class SqlRowMergingCallableTest {
                     metadata(
                         columnMetadata("stringCol", stringType()),
                         columnMetadata("intCol", int64Type()),
-                        columnMetadata("arrayCol", arrayType(stringType()))))));
+                        columnMetadata("arrayCol", arrayType(stringType()))))),
+            new HashMap<>());
     BoundStatement boundStatement = preparedStatement.bind().build();
 
     // empty response is invalid
@@ -130,7 +133,8 @@ public class SqlRowMergingCallableTest {
                     metadata(
                         columnMetadata("stringCol", stringType()),
                         columnMetadata("intCol", int64Type()),
-                        columnMetadata("arrayCol", arrayType(stringType()))))));
+                        columnMetadata("arrayCol", arrayType(stringType()))))),
+            new HashMap<>());
     BoundStatement boundStatement = preparedStatement.bind().build();
 
     // empty response is invalid

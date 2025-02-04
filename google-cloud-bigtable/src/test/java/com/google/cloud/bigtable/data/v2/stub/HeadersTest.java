@@ -50,7 +50,6 @@ import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
-import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.rpc.Status;
 import io.grpc.Metadata;
@@ -178,8 +177,9 @@ public class HeadersTest {
     PreparedStatement preparedStatement =
         PreparedStatementImpl.create(
             PrepareResponse.fromProto(
-                prepareResponse(metadata(columnMetadata("foo", stringType())))));
-    client.executeQuery(new BoundStatement.Builder(preparedStatement).build());
+                prepareResponse(metadata(columnMetadata("foo", stringType())))),
+            new HashMap<>());
+    client.executeQuery(preparedStatement.bind().build());
     verifyHeaderSent(true);
   }
 

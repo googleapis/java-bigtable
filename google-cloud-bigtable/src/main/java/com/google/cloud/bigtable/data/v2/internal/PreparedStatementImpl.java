@@ -19,6 +19,8 @@ import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement.Builder;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
+import java.util.Map;
 
 /**
  * Implementation of PreparedStatement that handles PreparedQuery refresh
@@ -29,18 +31,21 @@ import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 @InternalApi("For internal use only")
 public class PreparedStatementImpl implements PreparedStatement {
   private PrepareResponse response;
+  private final Map<String, SqlType<?>> paramTypes;
 
-  public PreparedStatementImpl(PrepareResponse response) {
+  public PreparedStatementImpl(PrepareResponse response, Map<String, SqlType<?>> paramTypes) {
     this.response = response;
+    this.paramTypes = paramTypes;
   }
 
-  public static PreparedStatement create(PrepareResponse response) {
-    return new PreparedStatementImpl(response);
+  public static PreparedStatement create(
+      PrepareResponse response, Map<String, SqlType<?>> paramTypes) {
+    return new PreparedStatementImpl(response, paramTypes);
   }
 
   @Override
   public BoundStatement.Builder bind() {
-    return new Builder(this);
+    return new Builder(this, paramTypes);
   }
 
   // TODO update when plan refresh is implement
