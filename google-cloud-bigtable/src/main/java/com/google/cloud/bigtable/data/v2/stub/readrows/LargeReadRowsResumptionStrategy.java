@@ -25,6 +25,7 @@ import com.google.cloud.bigtable.data.v2.internal.RowSetUtil;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An implementation of a {@link StreamResumptionStrategy} for merged rows. This class tracks the
@@ -39,9 +40,11 @@ public class LargeReadRowsResumptionStrategy<RowT>
     implements StreamResumptionStrategy<ReadRowsRequest, RowT> {
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastKey = ByteString.EMPTY;
+  private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
   private long numProcessed;
   private ByteString largeRowKey = ByteString.EMPTY;
+  private AtomicInteger largeRowsCount = new AtomicInteger(0);
 
 
   // sarthak - would this be threadsafe? we can have multiple readrowrequest going async at the same time. this won't create an issue, ri8?
@@ -74,7 +77,8 @@ public class LargeReadRowsResumptionStrategy<RowT>
     // synthetic row marker is emitted when the server has read a lot of data that was filtered out.
     // The row marker can be used to trim the start of the scan, but does not contribute to the row
     // limit.
-    lastKey = rowAdapter.getKey(response);
+    lastSuccessKey = rowAdapter.getKey(response);
+
     if (!rowAdapter.isScanMarkerRow(response)) {
       // Only real rows count towards the rows limit.
       numProcessed++;
@@ -85,6 +89,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
   public void setLargeRowKey(Throwable t){
     this.largeRowKey = ByteString.copyFromUtf8(extractLargeRowKey(t));
+    largeRowsCount.addAndGet(1);
   }
 
 
@@ -99,7 +104,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
    * {@inheritDoc}
    *
    * <p>Given a request, this implementation will narrow that request to exclude all row keys and
-   * ranges that would produce rows that come before {@link #lastKey}. Furthermore this
+   * ranges that would produce rows that come before {@link #lastSuccessKey}. Furthermore this
    * implementation takes care to update the row limit of the request to account for all of the
    * received rows.
    */
@@ -108,29 +113,22 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
     // Sarthak - sarthakImp - assuming that I am getting largeRowKey from the error & I am not incrementing numsProcessed on OnError or on processResponse of this faulty error.
     // Sarthak - sarthakImp - make sure you dont increase the numsProcessed for the same row on retry
-    Boolean lastRowWasLargeRow = Boolean.FALSE;
-    if (largeRowKey.isEmpty()){
-      lastRowWasLargeRow = Boolean.TRUE;
-    }
 
-    // An empty lastKey means that we have not successfully read the first row,
+
+    // An empty lastSuccessKey means that we have not successfully read the first row,
     // so resume with the original request object.
-    if (lastKey.isEmpty() && largeRowKey.isEmpty()) {
+    if (lastSuccessKey.isEmpty() && largeRowKey.isEmpty()) {
       return originalRequest;
     }
 
     RowSet remaining;
 
-    if(lastRowWasLargeRow){
-      // Sarthak -> skip the row that was faulty -> that would be the split point
+    remaining =
+        RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
+    if(!largeRowKey.isEmpty()){
+      // skip the row that was faulty -> that would be the split point
       remaining =
-          RowSetUtil.erase(originalRequest.getRows(), largeRowKey, !originalRequest.getReversed());
-    //   cant set as largeRowKey => null, because what if its retried - but, we should, right?
-    }
-    else{
-      // sarthak - what about the buffered keys, that we didn't record?
-      remaining =
-          RowSetUtil.erase(originalRequest.getRows(), lastKey, !originalRequest.getReversed());
+          RowSetUtil.createSplitRanges(remaining, largeRowKey, !originalRequest.getReversed());
     }
     this.largeRowKey = ByteString.EMPTY;
 
@@ -149,9 +147,9 @@ public class LargeReadRowsResumptionStrategy<RowT>
     // sarthak - didn't understand this
     if (originalRequest.getRowsLimit() > 0) {
       Preconditions.checkState(
-          originalRequest.getRowsLimit() > numProcessed,
+          originalRequest.getRowsLimit() > numProcessed + largeRowsCount.get(),
           "Detected too many rows for the current row limit during a retry.");
-      builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed);
+      builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed - largeRowsCount.get());
     }
 
     return builder.build();
