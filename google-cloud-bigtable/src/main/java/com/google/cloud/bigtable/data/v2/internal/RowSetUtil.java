@@ -49,6 +49,44 @@ import javax.annotation.Nullable;
 public final class RowSetUtil {
   private RowSetUtil() {}
 
+  public static RowSet createSplitRanges(RowSet rowSet,ByteString excludePoint, boolean fromStart){
+    RowSet.Builder newRowSet = RowSet.newBuilder();
+
+    if (rowSet.getRowKeysList().isEmpty() && rowSet.getRowRangesList().isEmpty()) {
+      rowSet = RowSet.newBuilder().addRowRanges(RowRange.getDefaultInstance()).build();
+    }
+
+    // Handle point lookups
+    for (ByteString key : rowSet.getRowKeysList()) {
+      if (fromStart) {
+        // key is right of the split
+        if (ByteStringComparator.INSTANCE.compare(key, excludePoint) > 0) {
+          newRowSet.addRowKeys(key);
+        }
+      } else {
+        // key is left of the split
+        if (ByteStringComparator.INSTANCE.compare(key, excludePoint) < 0) {
+          newRowSet.addRowKeys(key);
+        }
+      }
+    }
+
+    // Handle ranges
+    for (RowRange rowRange : rowSet.getRowRangesList()) {
+      List<RowRange> newRangeCollection = splitRange(rowRange, excludePoint, fromStart);
+      if(!newRangeCollection.isEmpty()){
+        for(RowRange newRange :newRangeCollection){
+          newRowSet.addRowRanges(newRange);
+        }
+      }
+    }
+    RowSet result = newRowSet.build();
+    if (result.getRowKeysList().isEmpty() && result.getRowRangesList().isEmpty()) {
+      return null;
+    }
+    return result;
+  }
+
   /**
    * Removes all the keys and range parts that fall on or before the splitPoint.
    *
@@ -96,6 +134,7 @@ public final class RowSetUtil {
     return result;
   }
 
+  // Sarthak -- testing - what if an opposite range comes up? Z-A? what would we yield as result
   private static RowRange truncateRange(RowRange range, ByteString split, boolean fromStart) {
     if (fromStart) {
       // range end is on or left of the split: skip
@@ -124,6 +163,56 @@ public final class RowSetUtil {
 
     return newRange.build();
   }
+
+  public static List<RowRange> splitRange(RowRange range, ByteString split, boolean fromStart) {
+    if (fromStart) {
+      // range end is on or left of the split: skip
+      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) <= 0) {
+        return null;
+      }
+    } else {
+      // range is on or right of the split
+      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) >= 0) {
+        return null;
+      }
+    }
+    List<RowRange> rowRangesList = new ArrayList<RowRange>();
+
+    if (fromStart) {
+      // range start is on or left of the split
+      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) <= 0) {
+        RowRange beforeSplitKeyRange = range.toBuilder().setStartKeyOpen(range.getStartKeyOpen()).setEndKeyOpen(split).build();
+        rowRangesList.add(beforeSplitKeyRange);
+        if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
+          RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
+          rowRangesList.add(afterSplitKeyRange);
+        }
+        RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
+      }
+    } else {
+      // range end is on or right of the split
+      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) >= 0) {
+        // rowRange.getEndKeyClosed()
+        // Sarthak - end key open would be already present as large read success key
+        ByteString endKey;
+        if(!range.getEndKeyClosed().isEmpty()){
+          endKey = range.getEndKeyClosed();
+        }
+        else{
+          endKey = range.getEndKeyOpen();
+        }
+        RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).setEndKeyOpen(endKey).build();
+        rowRangesList.add(afterSplitKeyRange);
+        if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
+          RowRange beforeSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
+          rowRangesList.add(afterSplitKeyRange);
+        }
+      }
+    }
+
+    return rowRangesList;
+  }
+
 
   /**
    * Splits the provided {@link RowSet} into segments partitioned by the provided {@code
