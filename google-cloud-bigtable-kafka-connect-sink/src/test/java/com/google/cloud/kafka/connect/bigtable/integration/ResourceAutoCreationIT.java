@@ -131,7 +131,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
-    props.put(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
+    props.put(BigtableSinkTaskConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
@@ -157,7 +157,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
-    props.put(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkTaskConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
@@ -186,8 +186,8 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
 
     Set<String> topicSuffixes = Set.of("topic1", "topic2", "topic3", "topic4");
     String testId = startMultipleTopicConnector(props, topicSuffixes);
@@ -213,9 +213,9 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     String invalidTableName = "T".repeat(10000);
-    props.put(BigtableSinkConfig.CONFIG_TABLE_NAME_FORMAT, invalidTableName);
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_RETRY_TIMEOUT_MILLIS, "10000");
+    props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, invalidTableName);
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.RETRY_TIMEOUT_MILLIS_CONFIG, "10000");
 
     configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
@@ -235,8 +235,8 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
 
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
@@ -274,10 +274,10 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
@@ -374,8 +374,8 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
-    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG

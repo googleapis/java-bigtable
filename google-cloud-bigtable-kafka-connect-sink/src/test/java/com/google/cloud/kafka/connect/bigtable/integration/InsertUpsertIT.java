@@ -43,10 +43,10 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testInsert() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.IGNORE.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
     String testId = startSingleTopicConnector(props);
 
     connect.kafka().produce(testId, KEY1, VALUE1);
@@ -65,10 +65,10 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testUpsert() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.IGNORE.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
     String testId = startSingleTopicConnector(props);
 
     connect.kafka().produce(testId, KEY1, VALUE1);

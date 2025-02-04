@@ -15,11 +15,11 @@
  */
 package com.google.cloud.kafka.connect.bigtable;
 
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_ERROR_MODE;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_INSERT_MODE;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_TABLE_NAME_FORMAT;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.ERROR_MODE_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.INSERT_MODE_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG;
 import static com.google.cloud.kafka.connect.bigtable.util.FutureUtil.completedApiFuture;
 import static com.google.cloud.kafka.connect.bigtable.util.MockUtil.assertTotalNumberOfInvocations;
 import static org.junit.Assert.assertEquals;
@@ -166,7 +166,7 @@ public class BigtableSinkTaskTest {
     String tableFormat = "table";
     SinkRecord record = new SinkRecord("topic", 1, null, null, null, null, 1);
     Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-    props.put(CONFIG_TABLE_NAME_FORMAT, tableFormat);
+    props.put(TABLE_NAME_FORMAT_CONFIG, tableFormat);
     task =
         new TestBigtableSinkTask(
             new BigtableSinkTaskConfig(props), null, null, null, null, null, null);
@@ -207,7 +207,7 @@ public class BigtableSinkTaskTest {
   @Test
   public void testErrorReporterNoDLQIgnoreMode() {
     Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-    props.put(CONFIG_ERROR_MODE, BigtableErrorMode.IGNORE.name());
+    props.put(ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
     BigtableSinkTaskConfig config = new BigtableSinkTaskConfig(props);
 
     doThrow(new NoSuchMethodError()).when(context).errantRecordReporter();
@@ -221,7 +221,7 @@ public class BigtableSinkTaskTest {
   @Test
   public void testErrorReporterNoDLQWarnMode() {
     Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-    props.put(CONFIG_ERROR_MODE, BigtableErrorMode.WARN.name());
+    props.put(ERROR_MODE_CONFIG, BigtableErrorMode.WARN.name());
     BigtableSinkTaskConfig config = new BigtableSinkTaskConfig(props);
 
     doReturn(null).when(context).errantRecordReporter();
@@ -236,7 +236,7 @@ public class BigtableSinkTaskTest {
   @Test
   public void testErrorReporterNoDLQFailMode() {
     Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-    props.put(CONFIG_ERROR_MODE, BigtableErrorMode.FAIL.name());
+    props.put(ERROR_MODE_CONFIG, BigtableErrorMode.FAIL.name());
     BigtableSinkTaskConfig config = new BigtableSinkTaskConfig(props);
 
     doReturn(null).when(context).errantRecordReporter();
@@ -470,7 +470,7 @@ public class BigtableSinkTaskTest {
     Map<String, String> props = BasicPropertiesFactory.getTaskProps();
     int maxBatchSize = 3;
     int totalRecords = 1000;
-    props.put(BigtableSinkTaskConfig.CONFIG_MAX_BATCH_SIZE, Integer.toString(maxBatchSize));
+    props.put(BigtableSinkTaskConfig.MAX_BATCH_SIZE_CONFIG, Integer.toString(maxBatchSize));
     BigtableSinkTaskConfig config = new BigtableSinkTaskConfig(props);
 
     task = spy(new TestBigtableSinkTask(config, null, null, null, null, null, null));
@@ -574,9 +574,9 @@ public class BigtableSinkTaskTest {
       boolean useInsertMode = test.get(2);
 
       Map<String, String> props = BasicPropertiesFactory.getTaskProps();
-      props.put(CONFIG_AUTO_CREATE_TABLES, Boolean.toString(autoCreateTables));
-      props.put(CONFIG_AUTO_CREATE_COLUMN_FAMILIES, Boolean.toString(autoCreateColumnFamilies));
-      props.put(CONFIG_INSERT_MODE, (useInsertMode ? InsertMode.INSERT : InsertMode.UPSERT).name());
+      props.put(AUTO_CREATE_TABLES_CONFIG, Boolean.toString(autoCreateTables));
+      props.put(AUTO_CREATE_COLUMN_FAMILIES_CONFIG, Boolean.toString(autoCreateColumnFamilies));
+      props.put(INSERT_MODE_CONFIG, (useInsertMode ? InsertMode.INSERT : InsertMode.UPSERT).name());
       config = new BigtableSinkTaskConfig(props);
 
       byte[] rowKey = "rowKey".getBytes(StandardCharsets.UTF_8);

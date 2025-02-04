@@ -140,10 +140,10 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
             + "."
             + AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
         schemaRegistry.schemaRegistryUrl());
-    connectorProps.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    connectorProps.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
-    connectorProps.put(BigtableSinkConfig.CONFIG_DEFAULT_COLUMN_FAMILY, COMPATIBILITY_TEST_TOPIC);
-    connectorProps.put(BigtableSinkConfig.CONFIG_ROW_KEY_DELIMITER, "#");
+    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
+    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, COMPATIBILITY_TEST_TOPIC);
+    connectorProps.put(BigtableSinkConfig.ROW_KEY_DELIMITER_CONFIG, "#");
     String topic = startSingleTopicConnector(connectorProps);
     connect
         .assertions()

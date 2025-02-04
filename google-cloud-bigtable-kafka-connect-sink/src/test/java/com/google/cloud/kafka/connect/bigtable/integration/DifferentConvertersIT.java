@@ -169,8 +169,8 @@ public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistr
 
   protected Map<String, String> connectorProps() {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     return props;
   }
 

@@ -15,8 +15,8 @@
  */
 package com.google.cloud.kafka.connect.bigtable.integration;
 
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_BIGTABLE_INSTANCE_ID;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_GCP_PROJECT_ID;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.BIGTABLE_INSTANCE_ID_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.GCP_PROJECT_ID_CONFIG;
 import static org.apache.kafka.connect.runtime.ConnectorConfig.CONNECTOR_CLASS_CONFIG;
 import static org.apache.kafka.connect.runtime.ConnectorConfig.TASKS_MAX_CONFIG;
 import static org.apache.kafka.connect.runtime.WorkerConfig.KEY_CONVERTER_CLASS_CONFIG;
@@ -136,8 +136,8 @@ public abstract class BaseIT {
         String.valueOf(maxKafkaMessageSizeBytes));
 
     // TODO: get it from environment variables after migrating to kokoro.
-    result.put(CONFIG_GCP_PROJECT_ID, "todotodo");
-    result.put(CONFIG_BIGTABLE_INSTANCE_ID, "todotodo");
+    result.put(GCP_PROJECT_ID_CONFIG, "todotodo");
+    result.put(BIGTABLE_INSTANCE_ID_CONFIG, "todotodo");
 
     return result;
   }

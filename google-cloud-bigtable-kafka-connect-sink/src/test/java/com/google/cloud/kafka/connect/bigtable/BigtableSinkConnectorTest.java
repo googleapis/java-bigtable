@@ -15,7 +15,7 @@
  */
 package com.google.cloud.kafka.connect.bigtable;
 
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig.CONFIG_TASK_ID;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig.TASK_ID_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -71,8 +71,8 @@ public class BigtableSinkConnectorTest {
     assertEquals(maxTasks, taskConfigs.size());
     for (Integer i = 0; i < maxTasks; i++) {
       Map<String, String> taskConfig = taskConfigs.get(i);
-      assertEquals(i.toString(), taskConfig.get(CONFIG_TASK_ID));
-      taskConfig.remove(CONFIG_TASK_ID);
+      assertEquals(i.toString(), taskConfig.get(TASK_ID_CONFIG));
+      taskConfig.remove(TASK_ID_CONFIG);
       assertEquals(connectorConfig, taskConfig);
     }
   }

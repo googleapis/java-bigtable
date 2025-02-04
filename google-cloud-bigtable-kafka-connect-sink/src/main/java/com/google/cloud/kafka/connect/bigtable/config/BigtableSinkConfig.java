@@ -54,34 +54,34 @@ import org.threeten.bp.temporal.ChronoUnit;
  * <p>It's responsible for the validation and parsing of the user-provided values.
  */
 public class BigtableSinkConfig extends AbstractConfig {
-  public static final String CONFIG_GCP_PROJECT_ID = "gcp.bigtable.project.id";
-  public static final String CONFIG_GCP_CREDENTIALS_PATH = "gcp.bigtable.credentials.path";
-  public static final String CONFIG_GCP_CREDENTIALS_JSON = "gcp.bigtable.credentials.json";
-  public static final String CONFIG_BIGTABLE_INSTANCE_ID = "gcp.bigtable.instance.id";
-  public static final String CONFIG_BIGTABLE_APP_PROFILE_ID = "gcp.bigtable.app.profile.id";
-  public static final String CONFIG_INSERT_MODE = "insert.mode";
-  public static final String CONFIG_MAX_BATCH_SIZE = "max.batch.size";
-  public static final String CONFIG_VALUE_NULL_MODE = "value.null.mode";
-  public static final String CONFIG_ERROR_MODE = "error.mode";
-  public static final String CONFIG_TABLE_NAME_FORMAT = "table.name.format";
-  public static final String CONFIG_ROW_KEY_DEFINITION = "row.key.definition";
-  public static final String CONFIG_ROW_KEY_DELIMITER = "row.key.delimiter";
-  public static final String CONFIG_AUTO_CREATE_TABLES = "auto.create.tables";
-  public static final String CONFIG_AUTO_CREATE_COLUMN_FAMILIES = "auto.create.column.families";
-  public static final String CONFIG_DEFAULT_COLUMN_FAMILY = "default.column.family";
-  public static final String CONFIG_DEFAULT_COLUMN_QUALIFIER = "default.column.qualifier";
-  public static final String CONFIG_RETRY_TIMEOUT_MILLIS = "retry.timeout.ms";
-  private static final InsertMode DEFAULT_INSERT_MODE = InsertMode.INSERT;
-  private static final NullValueMode DEFAULT_NULL_VALUE_MODE = NullValueMode.WRITE;
-  private static final BigtableErrorMode DEFAULT_ERROR_MODE = BigtableErrorMode.FAIL;
-  private static final Integer DEFAULT_MAX_BATCH_SIZE = 1;
+  public static final String GCP_PROJECT_ID_CONFIG = "gcp.bigtable.project.id";
+  public static final String GCP_CREDENTIALS_PATH_CONFIG = "gcp.bigtable.credentials.path";
+  public static final String GCP_CREDENTIALS_JSON_CONFIG = "gcp.bigtable.credentials.json";
+  public static final String BIGTABLE_INSTANCE_ID_CONFIG = "gcp.bigtable.instance.id";
+  public static final String BIGTABLE_APP_PROFILE_ID_CONFIG = "gcp.bigtable.app.profile.id";
+  public static final String INSERT_MODE_CONFIG = "insert.mode";
+  public static final String MAX_BATCH_SIZE_CONFIG = "max.batch.size";
+  public static final String VALUE_NULL_MODE_CONFIG = "value.null.mode";
+  public static final String ERROR_MODE_CONFIG = "error.mode";
+  public static final String TABLE_NAME_FORMAT_CONFIG = "table.name.format";
+  public static final String ROW_KEY_DEFINITION_CONFIG = "row.key.definition";
+  public static final String ROW_KEY_DELIMITER_CONFIG = "row.key.delimiter";
+  public static final String AUTO_CREATE_TABLES_CONFIG = "auto.create.tables";
+  public static final String AUTO_CREATE_COLUMN_FAMILIES_CONFIG = "auto.create.column.families";
+  public static final String DEFAULT_COLUMN_FAMILY_CONFIG = "default.column.family";
+  public static final String DEFAULT_COLUMN_QUALIFIER_CONFIG = "default.column.qualifier";
+  public static final String RETRY_TIMEOUT_MILLIS_CONFIG = "retry.timeout.ms";
+  private static final InsertMode INSERT_MODE_DEFAULT = InsertMode.INSERT;
+  private static final NullValueMode NULL_VALUE_MODE_DEFAULT = NullValueMode.WRITE;
+  private static final BigtableErrorMode ERROR_MODE_DEFAULT = BigtableErrorMode.FAIL;
+  private static final Integer MAX_BATCH_SIZE_DEFAULT = 1;
   private static final List<String> BIGTABLE_CONFIGURATION_PROPERTIES =
       List.of(
-          CONFIG_GCP_CREDENTIALS_JSON,
-          CONFIG_GCP_CREDENTIALS_PATH,
-          CONFIG_GCP_PROJECT_ID,
-          CONFIG_BIGTABLE_INSTANCE_ID,
-          CONFIG_BIGTABLE_APP_PROFILE_ID);
+          GCP_CREDENTIALS_JSON_CONFIG,
+          GCP_CREDENTIALS_PATH_CONFIG,
+          GCP_PROJECT_ID_CONFIG,
+          BIGTABLE_INSTANCE_ID_CONFIG,
+          BIGTABLE_APP_PROFILE_ID_CONFIG);
   private static final int BIGTABLE_CREDENTIALS_CHECK_TIMEOUT_SECONDS = 2;
 
   protected BigtableSinkConfig(ConfigDef definition, Map<String, String> properties) {
@@ -120,55 +120,55 @@ public class BigtableSinkConfig extends AbstractConfig {
   static Config validate(Map<String, String> props, boolean accessBigtableToValidateConfiguration) {
     // Note that we only need to verify the properties we define, the generic Sink configuration is
     // handled in SinkConnectorConfig::validate().
-    String credentialsPath = props.get(CONFIG_GCP_CREDENTIALS_PATH);
-    String credentialsJson = props.get(CONFIG_GCP_CREDENTIALS_JSON);
-    String insertMode = props.get(CONFIG_INSERT_MODE);
-    String nullValueMode = props.get(CONFIG_VALUE_NULL_MODE);
-    String maxBatchSize = props.get(CONFIG_MAX_BATCH_SIZE);
+    String credentialsPath = props.get(GCP_CREDENTIALS_PATH_CONFIG);
+    String credentialsJson = props.get(GCP_CREDENTIALS_JSON_CONFIG);
+    String insertMode = props.get(INSERT_MODE_CONFIG);
+    String nullValueMode = props.get(VALUE_NULL_MODE_CONFIG);
+    String maxBatchSize = props.get(MAX_BATCH_SIZE_CONFIG);
     String effectiveInsertMode =
-        Optional.ofNullable(insertMode).orElse(DEFAULT_INSERT_MODE.name()).toUpperCase();
+        Optional.ofNullable(insertMode).orElse(INSERT_MODE_DEFAULT.name()).toUpperCase();
     String effectiveNullValueMode =
-        Optional.ofNullable(nullValueMode).orElse(DEFAULT_NULL_VALUE_MODE.name()).toUpperCase();
+        Optional.ofNullable(nullValueMode).orElse(NULL_VALUE_MODE_DEFAULT.name()).toUpperCase();
     String effectiveMaxBatchSize =
-        Optional.ofNullable(maxBatchSize).orElse(DEFAULT_MAX_BATCH_SIZE.toString()).trim();
+        Optional.ofNullable(maxBatchSize).orElse(MAX_BATCH_SIZE_DEFAULT.toString()).trim();
 
     Map<String, ConfigValue> validationResult = getDefinition().validateAll(props);
     if (!Utils.isBlank(credentialsPath) && !Utils.isBlank(credentialsJson)) {
       String errorMessage =
-          CONFIG_GCP_CREDENTIALS_JSON
+          GCP_CREDENTIALS_JSON_CONFIG
               + " and "
-              + CONFIG_GCP_CREDENTIALS_PATH
+              + GCP_CREDENTIALS_PATH_CONFIG
               + " are mutually exclusive options, but both are set.";
-      addErrorMessage(validationResult, CONFIG_GCP_CREDENTIALS_JSON, credentialsJson, errorMessage);
-      addErrorMessage(validationResult, CONFIG_GCP_CREDENTIALS_PATH, credentialsPath, errorMessage);
+      addErrorMessage(validationResult, GCP_CREDENTIALS_JSON_CONFIG, credentialsJson, errorMessage);
+      addErrorMessage(validationResult, GCP_CREDENTIALS_PATH_CONFIG, credentialsPath, errorMessage);
     }
     if (effectiveInsertMode.equals(InsertMode.INSERT.name())
         && !effectiveMaxBatchSize.equals("1")) {
       String errorMessage =
           "When using `"
-              + CONFIG_INSERT_MODE
+              + INSERT_MODE_CONFIG
               + "` of `"
               + InsertMode.INSERT.name()
               + "`, "
-              + CONFIG_MAX_BATCH_SIZE
+              + MAX_BATCH_SIZE_CONFIG
               + " must be set to `1`.";
-      addErrorMessage(validationResult, CONFIG_INSERT_MODE, insertMode, errorMessage);
-      addErrorMessage(validationResult, CONFIG_MAX_BATCH_SIZE, maxBatchSize, errorMessage);
+      addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
+      addErrorMessage(validationResult, MAX_BATCH_SIZE_CONFIG, maxBatchSize, errorMessage);
     }
     if (effectiveInsertMode.equals(InsertMode.INSERT.name())
         && effectiveNullValueMode.equals(NullValueMode.DELETE.name())) {
       String errorMessage =
           "When using `"
-              + CONFIG_VALUE_NULL_MODE
+              + VALUE_NULL_MODE_CONFIG
               + "` of `"
               + NullValueMode.DELETE.name()
               + "`, "
-              + CONFIG_INSERT_MODE
+              + INSERT_MODE_CONFIG
               + " must not be set to `"
               + InsertMode.INSERT.name()
               + "`.";
-      addErrorMessage(validationResult, CONFIG_INSERT_MODE, insertMode, errorMessage);
-      addErrorMessage(validationResult, CONFIG_VALUE_NULL_MODE, nullValueMode, errorMessage);
+      addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
+      addErrorMessage(validationResult, VALUE_NULL_MODE_CONFIG, nullValueMode, errorMessage);
     }
 
     if (accessBigtableToValidateConfiguration
@@ -196,7 +196,7 @@ public class BigtableSinkConfig extends AbstractConfig {
   public static ConfigDef getDefinition() {
     return new ConfigDef()
         .define(
-            CONFIG_GCP_PROJECT_ID,
+            GCP_PROJECT_ID_CONFIG,
             ConfigDef.Type.STRING,
             ConfigDef.NO_DEFAULT_VALUE,
             ConfigDef.CompositeValidator.of(
@@ -204,7 +204,7 @@ public class BigtableSinkConfig extends AbstractConfig {
             ConfigDef.Importance.HIGH,
             "The ID of the GCP project.")
         .define(
-            CONFIG_BIGTABLE_INSTANCE_ID,
+            BIGTABLE_INSTANCE_ID_CONFIG,
             ConfigDef.Type.STRING,
             ConfigDef.NO_DEFAULT_VALUE,
             ConfigDef.CompositeValidator.of(
@@ -212,36 +212,36 @@ public class BigtableSinkConfig extends AbstractConfig {
             ConfigDef.Importance.HIGH,
             "The ID of the Cloud Bigtable instance.")
         .define(
-            CONFIG_BIGTABLE_APP_PROFILE_ID,
+            BIGTABLE_APP_PROFILE_ID_CONFIG,
             ConfigDef.Type.STRING,
             null,
             ConfigDef.Importance.MEDIUM,
             "The application profile that the connector should use. If none is supplied,"
                 + " the default app profile will be used.")
         .define(
-            CONFIG_GCP_CREDENTIALS_PATH,
+            GCP_CREDENTIALS_PATH_CONFIG,
             ConfigDef.Type.STRING,
             null,
             ConfigDef.Importance.HIGH,
             "The path to the JSON service key file. Configure at most one of `"
-                + CONFIG_GCP_CREDENTIALS_PATH
+                + GCP_CREDENTIALS_PATH_CONFIG
                 + "` and `"
-                + CONFIG_GCP_CREDENTIALS_JSON
+                + GCP_CREDENTIALS_JSON_CONFIG
                 + "`. If neither is provided, Application Default Credentials will be used.")
         .define(
-            CONFIG_GCP_CREDENTIALS_JSON,
+            GCP_CREDENTIALS_JSON_CONFIG,
             ConfigDef.Type.STRING,
             null,
             ConfigDef.Importance.HIGH,
             "The path to the JSON service key file. Configure at most one of `"
-                + CONFIG_GCP_CREDENTIALS_PATH
+                + GCP_CREDENTIALS_PATH_CONFIG
                 + "` and `"
-                + CONFIG_GCP_CREDENTIALS_JSON
+                + GCP_CREDENTIALS_JSON_CONFIG
                 + "`. If neither is provided, Application Default Credentials will be used.")
         .define(
-            CONFIG_INSERT_MODE,
+            INSERT_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            DEFAULT_INSERT_MODE.name(),
+            INSERT_MODE_DEFAULT.name(),
             enumValidator(InsertMode.values()),
             ConfigDef.Importance.HIGH,
             "Defines the insertion mode to use. Supported modes are:"
@@ -250,21 +250,21 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + "\n- upsert - If the row to be written already exists,"
                 + " then its column values are overwritten with the ones provided.")
         .define(
-            CONFIG_MAX_BATCH_SIZE,
+            MAX_BATCH_SIZE_CONFIG,
             ConfigDef.Type.INT,
-            DEFAULT_MAX_BATCH_SIZE,
+            MAX_BATCH_SIZE_DEFAULT,
             ConfigDef.Range.atLeast(1),
             ConfigDef.Importance.MEDIUM,
             "The maximum number of records that can be batched into a batch of upserts."
                 + " Note that since only a batch size of 1 for inserts is supported, `"
-                + CONFIG_MAX_BATCH_SIZE
+                + MAX_BATCH_SIZE_CONFIG
                 + "` must be exactly `1` when `"
-                + CONFIG_INSERT_MODE
+                + INSERT_MODE_CONFIG
                 + "` is set to `INSERT`.")
         .define(
-            CONFIG_VALUE_NULL_MODE,
+            VALUE_NULL_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            DEFAULT_NULL_VALUE_MODE.name(),
+            NULL_VALUE_MODE_DEFAULT.name(),
             enumValidator(NullValueMode.values()),
             ConfigDef.Importance.MEDIUM,
             "Defines what to do with `null`s within Kafka values. Supported modes are:"
@@ -277,9 +277,9 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + " field. `null` values nested more than two levels are serialized like other"
                 + " values and don't result in any DELETE commands.")
         .define(
-            CONFIG_ERROR_MODE,
+            ERROR_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            DEFAULT_ERROR_MODE.name(),
+            ERROR_MODE_DEFAULT.name(),
             enumValidator(BigtableErrorMode.values()),
             ConfigDef.Importance.MEDIUM,
             "Specifies how to handle errors that result from writes, after retries. It is ignored"
@@ -289,7 +289,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + "\n- ignore - The connector does not log a warning but continues operating"
                 + " normally.")
         .define(
-            CONFIG_TABLE_NAME_FORMAT,
+            TABLE_NAME_FORMAT_CONFIG,
             ConfigDef.Type.STRING,
             ConfigInterpolation.TOPIC_PLACEHOLDER,
             ConfigDef.CompositeValidator.of(
@@ -302,7 +302,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + ConfigInterpolation.TOPIC_PLACEHOLDER
                 + "` for the topic `stats` will map to the table name `user_stats`.")
         .define(
-            CONFIG_ROW_KEY_DEFINITION,
+            ROW_KEY_DEFINITION_CONFIG,
             ConfigDef.Type.LIST,
             "",
             ConfigDef.Importance.MEDIUM,
@@ -320,7 +320,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + " your Row Key, consider configuring an SMT to add relevant fields to the Kafka"
                 + " Record key.")
         .define(
-            CONFIG_ROW_KEY_DELIMITER,
+            ROW_KEY_DELIMITER_CONFIG,
             ConfigDef.Type.STRING,
             "",
             ConfigDef.Importance.LOW,
@@ -328,7 +328,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + " configuration is empty or unspecified, the key fields will be concatenated"
                 + " together directly.")
         .define(
-            CONFIG_AUTO_CREATE_TABLES,
+            AUTO_CREATE_TABLES_CONFIG,
             ConfigDef.Type.BOOLEAN,
             false,
             new ConfigDef.NonNullValidator(),
@@ -337,7 +337,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + "\nWhen enabled, the records for which the auto-creation fails, are failed."
                 + "\nRecreation of tables deleted by other Cloud Bigtable users is not supported.")
         .define(
-            CONFIG_AUTO_CREATE_COLUMN_FAMILIES,
+            AUTO_CREATE_COLUMN_FAMILIES_CONFIG,
             ConfigDef.Type.BOOLEAN,
             false,
             new ConfigDef.NonNullValidator(),
@@ -351,7 +351,7 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + "Recreation of column families deleted by other Cloud Bigtable users is not"
                 + " supported.")
         .define(
-            CONFIG_DEFAULT_COLUMN_FAMILY,
+            DEFAULT_COLUMN_FAMILY_CONFIG,
             ConfigDef.Type.STRING,
             ConfigInterpolation.TOPIC_PLACEHOLDER,
             ConfigDef.Importance.MEDIUM,
@@ -360,14 +360,14 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + ConfigInterpolation.TOPIC_PLACEHOLDER
                 + "` within the column family name to specify the originating topic name.")
         .define(
-            CONFIG_DEFAULT_COLUMN_QUALIFIER,
+            DEFAULT_COLUMN_QUALIFIER_CONFIG,
             ConfigDef.Type.STRING,
             "KAFKA_VALUE",
             ConfigDef.Importance.MEDIUM,
             "Any root-level values on the SinkRecord that aren't objects will be added to this"
                 + " column within default column family. If empty, the value will be ignored.")
         .define(
-            CONFIG_RETRY_TIMEOUT_MILLIS,
+            RETRY_TIMEOUT_MILLIS_CONFIG,
             ConfigDef.Type.LONG,
             90000,
             ConfigDef.Range.atLeast(0),
@@ -393,15 +393,15 @@ public class BigtableSinkConfig extends AbstractConfig {
   }
 
   public NullValueMode getNullValueMode() {
-    return getEnum(CONFIG_VALUE_NULL_MODE, NullValueMode::valueOf);
+    return getEnum(VALUE_NULL_MODE_CONFIG, NullValueMode::valueOf);
   }
 
   public BigtableErrorMode getBigtableErrorMode() {
-    return getEnum(CONFIG_ERROR_MODE, BigtableErrorMode::valueOf);
+    return getEnum(ERROR_MODE_CONFIG, BigtableErrorMode::valueOf);
   }
 
   public InsertMode getInsertMode() {
-    return getEnum(CONFIG_INSERT_MODE, InsertMode::valueOf);
+    return getEnum(INSERT_MODE_CONFIG, InsertMode::valueOf);
   }
 
   /**
@@ -420,8 +420,8 @@ public class BigtableSinkConfig extends AbstractConfig {
 
     BigtableTableAdminSettings.Builder adminSettingsBuilder =
         BigtableTableAdminSettings.newBuilder()
-            .setProjectId(getString(BigtableSinkTaskConfig.CONFIG_GCP_PROJECT_ID))
-            .setInstanceId(getString(BigtableSinkTaskConfig.CONFIG_BIGTABLE_INSTANCE_ID));
+            .setProjectId(getString(BigtableSinkTaskConfig.GCP_PROJECT_ID_CONFIG))
+            .setInstanceId(getString(BigtableSinkTaskConfig.BIGTABLE_INSTANCE_ID_CONFIG));
     if (credentialsProvider.isPresent()) {
       adminSettingsBuilder.setCredentialsProvider(credentialsProvider.get());
     } else {
@@ -451,14 +451,14 @@ public class BigtableSinkConfig extends AbstractConfig {
 
     BigtableDataSettings.Builder dataSettingsBuilder =
         BigtableDataSettings.newBuilder()
-            .setProjectId(getString(BigtableSinkTaskConfig.CONFIG_GCP_PROJECT_ID))
-            .setInstanceId(getString(BigtableSinkTaskConfig.CONFIG_BIGTABLE_INSTANCE_ID));
+            .setProjectId(getString(BigtableSinkTaskConfig.GCP_PROJECT_ID_CONFIG))
+            .setInstanceId(getString(BigtableSinkTaskConfig.BIGTABLE_INSTANCE_ID_CONFIG));
     if (credentialsProvider.isPresent()) {
       dataSettingsBuilder.setCredentialsProvider(credentialsProvider.get());
     } else {
       // Use the default credential provider that utilizes Application Default Credentials.
     }
-    String appProfileId = getString(BigtableSinkTaskConfig.CONFIG_BIGTABLE_APP_PROFILE_ID);
+    String appProfileId = getString(BigtableSinkTaskConfig.BIGTABLE_APP_PROFILE_ID_CONFIG);
     if (appProfileId == null) {
       dataSettingsBuilder.setDefaultAppProfileId();
     } else {
@@ -514,7 +514,7 @@ public class BigtableSinkConfig extends AbstractConfig {
     return RetrySettings.newBuilder()
         .setTotalTimeout(
             Duration.of(
-                getLong(BigtableSinkTaskConfig.CONFIG_RETRY_TIMEOUT_MILLIS), ChronoUnit.MILLIS))
+                getLong(BigtableSinkTaskConfig.RETRY_TIMEOUT_MILLIS_CONFIG), ChronoUnit.MILLIS))
         .build();
   }
 
@@ -547,8 +547,8 @@ public class BigtableSinkConfig extends AbstractConfig {
    *     BigtableSinkConfig#getDefinition()} otherwise.
    */
   protected Optional<CredentialsProvider> getUserConfiguredBigtableCredentialsProvider() {
-    String credentialsJson = getString(BigtableSinkTaskConfig.CONFIG_GCP_CREDENTIALS_JSON);
-    String credentialsPath = getString(BigtableSinkTaskConfig.CONFIG_GCP_CREDENTIALS_PATH);
+    String credentialsJson = getString(BigtableSinkTaskConfig.GCP_CREDENTIALS_JSON_CONFIG);
+    String credentialsPath = getString(BigtableSinkTaskConfig.GCP_CREDENTIALS_PATH_CONFIG);
     byte[] credentials;
     if (!Utils.isBlank(credentialsJson)) {
       credentials = credentialsJson.getBytes(StandardCharsets.UTF_8);

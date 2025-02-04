@@ -59,7 +59,7 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testBigtableCredentialsAreCheckedOnStartup() {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_GCP_CREDENTIALS_JSON, "{}");
+    props.put(BigtableSinkConfig.GCP_CREDENTIALS_JSON_CONFIG, "{}");
 
     String testId = getTestCaseId();
     assertThrows(Throwable.class, () -> connect.configureConnector(testId, props));
@@ -70,8 +70,8 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
   public void testTooLargeData() throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, ByteArrayConverter.class.getName());
     configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
@@ -90,8 +90,8 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
   public void testSecondInsertIntoARowCausesAnError() throws InterruptedException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
     configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
 
@@ -121,9 +121,9 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
 
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
     props.put(
         ConnectorConfig.CONNECTOR_CLIENT_CONSUMER_OVERRIDES_PREFIX
             + ConsumerConfig.MAX_POLL_RECORDS_CONFIG,
@@ -190,10 +190,10 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
       throws InterruptedException, ExecutionException, TimeoutException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     configureDlq(props, dlqTopic);
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
@@ -228,10 +228,10 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
       throws InterruptedException, ExecutionException, TimeoutException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     configureDlq(props, dlqTopic);
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(
@@ -260,10 +260,10 @@ public class ErrorHandlingIT extends BaseKafkaConnectBigtableIT {
       throws ExecutionException, InterruptedException, TimeoutException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, String.valueOf(true));
-    props.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     configureDlq(props, dlqTopic);
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
     props.put(

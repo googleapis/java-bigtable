@@ -27,7 +27,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   @Test
   public void testErrorModeFail() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.FAIL.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.FAIL.name());
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -40,7 +40,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   @Test
   public void testErrorModeWarn() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.WARN.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.WARN.name());
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -53,7 +53,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   @Test
   public void testErrorModeIgnore() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.IGNORE.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -67,7 +67,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   public void testErrorModeDLQOverridesErrorMode() throws InterruptedException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_ERROR_MODE, BigtableErrorMode.FAIL.name());
+    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.FAIL.name());
     configureDlq(props, dlqTopic);
 
     String key = "key";

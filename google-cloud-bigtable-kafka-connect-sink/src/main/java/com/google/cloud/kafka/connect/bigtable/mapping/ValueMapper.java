@@ -65,9 +65,9 @@ public class ValueMapper {
    * The main constructor.
    *
    * @param defaultColumnFamily Default column family as per {@link
-   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#CONFIG_DEFAULT_COLUMN_FAMILY}.
+   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#DEFAULT_COLUMN_FAMILY_CONFIG}.
    * @param defaultColumnQualifier Default column as per {@link
-   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#CONFIG_ROW_KEY_DELIMITER}.
+   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#ROW_KEY_DELIMITER_CONFIG}.
    */
   public ValueMapper(
       String defaultColumnFamily, String defaultColumnQualifier, @Nonnull NullValueMode nullMode) {

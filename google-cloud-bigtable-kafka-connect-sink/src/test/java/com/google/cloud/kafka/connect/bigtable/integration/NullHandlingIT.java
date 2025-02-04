@@ -76,7 +76,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testIgnoreMode() throws InterruptedException {
     Map<String, String> connectorProps = connectorProps();
-    connectorProps.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.IGNORE.name());
+    connectorProps.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.IGNORE.name());
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
@@ -132,9 +132,9 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
         ByteString.copyFrom(defaultColumnQualifier.getBytes(StandardCharsets.UTF_8));
 
     Map<String, String> connectorProps = connectorProps();
-    connectorProps.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.WRITE.name());
-    connectorProps.put(BigtableSinkConfig.CONFIG_DEFAULT_COLUMN_FAMILY, defaultColumnFamily);
-    connectorProps.put(BigtableSinkConfig.CONFIG_DEFAULT_COLUMN_QUALIFIER, defaultColumnQualifier);
+    connectorProps.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.WRITE.name());
+    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, defaultColumnFamily);
+    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_QUALIFIER_CONFIG, defaultColumnQualifier);
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
@@ -193,8 +193,8 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testDeleteMode() throws InterruptedException {
     Map<String, String> connectorProps = connectorProps();
-    connectorProps.put(BigtableSinkConfig.CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
-    connectorProps.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.UPSERT.name());
+    connectorProps.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
+    connectorProps.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
@@ -327,8 +327,8 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
 
   protected Map<String, String> connectorProps() {
     Map<String, String> props = super.baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     // We use JsonConverter since it doesn't care about schemas, so we may use differently-shaped
     // data within a single test.
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());

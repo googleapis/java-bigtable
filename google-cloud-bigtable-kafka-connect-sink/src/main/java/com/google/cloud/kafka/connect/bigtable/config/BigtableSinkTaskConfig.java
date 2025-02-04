@@ -23,7 +23,7 @@ import org.apache.kafka.common.config.ConfigDef;
  * com.google.cloud.kafka.connect.bigtable.BigtableSinkTask}.
  */
 public class BigtableSinkTaskConfig extends BigtableSinkConfig {
-  public static String CONFIG_TASK_ID = "taskId";
+  public static String TASK_ID_CONFIG = "taskId";
 
   /**
    * The main constructor.
@@ -41,7 +41,7 @@ public class BigtableSinkTaskConfig extends BigtableSinkConfig {
   public static ConfigDef getDefinition() {
     return BigtableSinkConfig.getDefinition()
         .defineInternal(
-            CONFIG_TASK_ID,
+            TASK_ID_CONFIG,
             ConfigDef.Type.INT,
             ConfigDef.NO_DEFAULT_VALUE,
             ConfigDef.Importance.LOW);

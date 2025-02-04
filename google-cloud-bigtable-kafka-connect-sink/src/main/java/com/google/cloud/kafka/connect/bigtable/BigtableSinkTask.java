@@ -111,17 +111,17 @@ public class BigtableSinkTask extends SinkTask {
     logger =
         LoggerFactory.getLogger(
             BigtableSinkTask.class.getName()
-                + config.getInt(BigtableSinkTaskConfig.CONFIG_TASK_ID));
+                + config.getInt(BigtableSinkTaskConfig.TASK_ID_CONFIG));
     bigtableData = config.getBigtableDataClient();
     bigtableAdmin = config.getBigtableAdminClient();
     keyMapper =
         new KeyMapper(
-            config.getString(BigtableSinkTaskConfig.CONFIG_ROW_KEY_DELIMITER),
-            config.getList(BigtableSinkTaskConfig.CONFIG_ROW_KEY_DEFINITION));
+            config.getString(BigtableSinkTaskConfig.ROW_KEY_DELIMITER_CONFIG),
+            config.getList(BigtableSinkTaskConfig.ROW_KEY_DEFINITION_CONFIG));
     valueMapper =
         new ValueMapper(
-            config.getString(BigtableSinkTaskConfig.CONFIG_DEFAULT_COLUMN_FAMILY),
-            config.getString(BigtableSinkTaskConfig.CONFIG_DEFAULT_COLUMN_QUALIFIER),
+            config.getString(BigtableSinkTaskConfig.DEFAULT_COLUMN_FAMILY_CONFIG),
+            config.getString(BigtableSinkTaskConfig.DEFAULT_COLUMN_QUALIFIER_CONFIG),
             config.getNullValueMode());
     schemaManager = new BigtableSchemaManager(bigtableAdmin);
   }
@@ -168,10 +168,10 @@ public class BigtableSinkTask extends SinkTask {
     }
 
     Map<SinkRecord, MutationData> mutations = prepareRecords(records);
-    if (config.getBoolean(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_TABLES)) {
+    if (config.getBoolean(BigtableSinkTaskConfig.AUTO_CREATE_TABLES_CONFIG)) {
       mutations = autoCreateTablesAndHandleErrors(mutations);
     }
-    if (config.getBoolean(BigtableSinkTaskConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES)) {
+    if (config.getBoolean(BigtableSinkTaskConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG)) {
       mutations = autoCreateColumnFamiliesAndHandleErrors(mutations);
     }
     // Needed so that the batch ordering is more predictable from the user's point of view.
@@ -247,7 +247,7 @@ public class BigtableSinkTask extends SinkTask {
    */
   @VisibleForTesting
   String getTableName(SinkRecord record) {
-    String template = config.getString(BigtableSinkTaskConfig.CONFIG_TABLE_NAME_FORMAT);
+    String template = config.getString(BigtableSinkTaskConfig.TABLE_NAME_FORMAT_CONFIG);
     return ConfigInterpolation.replace(template, record.topic());
   }
 
@@ -397,7 +397,7 @@ public class BigtableSinkTask extends SinkTask {
       Map<SinkRecord, MutationData> mutations, Map<SinkRecord, Future<Void>> perRecordResults) {
     List<Map.Entry<SinkRecord, MutationData>> mutationsToApply =
         new ArrayList<>(mutations.entrySet());
-    int maxBatchSize = config.getInt(BigtableSinkTaskConfig.CONFIG_MAX_BATCH_SIZE);
+    int maxBatchSize = config.getInt(BigtableSinkTaskConfig.MAX_BATCH_SIZE_CONFIG);
     List<List<Map.Entry<SinkRecord, MutationData>>> batches =
         Lists.partition(mutationsToApply, maxBatchSize);
 

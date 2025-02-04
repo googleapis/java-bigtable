@@ -34,8 +34,8 @@ public class BasicIT extends BaseKafkaConnectBigtableIT {
   @Test
   public void testSimpleWrite() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES, "true");
-    props.put(BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     String topic = startSingleTopicConnector(props);
 
     String key = "key";

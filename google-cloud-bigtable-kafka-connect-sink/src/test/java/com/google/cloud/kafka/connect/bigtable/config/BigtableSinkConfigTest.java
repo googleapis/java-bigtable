@@ -15,13 +15,13 @@
  */
 package com.google.cloud.kafka.connect.bigtable.config;
 
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_AUTO_CREATE_COLUMN_FAMILIES;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_AUTO_CREATE_TABLES;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_ERROR_MODE;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_INSERT_MODE;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_MAX_BATCH_SIZE;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_TABLE_NAME_FORMAT;
-import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.CONFIG_VALUE_NULL_MODE;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.ERROR_MODE_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.INSERT_MODE_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.MAX_BATCH_SIZE_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG;
+import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig.VALUE_NULL_MODE_CONFIG;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -64,15 +64,15 @@ public class BigtableSinkConfigTest {
     assertThrows(ConfigException.class, () -> new BigtableSinkConfig(new HashMap<>()));
     for (String configName :
         List.of(
-            CONFIG_TABLE_NAME_FORMAT,
-            CONFIG_AUTO_CREATE_TABLES,
-            CONFIG_AUTO_CREATE_COLUMN_FAMILIES)) {
+            TABLE_NAME_FORMAT_CONFIG,
+            AUTO_CREATE_TABLES_CONFIG,
+            AUTO_CREATE_COLUMN_FAMILIES_CONFIG)) {
       Map<String, String> props = BasicPropertiesFactory.getSinkProps();
       props.put(configName, null);
       assertThrows(ConfigException.class, () -> new BigtableSinkConfig(new HashMap<>()));
     }
     for (String configName :
-        List.of(CONFIG_INSERT_MODE, CONFIG_VALUE_NULL_MODE, CONFIG_ERROR_MODE)) {
+        List.of(INSERT_MODE_CONFIG, VALUE_NULL_MODE_CONFIG, ERROR_MODE_CONFIG)) {
       Map<String, String> props = BasicPropertiesFactory.getSinkProps();
       props.put(configName, "invalid");
       assertThrows(ConfigException.class, () -> new BigtableSinkConfig(new HashMap<>()));
@@ -82,16 +82,16 @@ public class BigtableSinkConfigTest {
   @Test
   public void testDefaults() {
     BigtableSinkConfig config = new BigtableSinkConfig(BasicPropertiesFactory.getSinkProps());
-    assertEquals(config.getString(CONFIG_INSERT_MODE), InsertMode.INSERT.name());
-    assertEquals((long) config.getInt(CONFIG_MAX_BATCH_SIZE), 1);
-    assertEquals(config.getString(CONFIG_VALUE_NULL_MODE), NullValueMode.WRITE.name());
+    assertEquals(config.getString(INSERT_MODE_CONFIG), InsertMode.INSERT.name());
+    assertEquals((long) config.getInt(MAX_BATCH_SIZE_CONFIG), 1);
+    assertEquals(config.getString(VALUE_NULL_MODE_CONFIG), NullValueMode.WRITE.name());
   }
 
   @Test
   public void testInsertModeOnlyAllowsMaxBatchSizeOf1() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
-    props.put(BigtableSinkConfig.CONFIG_MAX_BATCH_SIZE, "2");
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
+    props.put(BigtableSinkConfig.MAX_BATCH_SIZE_CONFIG, "2");
     BigtableSinkConfig config = new BigtableSinkConfig(props);
     assertFalse(configIsValid(config));
   }
@@ -99,8 +99,8 @@ public class BigtableSinkConfigTest {
   @Test
   public void testMultipleCredentialsAreDisallowed() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
-    props.put(BigtableSinkConfig.CONFIG_GCP_CREDENTIALS_JSON, "nonempty");
-    props.put(BigtableSinkConfig.CONFIG_GCP_CREDENTIALS_PATH, "nonempty");
+    props.put(BigtableSinkConfig.GCP_CREDENTIALS_JSON_CONFIG, "nonempty");
+    props.put(BigtableSinkConfig.GCP_CREDENTIALS_PATH_CONFIG, "nonempty");
     BigtableSinkConfig config = new BigtableSinkConfig(props);
     assertFalse(configIsValid(config));
   }
@@ -108,8 +108,8 @@ public class BigtableSinkConfigTest {
   @Test
   public void testNullDeletionIsIncompatibleWithInsertMode() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
-    props.put(BigtableSinkConfig.CONFIG_INSERT_MODE, InsertMode.INSERT.name());
-    props.put(CONFIG_VALUE_NULL_MODE, NullValueMode.DELETE.name());
+    props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
+    props.put(VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
     BigtableSinkConfig config = new BigtableSinkConfig(props);
     assertFalse(configIsValid(config));
   }
@@ -131,9 +131,9 @@ public class BigtableSinkConfigTest {
   @Test
   public void testEnumCaseInsensitivity() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
-    props.put(CONFIG_INSERT_MODE, "uPsErT");
-    props.put(CONFIG_ERROR_MODE, "IGNORE");
-    props.put(CONFIG_VALUE_NULL_MODE, "delete");
+    props.put(INSERT_MODE_CONFIG, "uPsErT");
+    props.put(ERROR_MODE_CONFIG, "IGNORE");
+    props.put(VALUE_NULL_MODE_CONFIG, "delete");
     BigtableSinkConfig config = new BigtableSinkConfig(props);
   }
 

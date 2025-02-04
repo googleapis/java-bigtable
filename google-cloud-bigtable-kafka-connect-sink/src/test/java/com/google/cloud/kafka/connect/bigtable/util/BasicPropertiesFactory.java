@@ -23,14 +23,14 @@ import java.util.Map;
 public class BasicPropertiesFactory {
   public static Map<String, String> getSinkProps() {
     Map<String, String> props = new HashMap<>();
-    props.put(BigtableSinkConfig.CONFIG_GCP_PROJECT_ID, "project");
-    props.put(BigtableSinkConfig.CONFIG_BIGTABLE_INSTANCE_ID, "instance");
+    props.put(BigtableSinkConfig.GCP_PROJECT_ID_CONFIG, "project");
+    props.put(BigtableSinkConfig.BIGTABLE_INSTANCE_ID_CONFIG, "instance");
     return props;
   }
 
   public static Map<String, String> getTaskProps() {
     Map<String, String> props = getSinkProps();
-    props.put(BigtableSinkTaskConfig.CONFIG_TASK_ID, "1");
+    props.put(BigtableSinkTaskConfig.TASK_ID_CONFIG, "1");
     return props;
   }
 }

@@ -69,7 +69,7 @@ public class BigtableSinkConnector extends SinkConnector {
     List<Map<String, String>> configs = new ArrayList<>(maxTasks);
     for (int i = 0; i < maxTasks; i++) {
       Map<String, String> config = new HashMap<>(configProperties);
-      config.put(BigtableSinkTaskConfig.CONFIG_TASK_ID, Integer.toString(i));
+      config.put(BigtableSinkTaskConfig.TASK_ID_CONFIG, Integer.toString(i));
       configs.add(config);
     }
     return configs;

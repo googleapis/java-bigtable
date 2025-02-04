@@ -53,9 +53,9 @@ public class KeyMapper {
    * The main constructor.
    *
    * @param delimiter Delimiter in the mapping as per {@link
-   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#CONFIG_ROW_KEY_DELIMITER}
+   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#ROW_KEY_DELIMITER_CONFIG}
    * @param definition Definition of the mapping as per {@link
-   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#CONFIG_ROW_KEY_DEFINITION}.
+   *     com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig#ROW_KEY_DEFINITION_CONFIG}.
    */
   public KeyMapper(String delimiter, List<String> definition) {
     this.delimiter = delimiter.getBytes(StandardCharsets.UTF_8);
