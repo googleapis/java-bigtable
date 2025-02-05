@@ -85,7 +85,7 @@ public class UpdateTableRequest {
   }
 
     /** Disables table automated backup policy. */
-  public UpdateTableRequest disableAutomatedBackup(String tableId) {
+  public UpdateTableRequest disableAutomatedBackup() {
     requestBuilder.getTableBuilder().setAutomatedBackupPolicy(
       automatedPolicyBuilder.build());
     requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy");
@@ -129,7 +129,7 @@ public class UpdateTableRequest {
   public UpdateTableRequest setAutomatedBackupFrequency(Duration frequency) {
     requestBuilder.getTableBuilder().setAutomatedBackupPolicy(
       automatedPolicyBuilder
-        .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+        .setFrequency(com.google.protobuf.Duration.newBuilder()
                           .setSeconds(frequency.getSeconds())
                           .setNanos(frequency.getNano())
                           .build())
