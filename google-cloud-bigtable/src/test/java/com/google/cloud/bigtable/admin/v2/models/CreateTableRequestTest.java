@@ -73,11 +73,14 @@ public class CreateTableRequestTest {
                             .setRetentionPeriod(
                                 com.google.protobuf.Duration.newBuilder().setSeconds(86400))
                             .build())
-                    .setAutomatedBackupPolicy(com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
-                            .setRetentionPeriod(com.google.protobuf.Duration.newBuilder()
+                    .setAutomatedBackupPolicy(
+                        com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
+                            .setRetentionPeriod(
+                                com.google.protobuf.Duration.newBuilder()
                                     .setSeconds(86400)
                                     .setNanos(0))
-                            .setFrequency(com.google.protobuf.Duration.newBuilder()
+                            .setFrequency(
+                                com.google.protobuf.Duration.newBuilder()
                                     .setSeconds(86400)
                                     .setNanos(0))
                             .build())

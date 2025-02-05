@@ -34,49 +34,44 @@ public final class Table {
     /** The replication state of the table is unknown in this cluster. */
     NOT_KNOWN(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.STATE_NOT_KNOWN),
     /**
-     * The cluster was recently created, and the table must finish copying over
-     * pre-existing data from other clusters before it can begin receiving live
-     * replication updates and serving Data API requests.
+     * The cluster was recently created, and the table must finish copying over pre-existing data
+     * from other clusters before it can begin receiving live replication updates and serving Data
+     * API requests.
      */
     INITIALIZING(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.INITIALIZING),
     /**
-     * The table is temporarily unable to serve Data API requests from this cluster
-     * due to planned internal maintenance.
+     * The table is temporarily unable to serve Data API requests from this cluster due to planned
+     * internal maintenance.
      */
     PLANNED_MAINTENANCE(
         com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.PLANNED_MAINTENANCE),
     /**
-     * The table is temporarily unable to serve Data API requests from this cluster
-     * due to unplanned or emergency maintenance.
+     * The table is temporarily unable to serve Data API requests from this cluster due to unplanned
+     * or emergency maintenance.
      */
     UNPLANNED_MAINTENANCE(
         com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.UNPLANNED_MAINTENANCE),
     /**
-     * The table can serve Data API requests from this cluster. Depending on
-     * replication delay, reads may not immediately reflect the state of the 
-     * table in other clusters.
+     * The table can serve Data API requests from this cluster. Depending on replication delay,
+     * reads may not immediately reflect the state of the table in other clusters.
      */
     READY(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY),
 
     /**
-     * The table is fully created and ready for use after a restore, and is being
-     * optimized for performance. When optimizations are complete, the table will
-     * transition to`READY` state.
+     * The table is fully created and ready for use after a restore, and is being optimized for
+     * performance. When optimizations are complete, the table will transition to`READY` state.
      */
     READY_OPTIMIZING(
         com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.READY_OPTIMIZING),
 
-    /**
-     * The replication state of table is not known by this client. Please upgrade
-     * your client.
-     */
+    /** The replication state of table is not known by this client. Please upgrade your client. */
     UNRECOGNIZED(com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState.UNRECOGNIZED);
 
     private final com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState proto;
 
     /**
-     * Wraps the protobuf. This method is considered an internal implementation
-     * detail and not meant to be used by applications.
+     * Wraps the protobuf. This method is considered an internal implementation detail and not meant
+     * to be used by applications.
      */
     @InternalApi
     public static ReplicationState fromProto(
@@ -96,8 +91,8 @@ public final class Table {
     }
 
     /**
-     * Creates the request protobuf. This method is considered an internal
-     * implementation detail and not meant to be used by applications.
+     * Creates the request protobuf. This method is considered an internal implementation detail and
+     * not meant to be used by applications.
      */
     @InternalApi
     public com.google.bigtable.admin.v2.Table.ClusterState.ReplicationState toProto() {
@@ -109,8 +104,8 @@ public final class Table {
     private final com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto;
 
     /**
-     * Wraps the protobuf. This method is considered an internal implementation
-     * detail and not meant to be used by applications.
+     * Wraps the protobuf. This method is considered an internal implementation detail and not meant
+     * to be used by applications.
      */
     @InternalApi
     public static AutomatedBackupPolicy fromProto(
@@ -118,23 +113,20 @@ public final class Table {
       return new AutomatedBackupPolicy(proto);
     }
 
-    AutomatedBackupPolicy(
-        @Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
+    AutomatedBackupPolicy(@Nonnull com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy proto) {
       this.proto = proto;
     }
 
     /**
-     * Creates the request protobuf. This method is considered an internal
-     * implementation detail and not meant to be used by applications.
+     * Creates the request protobuf. This method is considered an internal implementation detail and
+     * not meant to be used by applications.
      */
     @InternalApi
     public com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy toProto() {
       return proto;
     }
 
-    /**
-     * Returns policy config contents as a string.
-     */
+    /** Returns policy config contents as a string. */
     public String viewConfig() {
       AutomatedBackupPolicy config = fromProto(proto);
       return config.proto.getAllFields().toString();
@@ -154,23 +146,25 @@ public final class Table {
   public static Table fromProto(@Nonnull com.google.bigtable.admin.v2.Table proto) {
     ImmutableMap.Builder<String, ReplicationState> replicationStates = ImmutableMap.builder();
 
-    for (Entry<String, com.google.bigtable.admin.v2.Table.ClusterState> entry : proto.getClusterStatesMap()
-        .entrySet()) {
+    for (Entry<String, com.google.bigtable.admin.v2.Table.ClusterState> entry :
+        proto.getClusterStatesMap().entrySet()) {
       replicationStates.put(
           entry.getKey(), ReplicationState.fromProto(entry.getValue().getReplicationState()));
     }
 
     ImmutableList.Builder<ColumnFamily> columnFamilies = ImmutableList.builder();
 
-    for (Entry<String, com.google.bigtable.admin.v2.ColumnFamily> entry : proto.getColumnFamiliesMap().entrySet()) {
+    for (Entry<String, com.google.bigtable.admin.v2.ColumnFamily> entry :
+        proto.getColumnFamiliesMap().entrySet()) {
       columnFamilies.add(ColumnFamily.fromProto(entry.getKey(), entry.getValue()));
     }
 
     Duration changeStreamConfig = null;
     if (proto.hasChangeStreamConfig()) {
-      changeStreamConfig = Duration.ofSeconds(
-          proto.getChangeStreamConfig().getRetentionPeriod().getSeconds(),
-          proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
+      changeStreamConfig =
+          Duration.ofSeconds(
+              proto.getChangeStreamConfig().getRetentionPeriod().getSeconds(),
+              proto.getChangeStreamConfig().getRetentionPeriod().getNanos());
     }
 
     if (proto.hasAutomatedBackupPolicy()) {
@@ -184,7 +178,7 @@ public final class Table {
         replicationStates.build(),
         columnFamilies.build(),
         changeStreamConfig,
-        proto.getDeletionProtection(), 
+        proto.getDeletionProtection(),
         automatedBackupPolicy);
   }
 
