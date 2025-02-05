@@ -461,7 +461,6 @@ public class BigtableSchemaManager {
     static boolean isStatusCodeCausedByInputError(StatusCode.Code code) {
       switch (code) {
         case INVALID_ARGUMENT:
-        case FAILED_PRECONDITION:
         case OUT_OF_RANGE:
           return true;
         default:

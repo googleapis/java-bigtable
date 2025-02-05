@@ -36,8 +36,7 @@ import org.junit.runners.JUnit4;
 public class SchemaApiExceptionsTest {
   @Test
   public void testIsStatusCodeCausedByInputError() {
-    for (Code causedByInputError :
-        List.of(Code.INVALID_ARGUMENT, Code.OUT_OF_RANGE, Code.FAILED_PRECONDITION)) {
+    for (Code causedByInputError : List.of(Code.INVALID_ARGUMENT, Code.OUT_OF_RANGE)) {
       assertTrue(
           BigtableSchemaManager.SchemaApiExceptions.isStatusCodeCausedByInputError(
               causedByInputError));
@@ -49,6 +48,7 @@ public class SchemaApiExceptionsTest {
             Code.NOT_FOUND,
             Code.RESOURCE_EXHAUSTED,
             Code.CANCELLED,
+            Code.FAILED_PRECONDITION,
             Code.UNKNOWN)) {
       assertFalse(
           BigtableSchemaManager.SchemaApiExceptions.isStatusCodeCausedByInputError(
