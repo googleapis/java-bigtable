@@ -390,7 +390,9 @@ public class BigtableSchemaManager {
           List<SinkRecord> sinkRecords = resourceAndRecords.getRecords();
           try {
             fut.get();
+            logger.trace("Resource {} created successfully.", resource);
           } catch (ExecutionException | InterruptedException e) {
+            logger.trace("Resource {} NOT created successfully.", resource);
             String errorMessage = String.format(errorMessageTemplate, resource.toString());
             if (SchemaApiExceptions.isCausedByInputError(e)) {
               dataErrors.addAll(sinkRecords);
@@ -424,6 +426,11 @@ public class BigtableSchemaManager {
 
     public List<SinkRecord> getRecords() {
       return records;
+    }
+
+    @Override
+    public String toString() {
+      return String.format("Resource(id=%s,#records=%d)", resource, records.size());
     }
   }
 
