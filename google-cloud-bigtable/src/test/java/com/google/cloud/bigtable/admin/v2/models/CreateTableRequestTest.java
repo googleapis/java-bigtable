@@ -145,7 +145,7 @@ public class CreateTableRequestTest {
         CreateTableRequest.of(TABLE_ID)
             .addFamily("family-id")
             .addFamily("another-family", GCRULES.maxAge(100, TimeUnit.HOURS))
-            // automatedbackup
+            .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(100))
             .addSplit(splitKey);
 
     assertThat(request)
@@ -153,7 +153,7 @@ public class CreateTableRequestTest {
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
                 .addFamily("another-family", GCRULES.maxAge(Duration.ofHours(100)))
-                // automatedbackup
+                .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(100))
                 .addSplit(splitKey));
 
     assertThat(request)
@@ -161,6 +161,7 @@ public class CreateTableRequestTest {
             CreateTableRequest.of(TABLE_ID)
                 .addFamily("family-id")
                 .addFamily("another-family")
+                .setAutomatedBackup(Duration.ofHours(100), Duration.ofHours(10))
                 .addSplit(splitKey));
   }
 
