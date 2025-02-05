@@ -31,9 +31,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.Properties;
 import org.apache.kafka.test.TestUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SchemaRegistryTestUtil {
   private static long STARTUP_TIMEOUT_MILLIS = 10000L;
+  private final Logger logger = LoggerFactory.getLogger(SchemaRegistryTestUtil.class);
 
   protected String bootstrapServers;
 
@@ -46,6 +49,7 @@ public class SchemaRegistryTestUtil {
   }
 
   public void start() throws Exception {
+    logger.info("Starting embedded Schema Registry...");
     int port = findAvailableOpenPort();
     restApp =
         new RestApp(
@@ -64,10 +68,12 @@ public class SchemaRegistryTestUtil {
         "Schema Registry start timed out.");
 
     schemaRegistryUrl = restApp.restServer.getURI().toString();
+    logger.info("Started embedded Schema Registry using bootstrap servers: {}", bootstrapServers);
   }
 
   public void stop() throws Exception {
     if (restApp != null) {
+      logger.info("Stopping embedded Schema Registry...");
       restApp.stop();
     }
   }

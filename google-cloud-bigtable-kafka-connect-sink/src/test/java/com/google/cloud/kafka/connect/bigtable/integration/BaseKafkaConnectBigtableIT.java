@@ -19,9 +19,15 @@ import static org.apache.kafka.test.TestUtils.waitForCondition;
 
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
+import com.google.cloud.bigtable.data.v2.models.Query;
+import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.protobuf.ByteString;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
   // Not copied from BigtableSinkConfig since it isn't present in its public API.
@@ -29,6 +35,7 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
 
   protected BigtableDataClient bigtableData;
   protected BigtableTableAdminClient bigtableAdmin;
+  private final Logger logger = LoggerFactory.getLogger(BaseKafkaConnectBigtableIT.class);
 
   @Before
   public void setUpBigtable() {
@@ -44,6 +51,22 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
     }
     if (bigtableAdmin != null) {
       bigtableAdmin.close();
+    }
+  }
+
+  public Map<ByteString, Row> readAllRows(BigtableDataClient bigtable, String table) {
+    Boolean success = null;
+    try {
+      Query query = Query.create(table);
+      Map<ByteString, Row> result =
+          bigtable.readRows(query).stream().collect(Collectors.toMap(Row::getKey, r -> r));
+      success = true;
+      return result;
+    } catch (Throwable t) {
+      success = false;
+      throw t;
+    } finally {
+      logger.info("readAllRows({}): success={}", table, success);
     }
   }
 

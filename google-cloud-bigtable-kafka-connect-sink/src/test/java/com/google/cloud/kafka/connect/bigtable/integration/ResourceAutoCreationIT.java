@@ -228,7 +228,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     assertConnectorAndAllTasksAreRunning(testId);
   }
 
-  @org.junit.Ignore // TODO: unignore. For now, the emulator does not cause an exception.
+  @org.junit.Ignore // TODO: unignore, disabled for now to avoid 429s.
   @Test
   public void testCreationOfTooManyColumnFamilies() throws InterruptedException {
     int numberOfColumnFamilies = 1000;

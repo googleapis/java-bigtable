@@ -24,18 +24,14 @@ import static org.apache.kafka.connect.runtime.WorkerConfig.VALUE_CONVERTER_CLAS
 
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
-import com.google.cloud.bigtable.data.v2.models.Query;
-import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.kafka.connect.bigtable.BigtableSinkConnector;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.util.TestId;
-import com.google.protobuf.ByteString;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.admin.Admin;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -101,6 +97,9 @@ public abstract class BaseIT {
       throw new RuntimeException(e);
     }
     kafkaAdminClient = connect.kafka().createAdminClient();
+    logger.info(
+        "Started embedded Kafka Connect cluster using bootstrap servers: {}",
+        connect.kafka().bootstrapServers());
   }
 
   protected void stopConnect() {
@@ -148,11 +147,6 @@ public abstract class BaseIT {
 
   protected BigtableTableAdminClient getBigtableAdminClient(Map<String, String> configProps) {
     return new BigtableSinkConfig(configProps).getBigtableAdminClient();
-  }
-
-  protected Map<ByteString, Row> readAllRows(BigtableDataClient bigtable, String table) {
-    Query query = Query.create(table);
-    return bigtable.readRows(query).stream().collect(Collectors.toMap(Row::getKey, r -> r));
   }
 
   protected String getTestClassId() {
