@@ -143,7 +143,7 @@ public class BigtableSinkConfigTest {
     BigtableSinkConfig config = spy(new BigtableSinkConfig(props));
     BigtableTableAdminClient bigtable = mock(BigtableTableAdminClient.class);
     doReturn(emptyList()).when(bigtable).listTables();
-    doReturn(bigtable).when(config).getBigtableAdminClient(any());
+    doReturn(bigtable).when(config).getBigtableAdminClient(any(), any());
     assertTrue(config.isBigtableConfigurationValid());
     verify(bigtable, times(1)).close();
   }
@@ -162,7 +162,7 @@ public class BigtableSinkConfigTest {
     BigtableSinkConfig config = spy(new BigtableSinkConfig(props));
     BigtableTableAdminClient bigtable = mock(BigtableTableAdminClient.class);
     doThrow(new RuntimeException()).when(bigtable).listTables();
-    doReturn(bigtable).when(config).getBigtableAdminClient(any());
+    doReturn(bigtable).when(config).getBigtableAdminClient(any(), any());
     assertFalse(config.isBigtableConfigurationValid());
     verify(bigtable, times(1)).close();
   }

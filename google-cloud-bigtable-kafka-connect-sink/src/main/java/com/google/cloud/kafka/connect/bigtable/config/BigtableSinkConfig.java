@@ -18,6 +18,7 @@ package com.google.cloud.kafka.connect.bigtable.config;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminSettings;
@@ -82,7 +83,11 @@ public class BigtableSinkConfig extends AbstractConfig {
           GCP_PROJECT_ID_CONFIG,
           BIGTABLE_INSTANCE_ID_CONFIG,
           BIGTABLE_APP_PROFILE_ID_CONFIG);
-  private static final int BIGTABLE_CREDENTIALS_CHECK_TIMEOUT_SECONDS = 2;
+  private static final Duration BIGTABLE_CREDENTIALS_CHECK_TIMEOUT =
+      Duration.of(2, ChronoUnit.SECONDS);
+  private static final Duration BIGTABLE_ADMIN_API_WRITE_RETRY_INITIAL_DELAY =
+      Duration.of(100, ChronoUnit.MILLIS);
+  private static final double BIGTABLE_CLIENT_RETRY_DELAY_MULTIPLIER = 1.5;
 
   protected BigtableSinkConfig(ConfigDef definition, Map<String, String> properties) {
     super(definition, properties);
@@ -409,12 +414,18 @@ public class BigtableSinkConfig extends AbstractConfig {
    *     described in {@link BigtableSinkConfig#getDefinition()}.
    */
   public BigtableTableAdminClient getBigtableAdminClient() {
-    RetrySettings retrySettings = getRetrySettings();
-    return getBigtableAdminClient(retrySettings);
+    Duration totalTimeout = getTotalRetryTimeout();
+    RetrySettings defaultRetrySettings = getRetrySettings(totalTimeout, Duration.ZERO);
+    // Retries of Admin API writes need to have a nontrivial initial delay to avoid hitting
+    // the rate limit, which is low (1000 requests per minute).
+    RetrySettings adminApiWriteRetrySettings =
+        getRetrySettings(totalTimeout, BIGTABLE_ADMIN_API_WRITE_RETRY_INITIAL_DELAY);
+    return getBigtableAdminClient(defaultRetrySettings, adminApiWriteRetrySettings);
   }
 
   @VisibleForTesting
-  BigtableTableAdminClient getBigtableAdminClient(RetrySettings retrySettings) {
+  BigtableTableAdminClient getBigtableAdminClient(
+      RetrySettings defaultRetrySettings, RetrySettings adminApiWriteRetrySettings) {
     Optional<CredentialsProvider> credentialsProvider =
         getUserConfiguredBigtableCredentialsProvider();
 
@@ -429,10 +440,25 @@ public class BigtableSinkConfig extends AbstractConfig {
     }
 
     BigtableTableAdminStubSettings.Builder adminStubSettings = adminSettingsBuilder.stubSettings();
-    adminStubSettings.createTableSettings().setRetrySettings(retrySettings);
-    adminStubSettings.modifyColumnFamiliesSettings().setRetrySettings(retrySettings);
-    adminStubSettings.listTablesSettings().setRetrySettings(retrySettings);
-    adminStubSettings.getTableSettings().setRetrySettings(retrySettings);
+    adminStubSettings.listTablesSettings().setRetrySettings(defaultRetrySettings);
+    adminStubSettings.getTableSettings().setRetrySettings(defaultRetrySettings);
+    adminStubSettings
+        .createTableSettings()
+        .setRetrySettings(adminApiWriteRetrySettings)
+        // Retry createTable() for status codes other admin operations retry by default as
+        // seen in BigtableTableAdminStubSettings.
+        .setRetryableCodes(StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED);
+    adminStubSettings
+        .modifyColumnFamiliesSettings()
+        .setRetrySettings(adminApiWriteRetrySettings)
+        // Retry createTable() for status codes other admin operations retry by default as
+        // seen in BigtableTableAdminStubSettings and for FAILED_PRECONDITION which is
+        // returned when concurrent column family creation is detected.
+        .setRetryableCodes(
+            StatusCode.Code.UNAVAILABLE,
+            StatusCode.Code.DEADLINE_EXCEEDED,
+            StatusCode.Code.FAILED_PRECONDITION);
+
     try {
       return BigtableTableAdminClient.create(adminSettingsBuilder.build());
     } catch (IOException e) {
@@ -445,7 +471,8 @@ public class BigtableSinkConfig extends AbstractConfig {
    *     in {@link BigtableSinkConfig#getDefinition()}.
    */
   public BigtableDataClient getBigtableDataClient() {
-    RetrySettings retrySettings = getRetrySettings();
+    Duration totalTimeout = getTotalRetryTimeout();
+    RetrySettings retrySettings = getRetrySettings(totalTimeout, Duration.ZERO);
     Optional<CredentialsProvider> credentialsProvider =
         getUserConfiguredBigtableCredentialsProvider();
 
@@ -489,12 +516,8 @@ public class BigtableSinkConfig extends AbstractConfig {
     BigtableTableAdminClient bigtable = null;
     try {
       RetrySettings retrySettings =
-          RetrySettings.newBuilder()
-              .setMaxAttempts(0)
-              .setTotalTimeout(
-                  Duration.of(BIGTABLE_CREDENTIALS_CHECK_TIMEOUT_SECONDS, ChronoUnit.SECONDS))
-              .build();
-      bigtable = getBigtableAdminClient(retrySettings);
+          getRetrySettings(BIGTABLE_CREDENTIALS_CHECK_TIMEOUT, Duration.ZERO);
+      bigtable = getBigtableAdminClient(retrySettings, retrySettings);
       bigtable.listTables();
       return true;
     } catch (Throwable t) {
@@ -507,15 +530,25 @@ public class BigtableSinkConfig extends AbstractConfig {
   }
 
   /**
-   * @return {@link RetrySettings} of Cloud Bigtable clients configured as described in {@link
+   * @return {@link RetrySettings} of Cloud Bigtable clients configured with exponential backoff and
+   *     specified timeout and retry delay.
+   */
+  protected RetrySettings getRetrySettings(Duration totalTimeout, Duration initialDelay) {
+    return RetrySettings.newBuilder()
+        .setTotalTimeout(totalTimeout)
+        .setInitialRetryDelay(initialDelay)
+        .setMaxRetryDelay(totalTimeout)
+        .setRetryDelayMultiplier(BIGTABLE_CLIENT_RETRY_DELAY_MULTIPLIER)
+        .build();
+  }
+
+  /**
+   * @return Maximal time for Cloud Bigtable clients as described in {@link
    *     BigtableSinkConfig#getDefinition()}.
    */
-  protected RetrySettings getRetrySettings() {
-    return RetrySettings.newBuilder()
-        .setTotalTimeout(
-            Duration.of(
-                getLong(BigtableSinkTaskConfig.RETRY_TIMEOUT_MILLIS_CONFIG), ChronoUnit.MILLIS))
-        .build();
+  private Duration getTotalRetryTimeout() {
+    return Duration.of(
+        getLong(BigtableSinkTaskConfig.RETRY_TIMEOUT_MILLIS_CONFIG), ChronoUnit.MILLIS);
   }
 
   /**
