@@ -30,6 +30,9 @@ import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.math.BigDecimal;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -49,9 +52,9 @@ import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.storage.Converter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+import org.junit.runners.Parameterized;
 
-@RunWith(JUnit4.class)
+@RunWith(Parameterized.class)
 public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistryIT {
   private static final Schema SUB_STRUCT_SCHEMA =
       SchemaBuilder.struct()
@@ -98,50 +101,47 @@ public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistr
           .build();
   private static final Long NUM_RECORDS = 100L;
 
-  @Test
-  public void testAvro() throws InterruptedException {
-    testConverter(
-        AvroConverter::new,
-        Map.of(
-            AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
-            schemaRegistry.schemaRegistryUrl()));
+  private Supplier<Converter> converterConstructor;
+  private Map<String, String> converterBaseConfig;
+  private boolean converterUsesSchemaRegistry;
+
+  @Parameterized.Parameters
+  public static Collection testCases() {
+    return Arrays.asList(
+        new Object[][] {
+          {(Supplier<Converter>) AvroConverter::new, Map.of(), true},
+          {(Supplier<Converter>) ProtobufConverter::new, Map.of(), true},
+          {(Supplier<Converter>) JsonSchemaConverter::new, Map.of(), true},
+          {
+            (Supplier<Converter>) JsonConverter::new,
+            Map.of(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, String.valueOf(false)),
+            false
+          },
+          {
+            (Supplier<Converter>) JsonConverter::new,
+            Map.of(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, String.valueOf(true)),
+            false
+          },
+        });
+  }
+
+  public DifferentConvertersIT(
+      Supplier<Converter> converterConstructor,
+      Map<String, String> converterBaseConfig,
+      boolean converterUsesSchemaRegistry) {
+    this.converterConstructor = converterConstructor;
+    this.converterBaseConfig = converterBaseConfig;
+    this.converterUsesSchemaRegistry = converterUsesSchemaRegistry;
   }
 
   @Test
-  public void testProtobuf() throws InterruptedException {
-    testConverter(
-        ProtobufConverter::new,
-        Map.of(
-            AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
-            schemaRegistry.schemaRegistryUrl()));
-  }
-
-  @Test
-  public void testSchemaJson() throws InterruptedException {
-    testConverter(
-        JsonSchemaConverter::new,
-        Map.of(
-            AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
-            schemaRegistry.schemaRegistryUrl()));
-  }
-
-  @Test
-  public void testJsonWithInBandSchema() throws InterruptedException {
-    testConverter(
-        JsonConverter::new,
-        Map.of(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, String.valueOf(true)));
-  }
-
-  @Test
-  public void testJsonWithoutSchema() throws InterruptedException {
-    testConverter(
-        JsonConverter::new,
-        Map.of(JsonConverterConfig.SCHEMAS_ENABLE_CONFIG, String.valueOf(false)));
-  }
-
-  private void testConverter(
-      Supplier<Converter> converterConstructor, Map<String, String> converterProps)
-      throws InterruptedException {
+  public void testConverter() throws InterruptedException {
+    Map<String, String> converterProps = new HashMap<>(converterBaseConfig);
+    if (converterUsesSchemaRegistry) {
+      converterProps.put(
+          AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
+          schemaRegistry.schemaRegistryUrl());
+    }
     Converter keyConverter = converterConstructor.get();
     keyConverter.configure(converterProps, true);
     Converter valueConverter = converterConstructor.get();
