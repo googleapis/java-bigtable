@@ -159,11 +159,11 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
             MAX_BIGTABLE_TABLE_NAME_LENGTH - longestSuffix);
     if (topicNameSuffixes.isEmpty()) {
       configProps.put(SinkConnectorConfig.TOPICS_CONFIG, id);
-      connect.kafka().createTopic(id, numBrokers);
+      connect.kafka().createTopic(id, numTasks);
     } else {
       configProps.put(SinkConnectorConfig.TOPICS_REGEX_CONFIG, id + ".*");
       for (String suffix : topicNameSuffixes) {
-        connect.kafka().createTopic(id + suffix, numBrokers);
+        connect.kafka().createTopic(id + suffix, numTasks);
       }
     }
     connect.configureConnector(id, configProps);
