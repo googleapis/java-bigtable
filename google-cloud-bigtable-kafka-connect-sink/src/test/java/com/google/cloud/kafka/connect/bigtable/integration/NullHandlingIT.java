@@ -325,7 +325,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
         new HashSet<>(rowDeletedColumn.getCells()));
   }
 
-  protected Map<String, String> connectorProps() {
+  private Map<String, String> connectorProps() {
     Map<String, String> props = super.baseConnectorProps();
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
     props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
@@ -339,13 +339,13 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     return props;
   }
 
-  protected ByteString jsonifiedStructWithNullField() {
+  private ByteString jsonifiedStructWithNullField() {
     String expectedJson = String.format("{\"%s\":null}", NESTED_NULL_STRUCT_FIELD_NAME);
     byte[] expectedJsonBytes = expectedJson.getBytes(StandardCharsets.UTF_8);
     return ByteString.copyFrom(expectedJsonBytes);
   }
 
-  protected void assertCellContents(
+  private void assertCellContents(
       RowCell cell, String family, ByteString qualifier, ByteString value) {
     assertEquals(family, cell.getFamily());
     assertEquals(qualifier, cell.getQualifier());

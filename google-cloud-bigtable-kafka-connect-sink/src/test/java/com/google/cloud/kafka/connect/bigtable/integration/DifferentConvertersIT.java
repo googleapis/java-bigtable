@@ -167,7 +167,7 @@ public class DifferentConvertersIT extends BaseKafkaConnectBigtableSchemaRegistr
     waitUntilBigtableContainsNumberOfRows(topic, NUM_RECORDS);
   }
 
-  protected Map<String, String> connectorProps() {
+  private Map<String, String> connectorProps() {
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
     props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");

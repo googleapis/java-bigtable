@@ -20,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public abstract class BaseKafkaConnectBigtableSchemaRegistryIT extends BaseKafkaConnectBigtableIT {
-  protected SchemaRegistryTestUtil schemaRegistry;
+  public SchemaRegistryTestUtil schemaRegistry;
 
   @Before
   public void setUpSchemaRegistry() throws Exception {

@@ -212,7 +212,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
   public void testCreationOfInvalidTable() throws InterruptedException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    String invalidTableName = "T".repeat(10000);
+    String invalidTableName = "T".repeat(100);
     props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, invalidTableName);
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
     props.put(BigtableSinkConfig.RETRY_TIMEOUT_MILLIS_CONFIG, "10000");
