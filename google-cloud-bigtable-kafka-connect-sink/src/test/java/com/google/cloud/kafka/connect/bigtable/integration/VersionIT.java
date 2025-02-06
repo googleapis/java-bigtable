@@ -35,6 +35,7 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class VersionIT extends BaseKafkaConnectIT {
   @Test
+  // Note that it fails within IntelliJ. Test with `mvn` directly.
   public void testVersionIsSet() throws IOException, InterruptedException {
     String url = connect.endpointForResource("connector-plugins");
     HttpClient http = HttpClient.newHttpClient();
