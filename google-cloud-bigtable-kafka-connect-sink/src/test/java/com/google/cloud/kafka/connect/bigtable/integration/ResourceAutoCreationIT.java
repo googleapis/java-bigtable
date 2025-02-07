@@ -37,9 +37,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.connect.data.Schema;
@@ -225,47 +223,6 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     connect.kafka().produce(testId, KEY1, value);
 
     assertSingleDlqEntry(dlqTopic, KEY1, value, InvalidBigtableSchemaModificationException.class);
-    assertConnectorAndAllTasksAreRunning(testId);
-  }
-
-  @org.junit.Ignore // TODO: unignore, disabled for now to avoid 429s.
-  @Test
-  public void testCreationOfTooManyColumnFamilies() throws InterruptedException {
-    int numberOfColumnFamilies = 1000;
-
-    String dlqTopic = createDlq();
-    Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
-    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
-    props.put(
-        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
-            + "."
-            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
-        String.valueOf(true));
-
-    configureDlq(props, dlqTopic);
-    String testId = startSingleTopicConnector(props);
-
-    Struct innerStruct =
-        new Struct(SchemaBuilder.struct().field(COLUMN_QUALIFIER, Schema.INT32_SCHEMA))
-            .put(COLUMN_QUALIFIER, 1);
-
-    Function<Integer, String> fieldNameGenerator = i -> "f" + i;
-    SchemaBuilder schemaBuilder = SchemaBuilder.struct();
-    IntStream.range(0, numberOfColumnFamilies)
-        .forEach(i -> schemaBuilder.field(fieldNameGenerator.apply(i), innerStruct.schema()));
-    Struct struct = new Struct(schemaBuilder.build());
-    IntStream.range(0, numberOfColumnFamilies)
-        .forEach(i -> struct.put(fieldNameGenerator.apply(i), innerStruct));
-
-    String value = jsonify(testId, struct.schema(), struct);
-
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
-    connect.kafka().produce(testId, KEY1, value);
-    assertSingleDlqEntry(dlqTopic, KEY1, value, InvalidBigtableSchemaModificationException.class);
-    bigtableAdmin.getTable(testId);
-
     assertConnectorAndAllTasksAreRunning(testId);
   }
 
