@@ -32,7 +32,6 @@ import javax.annotation.Nullable;
  * metadata has a RetryInfo field, use the retry delay to set the wait time between attempts.
  */
 
-// sarthak - look here -
 @InternalApi
 public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
 
@@ -99,7 +98,6 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
     if (exception.getErrorDetails().getRetryInfo() == null) {
       return null;
     }
-    // sarthak - what if the error details dont have retry info
     RetryInfo retryInfo = exception.getErrorDetails().getRetryInfo();
     return java.time.Duration.ofMillis(Durations.toMillis(retryInfo.getRetryDelay()));
   }

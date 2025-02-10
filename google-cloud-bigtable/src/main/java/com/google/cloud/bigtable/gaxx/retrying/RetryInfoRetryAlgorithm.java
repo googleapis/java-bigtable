@@ -30,7 +30,6 @@ import javax.annotation.Nullable;
  * metadata has a RetryInfo field, use the retry delay to set the wait time between attempts.
  */
 
-// sarthak - look here -
 @InternalApi
 public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
 

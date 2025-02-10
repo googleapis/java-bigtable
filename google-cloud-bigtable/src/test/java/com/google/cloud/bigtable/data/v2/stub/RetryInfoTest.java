@@ -640,9 +640,6 @@ public class RetryInfoTest {
             GrpcStatusCode.of(Status.Code.UNAVAILABLE),
             true,
             errorDetails);
-    // sarthak
-
-    // ApiException largeRowException = new FailedPreconditionException(new Exception("LargeRows"),);
 
     service.expectations.add(exception);
   }

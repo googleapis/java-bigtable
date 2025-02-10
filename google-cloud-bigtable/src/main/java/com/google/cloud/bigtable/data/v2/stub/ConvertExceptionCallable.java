@@ -41,11 +41,8 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
 
     ConvertExceptionResponseObserver<ResponseT> observer =
         new ConvertExceptionResponseObserver<>(responseObserver);
-
-    // calling outerObserver.onError ->
-    innerCallable.call(request, observer, context);
     // innerCallable is RetryingServerStreamingCallable
-    // Sarthak -  cannot find the actual implementation of this
+    innerCallable.call(request, observer, context);
   }
 
   private class ConvertExceptionResponseObserver<ResponseT>
@@ -68,7 +65,6 @@ final class  ConvertExceptionCallable<RequestT, ResponseT>
       outerObserver.onResponse(response);
     }
 
-    // Sarthak - checked here -> it is adding the error in the buffer || would this be analysed in procesResponse now? or where would this error be catched?
     @Override
     protected void onErrorImpl(Throwable t) {
       outerObserver.onError(convertException(t));

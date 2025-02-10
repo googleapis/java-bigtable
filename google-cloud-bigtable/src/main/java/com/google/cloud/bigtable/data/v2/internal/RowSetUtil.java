@@ -74,7 +74,7 @@ public final class RowSetUtil {
     // Handle ranges
     for (RowRange rowRange : rowSet.getRowRangesList()) {
       List<RowRange> newRangeCollection = splitRange(rowRange, excludePoint, fromStart);
-      if(!newRangeCollection.isEmpty()){
+      if(newRangeCollection!=null && !newRangeCollection.isEmpty()){
         for(RowRange newRange :newRangeCollection){
           newRowSet.addRowRanges(newRange);
         }
@@ -134,7 +134,6 @@ public final class RowSetUtil {
     return result;
   }
 
-  // Sarthak -- testing - what if an opposite range comes up? Z-A? what would we yield as result
   private static RowRange truncateRange(RowRange range, ByteString split, boolean fromStart) {
     if (fromStart) {
       // range end is on or left of the split: skip
@@ -165,18 +164,21 @@ public final class RowSetUtil {
   }
 
   public static List<RowRange> splitRange(RowRange range, ByteString split, boolean fromStart) {
+    List<RowRange> rowRangesList = new ArrayList<RowRange>();
+
     if (fromStart) {
       // range end is on or left of the split: skip
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) <= 0) {
-        return null;
+        rowRangesList.add(range);
+        return rowRangesList;
       }
     } else {
       // range is on or right of the split
       if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) >= 0) {
-        return null;
+        rowRangesList.add(range);
+        return rowRangesList;
       }
     }
-    List<RowRange> rowRangesList = new ArrayList<RowRange>();
 
     if (fromStart) {
       // range start is on or left of the split
@@ -187,13 +189,12 @@ public final class RowSetUtil {
           RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
           rowRangesList.add(afterSplitKeyRange);
         }
-        RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
+        // RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
       }
     } else {
       // range end is on or right of the split
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) >= 0) {
-        // rowRange.getEndKeyClosed()
-        // Sarthak - end key open would be already present as large read success key
+        // end key open would be already present as large read success key
         ByteString endKey;
         if(!range.getEndKeyClosed().isEmpty()){
           endKey = range.getEndKeyClosed();
