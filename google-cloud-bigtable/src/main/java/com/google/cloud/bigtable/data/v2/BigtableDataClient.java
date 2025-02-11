@@ -1169,8 +1169,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
    */
   public ServerStream<Row> readRows(Query query) {
-    // return readRowsCallable().call(query);
-    return largeReadRowsCallable().call(query);
+    return readRowsCallable().call(query);
   }
 
   public ServerStream<Row> readLargeRows(Query query) {
