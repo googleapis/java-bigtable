@@ -168,16 +168,17 @@ public final class RowSetUtil {
 
     if (fromStart) {
       // range end is on or left of the split: skip
-      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) <= 0) {
+      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) < 0) {
         rowRangesList.add(range);
         return rowRangesList;
       }
     } else {
       // range is on or right of the split
-      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) >= 0) {
+      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) > 0) {
         rowRangesList.add(range);
         return rowRangesList;
       }
+      // either set = or set the range's start & end key acc to you
     }
 
     if (fromStart) {

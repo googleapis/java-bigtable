@@ -159,7 +159,6 @@ public class ReadRowsRetryTest {
     byte[] status =
         com.google.rpc.Status.newBuilder().addDetails(Any.pack(errorInfo)).build().toByteArray();
     trailers.put(ERROR_DETAILS_KEY, status);
-    // ToDo (@sarthakbhutani) : Might need to update the exception type on the basis of AFE behaviour
     return (ApiException) (new UnavailableException(new StatusRuntimeException(Status.FAILED_PRECONDITION,trailers),GrpcStatusCode.of(
         Code.FAILED_PRECONDITION),false,errorDetails));
   }
@@ -414,8 +413,7 @@ public class ReadRowsRetryTest {
   }
 
   private List<String> getLargeRowResults(Query query) {
-    // ToDo: (@sarthakbhutani): change this to client.largeReadRows(query); after the new grpc method is available
-    ServerStream<Row> actualRows = client.readRows(query);
+    ServerStream<Row> actualRows = client.readLargeRows(query);
     List<String> actualValues = Lists.newArrayList();
     for (Row row : actualRows) {
       actualValues.add(row.getKey().toStringUtf8());
