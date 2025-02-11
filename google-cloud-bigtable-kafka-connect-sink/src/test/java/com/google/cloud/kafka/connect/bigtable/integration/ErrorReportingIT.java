@@ -24,10 +24,15 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class ErrorReportingIT extends BaseKafkaConnectIT {
+  // The table auto creation is disabled by default, so all writes to this table
+  // are going to result in errors.
+  private static String NONEXISTENT_TABLE_NAME = "ThisTableDoesNotExist";
+
   @Test
   public void testErrorModeFail() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.FAIL.name());
+    props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, NONEXISTENT_TABLE_NAME);
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -41,6 +46,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   public void testErrorModeWarn() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.WARN.name());
+    props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, NONEXISTENT_TABLE_NAME);
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -54,6 +60,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
   public void testErrorModeIgnore() throws InterruptedException {
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
+    props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, NONEXISTENT_TABLE_NAME);
 
     String testId = startSingleTopicConnector(props);
     connect.kafka().produce(testId, "key", "value");
@@ -68,6 +75,7 @@ public class ErrorReportingIT extends BaseKafkaConnectIT {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.FAIL.name());
+    props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, NONEXISTENT_TABLE_NAME);
     configureDlq(props, dlqTopic);
 
     String key = "key";
