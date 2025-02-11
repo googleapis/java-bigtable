@@ -135,6 +135,9 @@ public class BigtableSinkConfigTest {
     props.put(ERROR_MODE_CONFIG, "IGNORE");
     props.put(VALUE_NULL_MODE_CONFIG, "delete");
     BigtableSinkConfig config = new BigtableSinkConfig(props);
+    assertEquals(InsertMode.UPSERT, config.getInsertMode());
+    assertEquals(BigtableErrorMode.IGNORE, config.getBigtableErrorMode());
+    assertEquals(NullValueMode.DELETE, config.getNullValueMode());
   }
 
   @Test
