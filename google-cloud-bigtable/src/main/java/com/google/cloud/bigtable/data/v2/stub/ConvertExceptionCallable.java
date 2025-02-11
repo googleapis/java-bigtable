@@ -26,12 +26,12 @@ import com.google.common.base.Throwables;
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-final class  ConvertExceptionCallable<RequestT, ResponseT>
+final class ConvertExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public  ConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
+  public ConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = innerCallable;
   }
 

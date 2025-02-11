@@ -401,8 +401,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .withRetrySettings(settings.readRowsSettings().getRetrySettings()));
   }
 
-
-
   /**
    * Creates a callable chain to handle point ReadRows RPCs. The chain will:
    *
@@ -472,13 +470,12 @@ public class EnhancedBigtableStub implements AutoCloseable {
         readRowsSettings, rowAdapter, new ReadRowsResumptionStrategy<RowT>(rowAdapter));
   }
 
-
-  private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
-      ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
+  private <ReqT, RowT>
+      ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
+          ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
     return createLargeReadRowsBaseCallable(
         readRowsSettings, rowAdapter, new LargeReadRowsResumptionStrategy<>(rowAdapter));
   }
-
 
   /**
    * Creates a callable chain to handle ReadRows RPCs. The chain will:
@@ -513,7 +510,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
-
 
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
@@ -552,12 +548,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
 
-
-
-  private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
-      ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
-      RowAdapter<RowT> rowAdapter,
-      StreamResumptionStrategy<ReadRowsRequest, RowT> resumptionStrategy) {
+  private <ReqT, RowT>
+      ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
+          ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
+          RowAdapter<RowT> rowAdapter,
+          StreamResumptionStrategy<ReadRowsRequest, RowT> resumptionStrategy) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -1405,8 +1400,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
   public ServerStreamingCallable<Query, Row> readRowsCallable() {
     return readRowsCallable;
   }
-  public ServerStreamingCallable<Query,Row> largeReadRowsCallable(){
-    return  largeReadRowsCallable;
+
+  public ServerStreamingCallable<Query, Row> largeReadRowsCallable() {
+    return largeReadRowsCallable;
   }
 
   /** Return a point read callable */
