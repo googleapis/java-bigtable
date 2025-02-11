@@ -101,6 +101,11 @@ public class SchemaUtils {
     }
 
     @Override
+    public int hashCode() {
+      return Objects.hash(schema, field);
+    }
+
+    @Override
     public boolean equals(Object o) {
       if (o == null || getClass() != o.getClass()) return false;
       SchemaAndField other = (SchemaAndField) o;
