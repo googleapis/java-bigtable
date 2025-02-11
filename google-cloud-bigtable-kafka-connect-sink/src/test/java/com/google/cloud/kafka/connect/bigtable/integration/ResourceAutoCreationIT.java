@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
+import com.google.cloud.bigtable.data.v2.models.Range;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
@@ -326,6 +327,12 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     assertConnectorAndAllTasksAreRunning(testId);
   }
 
+  /**
+   * This test checks consequences of design choices described in comments in {@link
+   * com.google.cloud.kafka.connect.bigtable.mapping.MutationDataBuilder#deleteCells(String,
+   * ByteString, Range.TimestampRange)} and {@link
+   * com.google.cloud.kafka.connect.bigtable.mapping.MutationDataBuilder#deleteFamily(String)}.
+   */
   @Test
   public void testDeletionFailsWhenAutoCreationDisabled() throws InterruptedException {
     String dlqTopic = createDlq();
