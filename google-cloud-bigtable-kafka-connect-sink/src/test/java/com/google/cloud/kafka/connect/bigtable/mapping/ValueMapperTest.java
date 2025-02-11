@@ -18,7 +18,7 @@ package com.google.cloud.kafka.connect.bigtable.mapping;
 import static com.google.cloud.kafka.connect.bigtable.util.MockUtil.assertTotalNumberOfInvocations;
 import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.NESTED_NULL_STRUCT_FIELD_NAME;
 import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.NESTED_NULL_STRUCT_FIELD_NAME_BYTES;
-import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.getStructhWithNullOnNthNestingLevel;
+import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.getStructWithNullOnNthNestingLevel;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -705,7 +705,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.IGNORE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(1));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(1));
     assertTotalNumberOfInvocations(mutationDataBuilder, 0);
     assertTrue(mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY).isEmpty());
   }
@@ -715,7 +715,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.IGNORE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(2));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(2));
     assertTotalNumberOfInvocations(mutationDataBuilder, 0);
     assertTrue(mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY).isEmpty());
   }
@@ -736,7 +736,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.WRITE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(1));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(1));
     verify(mutationDataBuilder, times(1))
         .setCell(
             DEFAULT_COLUMN_FAMILY,
@@ -752,7 +752,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.WRITE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(2));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(2));
     verify(mutationDataBuilder, times(1))
         .setCell(
             NESTED_NULL_STRUCT_FIELD_NAME,
@@ -778,7 +778,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.DELETE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(1));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(1));
     verify(mutationDataBuilder, times(1)).deleteFamily(NESTED_NULL_STRUCT_FIELD_NAME);
     assertTotalNumberOfInvocations(mutationDataBuilder, 1);
     assertTrue(mutationDataBuilder.maybeBuild(TARGET_TABLE_NAME, ROW_KEY).isPresent());
@@ -789,7 +789,7 @@ public class ValueMapperTest {
     ValueMapper mapper =
         new TestValueMapper(DEFAULT_COLUMN_FAMILY, DEFAULT_COLUMN, NullValueMode.DELETE);
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(2));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(2));
     verify(mutationDataBuilder, times(1))
         .deleteCells(
             NESTED_NULL_STRUCT_FIELD_NAME, NESTED_NULL_STRUCT_FIELD_NAME_BYTES, TIMESTAMP_RANGE);
@@ -805,7 +805,7 @@ public class ValueMapperTest {
     ByteString expectedJsonificationBytes =
         ByteString.copyFrom(expectedJsonification.getBytes(StandardCharsets.UTF_8));
     MutationDataBuilder mutationDataBuilder =
-        getRecordMutationDataBuilder(mapper, getStructhWithNullOnNthNestingLevel(3));
+        getRecordMutationDataBuilder(mapper, getStructWithNullOnNthNestingLevel(3));
     verify(mutationDataBuilder, times(1))
         .setCell(
             NESTED_NULL_STRUCT_FIELD_NAME,

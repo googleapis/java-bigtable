@@ -26,7 +26,7 @@ public class NestedNullStructFactory {
   public static final ByteString NESTED_NULL_STRUCT_FIELD_NAME_BYTES =
       ByteString.copyFrom(NESTED_NULL_STRUCT_FIELD_NAME.getBytes(StandardCharsets.UTF_8));
 
-  public static Struct getStructhWithNullOnNthNestingLevel(int n) {
+  public static Struct getStructWithNullOnNthNestingLevel(int n) {
     assert n > 0;
 
     Schema schema =

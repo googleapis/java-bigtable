@@ -17,7 +17,7 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 
 import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.NESTED_NULL_STRUCT_FIELD_NAME;
 import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.NESTED_NULL_STRUCT_FIELD_NAME_BYTES;
-import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.getStructhWithNullOnNthNestingLevel;
+import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFactory.getStructWithNullOnNthNestingLevel;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -90,17 +90,17 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY1),
             new SchemaAndValue(SchemaBuilder.struct().optional().build(), null)));
-    Struct nested1 = getStructhWithNullOnNthNestingLevel(1);
+    Struct nested1 = getStructWithNullOnNthNestingLevel(1);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY2),
             new SchemaAndValue(nested1.schema(), nested1)));
-    Struct nested2 = getStructhWithNullOnNthNestingLevel(2);
+    Struct nested2 = getStructWithNullOnNthNestingLevel(2);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY3),
             new SchemaAndValue(nested2.schema(), nested2)));
-    Struct nested3 = getStructhWithNullOnNthNestingLevel(3);
+    Struct nested3 = getStructWithNullOnNthNestingLevel(3);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY4),
@@ -145,17 +145,17 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY1),
             new SchemaAndValue(SchemaBuilder.struct().optional().build(), null)));
-    Struct nested1 = getStructhWithNullOnNthNestingLevel(1);
+    Struct nested1 = getStructWithNullOnNthNestingLevel(1);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY2),
             new SchemaAndValue(nested1.schema(), nested1)));
-    Struct nested2 = getStructhWithNullOnNthNestingLevel(2);
+    Struct nested2 = getStructWithNullOnNthNestingLevel(2);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY3),
             new SchemaAndValue(nested2.schema(), nested2)));
-    Struct nested3 = getStructhWithNullOnNthNestingLevel(3);
+    Struct nested3 = getStructWithNullOnNthNestingLevel(3);
     records.add(
         new AbstractMap.SimpleImmutableEntry<>(
             new SchemaAndValue(Schema.STRING_SCHEMA, KEY4),
@@ -225,7 +225,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     assertEquals(Set.of(KEY1_BYTES, KEY2_BYTES, KEY3_BYTES, KEY4_BYTES), rowsBefore.keySet());
 
     ByteString keyAddedJsonification = KEY1_BYTES;
-    Struct nestedNullToBeJsonified = getStructhWithNullOnNthNestingLevel(3);
+    Struct nestedNullToBeJsonified = getStructWithNullOnNthNestingLevel(3);
 
     ByteString keyDeletedColumn = KEY2_BYTES;
     Map.Entry<String, String> deletedColumn =
