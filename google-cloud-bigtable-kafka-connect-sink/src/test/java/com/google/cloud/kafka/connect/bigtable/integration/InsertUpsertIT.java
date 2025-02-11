@@ -18,12 +18,15 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 import static org.junit.Assert.assertEquals;
 
 import com.google.cloud.bigtable.data.v2.models.Row;
+import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableErrorMode;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
 import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -39,27 +42,40 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
   private static final String VALUE1 = "value1";
   private static final String VALUE2 = "value2";
   private static final String VALUE3 = "value3";
+  private static final ByteString VALUE1_BYTES =
+      ByteString.copyFrom(VALUE1.getBytes(StandardCharsets.UTF_8));
+  private static final ByteString VALUE2_BYTES =
+      ByteString.copyFrom(VALUE2.getBytes(StandardCharsets.UTF_8));
+  private static final ByteString VALUE3_BYTES =
+      ByteString.copyFrom(VALUE3.getBytes(StandardCharsets.UTF_8));
 
   @Test
   public void testInsert() throws InterruptedException {
+    String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
     props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
+    configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
 
     connect.kafka().produce(testId, KEY1, VALUE1);
+    waitUntilBigtableContainsNumberOfRows(testId, 1);
     connect.kafka().produce(testId, KEY1, VALUE2);
     connect.kafka().produce(testId, KEY2, VALUE3);
-
     waitUntilBigtableContainsNumberOfRows(testId, 2);
+    assertSingleDlqEntry(dlqTopic, KEY1, VALUE2, null);
 
     Map<ByteString, Row> rows = readAllRows(bigtableData, testId);
     Row row1 = rows.get(KEY1_BYTES);
     Row row2 = rows.get(KEY2_BYTES);
     assertEquals(1, row1.getCells().size());
+    assertEquals(VALUE1_BYTES, row1.getCells().get(0).getValue());
     assertEquals(1, row2.getCells().size());
+    assertEquals(VALUE3_BYTES, row2.getCells().get(0).getValue());
+
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 
   @Test
@@ -68,19 +84,23 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
     props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
-    props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
     String testId = startSingleTopicConnector(props);
 
     connect.kafka().produce(testId, KEY1, VALUE1);
+    waitUntilBigtableContainsNumberOfRows(testId, 1);
     connect.kafka().produce(testId, KEY1, VALUE2);
     connect.kafka().produce(testId, KEY2, VALUE3);
-
     waitUntilBigtableContainsNumberOfRows(testId, 2);
 
     Map<ByteString, Row> rows = readAllRows(bigtableData, testId);
     Row row1 = rows.get(KEY1_BYTES);
     Row row2 = rows.get(KEY2_BYTES);
     assertEquals(2, row1.getCells().size());
+    assertEquals(
+        Set.of(VALUE1_BYTES, VALUE2_BYTES),
+        row1.getCells().stream().map(RowCell::getValue).collect(Collectors.toSet()));
     assertEquals(1, row2.getCells().size());
+    assertEquals(VALUE3_BYTES, row2.getCells().get(0).getValue());
+    assertConnectorAndAllTasksAreRunning(testId);
   }
 }
