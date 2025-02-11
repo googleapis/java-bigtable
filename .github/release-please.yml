@@ -65,14 +65,9 @@ branches:
       - >-
         google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
     branch: 2.39.x
-  - bumpMinorPreMajor: true
-    handleGHRelease: true
-    releaseType: java-yoshi
-    prerelease: true
-    prereleaseType: rc
-    extraFiles:
-      - >-
-        google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java
+  - handleGHRelease: true
+    manifest: true
     branch: 3.0rc
+    manifestConfig: release-please-rc-config.json
 extraFiles:
   - google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java

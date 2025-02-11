@@ -1,0 +1,12 @@
+{
+  "release-type": "java-yoshi",
+  "bump-minor-pre-major": true,
+  "prerelease-type": "rc",
+  "prerelease": true,
+  "packages": {
+    ".": {}
+  },
+  "extra-files": [
+    "google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/Version.java"
+  ]
+}
