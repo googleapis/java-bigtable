@@ -80,12 +80,10 @@ public class KeyMapper {
     Object kafkaKey = kafkaKeyAndSchema.value();
     Optional<Schema> kafkaKeySchema = Optional.ofNullable(kafkaKeyAndSchema.schema());
     ensureKeyElementIsNotNull(kafkaKey);
+    SchemaAndValue keySchemaAndValue = new SchemaAndValue(kafkaKeySchema.orElse(null), kafkaKey);
     Stream<byte[]> keyParts =
         this.getDefinition(kafkaKey).stream()
-            .map(
-                (d) ->
-                    serializeTopLevelKeyElement(
-                        extractField(kafkaKey, kafkaKeySchema, d.iterator())));
+            .map((d) -> serializeTopLevelKeyElement(extractField(keySchemaAndValue, d.iterator())));
     return concatenateByteArrays(new byte[0], keyParts, delimiter, new byte[0]);
   }
 
@@ -96,8 +94,8 @@ public class KeyMapper {
    * @param kafkaKey {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key.
    * @return {@link List} containing {@link List Lists} of key fields that need to be retrieved and
    *     concatenated to construct the Cloud Bigtable row key.
-   *     <p>See {@link KeyMapper#extractField(Object, Optional, Iterator)} for details on semantics
-   *     of the inner list.
+   *     <p>See {@link KeyMapper#extractField(SchemaAndValue, Iterator)} for details on semantics of
+   *     the inner list.
    */
   private List<List<String>> getDefinition(Object kafkaKey) {
     if (this.definition.isEmpty()) {
@@ -134,27 +132,25 @@ public class KeyMapper {
   /**
    * Extract possibly nested fields from the input value.
    *
-   * @param value {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key or some its
-   *     child.
-   * @param schema A schema of {@code value}.
+   * @param keySchemaAndValue {@link org.apache.kafka.connect.sink.SinkRecord SinkRecord's} key or
+   *     some its child with corresponding {@link Schema}.
    * @param fields Fields that need to be accessed before the target value is reached.
    * @return Extracted nested field.
    */
-  private SchemaAndValue extractField(
-      Object value, Optional<Schema> schema, Iterator<String> fields) {
+  private SchemaAndValue extractField(SchemaAndValue keySchemaAndValue, Iterator<String> fields) {
+    Object value = keySchemaAndValue.value();
+    Optional<Schema> schema = Optional.ofNullable(keySchemaAndValue.schema());
     ensureKeyElementIsNotNull(value);
     LogicalTypeUtils.logIfLogicalTypeUnsupported(schema);
     if (!fields.hasNext()) {
-      return new SchemaAndValue(schema.orElse(null), value);
+      return keySchemaAndValue;
     }
     String field = fields.next();
     if (value instanceof Struct) {
-      Struct struct = (Struct) value;
       // Note that getWithoutDefault() throws if such a field does not exist.
-      return extractField(
-          struct.getWithoutDefault(field),
-          SchemaUtils.maybeExtractFieldSchema(schema, field),
-          fields);
+      Object fieldValue = ((Struct) value).getWithoutDefault(field);
+      Schema fieldSchema = SchemaUtils.maybeExtractFieldSchema(schema, field).orElse(null);
+      return extractField(new SchemaAndValue(fieldSchema, fieldValue), fields);
     } else {
       throw new DataException(
           "Unexpected class `"
