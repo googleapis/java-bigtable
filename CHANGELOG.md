@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.52.0](https://github.com/googleapis/java-bigtable/compare/v2.51.2...v2.52.0) (2025-02-12)
+
+
+### Features
+
+* Automated backups are supported in the admin client ([#2472](https://github.com/googleapis/java-bigtable/issues/2472)) ([48633e6](https://github.com/googleapis/java-bigtable/commit/48633e6160593c84f42a02f348ec18c3d1521ef0))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.53.0 ([47ca299](https://github.com/googleapis/java-bigtable/commit/47ca29931699cae87d640185ad31e4b61c0bb212))
+* Extend timeouts for check consistency ([47ca299](https://github.com/googleapis/java-bigtable/commit/47ca29931699cae87d640185ad31e4b61c0bb212))
+
 ## [2.51.2](https://github.com/googleapis/java-bigtable/compare/v2.51.1...v2.51.2) (2025-02-03)
 
 
