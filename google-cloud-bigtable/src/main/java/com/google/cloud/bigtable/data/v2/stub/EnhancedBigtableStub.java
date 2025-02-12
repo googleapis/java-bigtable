@@ -567,7 +567,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new LargeRowConvertExceptionCallable<>(withStatsHeaders);
+    new ConvertExceptionCallable<>(withStatsHeaders);
+
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
