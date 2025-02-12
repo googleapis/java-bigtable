@@ -38,10 +38,8 @@ final class ConvertExceptionCallable<RequestT, ResponseT>
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-
     ConvertExceptionResponseObserver<ResponseT> observer =
         new ConvertExceptionResponseObserver<>(responseObserver);
-    // innerCallable is RetryingServerStreamingCallable
     innerCallable.call(request, observer, context);
   }
 

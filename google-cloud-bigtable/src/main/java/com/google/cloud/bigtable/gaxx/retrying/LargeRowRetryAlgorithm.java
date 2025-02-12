@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.gaxx.retrying;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
+import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.protobuf.util.Durations;
@@ -27,8 +28,10 @@ import javax.annotation.Nullable;
 // TODO move this algorithm to gax
 
 /**
- * This retry algorithm checks the metadata of an exception for additional error details. If the
- * metadata has a RetryInfo field, use the retry delay to set the wait time between attempts.
+ * This retry algorithm checks the metadata of an exception for additional error details. It also
+ * allows to retry for {@link com.google.api.gax.rpc.FailedPreconditionException} with
+ * ErrorDetails.Reason as "LargeRowReadError" (for large rows) If the metadata has a RetryInfo
+ * field, use the retry delay to set the wait time between attempts.
  */
 @InternalApi
 public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
@@ -70,16 +73,26 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
     if (context != null && context.getRetryableCodes() != null) {
       // Ignore the isRetryable() value of the throwable if the RetryingContext has a specific list
       // of codes that should be retried.
-      return (((previousThrowable instanceof ApiException)
-              && context
-                  .getRetryableCodes()
-                  .contains(((ApiException) previousThrowable).getStatusCode().getCode()))
-          || ((ApiException) previousThrowable).getReason().equals("LargeRowReadError"));
+      return ((previousThrowable instanceof ApiException)
+          && context
+              .getRetryableCodes()
+              .contains(((ApiException) previousThrowable).getStatusCode().getCode()));
+    }
+    if (isLargeRowException(previousThrowable)) {
+      return true;
     }
     // Server didn't have retry information and there's no retry context, use the local status
     // code config.
     return previousThrowable instanceof ApiException
         && ((ApiException) previousThrowable).isRetryable();
+  }
+
+  public boolean isLargeRowException(Throwable previousThrowable) {
+    return (previousThrowable!=null)
+        // && (previousThrowable.getClass() != ServerStreamingAttemptException.class)
+        && (previousThrowable instanceof ApiException)
+        && ((ApiException) previousThrowable).getReason() != null
+        && ((ApiException) previousThrowable).getReason().equals("LargeRowReadError");
   }
 
   static java.time.Duration extractRetryDelay(@Nullable Throwable throwable) {

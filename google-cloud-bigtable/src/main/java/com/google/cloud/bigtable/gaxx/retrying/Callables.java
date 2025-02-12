@@ -25,7 +25,6 @@ import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.cloud.bigtable.data.v2.stub.readrows.LargeRowReadCallable;
 
 // TODO: remove this once ApiResultRetryAlgorithm is added to gax.
 /**
@@ -91,13 +90,7 @@ public class Callables {
     ScheduledRetryingExecutor<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-    // LargeRowReadCallable largeRowReadCallable = new
-    // LargeRowReadCallable(innerCallable,(LargeReadRowsResumptionStrategy)
-    // settings.getResumptionStrategy());
-    LargeRowReadCallable largeRowReadCallable =
-        new LargeRowReadCallable(innerCallable, settings.getResumptionStrategy());
-
     return new RetryingServerStreamingCallable<>(
-        largeRowReadCallable, retryingExecutor, settings.getResumptionStrategy());
+        innerCallable, retryingExecutor, settings.getResumptionStrategy());
   }
 }
