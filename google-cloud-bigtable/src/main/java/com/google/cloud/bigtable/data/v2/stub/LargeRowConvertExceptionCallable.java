@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
@@ -24,7 +25,7 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.common.base.Throwables;
 
 /**
- * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
+ * This callable converts the "Received rst stream" &"LargeRowReadError" exception into a retryable {@link ApiException}.
  */
 final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
@@ -40,9 +41,8 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
     ConvertExceptionResponseObserver<ResponseT> observer =
         new ConvertExceptionResponseObserver<>(responseObserver);
+    // innerCallable here is RetryingServerStreamingCallable
     innerCallable.call(request, observer, context);
-    // innerCallable is RetryingServerStreamingCallable
-    // Sarthak -  cannot find the actual implementation of this
   }
 
   private class ConvertExceptionResponseObserver<ResponseT>
@@ -67,7 +67,8 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      outerObserver.onError(convertException(t));
+      outerObserver.onError(convertException(t)
+      );
     }
 
     @Override
@@ -80,13 +81,14 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
     // Long lived connections sometimes are disconnected via an RST frame or a goaway. These errors
     // are transient and should be retried.
     if (isRstStreamError(t) || isGoAway(t) || isRetriableAuthError(t) || isLargeRowError(t)) {
-      return new InternalException(t, ((InternalException) t).getStatusCode(), true, ((InternalException) t).getErrorDetails());
+      return new ApiException(t, ((ApiException) t).getStatusCode(), true, ((ApiException) t).getErrorDetails());
     }
     return t;
   }
 
   private boolean isLargeRowError(Throwable t){
-    if (t instanceof InternalException && ((InternalException) t).getReason().equals("LargeRowReadError")){
+    // ToDo (@sarthakbhutani) : Based on real exception thrown for LargeRowError -> update the Exception here. For ex - {@link InternalException}
+    if (t instanceof FailedPreconditionException && ((FailedPreconditionException) t).getReason().equals("LargeRowReadError")){
       return true;
     }
     return false;

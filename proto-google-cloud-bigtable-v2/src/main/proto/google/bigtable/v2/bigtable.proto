@@ -468,12 +468,6 @@ message ReadRowsResponse {
   RequestStats request_stats = 3;
 }
 
-//message ReadRowResponsesAndExceptions{
-//  oneof response {
-//    ReadRowResponse response = 1;
-//  }
-//}
-
 // Request message for Bigtable.SampleRowKeys.
 message SampleRowKeysRequest {
   // Optional. The unique name of the table from which to sample row keys.

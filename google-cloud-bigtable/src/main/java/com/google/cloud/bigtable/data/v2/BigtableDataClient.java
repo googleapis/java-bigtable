@@ -169,7 +169,6 @@ public class BigtableDataClient implements AutoCloseable {
    * Constructs an instance of BigtableDataClient, using the given settings. The channels are
    * created based on the settings passed in, or defaults for any settings that are not set.
    */
-  // sarthakDef - EnhancedBigtableStub - internal way via grpc to connect w/ bigtable
   public static BigtableDataClient create(BigtableDataSettings settings) throws IOException {
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.getStubSettings());
     return new BigtableDataClient(stub);
@@ -1170,12 +1169,9 @@ public class BigtableDataClient implements AutoCloseable {
    * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
    */
   public ServerStream<Row> readRows(Query query) {
-
-    //   SARTHAK---- TESTING
-    // replaced readRows() with largeReadRows() ----
     // return readRowsCallable().call(query);
+    // ToDo (@sarthakbhutani) : uncomment above code & remove the largeReadRows method call
     return largeReadRowsCallable().call(query);
-
   }
 
   public ServerStream<Row> largeReadRows(Query query) {
@@ -1225,7 +1221,18 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public void readRowsAsync(Query query, ResponseObserver<Row> observer) {
-    readRowsCallable().call(query, observer);
+    // readRowsCallable().call(query, observer);
+    // ToDo (@sarthakbhutani) : uncomment above code & remove the largeReadRows method call
+    largeReadRowsCallable().call(query,observer);
+  }
+
+  /**
+   * Convenience method for asynchronously streaming the results of a {@link Query} for large rows
+   * @param query
+   * @param observer
+   */
+  public void readLargeRowsAsync(Query query,ResponseObserver<Row> observer){
+    largeReadRowsCallable().call(query,observer);
   }
 
   /**

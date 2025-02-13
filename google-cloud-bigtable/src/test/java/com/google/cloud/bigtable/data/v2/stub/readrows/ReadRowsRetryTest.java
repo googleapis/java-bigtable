@@ -26,11 +26,13 @@ import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ServerStream;
+import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsResponse;
 import com.google.bigtable.v2.ReadRowsResponse.CellChunk;
 import com.google.bigtable.v2.RowRange;
+import com.google.bigtable.v2.RowSet;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
@@ -46,6 +48,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
 import com.google.rpc.ErrorInfo;
+import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
@@ -53,6 +56,7 @@ import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
@@ -69,6 +73,7 @@ public class ReadRowsRetryTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
   private static final String TABLE_ID = "fake-table";
+  private static final Metadata.Key<? super byte[]> ERROR_DETAILS_KEY =      Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
   private TestBigtableService service;
@@ -131,34 +136,10 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("k1").range("r1", "r3"));
     Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
-
-    //   call the callable ->
-    //   outerobserver -> server.onNext() -> client.onResponse()
   }
 
 
-  public class CustomStatusCode implements StatusCode {
-
-    private final Code code;
-
-    // Constructor to initialize with a specific code
-    public CustomStatusCode(Code code) {
-      this.code = code;
-    }
-
-    @Override
-    public Code getCode() {
-      return code;
-    }
-
-    @Override
-    public Object getTransportCode() {
-      // Return null or transport-specific code if applicable
-      return null;
-    }
-  }
-
-  public ApiException largeRowException(String rowKey){
+  public ApiException largeRowExceptionWithTrailers(String rowKey){
     ErrorInfo errorInfo = ErrorInfo.newBuilder()
         .setReason("LargeRowReadError")
         .setDomain("bigtable.googleapis.com")
@@ -174,68 +155,87 @@ public class ReadRowsRetryTest {
         .setRawErrorMessages(ImmutableList.of(packedErrorInfo))
         .build();
 
-    return new InternalException(new StatusRuntimeException(
-        Status.INTERNAL.withDescription(
-            "FAILED_PRECONDITION: HTTP/2 error code: Failed Pre-condition - for "+rowKey)),
-        GrpcStatusCode.of(Code.FAILED_PRECONDITION),false, errorDetails);
+    Metadata trailers = new Metadata();
+    byte[] status =
+        com.google.rpc.Status.newBuilder().addDetails(Any.pack(errorInfo)).build().toByteArray();
+    trailers.put(ERROR_DETAILS_KEY, status);
+    // ToDo (@sarthakbhutani) : Might need to update the exception type on the basis of AFE behaviour
+    return (ApiException) (new UnavailableException(new StatusRuntimeException(Status.FAILED_PRECONDITION,trailers),GrpcStatusCode.of(
+        Code.FAILED_PRECONDITION),false,errorDetails));
   }
 
-  public StatusRuntimeException largeRowExceptionCreatedFromStatus(String rowKey){
-    ErrorInfo errorInfo = ErrorInfo.newBuilder()
-        .setReason("LargeRowReadError")
-        .setDomain("bigtable.googleapis.com")
-        .putMetadata("rowKey", rowKey)
-        .build();
-
-    Any packedErrorInfo = Any.pack(errorInfo);
-    // ErrorDetails errorDetails = ErrorDetails.builder()
-    //     .setRawErrorMessages(Collections.singletonList(packedErrorInfo))
-    //     .build();
-
-    // Build gRPC Status with details
-    com.google.rpc.Status status = com.google.rpc.Status.newBuilder()
-        .setCode(com.google.rpc.Code.INVALID_ARGUMENT.getNumber())
-        .setMessage("Large Row Error - " +rowKey)
-        .addDetails(packedErrorInfo)
-        .build();
-
-    // Convert to StatusRuntimeException and send it
-    return StatusProto.toStatusRuntimeException(status);
-
-    //
-    // return new InternalException(new StatusRuntimeException(
-    //     Status.INTERNAL.withDescription(
-    //         "FAILED_PRECONDITION: HTTP/2 error code: Failed Pre-condition - for "+rowKey)),
-    //     GrpcStatusCode.of(Code.FAILED_PRECONDITION),false, errorDetails);
-  }
-
+  /**
+   * AdditionalTests -
+   * 1. only query for large rows - empty response?
+   * 2. 1st row is large row - then get other responses
+   * 3. last row is large row
+   * 4. multiple adhoc large rows
+   * 5. continous large rows
+   */
 
   @Test
-  public void largeRowTest() {
-    ApiException largeRowException = largeRowException("r2");
-    StatusRuntimeException largeRowException2 = largeRowExceptionCreatedFromStatus("r2");
+  public void largeRowTestBasic() {
+    ApiException largeRowExceptionWithTrailers = largeRowExceptionWithTrailers("r2");
 
     service.expectations.add(
         RpcExpectation.create()
             .expectRequest(Range.closedOpen("r1", "r5"))
             .respondWith("r1")
-            // .respondWithException(Code.FAILED_PRECONDITION,largeRowException)
-            .respondWithException(Code.INTERNAL,largeRowException)
-            // .respondWithException(Code.INTERNAL,new ApiException(largeRowException2,GrpcStatusCode.of(Code.FAILED_PRECONDITION),false))
-            // .respondWithStatusException(Code.FAILED_PRECONDITION,largeRowException2)
+            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailers)
     );
 
+    List<Range<String>> rangeList = new ArrayList<Range<String>>();
+    rangeList.add(Range.open("r1","r2"));
+    rangeList.add(Range.open("r2","r5"));
     service.expectations.add(
         RpcExpectation.create()
-            .expectRequest(Range.openClosed("r2", "r5"))
+            .expectRequestForMultipleRowRanges(rangeList)
             .respondWith("r3","r4")
     );
 
-    List<String> actualResults = getResults(Query.create(TABLE_ID).range("r1", "r5"));
+    List<String> actualResults = getLargeRowResults(Query.create(TABLE_ID).range("r1", "r5"));
     Truth.assertThat(actualResults).containsExactly( "r1", "r3","r4").inOrder();
-    // Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
   }
 
+  @Test
+  public void largeRowTestMultipleAdhocRows() {
+
+    // Large rows are r2, r3,r4 from r1 to r8
+    ApiException largeRowExceptionWithTrailersR2 = largeRowExceptionWithTrailers("r2");
+    ApiException largeRowExceptionWithTrailersR3 = largeRowExceptionWithTrailers("r3");
+    List<Range<String>> rangeList;
+
+    // r2 faulty
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(Range.closedOpen("r1", "r9"))
+            .respondWith("r1")
+            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailersR2)
+    );
+
+    // r3 faulty
+    rangeList = new ArrayList<Range<String>>();
+    rangeList.add(Range.open("r1","r2"));
+    rangeList.add(Range.open("r2","r9"));
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequestForMultipleRowRanges(rangeList)
+            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailersR3)
+    );
+
+    rangeList = new ArrayList<Range<String>>();
+    rangeList.add(Range.open("r1","r2"));
+    rangeList.add(Range.open("r2","r3"));
+    rangeList.add(Range.open("r3","r9"));
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequestForMultipleRowRanges(rangeList)
+            .respondWith("r4","r5","r6","r7","r8")
+    );
+
+    List<String> actualResults = getLargeRowResults(Query.create(TABLE_ID).range("r1", "r9"));
+    Truth.assertThat(actualResults).containsExactly( "r1", "r4","r5","r6","r7","r8").inOrder();
+  }
 
 
   @Test
@@ -380,7 +380,6 @@ public class ReadRowsRetryTest {
     Truth.assertThat(actualResults).containsExactly("r7").inOrder();
   }
 
-  // sarthak - check this test
   @Test
   public void retryRstStreamExceptionTest() {
     ApiException exception =
@@ -414,8 +413,9 @@ public class ReadRowsRetryTest {
     return actualValues;
   }
 
-  private List<String> getLargeRowsResults(Query query) {
-    ServerStream<Row> actualRows = client.largeReadRows(query);
+  private List<String> getLargeRowResults(Query query) {
+    // ToDo: (@sarthakbhutani): change this to client.largeReadRows(query); after the new grpc method is available
+    ServerStream<Row> actualRows = client.readRows(query);
     List<String> actualValues = Lists.newArrayList();
     for (Row row : actualRows) {
       actualValues.add(row.getKey().toStringUtf8());
@@ -473,8 +473,6 @@ public class ReadRowsRetryTest {
 
   }
 
-  // private static class RpcExceptionWith
-
   private static class RpcExpectation {
     ReadRowsRequest.Builder requestBuilder;
     Status.Code statusCode;
@@ -500,6 +498,58 @@ public class ReadRowsRetryTest {
       }
       return this;
     }
+
+    RpcExpectation expectRequestForMultipleRowRanges(List<Range<String>> rowRanges){
+      RowSet.Builder rowRange = requestBuilder.getRowsBuilder();
+      for(Range<String> range :rowRanges){
+        rangeBuilder(range);
+      }
+      return this;
+    }
+
+    /**
+     * Build Row Range
+     * @param range
+     * @return
+     */
+    RowRange rangeBuilder(Range<String> range){
+
+      RowRange.Builder rowRange = requestBuilder.getRowsBuilder().addRowRangesBuilder();
+
+      if (range.hasLowerBound()) {
+        switch (range.lowerBoundType()) {
+          case CLOSED:
+            rowRange.setStartKeyClosed(ByteString.copyFromUtf8(range.lowerEndpoint()));
+            break;
+          case OPEN:
+            rowRange.setStartKeyOpen(ByteString.copyFromUtf8(range.lowerEndpoint()));
+            break;
+          default:
+            throw new IllegalArgumentException(
+                "Unexpected lowerBoundType: " + range.lowerBoundType());
+        }
+      } else {
+        rowRange.clearStartKey();
+      }
+
+      if (range.hasUpperBound()) {
+        switch (range.upperBoundType()) {
+          case CLOSED:
+            rowRange.setEndKeyClosed(ByteString.copyFromUtf8(range.upperEndpoint()));
+            break;
+          case OPEN:
+            rowRange.setEndKeyOpen(ByteString.copyFromUtf8(range.upperEndpoint()));
+            break;
+          default:
+            throw new IllegalArgumentException(
+                "Unexpected upperBoundType: " + range.upperBoundType());
+        }
+      } else {
+        rowRange.clearEndKey();
+      }
+      return rowRange.build();
+    }
+
 
     RpcExpectation expectRequest(Range<String> range) {
       RowRange.Builder rowRange = requestBuilder.getRowsBuilder().addRowRangesBuilder();

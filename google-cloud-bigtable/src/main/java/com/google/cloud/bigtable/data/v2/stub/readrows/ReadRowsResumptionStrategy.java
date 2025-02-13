@@ -55,9 +55,8 @@ public class ReadRowsResumptionStrategy<RowT>
     return new ReadRowsResumptionStrategy<>(rowAdapter);
   }
 
-  // Sarthak - what's a synthetic row marker
   @Override
-      public RowT processResponse(RowT response) {
+  public RowT processResponse(RowT response) {
     // Last key can come from both the last processed row key and a synthetic row marker. The
     // synthetic row marker is emitted when the server has read a lot of data that was filtered out.
     // The row marker can be used to trim the start of the scan, but does not contribute to the row
@@ -101,7 +100,6 @@ public class ReadRowsResumptionStrategy<RowT>
 
     Builder builder = originalRequest.toBuilder().setRows(remaining);
 
-    // sarthak - didn't understand this
     if (originalRequest.getRowsLimit() > 0) {
       Preconditions.checkState(
           originalRequest.getRowsLimit() > numProcessed,
@@ -110,6 +108,5 @@ public class ReadRowsResumptionStrategy<RowT>
     }
 
     return builder.build();
-  //   Sarthak - we are building the new request here - where & how is it getting sent -> is this after retry block or before -> not able to tie them together
   }
 }

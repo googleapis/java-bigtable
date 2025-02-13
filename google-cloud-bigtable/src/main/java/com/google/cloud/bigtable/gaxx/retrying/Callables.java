@@ -58,6 +58,7 @@ public class Callables {
     return new RetryingCallable<>(clientContext.getDefaultCallContext(), innerCallable, executor);
   }
 
+
   public static <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> retrying(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> callSettings,
@@ -77,25 +78,6 @@ public class Callables {
         innerCallable, retryingExecutor, settings.getResumptionStrategy());
   }
 
-  // public static <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> retryingForLargeRows(
-  //     ServerStreamingCallable<RequestT, ResponseT> innerCallable,
-  //     ServerStreamingCallSettings<RequestT, ResponseT> callSettings,
-  //     ClientContext clientContext) {
-  //
-  //   ServerStreamingCallSettings<RequestT, ResponseT> settings = callSettings;
-  //
-  //   StreamingRetryAlgorithm<Void> retryAlgorithm =
-  //       new StreamingRetryAlgorithm<>(
-  //           new LargeRowRetryAlgorithm<>(),
-  //           new ExponentialRetryAlgorithm(settings.getRetrySettings(), clientContext.getClock()));
-  //
-  //   ScheduledRetryingExecutor<Void> retryingExecutor =
-  //       new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
-  //
-  //   return new RetryingServerStreamingCallable<>(
-  //       innerCallable, retryingExecutor, settings.getResumptionStrategy());
-  // }
-
 
   public static <RequestT, ResponseT,RowT> ServerStreamingCallable<RequestT, ResponseT> retryingForLargeRows(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
@@ -112,7 +94,9 @@ public class Callables {
     ScheduledRetryingExecutor<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-    LargeRowReadCallable largeRowReadCallable = new LargeRowReadCallable(innerCallable,(LargeReadRowsResumptionStrategy) settings.getResumptionStrategy());
+
+    // LargeRowReadCallable largeRowReadCallable = new LargeRowReadCallable(innerCallable,(LargeReadRowsResumptionStrategy) settings.getResumptionStrategy());
+    LargeRowReadCallable largeRowReadCallable = new LargeRowReadCallable(innerCallable,settings.getResumptionStrategy());
 
     return new RetryingServerStreamingCallable<>(
         largeRowReadCallable, retryingExecutor, settings.getResumptionStrategy());

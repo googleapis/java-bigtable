@@ -363,7 +363,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Add tracing & metrics.
    * </ul>
    */
-  //Sarthak - what's the difference between readRowsUserCallable && createReadRowsBaseCallable
   public <RowT> ServerStreamingCallable<Query, RowT> createReadRowsCallable(
       RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
@@ -377,7 +376,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
-    // sarthak - whats this
     return traced.withDefaultCallContext(
         clientContext
             .getDefaultCallContext()
@@ -397,7 +395,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         new TracedServerStreamingCallable<>(
             readRowsUserCallable, clientContext.getTracerFactory(), span);
 
-    // sarthak - whats this
     return traced.withDefaultCallContext(
         clientContext
             .getDefaultCallContext()
@@ -421,7 +418,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    * </ul>
    */
   public <RowT> UnaryCallable<Query, RowT> createReadRowCallable(RowAdapter<RowT> rowAdapter) {
-    // Sarthak - what is this
     if (!settings.getEnableSkipTrailers()) {
       ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
           createReadRowsBaseCallable(
@@ -470,7 +466,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
     }
   }
 
-  // Sarthak - resumption strategy getting plugged here
   private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
       ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
     return createReadRowsBaseCallable(
@@ -500,7 +495,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *
    * <p>NOTE: the caller is responsible for adding tracing & metrics.
    */
-  //Sarthak // sarthakImp - adding changes here?? :: create LargeReadRowsCallable here via this
   private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createReadRowsBaseCallable(
       ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
       RowAdapter<RowT> rowAdapter,
@@ -520,14 +514,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    // Sarthak - responseObserver is QueuingResponseObserver
 
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
-
-
-    // Sarthak - pause2 - find where is the call() happening - need to see which outerResponseObserver is being passed
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
         new ConvertExceptionCallable<>(withStatsHeaders);
 
@@ -556,7 +546,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
         new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
-    // sarthak - sarthakImp - where to go from here? this is being used
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
         withRetries(retrying1, innerSettings);
 
@@ -584,13 +573,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    // Sarthak - responseObserver is QueuingResponseObserver
-
     // Sometimes ReadRows connections are disconnected via an RST frame. This error is transient and
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new ConvertExceptionCallable<>(withStatsHeaders);
+        new LargeRowConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
@@ -619,9 +606,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying1 =
         new ReadRowsRetryCompletedCallable<>(withBigtableTracer);
 
-    // sarthak - sarthakImp - where to go from here? this is being used
     ServerStreamingCallable<ReadRowsRequest, RowT> retrying2 =
-        LargeRowWithRetries(retrying1, innerSettings);
+        largeRowWithRetries(retrying1, innerSettings);
 
     return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
@@ -1380,7 +1366,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
     ServerStreamingCallable<RequestT, ResponseT> retrying;
-    // sarthak which one is working
     if (settings.getEnableRetryInfo()) {
       retrying =
           com.google.cloud.bigtable.gaxx.retrying.Callables.retrying(
@@ -1394,17 +1379,17 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return retrying;
   }
 
-  private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> LargeRowWithRetries(
+  private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> largeRowWithRetries(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
     ServerStreamingCallable<RequestT, ResponseT> retrying;
-    // sarthak which one is working
     if (settings.getEnableRetryInfo()) {
       retrying =
           com.google.cloud.bigtable.gaxx.retrying.Callables.retryingForLargeRows(
               innerCallable, serverStreamingCallSettings, clientContext);
     } else {
+      // large-row-resumption strategy not getting plugged in, if theres's no retry
       retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
     }
     if (settings.getEnableRoutingCookie()) {

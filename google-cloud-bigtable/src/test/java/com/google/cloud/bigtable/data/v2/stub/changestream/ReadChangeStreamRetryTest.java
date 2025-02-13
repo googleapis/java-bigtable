@@ -366,7 +366,6 @@ public class ReadChangeStreamRetryTest {
     Assert.assertTrue(actualResults.get(1) instanceof Heartbeat);
   }
 
-  //Sarthak - you can test this
   @Test
   public void retryRstStreamExceptionTest() {
     ApiException exception =

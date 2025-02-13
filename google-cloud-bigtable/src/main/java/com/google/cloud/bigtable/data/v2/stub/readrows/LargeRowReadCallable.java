@@ -34,10 +34,10 @@ public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  private final LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy;
+  private final StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy;
 
 
-  public LargeRowReadCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable, LargeReadRowsResumptionStrategy<ResponseT> resumptionStrategy) {
+  public LargeRowReadCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable, StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy) {
     this.innerCallable = innerCallable;
     this.resumptionStrategy = resumptionStrategy;
   }
@@ -46,14 +46,9 @@ public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
   @Override
   public void call(
       RequestT request, ResponseObserver<ResponseT> responseObserver, ApiCallContext context) {
-
     ConvertExceptionResponseObserver<ResponseT> observer =
         new ConvertExceptionResponseObserver<>(responseObserver);
-
-    // calling outerObserver.onError ->
     innerCallable.call(request, observer, context);
-    // innerCallable is RetryingServerStreamingCallable
-    // Sarthak -  cannot find the actual implementation of this
   }
 
   private class ConvertExceptionResponseObserver<ResponseT>
@@ -76,10 +71,13 @@ public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
       outerObserver.onResponse(response);
     }
 
-    // Sarthak - checked here -> it is adding the error in the buffer || would this be analysed in procesResponse now? or where would this error be catched?
     @Override
     protected void onErrorImpl(Throwable t) {
-      resumptionStrategy.setLargeRowKey(t);
+      // this has no impact
+      // if (resumptionStrategy instanceof LargeReadRowsResumptionStrategy) {
+      //   LargeReadRowsResumptionStrategy derived = (LargeReadRowsResumptionStrategy) resumptionStrategy;
+      //   derived.setLargeRowKey(t);
+      // }
       outerObserver.onError(t);
     }
 
