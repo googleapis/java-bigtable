@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,16 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * An implementation of a {@link StreamResumptionStrategy} for merged rows. This class tracks the
- * last complete row seen and upon retry can build a request to resume the stream from where it left
- * off.
+ * An implementation of a {@link StreamResumptionStrategy} for merged rows. This class tracks -
+ *
+ * <ul>
+ *   <li>row key for the last row that was read successfully
+ *   <li>row key for large-row that couldn't be read
+ *   <li>list of all row keys for large-rows
+ * </ul>
+ *
+ * Upon retry this class builds a request to omit the large rows & retry from the last row key that
+ * was read successfully off.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
@@ -96,21 +103,18 @@ public class LargeReadRowsResumptionStrategy<RowT>
     }
   }
 
-  public void dumpLargeRowKeys() {
-    if (largeRowKeys != null && !largeRowKeys.isEmpty()) {
-      for (ByteString largeRowKey : largeRowKeys) {
-        System.out.println(largeRowKey.toString());
-      }
-    }
-  }
+  /**
+   * This method should be implemented to expose the large-row keys ({@link
+   * LargeReadRowsResumptionStrategy#largeRowKeys}) to application via side channel/dlq or some
+   * other way ToDo (@sarthakbhutani) : add implementation of this method as described above
+   */
+  public void dumpLargeRowKeys() {}
 
   private String extractLargeRowKey(Throwable t) {
     if (t instanceof ApiException
         && ((ApiException) t).getReason() != null
         && ((ApiException) t).getReason().equals("LargeRowReadError")) {
       return ((ApiException) t).getMetadata().get("rowKey");
-      // return ((FailedPreconditionException)
-      // t).getErrorDetails().getErrorInfo().getMetadataMap().get("rowKey")
     }
     return null;
   }
@@ -132,10 +136,14 @@ public class LargeReadRowsResumptionStrategy<RowT>
       return originalRequest;
     }
 
-    RowSet remaining;
+    RowSet remaining = originalRequest.getRows();
 
-    remaining =
-        RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
+    if(!lastSuccessKey.isEmpty()){
+      remaining =
+          RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
+    }
+    // remaining =
+    //     RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
     if (!largeRowKeys.isEmpty()) {
       for (ByteString largeRowKey : largeRowKeys) {
         // skip the row that was faulty -> that would be the split point

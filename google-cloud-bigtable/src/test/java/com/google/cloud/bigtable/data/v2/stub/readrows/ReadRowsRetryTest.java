@@ -443,20 +443,6 @@ public class ReadRowsRetryTest {
     }
   }
 
-  private class ReadRowResponseAndException {
-
-    private ReadRowsResponse response;
-    private Exception exception;
-
-    ReadRowResponseAndException(ReadRowsResponse response) {
-      this.response = response;
-    }
-
-    ReadRowResponseAndException(Exception exception) {
-      this.exception = exception;
-    }
-  }
-
   private static class RpcExpectation {
     ReadRowsRequest.Builder requestBuilder;
     Status.Code statusCode;

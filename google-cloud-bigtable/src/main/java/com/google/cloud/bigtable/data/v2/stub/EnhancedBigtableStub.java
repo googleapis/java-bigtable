@@ -178,7 +178,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
   private final ServerStreamingCallable<Query, Row> readRowsCallable;
 
-  private final ServerStreamingCallable<Query, Row> largeReadRowsCallable;
+  private final ServerStreamingCallable<Query, Row> skipLargeRowsCallable;
 
   private final UnaryCallable<Query, Row> readRowCallable;
   private final UnaryCallable<Query, List<Row>> bulkReadRowsCallable;
@@ -308,7 +308,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     this.bulkMutationDynamicFlowControlStats = new DynamicFlowControlStats();
 
     readRowsCallable = createReadRowsCallable(new DefaultRowAdapter());
-    largeReadRowsCallable = createLargeReadRowsBaseCallable(new DefaultRowAdapter());
+    skipLargeRowsCallable = createSkipLargeRowsBaseCallable(new DefaultRowAdapter());
     readRowCallable = createReadRowCallable(new DefaultRowAdapter());
     bulkReadRowsCallable = createBulkReadRowsCallable(new DefaultRowAdapter());
     sampleRowKeysCallable = createSampleRowKeysCallable();
@@ -382,10 +382,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
             .withRetrySettings(settings.readRowsSettings().getRetrySettings()));
   }
 
-  public <RowT> ServerStreamingCallable<Query, RowT> createLargeReadRowsBaseCallable(
+  public <RowT> ServerStreamingCallable<Query, RowT> createSkipLargeRowsBaseCallable(
       RowAdapter<RowT> rowAdapter) {
     ServerStreamingCallable<ReadRowsRequest, RowT> readRowsCallable =
-        createLargeReadRowsBaseCallable(settings.readRowsSettings(), rowAdapter);
+        createSkipLargeRowsBaseCallable(
+            settings.readRowsSettings(),
+            rowAdapter,
+            new LargeReadRowsResumptionStrategy<RowT>(rowAdapter));
 
     ServerStreamingCallable<Query, RowT> readRowsUserCallable =
         new ReadRowsUserCallable<>(readRowsCallable, requestContext);
@@ -470,13 +473,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
         readRowsSettings, rowAdapter, new ReadRowsResumptionStrategy<RowT>(rowAdapter));
   }
 
-  private <ReqT, RowT>
-      ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
-          ServerStreamingCallSettings<ReqT, Row> readRowsSettings, RowAdapter<RowT> rowAdapter) {
-    return createLargeReadRowsBaseCallable(
-        readRowsSettings, rowAdapter, new LargeReadRowsResumptionStrategy<>(rowAdapter));
-  }
-
   /**
    * Creates a callable chain to handle ReadRows RPCs. The chain will:
    *
@@ -548,11 +544,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return new FilterMarkerRowsCallable<>(retrying2, rowAdapter);
   }
 
-  private <ReqT, RowT>
-      ServerStreamingCallable<ReadRowsRequest, RowT> createLargeReadRowsBaseCallable(
-          ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
-          RowAdapter<RowT> rowAdapter,
-          StreamResumptionStrategy<ReadRowsRequest, RowT> resumptionStrategy) {
+  private <ReqT, RowT> ServerStreamingCallable<ReadRowsRequest, RowT> createSkipLargeRowsBaseCallable(
+      ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
+      RowAdapter<RowT> rowAdapter,
+      StreamResumptionStrategy<ReadRowsRequest, RowT> resumptionStrategy) {
 
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
@@ -577,13 +572,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
 
-    LargeReadRowsResumptionStrategy<RowT> largeRowResumptionStrategy;
-    largeRowResumptionStrategy = new LargeReadRowsResumptionStrategy<RowT>(rowAdapter);
     // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
     // ReadRowsRequest -> ReadRowsResponse callable).
     ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
         ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
-            .setResumptionStrategy(largeRowResumptionStrategy)
+            .setResumptionStrategy(new LargeReadRowsResumptionStrategy<>(rowAdapter))
             .setRetryableCodes(readRowsSettings.getRetryableCodes())
             .setRetrySettings(readRowsSettings.getRetrySettings())
             .setIdleTimeout(readRowsSettings.getIdleTimeout())
@@ -1374,19 +1367,15 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return retrying;
   }
 
+  // sarthak-testing : fix this
   private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> largeRowWithRetries(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
     ServerStreamingCallable<RequestT, ResponseT> retrying;
-    if (settings.getEnableRetryInfo()) {
       retrying =
           com.google.cloud.bigtable.gaxx.retrying.Callables.retryingForLargeRows(
               innerCallable, serverStreamingCallSettings, clientContext);
-    } else {
-      // large-row-resumption strategy not getting plugged in, if theres's no retry
-      retrying = Callables.retrying(innerCallable, serverStreamingCallSettings, clientContext);
-    }
     if (settings.getEnableRoutingCookie()) {
       return new CookiesServerStreamingCallable<>(retrying);
     }
@@ -1401,8 +1390,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return readRowsCallable;
   }
 
-  public ServerStreamingCallable<Query, Row> largeReadRowsCallable() {
-    return largeReadRowsCallable;
+  /** Returns a streaming read rows callable that skips large rows */
+  public ServerStreamingCallable<Query, Row> skipLargeRowsCallable() {
+    return skipLargeRowsCallable;
   }
 
   /** Return a point read callable */

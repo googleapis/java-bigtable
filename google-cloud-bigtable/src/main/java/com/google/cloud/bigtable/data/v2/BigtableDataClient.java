@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1173,7 +1173,7 @@ public class BigtableDataClient implements AutoCloseable {
   }
 
   public ServerStream<Row> readLargeRows(Query query) {
-    return largeReadRowsCallable().call(query);
+    return readLargeRowsCallable().call(query);
   }
 
   /**
@@ -1228,7 +1228,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @param observer
    */
   public void readLargeRowsAsync(Query query, ResponseObserver<Row> observer) {
-    largeReadRowsCallable().call(query, observer);
+    readLargeRowsCallable().call(query, observer);
   }
 
   /**
@@ -1293,8 +1293,67 @@ public class BigtableDataClient implements AutoCloseable {
     return stub.readRowsCallable();
   }
 
-  public ServerStreamingCallable<Query, Row> largeReadRowsCallable() {
-    return stub.largeReadRowsCallable();
+  /**
+   * Streams back the results of the read query & omits large rows. The returned callable object
+   * allows for customization of api invocation.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
+   *   String tableId = "[TABLE]";
+   *
+   *   Query query = Query.create(tableId)
+   *          .range("[START KEY]", "[END KEY]")
+   *          .filter(FILTERS.qualifier().regex("[COLUMN PREFIX].*"));
+   *
+   *   // Iterator style
+   *   try {
+   *     for(Row row : bigtableDataClient.readLargeRowsCallable().call(query)) {
+   *       // Do something with row
+   *     }
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // Sync style
+   *   try {
+   *     List<Row> rows = bigtableDataClient.readLargeRowsCallable().all().call(query);
+   *   } catch (NotFoundException e) {
+   *     System.out.println("Tried to read a non-existent table");
+   *   } catch (RuntimeException e) {
+   *     e.printStackTrace();
+   *   }
+   *
+   *   // Point look up
+   *   ApiFuture<Row> rowFuture = bigtableDataClient.readRowsCallable().first().futureCall(query);
+   *
+   *   ApiFutures.addCallback(rowFuture, new ApiFutureCallback<Row>() {
+   *     public void onFailure(Throwable t) {
+   *       if (t instanceof NotFoundException) {
+   *         System.out.println("Tried to read a non-existent table");
+   *       } else {
+   *         t.printStackTrace();
+   *       }
+   *     }
+   *     public void onSuccess(Row result) {
+   *       System.out.println("Got row: " + result);
+   *     }
+   *   }, MoreExecutors.directExecutor());
+   *
+   *   // etc
+   * }
+   * }</pre>
+   *
+   * @see ServerStreamingCallable For call styles.
+   * @see Query For query options.
+   * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
+   */
+  @InternalApi("only to be used by Bigtable beam connector")
+  public ServerStreamingCallable<Query, Row> readLargeRowsCallable() {
+    return stub.skipLargeRowsCallable();
   }
 
   /**
