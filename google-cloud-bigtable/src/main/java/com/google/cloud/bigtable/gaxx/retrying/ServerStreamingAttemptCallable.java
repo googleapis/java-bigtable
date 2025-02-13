@@ -206,6 +206,8 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
         .getTracer()
         .attemptStarted(request, outerRetryingFuture.getAttemptSettings().getOverallAttemptCount());
 
+    // Sarthak - what is happening here ->?
+    // Sarthak - pause1 - while making the attemptFuture.call - finding the implementation of ServerStreamingCallable
     innerCallable.call(
         request,
         new StateCheckingResponseObserver<ResponseT>() {

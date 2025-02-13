@@ -20,11 +20,13 @@ import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.InternalException;
 import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
 import javax.annotation.Nullable;
 
 // TODO move this algorithm to gax
+
 /**
  * This retry algorithm checks the metadata of an exception for additional error details. If the
  * metadata has a RetryInfo field, use the retry delay to set the wait time between attempts.
@@ -32,7 +34,7 @@ import javax.annotation.Nullable;
 
 // sarthak - look here -
 @InternalApi
-public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
+public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
 
   @Override
   public TimedAttemptSettings createNextAttempt(
@@ -71,10 +73,11 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
     if (context != null && context.getRetryableCodes() != null) {
       // Ignore the isRetryable() value of the throwable if the RetryingContext has a specific list
       // of codes that should be retried.
-      return ((previousThrowable instanceof ApiException)
+      return (((previousThrowable instanceof ApiException)
           && context
               .getRetryableCodes()
-              .contains(((ApiException) previousThrowable).getStatusCode().getCode()));
+              .contains(((ApiException) previousThrowable).getStatusCode().getCode()))
+      || ((ApiException) previousThrowable).getReason().equals("LargeRowReadError") );
     }
     // Server didn't have retry information and there's no retry context, use the local status
     // code config.
@@ -96,6 +99,7 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
     if (exception.getErrorDetails().getRetryInfo() == null) {
       return null;
     }
+    // sarthak - what if the error details dont have retry info
     RetryInfo retryInfo = exception.getErrorDetails().getRetryInfo();
     return java.time.Duration.ofMillis(Durations.toMillis(retryInfo.getRetryDelay()));
   }

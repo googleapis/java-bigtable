@@ -29,6 +29,7 @@ import com.google.cloud.bigtable.data.v2.models.Query;
  * Enhancement for `readRowsCallable().first()` to gracefully limit the row count instead of
  * cancelling the RPC
  */
+//Sarthak - any changes here? evem it has observer - which can throw errrors?
 @InternalApi
 public class ReadRowsFirstCallable<RowT> extends UnaryCallable<Query, RowT> {
 

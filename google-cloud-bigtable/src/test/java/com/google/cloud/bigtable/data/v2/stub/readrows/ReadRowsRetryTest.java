@@ -15,7 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
+import static com.google.api.gax.rpc.StatusCode.Code.FAILED_PRECONDITION;
+
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.rpc.ErrorDetails;
+import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.ApiException;
@@ -36,15 +40,18 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 import com.google.common.truth.Truth;
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.BytesValue;
 import com.google.protobuf.StringValue;
+import com.google.rpc.ErrorInfo;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -122,7 +129,76 @@ public class ReadRowsRetryTest {
 
     List<String> actualResults = getResults(Query.create(TABLE_ID).rowKey("k1").range("r1", "r3"));
     Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
+
+    //   call the callable ->
+    //   outerobserver -> server.onNext() -> client.onResponse()
   }
+
+
+  public class CustomStatusCode implements StatusCode {
+
+    private final Code code;
+
+    // Constructor to initialize with a specific code
+    public CustomStatusCode(Code code) {
+      this.code = code;
+    }
+
+    @Override
+    public Code getCode() {
+      return code;
+    }
+
+    @Override
+    public Object getTransportCode() {
+      // Return null or transport-specific code if applicable
+      return null;
+    }
+  }
+
+
+  @Test
+  public void immediateRetryTestForLargeRows() {
+    // create error info here, and, see if it runs!!
+    ApiException apiException = new ApiException(new Exception("Large Roww!!"),
+        new CustomStatusCode(FAILED_PRECONDITION),false, ErrorDetails.builder().build());
+
+    ErrorInfo errorInfo = ErrorInfo.newBuilder()
+        .setReason("LargeRowReadError")
+        .setDomain("bigtable.googleapis.com")
+        .putMetadata("rowKey", "r2")
+        .putMetadata("key2", "value2")
+        .build();
+    Any packedErrorInfo = Any.pack(errorInfo);
+    ErrorDetails errorDetails = ErrorDetails.builder()
+        .setRawErrorMessages(Collections.singletonList(packedErrorInfo))
+        .build();
+
+    RpcExpectation rpcExpectation = new RpcExpectation().expectRequest(Range.closedOpen("r1", "r4"))
+            .respondWithException(Code.FAILED_PRECONDITION,apiException);
+
+    service.expectations.add(rpcExpectation);
+    // service.expectations.add(
+    //     RpcExpectation.create()
+    //         .expectRequest("k1")
+    //         .expectRequest(Range.closed("r1", "r3"))
+    //         .respondWithStatus(Code.UNAVAILABLE));
+    // service.expectations.add(
+    //     RpcExpectation.create()
+    //         .expectRequest("k1")
+    //         .expectRequest(Range.closedOpen("r1", "r3"))
+    //         .respondWith("k1", "r1", "r2"));
+
+    // Let r2 be faulty row
+
+    List<String> actualResults = getLargeRowsResults(Query.create(TABLE_ID).range("r1", "r4"));
+    Truth.assertThat(actualResults).containsExactly( "r1", "r3").inOrder();
+
+    //   call the callable ->
+    //   outerobserver -> server.onNext() -> client.onResponse()
+  }
+
+
 
   @Test
   public void multipleRetryTest() {
@@ -266,6 +342,7 @@ public class ReadRowsRetryTest {
     Truth.assertThat(actualResults).containsExactly("r7").inOrder();
   }
 
+  // sarthak - check this test
   @Test
   public void retryRstStreamExceptionTest() {
     ApiException exception =
@@ -292,6 +369,15 @@ public class ReadRowsRetryTest {
 
   private List<String> getResults(Query query) {
     ServerStream<Row> actualRows = client.readRows(query);
+    List<String> actualValues = Lists.newArrayList();
+    for (Row row : actualRows) {
+      actualValues.add(row.getKey().toStringUtf8());
+    }
+    return actualValues;
+  }
+
+  private List<String> getLargeRowsResults(Query query) {
+    ServerStream<Row> actualRows = client.largeReadRows(query);
     List<String> actualValues = Lists.newArrayList();
     for (Row row : actualRows) {
       actualValues.add(row.getKey().toStringUtf8());

@@ -169,6 +169,7 @@ public class BigtableDataClient implements AutoCloseable {
    * Constructs an instance of BigtableDataClient, using the given settings. The channels are
    * created based on the settings passed in, or defaults for any settings that are not set.
    */
+  // sarthakDef - EnhancedBigtableStub - internal way via grpc to connect w/ bigtable
   public static BigtableDataClient create(BigtableDataSettings settings) throws IOException {
     EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings.getStubSettings());
     return new BigtableDataClient(stub);
@@ -1169,8 +1170,18 @@ public class BigtableDataClient implements AutoCloseable {
    * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
    */
   public ServerStream<Row> readRows(Query query) {
-    return readRowsCallable().call(query);
+
+    //   SARTHAK---- TESTING
+    // replaced readRows() with largeReadRows() ----
+    // return readRowsCallable().call(query);
+    return largeReadRowsCallable().call(query);
+
   }
+
+  public ServerStream<Row> largeReadRows(Query query) {
+    return largeReadRowsCallable().call(query);
+  }
+
 
   /**
    * Convenience method for asynchronously streaming the results of a {@link Query}.
@@ -1277,6 +1288,10 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public ServerStreamingCallable<Query, Row> readRowsCallable() {
     return stub.readRowsCallable();
+  }
+
+  public ServerStreamingCallable<Query, Row> largeReadRowsCallable() {
+    return stub.largeReadRowsCallable();
   }
 
   /**
