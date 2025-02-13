@@ -470,7 +470,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallSettings<ReqT, Row> readRowsSettings,
       RowAdapter<RowT> rowAdapter,
       StreamResumptionStrategy<ReadRowsRequest, RowT> resumptionStrategy) {
-
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<ReadRowsRequest, ReadRowsResponse>newBuilder()
@@ -1375,11 +1374,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return retrying;
   }
 
-  // sarthak-testing : fix this
   private <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> largeRowWithRetries(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
+    //Retrying algorithm in retryingForLargeRows also takes RetryInfo into consideration, so we skip the check for RetryInfo here
     ServerStreamingCallable<RequestT, ResponseT> retrying;
     retrying =
         com.google.cloud.bigtable.gaxx.retrying.Callables.retryingForLargeRows(
