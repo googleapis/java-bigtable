@@ -24,12 +24,11 @@ import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
 import javax.annotation.Nullable;
 
-// TODO move this algorithm to gax
 
 /**
  * This retry algorithm checks the metadata of an exception for additional error details. It also
  * allows to retry for {@link com.google.api.gax.rpc.FailedPreconditionException} with
- * ErrorDetails.Reason as "LargeRowReadError" (for large rows) If the metadata has a RetryInfo
+ * ErrorDetails.Reason as "LargeRowReadError" (for large rows). If the metadata has a RetryInfo
  * field, use the retry delay to set the wait time between attempts.
  */
 @InternalApi
@@ -89,7 +88,6 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
 
   public boolean isLargeRowException(Throwable previousThrowable) {
     return (previousThrowable != null)
-        // && (previousThrowable.getClass() != ServerStreamingAttemptException.class)
         && (previousThrowable instanceof ApiException)
         && ((ApiException) previousThrowable).getReason() != null
         && ((ApiException) previousThrowable).getReason().equals("LargeRowReadError");
