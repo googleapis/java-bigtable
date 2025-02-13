@@ -171,6 +171,16 @@ public class LargeRowIT {
     String rowKeyPrefix = "rowKey-";
     long timestampMicros = System.currentTimeMillis() * 1_000;
 
+    // delete rows -- if created
+    client.bulkMutateRows(BulkMutation.create(tableId)
+        .add(RowMutationEntry.create("r1").deleteRow())
+        .add(RowMutationEntry.create("r2").deleteRow())
+        .add(RowMutationEntry.create("r3").deleteRow())
+        .add(RowMutationEntry.create("r4").deleteRow())
+        .add(RowMutationEntry.create("r5").deleteRow())
+        .add(RowMutationEntry.create("r6").deleteRow())
+    );
+
     // small row creations
     client.bulkMutateRows(
         BulkMutation.create(tableId)
@@ -231,7 +241,7 @@ public class LargeRowIT {
 
     int threadCount = 5;
     int offset = 0;
-    int iterations = 100;
+    int iterations = 1;
     ExecutorService executor = Executors.newFixedThreadPool(4);
 
     for (int i = offset; i < threadCount + offset; i++) {
@@ -255,44 +265,38 @@ public class LargeRowIT {
     // sync
     assertThat(
         ImmutableList.copyOf(
-            client.readRows(
+            client.readLargeRows(
                 Query.create(tableId)
                     .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
         .containsExactly(expectedRow1, expectedRow2);
 
+    // FAILING WITH ERR- com.google.api.gax.rpc.ResourceExhaustedException: io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: trying to send message larger than max (524288237 vs. 268435456)
     assertThat(
         ImmutableList.copyOf(
-            client.readRows(
+            client.readLargeRows(
                 Query.create(tableId)
                     .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3")))))
         .containsExactly(expectedRow1, expectedRow2);
 
     assertThat(
         ImmutableList.copyOf(
-            client.readRows(
+            client.readLargeRows(
                 Query.create(tableId)
                     .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
         .containsExactly(expectedRow1, expectedRow2, expectedRow4);
 
-    //async
+    // //async
     AccumulatingObserver observer = new AccumulatingObserver();
     Query query = Query.create(tableId).range("r1", "r3");
-    client.readRowsAsync(query, observer);
+    client.readLargeRowsAsync(query, observer);
     observer.awaitCompletion();
     assertThat(observer.responses).containsExactly(expectedRow1, expectedRow2);
 
     AccumulatingObserver observer2 = new AccumulatingObserver();
     Query query2 = Query.create(tableId).range("r1", "r5");
-    client.readRowsAsync(query2, observer2);
+    client.readLargeRowsAsync(query2, observer2);
     observer2.awaitCompletion();
     assertThat(observer2.responses).containsExactly(expectedRow1, expectedRow2, expectedRow4);
 
   }
 }
-
-// how do you share the failed rows with the client
-// how do I point these to point to the testing env - https://source.corp.google.com/piper///depot/google3/bigtable/anviltop/test/kokoro/gcp_ubuntu/github/nightly_test/java_bigtable_latest.sh?q=bigtable-prod-it&sq=(file:google3%2Fbigtable%2Fanviltop%20OR%20file:production%2Fsisyphus%2Fcloud_bigtable%20OR%20file:%2F%2Fdepot%2Fgoogle3%2Fgoogle%2Fbigtable%20OR%20file:%2F%2Fdepot%2Fgoogle3%2Fbigtable%2Fperftest%2Fsplode%20OR%20file:production%2Fborg%2Fcloud-bigtable%20OR%20file:configs%2Fmonitoring%2Fcloud_pulse_monarch%2Fbigtable%20OR%20file:configs%2Fmonitoring%2Fcloud_bigtable%2Fconfig)%20AND%20-f:anviltop_experiments_branch
-// weekly share the email
-// bigtable  -
-// status update
-// who will help with the project

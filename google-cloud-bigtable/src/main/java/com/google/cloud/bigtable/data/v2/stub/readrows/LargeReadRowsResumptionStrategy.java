@@ -107,7 +107,6 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
 
   private String extractLargeRowKey(Throwable t){
-    // ToDo (@sarthakbhutani) : Based on real exception thrown for LargeRowError -> update the Exception here. For ex - {@link InternalException}
     if (t instanceof ApiException && ((ApiException) t).getReason()!=null && ((ApiException) t).getReason().equals("LargeRowReadError")) {
       return  ((ApiException) t).getMetadata().get("rowKey");
       // return ((FailedPreconditionException) t).getErrorDetails().getErrorInfo().getMetadataMap().get("rowKey")

@@ -87,8 +87,7 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
   }
 
   private boolean isLargeRowError(Throwable t){
-    // ToDo (@sarthakbhutani) : Based on real exception thrown for LargeRowError -> update the Exception here. For ex - {@link InternalException}
-    if (t instanceof FailedPreconditionException && ((FailedPreconditionException) t).getReason().equals("LargeRowReadError")){
+    if (t instanceof FailedPreconditionException && ((FailedPreconditionException) t).getReason()!=null && ((FailedPreconditionException) t).getReason().equals("LargeRowReadError")){
       return true;
     }
     return false;

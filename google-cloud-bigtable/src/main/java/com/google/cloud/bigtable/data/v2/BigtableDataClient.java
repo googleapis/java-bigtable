@@ -1170,11 +1170,10 @@ public class BigtableDataClient implements AutoCloseable {
    */
   public ServerStream<Row> readRows(Query query) {
     // return readRowsCallable().call(query);
-    // ToDo (@sarthakbhutani) : uncomment above code & remove the largeReadRows method call
     return largeReadRowsCallable().call(query);
   }
 
-  public ServerStream<Row> largeReadRows(Query query) {
+  public ServerStream<Row> readLargeRows(Query query) {
     return largeReadRowsCallable().call(query);
   }
 
@@ -1221,9 +1220,7 @@ public class BigtableDataClient implements AutoCloseable {
    * }</pre>
    */
   public void readRowsAsync(Query query, ResponseObserver<Row> observer) {
-    // readRowsCallable().call(query, observer);
-    // ToDo (@sarthakbhutani) : uncomment above code & remove the largeReadRows method call
-    largeReadRowsCallable().call(query,observer);
+    readRowsCallable().call(query, observer);
   }
 
   /**
