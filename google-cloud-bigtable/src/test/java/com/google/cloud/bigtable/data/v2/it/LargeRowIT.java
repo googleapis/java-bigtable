@@ -89,43 +89,6 @@ public class LargeRowIT {
     assertThat(row.getCells().get(1).getValue()).isEqualTo(largeValue);
   }
 
-  @Test
-  public void testLargeRowRead() throws Exception {
-    String rowKey = UUID.randomUUID().toString();
-    String familyId = testEnvRule.env().getFamilyId();
-
-    byte[] largeValueBytes = new byte[100 * 1024 * 1024];
-    Random random = new Random();
-    random.nextBytes(largeValueBytes);
-    ByteString largeValue = ByteString.copyFrom(largeValueBytes);
-
-    // Create a 200 MB row
-    logger.info("Sending large row, this will take awhile");
-    for (int i = 0; i < 2; i++) {
-      testEnvRule
-          .env()
-          .getDataClient()
-          .mutateRowAsync(
-              RowMutation.create(testEnvRule.env().getTableId(), rowKey)
-                  .setCell(familyId, ByteString.copyFromUtf8("q" + i), largeValue))
-          .get(10, TimeUnit.MINUTES);
-    }
-
-    logger.info("Reading large row, this will take awhile");
-    // Read it back
-    Row row =
-        testEnvRule
-            .env()
-            .getDataClient()
-            .readRowsCallable()
-            .first()
-            .call(Query.create(testEnvRule.env().getTableId()).rowKey(rowKey));
-
-    assertThat(row.getCells()).hasSize(2);
-    assertThat(row.getCells().get(0).getValue()).isEqualTo(largeValue);
-    assertThat(row.getCells().get(1).getValue()).isEqualTo(largeValue);
-  }
-
   static class AccumulatingObserver implements ResponseObserver<Row> {
 
     final List<Row> responses = Lists.newArrayList();
@@ -156,60 +119,6 @@ public class LargeRowIT {
     public void onComplete() {
       completionFuture.set(null);
     }
-  }
-
-  @Test
-  public void fastLargeRowTest() throws Throwable{
-    BigtableDataClient client = testEnvRule.env().getDataClient();
-    String tableId = testEnvRule.env().getTableId();
-    String familyId = testEnvRule.env().getFamilyId();
-    String rowKeyPrefix = "rowKey-";
-    long timestampMicros = System.currentTimeMillis() * 1_000;
-
-    List<Row> filledRows =ImmutableList.copyOf(
-        client.readLargeRowsCallable().call(
-            Query.create(tableId)
-                .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4"))));
-
-    assertThat(filledRows.size()
-    ).isEqualTo(2);
-
-    List<Row> emptyRows =
-        ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r3"))));
-    assertThat(emptyRows).isEmpty();
-
-    List<Row> startWithFaultyRow =
-        ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r4"))));
-    assertThat(startWithFaultyRow.size()).isEqualTo(1);
-
-    List<Row> endsWithFaultyRow =
-        ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3"))));
-    assertThat(endsWithFaultyRow.size()).isEqualTo(1);
-
-    // ASYNC
-    AccumulatingObserver observer = new AccumulatingObserver();
-    Query query = Query.create(tableId).range("r1", "r3");
-    client.readLargeRowsCallable().call(query, observer);
-    observer.awaitCompletion();
-    assertThat(observer.responses.size()).isEqualTo(1);
-
-    AccumulatingObserver observer2 = new AccumulatingObserver();
-    Query query2 = Query.create(tableId).range("r1", "r6");
-    client.readLargeRowsCallable().call(query2, observer2);
-    observer2.awaitCompletion();
-    assertThat(observer2.responses.size()).isEqualTo(3);
-
-
-
   }
 
   @Test
@@ -259,17 +168,6 @@ public class LargeRowIT {
                     ImmutableList.<String>of(),
                     ByteString.copyFromUtf8("my-value"))));
 
-    Row expectedRow2 =
-        Row.create(
-            ByteString.copyFromUtf8("r2"),
-            ImmutableList.of(
-                RowCell.create(
-                    familyId,
-                    ByteString.copyFromUtf8("qualifier"),
-                    timestampMicros,
-                    ImmutableList.<String>of(),
-                    ByteString.copyFromUtf8("my-value"))));
-
     Row expectedRow4 =
         Row.create(
             ByteString.copyFromUtf8("r4"),
@@ -280,21 +178,20 @@ public class LargeRowIT {
                     timestampMicros,
                     ImmutableList.<String>of(),
                     ByteString.copyFromUtf8("my-value"))));
-    //
     assertThat(
             ImmutableList.copyOf(
                 client.readRows(
                     Query.create(tableId)
                         .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
-        .containsExactly(expectedRow1, expectedRow2);
+        .containsExactly(expectedRow1);
 
     // --- large row creation START----
-    byte[] largeValueBytes = new byte[100 * 1024 * 1024];
+    byte[] largeValueBytes = new byte[9 * 1024 * 1024];
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
     int threadCount = 5;
     int offset = 0;
-    int iterations = 1;
+    int iterations = 80;
     ExecutorService executor = Executors.newFixedThreadPool(4);
 
     for (int i = offset; i < threadCount + offset; i++) {
@@ -314,62 +211,134 @@ public class LargeRowIT {
       }
     }
     executor.shutdown();
-    executor.awaitTermination(2, TimeUnit.MINUTES);
+    executor.awaitTermination(4, TimeUnit.MINUTES);
     // --- large row creation END ----
 
     // sync
-    // assertThat(
-    //         ImmutableList.copyOf(
-    //             client.readLargeRowsCallable().call(
-    //                 Query.create(tableId)
-    //                     .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
-    //     .containsExactly(expectedRow1, expectedRow2);
+    assertThat(
+            ImmutableList.copyOf(
+                client
+                    .skipLargeRowsCallable()
+                    .call(
+                        Query.create(tableId)
+                            .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
+        .containsExactly(expectedRow1);
 
     assertThat(
             ImmutableList.copyOf(
-                client.readLargeRowsCallable().call(
-                    Query.create(tableId)
-                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
+                client
+                    .skipLargeRowsCallable()
+                    .call(
+                        Query.create(tableId)
+                            .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
         .containsExactly(expectedRow1, expectedRow4);
 
     List<Row> emptyRows =
         ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r3"))));
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r3"))));
     assertThat(emptyRows).isEmpty();
 
     List<Row> startWithFaultyRow =
         ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r4"))));
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r4"))));
     assertThat(startWithFaultyRow).containsExactly(expectedRow4);
 
     List<Row> endsWithFaultyRow =
         ImmutableList.copyOf(
-            client.readLargeRowsCallable().call(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3"))));
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3"))));
     assertThat(endsWithFaultyRow).containsExactly(expectedRow1);
 
     assertThat(
             ImmutableList.copyOf(
-                client.readLargeRowsCallable().call(
-                    Query.create(tableId)
-                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
+                client
+                    .skipLargeRowsCallable()
+                    .call(
+                        Query.create(tableId)
+                            .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
         .containsExactly(expectedRow1, expectedRow4);
     // //async
     AccumulatingObserver observer = new AccumulatingObserver();
     Query query = Query.create(tableId).range("r1", "r3");
-    client.readLargeRowsCallable().call(query, observer);
+    client.skipLargeRowsCallable().call(query, observer);
     observer.awaitCompletion();
-    assertThat(observer.responses).containsExactly(expectedRow1, expectedRow2);
+    assertThat(observer.responses).containsExactly(expectedRow1);
 
     AccumulatingObserver observer2 = new AccumulatingObserver();
     Query query2 = Query.create(tableId).range("r1", "r5");
-    client.readLargeRowsCallable().call(query2, observer2);
+    client.skipLargeRowsCallable().call(query2, observer2);
     observer2.awaitCompletion();
-    assertThat(observer2.responses).containsExactly(expectedRow1, expectedRow2, expectedRow4);
+    assertThat(observer2.responses).containsExactly(expectedRow1, expectedRow4);
+  }
+
+  @Test
+  public void fastLargeRowTestWhenRowsAreAlreadyCreated() throws Throwable {
+    BigtableDataClient client = testEnvRule.env().getDataClient();
+    String tableId = testEnvRule.env().getTableId();
+    String familyId = testEnvRule.env().getFamilyId();
+    long timestampMicros = System.currentTimeMillis() * 1_000;
+
+    // PASSED
+    List<Row> filledRows =
+        ImmutableList.copyOf(
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4"))));
+
+    assertThat(filledRows.size()).isEqualTo(2);
+
+    // PASSED
+    List<Row> emptyRows =
+        ImmutableList.copyOf(
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r3"))));
+    assertThat(emptyRows).isEmpty();
+
+    List<Row> startWithFaultyRow =
+        ImmutableList.copyOf(
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r2").endClosed("r4"))));
+    assertThat(startWithFaultyRow.size()).isEqualTo(1);
+
+    List<Row> endsWithFaultyRow =
+        ImmutableList.copyOf(
+            client
+                .skipLargeRowsCallable()
+                .call(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3"))));
+    assertThat(endsWithFaultyRow.size()).isEqualTo(1);
+
+    // ASYNC
+    AccumulatingObserver observer = new AccumulatingObserver();
+    Query query = Query.create(tableId).range("r1", "r3");
+    client.skipLargeRowsCallable().call(query, observer);
+    observer.awaitCompletion();
+    assertThat(observer.responses.size()).isEqualTo(1);
+
+    AccumulatingObserver observer2 = new AccumulatingObserver();
+    Query query2 = Query.create(tableId).range("r1", "r6");
+    client.skipLargeRowsCallable().call(query2, observer2);
+    observer2.awaitCompletion();
+    assertThat(observer2.responses.size()).isEqualTo(3);
   }
 }

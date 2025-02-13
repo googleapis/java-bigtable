@@ -54,7 +54,9 @@ public final class RowSetUtil {
     RowSet.Builder newRowSet = RowSet.newBuilder();
 
     if (rowSet.getRowKeysList().isEmpty() && rowSet.getRowRangesList().isEmpty()) {
-      rowSet = RowSet.newBuilder().addRowRanges(RowRange.getDefaultInstance()).build();
+      // querying range (, excludePoint) and (excludePoint, )
+      newRowSet.addRowRanges(RowRange.newBuilder().setEndKeyOpen(excludePoint).build());
+      newRowSet.addRowRanges(RowRange.newBuilder().setStartKeyOpen(excludePoint).build());
     }
 
     // Handle point lookups
@@ -184,33 +186,41 @@ public final class RowSetUtil {
 
     if (fromStart) {
       // range start is on or left of the split
-      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) <= 0) {
+      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
         RowRange beforeSplitKeyRange =
-            range.toBuilder().setStartKeyOpen(range.getStartKeyOpen()).setEndKeyOpen(split).build();
+            range
+                .toBuilder()
+                .setStartKeyOpen(
+                    range.getStartKeyOpen().isEmpty()
+                        ? range.getStartKeyClosed()
+                        : range.getStartKeyOpen())
+                .setEndKeyOpen(split)
+                .build();
         rowRangesList.add(beforeSplitKeyRange);
-        if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
-          RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
-          rowRangesList.add(afterSplitKeyRange);
-        }
         // RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
+      }
+      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
+        RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
+        rowRangesList.add(afterSplitKeyRange);
       }
     } else {
       // range end is on or right of the split
-      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) >= 0) {
+      if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
         // end key open would be already present as large read success key
-        ByteString endKey;
-        if (!range.getEndKeyClosed().isEmpty()) {
-          endKey = range.getEndKeyClosed();
-        } else {
-          endKey = range.getEndKeyOpen();
-        }
         RowRange afterSplitKeyRange =
-            range.toBuilder().setStartKeyOpen(split).setEndKeyOpen(endKey).build();
+            range
+                .toBuilder()
+                .setStartKeyOpen(split)
+                .setEndKeyOpen(
+                    range.getEndKeyOpen().isEmpty()
+                        ? range.getEndKeyClosed()
+                        : range.getEndKeyOpen())
+                .build();
         rowRangesList.add(afterSplitKeyRange);
-        if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
-          RowRange beforeSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
-          rowRangesList.add(afterSplitKeyRange);
-        }
+      }
+      if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
+        RowRange beforeSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
+        rowRangesList.add(beforeSplitKeyRange);
       }
     }
 

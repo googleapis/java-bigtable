@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.gaxx.retrying;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.BasicResultRetryAlgorithm;
 import com.google.api.gax.retrying.RetryingContext;
-import com.google.api.gax.retrying.ServerStreamingAttemptException;
 import com.google.api.gax.retrying.TimedAttemptSettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.protobuf.util.Durations;
@@ -70,6 +69,9 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
       // First check if server wants us to retry
       return true;
     }
+    if (isLargeRowException(previousThrowable)) {
+      return true;
+    }
     if (context != null && context.getRetryableCodes() != null) {
       // Ignore the isRetryable() value of the throwable if the RetryingContext has a specific list
       // of codes that should be retried.
@@ -78,9 +80,7 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
               .getRetryableCodes()
               .contains(((ApiException) previousThrowable).getStatusCode().getCode()));
     }
-    if (isLargeRowException(previousThrowable)) {
-      return true;
-    }
+
     // Server didn't have retry information and there's no retry context, use the local status
     // code config.
     return previousThrowable instanceof ApiException
@@ -88,7 +88,7 @@ public class LargeRowRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm
   }
 
   public boolean isLargeRowException(Throwable previousThrowable) {
-    return (previousThrowable!=null)
+    return (previousThrowable != null)
         // && (previousThrowable.getClass() != ServerStreamingAttemptException.class)
         && (previousThrowable instanceof ApiException)
         && ((ApiException) previousThrowable).getReason() != null
