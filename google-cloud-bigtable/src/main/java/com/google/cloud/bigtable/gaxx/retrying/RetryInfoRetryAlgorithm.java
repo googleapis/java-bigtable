@@ -29,7 +29,6 @@ import javax.annotation.Nullable;
  * This retry algorithm checks the metadata of an exception for additional error details. If the
  * metadata has a RetryInfo field, use the retry delay to set the wait time between attempts.
  */
-
 @InternalApi
 public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorithm<ResponseT> {
 

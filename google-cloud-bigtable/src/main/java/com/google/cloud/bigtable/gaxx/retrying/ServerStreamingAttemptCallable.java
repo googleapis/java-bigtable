@@ -222,15 +222,17 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
 
           @Override
           public void onErrorImpl(Throwable t) {
-            ((LargeReadRowsResumptionStrategy)resumptionStrategy).setLargeRowKey(t);
+            ((LargeReadRowsResumptionStrategy) resumptionStrategy).setLargeRowKey(t);
             onAttemptError(t);
-          //  ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping all the large rows collection somewhere via DLQ/side channel to application layer
+            //  ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping
+            // all the large rows collection somewhere via DLQ/side channel to application layer
           }
 
           @Override
           public void onCompleteImpl() {
             onAttemptComplete();
-            // ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping all the large rows collection somewhere via DLQ/side channel to application layer
+            // ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping
+            // all the large rows collection somewhere via DLQ/side channel to application layer
           }
         },
         attemptContext);

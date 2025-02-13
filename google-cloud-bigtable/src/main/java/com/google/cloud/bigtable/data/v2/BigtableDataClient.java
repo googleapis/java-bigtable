@@ -1177,7 +1177,6 @@ public class BigtableDataClient implements AutoCloseable {
     return largeReadRowsCallable().call(query);
   }
 
-
   /**
    * Convenience method for asynchronously streaming the results of a {@link Query}.
    *
@@ -1225,11 +1224,12 @@ public class BigtableDataClient implements AutoCloseable {
 
   /**
    * Convenience method for asynchronously streaming the results of a {@link Query} for large rows
+   *
    * @param query
    * @param observer
    */
-  public void readLargeRowsAsync(Query query,ResponseObserver<Row> observer){
-    largeReadRowsCallable().call(query,observer);
+  public void readLargeRowsAsync(Query query, ResponseObserver<Row> observer) {
+    largeReadRowsCallable().call(query, observer);
   }
 
   /**

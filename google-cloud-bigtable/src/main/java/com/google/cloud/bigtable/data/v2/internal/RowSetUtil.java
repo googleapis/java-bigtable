@@ -49,7 +49,8 @@ import javax.annotation.Nullable;
 public final class RowSetUtil {
   private RowSetUtil() {}
 
-  public static RowSet createSplitRanges(RowSet rowSet,ByteString excludePoint, boolean fromStart){
+  public static RowSet createSplitRanges(
+      RowSet rowSet, ByteString excludePoint, boolean fromStart) {
     RowSet.Builder newRowSet = RowSet.newBuilder();
 
     if (rowSet.getRowKeysList().isEmpty() && rowSet.getRowRangesList().isEmpty()) {
@@ -74,8 +75,8 @@ public final class RowSetUtil {
     // Handle ranges
     for (RowRange rowRange : rowSet.getRowRangesList()) {
       List<RowRange> newRangeCollection = splitRange(rowRange, excludePoint, fromStart);
-      if(newRangeCollection!=null && !newRangeCollection.isEmpty()){
-        for(RowRange newRange :newRangeCollection){
+      if (newRangeCollection != null && !newRangeCollection.isEmpty()) {
+        for (RowRange newRange : newRangeCollection) {
           newRowSet.addRowRanges(newRange);
         }
       }
@@ -184,7 +185,8 @@ public final class RowSetUtil {
     if (fromStart) {
       // range start is on or left of the split
       if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) <= 0) {
-        RowRange beforeSplitKeyRange = range.toBuilder().setStartKeyOpen(range.getStartKeyOpen()).setEndKeyOpen(split).build();
+        RowRange beforeSplitKeyRange =
+            range.toBuilder().setStartKeyOpen(range.getStartKeyOpen()).setEndKeyOpen(split).build();
         rowRangesList.add(beforeSplitKeyRange);
         if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
           RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
@@ -197,13 +199,13 @@ public final class RowSetUtil {
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) >= 0) {
         // end key open would be already present as large read success key
         ByteString endKey;
-        if(!range.getEndKeyClosed().isEmpty()){
+        if (!range.getEndKeyClosed().isEmpty()) {
           endKey = range.getEndKeyClosed();
-        }
-        else{
+        } else {
           endKey = range.getEndKeyOpen();
         }
-        RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).setEndKeyOpen(endKey).build();
+        RowRange afterSplitKeyRange =
+            range.toBuilder().setStartKeyOpen(split).setEndKeyOpen(endKey).build();
         rowRangesList.add(afterSplitKeyRange);
         if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
           RowRange beforeSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
@@ -214,7 +216,6 @@ public final class RowSetUtil {
 
     return rowRangesList;
   }
-
 
   /**
    * Splits the provided {@link RowSet} into segments partitioned by the provided {@code

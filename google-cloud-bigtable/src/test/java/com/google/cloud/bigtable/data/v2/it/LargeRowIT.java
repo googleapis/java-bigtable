@@ -50,8 +50,7 @@ public class LargeRowIT {
 
   private static final Logger logger = Logger.getLogger(LargeRowIT.class.getName());
 
-  @ClassRule
-  public static final TestEnvRule testEnvRule = new TestEnvRule();
+  @ClassRule public static final TestEnvRule testEnvRule = new TestEnvRule();
 
   @Test
   public void testWriteRead() throws Exception {
@@ -89,7 +88,6 @@ public class LargeRowIT {
     assertThat(row.getCells().get(0).getValue()).isEqualTo(largeValue);
     assertThat(row.getCells().get(1).getValue()).isEqualTo(largeValue);
   }
-
 
   @Test
   public void testLargeRowRead() throws Exception {
@@ -142,8 +140,7 @@ public class LargeRowIT {
     }
 
     @Override
-    public void onStart(StreamController controller) {
-    }
+    public void onStart(StreamController controller) {}
 
     @Override
     public void onResponse(Row row) {
@@ -162,8 +159,8 @@ public class LargeRowIT {
   }
 
   @Test
-  public void read()  throws Throwable {
-// create test case
+  public void read() throws Throwable {
+    // create test case
     BigtableDataClient client = testEnvRule.env().getDataClient();
 
     String tableId = testEnvRule.env().getTableId();
@@ -172,28 +169,33 @@ public class LargeRowIT {
     long timestampMicros = System.currentTimeMillis() * 1_000;
 
     // delete rows -- if created
-    client.bulkMutateRows(BulkMutation.create(tableId)
-        .add(RowMutationEntry.create("r1").deleteRow())
-        .add(RowMutationEntry.create("r2").deleteRow())
-        .add(RowMutationEntry.create("r3").deleteRow())
-        .add(RowMutationEntry.create("r4").deleteRow())
-        .add(RowMutationEntry.create("r5").deleteRow())
-        .add(RowMutationEntry.create("r6").deleteRow())
-    );
+    client.bulkMutateRows(
+        BulkMutation.create(tableId)
+            .add(RowMutationEntry.create("r1").deleteRow())
+            .add(RowMutationEntry.create("r2").deleteRow())
+            .add(RowMutationEntry.create("r3").deleteRow())
+            .add(RowMutationEntry.create("r4").deleteRow())
+            .add(RowMutationEntry.create("r5").deleteRow())
+            .add(RowMutationEntry.create("r6").deleteRow()));
 
     // small row creations
     client.bulkMutateRows(
         BulkMutation.create(tableId)
-            .add(RowMutationEntry.create("r1")
-                .setCell(familyId, "qualifier", timestampMicros, "my-value"))
-            .add(RowMutationEntry.create("r2")
-                .setCell(familyId, "qualifier", timestampMicros, "my-value"))
-            .add(RowMutationEntry.create("r4")
-                .setCell(familyId, "qualifier", timestampMicros, "my-value"))
-            .add(RowMutationEntry.create("r5")
-                .setCell(familyId, "qualifier", timestampMicros, "my-value"))
-            .add(RowMutationEntry.create("r6")
-                .setCell(familyId, "qualifier", timestampMicros, "my-value")));
+            .add(
+                RowMutationEntry.create("r1")
+                    .setCell(familyId, "qualifier", timestampMicros, "my-value"))
+            .add(
+                RowMutationEntry.create("r2")
+                    .setCell(familyId, "qualifier", timestampMicros, "my-value"))
+            .add(
+                RowMutationEntry.create("r4")
+                    .setCell(familyId, "qualifier", timestampMicros, "my-value"))
+            .add(
+                RowMutationEntry.create("r5")
+                    .setCell(familyId, "qualifier", timestampMicros, "my-value"))
+            .add(
+                RowMutationEntry.create("r6")
+                    .setCell(familyId, "qualifier", timestampMicros, "my-value")));
 
     Row expectedRow1 =
         Row.create(
@@ -229,10 +231,10 @@ public class LargeRowIT {
                     ByteString.copyFromUtf8("my-value"))));
 
     assertThat(
-        ImmutableList.copyOf(
-            client.readRows(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
+            ImmutableList.copyOf(
+                client.readRows(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
         .containsExactly(expectedRow1, expectedRow2);
 
     // --- large row creation START----
@@ -247,16 +249,15 @@ public class LargeRowIT {
     for (int i = offset; i < threadCount + offset; i++) {
       for (int j = 0; j < iterations; j++) {
         timestampMicros = System.currentTimeMillis() * 1_000;
-        ByteString qualifier = ByteString.copyFromUtf8("qualifier1_" + String.valueOf(i) + "_" + String.valueOf(j));
+        ByteString qualifier =
+            ByteString.copyFromUtf8("qualifier1_" + String.valueOf(i) + "_" + String.valueOf(j));
         executor.execute(
             () -> {
               client.bulkMutateRows(
                   BulkMutation.create(tableId)
-                      .add(RowMutationEntry.create("r3")
-                          .setCell(familyId, qualifier,largeValue)));
+                      .add(RowMutationEntry.create("r3").setCell(familyId, qualifier, largeValue)));
             });
       }
-
     }
     executor.shutdown();
     executor.awaitTermination(2, TimeUnit.MINUTES);
@@ -264,25 +265,24 @@ public class LargeRowIT {
 
     // sync
     assertThat(
-        ImmutableList.copyOf(
-            client.readLargeRows(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
-        .containsExactly(expectedRow1, expectedRow2);
-
-    // FAILING WITH ERR- com.google.api.gax.rpc.ResourceExhaustedException: io.grpc.StatusRuntimeException: RESOURCE_EXHAUSTED: trying to send message larger than max (524288237 vs. 268435456)
-    assertThat(
-        ImmutableList.copyOf(
-            client.readLargeRows(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3")))))
+            ImmutableList.copyOf(
+                client.readLargeRows(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endOpen("r3")))))
         .containsExactly(expectedRow1, expectedRow2);
 
     assertThat(
-        ImmutableList.copyOf(
-            client.readLargeRows(
-                Query.create(tableId)
-                    .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
+            ImmutableList.copyOf(
+                client.readLargeRows(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r3")))))
+        .containsExactly(expectedRow1, expectedRow2);
+
+    assertThat(
+            ImmutableList.copyOf(
+                client.readLargeRows(
+                    Query.create(tableId)
+                        .range(ByteStringRange.unbounded().startClosed("r1").endClosed("r4")))))
         .containsExactly(expectedRow1, expectedRow2, expectedRow4);
 
     // //async
@@ -297,6 +297,5 @@ public class LargeRowIT {
     client.readLargeRowsAsync(query2, observer2);
     observer2.awaitCompletion();
     assertThat(observer2.responses).containsExactly(expectedRow1, expectedRow2, expectedRow4);
-
   }
 }

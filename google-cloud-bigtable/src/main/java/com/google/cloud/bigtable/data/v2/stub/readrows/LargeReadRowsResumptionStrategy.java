@@ -18,8 +18,6 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.StreamResumptionStrategy;
 import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.FailedPreconditionException;
-import com.google.api.gax.rpc.InternalException;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsRequest.Builder;
 import com.google.bigtable.v2.RowSet;
@@ -67,7 +65,8 @@ public class LargeReadRowsResumptionStrategy<RowT>
     return new LargeReadRowsResumptionStrategy<>(rowAdapter);
   }
 
-  public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew(ReadRowsRequest originalRequest) {
+  public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew(
+      ReadRowsRequest originalRequest) {
     this.originalRequest = originalRequest;
     return new LargeReadRowsResumptionStrategy<>(rowAdapter);
   }
@@ -88,28 +87,30 @@ public class LargeReadRowsResumptionStrategy<RowT>
     return response;
   }
 
-  public void setLargeRowKey(Throwable t){
+  public void setLargeRowKey(Throwable t) {
     String rowKeyExtracted = extractLargeRowKey(t);
-    if(rowKeyExtracted!=null){
+    if (rowKeyExtracted != null) {
       this.largeRowKey = ByteString.copyFromUtf8(rowKeyExtracted);
       largeRowsCount.addAndGet(1);
       this.largeRowKeys.add(largeRowKey);
     }
   }
 
-  public void dumpLargeRowKeys(){
-    if(largeRowKeys!=null && !largeRowKeys.isEmpty()){
-      for (ByteString largeRowKey : largeRowKeys){
+  public void dumpLargeRowKeys() {
+    if (largeRowKeys != null && !largeRowKeys.isEmpty()) {
+      for (ByteString largeRowKey : largeRowKeys) {
         System.out.println(largeRowKey.toString());
       }
     }
   }
 
-
-  private String extractLargeRowKey(Throwable t){
-    if (t instanceof ApiException && ((ApiException) t).getReason()!=null && ((ApiException) t).getReason().equals("LargeRowReadError")) {
-      return  ((ApiException) t).getMetadata().get("rowKey");
-      // return ((FailedPreconditionException) t).getErrorDetails().getErrorInfo().getMetadataMap().get("rowKey")
+  private String extractLargeRowKey(Throwable t) {
+    if (t instanceof ApiException
+        && ((ApiException) t).getReason() != null
+        && ((ApiException) t).getReason().equals("LargeRowReadError")) {
+      return ((ApiException) t).getMetadata().get("rowKey");
+      // return ((FailedPreconditionException)
+      // t).getErrorDetails().getErrorInfo().getMetadataMap().get("rowKey")
     }
     return null;
   }
@@ -123,7 +124,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
    * received rows.
    */
   @Override
-    public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
+  public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
 
     // An empty lastSuccessKey means that we have not successfully read the first row,
     // so resume with the original request object.
@@ -135,13 +136,12 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
     remaining =
         RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
-    if(!largeRowKeys.isEmpty()){
-      for(ByteString largeRowKey:largeRowKeys){
+    if (!largeRowKeys.isEmpty()) {
+      for (ByteString largeRowKey : largeRowKeys) {
         // skip the row that was faulty -> that would be the split point
         remaining =
             RowSetUtil.createSplitRanges(remaining, largeRowKey, !originalRequest.getReversed());
       }
-
     }
     this.largeRowKey = ByteString.EMPTY;
 

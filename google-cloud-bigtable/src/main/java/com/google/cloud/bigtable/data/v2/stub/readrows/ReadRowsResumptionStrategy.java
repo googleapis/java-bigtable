@@ -78,7 +78,7 @@ public class ReadRowsResumptionStrategy<RowT>
    * received rows.
    */
   @Override
-    public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
+  public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
     // An empty lastKey means that we have not successfully read the first row,
     // so resume with the original request object.
     if (lastKey.isEmpty()) {

@@ -18,30 +18,27 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 import com.google.api.gax.retrying.StreamResumptionStrategy;
 import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
-import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StreamController;
-import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
-import com.google.common.base.Throwables;
 
 /**
  * This callable converts the "Received rst stream" exception into a retryable {@link ApiException}.
  */
-public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
+public final class LargeRowReadCallable<RequestT, ResponseT, RowT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
   private final StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy;
 
-
-  public LargeRowReadCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable, StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy) {
+  public LargeRowReadCallable(
+      ServerStreamingCallable<RequestT, ResponseT> innerCallable,
+      StreamResumptionStrategy<RequestT, ResponseT> resumptionStrategy) {
     this.innerCallable = innerCallable;
     this.resumptionStrategy = resumptionStrategy;
   }
-
 
   @Override
   public void call(
@@ -75,7 +72,8 @@ public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
     protected void onErrorImpl(Throwable t) {
       // this has no impact
       // if (resumptionStrategy instanceof LargeReadRowsResumptionStrategy) {
-      //   LargeReadRowsResumptionStrategy derived = (LargeReadRowsResumptionStrategy) resumptionStrategy;
+      //   LargeReadRowsResumptionStrategy derived = (LargeReadRowsResumptionStrategy)
+      // resumptionStrategy;
       //   derived.setLargeRowKey(t);
       // }
       outerObserver.onError(t);
@@ -86,6 +84,4 @@ public final class LargeRowReadCallable<RequestT, ResponseT,RowT>
       outerObserver.onComplete();
     }
   }
-
-
 }

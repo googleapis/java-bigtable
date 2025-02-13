@@ -25,14 +25,16 @@ import com.google.api.gax.rpc.StreamController;
 import com.google.common.base.Throwables;
 
 /**
- * This callable converts the "Received rst stream" &"LargeRowReadError" exception into a retryable {@link ApiException}.
+ * This callable converts the "Received rst stream" &"LargeRowReadError" exception into a retryable
+ * {@link ApiException}.
  */
 final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
     extends ServerStreamingCallable<RequestT, ResponseT> {
 
   private final ServerStreamingCallable<RequestT, ResponseT> innerCallable;
 
-  public LargeRowConvertExceptionCallable(ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
+  public LargeRowConvertExceptionCallable(
+      ServerStreamingCallable<RequestT, ResponseT> innerCallable) {
     this.innerCallable = innerCallable;
   }
 
@@ -67,8 +69,7 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      outerObserver.onError(convertException(t)
-      );
+      outerObserver.onError(convertException(t));
     }
 
     @Override
@@ -81,17 +82,21 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
     // Long lived connections sometimes are disconnected via an RST frame or a goaway. These errors
     // are transient and should be retried.
     if (isRstStreamError(t) || isGoAway(t) || isRetriableAuthError(t) || isLargeRowError(t)) {
-      return new ApiException(t, ((ApiException) t).getStatusCode(), true, ((ApiException) t).getErrorDetails());
+      return new ApiException(
+          t, ((ApiException) t).getStatusCode(), true, ((ApiException) t).getErrorDetails());
     }
     return t;
   }
 
-  private boolean isLargeRowError(Throwable t){
-    if (t instanceof FailedPreconditionException && ((FailedPreconditionException) t).getReason()!=null && ((FailedPreconditionException) t).getReason().equals("LargeRowReadError")){
+  private boolean isLargeRowError(Throwable t) {
+    if (t instanceof FailedPreconditionException
+        && ((FailedPreconditionException) t).getReason() != null
+        && ((FailedPreconditionException) t).getReason().equals("LargeRowReadError")) {
       return true;
     }
     return false;
   }
+
   private boolean isRetriableAuthError(Throwable t) {
     if (t instanceof InternalException && t.getMessage() != null) {
       String error = t.getMessage();

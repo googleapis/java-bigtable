@@ -15,14 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.readrows;
 
-import static com.google.api.gax.rpc.StatusCode.Code.FAILED_PRECONDITION;
-
 import com.google.api.gax.core.NoCredentialsProvider;
-import com.google.api.gax.rpc.ErrorDetails;
-import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.ErrorDetails;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.ServerStream;
@@ -52,12 +49,10 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
-import io.grpc.protobuf.StatusProto;
 import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -73,7 +68,8 @@ public class ReadRowsRetryTest {
   private static final String PROJECT_ID = "fake-project";
   private static final String INSTANCE_ID = "fake-instance";
   private static final String TABLE_ID = "fake-table";
-  private static final Metadata.Key<? super byte[]> ERROR_DETAILS_KEY =      Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
+  private static final Metadata.Key<? super byte[]> ERROR_DETAILS_KEY =
+      Metadata.Key.of("grpc-status-details-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
   private TestBigtableService service;
@@ -138,40 +134,39 @@ public class ReadRowsRetryTest {
     Truth.assertThat(actualResults).containsExactly("k1", "r1", "r2").inOrder();
   }
 
-
-  public ApiException largeRowExceptionWithTrailers(String rowKey){
-    ErrorInfo errorInfo = ErrorInfo.newBuilder()
-        .setReason("LargeRowReadError")
-        .setDomain("bigtable.googleapis.com")
-        .putMetadata("rowKey", rowKey)
-        .build();
+  public ApiException largeRowExceptionWithTrailers(String rowKey) {
+    ErrorInfo errorInfo =
+        ErrorInfo.newBuilder()
+            .setReason("LargeRowReadError")
+            .setDomain("bigtable.googleapis.com")
+            .putMetadata("rowKey", rowKey)
+            .build();
 
     Any packedErrorInfo = Any.pack(errorInfo);
     // ErrorDetails errorDetails = ErrorDetails.builder()
     //     .setRawErrorMessages(Collections.singletonList(packedErrorInfo))
     //     .build();
 
-    ErrorDetails errorDetails = ErrorDetails.builder()
-        .setRawErrorMessages(ImmutableList.of(packedErrorInfo))
-        .build();
+    ErrorDetails errorDetails =
+        ErrorDetails.builder().setRawErrorMessages(ImmutableList.of(packedErrorInfo)).build();
 
     Metadata trailers = new Metadata();
     byte[] status =
         com.google.rpc.Status.newBuilder().addDetails(Any.pack(errorInfo)).build().toByteArray();
     trailers.put(ERROR_DETAILS_KEY, status);
-    return (ApiException) (new UnavailableException(new StatusRuntimeException(Status.FAILED_PRECONDITION,trailers),GrpcStatusCode.of(
-        Code.FAILED_PRECONDITION),false,errorDetails));
+    return (ApiException)
+        (new UnavailableException(
+            new StatusRuntimeException(Status.FAILED_PRECONDITION, trailers),
+            GrpcStatusCode.of(Code.FAILED_PRECONDITION),
+            false,
+            errorDetails));
   }
 
   /**
-   * AdditionalTests -
-   * 1. only query for large rows - empty response?
-   * 2. 1st row is large row - then get other responses
-   * 3. last row is large row
-   * 4. multiple adhoc large rows
-   * 5. continous large rows
+   * AdditionalTests - 1. only query for large rows - empty response? 2. 1st row is large row - then
+   * get other responses 3. last row is large row 4. multiple adhoc large rows 5. continous large
+   * rows
    */
-
   @Test
   public void largeRowTestBasic() {
     ApiException largeRowExceptionWithTrailers = largeRowExceptionWithTrailers("r2");
@@ -180,20 +175,18 @@ public class ReadRowsRetryTest {
         RpcExpectation.create()
             .expectRequest(Range.closedOpen("r1", "r5"))
             .respondWith("r1")
-            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailers)
-    );
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailers));
 
     List<Range<String>> rangeList = new ArrayList<Range<String>>();
-    rangeList.add(Range.open("r1","r2"));
-    rangeList.add(Range.open("r2","r5"));
+    rangeList.add(Range.open("r1", "r2"));
+    rangeList.add(Range.open("r2", "r5"));
     service.expectations.add(
         RpcExpectation.create()
             .expectRequestForMultipleRowRanges(rangeList)
-            .respondWith("r3","r4")
-    );
+            .respondWith("r3", "r4"));
 
     List<String> actualResults = getLargeRowResults(Query.create(TABLE_ID).range("r1", "r5"));
-    Truth.assertThat(actualResults).containsExactly( "r1", "r3","r4").inOrder();
+    Truth.assertThat(actualResults).containsExactly("r1", "r3", "r4").inOrder();
   }
 
   @Test
@@ -209,33 +202,29 @@ public class ReadRowsRetryTest {
         RpcExpectation.create()
             .expectRequest(Range.closedOpen("r1", "r9"))
             .respondWith("r1")
-            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailersR2)
-    );
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
     // r3 faulty
     rangeList = new ArrayList<Range<String>>();
-    rangeList.add(Range.open("r1","r2"));
-    rangeList.add(Range.open("r2","r9"));
+    rangeList.add(Range.open("r1", "r2"));
+    rangeList.add(Range.open("r2", "r9"));
     service.expectations.add(
         RpcExpectation.create()
             .expectRequestForMultipleRowRanges(rangeList)
-            .respondWithException(Code.INTERNAL,largeRowExceptionWithTrailersR3)
-    );
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR3));
 
     rangeList = new ArrayList<Range<String>>();
-    rangeList.add(Range.open("r1","r2"));
-    rangeList.add(Range.open("r2","r3"));
-    rangeList.add(Range.open("r3","r9"));
+    rangeList.add(Range.open("r1", "r2"));
+    rangeList.add(Range.open("r2", "r3"));
+    rangeList.add(Range.open("r3", "r9"));
     service.expectations.add(
         RpcExpectation.create()
             .expectRequestForMultipleRowRanges(rangeList)
-            .respondWith("r4","r5","r6","r7","r8")
-    );
+            .respondWith("r4", "r5", "r6", "r7", "r8"));
 
     List<String> actualResults = getLargeRowResults(Query.create(TABLE_ID).range("r1", "r9"));
-    Truth.assertThat(actualResults).containsExactly( "r1", "r4","r5","r6","r7","r8").inOrder();
+    Truth.assertThat(actualResults).containsExactly("r1", "r4", "r5", "r6", "r7", "r8").inOrder();
   }
-
 
   @Test
   public void multipleRetryTest() {
@@ -444,11 +433,9 @@ public class ReadRowsRetryTest {
       }
       if (expectedRpc.statusCode.toStatus().isOk()) {
         responseObserver.onCompleted();
-      }
-      else if(expectedRpc.statusException!=null){
+      } else if (expectedRpc.statusException != null) {
         responseObserver.onError(expectedRpc.exception);
-      }
-      else if (expectedRpc.exception != null) {
+      } else if (expectedRpc.exception != null) {
         responseObserver.onError(expectedRpc.exception);
       } else {
         responseObserver.onError(expectedRpc.statusCode.toStatus().asRuntimeException());
@@ -456,19 +443,18 @@ public class ReadRowsRetryTest {
     }
   }
 
-  private class ReadRowResponseAndException{
+  private class ReadRowResponseAndException {
 
     private ReadRowsResponse response;
     private Exception exception;
 
-    ReadRowResponseAndException(ReadRowsResponse response){
+    ReadRowResponseAndException(ReadRowsResponse response) {
       this.response = response;
     }
 
-    ReadRowResponseAndException(Exception exception){
+    ReadRowResponseAndException(Exception exception) {
       this.exception = exception;
     }
-
   }
 
   private static class RpcExpectation {
@@ -497,9 +483,9 @@ public class ReadRowsRetryTest {
       return this;
     }
 
-    RpcExpectation expectRequestForMultipleRowRanges(List<Range<String>> rowRanges){
+    RpcExpectation expectRequestForMultipleRowRanges(List<Range<String>> rowRanges) {
       RowSet.Builder rowRange = requestBuilder.getRowsBuilder();
-      for(Range<String> range :rowRanges){
+      for (Range<String> range : rowRanges) {
         rangeBuilder(range);
       }
       return this;
@@ -507,10 +493,11 @@ public class ReadRowsRetryTest {
 
     /**
      * Build Row Range
+     *
      * @param range
      * @return
      */
-    RowRange rangeBuilder(Range<String> range){
+    RowRange rangeBuilder(Range<String> range) {
 
       RowRange.Builder rowRange = requestBuilder.getRowsBuilder().addRowRangesBuilder();
 
@@ -547,7 +534,6 @@ public class ReadRowsRetryTest {
       }
       return rowRange.build();
     }
-
 
     RpcExpectation expectRequest(Range<String> range) {
       RowRange.Builder rowRange = requestBuilder.getRowsBuilder().addRowRangesBuilder();
@@ -597,11 +583,13 @@ public class ReadRowsRetryTest {
       return this;
     }
 
-    RpcExpectation respondWithStatusException(Status.Code code, StatusRuntimeException statusException) {
+    RpcExpectation respondWithStatusException(
+        Status.Code code, StatusRuntimeException statusException) {
       this.statusCode = code;
       this.statusException = statusException;
       return this;
     }
+
     RpcExpectation respondWithException(Status.Code code, ApiException exception) {
       this.statusCode = code;
       this.exception = exception;

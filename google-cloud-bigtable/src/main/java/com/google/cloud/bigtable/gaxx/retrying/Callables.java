@@ -19,14 +19,12 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.ExponentialRetryAlgorithm;
 import com.google.api.gax.retrying.RetryAlgorithm;
 import com.google.api.gax.retrying.ScheduledRetryingExecutor;
-import com.google.api.gax.retrying.StreamResumptionStrategy;
 import com.google.api.gax.retrying.StreamingRetryAlgorithm;
 import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
-import com.google.cloud.bigtable.data.v2.stub.readrows.LargeReadRowsResumptionStrategy;
 import com.google.cloud.bigtable.data.v2.stub.readrows.LargeRowReadCallable;
 
 // TODO: remove this once ApiResultRetryAlgorithm is added to gax.
@@ -58,7 +56,6 @@ public class Callables {
     return new RetryingCallable<>(clientContext.getDefaultCallContext(), innerCallable, executor);
   }
 
-
   public static <RequestT, ResponseT> ServerStreamingCallable<RequestT, ResponseT> retrying(
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> callSettings,
@@ -78,11 +75,11 @@ public class Callables {
         innerCallable, retryingExecutor, settings.getResumptionStrategy());
   }
 
-
-  public static <RequestT, ResponseT,RowT> ServerStreamingCallable<RequestT, ResponseT> retryingForLargeRows(
-      ServerStreamingCallable<RequestT, ResponseT> innerCallable,
-      ServerStreamingCallSettings<RequestT, ResponseT> callSettings,
-      ClientContext clientContext) {
+  public static <RequestT, ResponseT, RowT>
+      ServerStreamingCallable<RequestT, ResponseT> retryingForLargeRows(
+          ServerStreamingCallable<RequestT, ResponseT> innerCallable,
+          ServerStreamingCallSettings<RequestT, ResponseT> callSettings,
+          ClientContext clientContext) {
 
     ServerStreamingCallSettings<RequestT, ResponseT> settings = callSettings;
 
@@ -94,12 +91,13 @@ public class Callables {
     ScheduledRetryingExecutor<Void> retryingExecutor =
         new ScheduledRetryingExecutor<>(retryAlgorithm, clientContext.getExecutor());
 
-
-    // LargeRowReadCallable largeRowReadCallable = new LargeRowReadCallable(innerCallable,(LargeReadRowsResumptionStrategy) settings.getResumptionStrategy());
-    LargeRowReadCallable largeRowReadCallable = new LargeRowReadCallable(innerCallable,settings.getResumptionStrategy());
+    // LargeRowReadCallable largeRowReadCallable = new
+    // LargeRowReadCallable(innerCallable,(LargeReadRowsResumptionStrategy)
+    // settings.getResumptionStrategy());
+    LargeRowReadCallable largeRowReadCallable =
+        new LargeRowReadCallable(innerCallable, settings.getResumptionStrategy());
 
     return new RetryingServerStreamingCallable<>(
         largeRowReadCallable, retryingExecutor, settings.getResumptionStrategy());
   }
-
 }
