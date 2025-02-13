@@ -25,6 +25,8 @@ import com.google.cloud.bigtable.data.v2.internal.RowSetUtil;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

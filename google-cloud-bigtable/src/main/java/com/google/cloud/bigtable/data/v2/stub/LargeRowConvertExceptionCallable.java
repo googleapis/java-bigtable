@@ -69,7 +69,8 @@ final class LargeRowConvertExceptionCallable<RequestT, ResponseT>
 
     @Override
     protected void onErrorImpl(Throwable t) {
-      outerObserver.onError(convertException(t));
+      outerObserver.onError(convertException(t)
+      );
     }
 
     @Override

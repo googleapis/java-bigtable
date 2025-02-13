@@ -53,9 +53,11 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class LargeRowIT {
+
   private static final Logger logger = Logger.getLogger(LargeRowIT.class.getName());
 
-  @ClassRule public static final TestEnvRule testEnvRule = new TestEnvRule();
+  @ClassRule
+  public static final TestEnvRule testEnvRule = new TestEnvRule();
 
   private BigtableTableAdminClient tableAdminClient;
   private Table table;
@@ -99,7 +101,8 @@ public class LargeRowIT {
 
     logger.info("Reading large row, this will take awhile");
     // Read it back
-    Row row =
+    Row
+        row =
         testEnvRule
             .env()
             .getDataClient()
