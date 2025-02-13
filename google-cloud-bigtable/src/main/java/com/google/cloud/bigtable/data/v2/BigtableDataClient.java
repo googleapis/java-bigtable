@@ -1217,7 +1217,6 @@ public class BigtableDataClient implements AutoCloseable {
     readRowsCallable().call(query, observer);
   }
 
-
   /**
    * Streams back the results of the query. The returned callable object allows for customization of
    * api invocation.
@@ -1296,7 +1295,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    *   // Iterator style
    *   try {
-   *     for(Row row : bigtableDataClient.readLargeRowsCallable().call(query)) {
+   *     for(Row row : bigtableDataClient.skipLargeRowsCallable().call(query)) {
    *       // Do something with row
    *     }
    *   } catch (NotFoundException e) {
@@ -1307,7 +1306,7 @@ public class BigtableDataClient implements AutoCloseable {
    *
    *   // Sync style
    *   try {
-   *     List<Row> rows = bigtableDataClient.readLargeRowsCallable().all().call(query);
+   *     List<Row> rows = bigtableDataClient.skipLargeRowsCallable().all().call(query);
    *   } catch (NotFoundException e) {
    *     System.out.println("Tried to read a non-existent table");
    *   } catch (RuntimeException e) {
@@ -1339,7 +1338,7 @@ public class BigtableDataClient implements AutoCloseable {
    * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
    */
   @InternalApi("only to be used by Bigtable beam connector")
-  public ServerStreamingCallable<Query, Row> readLargeRowsCallable() {
+  public ServerStreamingCallable<Query, Row> skipLargeRowsCallable() {
     return stub.skipLargeRowsCallable();
   }
 

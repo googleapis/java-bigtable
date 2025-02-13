@@ -58,6 +58,10 @@ public class LargeReadRowsResumptionStrategy<RowT>
 
   private ReadRowsRequest originalRequest;
 
+  private ReadRowsRequest lastModifiedRequestOnTimeOfError;
+
+  private RowSet previousFailedRequestRowset = null;
+
   public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
     this.rowAdapter = rowAdapter;
   }
@@ -136,22 +140,23 @@ public class LargeReadRowsResumptionStrategy<RowT>
       return originalRequest;
     }
 
-    RowSet remaining = originalRequest.getRows();
-
-    if(!lastSuccessKey.isEmpty()){
-      remaining =
-          RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
+    RowSet remaining;
+    if (previousFailedRequestRowset == null) {
+      remaining = originalRequest.getRows();
+    } else {
+      remaining = previousFailedRequestRowset;
     }
-    // remaining =
-    //     RowSetUtil.erase(originalRequest.getRows(), lastSuccessKey, !originalRequest.getReversed());
-    if (!largeRowKeys.isEmpty()) {
-      for (ByteString largeRowKey : largeRowKeys) {
-        // skip the row that was faulty -> that would be the split point
-        remaining =
-            RowSetUtil.createSplitRanges(remaining, largeRowKey, !originalRequest.getReversed());
-      }
+
+    if (!lastSuccessKey.isEmpty()) {
+      remaining = RowSetUtil.erase(remaining, lastSuccessKey, !originalRequest.getReversed());
+    }
+    if (!largeRowKey.isEmpty()) {
+      remaining =
+          RowSetUtil.createSplitRanges(remaining, largeRowKey, !originalRequest.getReversed());
     }
     this.largeRowKey = ByteString.EMPTY;
+
+    previousFailedRequestRowset = remaining;
 
     // Edge case: retrying a fulfilled request.
     // A fulfilled request is one that has had all of its row keys and ranges fulfilled, or if it
@@ -168,7 +173,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
     if (originalRequest.getRowsLimit() > 0) {
       Preconditions.checkState(
           originalRequest.getRowsLimit() > numProcessed + largeRowsCount.get(),
-          "Detected too many rows for the current row limit during a retry.");
+          "Processed rows and number of large rows should not exceed the row limit in the original request");
       builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed - largeRowsCount.get());
     }
 

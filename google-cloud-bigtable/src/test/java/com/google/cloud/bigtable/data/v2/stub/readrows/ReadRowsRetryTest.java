@@ -402,7 +402,7 @@ public class ReadRowsRetryTest {
   }
 
   private List<String> getLargeRowResults(Query query) {
-    ServerStream<Row> actualRows = client.readLargeRowsCallable().call(query);
+    ServerStream<Row> actualRows = client.skipLargeRowsCallable().call(query);
     List<String> actualValues = Lists.newArrayList();
     for (Row row : actualRows) {
       actualValues.add(row.getKey().toStringUtf8());
