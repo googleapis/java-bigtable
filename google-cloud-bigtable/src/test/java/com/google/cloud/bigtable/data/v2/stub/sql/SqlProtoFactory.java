@@ -27,6 +27,9 @@ import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.Struct.Field;
 import com.google.bigtable.v2.Value;
+import com.google.common.collect.ImmutableList;
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hashing;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Timestamp;
 import com.google.type.Date;
@@ -34,6 +37,8 @@ import java.util.Arrays;
 
 /** Utilities for creating sql proto objects in tests */
 public class SqlProtoFactory {
+
+  private static final HashFunction CRC32C = Hashing.crc32c();
 
   private SqlProtoFactory() {}
 
@@ -177,25 +182,14 @@ public class SqlProtoFactory {
     return structValue(fields);
   }
 
-  private static ProtoRowsBatch protoRowsBatch(Value... values) {
-    ProtoRows protoRows = ProtoRows.newBuilder().addAllValues(Arrays.asList(values)).build();
-    return ProtoRowsBatch.newBuilder().setBatchData(protoRows.toByteString()).build();
-  }
-
+  /** Creates a single response representing a complete batch, with no token */
   public static ExecuteQueryResponse partialResultSetWithoutToken(Value... values) {
-    return ExecuteQueryResponse.newBuilder()
-        .setResults(PartialResultSet.newBuilder().setProtoRowsBatch(protoRowsBatch(values)).build())
-        .build();
+    return partialResultSets(1, false, ByteString.EMPTY, values).get(0);
   }
 
+  /** Creates a single response representing a complete batch, with a resume token of 'test' */
   public static ExecuteQueryResponse partialResultSetWithToken(Value... values) {
-    return ExecuteQueryResponse.newBuilder()
-        .setResults(
-            PartialResultSet.newBuilder()
-                .setProtoRowsBatch(protoRowsBatch(values))
-                .setResumeToken(ByteString.copyFromUtf8("test"))
-                .build())
-        .build();
+    return partialResultSets(1, false, ByteString.copyFromUtf8("test"), values).get(0);
   }
 
   public static ExecuteQueryResponse tokenOnlyResultSet(ByteString token) {
@@ -204,9 +198,58 @@ public class SqlProtoFactory {
         .build();
   }
 
+  /**
+   * splits values across specified number of batches. Sets reset on first response, and resume
+   * token on final response
+   */
+  public static ImmutableList<ExecuteQueryResponse> partialResultSets(
+      int batches, Value... values) {
+    return partialResultSets(batches, true, ByteString.copyFromUtf8("test"), values);
+  }
+
+  /**
+   * @param batches number of {@link ProtoRowsBatch}s to split values across
+   * @param reset whether to set the reset bit on the first response
+   * @param resumeToken resumption token for the final response. Unset if empty
+   * @param values List of values to split across batches
+   * @return List of responses with length equal to number of batches
+   */
+  public static ImmutableList<ExecuteQueryResponse> partialResultSets(
+      int batches, boolean reset, ByteString resumeToken, Value... values) {
+    ProtoRows protoRows = ProtoRows.newBuilder().addAllValues(Arrays.asList(values)).build();
+    ByteString batchData = protoRows.toByteString();
+    int batch_checksum = checksum(batchData);
+    ImmutableList.Builder<ExecuteQueryResponse> responses = ImmutableList.builder();
+    int batchSize = batchData.size() / batches;
+    for (int i = 0; i < batches; i++) {
+      boolean finalBatch = i == batches - 1;
+      int batchStart = i * batchSize;
+      int batchEnd = finalBatch ? batchData.size() : batchStart + batchSize;
+      ProtoRowsBatch.Builder batchBuilder = ProtoRowsBatch.newBuilder();
+      batchBuilder.setBatchData(batchData.substring(batchStart, batchEnd));
+      PartialResultSet.Builder resultSetBuilder = PartialResultSet.newBuilder();
+      if (reset && i == 0) {
+        resultSetBuilder.setReset(true);
+      }
+      if (finalBatch) {
+        resultSetBuilder.setBatchChecksum(batch_checksum);
+        if (!resumeToken.isEmpty()) {
+          resultSetBuilder.setResumeToken(resumeToken);
+        }
+      }
+      resultSetBuilder.setProtoRowsBatch(batchBuilder.build());
+      responses.add(ExecuteQueryResponse.newBuilder().setResults(resultSetBuilder.build()).build());
+    }
+    return responses.build();
+  }
+
   public static ResultSetMetadata metadata(ColumnMetadata... columnMetadata) {
     ProtoSchema schema =
         ProtoSchema.newBuilder().addAllColumns(Arrays.asList(columnMetadata)).build();
     return ResultSetMetadata.newBuilder().setProtoSchema(schema).build();
+  }
+
+  public static int checksum(ByteString bytes) {
+    return CRC32C.hashBytes(bytes.toByteArray()).asInt();
   }
 }

@@ -73,9 +73,10 @@ public class ExecuteQueryCallContextTest {
   public void testFirstResponseReceived() throws ExecutionException, InterruptedException {
     SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
     ExecuteQueryCallContext callContext =
-        ExecuteQueryCallContext.create(PREPARED_STATEMENT.bind().build(), mdFuture);
+        ExecuteQueryCallContext.create(
+            PREPARED_STATEMENT.bind().setStringParam("foo", "val").build(), mdFuture);
 
-    callContext.firstResponseReceived();
+    callContext.finalizeMetadata();
     assertThat(mdFuture.isDone()).isTrue();
     assertThat(mdFuture.get()).isEqualTo(ProtoResultSetMetadata.fromProto(METADATA));
   }
@@ -84,7 +85,8 @@ public class ExecuteQueryCallContextTest {
   public void testSetMetadataException() {
     SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
     ExecuteQueryCallContext callContext =
-        ExecuteQueryCallContext.create(PREPARED_STATEMENT.bind().build(), mdFuture);
+        ExecuteQueryCallContext.create(
+            PREPARED_STATEMENT.bind().setStringParam("foo", "val").build(), mdFuture);
 
     callContext.setMetadataException(new RuntimeException("test"));
     assertThat(mdFuture.isDone()).isTrue();

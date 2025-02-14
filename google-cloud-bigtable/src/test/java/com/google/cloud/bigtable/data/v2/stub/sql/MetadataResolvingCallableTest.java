@@ -20,11 +20,15 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Ty
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Value;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.tokenOnlyResultSet;
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.ExecuteQueryRequest;
@@ -41,6 +45,7 @@ import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockResponseObser
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCall;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCallable;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockStreamController;
+import com.google.protobuf.ByteString;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.CancellationException;
@@ -59,6 +64,7 @@ public class MetadataResolvingCallableTest {
   private static final ExecuteQueryResponse DATA =
       partialResultSetWithToken(stringValue("fooVal"), int64Value(100));
 
+  ExecuteQueryCallContext callContext;
   MockResponseObserver<ExecuteQueryResponse> outerObserver;
   SettableApiFuture<ResultSetMetadata> metadataFuture;
   MetadataResolvingCallable.MetadataObserver observer;
@@ -74,15 +80,33 @@ public class MetadataResolvingCallableTest {
                         columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))),
             new HashMap<>());
 
-    ExecuteQueryCallContext callContext =
-        ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
+    callContext = ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
     outerObserver = new MockResponseObserver<>(true);
     observer = new MetadataObserver(outerObserver, callContext);
   }
 
   @Test
+  public void observer_doesNotSetFutureUntilTokenReceived()
+      throws ExecutionException, InterruptedException {
+    MockServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
+        new MockServerStreamingCallable<>();
+    innerCallable.call(FAKE_REQUEST, observer);
+    MockServerStreamingCall<ExecuteQueryRequest, ExecuteQueryResponse> lastCall =
+        innerCallable.popLastCall();
+    MockStreamController<ExecuteQueryResponse> innerController = lastCall.getController();
+
+    innerController.getObserver().onResponse(partialResultSetWithoutToken(stringValue("foo")));
+    assertFalse(callContext.resultSetMetadataFuture().isDone());
+    innerController.getObserver().onResponse(partialResultSetWithToken(stringValue("bar")));
+    assertTrue(callContext.resultSetMetadataFuture().isDone());
+    assertThat(callContext.resultSetMetadataFuture().get())
+        .isEqualTo(ProtoResultSetMetadata.fromProto(METADATA));
+  }
+
+  @Test
   public void observer_setsFutureAndPassesThroughResponses()
       throws ExecutionException, InterruptedException {
+    // This has a token so it should finalize the metadata
     ServerStreamingStashCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
         new ServerStreamingStashCallable<>(Collections.singletonList(DATA));
     innerCallable.call(FAKE_REQUEST, observer);
@@ -125,13 +149,13 @@ public class MetadataResolvingCallableTest {
         innerCallable.popLastCall();
     MockStreamController<ExecuteQueryResponse> innerController = lastCall.getController();
 
-    innerController.getObserver().onResponse(ExecuteQueryResponse.getDefaultInstance());
+    innerController.getObserver().onResponse(tokenOnlyResultSet(ByteString.copyFromUtf8("token")));
     innerController.getObserver().onError(new RuntimeException("exception after metadata"));
 
     assertThat(metadataFuture.isDone()).isTrue();
     assertThat(metadataFuture.get()).isEqualTo(ProtoResultSetMetadata.fromProto(METADATA));
     assertThat(outerObserver.popNextResponse())
-        .isEqualTo(ExecuteQueryResponse.getDefaultInstance());
+        .isEqualTo(tokenOnlyResultSet(ByteString.copyFromUtf8("token")));
     assertThat(outerObserver.isDone()).isTrue();
     assertThat(outerObserver.getFinalError()).isInstanceOf(RuntimeException.class);
   }

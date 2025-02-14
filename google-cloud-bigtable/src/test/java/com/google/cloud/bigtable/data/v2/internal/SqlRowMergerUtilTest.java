@@ -26,6 +26,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValu
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSets;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.common.truth.Truth.assertThat;
@@ -74,7 +75,7 @@ public class SqlRowMergerUtilTest {
 
   @Test
   public void
-      parseExecuteQueryResponses_handlesMultipleValuesAccrossMultipleRows_serializedProtoRows() {
+      parseExecuteQueryResponses_handlesMultipleValuesAcrossMultipleRows_serializedProtoRows() {
     ColumnMetadata[] columns = {
       columnMetadata("str", stringType()),
       columnMetadata("bytes", bytesType()),
@@ -84,22 +85,20 @@ public class SqlRowMergerUtilTest {
     com.google.bigtable.v2.ResultSetMetadata metadataProto = metadata(columns);
     ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     ImmutableList<ExecuteQueryResponse> responses =
-        ImmutableList.of(
-            partialResultSetWithoutToken(
-                stringValue("str1"),
-                bytesValue("bytes1"),
-                arrayValue(stringValue("arr1")),
-                mapValue(mapElement(stringValue("key1"), bytesValue("val1"))),
-                stringValue("str2")),
-            partialResultSetWithoutToken(
-                bytesValue("bytes2"),
-                arrayValue(stringValue("arr2")),
-                mapValue(mapElement(stringValue("key2"), bytesValue("val2")))),
-            partialResultSetWithToken(
-                stringValue("str3"),
-                bytesValue("bytes3"),
-                arrayValue(stringValue("arr3")),
-                mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
+        partialResultSets(
+            3,
+            stringValue("str1"),
+            bytesValue("bytes1"),
+            arrayValue(stringValue("arr1")),
+            mapValue(mapElement(stringValue("key1"), bytesValue("val1"))),
+            stringValue("str2"),
+            bytesValue("bytes2"),
+            arrayValue(stringValue("arr2")),
+            mapValue(mapElement(stringValue("key2"), bytesValue("val2"))),
+            stringValue("str3"),
+            bytesValue("bytes3"),
+            arrayValue(stringValue("arr3")),
+            mapValue(mapElement(stringValue("key3"), bytesValue("val3"))));
     try (SqlRowMergerUtil util = new SqlRowMergerUtil(metadataProto)) {
       List<SqlRow> rows = util.parseExecuteQueryResponses(responses);
       assertThat(rows)
@@ -165,22 +164,20 @@ public class SqlRowMergerUtilTest {
     com.google.bigtable.v2.ResultSetMetadata metadataProto = metadata(columns);
     ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(metadataProto);
     ImmutableList<ExecuteQueryResponse> responses =
-        ImmutableList.of(
-            partialResultSetWithoutToken(
-                stringValue("str1"),
-                bytesValue("bytes1"),
-                arrayValue(stringValue("arr1")),
-                mapValue(mapElement(stringValue("key1"), bytesValue("val1"))),
-                stringValue("str2")),
-            partialResultSetWithoutToken(
-                bytesValue("bytes2"),
-                arrayValue(stringValue("arr2")),
-                mapValue(mapElement(stringValue("key2"), bytesValue("val2")))),
-            partialResultSetWithToken(
-                stringValue("str3"),
-                bytesValue("bytes3"),
-                arrayValue(stringValue("arr3")),
-                mapValue(mapElement(stringValue("key3"), bytesValue("val3")))));
+        partialResultSets(
+            3,
+            stringValue("str1"),
+            bytesValue("bytes1"),
+            arrayValue(stringValue("arr1")),
+            mapValue(mapElement(stringValue("key1"), bytesValue("val1"))),
+            stringValue("str2"),
+            bytesValue("bytes2"),
+            arrayValue(stringValue("arr2")),
+            mapValue(mapElement(stringValue("key2"), bytesValue("val2"))),
+            stringValue("str3"),
+            bytesValue("bytes3"),
+            arrayValue(stringValue("arr3")),
+            mapValue(mapElement(stringValue("key3"), bytesValue("val3"))));
     try (SqlRowMergerUtil util = new SqlRowMergerUtil(metadataProto)) {
       List<SqlRow> rows = new ArrayList<>();
       rows.addAll(util.parseExecuteQueryResponses(responses.subList(0, 1)));

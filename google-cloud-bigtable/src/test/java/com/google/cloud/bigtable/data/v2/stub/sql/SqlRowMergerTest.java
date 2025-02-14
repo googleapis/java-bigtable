@@ -27,6 +27,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValu
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSets;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.tokenOnlyResultSet;
@@ -34,6 +35,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMergerSubject.ass
 import static org.junit.Assert.assertThrows;
 
 import com.google.bigtable.v2.ExecuteQueryResponse;
+import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
@@ -41,6 +43,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.common.collect.ImmutableList;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Supplier;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +94,21 @@ public class SqlRowMergerTest {
   }
 
   @Test
-  public void hasPartialFrame_trueWithIncompleteBatch() {
+  public void hasPartialFrame_trueWithPartialBatch() {
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
+    SqlRowMerger merger = new SqlRowMerger(() -> metadata);
+    // Initial response here has reset bit set
+    List<ExecuteQueryResponse> responses =
+        partialResultSets(3, stringValue("foo"), stringValue("bar"), stringValue("baz"));
+
+    merger.push(responses.get(0));
+    merger.push(responses.get(1));
+    assertThat(merger).hasPartialFrame(true);
+  }
+
+  @Test
+  public void hasPartialFrame_trueWithUncommittedBatch() {
     com.google.bigtable.v2.ResultSetMetadata metadataProto =
         metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
     SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
@@ -130,6 +147,20 @@ public class SqlRowMergerTest {
 
   @Test
   public void hasFullFrame_falseWithIncompleteBatch() {
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
+    SqlRowMerger merger = new SqlRowMerger(() -> metadata);
+    // Initial response here has reset bit set
+    List<ExecuteQueryResponse> responses =
+        partialResultSets(3, stringValue("foo"), stringValue("bar"), stringValue("baz"));
+
+    merger.push(responses.get(0));
+    merger.push(responses.get(1));
+    assertThat(merger).hasFullFrame(false);
+  }
+
+  @Test
+  public void hasFullFrame_falseWithUncommittedBatches() {
     com.google.bigtable.v2.ResultSetMetadata metadataProto =
         metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
     SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
@@ -178,17 +209,52 @@ public class SqlRowMergerTest {
   }
 
   @Test
-  public void addValue_failsWithoutMetadataFirst() {
-    com.google.bigtable.v2.ResultSetMetadata metadataProto =
-        metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
-    SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));
-    assertThrows(
-        IllegalStateException.class,
-        () -> merger.push(partialResultSetWithToken(stringValue("test"))));
+  public void sqlRowMerger_handlesReset() {
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
+    SqlRowMerger merger = new SqlRowMerger(() -> metadata);
+    // Initial response here has reset bit set
+    List<ExecuteQueryResponse> responses =
+        partialResultSets(3, stringValue("foo"), stringValue("bar"), stringValue("baz"));
+
+    merger.push(responses.get(0));
+    merger.push(responses.get(1));
+    assertThat(merger).hasPartialFrame(true);
+    assertThat(merger).hasFullFrame(false);
+
+    for (ExecuteQueryResponse res : responses) {
+      merger.push(res);
+    }
+    assertThat(merger).hasFullFrame(true);
+    assertThat(merger.pop())
+        .isEqualTo(ProtoSqlRow.create(metadata, ImmutableList.of(stringValue("foo"))));
+    assertThat(merger.pop())
+        .isEqualTo(ProtoSqlRow.create(metadata, ImmutableList.of(stringValue("bar"))));
+    assertThat(merger.pop())
+        .isEqualTo(ProtoSqlRow.create(metadata, ImmutableList.of(stringValue("baz"))));
+    assertThat(merger).hasFullFrame(false);
   }
 
   @Test
-  public void sqlRowMerger_handlesTokenWithOpenPartialBatch() {
+  public void sqlRowMerger_throwsExceptionOnChecksumMismatch() {
+    ResultSetMetadata metadata =
+        ProtoResultSetMetadata.fromProto(metadata(columnMetadata("a", stringType())));
+    SqlRowMerger merger = new SqlRowMerger(() -> metadata);
+    List<ExecuteQueryResponse> responses =
+        partialResultSets(3, stringValue("foo"), stringValue("bar"), stringValue("baz"));
+
+    // Override the checksum of the final response
+    PartialResultSet lastResultsWithBadChecksum =
+        responses.get(2).getResults().toBuilder().setBatchChecksum(1234).build();
+    ExecuteQueryResponse badChecksum =
+        ExecuteQueryResponse.newBuilder().setResults(lastResultsWithBadChecksum).build();
+    merger.push(responses.get(0));
+    merger.push(responses.get(1));
+    assertThrows(IllegalStateException.class, () -> merger.push(badChecksum));
+  }
+
+  @Test
+  public void sqlRowMerger_handlesTokenWithUncommittedBatches() {
     com.google.bigtable.v2.ResultSetMetadata metadataProto =
         metadata(columnMetadata("str", stringType()), columnMetadata("bytes", bytesType()));
     SqlRowMerger merger = new SqlRowMerger(toSupplier(metadataProto));

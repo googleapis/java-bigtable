@@ -56,11 +56,11 @@ public class ExecuteQueryCallContext {
   }
 
   /**
-   * Metadata can change as the plan is refreshed. Once a response or complete has been received
+   * Metadata can change as the plan is refreshed. Once a resume token or complete has been received
    * from the stream we know that the {@link com.google.bigtable.v2.PrepareQueryResponse} can no
    * longer change, so we can set the metadata.
    */
-  void firstResponseReceived() {
+  void finalizeMetadata() {
     metadataFuture.set(latestPrepareResponse.resultSetMetadata());
   }
 

@@ -34,9 +34,7 @@ import java.util.function.Supplier;
 public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse> {
 
   private final Queue<SqlRow> queue;
-  private ProtoRowsMergingStateMachine stateMachine;
-  private final Supplier<ResultSetMetadata> metadataSupplier;
-  private Boolean isFirstResponse;
+  private final ProtoRowsMergingStateMachine stateMachine;
 
   /**
    * @param metadataSupplier a supplier of {@link ResultSetMetadata}. This is expected to return
@@ -44,9 +42,8 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
    *     <p>This exists to facilitate plan refresh that can happen after creation of the row merger.
    */
   public SqlRowMerger(Supplier<ResultSetMetadata> metadataSupplier) {
-    this.metadataSupplier = metadataSupplier;
     queue = new ArrayDeque<>();
-    isFirstResponse = true;
+    stateMachine = new ProtoRowsMergingStateMachine(metadataSupplier);
   }
 
   /**
@@ -56,13 +53,6 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
    */
   @Override
   public void push(ExecuteQueryResponse response) {
-    if (isFirstResponse) {
-      // Wait until we've received the first response to get the metadata, as a
-      // PreparedQuery may need to be refreshed based on initial errors. Once we've
-      // received a response, it will never change, even upon request resumption.
-      stateMachine = new ProtoRowsMergingStateMachine(metadataSupplier.get());
-      isFirstResponse = false;
-    }
     Preconditions.checkState(
         response.hasResults(),
         "Expected results response, but received: %s",
@@ -73,7 +63,7 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
 
   private void processProtoRows(PartialResultSet results) {
     stateMachine.addPartialResultSet(results);
-    if (stateMachine.hasCompleteBatch()) {
+    if (stateMachine.hasCompleteBatches()) {
       stateMachine.populateQueue(queue);
     }
   }
@@ -95,9 +85,6 @@ public final class SqlRowMerger implements Reframer<SqlRow, ExecuteQueryResponse
    */
   @Override
   public boolean hasPartialFrame() {
-    if (isFirstResponse) {
-      return false;
-    }
     return hasFullFrame() || stateMachine.isBatchInProgress();
   }
 

@@ -60,14 +60,14 @@ public class MetadataResolvingCallable
     private final ResponseObserver<ExecuteQueryResponse> outerObserver;
     // This doesn't need to be synchronized because this is called above the reframer
     // so onResponse will be called sequentially
-    private boolean isFirstResponse;
+    private boolean hasReceivedResumeToken;
 
     MetadataObserver(
         ResponseObserver<ExecuteQueryResponse> outerObserver, ExecuteQueryCallContext callContext) {
       super(outerObserver);
       this.outerObserver = outerObserver;
       this.callContext = callContext;
-      this.isFirstResponse = true;
+      this.hasReceivedResumeToken = false;
     }
 
     @Override
@@ -77,10 +77,25 @@ public class MetadataResolvingCallable
 
     @Override
     protected void onResponseImpl(ExecuteQueryResponse response) {
-      if (isFirstResponse) {
-        callContext.firstResponseReceived();
+      // Defer finalizing metadata until we receive a resume token, because this is the
+      // only point we can guarantee it won't change.
+      //
+      // An example of why this is necessary, for query "SELECT * FROM table":
+      // - Make a request, table has one column family 'cf'
+      // - Return an incomplete batch
+      // - request fails with transient error
+      // - Meanwhile the table has had a second column family added 'cf2'
+      // - Retry the request, get an error indicating the `prepared_query` has expired
+      // - Refresh the prepared_query and retry the request, the new prepared_query
+      //   contains both 'cf' & 'cf2'
+      // - It sends a new incomplete batch and resets the old outdated batch
+      // - It send the next chunk with a checksum and resume_token, closing the batch.
+      // In this case the row merger and the ResultSet should be using the updated schema from
+      // the refreshed prepare request.
+      if (!hasReceivedResumeToken && !response.getResults().getResumeToken().isEmpty()) {
+        callContext.finalizeMetadata();
+        hasReceivedResumeToken = true;
       }
-      isFirstResponse = false;
       outerObserver.onResponse(response);
     }
 
@@ -92,12 +107,11 @@ public class MetadataResolvingCallable
       outerObserver.onError(throwable);
     }
 
-    // TODO this becomes a valid state
     @Override
     protected void onCompleteImpl() {
-      if (isFirstResponse) {
-        // If the stream completes successfully we know we used the current metadata
-        callContext.firstResponseReceived();
+      if (!callContext.resultSetMetadataFuture().isDone()) {
+        // If stream succeeds with no responses, we can finalize the metadata
+        callContext.finalizeMetadata();
       }
       outerObserver.onComplete();
     }
