@@ -308,4 +308,27 @@
         <className>com/google/cloud/bigtable/data/v2/models/Heartbeat</className>
         <method>*getEstimatedLowWatermarkTime()</method>
     </difference>
+    <!-- Removing OpenCensus compatibility -->
+    <difference>
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/BigtableDataSettings</className>
+        <method>*enableGfeOpenCensusStats()</method>
+    </difference>
+    <difference>
+        <differenceType>7002</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/BigtableDataSettings</className>
+        <method>*enableOpenCensusStats()</method>
+    </difference>
+    <difference>
+        <differenceType>8001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/MetricsTracerFactory</className>
+    </difference>
+    <difference>
+        <differenceType>8001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/RpcMeasureConstants</className>
+    </difference>
+    <difference>
+        <differenceType>8001</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/RpcViews</className>
+    </difference>
 </differences>
