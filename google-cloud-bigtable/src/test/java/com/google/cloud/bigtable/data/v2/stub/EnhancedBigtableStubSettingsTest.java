@@ -45,7 +45,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -833,19 +832,11 @@ public class EnhancedBigtableStubSettingsTest {
 
     // Retries aren't supported right now
     // call verifyRetrySettingAreSane when we do
-    assertThat(builder.getRetryableCodes()).containsExactlyElementsIn(Collections.emptySet());
-    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isEqualTo(Duration.ofSeconds(30));
-    assertThat(builder.getRetrySettings().getMaxRpcTimeout()).isEqualTo(Duration.ofSeconds(30));
-    assertThat(builder.getRetrySettings().getMaxAttempts()).isEqualTo(1);
-  }
-
-  @Test
-  public void executeQueryRetriesAreDisabled() {
-    ServerStreamingCallSettings.Builder<BoundStatement, SqlRow> builder =
-        EnhancedBigtableStubSettings.newBuilder().executeQuerySettings();
-
-    assertThat(builder.getRetrySettings().getMaxAttempts()).isAtMost(1);
-    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isAtMost(Duration.ofSeconds(30));
+    assertThat(builder.getRetryableCodes())
+        .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED, Code.UNAVAILABLE);
+    assertThat(builder.getRetrySettings().getInitialRpcTimeout()).isEqualTo(Duration.ofMinutes(30));
+    assertThat(builder.getRetrySettings().getMaxRpcTimeout()).isEqualTo(Duration.ofMinutes(30));
+    assertThat(builder.getRetrySettings().getMaxAttempts()).isEqualTo(10);
   }
 
   @Test

@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
@@ -26,7 +27,6 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.DeadlineExceededException;
-import com.google.api.gax.rpc.UnavailableException;
 import com.google.bigtable.v2.BigtableGrpc;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
@@ -45,8 +45,6 @@ import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingSt
 import io.grpc.Context;
 import io.grpc.Deadline;
 import io.grpc.Server;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.io.IOException;
 import java.time.Duration;
@@ -126,48 +124,17 @@ public class ExecuteQueryCallableTest {
   }
 
   @Test
-  public void testExecuteQueryRequestsAreNotRetried() {
-    // TODO: retries for execute query is currently disabled. This test should be
-    // updated once resumption token is in place.
-    SqlServerStream stream = stub.executeQueryCallable().call(PREPARED_STATEMENT.bind().build());
-
-    Iterator<SqlRow> iterator = stream.rows().iterator();
-
-    assertThrows(UnavailableException.class, iterator::next).getCause();
-    assertThat(fakeService.attempts).isEqualTo(1);
-  }
-
-  @Test
-  public void testExecuteQueryRequestsIgnoreOverriddenMaxAttempts() throws IOException {
-    BigtableDataSettings.Builder overrideSettings =
-        BigtableDataSettings.newBuilderForEmulator(server.getPort())
-            .setProjectId("fake-project")
-            .setInstanceId("fake-instance");
-    overrideSettings
-        .stubSettings()
-        .executeQuerySettings()
-        .setRetrySettings(RetrySettings.newBuilder().setMaxAttempts(10).build());
-
-    try (EnhancedBigtableStub overrideStub =
-        EnhancedBigtableStub.create(overrideSettings.build().getStubSettings())) {
-      SqlServerStream stream =
-          overrideStub.executeQueryCallable().call(PREPARED_STATEMENT.bind().build());
-      Iterator<SqlRow> iterator = stream.rows().iterator();
-
-      assertThrows(UnavailableException.class, iterator::next).getCause();
-      assertThat(fakeService.attempts).isEqualTo(1);
-    }
-  }
-
-  @Test
   public void testExecuteQueryRequestsSetDefaultDeadline() {
     SqlServerStream stream = stub.executeQueryCallable().call(PREPARED_STATEMENT.bind().build());
-    Iterator<SqlRow> iterator = stream.rows().iterator();
-    // We don't care about this but are reusing the fake service that tests retries
-    assertThrows(UnavailableException.class, iterator::next).getCause();
-    // We have 30s default, we give it a wide range to avoid flakiness, this is mostly just checking
-    // that some default is set
-    assertThat(fakeService.deadlineMillisRemaining).isLessThan(30001L);
+    // We don't care about this, just assert we get a response
+    boolean rowReceived = false;
+    for (SqlRow sqlRow : stream.rows()) {
+      rowReceived = true;
+    }
+    assertThat(rowReceived).isTrue();
+    // We have 30m default, we give it a wide range to avoid flakiness, this is mostly just
+    // checking that some default is set
+    assertThat(fakeService.deadlineMillisRemaining).isLessThan(1800000L);
   }
 
   @Test
@@ -197,7 +164,6 @@ public class ExecuteQueryCallableTest {
 
   private static class FakeService extends BigtableGrpc.BigtableImplBase {
 
-    private int attempts = 0;
     private long deadlineMillisRemaining;
 
     @Override
@@ -216,9 +182,9 @@ public class ExecuteQueryCallableTest {
       } catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-      attempts++;
       responseObserver.onNext(partialResultSetWithoutToken(stringValue("foo")));
-      responseObserver.onError(new StatusRuntimeException(Status.UNAVAILABLE));
+      responseObserver.onNext(partialResultSetWithToken(stringValue("bar")));
+      responseObserver.onCompleted();
     }
   }
 }

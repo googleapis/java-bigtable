@@ -61,7 +61,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -201,21 +200,27 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .setTotalTimeout(Duration.ofHours(12))
           .build();
 
-  // TODO update this when we support retries for ExecuteQuery
-  // For preview we don't support resumption yet, so we don't retry anything.
-  private static final Set<Code> EXECUTE_QUERY_RETRY_CODES = Collections.emptySet();
+  // Allow retrying ABORTED statuses. These will be returned by the server when the client is
+  // too slow to read the responses.
+  private static final Set<Code> EXECUTE_QUERY_RETRY_CODES =
+      ImmutableSet.<Code>builder().addAll(IDEMPOTENT_RETRY_CODES).add(Code.ABORTED).build();
 
-  // We still setup retry settings in order to set default deadlines
+  // We use the same configuration as READ_ROWS
   private static final RetrySettings EXECUTE_QUERY_RETRY_SETTINGS =
       RetrySettings.newBuilder()
-          .setMaxAttempts(1)
-          // Set a conservative deadline to start for preview. We'll increase this in the future
-          .setInitialRpcTimeout(Duration.ofSeconds(30))
-          .setMaxRpcTimeout(Duration.ofSeconds(30))
+          .setInitialRetryDelay(Duration.ofMillis(10))
+          .setRetryDelayMultiplier(2.0)
+          .setMaxRetryDelay(Duration.ofMinutes(1))
+          .setMaxAttempts(10)
+          .setJittered(true)
+          .setInitialRpcTimeout(Duration.ofMinutes(30))
+          .setRpcTimeoutMultiplier(1.0)
+          .setMaxRpcTimeout(Duration.ofMinutes(30))
+          .setTotalTimeout(Duration.ofHours(12))
           .build();
 
   // Similar to IDEMPOTENT but with a lower initial rpc timeout since we expect
-  // these calls to be quick in most circumestances
+  // these calls to be quick in most circumstances
   private static final RetrySettings PREPARE_QUERY_RETRY_SETTINGS =
       RetrySettings.newBuilder()
           .setInitialRetryDelay(Duration.ofMillis(10))
@@ -884,7 +889,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       executeQuerySettings = ServerStreamingCallSettings.newBuilder();
       executeQuerySettings
           .setRetryableCodes(EXECUTE_QUERY_RETRY_CODES)
-          // This is used to set deadlines. We do not support retries yet.
           .setRetrySettings(EXECUTE_QUERY_RETRY_SETTINGS)
           .setIdleTimeout(Duration.ofMinutes(5))
           .setWaitTimeout(Duration.ofMinutes(5));

@@ -22,6 +22,8 @@ import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
+import com.google.protobuf.ByteString;
+import javax.annotation.Nullable;
 
 /**
  * Used to provide a future to the ExecuteQuery callable chain in order to return metadata to users
@@ -37,7 +39,7 @@ public class ExecuteQueryCallContext {
   private final BoundStatement boundStatement;
   private final SettableApiFuture<ResultSetMetadata> metadataFuture;
   private final PrepareResponse latestPrepareResponse;
-  // TODO this will be used to track latest resume token here
+  private @Nullable ByteString resumeToken;
 
   private ExecuteQueryCallContext(
       BoundStatement boundStatement, SettableApiFuture<ResultSetMetadata> metadataFuture) {
@@ -52,7 +54,8 @@ public class ExecuteQueryCallContext {
   }
 
   ExecuteQueryRequest toRequest(RequestContext requestContext) {
-    return boundStatement.toProto(latestPrepareResponse.preparedQuery(), requestContext);
+    return boundStatement.toProto(
+        latestPrepareResponse.preparedQuery(), requestContext, resumeToken);
   }
 
   /**
@@ -74,5 +77,9 @@ public class ExecuteQueryCallContext {
 
   SettableApiFuture<ResultSetMetadata> resultSetMetadataFuture() {
     return this.metadataFuture;
+  }
+
+  void setLatestResumeToken(ByteString resumeToken) {
+    this.resumeToken = resumeToken;
   }
 }

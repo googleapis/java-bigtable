@@ -373,14 +373,20 @@ public class BoundStatement {
    * not meant to be used by applications.
    */
   @InternalApi("For internal use only")
-  public ExecuteQueryRequest toProto(ByteString preparedQuery, RequestContext requestContext) {
-    return ExecuteQueryRequest.newBuilder()
-        .setInstanceName(
-            NameUtil.formatInstanceName(
-                requestContext.getProjectId(), requestContext.getInstanceId()))
-        .setAppProfileId(requestContext.getAppProfileId())
-        .setPreparedQuery(preparedQuery)
-        .putAllParams(params)
-        .build();
+  public ExecuteQueryRequest toProto(
+      ByteString preparedQuery, RequestContext requestContext, @Nullable ByteString resumeToken) {
+    ExecuteQueryRequest.Builder requestBuilder =
+        ExecuteQueryRequest.newBuilder()
+            .setInstanceName(
+                NameUtil.formatInstanceName(
+                    requestContext.getProjectId(), requestContext.getInstanceId()))
+            .setAppProfileId(requestContext.getAppProfileId())
+            .setPreparedQuery(preparedQuery)
+            .putAllParams(params);
+
+    if (resumeToken != null) {
+      requestBuilder.setResumeToken(resumeToken);
+    }
+    return requestBuilder.build();
   }
 }

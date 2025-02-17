@@ -45,7 +45,6 @@ import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.RequestParamsExtractor;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.ServerStreamingCallable;
-import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.UnaryCallSettings;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.api.gax.tracing.ApiTracerFactory;
@@ -121,7 +120,9 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsUserCallable;
 import com.google.cloud.bigtable.data.v2.stub.readrows.RowMergingCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
-import com.google.cloud.bigtable.data.v2.stub.sql.MetadataResolvingCallable;
+import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryResumptionStrategy;
+import com.google.cloud.bigtable.data.v2.stub.sql.MetadataErrorHandlingCallable;
+import com.google.cloud.bigtable.data.v2.stub.sql.PlanRefreshingCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlRowMergingCallable;
 import com.google.cloud.bigtable.gaxx.retrying.ApiResultRetryAlgorithm;
 import com.google.cloud.bigtable.gaxx.retrying.RetryInfoRetryAlgorithm;
@@ -144,10 +145,8 @@ import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Attributes;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import javax.annotation.Nonnull;
@@ -1151,9 +1150,6 @@ public class EnhancedBigtableStub implements AutoCloseable {
    */
   @InternalApi("For internal use only")
   public ExecuteQueryCallable createExecuteQueryCallable() {
-    // TODO support resumption
-    // TODO update codes once resumption is implemented
-    Set<Code> retryableCodes = Collections.emptySet();
     ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> base =
         GrpcRawCallableFactory.createServerStreamingCallable(
             GrpcCallSettings.<ExecuteQueryRequest, ExecuteQueryResponse>newBuilder()
@@ -1168,54 +1164,54 @@ public class EnhancedBigtableStub implements AutoCloseable {
                       }
                     })
                 .build(),
-            retryableCodes);
+            settings.executeQuerySettings().getRetryableCodes());
 
     ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    ServerStreamingCallSettings<ExecuteQueryRequest, ExecuteQueryResponse> watchdogSettings =
-        ServerStreamingCallSettings.<ExecuteQueryRequest, ExecuteQueryResponse>newBuilder()
+    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withMetadataObserver =
+        new PlanRefreshingCallable(withStatsHeaders, requestContext);
+
+    ServerStreamingCallSettings<ExecuteQueryCallContext, ExecuteQueryResponse> retrySettings =
+        ServerStreamingCallSettings.<ExecuteQueryCallContext, ExecuteQueryResponse>newBuilder()
+            .setResumptionStrategy(new ExecuteQueryResumptionStrategy())
+            .setRetryableCodes(settings.executeQuerySettings().getRetryableCodes())
+            .setRetrySettings(settings.executeQuerySettings().getRetrySettings())
             .setIdleTimeout(settings.executeQuerySettings().getIdleTimeout())
             .setWaitTimeout(settings.executeQuerySettings().getWaitTimeout())
             .build();
 
-    // Watchdog needs to stay above the metadata observer so that watchdog errors
-    // are passed through to the metadata future.
-    ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> watched =
-        Callables.watched(withStatsHeaders, watchdogSettings, clientContext);
-
-    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withMetadataObserver =
-        new MetadataResolvingCallable(watched, requestContext);
+    // Retries need to happen before row merging, because the resumeToken is part
+    // of the ExecuteQueryResponse. This is okay because the first response in every
+    // attempt stream will have reset set to true, so any unyielded data from the previous
+    // attempt will be reset properly
+    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> retries =
+        withRetries(withMetadataObserver, retrySettings);
 
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> merging =
-        new SqlRowMergingCallable(withMetadataObserver);
+        new SqlRowMergingCallable(retries);
 
-    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> withBigtableTracer =
-        new BigtableTracerStreamingCallable<>(merging);
-
-    ServerStreamingCallSettings<ExecuteQueryCallContext, SqlRow> retrySettings =
+    ServerStreamingCallSettings<ExecuteQueryCallContext, SqlRow> watchdogSettings =
         ServerStreamingCallSettings.<ExecuteQueryCallContext, SqlRow>newBuilder()
-            // TODO add resumption strategy and pass through retry settings unchanged
-            // we pass through retry settings to use the deadlines now but don't
-            // support retries
-            .setRetrySettings(
-                settings
-                    .executeQuerySettings()
-                    .getRetrySettings()
-                    .toBuilder()
-                    // override maxAttempts as a safeguard against changes from user
-                    .setMaxAttempts(1)
-                    .build())
+            .setIdleTimeout(settings.executeQuerySettings().getIdleTimeout())
+            .setWaitTimeout(settings.executeQuerySettings().getWaitTimeout())
             .build();
 
-    // Adding RetryingCallable to the callable chain so that client side metrics can be
-    // measured correctly and deadlines are set. Retries are currently disabled.
-    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> retries =
-        withRetries(withBigtableTracer, retrySettings);
+    // Watchdog needs to stay above the metadata error handling so that watchdog errors
+    // are passed through to the metadata future.
+    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> watched =
+        Callables.watched(merging, watchdogSettings, clientContext);
+
+    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> passingThroughErrorsToMetadata =
+        new MetadataErrorHandlingCallable(watched);
+
+    ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> withBigtableTracer =
+        new BigtableTracerStreamingCallable<>(passingThroughErrorsToMetadata);
 
     SpanName span = getSpanName("ExecuteQuery");
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> traced =
-        new TracedServerStreamingCallable<>(retries, clientContext.getTracerFactory(), span);
+        new TracedServerStreamingCallable<>(
+            withBigtableTracer, clientContext.getTracerFactory(), span);
 
     return new ExecuteQueryCallable(
         traced.withDefaultCallContext(

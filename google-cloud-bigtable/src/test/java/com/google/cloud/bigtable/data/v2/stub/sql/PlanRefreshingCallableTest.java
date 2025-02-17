@@ -24,10 +24,8 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partial
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.tokenOnlyResultSet;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import com.google.api.core.SettableApiFuture;
@@ -39,16 +37,14 @@ import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
-import com.google.cloud.bigtable.data.v2.stub.sql.MetadataResolvingCallable.MetadataObserver;
+import com.google.cloud.bigtable.data.v2.stub.sql.PlanRefreshingCallable.MetadataObserver;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockResponseObserver;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCall;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCallable;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockStreamController;
-import com.google.protobuf.ByteString;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +52,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class MetadataResolvingCallableTest {
+public class PlanRefreshingCallableTest {
 
   private static final ExecuteQueryRequest FAKE_REQUEST = ExecuteQueryRequest.newBuilder().build();
   private static final com.google.bigtable.v2.ResultSetMetadata METADATA =
@@ -67,7 +63,7 @@ public class MetadataResolvingCallableTest {
   ExecuteQueryCallContext callContext;
   MockResponseObserver<ExecuteQueryResponse> outerObserver;
   SettableApiFuture<ResultSetMetadata> metadataFuture;
-  MetadataResolvingCallable.MetadataObserver observer;
+  PlanRefreshingCallable.MetadataObserver observer;
 
   @Before
   public void setUp() {
@@ -118,48 +114,6 @@ public class MetadataResolvingCallableTest {
     assertThat(outerObserver.getFinalError()).isNull();
   }
 
-  // cancel will manifest as an onError call so these are testing both cancellation and
-  // other exceptions
-  @Test
-  public void observer_passesThroughErrorBeforeResolvingMetadata() {
-    MockServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
-        new MockServerStreamingCallable<>();
-    innerCallable.call(FAKE_REQUEST, observer);
-    MockServerStreamingCall<ExecuteQueryRequest, ExecuteQueryResponse> lastCall =
-        innerCallable.popLastCall();
-    MockStreamController<ExecuteQueryResponse> innerController = lastCall.getController();
-
-    innerController.getObserver().onError(new CancellationException("Cancelled"));
-
-    assertThat(metadataFuture.isDone()).isTrue();
-    assertThrows(ExecutionException.class, metadataFuture::get);
-    ExecutionException e = assertThrows(ExecutionException.class, metadataFuture::get);
-    assertThat(e.getCause()).isInstanceOf(CancellationException.class);
-    assertThat(outerObserver.isDone()).isTrue();
-    assertThat(outerObserver.getFinalError()).isInstanceOf(CancellationException.class);
-  }
-
-  @Test
-  public void observer_passesThroughErrorAfterSettingMetadata()
-      throws ExecutionException, InterruptedException {
-    MockServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
-        new MockServerStreamingCallable<>();
-    innerCallable.call(FAKE_REQUEST, observer);
-    MockServerStreamingCall<ExecuteQueryRequest, ExecuteQueryResponse> lastCall =
-        innerCallable.popLastCall();
-    MockStreamController<ExecuteQueryResponse> innerController = lastCall.getController();
-
-    innerController.getObserver().onResponse(tokenOnlyResultSet(ByteString.copyFromUtf8("token")));
-    innerController.getObserver().onError(new RuntimeException("exception after metadata"));
-
-    assertThat(metadataFuture.isDone()).isTrue();
-    assertThat(metadataFuture.get()).isEqualTo(ProtoResultSetMetadata.fromProto(METADATA));
-    assertThat(outerObserver.popNextResponse())
-        .isEqualTo(tokenOnlyResultSet(ByteString.copyFromUtf8("token")));
-    assertThat(outerObserver.isDone()).isTrue();
-    assertThat(outerObserver.getFinalError()).isInstanceOf(RuntimeException.class);
-  }
-
   @Test
   public void observer_passThroughOnStart() {
     MockServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
@@ -193,8 +147,7 @@ public class MetadataResolvingCallableTest {
     ServerStreamingStashCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
         new ServerStreamingStashCallable<>(Collections.singletonList(DATA));
     RequestContext requestContext = RequestContext.create("project", "instance", "profile");
-    MetadataResolvingCallable callable =
-        new MetadataResolvingCallable(innerCallable, requestContext);
+    PlanRefreshingCallable callable = new PlanRefreshingCallable(innerCallable, requestContext);
     MockResponseObserver<ExecuteQueryResponse> outerObserver = new MockResponseObserver<>(true);
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     PreparedStatement preparedStatement =

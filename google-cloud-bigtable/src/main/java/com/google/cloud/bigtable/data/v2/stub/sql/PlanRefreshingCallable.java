@@ -33,12 +33,12 @@ import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
  * <p>This is considered an internal implementation detail and should not be used by applications.
  */
 @InternalApi("For internal use only")
-public class MetadataResolvingCallable
+public class PlanRefreshingCallable
     extends ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> {
   private final ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> inner;
   private final RequestContext requestContext;
 
-  public MetadataResolvingCallable(
+  public PlanRefreshingCallable(
       ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> inner,
       RequestContext requestContext) {
     this.inner = inner;
@@ -51,6 +51,8 @@ public class MetadataResolvingCallable
       ResponseObserver<ExecuteQueryResponse> responseObserver,
       ApiCallContext apiCallContext) {
     MetadataObserver observer = new MetadataObserver(responseObserver, callContext);
+    // TODO toRequest will return a future. We need to timeout waiting for future
+    // based on the totalTimeout
     inner.call(callContext.toRequest(requestContext), observer, apiCallContext);
   }
 
@@ -101,9 +103,11 @@ public class MetadataResolvingCallable
 
     @Override
     protected void onErrorImpl(Throwable throwable) {
-      // When we support retries this will have to move after the retrying callable in a separate
-      // observer.
-      callContext.setMetadataException(throwable);
+      // TODO translate plan refresh errors and trigger plan refresh
+
+      // Note that we do not set exceptions on the metadata future here. This
+      // needs to be done after the retries, so that retryable errors aren't set on
+      // the future
       outerObserver.onError(throwable);
     }
 

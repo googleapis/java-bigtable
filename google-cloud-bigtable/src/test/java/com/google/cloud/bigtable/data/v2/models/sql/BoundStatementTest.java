@@ -53,6 +53,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import javax.annotation.Nullable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -71,6 +72,7 @@ public class BoundStatementTest {
   private static final ColumnMetadata[] DEFAULT_COLUMNS = {
     columnMetadata("_key", bytesType()), columnMetadata("cf", stringType())
   };
+  private static final @Nullable ByteString NO_RESUME_TOKEN = null;
 
   // Use ColumnMetadata as a more concise way of specifying params
   public static BoundStatement.Builder boundStatementBuilder(ColumnMetadata... paramColumns) {
@@ -97,12 +99,27 @@ public class BoundStatementTest {
   public void statementWithoutParameters() {
     BoundStatement s = boundStatementBuilder().build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
                 .setInstanceName(EXPECTED_INSTANCE_NAME)
                 .setAppProfileId(EXPECTED_APP_PROFILE)
+                .build());
+  }
+
+  @Test
+  public void statementWithResumeToken() {
+    BoundStatement s = boundStatementBuilder().build();
+
+    assertThat(
+            s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, ByteString.copyFromUtf8("token")))
+        .isEqualTo(
+            ExecuteQueryRequest.newBuilder()
+                .setPreparedQuery(EXPECTED_PREPARED_QUERY)
+                .setInstanceName(EXPECTED_INSTANCE_NAME)
+                .setAppProfileId(EXPECTED_APP_PROFILE)
+                .setResumeToken(ByteString.copyFromUtf8("token"))
                 .build());
   }
 
@@ -113,7 +130,7 @@ public class BoundStatementTest {
             .setBytesParam("key", ByteString.copyFromUtf8("test"))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -135,7 +152,7 @@ public class BoundStatementTest {
             .setBytesParam("key", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -152,7 +169,7 @@ public class BoundStatementTest {
             .setStringParam("key", "test")
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -170,7 +187,7 @@ public class BoundStatementTest {
             .setStringParam("key", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -187,7 +204,7 @@ public class BoundStatementTest {
             .setLongParam("number", 1L)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -204,7 +221,7 @@ public class BoundStatementTest {
             .setLongParam("number", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -221,7 +238,7 @@ public class BoundStatementTest {
             .setBooleanParam("bool", true)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -239,7 +256,7 @@ public class BoundStatementTest {
             .setBooleanParam("bool", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -256,7 +273,7 @@ public class BoundStatementTest {
             .setTimestampParam("timeParam", Instant.ofEpochSecond(1000, 100))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -278,7 +295,7 @@ public class BoundStatementTest {
             .setTimestampParam("timeParam", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -295,7 +312,7 @@ public class BoundStatementTest {
             .setDateParam("dateParam", Date.fromYearMonthDay(2024, 6, 11))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -317,7 +334,7 @@ public class BoundStatementTest {
             .setDateParam("dateParam", null)
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -347,7 +364,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.bytes()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -396,7 +413,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.string()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -442,7 +459,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.int64()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -489,7 +506,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.float32()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -538,7 +555,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.float64()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -585,7 +602,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.bool()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -638,7 +655,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.timestamp()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -695,7 +712,7 @@ public class BoundStatementTest {
             .setListParam("nullList", null, SqlType.arrayOf(SqlType.date()))
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -756,7 +773,7 @@ public class BoundStatementTest {
             .setStringParam("key", "test4")
             .build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)
@@ -771,7 +788,7 @@ public class BoundStatementTest {
   public void builderWorksWithNoParams() {
     BoundStatement s = boundStatementBuilder().build();
 
-    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT))
+    assertThat(s.toProto(EXPECTED_PREPARED_QUERY, REQUEST_CONTEXT, NO_RESUME_TOKEN))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setPreparedQuery(EXPECTED_PREPARED_QUERY)

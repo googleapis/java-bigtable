@@ -192,6 +192,11 @@ public class SqlProtoFactory {
     return partialResultSets(1, false, ByteString.copyFromUtf8("test"), values).get(0);
   }
 
+  /** Creates a single response representing a complete batch, with a resume token of token */
+  public static ExecuteQueryResponse partialResultSetWithToken(ByteString token, Value... values) {
+    return partialResultSets(1, false, token, values).get(0);
+  }
+
   public static ExecuteQueryResponse tokenOnlyResultSet(ByteString token) {
     return ExecuteQueryResponse.newBuilder()
         .setResults(PartialResultSet.newBuilder().setResumeToken(token))
