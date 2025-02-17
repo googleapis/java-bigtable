@@ -26,7 +26,6 @@ import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.StateCheckingResponseObserver;
 import com.google.api.gax.rpc.StreamController;
 import com.google.cloud.bigtable.data.v2.stub.BigtableStreamResumptionStrategy;
-import com.google.cloud.bigtable.data.v2.stub.readrows.LargeReadRowsResumptionStrategy;
 import com.google.common.base.Preconditions;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -223,15 +222,12 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
 
           @Override
           public void onErrorImpl(Throwable t) {
-            ((LargeReadRowsResumptionStrategy)resumptionStrategy).setLargeRowKey(t);
             onAttemptError(t);
-          //  ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping/updating all the large rows collection somewhere
           }
 
           @Override
           public void onCompleteImpl() {
             onAttemptComplete();
-            // ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping/updating all the large rows collection somewhere
           }
         },
         attemptContext);
@@ -344,7 +340,7 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
    * Called when the current RPC fails. The error will be bubbled up to the outer {@link
    * RetryingFuture} via the {@link #innerAttemptFuture}.
    */
-  private void onAttemptError(Throwable throwable) {
+  private voionAttemptError(Throwable throwable) {
     Throwable localCancellationCause;
     synchronized (lock) {
       localCancellationCause = cancellationCause;

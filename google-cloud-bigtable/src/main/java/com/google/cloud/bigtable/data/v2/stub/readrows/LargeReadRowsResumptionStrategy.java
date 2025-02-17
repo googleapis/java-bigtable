@@ -23,6 +23,7 @@ import com.google.bigtable.v2.ReadRowsRequest.Builder;
 import com.google.bigtable.v2.RowSet;
 import com.google.cloud.bigtable.data.v2.internal.RowSetUtil;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
+import com.google.cloud.bigtable.data.v2.stub.BigtableStreamResumptionStrategy;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.util.ArrayList;
@@ -45,8 +46,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * applications.
  */
 @InternalApi
-public final class LargeReadRowsResumptionStrategy<RowT>
-    implements StreamResumptionStrategy<ReadRowsRequest, RowT> {
+public class LargeReadRowsResumptionStrategy<RowT> extends
+    BigtableStreamResumptionStrategy<ReadRowsRequest, RowT> {
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
@@ -74,12 +75,6 @@ public final class LargeReadRowsResumptionStrategy<RowT>
     return new LargeReadRowsResumptionStrategy<>(rowAdapter);
   }
 
-  public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew(
-      ReadRowsRequest originalRequest) {
-    this.originalRequest = originalRequest;
-    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
-  }
-
   @Override
   public RowT processResponse(RowT response) {
     // Last key can come from both the last processed row key and a synthetic row marker. The
@@ -95,13 +90,14 @@ public final class LargeReadRowsResumptionStrategy<RowT>
     return response;
   }
 
-  public void setLargeRowKey(Throwable t) {
-    String rowKeyExtracted = extractLargeRowKey(t);
+  public Throwable processError(Throwable throwable){
+    String rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
       this.largeRowKey = ByteString.copyFromUtf8(rowKeyExtracted);
       largeRowsCount.addAndGet(1);
       numProcessed = numProcessed + 1;
     }
+    return throwable;
   }
 
   private String extractLargeRowKey(Throwable t) {
