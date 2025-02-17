@@ -24,7 +24,6 @@ import com.google.protobuf.util.Durations;
 import com.google.rpc.RetryInfo;
 import javax.annotation.Nullable;
 
-
 /**
  * This retry algorithm checks the metadata of an exception for additional error details. It also
  * allows to retry for {@link com.google.api.gax.rpc.FailedPreconditionException} with

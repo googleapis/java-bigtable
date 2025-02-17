@@ -522,7 +522,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   /**
-   * Creates a callable chain to handle streaming ReadRows RPCs. The chain will:
+   * Creates a callable chain to handle streaming ReadRows RPCs. This chain skips the large rows
+   * internally. The chain will:
    *
    * <ul>
    *   <li>Convert a {@link Query} into a {@link com.google.bigtable.v2.ReadRowsRequest}.
@@ -531,7 +532,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured in by the {@code rowAdapter} parameter.
    *   <li>Add bigtable tracer for tracking bigtable specific metrics.
-   *   <li>Retry/resume on failure.
+   *   <li>Retry/resume on failure (retries for retryable error codes, connection errors & large row
+   *       errors)
    *   <li>Filter out marker rows.
    *   <li>Add tracing & metrics.
    * </ul>
@@ -567,6 +569,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
 
     // Copy settings for the middle ReadRowsRequest -> RowT callable (as opposed to the inner
     // ReadRowsRequest -> ReadRowsResponse callable).
+    // We override the resumption strategy to use LargeReadRowsResumptionStrategy here (which skips
+    // the large rows) instead of ReadRowResumptionStrategy
     ServerStreamingCallSettings<ReadRowsRequest, RowT> innerSettings =
         ServerStreamingCallSettings.<ReadRowsRequest, RowT>newBuilder()
             .setResumptionStrategy(new LargeReadRowsResumptionStrategy<>(rowAdapter))
@@ -1378,7 +1382,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
       ServerStreamingCallable<RequestT, ResponseT> innerCallable,
       ServerStreamingCallSettings<RequestT, ResponseT> serverStreamingCallSettings) {
 
-    //Retrying algorithm in retryingForLargeRows also takes RetryInfo into consideration, so we skip the check for RetryInfo here
+    // Retrying algorithm in retryingForLargeRows also takes RetryInfo into consideration, so we
+    // skip the check for settings.getEnableRetryInfo here
     ServerStreamingCallable<RequestT, ResponseT> retrying;
     retrying =
         com.google.cloud.bigtable.gaxx.retrying.Callables.retryingForLargeRows(

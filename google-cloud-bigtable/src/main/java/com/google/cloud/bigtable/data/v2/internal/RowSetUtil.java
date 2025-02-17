@@ -26,6 +26,9 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrateg
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.protobuf.ByteString;
+// import com.google.protobuf.Message;
+// import jdk.javadoc.internal.tool.Start;
+
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,6 +54,7 @@ public final class RowSetUtil {
 
   public static RowSet createSplitRanges(
       RowSet rowSet, ByteString excludePoint, boolean fromStart) {
+
     RowSet.Builder newRowSet = RowSet.newBuilder();
 
     if (rowSet.getRowKeysList().isEmpty() && rowSet.getRowRangesList().isEmpty()) {
@@ -60,23 +64,19 @@ public final class RowSetUtil {
     }
 
     // Handle point lookups
-    for (ByteString key : rowSet.getRowKeysList()) {
-      if (fromStart) {
-        // key is right of the split
-        if (ByteStringComparator.INSTANCE.compare(key, excludePoint) > 0) {
-          newRowSet.addRowKeys(key);
-        }
-      } else {
-        // key is left of the split
-        if (ByteStringComparator.INSTANCE.compare(key, excludePoint) < 0) {
-          newRowSet.addRowKeys(key);
+    if(!rowSet.getRowKeysList().isEmpty()){
+      List<ByteString> mutableList = new ArrayList<ByteString>();
+      for(ByteString rowKey : rowSet.getRowKeysList()){
+        if(!rowKey.equals(excludePoint)){
+          newRowSet.addRowKeys(rowKey);
         }
       }
     }
 
+
     // Handle ranges
     for (RowRange rowRange : rowSet.getRowRangesList()) {
-      List<RowRange> newRangeCollection = splitRange(rowRange, excludePoint, fromStart);
+      List<RowRange> newRangeCollection = eraseKeyFromRange(rowRange, excludePoint, fromStart);
       if (newRangeCollection != null && !newRangeCollection.isEmpty()) {
         for (RowRange newRange : newRangeCollection) {
           newRowSet.addRowRanges(newRange);
@@ -166,61 +166,102 @@ public final class RowSetUtil {
     return newRange.build();
   }
 
-  public static List<RowRange> splitRange(RowRange range, ByteString split, boolean fromStart) {
+  /**
+   * This method erases the {@code #split} range from the range
+   * @param range
+   * @param split
+   * @param fromStart
+   * @return
+   */
+  public static List<RowRange> eraseKeyFromRange(RowRange range, ByteString split, boolean fromStart) {
     List<RowRange> rowRangesList = new ArrayList<RowRange>();
 
+    //edge case of [split,split],[split,split),(split,split]
+    if((StartPoint.extract(range).compareTo(new StartPoint(split,true))==0 &&
+    EndPoint.extract(range).compareTo(new EndPoint(split,true))==0)
+    ||
+        (StartPoint.extract(range).compareTo(new StartPoint(split,false))== 0 &&
+            EndPoint.extract(range).compareTo(new EndPoint(split,true))==0)
+    ||
+        (StartPoint.extract(range).compareTo(new StartPoint(split,true))== 0 &&
+            EndPoint.extract(range).compareTo(new EndPoint(split,false))==0)
+    )
+    {
+      return rowRangesList;
+    }
+
+    // split out of range or on edge of the range
     if (fromStart) {
-      // range end is on or left of the split: skip
+      // range end is on or left of the split
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) < 0) {
         rowRangesList.add(range);
         return rowRangesList;
       }
+      else if(EndPoint.extract(range).compareTo(new EndPoint(split, true)) == 0){
+        range = range.toBuilder().setEndKeyOpen(split).build();
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
+      //range start is on the left or on the split
+      else if(StartPoint.extract(range).compareTo(new StartPoint(split,true))>0){
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
+      else if(StartPoint.extract(range).compareTo(new StartPoint(split,true))==0){
+        range = range.toBuilder().setStartKeyOpen(split).build();
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
+
     } else {
-      // range is on or right of the split
+      // range start is on or right of the split
       if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) > 0) {
         rowRangesList.add(range);
         return rowRangesList;
       }
-      // either set = or set the range's start & end key acc to you
+      else if(StartPoint.extract(range).compareTo(new StartPoint(split, true)) == 0){
+        range = range.toBuilder().setStartKeyOpen(split).build();
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
+      //range end is on the left or on the split
+      else if(EndPoint.extract(range).compareTo(new EndPoint(split,true))<0){
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
+      else if(EndPoint.extract(range).compareTo(new EndPoint(split,true))==0){
+        range = range.toBuilder().setEndKeyOpen(split).build();
+        rowRangesList.add(range);
+        return rowRangesList;
+      }
     }
 
+    // split is b/w the range
     if (fromStart) {
-      // range start is on or left of the split
       if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
         RowRange beforeSplitKeyRange =
             range
                 .toBuilder()
-                .setStartKeyOpen(
-                    range.getStartKeyOpen().isEmpty()
-                        ? range.getStartKeyClosed()
-                        : range.getStartKeyOpen())
                 .setEndKeyOpen(split)
                 .build();
         rowRangesList.add(beforeSplitKeyRange);
-        // RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
       }
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
         RowRange afterSplitKeyRange = range.toBuilder().setStartKeyOpen(split).build();
         rowRangesList.add(afterSplitKeyRange);
       }
     } else {
-      // range end is on or right of the split
       if (EndPoint.extract(range).compareTo(new EndPoint(split, true)) > 0) {
-        // end key open would be already present as large read success key
-        RowRange afterSplitKeyRange =
+        RowRange beforeSplitKeyRange =
             range
                 .toBuilder()
                 .setStartKeyOpen(split)
-                .setEndKeyOpen(
-                    range.getEndKeyOpen().isEmpty()
-                        ? range.getEndKeyClosed()
-                        : range.getEndKeyOpen())
                 .build();
-        rowRangesList.add(afterSplitKeyRange);
+        rowRangesList.add(beforeSplitKeyRange);
       }
       if (StartPoint.extract(range).compareTo(new StartPoint(split, true)) < 0) {
-        RowRange beforeSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
-        rowRangesList.add(beforeSplitKeyRange);
+        RowRange afterSplitKeyRange = range.toBuilder().setEndKeyOpen(split).build();
+        rowRangesList.add(afterSplitKeyRange);
       }
     }
 

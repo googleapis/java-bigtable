@@ -25,8 +25,6 @@ import com.google.cloud.bigtable.data.v2.internal.RowSetUtil;
 import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -39,22 +37,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  * </ul>
  *
  * Upon retry this class builds a request to omit the large rows & retry from the last row key that
- * was read successfully off.
+ * was successfully read.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
 @InternalApi
-public class LargeReadRowsResumptionStrategy<RowT>
+public final class LargeReadRowsResumptionStrategy<RowT>
     implements StreamResumptionStrategy<ReadRowsRequest, RowT> {
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
   private long numProcessed;
   private ByteString largeRowKey = ByteString.EMPTY;
-  private AtomicInteger largeRowsCount = new AtomicInteger(0);
-
-  private List<ByteString> largeRowKeys = new ArrayList<ByteString>();
+  private final AtomicInteger largeRowsCount = new AtomicInteger(0);
 
   private ReadRowsRequest originalRequest;
 
@@ -94,7 +90,6 @@ public class LargeReadRowsResumptionStrategy<RowT>
       // Only real rows count towards the rows limit.
       numProcessed++;
     }
-    this.largeRowKey = ByteString.EMPTY;
     return response;
   }
 
@@ -103,21 +98,15 @@ public class LargeReadRowsResumptionStrategy<RowT>
     if (rowKeyExtracted != null) {
       this.largeRowKey = ByteString.copyFromUtf8(rowKeyExtracted);
       largeRowsCount.addAndGet(1);
-      this.largeRowKeys.add(largeRowKey);
+      numProcessed = numProcessed + 1;
     }
   }
-
-  /**
-   * This method should be implemented to expose the large-row keys ({@link
-   * LargeReadRowsResumptionStrategy#largeRowKeys}) to application via side channel/dlq or some
-   * other way ToDo (@sarthakbhutani) : add implementation of this method as described above
-   */
-  public void dumpLargeRowKeys() {}
 
   private String extractLargeRowKey(Throwable t) {
     if (t instanceof ApiException
         && ((ApiException) t).getReason() != null
         && ((ApiException) t).getReason().equals("LargeRowReadError")) {
+      // TODO: rowKey might be encoded. Would have to handle that.
       return ((ApiException) t).getMetadata().get("rowKey");
     }
     return null;
@@ -126,10 +115,10 @@ public class LargeReadRowsResumptionStrategy<RowT>
   /**
    * {@inheritDoc}
    *
-   * <p>Given a request, this implementation will narrow that request to exclude all row keys and
-   * ranges that would produce rows that come before {@link #lastSuccessKey}. Furthermore this
-   * implementation takes care to update the row limit of the request to account for all of the
-   * received rows.
+   * <p>This returns an updated request excluding all the rows keys & ranges till (including) {@link
+   * #lastSuccessKey} & also excludes the last encountered large row key ({@link #largeRowKey}).
+   * Also, this implementation takes care to update the row limit of the request to account for all
+   * of the received rows.
    */
   @Override
   public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
@@ -174,7 +163,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
       Preconditions.checkState(
           originalRequest.getRowsLimit() > numProcessed + largeRowsCount.get(),
           "Processed rows and number of large rows should not exceed the row limit in the original request");
-      builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed - largeRowsCount.get());
+      builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed);
     }
 
     return builder.build();

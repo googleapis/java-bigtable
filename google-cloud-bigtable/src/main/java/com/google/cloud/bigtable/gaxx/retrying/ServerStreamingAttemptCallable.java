@@ -228,8 +228,6 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
           @Override
           public void onCompleteImpl() {
             onAttemptComplete();
-            // ToDo (@sarthakbhutani) : since this is a terminal step - we should consider dumping
-            // all the large rows collection somewhere via DLQ/side channel to application layer
           }
         },
         attemptContext);

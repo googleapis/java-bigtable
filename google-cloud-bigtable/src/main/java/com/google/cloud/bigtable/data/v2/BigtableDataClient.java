@@ -1313,22 +1313,6 @@ public class BigtableDataClient implements AutoCloseable {
    *     e.printStackTrace();
    *   }
    *
-   *   // Point look up
-   *   ApiFuture<Row> rowFuture = bigtableDataClient.readRowsCallable().first().futureCall(query);
-   *
-   *   ApiFutures.addCallback(rowFuture, new ApiFutureCallback<Row>() {
-   *     public void onFailure(Throwable t) {
-   *       if (t instanceof NotFoundException) {
-   *         System.out.println("Tried to read a non-existent table");
-   *       } else {
-   *         t.printStackTrace();
-   *       }
-   *     }
-   *     public void onSuccess(Row result) {
-   *       System.out.println("Got row: " + result);
-   *     }
-   *   }, MoreExecutors.directExecutor());
-   *
    *   // etc
    * }
    * }</pre>
