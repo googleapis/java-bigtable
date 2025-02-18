@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.it;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.TruthJUnit.assume;
 
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.rpc.ResponseObserver;
@@ -31,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.ImmutableList;
@@ -147,22 +149,15 @@ public class LargeRowIT {
 
   @Test
   public void read() throws Throwable {
-    // create test case
-    BigtableDataClient client = testEnvRule.env().getDataClient();
+    assume()
+        .withMessage("Large row read errors are not supported by emulator")
+        .that(testEnvRule.env())
+        .isInstanceOf(CloudEnv.class);
 
+    BigtableDataClient client = testEnvRule.env().getDataClient();
     String tableId = table.getId();
     String familyId = this.familyId;
     long timestampMicros = System.currentTimeMillis() * 1_000;
-
-    // delete rows -- if created
-    client.bulkMutateRows(
-        BulkMutation.create(tableId)
-            .add(RowMutationEntry.create("r1").deleteRow())
-            .add(RowMutationEntry.create("r2").deleteRow())
-            .add(RowMutationEntry.create("r3").deleteRow())
-            .add(RowMutationEntry.create("r4").deleteRow())
-            .add(RowMutationEntry.create("r5").deleteRow())
-            .add(RowMutationEntry.create("r6").deleteRow()));
 
     // small row creations
     client.bulkMutateRows(
