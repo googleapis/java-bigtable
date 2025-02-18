@@ -340,7 +340,7 @@ public final class ServerStreamingAttemptCallable<RequestT, ResponseT> implement
    * Called when the current RPC fails. The error will be bubbled up to the outer {@link
    * RetryingFuture} via the {@link #innerAttemptFuture}.
    */
-  private voionAttemptError(Throwable throwable) {
+  private void onAttemptError(Throwable throwable) {
     Throwable localCancellationCause;
     synchronized (lock) {
       localCancellationCause = cancellationCause;
