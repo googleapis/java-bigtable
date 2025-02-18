@@ -53,6 +53,7 @@ import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -140,7 +141,7 @@ public class ReadRowsRetryTest {
         ErrorInfo.newBuilder()
             .setReason("LargeRowReadError")
             .setDomain("bigtable.googleapis.com")
-            .putMetadata("rowKey", rowKey)
+            .putMetadata("rowKey", Base64.getEncoder().encodeToString(rowKey.getBytes()))
             .build();
 
     Any packedErrorInfo = Any.pack(errorInfo);
