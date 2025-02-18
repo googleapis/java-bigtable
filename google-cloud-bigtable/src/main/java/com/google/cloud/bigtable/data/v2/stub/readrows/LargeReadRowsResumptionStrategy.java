@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * applications.
  */
 @InternalApi
-public class LargeReadRowsResumptionStrategy<RowT> extends
-    BigtableStreamResumptionStrategy<ReadRowsRequest, RowT> {
+public class LargeReadRowsResumptionStrategy<RowT>
+    extends BigtableStreamResumptionStrategy<ReadRowsRequest, RowT> {
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
@@ -89,7 +89,7 @@ public class LargeReadRowsResumptionStrategy<RowT> extends
     return response;
   }
 
-  public Throwable processError(Throwable throwable){
+  public Throwable processError(Throwable throwable) {
     String rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
       this.largeRowKey = ByteString.copyFromUtf8(rowKeyExtracted);
