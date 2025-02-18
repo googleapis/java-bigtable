@@ -103,7 +103,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
     if (t instanceof ApiException
         && ((ApiException) t).getReason() != null
         && ((ApiException) t).getReason().equals("LargeRowReadError")) {
-      String rowKey =  ((ApiException) t).getMetadata().get("rowKey");
+      String rowKey = ((ApiException) t).getMetadata().get("rowKey");
       byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
       return new String(decodedBytes);
     }
