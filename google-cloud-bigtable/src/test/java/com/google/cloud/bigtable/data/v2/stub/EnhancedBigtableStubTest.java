@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.data.v2.stub;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.preparedStatement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.common.truth.Truth.assertThat;
@@ -70,7 +72,6 @@ import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
@@ -91,6 +92,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
@@ -159,12 +161,11 @@ public class EnhancedBigtableStubTest {
   private static final Duration WATCHDOG_CHECK_DURATION = Duration.ofMillis(100);
   private static final PrepareResponse PREPARE_RESPONSE =
       PrepareResponse.fromProto(
-          PrepareQueryResponse.newBuilder()
-              .setPreparedQuery(ByteString.copyFromUtf8(WAIT_TIME_QUERY))
-              .setMetadata(metadata(columnMetadata("foo", stringType())))
-              .build());
+          prepareResponse(
+              ByteString.copyFromUtf8(WAIT_TIME_QUERY),
+              metadata(columnMetadata("foo", stringType()))));
   private static final PreparedStatement WAIT_TIME_PREPARED_STATEMENT =
-      PreparedStatementImpl.create(PREPARE_RESPONSE, new HashMap<>());
+      preparedStatement(PREPARE_RESPONSE, new HashMap<>());
 
   private Server server;
   private MetadataInterceptor metadataInterceptor;
@@ -901,12 +902,9 @@ public class EnhancedBigtableStubTest {
     ExecuteQueryCallable streamingCallable = enhancedBigtableStub.createExecuteQueryCallable();
     PrepareResponse prepareResponse =
         PrepareResponse.fromProto(
-            PrepareQueryResponse.newBuilder()
-                .setPreparedQuery(ByteString.copyFromUtf8("abc"))
-                .setMetadata(metadata(columnMetadata("foo", stringType())))
-                .build());
-    PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
+            SqlProtoFactory.prepareResponse(
+                ByteString.copyFromUtf8("abc"), metadata(columnMetadata("foo", stringType()))));
+    PreparedStatement preparedStatement = preparedStatement(prepareResponse, new HashMap<>());
     SqlServerStream sqlServerStream = streamingCallable.call(preparedStatement.bind().build());
     ExecuteQueryRequest expectedRequest =
         ExecuteQueryRequest.newBuilder()

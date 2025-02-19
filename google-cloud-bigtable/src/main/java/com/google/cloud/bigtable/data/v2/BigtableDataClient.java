@@ -2711,32 +2711,35 @@ public class BigtableDataClient implements AutoCloseable {
    * Executes a SQL Query and returns a ResultSet to iterate over the results. The returned
    * ResultSet instance is not threadsafe, it can only be used from single thread.
    *
+   * <p> The {@link BoundStatement} must be built from a {@link PreparedStatement} created using
+   * the same instance and app profile.
+   *
    * <p>Sample code:
    *
    * <pre>{@code
    * try (BigtableDataClient bigtableDataClient = BigtableDataClient.create("[PROJECT]", "[INSTANCE]")) {
    *   String query = "SELECT CAST(cf['stringCol'] AS STRING) FROM [TABLE]";
    *   Map<String, SqlType<?>> paramTypes = new HashMap<>();
-   *   try (PreparedStatement preparedStatement = bigtableDataClient.prepareStatement(query, paramTypes)) {
-   *       // Ideally one PreparedStatement should be reused across requests
-   *       BoundStatement boundStatement = preparedStatement.bind()
-   *          // set any query params before calling build
-   *          .build();
-   *       try (ResultSet resultSet = bigtableDataClient.executeQuery(boundStatement)) {
-   *           while (resultSet.next()) {
-   *               String s = resultSet.getString("stringCol");
-   *                // do something with data
-   *           }
-   *        } catch (RuntimeException e) {
-   *            e.printStackTrace();
-   *        }
+   *   PreparedStatement preparedStatement = bigtableDataClient.prepareStatement(query, paramTypes));
+   *   // Ideally one PreparedStatement should be reused across requests
+   *   BoundStatement boundStatement = preparedStatement.bind()
+   *      // set any query params before calling build
+   *      .build();
+   *   try (ResultSet resultSet = bigtableDataClient.executeQuery(boundStatement)) {
+   *       while (resultSet.next()) {
+   *           String s = resultSet.getString("stringCol");
+   *            // do something with data
+   *       }
+   *    } catch (RuntimeException e) {
+   *        e.printStackTrace();
    *   }
    * }</pre>
    *
-   * @see {@link PreparedStatement} & {@link BoundStatement} For query options.
+   * @see {@link PreparedStatement} & {@link BoundStatement} for query options.
    */
   @BetaApi
   public ResultSet executeQuery(BoundStatement boundStatement) {
+    boundStatement.assertUsingSameStub(stub);
     SqlServerStream stream = stub.createExecuteQueryCallable().call(boundStatement);
     return ResultSetImpl.create(stream);
   }
@@ -2754,7 +2757,7 @@ public class BigtableDataClient implements AutoCloseable {
   public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
     PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
     PrepareResponse response = stub.prepareQueryCallable().call(request);
-    return PreparedStatementImpl.create(response, paramTypes);
+    return PreparedStatementImpl.create(response, paramTypes, request, stub);
   }
 
   /** Close the clients and releases all associated resources. */

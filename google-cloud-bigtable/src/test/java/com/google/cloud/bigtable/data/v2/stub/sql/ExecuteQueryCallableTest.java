@@ -33,12 +33,10 @@ import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
 import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.ProtoResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
-import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
-import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement.Builder;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
@@ -61,25 +59,26 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class ExecuteQueryCallableTest {
 
-  private static final class FakePreparedStatement implements PreparedStatement {
+  private static final class FakePreparedStatement extends PreparedStatementImpl {
 
-    @Override
-    public Builder bind() {
-      return new BoundStatement.Builder(this, new HashMap<>());
+    public FakePreparedStatement() {
+      super(
+          PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("foo", stringType())))),
+          new HashMap<>(),
+          null,
+          null);
     }
 
     @Override
-    public PrepareResponse getPrepareResponse() {
-      return PrepareResponse.fromProto(
-          prepareResponse(metadata(columnMetadata("foo", stringType()))));
+    public PreparedQueryData markExpiredAndStartRefresh(
+        PreparedQueryVersion expiredPreparedQueryVersion) {
+      return getLatestPrepareResponse();
     }
 
     @Override
-    public void close() throws Exception {}
+    public void assertUsingSameStub(EnhancedBigtableStub stub) {}
   }
 
-  private static final RequestContext REQUEST_CONTEXT =
-      RequestContext.create("fake-project", "fake-instance", "fake-profile");
   private static final PreparedStatement PREPARED_STATEMENT = new FakePreparedStatement();
 
   private Server server;
@@ -113,7 +112,7 @@ public class ExecuteQueryCallableTest {
             Collections.singletonList(stringValue("foo")));
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> innerCallable =
         new ServerStreamingStashCallable<>(Collections.singletonList(row));
-    ExecuteQueryCallable callable = new ExecuteQueryCallable(innerCallable, REQUEST_CONTEXT);
+    ExecuteQueryCallable callable = new ExecuteQueryCallable(innerCallable);
     SqlServerStream stream = callable.call(PREPARED_STATEMENT.bind().build());
 
     assertThat(stream.metadataFuture())

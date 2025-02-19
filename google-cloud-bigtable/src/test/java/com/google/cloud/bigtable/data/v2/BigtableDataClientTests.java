@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.batching.Batcher;
+import com.google.api.gax.rpc.ClientContext;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.api.gax.rpc.UnaryCallable;
@@ -78,6 +79,7 @@ public class BigtableDataClientTests {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule().strictness(Strictness.WARN);
 
   @Mock private EnhancedBigtableStub mockStub;
+  @Mock private ClientContext mockContext;
 
   @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ServerStreamingCallable<Query, Row> mockReadRowsCallable;
@@ -1068,6 +1070,16 @@ public class BigtableDataClientTests {
 
   @Test
   public void prepareQueryTest() {
+    Mockito.when(mockStub.prepareQueryCallable()).thenReturn(mockPrepareQueryCallable);
+
+    String query = "SELECT * FROM table";
+    Map<String, SqlType<?>> paramTypes = new HashMap<>();
+    bigtableDataClient.prepareStatement(query, paramTypes);
+    Mockito.verify(mockPrepareQueryCallable).call(PrepareQueryRequest.create(query, paramTypes));
+  }
+
+  @Test
+  public void executeQueryMustUseSameClientAsPrepare() {
     Mockito.when(mockStub.prepareQueryCallable()).thenReturn(mockPrepareQueryCallable);
 
     String query = "SELECT * FROM table";

@@ -31,6 +31,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Ty
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Value;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.nullValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.preparedStatement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timestampType;
@@ -45,7 +46,6 @@ import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.Timestamp;
 import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.protobuf.ByteString;
 import java.time.Duration;
@@ -82,7 +82,7 @@ public class BoundStatementTest {
     }
     // This doesn't impact bound statement, but set it so it looks like a real response
     Instant expiry = Instant.now().plus(Duration.ofMinutes(1));
-    return PreparedStatementImpl.create(
+    return preparedStatement(
             PrepareResponse.fromProto(
                 PrepareQueryResponse.newBuilder()
                     .setPreparedQuery(EXPECTED_PREPARED_QUERY)

@@ -18,14 +18,12 @@ package com.google.cloud.bigtable.data.v2.stub.sql;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.preparedStatement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import com.google.api.core.SettableApiFuture;
-import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
@@ -34,7 +32,6 @@ import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockResponseObser
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCall;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockServerStreamingCallable;
 import com.google.cloud.bigtable.gaxx.testing.MockStreamingApi.MockStreamController;
-import java.util.HashMap;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import org.junit.Before;
@@ -53,14 +50,10 @@ public class MetadataErrorHandlingCallableTest {
   public void setUp() {
     metadataFuture = SettableApiFuture.create();
     PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(
-            PrepareResponse.fromProto(
-                prepareResponse(
-                    metadata(
-                        columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())))),
-            new HashMap<>());
+        preparedStatement(
+            metadata(columnMetadata("foo", stringType()), columnMetadata("bar", int64Type())));
 
-    callContext = ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
+    callContext = SqlProtoFactory.callContext(preparedStatement.bind().build(), metadataFuture);
     outerObserver = new MockResponseObserver<>(true);
     observer = new MetadataErrorHandlingObserver(outerObserver, callContext);
   }

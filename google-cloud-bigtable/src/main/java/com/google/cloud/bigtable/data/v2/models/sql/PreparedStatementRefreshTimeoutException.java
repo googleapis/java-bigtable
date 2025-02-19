@@ -15,21 +15,16 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import com.google.api.core.BetaApi;
+import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.rpc.ApiException;
+import io.grpc.Status.Code;
 
 /**
- * The results of query preparation that can be used to create {@link BoundStatement}s to execute
- * queries.
- *
- * <p>Whenever possible this should be shared across different instances of the same query, in order
- * to amortize query preparation costs.
+ * Error thrown when an executeQuery attempt hits the attempt deadline waiting for {@link
+ * PreparedStatement} to refresh it's underlying plan.
  */
-@BetaApi
-public interface PreparedStatement {
-
-  /**
-   * @return {@link BoundStatement.Builder} to bind query params to and pass to {@link
-   *     com.google.cloud.bigtable.data.v2.BigtableDataClient#executeQuery(BoundStatement)}
-   */
-  BoundStatement.Builder bind();
+public class PreparedStatementRefreshTimeoutException extends ApiException {
+  public PreparedStatementRefreshTimeoutException(String message) {
+    super(message, null, GrpcStatusCode.of(Code.DEADLINE_EXCEEDED), true);
+  }
 }

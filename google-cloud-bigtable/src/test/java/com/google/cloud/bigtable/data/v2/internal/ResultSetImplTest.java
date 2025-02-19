@@ -21,6 +21,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolTyp
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.callContext;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateValue;
@@ -33,7 +34,6 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapElem
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structField;
@@ -52,6 +52,7 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallContext;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStreamImpl;
 import com.google.cloud.bigtable.gaxx.testing.FakeStreamingApi.ServerStreamingStashCallable;
@@ -76,10 +77,8 @@ public class ResultSetImplTest {
     SettableApiFuture<ResultSetMetadata> future = SettableApiFuture.create();
     ResultSetMetadata metadata = ProtoResultSetMetadata.fromProto(protoMetadata);
     future.set(metadata);
-    PrepareResponse response = PrepareResponse.fromProto(prepareResponse(protoMetadata));
-    PreparedStatement preparedStatement = PreparedStatementImpl.create(response, new HashMap<>());
-    ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(preparedStatement.bind().build(), future);
+    PreparedStatement preparedStatement = SqlProtoFactory.preparedStatement(protoMetadata);
+    ExecuteQueryCallContext fakeCallContext = callContext(preparedStatement.bind().build(), future);
     return ResultSetImpl.create(SqlServerStreamImpl.create(future, stream.call(fakeCallContext)));
   }
 
@@ -322,12 +321,10 @@ public class ResultSetImplTest {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Collections.emptyList());
-    PrepareResponse prepareResponse =
-        PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("foo", stringType()))));
     PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
+        SqlProtoFactory.preparedStatement(metadata(columnMetadata("foo", stringType())));
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
+        callContext(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));
@@ -341,12 +338,10 @@ public class ResultSetImplTest {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStreamingStashCallable<ExecuteQueryCallContext, SqlRow> stream =
         new ServerStreamingStashCallable<>(Collections.emptyList());
-    PrepareResponse prepareResponse =
-        PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("foo", stringType()))));
     PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(prepareResponse, new HashMap<>());
+        SqlProtoFactory.preparedStatement(metadata(columnMetadata("foo", stringType())));
     ExecuteQueryCallContext fakeCallContext =
-        ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
+        callContext(preparedStatement.bind().build(), metadataFuture);
     ResultSet rs =
         ResultSetImpl.create(
             SqlServerStreamImpl.create(metadataFuture, stream.call(fakeCallContext)));

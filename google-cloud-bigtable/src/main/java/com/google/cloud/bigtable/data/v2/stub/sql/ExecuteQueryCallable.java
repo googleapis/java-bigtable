@@ -22,7 +22,6 @@ import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStream;
 import com.google.api.gax.rpc.ServerStreamingCallable;
 import com.google.bigtable.v2.ExecuteQueryRequest;
-import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.BoundStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
@@ -39,15 +38,19 @@ import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 public class ExecuteQueryCallable extends ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> {
 
   private final ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner;
-  private final RequestContext requestContext;
 
-  public ExecuteQueryCallable(
-      ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner,
-      RequestContext requestContext) {
+  public ExecuteQueryCallable(ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> inner) {
     this.inner = inner;
-    this.requestContext = requestContext;
   }
 
+  /**
+   * This should be used to create execute query calls. This replaces the typical API which allows
+   * passing of an {@link ApiCallContext}.
+   *
+   * <p>This class is considered an internal implementation detail and not meant to be used by
+   * applications. Users should only use executeQuery through the {@link
+   * com.google.cloud.bigtable.data.v2.BigtableDataClient}
+   */
   public SqlServerStream call(BoundStatement boundStatement) {
     SettableApiFuture<ResultSetMetadata> metadataFuture = SettableApiFuture.create();
     ServerStream<SqlRow> rowStream =

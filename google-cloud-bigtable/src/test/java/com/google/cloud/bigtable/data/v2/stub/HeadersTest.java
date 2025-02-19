@@ -17,7 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.preparedStatement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.common.truth.Truth.assertThat;
 
@@ -42,8 +42,6 @@ import com.google.bigtable.v2.SampleRowKeysResponse;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.FakeServiceBuilder;
-import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.models.ConditionalRowMutation;
 import com.google.cloud.bigtable.data.v2.models.Mutation;
 import com.google.cloud.bigtable.data.v2.models.Query;
@@ -175,10 +173,7 @@ public class HeadersTest {
   @Test
   public void executeQueryTest() {
     PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(
-            PrepareResponse.fromProto(
-                prepareResponse(metadata(columnMetadata("foo", stringType())))),
-            new HashMap<>());
+        preparedStatement(metadata(columnMetadata("foo", stringType())));
     client.executeQuery(preparedStatement.bind().build());
     verifyHeaderSent(true);
   }

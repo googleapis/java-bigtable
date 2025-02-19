@@ -16,15 +16,30 @@
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.grpc.GrpcCallContext;
+import com.google.api.gax.grpc.GrpcStatusCode;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiCallContext;
+import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.ServerStreamingCallable;
+import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StreamController;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatementRefreshTimeoutException;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.cloud.bigtable.data.v2.stub.SafeResponseObserver;
+import com.google.rpc.PreconditionFailure;
+import com.google.rpc.PreconditionFailure.Violation;
+import io.grpc.Deadline;
+import io.grpc.Status;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import javax.annotation.Nullable;
 
 /**
  * Callable that allows passing of {@link ResultSetMetadata} back to users throught the {@link
@@ -47,16 +62,98 @@ public class PlanRefreshingCallable
 
   @Override
   public void call(
-      ExecuteQueryCallContext callContext,
+      ExecuteQueryCallContext executeQueryCallContext,
       ResponseObserver<ExecuteQueryResponse> responseObserver,
-      ApiCallContext apiCallContext) {
-    MetadataObserver observer = new MetadataObserver(responseObserver, callContext);
-    // TODO toRequest will return a future. We need to timeout waiting for future
-    // based on the totalTimeout
-    inner.call(callContext.toRequest(requestContext), observer, apiCallContext);
+      @Nullable ApiCallContext apiCallContext) {
+    PlanRefreshingObserver observer =
+        new PlanRefreshingObserver(responseObserver, executeQueryCallContext);
+    ExecuteQueryRequest request;
+    @Nullable GrpcCallContext grpcCallContext = (GrpcCallContext) apiCallContext;
+    // Convert timeout to an absolute deadline, so we can use it for both the plan refresh and
+    // the ExecuteQuery rpc
+    Deadline deadline = getDeadline(grpcCallContext, executeQueryCallContext.startTimeOfCall());
+    try {
+      // TODO: this blocks. That is ok because ResultSet is synchronous. If we ever
+      // need to make this async that needs to change
+      request = executeQueryCallContext.buildRequestWithDeadline(requestContext, deadline);
+    } catch (PreparedStatementRefreshTimeoutException e) {
+      // If we timed out waiting for refresh, return the retryable error, but don't trigger a
+      // new refresh since one is ongoing
+      responseObserver.onError(e);
+      return;
+    } catch (Throwable throwable) {
+      // If we already have a resumeToken we can't refresh the plan, so we throw an error.
+      // This is not expected to happen, as the plan must be resolved in order for us to
+      // receive a token
+      if (executeQueryCallContext.hasResumeToken()) {
+        responseObserver.onError(
+            new IllegalStateException(
+                "Unexpected plan refresh attempt after first token", throwable));
+      }
+      // We trigger refresh so the next attempt will use a fresh plan
+      executeQueryCallContext.triggerImmediateRefreshOfPreparedQuery();
+      responseObserver.onError(throwable);
+      return;
+    }
+    ApiCallContext contextWithAbsoluteDeadline =
+        Optional.ofNullable(grpcCallContext)
+            .map(c -> c.withCallOptions(grpcCallContext.getCallOptions().withDeadline(deadline)))
+            .orElse(null);
+    inner.call(request, observer, contextWithAbsoluteDeadline);
   }
 
-  static final class MetadataObserver extends SafeResponseObserver<ExecuteQueryResponse> {
+  // Checks for an attempt timeout first, then a total timeout. If found, converts the timeout
+  // to an absolute deadline. Adjusts totalTimeout based on the time since startTimeOfOverallRequest
+  private static @Nullable Deadline getDeadline(
+      GrpcCallContext grpcCallContext, Instant startTimeOfOverallRequest) {
+    Optional<Deadline> attemptDeadline =
+        Optional.ofNullable(grpcCallContext)
+            .flatMap(c -> Optional.ofNullable(c.getTimeoutDuration()))
+            .map(d -> Deadline.after(d.toNanos(), TimeUnit.NANOSECONDS));
+    if (attemptDeadline.isPresent()) {
+      return attemptDeadline.get();
+    }
+    return Optional.ofNullable(grpcCallContext)
+        .flatMap(c -> Optional.ofNullable(c.getRetrySettings()))
+        .map(RetrySettings::getTotalTimeoutDuration)
+        // TotalTimeout of zero means there is no timeout
+        .filter(duration -> !duration.isZero())
+        .map(
+            d -> {
+              Duration elapsedTime = Duration.between(startTimeOfOverallRequest, Instant.now());
+              Duration remaining = d.minus(elapsedTime);
+              // zero is treated as no deadline, so if full deadline is elapsed pass 1 nano
+              long adjusted = Math.max(remaining.getNano(), 1);
+              return Deadline.after(adjusted, TimeUnit.NANOSECONDS);
+            })
+        .orElse(null);
+  }
+
+  @InternalApi
+  static boolean isPlanRefreshError(Throwable t) {
+    if (!(t instanceof ApiException)) {
+      return false;
+    }
+    ApiException e = (ApiException) t;
+    if (!e.getStatusCode().getCode().equals(Code.FAILED_PRECONDITION)) {
+      return false;
+    }
+    if (e.getErrorDetails() == null) {
+      return false;
+    }
+    PreconditionFailure preconditionFailure = e.getErrorDetails().getPreconditionFailure();
+    if (preconditionFailure == null) {
+      return false;
+    }
+    for (Violation violation : preconditionFailure.getViolationsList()) {
+      if (violation.getType().contains("PREPARED_QUERY_EXPIRED")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static final class PlanRefreshingObserver extends SafeResponseObserver<ExecuteQueryResponse> {
 
     private final ExecuteQueryCallContext callContext;
     private final ResponseObserver<ExecuteQueryResponse> outerObserver;
@@ -64,7 +161,7 @@ public class PlanRefreshingCallable
     // so onResponse will be called sequentially
     private boolean hasReceivedResumeToken;
 
-    MetadataObserver(
+    PlanRefreshingObserver(
         ResponseObserver<ExecuteQueryResponse> outerObserver, ExecuteQueryCallContext callContext) {
       super(outerObserver);
       this.outerObserver = outerObserver;
@@ -103,12 +200,23 @@ public class PlanRefreshingCallable
 
     @Override
     protected void onErrorImpl(Throwable throwable) {
-      // TODO translate plan refresh errors and trigger plan refresh
-
-      // Note that we do not set exceptions on the metadata future here. This
-      // needs to be done after the retries, so that retryable errors aren't set on
-      // the future
-      outerObserver.onError(throwable);
+      boolean refreshPlan = isPlanRefreshError(throwable);
+      // If we've received a resume token we shouldn't receive this error. Safeguard against
+      // accidentally changing the schema mid-response though
+      if (refreshPlan && !hasReceivedResumeToken) {
+        callContext.triggerImmediateRefreshOfPreparedQuery();
+        outerObserver.onError(
+            new ApiException(throwable, GrpcStatusCode.of(Status.Code.FAILED_PRECONDITION), true));
+      } else if (refreshPlan) {
+        outerObserver.onError(
+            new IllegalStateException(
+                "Unexpected plan refresh attempt after first token", throwable));
+      } else {
+        // Note that we do not set exceptions on the metadata future here. This
+        // needs to be done after the retries, so that retryable errors aren't set on
+        // the future
+        outerObserver.onError(throwable);
+      }
     }
 
     @Override

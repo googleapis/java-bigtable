@@ -23,9 +23,12 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
-import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl.PreparedQueryData;
+import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl.PreparedQueryVersion;
 import com.google.cloud.bigtable.data.v2.internal.QueryParamUtil;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStub;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
@@ -65,27 +68,26 @@ import javax.annotation.Nullable;
 @BetaApi
 public class BoundStatement {
 
-  private final PreparedStatement preparedStatement;
+  private final PreparedStatementImpl preparedStatement;
   private final Map<String, Value> params;
 
-  private BoundStatement(PreparedStatement preparedStatement, Map<String, Value> params) {
+  private BoundStatement(PreparedStatementImpl preparedStatement, Map<String, Value> params) {
     this.preparedStatement = preparedStatement;
     this.params = params;
   }
 
-  // TODO return a future when plan refresh is implemented
   /**
-   * Get's the most recent version of the PrepareResponse associated with this query.
+   * Gets the most recent version of the PrepareResponse associated with this query.
    *
    * <p>This is considered an internal implementation detail and should not be used by applications.
    */
   @InternalApi("For internal use only")
-  public PrepareResponse getLatestPrepareResponse() {
-    return preparedStatement.getPrepareResponse();
+  public PreparedQueryData getLatestPrepareResponse() {
+    return preparedStatement.getLatestPrepareResponse();
   }
 
   public static class Builder {
-    private final PreparedStatement preparedStatement;
+    private final PreparedStatementImpl preparedStatement;
     private final Map<String, SqlType<?>> paramTypes;
     private final Map<String, Value> params;
 
@@ -96,7 +98,7 @@ public class BoundStatement {
      * applications.
      */
     @InternalApi("For internal use only")
-    public Builder(PreparedStatement preparedStatement, Map<String, SqlType<?>> paramTypes) {
+    public Builder(PreparedStatementImpl preparedStatement, Map<String, SqlType<?>> paramTypes) {
       this.preparedStatement = preparedStatement;
       this.paramTypes = paramTypes;
       this.params = new HashMap<>();
@@ -388,5 +390,23 @@ public class BoundStatement {
       requestBuilder.setResumeToken(resumeToken);
     }
     return requestBuilder.build();
+  }
+
+  @InternalApi("For internal use only")
+  public PreparedQueryData markExpiredAndStartRefresh(
+      PreparedQueryVersion expiredPreparedQueryVersion) {
+    return this.preparedStatement.markExpiredAndStartRefresh(expiredPreparedQueryVersion);
+  }
+
+  /**
+   * Asserts that the given stub matches the stub used for plan refresh. This is necessary to ensure
+   * that the request comes from the same client and uses the same configuration.
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications
+   */
+  @InternalApi
+  public void assertUsingSameStub(EnhancedBigtableStub stub) {
+    this.preparedStatement.assertUsingSameStub(stub);
   }
 }

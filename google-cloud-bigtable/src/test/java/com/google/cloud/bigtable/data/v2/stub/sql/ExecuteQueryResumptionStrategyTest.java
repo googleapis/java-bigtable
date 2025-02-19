@@ -19,7 +19,7 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnM
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
-import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.preparedStatement;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
 import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
@@ -27,13 +27,13 @@ import static com.google.common.truth.extensions.proto.ProtoTruth.assertThat;
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.cloud.bigtable.data.v2.internal.NameUtil;
-import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.internal.RequestContext;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata;
 import com.google.protobuf.ByteString;
-import java.util.HashMap;
+import io.grpc.Deadline;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -42,16 +42,14 @@ import org.junit.runners.JUnit4;
 public class ExecuteQueryResumptionStrategyTest {
 
   @Test
-  public void tracksResumeToken() {
+  public void tracksResumeToken() throws ExecutionException, InterruptedException {
     ExecuteQueryResumptionStrategy resumptionStrategy = new ExecuteQueryResumptionStrategy();
 
     PreparedStatement preparedStatement =
-        PreparedStatementImpl.create(
-            PrepareResponse.fromProto(prepareResponse(metadata(columnMetadata("s", stringType())))),
-            new HashMap<>());
+        preparedStatement(metadata(columnMetadata("s", stringType())));
     SettableApiFuture<ResultSetMetadata> mdFuture = SettableApiFuture.create();
     ExecuteQueryCallContext callContext =
-        ExecuteQueryCallContext.create(preparedStatement.bind().build(), mdFuture);
+        SqlProtoFactory.callContext(preparedStatement.bind().build(), mdFuture);
 
     resumptionStrategy.processResponse(
         partialResultSetWithToken(ByteString.copyFromUtf8("token"), stringValue("s")));
@@ -60,7 +58,9 @@ public class ExecuteQueryResumptionStrategyTest {
 
     ExecuteQueryCallContext updatedCallContext = resumptionStrategy.getResumeRequest(callContext);
     assertThat(
-            updatedCallContext.toRequest(RequestContext.create("project", "instance", "profile")))
+            updatedCallContext.buildRequestWithDeadline(
+                RequestContext.create("project", "instance", "profile"),
+                Deadline.after(1, TimeUnit.MINUTES)))
         .isEqualTo(
             ExecuteQueryRequest.newBuilder()
                 .setInstanceName(NameUtil.formatInstanceName("project", "instance"))

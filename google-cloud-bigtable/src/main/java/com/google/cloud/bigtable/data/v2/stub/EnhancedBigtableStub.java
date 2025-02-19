@@ -1141,8 +1141,11 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Convert a {@link BoundStatement} into a {@link ExecuteQueryCallContext}, which passes the
    *       {@link BoundStatement} & a future for the {@link
    *       com.google.cloud.bigtable.data.v2.models.sql.ResultSetMetadata} up the call chain.
-   *   <li>Upon receiving the response stream, it will set the metadata future and translate the
+   *   <li>Refresh expired {@link PrepareResponse} when the server returns a specific error}
+   *   <li>Add retry/resume on failures
+   *   <li>Upon receiving the first resume_token, it will set the metadata future and translate the
    *       {@link com.google.bigtable.v2.PartialResultSet}s into {@link SqlRow}s
+   *   <li>Pass through non-retryable errors to the metadata future
    *   <li>Add tracing & metrics.
    *   <li>Wrap the metadata future & row stream into a {@link
    *       com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream}
@@ -1169,7 +1172,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> withStatsHeaders =
         new StatsHeadersServerStreamingCallable<>(base);
 
-    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withMetadataObserver =
+    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withPlanRefresh =
         new PlanRefreshingCallable(withStatsHeaders, requestContext);
 
     ServerStreamingCallSettings<ExecuteQueryCallContext, ExecuteQueryResponse> retrySettings =
@@ -1186,7 +1189,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // attempt stream will have reset set to true, so any unyielded data from the previous
     // attempt will be reset properly
     ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> retries =
-        withRetries(withMetadataObserver, retrySettings);
+        withRetries(withPlanRefresh, retrySettings);
 
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> merging =
         new SqlRowMergingCallable(retries);
@@ -1217,8 +1220,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
         traced.withDefaultCallContext(
             clientContext
                 .getDefaultCallContext()
-                .withRetrySettings(settings.executeQuerySettings().getRetrySettings())),
-        requestContext);
+                .withRetrySettings(settings.executeQuerySettings().getRetrySettings())));
   }
 
   private UnaryCallable<PrepareQueryRequest, PrepareResponse> createPrepareQueryCallable() {
@@ -1486,10 +1488,10 @@ public class EnhancedBigtableStub implements AutoCloseable {
     return executeQueryCallable;
   }
 
+  @InternalApi
   public UnaryCallable<PrepareQueryRequest, PrepareResponse> prepareQueryCallable() {
     return prepareQueryCallable;
   }
-
   // </editor-fold>
 
   private SpanName getSpanName(String methodName) {

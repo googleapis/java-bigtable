@@ -15,11 +15,14 @@
  */
 package com.google.cloud.bigtable.data.v2.stub.sql;
 
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesValue;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.columnMetadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.metadata;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSetWithoutToken;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.partialResultSets;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.planRefreshError;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.prepareResponse;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringValue;
@@ -29,40 +32,36 @@ import static org.junit.Assert.assertThrows;
 
 import com.google.api.gax.core.NoCredentialsProvider;
 import com.google.api.gax.grpc.GrpcTransportChannel;
+import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
+import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
 import com.google.api.gax.rpc.StatusCode;
-import com.google.bigtable.v2.BigtableGrpc;
-import com.google.bigtable.v2.ExecuteQueryRequest;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.ResultSetMetadata;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
-import com.google.cloud.bigtable.data.v2.internal.NameUtil;
-import com.google.cloud.bigtable.data.v2.internal.PrepareResponse;
-import com.google.cloud.bigtable.data.v2.internal.PreparedStatementImpl;
 import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatement;
+import com.google.cloud.bigtable.data.v2.models.sql.PreparedStatementRefreshTimeoutException;
 import com.google.cloud.bigtable.data.v2.models.sql.ResultSet;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.ExecuteRpcExpectation;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.PrepareRpcExpectation;
+import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.TestBigtableSqlService;
 import com.google.cloud.bigtable.gaxx.reframing.IncompleteStreamException;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.truth.Truth;
 import com.google.protobuf.ByteString;
-import io.grpc.Status;
 import io.grpc.Status.Code;
-import io.grpc.stub.StreamObserver;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingDeque;
-import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -72,28 +71,21 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class ExecuteQueryRetryTest {
-  private static final String PROJECT_ID = "fake-project";
-  private static final String INSTANCE_ID = "fake-instance";
-  private static final String APP_PROFILE_ID = "fake-app-profile";
   private static final ByteString PREPARED_QUERY = ByteString.copyFromUtf8("foo");
   private static final ResultSetMetadata DEFAULT_METADATA =
       metadata(columnMetadata("strCol", stringType()));
 
   @Rule public GrpcServerRule serverRule = new GrpcServerRule();
-  private TestBigtableService service;
+  private TestBigtableSqlService service;
   private BigtableDataClient client;
   private PreparedStatement preparedStatement;
 
-  @Before
-  public void setUp() throws IOException {
-    service = new TestBigtableService();
-    serverRule.getServiceRegistry().addService(service);
-
+  public static BigtableDataSettings.Builder defaultSettings(GrpcServerRule serverRule) {
     BigtableDataSettings.Builder settings =
         BigtableDataSettings.newBuilder()
-            .setProjectId(PROJECT_ID)
-            .setInstanceId(INSTANCE_ID)
-            .setAppProfileId(APP_PROFILE_ID)
+            .setProjectId(TestBigtableSqlService.DEFAULT_PROJECT_ID)
+            .setInstanceId(TestBigtableSqlService.DEFAULT_INSTANCE_ID)
+            .setAppProfileId(TestBigtableSqlService.DEFAULT_APP_PROFILE_ID)
             .setCredentialsProvider(NoCredentialsProvider.create());
 
     settings
@@ -104,12 +96,23 @@ public class ExecuteQueryRetryTest {
         // Refreshing channel doesn't work with FixedTransportChannelProvider
         .setRefreshingChannel(false)
         .build();
+    // Remove log noise from client side metrics
+    settings.setMetricsProvider(NoopMetricsProvider.INSTANCE);
+    return settings;
+  }
 
-    client = BigtableDataClient.create(settings.build());
-    preparedStatement =
-        PreparedStatementImpl.create(
-            PrepareResponse.fromProto(prepareResponse(PREPARED_QUERY, DEFAULT_METADATA)),
-            new HashMap<>());
+  @Before
+  public void setUp() throws IOException {
+    service = new TestBigtableSqlService();
+    serverRule.getServiceRegistry().addService(service);
+    client = BigtableDataClient.create(defaultSettings(serverRule).build());
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(prepareResponse(PREPARED_QUERY, DEFAULT_METADATA)));
+    preparedStatement = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    // Reset the count of RPCs
+    service.prepareCount--;
   }
 
   @After
@@ -122,7 +125,7 @@ public class ExecuteQueryRetryTest {
   @Test
   public void testAllSuccesses() {
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .respondWith(
                 partialResultSetWithoutToken(stringValue("foo")),
                 partialResultSetWithoutToken(stringValue("bar")),
@@ -147,16 +150,16 @@ public class ExecuteQueryRetryTest {
     // - First attempt immediately fails
     // - Second attempt returns 'foo', w a token, and succeeds
     // Expect result to be 'foo'
-    service.addExpectation(RpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
+    service.addExpectation(ExecuteRpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create().respondWith(partialResultSetWithToken(stringValue("foo"))));
+        ExecuteRpcExpectation.create().respondWith(partialResultSetWithToken(stringValue("foo"))));
 
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
     assertThat(rs.next()).isTrue();
     assertThat(rs.getString("strCol")).isEqualTo("foo");
     assertThat(rs.next()).isFalse();
     rs.close();
-    assertThat(service.requestCount).isEqualTo(2);
+    assertThat(service.executeCount).isEqualTo(2);
   }
 
   @Test
@@ -168,18 +171,18 @@ public class ExecuteQueryRetryTest {
     //   and then succeeds
     // We expect the results to contain all of the returned data (no reset batches)
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .respondWith(
                 partialResultSetWithToken(ByteString.copyFromUtf8("token1"), stringValue("foo")))
             .respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withResumeToken(ByteString.copyFromUtf8("token1"))
             .respondWith(
                 partialResultSetWithToken(ByteString.copyFromUtf8("token2"), stringValue("bar")))
             .respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withResumeToken(ByteString.copyFromUtf8("token2"))
             .respondWith(
                 partialResultSetWithToken(ByteString.copyFromUtf8("final"), stringValue("baz"))));
@@ -193,7 +196,7 @@ public class ExecuteQueryRetryTest {
     assertThat(rs.getString("strCol")).isEqualTo("baz");
     assertThat(rs.next()).isFalse();
     rs.close();
-    assertThat(service.requestCount).isEqualTo(3);
+    assertThat(service.executeCount).isEqualTo(3);
   }
 
   @Test
@@ -205,7 +208,7 @@ public class ExecuteQueryRetryTest {
     // - Third attempt should resume w 'token1', we return 'baz' w reset & a token, succeed
     // Expect the results to be 'foo' and 'baz'
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .respondWith(
                 partialResultSetWithToken(ByteString.copyFromUtf8("token1"), stringValue("foo")),
                 // This is after the token so should be dropped
@@ -219,13 +222,13 @@ public class ExecuteQueryRetryTest {
             stringValue("longerStringDiscard"),
             stringValue("discard"));
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withResumeToken(ByteString.copyFromUtf8("token1"))
             // Skip the last response, so we don't send a new token
             .respondWith(chunkedResponses.get(0), chunkedResponses.get(1))
             .respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withResumeToken(ByteString.copyFromUtf8("token1"))
             .respondWith(
                 partialResultSets(1, true, ByteString.copyFromUtf8("final"), stringValue("baz"))
@@ -238,7 +241,7 @@ public class ExecuteQueryRetryTest {
     assertThat(rs.getString("strCol")).isEqualTo("baz");
     assertThat(rs.next()).isFalse();
     rs.close();
-    assertThat(service.requestCount).isEqualTo(3);
+    assertThat(service.executeCount).isEqualTo(3);
   }
 
   @Test
@@ -247,7 +250,7 @@ public class ExecuteQueryRetryTest {
     // - Second attempt uses 'finalToken' and succeeds
     // Expect results to be 'foo', 'bar', 'baz'
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .respondWith(
                 partialResultSetWithoutToken(stringValue("foo")),
                 partialResultSetWithoutToken(stringValue("bar")),
@@ -255,7 +258,7 @@ public class ExecuteQueryRetryTest {
                     ByteString.copyFromUtf8("finalToken"), stringValue("baz")))
             .respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create().withResumeToken(ByteString.copyFromUtf8("finalToken")));
+        ExecuteRpcExpectation.create().withResumeToken(ByteString.copyFromUtf8("finalToken")));
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
     assertThat(rs.getMetadata().getColumns()).hasSize(1);
     assertThat(rs.getMetadata().getColumns().get(0).name()).isEqualTo("strCol");
@@ -271,11 +274,9 @@ public class ExecuteQueryRetryTest {
     rs.close();
   }
 
-  // TODO test changing metadata when plan refresh is implemented
-
   @Test
   public void permanentErrorPropagatesToMetadata() {
-    service.addExpectation(RpcExpectation.create().respondWithStatus(Code.INVALID_ARGUMENT));
+    service.addExpectation(ExecuteRpcExpectation.create().respondWithStatus(Code.INVALID_ARGUMENT));
 
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
     ApiException e = assertThrows(ApiException.class, rs::getMetadata);
@@ -291,7 +292,7 @@ public class ExecuteQueryRetryTest {
             .getMaxAttempts();
     assertThat(attempts).isGreaterThan(1);
     for (int i = 0; i < attempts; i++) {
-      service.addExpectation(RpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
+      service.addExpectation(ExecuteRpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
     }
 
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
@@ -301,10 +302,11 @@ public class ExecuteQueryRetryTest {
 
   @Test
   public void retryableErrorWithSuccessfulRetryDoesNotPropagateToMetadata() {
-    service.addExpectation(RpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
-    service.addExpectation(RpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
+    service.addExpectation(ExecuteRpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
+    service.addExpectation(ExecuteRpcExpectation.create().respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create().respondWith(tokenOnlyResultSet(ByteString.copyFromUtf8("t"))));
+        ExecuteRpcExpectation.create()
+            .respondWith(tokenOnlyResultSet(ByteString.copyFromUtf8("t"))));
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
     assertThat(rs.getMetadata().getColumns()).hasSize(1);
   }
@@ -313,20 +315,18 @@ public class ExecuteQueryRetryTest {
   public void preservesParamsOnRetry() {
     Map<String, SqlType<?>> paramTypes = ImmutableMap.of("strParam", SqlType.string());
     PreparedStatement preparedStatementWithParams =
-        PreparedStatementImpl.create(
-            PrepareResponse.fromProto(
-                prepareResponse(metadata(columnMetadata("strCol", stringType())))),
-            paramTypes);
+        SqlProtoFactory.preparedStatement(
+            metadata(columnMetadata("strCol", stringType())), paramTypes);
     Map<String, Value> params =
         ImmutableMap.of("strParam", stringValue("foo").toBuilder().setType(stringType()).build());
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withParams(params)
             .respondWith(
                 partialResultSetWithToken(ByteString.copyFromUtf8("token1"), stringValue("foo")))
             .respondWithStatus(Code.UNAVAILABLE));
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .withParams(params)
             .withResumeToken(ByteString.copyFromUtf8("token1"))
             .respondWith(
@@ -347,95 +347,454 @@ public class ExecuteQueryRetryTest {
     // Return 'foo' with no token, followed by ok
     // This should throw an error, as the backend has violated its contract
     service.addExpectation(
-        RpcExpectation.create()
+        ExecuteRpcExpectation.create()
             .respondWith(partialResultSetWithoutToken(stringValue("foo")))
             .respondWithStatus(Code.OK));
     ResultSet rs = client.executeQuery(preparedStatement.bind().build());
     assertThrows(IncompleteStreamException.class, rs::next);
   }
 
-  private static class TestBigtableService extends BigtableGrpc.BigtableImplBase {
-    Queue<RpcExpectation> expectations = new LinkedBlockingDeque<>();
-    int requestCount = 0;
+  @Test
+  public void retryOnExpiredPlan() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("bytesCol", bytesType())))));
+    // change the schema on refresh (this can happen for SELECT * queries for example)
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("baz"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("baz"))
+            .respondWith(partialResultSetWithToken(stringValue("foo"))));
 
-    void addExpectation(RpcExpectation expectation) {
-      expectations.add(expectation);
-    }
-
-    @Override
-    public void executeQuery(
-        ExecuteQueryRequest request, StreamObserver<ExecuteQueryResponse> responseObserver) {
-      RpcExpectation expectedRpc = expectations.poll();
-      requestCount++;
-      int requestIndex = requestCount - 1;
-
-      Truth.assertWithMessage("Unexpected request#" + requestIndex + ":" + request.toString())
-          .that(expectedRpc)
-          .isNotNull();
-      Truth.assertWithMessage("Unexpected request#" + requestIndex)
-          .that(request)
-          .isEqualTo(expectedRpc.getExpectedRequest());
-
-      for (ExecuteQueryResponse response : expectedRpc.responses) {
-        responseObserver.onNext(response);
-      }
-      if (expectedRpc.statusCode.toStatus().isOk()) {
-        responseObserver.onCompleted();
-      } else if (expectedRpc.exception != null) {
-        responseObserver.onError(expectedRpc.exception);
-      } else {
-        responseObserver.onError(expectedRpc.statusCode.toStatus().asRuntimeException());
-      }
-    }
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("foo");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(2);
   }
 
-  private static class RpcExpectation {
-    ExecuteQueryRequest.Builder request;
-    Status.Code statusCode;
-    @Nullable ApiException exception;
-    List<ExecuteQueryResponse> responses;
+  @Test
+  public void planRefreshAfterInitialPartialBatch() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("bytesCol", bytesType())))));
+    // change the schema on refresh (this can happen for SELECT * queries for example)
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("baz"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWith(partialResultSetWithoutToken(bytesValue("b")))
+            .respondWithStatus(Code.UNAVAILABLE));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    // This creates one response w reset=true and a token
+    List<ExecuteQueryResponse> singleResponseBatch = partialResultSets(1, stringValue("foo"));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("baz"))
+            .respondWith(singleResponseBatch.get(0)));
 
-    private RpcExpectation() {
-      this.request = ExecuteQueryRequest.newBuilder();
-      this.request.setPreparedQuery(PREPARED_QUERY);
-      this.request.setInstanceName(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID));
-      this.request.setAppProfileId(APP_PROFILE_ID);
-      this.statusCode = Code.OK;
-      this.responses = new ArrayList<>();
-    }
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("foo");
+    assertThat(rs.next()).isFalse();
+    assertThat(rs.getMetadata().getColumnType("strCol")).isEqualTo(SqlType.string());
+    assertThat(service.executeCount).isEqualTo(3);
+    assertThat(service.prepareCount).isEqualTo(2);
+  }
 
-    static RpcExpectation create() {
-      return new RpcExpectation();
-    }
+  @Test
+  public void planRefreshErrorAfterFirstTokenCausesError() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("bytesCol", bytesType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWith(partialResultSetWithToken(bytesValue("b")))
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
 
-    RpcExpectation withResumeToken(ByteString resumeToken) {
-      this.request.setResumeToken(resumeToken);
-      return this;
-    }
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    // We received a token so the client yields the data
+    assertThat(rs.getBytes("bytesCol").toStringUtf8()).isEqualTo("b");
+    IllegalStateException e = assertThrows(IllegalStateException.class, rs::next);
+    assertThat(e.getCause()).isInstanceOf(FailedPreconditionException.class);
+  }
 
-    RpcExpectation withParams(Map<String, Value> params) {
-      this.request.putAllParams(params);
-      return this;
+  @Test
+  public void preparedStatementCanBeGarbageCollected() throws InterruptedException {
+    // Check for memory leaks since the PreparedStatement handles background refresh
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create().respondWith(partialResultSetWithToken(stringValue("s"))));
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    WeakReference<PreparedStatement> prepareWeakRef = new WeakReference<>(ps);
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    WeakReference<ResultSet> resultSetWeakRef = new WeakReference<>(rs);
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    rs.close();
+    // Note that the result set holds a reference to the ResultSetMetadata that lives in
+    // the PreparedStatement. So prepare won't be gc'd until the ResultSet is null.
+    rs = null;
+    ps = null;
+    for (int i = 0; i < 5; i++) {
+      // This isn't guaranteed to run GC, so call it a few times. Testing has shown that this
+      // is enough to prevent any flakes in 1000 runs
+      System.gc();
+      Thread.sleep(10);
     }
+    assertThat(resultSetWeakRef.get()).isNull();
+    assertThat(prepareWeakRef.get()).isNull();
+  }
 
-    RpcExpectation respondWithStatus(Status.Code code) {
-      this.statusCode = code;
-      return this;
-    }
+  @Test
+  public void planRefreshRespectsExecuteTotalTimeout() throws IOException {
+    BigtableDataSettings.Builder settings = defaultSettings(serverRule);
+    settings
+        .stubSettings()
+        .executeQuerySettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                .setMaxAttempts(10)
+                .setTotalTimeoutDuration(Duration.ofMillis(30))
+                .build())
+        .build();
+    settings.stubSettings().build();
+    BigtableDataClient clientWithTimeout = BigtableDataClient.create(settings.build());
 
-    RpcExpectation respondWithException(Status.Code code, ApiException exception) {
-      this.statusCode = code;
-      this.exception = exception;
-      return this;
-    }
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withDelay(Duration.ofSeconds(2))
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
 
-    RpcExpectation respondWith(ExecuteQueryResponse... responses) {
-      this.responses = Arrays.asList(responses);
-      return this;
-    }
+    PreparedStatement ps =
+        clientWithTimeout.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = clientWithTimeout.executeQuery(ps.bind().build());
+    assertThrows(PreparedStatementRefreshTimeoutException.class, rs::next);
+    assertThat(service.prepareCount).isEqualTo(2);
+  }
 
-    ExecuteQueryRequest getExpectedRequest() {
-      return this.request.build();
-    }
+  @Test
+  public void planRefreshRespectsAttemptTimeout() throws IOException {
+    BigtableDataSettings.Builder settings = defaultSettings(serverRule);
+    settings
+        .stubSettings()
+        .executeQuerySettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                // First attempt triggers plan refresh retry.
+                // Second should time out
+                .setMaxAttempts(2)
+                .setInitialRpcTimeoutDuration(Duration.ofMillis(10))
+                .setMaxRpcTimeoutDuration(Duration.ofMinutes(10))
+                .setTotalTimeoutDuration(Duration.ZERO)
+                .build())
+        .build();
+    settings.stubSettings().build();
+    BigtableDataClient clientWithTimeout = BigtableDataClient.create(settings.build());
+
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    // called after failed precondition
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withDelay(Duration.ofSeconds(2))
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
+
+    PreparedStatement ps =
+        clientWithTimeout.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = clientWithTimeout.executeQuery(ps.bind().build());
+    assertThrows(PreparedStatementRefreshTimeoutException.class, rs::next);
+    assertThat(service.prepareCount).isEqualTo(2);
+  }
+
+  @Test
+  public void executeRetriesPlanRefreshErrors() throws IOException {
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWithStatus(Code.UNAVAILABLE));
+    // called after unavailable
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withDelay(Duration.ofSeconds(2))
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(3);
+  }
+
+  @Test
+  public void prepareFailuresBurnExecuteAttempts() throws IOException {
+    BigtableDataSettings.Builder settings = defaultSettings(serverRule);
+    settings
+        .stubSettings()
+        .executeQuerySettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                .setMaxAttempts(4)
+                .setInitialRpcTimeoutDuration(Duration.ofMinutes(10))
+                .setMaxRpcTimeoutDuration(Duration.ofMinutes(10))
+                .setTotalTimeoutDuration(Duration.ofMinutes(50))
+                .build())
+        .build();
+    settings.stubSettings().build();
+    BigtableDataClient clientWithTimeout = BigtableDataClient.create(settings.build());
+
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Attempt 1 - Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    // Attempt 2
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWithStatus(Code.INTERNAL));
+    // Attempt 3
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWithStatus(Code.INTERNAL));
+    // Attempt 4
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWithStatus(Code.INTERNAL));
+    // This is triggered by the failure in attempt 4. It succeeds
+    // but isn't used bc execute stops retrying
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
+
+    PreparedStatement ps =
+        clientWithTimeout.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = clientWithTimeout.executeQuery(ps.bind().build());
+    assertThrows(ApiException.class, rs::next);
+    // initial success plus 3 refresh failures, plus the refresh triggered by the final failure
+    assertThat(service.prepareCount).isEqualTo(5);
+  }
+
+  @Test
+  public void canRetryAfterRefreshAttemptTimeout() throws IOException {
+    BigtableDataSettings.Builder settings = defaultSettings(serverRule);
+    settings
+        .stubSettings()
+        .executeQuerySettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                // First attempt triggers plan refresh retry.
+                // Second should time out, third should succeed
+                .setMaxAttempts(3)
+                .setInitialRpcTimeoutDuration(Duration.ofMillis(10))
+                .setMaxRpcTimeoutDuration(Duration.ofMillis(10))
+                .setTotalTimeoutDuration(Duration.ofMinutes(50))
+                .build())
+        .build();
+    settings.stubSettings().build();
+    BigtableDataClient clientWithTimeout = BigtableDataClient.create(settings.build());
+
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Attempt 1 - Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    // Attempt 2
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            // first refresh attempt times out, but then it succeeds
+            .withDelay(Duration.ofMillis(15))
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
+
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps =
+        clientWithTimeout.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = clientWithTimeout.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(2);
+  }
+
+  @Test
+  public void prepareRefreshTimeIsFactoredIntoExecuteAttemptTimeout() throws IOException {
+    BigtableDataSettings.Builder settings = defaultSettings(serverRule);
+    settings
+        .stubSettings()
+        .executeQuerySettings()
+        .setRetrySettings(
+            RetrySettings.newBuilder()
+                // First attempt triggers plan refresh retry.
+                // Second should time out, third should succeed
+                .setMaxAttempts(2)
+                .setInitialRpcTimeoutDuration(Duration.ofMillis(30))
+                .setMaxRpcTimeoutDuration(Duration.ofMillis(30))
+                .setTotalTimeoutDuration(Duration.ofMinutes(30))
+                .build())
+        .build();
+    settings.stubSettings().build();
+    BigtableDataClient clientWithTimeout = BigtableDataClient.create(settings.build());
+    // Initially return a prepare response without delay
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    // Attempt 1 - Trigger plan refresh
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .respondWithException(Code.FAILED_PRECONDITION, planRefreshError()));
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            // Burn most of the execute attempt timeout and succeed
+            .withDelay(Duration.ofMillis(20))
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("bar"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("bar"))
+            // Should timeout bc we used 20 ms on prepare refresh and have 30ms timeout
+            .withDelay(Duration.ofMillis(20))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps =
+        clientWithTimeout.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = clientWithTimeout.executeQuery(ps.bind().build());
+    ApiException e = assertThrows(ApiException.class, rs::next);
+    assertThat(e.getStatusCode().getCode()).isEqualTo(StatusCode.Code.DEADLINE_EXCEEDED);
+    // initial success plus one refresh
+    assertThat(service.prepareCount).isEqualTo(2);
+    // refresh error plus timed out req
+    assertThat(service.executeCount).isEqualTo(2);
   }
 }
