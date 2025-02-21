@@ -177,7 +177,7 @@ public class ReadRowsRetryTest {
             .respondWith("r1")
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
-    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limitg(2));
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
     Truth.assertThat(actualResults).containsExactly("r1").inOrder();
 
     service.expectations.add(
