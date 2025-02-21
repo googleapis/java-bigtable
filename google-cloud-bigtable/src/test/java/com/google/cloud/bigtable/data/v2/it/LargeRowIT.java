@@ -196,7 +196,7 @@ public class LargeRowIT {
                     ImmutableList.<String>of(),
                     ByteString.copyFromUtf8("my-value"))));
 
-    // --- large row creation START----
+    // large row creation
     byte[] largeValueBytes = new byte[3 * 1024 * 1024];
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 

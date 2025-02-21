@@ -218,7 +218,7 @@ public class ReadRowsRetryTest {
   }
 
   @Test
-  public void someTest() {
+  public void readRowsForRowKeyWithLargeRowsTest() {
     // Large rows is r2 for range r1 to r8
     ApiException largeRowExceptionWithTrailersR7 = createLargeRowException("r7");
     List<String> actualResults;
