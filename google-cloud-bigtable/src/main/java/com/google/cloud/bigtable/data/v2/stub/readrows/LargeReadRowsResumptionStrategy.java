@@ -28,6 +28,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.util.Base64;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 /**
  * An implementation of a {@link StreamResumptionStrategy} for merged rows. This class tracks -
@@ -59,6 +60,8 @@ public class LargeReadRowsResumptionStrategy<RowT>
   private ReadRowsRequest lastModifiedRequestOnTimeOfError;
 
   private RowSet previousFailedRequestRowset = null;
+
+  private static final Logger LOGGER = Logger.getLogger(LargeReadRowsResumptionStrategy.class.getName());
 
   public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
     this.rowAdapter = rowAdapter;
@@ -92,6 +95,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
   public Throwable processError(Throwable throwable) {
     String rowKeyExtracted = extractLargeRowKey(throwable);
     if (rowKeyExtracted != null) {
+      LOGGER.warning("skipping large row " + rowKeyExtracted);
       this.largeRowKey = ByteString.copyFromUtf8(rowKeyExtracted);
       largeRowsCount.addAndGet(1);
       numProcessed = numProcessed + 1;
@@ -139,7 +143,7 @@ public class LargeReadRowsResumptionStrategy<RowT>
     }
     if (!largeRowKey.isEmpty()) {
       remaining =
-          RowSetUtil.createSplitRanges(remaining, largeRowKey, !originalRequest.getReversed());
+          RowSetUtil.eraseLargeRow(remaining, largeRowKey, !originalRequest.getReversed());
     }
     this.largeRowKey = ByteString.EMPTY;
 

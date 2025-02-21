@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
+import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -198,33 +199,15 @@ public class LargeRowIT {
                     ByteString.copyFromUtf8("my-value"))));
 
     // --- large row creation START----
-    byte[] largeValueBytes = new byte[9 * 1024 * 1024];
+    byte[] largeValueBytes = new byte[3 * 1024 * 1024];
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
-    int threadCount = 5;
-    int offset = 0;
-    int iterations = 80;
-    ExecutorService executor = Executors.newFixedThreadPool(4);
-
-    for (int i = offset; i < threadCount + offset; i++) {
-      for (int j = 0; j < iterations; j++) {
-        timestampMicros = System.currentTimeMillis() * 1_000;
-        ByteString qualifier =
-            ByteString.copyFromUtf8("qualifier1_" + String.valueOf(i) + "_" + String.valueOf(j));
-        executor.execute(
-            () -> {
-              client.bulkMutateRows(
-                  BulkMutation.create(tableId)
-                      .add(RowMutationEntry.create("r3").setCell(familyId, qualifier, largeValue)));
-              client.bulkMutateRows(
-                  BulkMutation.create(tableId)
-                      .add(RowMutationEntry.create("r2").setCell(familyId, qualifier, largeValue)));
-            });
-      }
+    for (int i = 0; i < 90; i++) {
+      ByteString qualifier =
+                ByteString.copyFromUtf8("qualifier1_" + "_" + String.valueOf(i));
+      client.mutateRow(RowMutation.create(TableId.of(tableId), "r2").setCell(familyId, qualifier, largeValue));
+      client.mutateRow(RowMutation.create(TableId.of(tableId), "r3").setCell(familyId, qualifier, largeValue));
     }
-    executor.shutdown();
-    executor.awaitTermination(4, TimeUnit.MINUTES);
-    // --- large row creation END ----
 
     // sync
     assertThat(

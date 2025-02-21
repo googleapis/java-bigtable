@@ -1206,7 +1206,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               // GrpcHeaderInterceptor treats the `user-agent` as a magic string
               .put("user-agent", "bigtable-java/" + Version.VERSION)
               .put("bigtable-features", new String(encodedFlags, StandardCharsets.UTF_8))
-              .put("cookie", "TR=T=EMziZs0CRy4:X=nsxV8:S=8VDZW1q3Kanhhy8n")
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
 

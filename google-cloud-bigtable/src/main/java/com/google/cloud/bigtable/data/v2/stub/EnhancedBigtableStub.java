@@ -532,8 +532,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured in by the {@code rowAdapter} parameter.
    *   <li>Add bigtable tracer for tracking bigtable specific metrics.
-   *   <li>Retry/resume on failure (retries for retryable error codes, connection errors & large row
-   *       errors)
+   *   <li>Retry/resume on failure (retries for retryable error codes, connection errors and skip large row
+   *       keys)
    *   <li>Filter out marker rows.
    *   <li>Add tracing & metrics.
    * </ul>
@@ -562,7 +562,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error code
     // which by default is not retryable. Convert the exception so it can be retried in the client.
     ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> convertException =
-        new LargeRowConvertExceptionCallable<>(withStatsHeaders);
+        new ConvertExceptionCallable<>(withStatsHeaders);
 
     ServerStreamingCallable<ReadRowsRequest, RowT> merging =
         new RowMergingCallable<>(convertException, rowAdapter);
