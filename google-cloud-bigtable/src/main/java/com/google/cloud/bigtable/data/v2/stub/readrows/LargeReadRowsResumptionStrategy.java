@@ -47,19 +47,17 @@ import java.util.logging.Logger;
 @InternalApi
 public class LargeReadRowsResumptionStrategy<RowT>
     extends BigtableStreamResumptionStrategy<ReadRowsRequest, RowT> {
+  private static final Logger LOGGER =
+      Logger.getLogger(LargeReadRowsResumptionStrategy.class.getName());
   private final RowAdapter<RowT> rowAdapter;
   private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
   private long numProcessed;
   private ByteString largeRowKey = ByteString.EMPTY;
-
   // we modify the original request in the resumption strategy regardless of how many times it has
   // failed, {@code previousFailedRequestRowset} is stored for the use case of continuous large rows
   // row-keys
   private RowSet previousFailedRequestRowset = null;
-
-  private static final Logger LOGGER =
-      Logger.getLogger(LargeReadRowsResumptionStrategy.class.getName());
 
   public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
     this.rowAdapter = rowAdapter;

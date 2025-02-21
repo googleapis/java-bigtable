@@ -48,6 +48,7 @@ import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -146,7 +147,10 @@ public class LargeRowIT {
     }
   }
 
+  // TODO: remove the ignore annotation once the server code (large row error with metadata) is
+  // released on prod
   @Test
+  @Ignore("large-row-error with metadata yet to be released on prod")
   public void read() throws Throwable {
     assume()
         .withMessage("Large row read errors are not supported by emulator")
@@ -200,7 +204,7 @@ public class LargeRowIT {
     byte[] largeValueBytes = new byte[3 * 1024 * 1024];
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
-    for (int i = 0; i < 90; i++) {
+    for (int i = 0; i < 100; i++) {
       ByteString qualifier = ByteString.copyFromUtf8("qualifier1_" + "_" + String.valueOf(i));
       client.mutateRow(
           RowMutation.create(TableId.of(tableId), "r2").setCell(familyId, qualifier, largeValue));
