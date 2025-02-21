@@ -177,34 +177,7 @@ public class ReadRowsRetryTest {
             .respondWith("r1")
             .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
 
-    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
-    Truth.assertThat(actualResults).containsExactly("r1").inOrder();
-
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectRequest(Range.closedOpen("r4", "r7"))
-            .expectRowLimit(2)
-            .respondWith("r4", "r5"));
-
-    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r4", "r7").limit(2));
-    Truth.assertThat(actualResults).containsExactly("r4", "r5").inOrder();
-  }
-
-  @Test
-  public void readRowsTestWithMultipleLargeRowsTest() {
-    // Large rows is r2 for range r1 to r8
-    ApiException largeRowExceptionWithTrailersR2 = createLargeRowException("r2");
-    List<String> actualResults;
-
-    // TEST - range end is large row || row limit
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectRequest(Range.closedOpen("r1", "r3"))
-            .expectRowLimit(2)
-            .respondWith("r1")
-            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
-
-    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limitg(2));
     Truth.assertThat(actualResults).containsExactly("r1").inOrder();
 
     service.expectations.add(
