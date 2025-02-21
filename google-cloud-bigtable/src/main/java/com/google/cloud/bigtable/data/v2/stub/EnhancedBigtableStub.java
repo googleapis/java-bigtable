@@ -532,8 +532,8 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *       com.google.bigtable.v2.ReadRowsResponse.CellChunk}s in logical rows. The actual row
    *       implementation can be configured in by the {@code rowAdapter} parameter.
    *   <li>Add bigtable tracer for tracking bigtable specific metrics.
-   *   <li>Retry/resume on failure (retries for retryable error codes, connection errors and skip large row
-   *       keys)
+   *   <li>Retry/resume on failure (retries for retryable error codes, connection errors and skip
+   *       large row keys)
    *   <li>Filter out marker rows.
    *   <li>Add tracing & metrics.
    * </ul>

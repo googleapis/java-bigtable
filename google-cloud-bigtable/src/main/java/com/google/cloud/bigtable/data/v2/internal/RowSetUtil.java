@@ -26,7 +26,6 @@ import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsResumptionStrateg
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ComparisonChain;
 import com.google.protobuf.ByteString;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,11 +49,8 @@ import javax.annotation.Nullable;
 public final class RowSetUtil {
   private RowSetUtil() {}
 
-  /**
-   * Removes the {@code #excludePoint} rowkey from the {@code RowSet}
-   */
-  public static RowSet eraseLargeRow(
-      RowSet rowSet, ByteString excludePoint, boolean fromStart) {
+  /** Removes the {@code #excludePoint} rowkey from the {@code RowSet} */
+  public static RowSet eraseLargeRow(RowSet rowSet, ByteString excludePoint) {
 
     RowSet.Builder newRowSet = RowSet.newBuilder();
 
@@ -65,11 +61,12 @@ public final class RowSetUtil {
     }
 
     // remove large row key from point reads
-    rowSet.getRowKeysList().stream().filter(k -> !k.equals(excludePoint)).forEach(newRowSet::addRowKeys);
+    rowSet.getRowKeysList().stream()
+        .filter(k -> !k.equals(excludePoint))
+        .forEach(newRowSet::addRowKeys);
 
     // Handle ranges
     for (RowRange rowRange : rowSet.getRowRangesList()) {
-      // List<RowRange> afterSplit = eraseKeyFromRange(rowRange, excludePoint, fromStart);
       List<RowRange> afterSplit = splitOnLargeRowKey(rowRange, excludePoint);
       if (afterSplit != null && !afterSplit.isEmpty()) {
         afterSplit.forEach(newRowSet::addRowRanges);
@@ -158,9 +155,7 @@ public final class RowSetUtil {
     return newRange.build();
   }
 
-  /**
-   * This method erases the {@code #split} key from the range
-   */
+  /** This method erases the {@code #split} key from the range */
   private static List<RowRange> splitOnLargeRowKey(RowRange range, ByteString largeRowKey) {
     List<RowRange> rowRanges = new ArrayList<>();
 
@@ -181,19 +176,14 @@ public final class RowSetUtil {
 
     // if start key is on the left of the large row key, set the end key to be large row key open
     if (ByteStringComparator.INSTANCE.compare(startKey, largeRowKey) < 0) {
-      RowRange beforeSplit = range
-          .toBuilder()
-          .setEndKeyOpen(largeRowKey)
-          .build();
+      RowRange beforeSplit = range.toBuilder().setEndKeyOpen(largeRowKey).build();
       rowRanges.add(beforeSplit);
     }
 
-    // if the end key is on the right of the large row key, set the start key to be large row key open
+    // if the end key is on the right of the large row key, set the start key to be large row key
+    // open
     if (ByteStringComparator.INSTANCE.compare(endKey, largeRowKey) > 0) {
-      RowRange afterSplit = range
-          .toBuilder()
-          .setStartKeyOpen(largeRowKey)
-          .build();
+      RowRange afterSplit = range.toBuilder().setStartKeyOpen(largeRowKey).build();
       rowRanges.add(afterSplit);
     }
     return rowRanges;

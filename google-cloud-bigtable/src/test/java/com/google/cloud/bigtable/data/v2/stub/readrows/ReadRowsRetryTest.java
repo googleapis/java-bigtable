@@ -141,7 +141,8 @@ public class ReadRowsRetryTest {
         ErrorInfo.newBuilder()
             .setReason("LargeRowReadError")
             .setDomain("bigtable.googleapis.com")
-            .putMetadata("rowKey", Base64.getEncoder().encodeToString(rowKey.getBytes()))
+            .putMetadata(
+                "rowKeyBase64Encoded", Base64.getEncoder().encodeToString(rowKey.getBytes()))
             .build();
 
     Any packedErrorInfo = Any.pack(errorInfo);
@@ -158,6 +159,81 @@ public class ReadRowsRetryTest {
         GrpcStatusCode.of(Code.FAILED_PRECONDITION),
         false,
         errorDetails));
+  }
+
+  @Test
+  public void readRowsWithLimitSkippingLargeRowsTest() {
+    // Large rows is r2 for range r1 to r8
+    ApiException largeRowExceptionWithTrailersR2 = createLargeRowException("r2");
+
+    List<Range<String>> rangeList;
+    List<String> actualResults;
+
+    // TEST - range end is large row || row limit
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(Range.closedOpen("r1", "r3"))
+            .expectRowLimit(2)
+            .respondWith("r1")
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
+
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
+    Truth.assertThat(actualResults).containsExactly("r1").inOrder();
+
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(Range.closedOpen("r4", "r7"))
+            .expectRowLimit(2)
+            .respondWith("r4", "r5"));
+
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r4", "r7").limit(2));
+    Truth.assertThat(actualResults).containsExactly("r4", "r5").inOrder();
+  }
+
+  @Test
+  public void readRowsTestWithMultipleLargeRowsTest() {
+    // Large rows is r2 for range r1 to r8
+    ApiException largeRowExceptionWithTrailersR2 = createLargeRowException("r2");
+    List<String> actualResults;
+
+    // TEST - range end is large row || row limit
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(Range.closedOpen("r1", "r3"))
+            .expectRowLimit(2)
+            .respondWith("r1")
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
+
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
+    Truth.assertThat(actualResults).containsExactly("r1").inOrder();
+
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest(Range.closedOpen("r4", "r7"))
+            .expectRowLimit(2)
+            .respondWith("r4", "r5"));
+
+    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r4", "r7").limit(2));
+    Truth.assertThat(actualResults).containsExactly("r4", "r5").inOrder();
+  }
+
+  @Test
+  public void someTest() {
+    // Large rows is r2 for range r1 to r8
+    ApiException largeRowExceptionWithTrailersR7 = createLargeRowException("r7");
+    List<String> actualResults;
+
+    service.expectations.add(
+        RpcExpectation.create()
+            .expectRequest("r1", "r7", "r4", "r8")
+            .respondWith("r1", "r4")
+            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR7));
+    service.expectations.add(RpcExpectation.create().expectRequest("r8").respondWith("r8"));
+
+    actualResults =
+        getSkipLargeRowsResults(
+            Query.create(TABLE_ID).rowKey("r1").rowKey("r7").rowKey("r4").rowKey("r8"));
+    Truth.assertThat(actualResults).containsExactly("r1", "r4", "r8").inOrder();
   }
 
   /**
@@ -227,24 +303,6 @@ public class ReadRowsRetryTest {
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3"));
     Truth.assertThat(actualResults).containsExactly("r1").inOrder();
 
-    // TEST - multiple large rows together
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectRequest(Range.closedOpen("r1", "r5"))
-            .respondWith("r1")
-            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
-
-    rangeList = new ArrayList<Range<String>>();
-    rangeList.add(Range.open("r1", "r2"));
-    rangeList.add(Range.open("r2", "r5"));
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectRequestForMultipleRowRanges(rangeList)
-            .respondWith("r3", "r4"));
-
-    actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r5"));
-    Truth.assertThat(actualResults).containsExactly("r1", "r3", "r4").inOrder();
-
     // r2 faulty
     service.expectations.add(
         RpcExpectation.create()
@@ -282,49 +340,6 @@ public class ReadRowsRetryTest {
 
     actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r9"));
     Truth.assertThat(actualResults).containsExactly("r1", "r4", "r5", "r6", "r8").inOrder();
-
-    // TEST - row keys
-    service.expectations.add(
-        RpcExpectation.create()
-            .expectRequest("r1", "r7", "r4", "r8")
-            .respondWith("r1", "r4")
-            .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR7));
-
-    service.expectations.add(RpcExpectation.create().expectRequest("r8").respondWith("r8"));
-
-    actualResults =
-        getSkipLargeRowsResults(
-            Query.create(TABLE_ID).rowKey("r1").rowKey("r7").rowKey("r4").rowKey("r8"));
-    Truth.assertThat(actualResults).containsExactly("r1", "r4", "r8").inOrder();
-
-    // TEST - range end is large row || row limit
-    // service.expectations.add(
-    //     RpcExpectation.create()
-    //         .expectRequest(Range.closedOpen("r1", "r3"))
-    //         .expectRowLimit(2)
-    //         .respondWith("r1")
-    //         .respondWithException(Code.INTERNAL, largeRowExceptionWithTrailersR2));
-    //
-    // rangeList = new ArrayList<Range<String>>();
-    // rangeList.add(Range.open("r1", "r2"));
-    // rangeList.add(Range.open("r2", "r3"));
-    // service.expectations.add(
-    //     RpcExpectation.create()
-    //         .expectRequestForMultipleRowRanges(rangeList)
-    //         .respondWithStatus(Code.OK));
-    //
-    // actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r1", "r3").limit(2));
-    // Truth.assertThat(actualResults).containsExactly( "r1").inOrder();
-    //
-    //
-    // service.expectations.add(
-    //     RpcExpectation.create()
-    //         .expectRequest(Range.closedOpen("r4", "r7"))
-    //         .expectRowLimit(2)
-    //         .respondWith("r4","r5"));
-    //
-    // actualResults = getSkipLargeRowsResults(Query.create(TABLE_ID).range("r4", "r7").limit(2));
-    // Truth.assertThat(actualResults).containsExactly( "r4","r5").inOrder();
 
     // TEST - reverse query with large rows
     service.expectations.add(

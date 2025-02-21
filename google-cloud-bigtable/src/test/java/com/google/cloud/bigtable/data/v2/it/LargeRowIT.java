@@ -43,8 +43,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -203,10 +201,11 @@ public class LargeRowIT {
     ByteString largeValue = ByteString.copyFrom(largeValueBytes);
 
     for (int i = 0; i < 90; i++) {
-      ByteString qualifier =
-                ByteString.copyFromUtf8("qualifier1_" + "_" + String.valueOf(i));
-      client.mutateRow(RowMutation.create(TableId.of(tableId), "r2").setCell(familyId, qualifier, largeValue));
-      client.mutateRow(RowMutation.create(TableId.of(tableId), "r3").setCell(familyId, qualifier, largeValue));
+      ByteString qualifier = ByteString.copyFromUtf8("qualifier1_" + "_" + String.valueOf(i));
+      client.mutateRow(
+          RowMutation.create(TableId.of(tableId), "r2").setCell(familyId, qualifier, largeValue));
+      client.mutateRow(
+          RowMutation.create(TableId.of(tableId), "r3").setCell(familyId, qualifier, largeValue));
     }
 
     // sync
