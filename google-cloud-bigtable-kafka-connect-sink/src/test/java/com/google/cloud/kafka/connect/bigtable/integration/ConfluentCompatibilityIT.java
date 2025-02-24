@@ -22,10 +22,11 @@ package com.google.cloud.kafka.connect.bigtable.integration;
  * the WePay BigQuery Kafka Connector, Copyright WePay, Inc.
  */
 
+import static org.apache.kafka.connect.runtime.ConnectorConfig.CONNECTOR_CLASS_CONFIG;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
@@ -35,27 +36,22 @@ import io.confluent.kafka.formatter.AvroMessageReader;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 import kafka.common.MessageReader;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
+import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -63,8 +59,6 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegistryIT {
   public static String TEST_CASES_DIR = "compatibility_test_cases";
-  // Needed since the default column family is the topic's name in the default configuration.
-  public static String COMPATIBILITY_TEST_TOPIC = "confluent_compat_topic";
 
   private String testCase;
   private Compatibility compatibility;
@@ -78,6 +72,9 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
   public static Collection testCases() {
     return Arrays.asList(
         new Object[][] {
+          // Confluent serializes bytes in keys incorrectly. For details, see the comments
+          // in KeyMapper#serializeKeyElement().
+          {"key_bytes", Compatibility.KEY_MISMATCH},
           {"key_containers", Compatibility.FULL},
           // We serialize `Date`-based logical types differently. For details, see the comments
           // in KeyMapper, especially the ones in serializeKeyElement().
@@ -87,47 +84,105 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
           // in KeyMapper, especially the ones in serializeKeyElement().
           {"key_nestedlogicals", Compatibility.KEY_MISMATCH},
           {"key_primitives", Compatibility.FULL},
+          {"key_root_primitives", Compatibility.FULL},
+          {"key_union", Compatibility.FULL},
+          // Confluent connector fails with an invalid class cast.
+          {"value_bytes", Compatibility.CONFLUENT_BROKEN},
           {"value_containers", Compatibility.FULL},
+          // Confluent connector fails with an invalid class cast.
+          {"value_logicals", Compatibility.CONFLUENT_BROKEN},
           {"value_matryoshkas", Compatibility.FULL},
           {"value_nestedlogicals", Compatibility.FULL},
           {"value_nulls", Compatibility.FULL},
           {"value_primitives", Compatibility.FULL},
+          {"value_root_primitives", Compatibility.FULL},
+          {"value_union", Compatibility.FULL},
         });
   }
 
   @Test
-  public void testCasesUsingSchemaRegistry()
-      throws InterruptedException, URISyntaxException, IOException {
-    String testId = startConnector();
-    populateTopic(testId);
-    Map<String, Map<Map.Entry<String, String>, ByteString>> expected = getExpectedOutput();
-    waitUntilBigtableContainsNumberOfRows(testId, expected.size());
-    Map<ByteString, Row> allRows = readAllRows(bigtableData, testId);
+  public void testCasesUsingSchemaRegistry() throws InterruptedException, IOException {
+    String confluentTestId = startConfluentConnector();
+    String googleTestId = startThisConnector(confluentTestId);
+    assertNotEquals(confluentTestId, googleTestId);
+
+    bigtableAdmin.createTable(CreateTableRequest.of(confluentTestId));
+    bigtableAdmin.createTable(CreateTableRequest.of(googleTestId));
+
+    populateTopic(confluentTestId);
+    populateTopic(googleTestId);
+
+    long expectedRows = getInputSize();
+    waitUntilBigtableContainsNumberOfRows(googleTestId, expectedRows);
+    Map<ByteString, Row> allGoogleRows = readAllRows(bigtableData, googleTestId);
+    assertEquals(expectedRows, allGoogleRows.size());
+
+    Map<ByteString, Row> allConfluentRows = null;
     switch (compatibility) {
       case FULL:
-        assertRowsMatch(expected, allRows.values());
+      case KEY_MISMATCH:
+        // Done like this because Confluent sink seems to write rows cell-by-cell rather than
+        // atomically.
+        waitUntilBigtableContainsNumberOfCells(confluentTestId, cellCount(allGoogleRows));
+        allConfluentRows = readAllRows(bigtableData, confluentTestId);
+        assertEquals(expectedRows, allConfluentRows.size());
+        break;
+      case CONFLUENT_BROKEN:
+        break;
+    }
+    switch (compatibility) {
+      case FULL:
+        assertRowsAreTheSame(allConfluentRows, allGoogleRows);
         break;
       case KEY_MISMATCH:
-        assertEquals(expected.size(), allRows.size());
-        assertTrue(allRows.values().stream().allMatch(r -> r.getCells().size() == 1));
-        Set<ByteString> allValues =
-            allRows.values().stream()
-                .map(r -> r.getCells().get(0).getValue())
-                .collect(Collectors.toSet());
-        Set<ByteString> allExpectedValues =
-            expected.values().stream()
-                .flatMap(m -> m.values().stream())
-                .collect(Collectors.toSet());
-        assertEquals(allExpectedValues, allValues);
+        assertEquals(rowToValues(allConfluentRows.values()), rowToValues(allGoogleRows.values()));
+        break;
+      case CONFLUENT_BROKEN:
         break;
     }
     connect
         .assertions()
-        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Some task failed.");
+        .assertConnectorAndExactlyNumTasksAreRunning(googleTestId, numTasks, "Some task failed.");
+    switch (compatibility) {
+      case FULL:
+      case KEY_MISMATCH:
+        connect
+            .assertions()
+            .assertConnectorAndExactlyNumTasksAreRunning(
+                confluentTestId, numTasks, "Some Google connector task failed.");
+        break;
+      case CONFLUENT_BROKEN:
+        connect
+            .assertions()
+            .assertConnectorIsRunningAndTasksHaveFailed(
+                confluentTestId,
+                numTasks,
+                "Confluent sink should've been broken for this test case.");
+        break;
+    }
   }
 
-  public String startConnector() throws InterruptedException {
+  public String startConfluentConnector() throws InterruptedException {
     Map<String, String> connectorProps = baseConnectorProps();
+    connectorProps.put(
+        CONNECTOR_CLASS_CONFIG, "io.confluent.connect.gcp.bigtable.BigtableSinkConnector");
+    connectorProps.put("confluent.license", "");
+    connectorProps.put("confluent.topic.bootstrap.servers", connect.kafka().bootstrapServers());
+    connectorProps.put("confluent.topic.replication.factor", "1");
+    // TODO: fix it when transitioning to kokoro.
+    connectorProps.put(
+        BigtableSinkConfig.GCP_CREDENTIALS_PATH_CONFIG,
+        Objects.requireNonNull(System.getenv("GOOGLE_APPLICATION_CREDENTIALS")));
+    return startConnector(connectorProps);
+  }
+
+  public String startThisConnector(String confluentConnectorId) throws InterruptedException {
+    Map<String, String> connectorProps = baseConnectorProps();
+    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, confluentConnectorId);
+    return startConnector(connectorProps);
+  }
+
+  public String startConnector(Map<String, String> connectorProps) throws InterruptedException {
     connectorProps.put(ConnectorConfig.KEY_CONVERTER_CLASS_CONFIG, AvroConverter.class.getName());
     connectorProps.put(
         ConnectorConfig.KEY_CONVERTER_CLASS_CONFIG
@@ -140,15 +195,23 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
             + "."
             + AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
         schemaRegistry.schemaRegistryUrl());
-    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
+    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "false");
     connectorProps.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
-    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, COMPATIBILITY_TEST_TOPIC);
     connectorProps.put(BigtableSinkConfig.ROW_KEY_DELIMITER_CONFIG, "#");
     String topic = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
         .assertConnectorAndAtLeastNumTasksAreRunning(topic, numTasks, "Connector start timeout");
     return topic;
+  }
+
+  @Override
+  public Map<String, String> workerProps() {
+    Map<String, String> props = super.workerProps();
+    String pluginPath = Objects.requireNonNull(System.getenv(PLUGIN_PATH_ENV_VAR_NAME));
+    // Enabling embedded Kafka Connect to use the Confluent's sink.
+    props.put(WorkerConfig.PLUGIN_PATH_CONFIG, pluginPath);
+    return props;
   }
 
   public void populateTopic(String topic) throws IOException {
@@ -191,57 +254,45 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
     return String.format("%s/%s", TEST_CASES_DIR, testCase);
   }
 
-  private Map<String, Map<Map.Entry<String, String>, ByteString>> getExpectedOutput()
-      throws URISyntaxException, IOException {
-    Map<String, Map<Map.Entry<String, String>, ByteString>> result = new HashMap<>();
-
-    String expectedOutputDir = getTestCaseDir() + "/confluent_sink_output";
-    List<Path> outputPaths =
-        Files.find(
-                Paths.get(getClassLoader().getResource(expectedOutputDir).toURI()),
-                3,
-                (path, attr) -> attr.isRegularFile())
-            .collect(Collectors.toList());
-
-    for (Path outputPath : outputPaths) {
-      String[] outputPathParts = outputPath.toString().split("/");
-      int outputPathPartsLength = outputPathParts.length;
-      String row = outputPathParts[outputPathPartsLength - 3];
-      String columnFamily = outputPathParts[outputPathPartsLength - 2];
-      String columnQualifier = outputPathParts[outputPathPartsLength - 1];
-      byte[] value = Files.readAllBytes(outputPath);
-
-      result.putIfAbsent(row, new HashMap<>());
-      Map.Entry<String, String> familyAndQualifier =
-          new AbstractMap.SimpleImmutableEntry<>(columnFamily, columnQualifier);
-      assertFalse(result.get(row).containsKey(familyAndQualifier));
-      result.get(row).put(familyAndQualifier, ByteString.copyFrom(value));
-    }
-
-    return result;
+  private long getInputSize() throws IOException {
+    String data = readStringResource(getTestCaseDir() + "/data.json");
+    return Arrays.stream(data.split("\n")).filter(s -> !s.trim().isEmpty()).count();
   }
 
-  private void assertRowsMatch(
-      Map<String, Map<Map.Entry<String, String>, ByteString>> expected,
-      Collection<Row> bigtableRows) {
-    assertEquals(expected.size(), bigtableRows.size());
-    for (Row row : bigtableRows) {
-      String key = new String(row.getKey().toByteArray(), StandardCharsets.UTF_8);
-      Map<Map.Entry<String, String>, ByteString> bigtableRow = new HashMap<>();
-      for (RowCell cell : row.getCells()) {
-        Map.Entry<String, String> familyAndQualifier =
-            new AbstractMap.SimpleImmutableEntry<>(
-                cell.getFamily(),
-                new String(cell.getQualifier().toByteArray(), StandardCharsets.UTF_8));
-        assertFalse(bigtableRow.containsKey(familyAndQualifier));
-        bigtableRow.put(familyAndQualifier, cell.getValue());
+  private void assertRowsAreTheSame(Map<ByteString, Row> expected, Map<ByteString, Row> actual) {
+    assertEquals(expected.keySet(), actual.keySet());
+    for (Row expectedRow : expected.values()) {
+      Row actualRow = actual.get(expectedRow.getKey());
+
+      List<RowCell> expectedCells = expectedRow.getCells();
+      assertEquals(expectedCells.size(), actualRow.getCells().size());
+      for (RowCell expectedCell : expectedCells) {
+        ByteString expectedValue = expectedCell.getValue();
+        List<RowCell> actualCells =
+            actualRow.getCells(expectedCell.getFamily(), expectedCell.getQualifier());
+        assertEquals(1, actualCells.size());
+        ByteString actualValue = actualCells.get(0).getValue();
+        assertEquals(expectedValue, actualValue);
       }
-      assertEquals(expected.get(key), bigtableRow);
     }
+  }
+
+  private Map<String, Map<ByteString, Map<ByteString, Long>>> rowToValues(Collection<Row> rows) {
+    Map<String, Map<ByteString, Map<ByteString, Long>>> result = new HashMap<>();
+    for (Row r : rows) {
+      for (RowCell c : r.getCells()) {
+        result
+            .computeIfAbsent(c.getFamily(), ignored -> new HashMap<>())
+            .computeIfAbsent(c.getQualifier(), ignored -> new HashMap<>())
+            .merge(c.getValue(), 1L, Long::sum);
+      }
+    }
+    return result;
   }
 
   public enum Compatibility {
     FULL,
     KEY_MISMATCH,
+    CONFLUENT_BROKEN,
   }
 }

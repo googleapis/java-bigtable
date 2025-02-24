@@ -70,12 +70,24 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
     }
   }
 
+  public long cellCount(Map<ByteString, Row> rows) {
+    return rows.values().stream().mapToLong(r -> r.getCells().size()).sum();
+  }
+
   public void waitUntilBigtableContainsNumberOfRows(String tableId, long numberOfRows)
       throws InterruptedException {
     waitForCondition(
         () -> readAllRows(bigtableData, tableId).size() == numberOfRows,
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Records not consumed in time.");
+  }
+
+  public void waitUntilBigtableContainsNumberOfCells(String tableId, long numberOfCells)
+      throws InterruptedException {
+    waitForCondition(
+        () -> cellCount(readAllRows(bigtableData, tableId)) == numberOfCells,
+        DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
+        "Records not consumed in time");
   }
 
   public void waitUntilBigtableTableExists(String tableId) throws InterruptedException {

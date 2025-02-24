@@ -27,6 +27,7 @@
         <google.java.format.version>1.19.2</google.java.format.version>
         <javadoc.version>3.11.2</javadoc.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <antrun.version>3.1.0</antrun.version>
         <surefire.version>3.5.2</surefire.version>
         <failsafe.version>3.5.2</failsafe.version>
         <maven-jar.version>3.4.2</maven-jar.version>
@@ -35,6 +36,10 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <integration.test.plugin.path>${project.basedir}/integration_test_plugins</integration.test.plugin.path>
+        <confluent.sink.url>https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-gcp-bigtable/versions/2.0.28/confluentinc-kafka-connect-gcp-bigtable-2.0.28.zip</confluent.sink.url>
+        <confluent.sink.filename>confluentsink.zip</confluent.sink.filename>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -290,6 +295,7 @@
                         <GOOGLE_APPLICATION_CREDENTIALS>target/test-classes/fake_service_key.json</GOOGLE_APPLICATION_CREDENTIALS>
                         <!-- TODO: remove it when transitioning to kokoro, use a real Cloud Bigtable instance instead -->
                         <BIGTABLE_EMULATOR_HOST>localhost:8086</BIGTABLE_EMULATOR_HOST>
+                        <INTEGRATION_TEST_PLUGINS_PATH>${integration.test.plugin.path}</INTEGRATION_TEST_PLUGINS_PATH>
                     </environmentVariables>
                 </configuration>
                 <executions>
@@ -322,6 +328,31 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>${antrun.version}</version>
+                <executions>
+                    <execution>
+                        <id>download-and-unzip-confluent-sink</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <get src="${confluent.sink.url}"
+                                     dest="${confluent.sink.filename}"
+                                     skipexisting="true" />
+                                <unzip
+                                    src="${confluent.sink.filename}"
+                                    dest="${integration.test.plugin.path}"
+                                />
+                            </target>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

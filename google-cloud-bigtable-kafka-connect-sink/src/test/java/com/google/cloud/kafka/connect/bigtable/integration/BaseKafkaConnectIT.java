@@ -62,6 +62,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
   public static final long PRODUCE_TIMEOUT_MILLIS = 15000L;
   // https://cloud.google.com/bigtable/docs/reference/admin/rpc/google.bigtable.admin.v2#createtablerequest
   public static int MAX_BIGTABLE_TABLE_NAME_LENGTH = 50;
+  public static final String PLUGIN_PATH_ENV_VAR_NAME = "INTEGRATION_TEST_PLUGINS_PATH";
 
   private final Logger logger = LoggerFactory.getLogger(BaseKafkaConnectIT.class);
 
@@ -82,9 +83,6 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
 
   public void startConnect() {
     logger.info("Starting embedded Kafka Connect cluster...");
-    Map<String, String> workerProps = new HashMap<>();
-    workerProps.put(WorkerConfig.OFFSET_COMMIT_INTERVAL_MS_CONFIG, Long.toString(10000));
-    workerProps.put(WorkerConfig.PLUGIN_DISCOVERY_CONFIG, PluginDiscoveryMode.HYBRID_WARN.name());
 
     Properties brokerProps = new Properties();
     brokerProps.put("socket.request.max.bytes", maxKafkaMessageSizeBytes);
@@ -105,7 +103,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
             .numWorkers(numWorkers)
             .numBrokers(numBrokers)
             .brokerProps(brokerProps)
-            .workerProps(workerProps)
+            .workerProps(workerProps())
             .clientConfigs(clientConfigs)
             .build();
 
@@ -122,6 +120,13 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
     logger.info(
         "Started embedded Kafka Connect cluster using bootstrap servers: {}",
         connect.kafka().bootstrapServers());
+  }
+
+  public Map<String, String> workerProps() {
+    Map<String, String> workerProps = new HashMap<>();
+    workerProps.put(WorkerConfig.OFFSET_COMMIT_INTERVAL_MS_CONFIG, Long.toString(10000));
+    workerProps.put(WorkerConfig.PLUGIN_DISCOVERY_CONFIG, PluginDiscoveryMode.HYBRID_WARN.name());
+    return workerProps;
   }
 
   public void stopConnect() {
