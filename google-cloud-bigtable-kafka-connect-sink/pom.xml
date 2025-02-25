@@ -11,7 +11,7 @@
         Google Bigtable sink connector for Apache Kafka Connect
     </description>
     <properties>
-        <google.cloud.bom.version>26.31.0</google.cloud.bom.version>
+        <google.cloud.bom.version>26.54.0</google.cloud.bom.version>
         <kafka.version>3.6.1</kafka.version>
         <kafka.scala.version>2.12</kafka.scala.version>
         <hbase.version>2.6.1</hbase.version>
