@@ -34,7 +34,7 @@ public class ConfigIT extends BaseKafkaConnectIT {
     connect.configureConnector(connectorName, props);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(
+        .assertConnectorAndExactlyNumTasksAreRunning(
             connectorName, numTasks, "Connector start timeout");
   }
 

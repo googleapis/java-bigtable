@@ -112,7 +112,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
     try {
       connect
           .assertions()
-          .assertAtLeastNumWorkersAreUp(1, "Initial group of workers did not start in time.");
+          .assertExactlyNumWorkersAreUp(1, "Initial group of workers did not start in time.");
     } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -174,7 +174,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
     connect.configureConnector(id, configProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(id, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(id, numTasks, "Connector start timeout");
     return id;
   }
 

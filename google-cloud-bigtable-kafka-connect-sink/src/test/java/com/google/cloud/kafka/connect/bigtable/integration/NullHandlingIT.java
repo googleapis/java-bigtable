@@ -80,7 +80,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
 
     String keyFinish = "key_finish";
     ByteString keyFinishBytes = ByteString.copyFrom(keyFinish.getBytes(StandardCharsets.UTF_8));
@@ -138,7 +138,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
 
     List<Map.Entry<SchemaAndValue, SchemaAndValue>> records = new ArrayList<>();
     records.add(
@@ -198,7 +198,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
 
     String columnFamily1 = "cf1";
     String columnFamily2 = "cf2";

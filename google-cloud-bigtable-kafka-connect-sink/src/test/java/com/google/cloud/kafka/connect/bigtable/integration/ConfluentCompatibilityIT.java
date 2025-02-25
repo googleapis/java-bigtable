@@ -201,7 +201,7 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
     String topic = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(topic, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(topic, numTasks, "Connector start timeout");
     return topic;
   }
 

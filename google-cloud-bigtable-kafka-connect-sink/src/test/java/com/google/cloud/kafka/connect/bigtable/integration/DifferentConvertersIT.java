@@ -95,7 +95,7 @@ public class DifferentConvertersIT extends BaseDataGeneratorIT {
     String topic = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(topic, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(topic, numTasks, "Connector start timeout");
     populateKafkaTopic(topic, numRecords, keyConverter, valueConverter);
 
     waitUntilBigtableContainsNumberOfRows(topic, numRecords);

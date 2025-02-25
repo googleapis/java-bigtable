@@ -67,7 +67,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     String testId = startSingleTopicConnector(connectorProps);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
     populateKafkaTopic(testId, numRecords, keyConverter, valueConverter);
 
     waitUntilBigtableContainsNumberOfRows(testId, numRecords);
@@ -87,7 +87,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
 
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
     assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
     connect.kafka().produce(testId, "started", value);
     expectedRowsInBigtable += 1;
@@ -96,7 +96,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     connect.restartConnectorAndTasks(testId, false, true, false);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector restart timeout");
+        .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector restart timeout");
     assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
     connect.kafka().produce(testId, "restarted", value);
     expectedRowsInBigtable += 1;
@@ -109,7 +109,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     connect.resumeConnector(testId);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(
+        .assertConnectorAndExactlyNumTasksAreRunning(
             testId, numTasks, "Connector post-pause resume timeout");
     assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
     connect.kafka().produce(testId, "pause", value);
@@ -121,7 +121,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     connect.resumeConnector(testId);
     connect
         .assertions()
-        .assertConnectorAndAtLeastNumTasksAreRunning(
+        .assertConnectorAndExactlyNumTasksAreRunning(
             testId, numTasks, "Connector post-stop resume timeout");
     assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
     connect.kafka().produce(testId, "stop", value);
