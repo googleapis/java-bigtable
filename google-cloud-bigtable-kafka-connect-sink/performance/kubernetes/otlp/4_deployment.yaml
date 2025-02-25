@@ -54,10 +54,10 @@ spec:
                 fieldPath: status.podIP
         resources:
           requests:
-            memory: "200Mi"
+            memory: "400Mi"
             cpu: "200m"
           limits:
-            memory: "400Mi"
+            memory: "800Mi"
         volumeMounts:
           - name: collector-config
             mountPath: /conf
