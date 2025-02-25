@@ -338,9 +338,12 @@ public class BigtableSinkConfig extends AbstractConfig {
             false,
             new ConfigDef.NonNullValidator(),
             ConfigDef.Importance.MEDIUM,
-            "Whether to automatically create the destination table if it is found to be missing."
-                + "\nWhen enabled, the records for which the auto-creation fails, are failed."
-                + "\nRecreation of tables deleted by other Cloud Bigtable users is not supported.")
+            "Whether to automatically create the destination table if it is found to be missing.\n"
+                + "When enabled, the records for which the auto-creation fails, are failed.\n"
+                + "Recreation of tables deleted by other Cloud Bigtable users is not supported.\n"
+                + "Note that table auto-creation is slow (multiple seconds). It may slow down not"
+                + " only the records targeting nonexistent tables, but also other records batched"
+                + " with them. To facilitate predictable latency leave this option disabled.")
         .define(
             AUTO_CREATE_COLUMN_FAMILIES_CONFIG,
             ConfigDef.Type.BOOLEAN,
@@ -354,7 +357,11 @@ public class BigtableSinkConfig extends AbstractConfig {
                 + "When enabled, column families will be created also for deletions of nonexistent"
                 + " column families and cells within them.\n"
                 + "Recreation of column families deleted by other Cloud Bigtable users is not"
-                + " supported.")
+                + " supported.\n"
+                + "Note that column family auto-creation is slow. It may slow down"
+                + " not only the records targeting nonexistent column families, but also other"
+                + " records batched with them. To facilitate predictable latency leave this option"
+                + " disabled.")
         .define(
             DEFAULT_COLUMN_FAMILY_CONFIG,
             ConfigDef.Type.STRING,
