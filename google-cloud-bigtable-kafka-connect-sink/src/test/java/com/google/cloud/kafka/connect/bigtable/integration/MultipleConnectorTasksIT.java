@@ -15,6 +15,9 @@
  */
 package com.google.cloud.kafka.connect.bigtable.integration;
 
+import static org.junit.Assert.assertEquals;
+
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
 import io.confluent.connect.avro.AvroConverter;
@@ -69,5 +72,63 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
 
     waitUntilBigtableContainsNumberOfRows(testId, numRecords);
     assertConnectorAndAllTasksAreRunning(testId);
+  }
+
+  @Test
+  public void testRestartPauseStop() throws InterruptedException {
+    numTasks = 10;
+    int expectedRowsInBigtable = 0;
+    String defaultColumnFamily = "default";
+    String value = "1";
+    Map<String, String> connectorProps = baseConnectorProps();
+    connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, defaultColumnFamily);
+    String testId = startSingleTopicConnector(connectorProps);
+    bigtableAdmin.createTable(CreateTableRequest.of(testId).addFamily(defaultColumnFamily));
+
+    connect
+        .assertions()
+        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector start timeout");
+    assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
+    connect.kafka().produce(testId, "started", value);
+    expectedRowsInBigtable += 1;
+    waitUntilBigtableContainsNumberOfRows(testId, expectedRowsInBigtable);
+
+    connect.restartConnectorAndTasks(testId, false, true, false);
+    connect
+        .assertions()
+        .assertConnectorAndAtLeastNumTasksAreRunning(testId, numTasks, "Connector restart timeout");
+    assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
+    connect.kafka().produce(testId, "restarted", value);
+    expectedRowsInBigtable += 1;
+    waitUntilBigtableContainsNumberOfRows(testId, expectedRowsInBigtable);
+
+    connect.pauseConnector(testId);
+    connect
+        .assertions()
+        .assertConnectorAndExactlyNumTasksArePaused(testId, numTasks, "Connector pause timeout");
+    connect.resumeConnector(testId);
+    connect
+        .assertions()
+        .assertConnectorAndAtLeastNumTasksAreRunning(
+            testId, numTasks, "Connector post-pause resume timeout");
+    assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
+    connect.kafka().produce(testId, "pause", value);
+    expectedRowsInBigtable += 1;
+    waitUntilBigtableContainsNumberOfRows(testId, expectedRowsInBigtable);
+
+    connect.stopConnector(testId);
+    connect.assertions().assertConnectorIsStopped(testId, "Connector stop timeout");
+    connect.resumeConnector(testId);
+    connect
+        .assertions()
+        .assertConnectorAndAtLeastNumTasksAreRunning(
+            testId, numTasks, "Connector post-stop resume timeout");
+    assertEquals(expectedRowsInBigtable, readAllRows(bigtableData, testId).size());
+    connect.kafka().produce(testId, "stop", value);
+    expectedRowsInBigtable += 1;
+    waitUntilBigtableContainsNumberOfRows(testId, expectedRowsInBigtable);
+
+    connect.deleteConnector(testId);
+    connect.assertions().assertConnectorAndTasksAreNotRunning(testId, "Connector deletion timeout");
   }
 }
