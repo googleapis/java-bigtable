@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import com.google.api.core.BetaApi;
 
 /**
  * The results of query preparation that can be used to create {@link BoundStatement}s to execute
@@ -24,7 +23,6 @@ import com.google.api.core.BetaApi;
  * <p>Whenever possible this should be shared across different instances of the same query, in order
  * to amortize query preparation costs.
  */
-@BetaApi
 public interface PreparedStatement {
 
   /**

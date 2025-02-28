@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.ArrayValue;
 import com.google.bigtable.v2.ExecuteQueryRequest;
@@ -39,33 +38,22 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
-// TODO update doc
 /**
- * A SQL statement that can be executed by calling {@link
+ * A bound SQL statement that can be executed by calling {@link
  * com.google.cloud.bigtable.data.v2.BigtableDataClient#executeQuery(BoundStatement)}.
  *
- * <p>A statement contains a SQL string and optional parameters. A parameterized query should
- * contain placeholders in the form of {@literal @} followed by the parameter name. Parameter names
- * may consist of any combination of letters, numbers, and underscores.
+ * <p>It is an error to bind a statement with unset parameters.
  *
- * <p>Parameters can appear anywhere that a literal value is expected. The same parameter name can
- * be used more than once, for example: {@code WHERE cf["qualifier1"] = @value OR cf["qualifier2"]
- * = @value }
- *
- * <p>It is an error to execute an SQL query with placeholders for unset parameters.
- *
- * <p>Parameterized Statements are constructed using a {@link Builder} and calling
- * setTypeParam(String paramName, Type value) for the appropriate type. For example:
+ * <p>BoundStatements are constructed using a {@link Builder} and calling setTypeParam(String
+ * paramName, Type value) for the appropriate type. For example:
  *
  * <pre>{@code
- * Statement statement = Statement
- *     .newBuilder("SELECT cf[@qualifer] FROM table WHERE _key=@key")
+ * BoundStatementt boundStatement = preparedStatement.bind()
  *     .setBytesParam("qualifier", ByteString.copyFromUtf8("test"))
  *     .setBytesParam("key", ByteString.copyFromUtf8("testKey"))
  *     .build();
  * }</pre>
  */
-@BetaApi
 public class BoundStatement {
 
   private final PreparedStatementImpl preparedStatement;
@@ -104,7 +92,7 @@ public class BoundStatement {
       this.params = new HashMap<>();
     }
 
-    /** Builds a {@code Statement} from the builder */
+    /** Builds a {@link BoundStatement} from the builder */
     public BoundStatement build() {
       for (Map.Entry<String, SqlType<?>> paramType : paramTypes.entrySet()) {
         String paramName = paramType.getKey();

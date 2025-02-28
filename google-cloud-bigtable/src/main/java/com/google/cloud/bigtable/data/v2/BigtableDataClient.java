@@ -2737,7 +2737,6 @@ public class BigtableDataClient implements AutoCloseable {
    *
    * @see {@link PreparedStatement} & {@link BoundStatement} for query options.
    */
-  @BetaApi
   public ResultSet executeQuery(BoundStatement boundStatement) {
     boundStatement.assertUsingSameStub(stub);
     SqlServerStream stream = stub.createExecuteQueryCallable().call(boundStatement);
@@ -2748,12 +2747,19 @@ public class BigtableDataClient implements AutoCloseable {
    * Prepares a query for execution. If possible this should be called once and reused across
    * requests. This will amortize the cost of query preparation.
    *
+   * <p>A parameterized query should contain placeholders in the form of {@literal @} followed by
+   * the parameter name. Parameter names may consist of any combination of letters, numbers, and
+   * underscores.
+   *
+   * <p>Parameters can appear anywhere that a literal value is expected. The same parameter name can
+   * be used more than once, for example: {@code WHERE cf["qualifier1"] = @value OR cf["qualifier2"]
+   * = @value }
+   *
    * @param query sql query string to prepare
    * @param paramTypes a Map of the parameter names and the corresponding {@link SqlType} for all
    *     query parameters in 'query'
    * @return {@link PreparedStatement} which is used to create {@link BoundStatement}s to execute
    */
-  @BetaApi
   public PreparedStatement prepareStatement(String query, Map<String, SqlType<?>> paramTypes) {
     PrepareQueryRequest request = PrepareQueryRequest.create(query, paramTypes);
     PrepareResponse response = stub.prepareQueryCallable().call(request);
