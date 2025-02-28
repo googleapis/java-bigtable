@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.54.0](https://github.com/googleapis/java-bigtable/compare/v2.53.0...v2.54.0) (2025-02-28)
+
+
+### Features
+
+* Next release from main branch is 2.54.0 ([#2498](https://github.com/googleapis/java-bigtable/issues/2498)) ([f967ded](https://github.com/googleapis/java-bigtable/commit/f967deda8b68091dcc417b6c51f451abd36696f1))
+
 ## [2.53.0](https://github.com/googleapis/java-bigtable/compare/v2.52.0...v2.53.0) (2025-02-21)
 
 
