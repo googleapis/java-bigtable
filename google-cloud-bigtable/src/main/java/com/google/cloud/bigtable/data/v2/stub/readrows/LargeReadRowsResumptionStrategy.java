@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.stub.readrows;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.retrying.StreamResumptionStrategy;
+import com.google.api.gax.rpc.ApiException;
 import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ReadRowsRequest.Builder;
 import com.google.bigtable.v2.RowSet;
@@ -25,24 +26,40 @@ import com.google.cloud.bigtable.data.v2.models.RowAdapter;
 import com.google.cloud.bigtable.data.v2.stub.BigtableStreamResumptionStrategy;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
+import java.util.Base64;
+import java.util.logging.Logger;
 
 /**
- * An implementation of a {@link BigtableStreamResumptionStrategy} for merged rows. This class
- * tracks the last complete row seen and upon retry can build a request to resume the stream from
- * where it left off.
+ * An implementation of a {@link StreamResumptionStrategy} for merged rows. This class tracks -
+ *
+ * <ul>
+ *   <li>row key for the last row that was read successfully
+ *   <li>row key for large-row that couldn't be read
+ *   <li>list of all row keys for large-rows
+ * </ul>
+ *
+ * Upon retry this class builds a request to omit the large rows & retry from the last row key that
+ * was successfully read.
  *
  * <p>This class is considered an internal implementation detail and not meant to be used by
  * applications.
  */
 @InternalApi
-public class ReadRowsResumptionStrategy<RowT>
+public class LargeReadRowsResumptionStrategy<RowT>
     extends BigtableStreamResumptionStrategy<ReadRowsRequest, RowT> {
+  private static final Logger LOGGER =
+      Logger.getLogger(LargeReadRowsResumptionStrategy.class.getName());
   private final RowAdapter<RowT> rowAdapter;
-  private ByteString lastKey = ByteString.EMPTY;
+  private ByteString lastSuccessKey = ByteString.EMPTY;
   // Number of rows processed excluding Marker row.
   private long numProcessed;
+  private ByteString largeRowKey = ByteString.EMPTY;
+  // we modify the original request in the resumption strategy regardless of how many times it has
+  // failed, {@code previousFailedRequestRowset} is stored for the use case of continuous large rows
+  // row-keys
+  private RowSet previousFailedRequestRowset = null;
 
-  public ReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
+  public LargeReadRowsResumptionStrategy(RowAdapter<RowT> rowAdapter) {
     this.rowAdapter = rowAdapter;
   }
 
@@ -53,7 +70,7 @@ public class ReadRowsResumptionStrategy<RowT>
 
   @Override
   public StreamResumptionStrategy<ReadRowsRequest, RowT> createNew() {
-    return new ReadRowsResumptionStrategy<>(rowAdapter);
+    return new LargeReadRowsResumptionStrategy<>(rowAdapter);
   }
 
   @Override
@@ -62,7 +79,8 @@ public class ReadRowsResumptionStrategy<RowT>
     // synthetic row marker is emitted when the server has read a lot of data that was filtered out.
     // The row marker can be used to trim the start of the scan, but does not contribute to the row
     // limit.
-    lastKey = rowAdapter.getKey(response);
+    lastSuccessKey = rowAdapter.getKey(response);
+
     if (!rowAdapter.isScanMarkerRow(response)) {
       // Only real rows count towards the rows limit.
       numProcessed++;
@@ -70,30 +88,61 @@ public class ReadRowsResumptionStrategy<RowT>
     return response;
   }
 
-  @Override
   public Throwable processError(Throwable throwable) {
-    // Noop
+    ByteString rowKeyExtracted = extractLargeRowKey(throwable);
+    if (rowKeyExtracted != null) {
+      LOGGER.warning("skipping large row " + rowKeyExtracted);
+      this.largeRowKey = rowKeyExtracted;
+      numProcessed = numProcessed + 1;
+    }
     return throwable;
+  }
+
+  private ByteString extractLargeRowKey(Throwable t) {
+    if (t instanceof ApiException
+        && ((ApiException) t).getReason() != null
+        && ((ApiException) t).getReason().equals("LargeRowReadError")) {
+      String rowKey = ((ApiException) t).getMetadata().get("rowKeyBase64Encoded");
+
+      byte[] decodedBytes = Base64.getDecoder().decode(rowKey);
+      return ByteString.copyFrom(decodedBytes);
+    }
+    return null;
   }
 
   /**
    * {@inheritDoc}
    *
-   * <p>Given a request, this implementation will narrow that request to exclude all row keys and
-   * ranges that would produce rows that come before {@link #lastKey}. Furthermore this
-   * implementation takes care to update the row limit of the request to account for all of the
-   * received rows.
+   * <p>This returns an updated request excluding all the rows keys & ranges till (including) {@link
+   * #lastSuccessKey} & also excludes the last encountered large row key ({@link #largeRowKey}).
+   * Also, this implementation takes care to update the row limit of the request to account for all
+   * of the received rows.
    */
   @Override
   public ReadRowsRequest getResumeRequest(ReadRowsRequest originalRequest) {
-    // An empty lastKey means that we have not successfully read the first row,
+
+    // An empty lastSuccessKey means that we have not successfully read the first row,
     // so resume with the original request object.
-    if (lastKey.isEmpty()) {
+    if (lastSuccessKey.isEmpty() && largeRowKey.isEmpty()) {
       return originalRequest;
     }
 
-    RowSet remaining =
-        RowSetUtil.erase(originalRequest.getRows(), lastKey, !originalRequest.getReversed());
+    RowSet remaining;
+    if (previousFailedRequestRowset == null) {
+      remaining = originalRequest.getRows();
+    } else {
+      remaining = previousFailedRequestRowset;
+    }
+
+    if (!lastSuccessKey.isEmpty()) {
+      remaining = RowSetUtil.erase(remaining, lastSuccessKey, !originalRequest.getReversed());
+    }
+    if (!largeRowKey.isEmpty()) {
+      remaining = RowSetUtil.eraseLargeRow(remaining, largeRowKey);
+    }
+    this.largeRowKey = ByteString.EMPTY;
+
+    previousFailedRequestRowset = remaining;
 
     // Edge case: retrying a fulfilled request.
     // A fulfilled request is one that has had all of its row keys and ranges fulfilled, or if it
@@ -110,7 +159,7 @@ public class ReadRowsResumptionStrategy<RowT>
     if (originalRequest.getRowsLimit() > 0) {
       Preconditions.checkState(
           originalRequest.getRowsLimit() > numProcessed,
-          "Detected too many rows for the current row limit during a retry.");
+          "Processed rows and number of large rows should not exceed the row limit in the original request");
       builder.setRowsLimit(originalRequest.getRowsLimit() - numProcessed);
     }
 

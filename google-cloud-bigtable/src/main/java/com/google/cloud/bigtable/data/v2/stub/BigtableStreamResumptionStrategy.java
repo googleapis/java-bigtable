@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable;
+package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
+import com.google.api.gax.retrying.StreamResumptionStrategy;
 
-@InternalApi("For internal use only")
-public final class Version {
-  // {x-version-update-start:google-cloud-bigtable:current}
-  public static String VERSION = "2.54.1-SNAPSHOT";
-  // {x-version-update-end}
+@InternalApi
+/** Expand StreamResumptionStrategy to also process the error. */
+public abstract class BigtableStreamResumptionStrategy<RequestT, ResponseT>
+    implements StreamResumptionStrategy<RequestT, ResponseT> {
+
+  public abstract Throwable processError(Throwable throwable);
 }
