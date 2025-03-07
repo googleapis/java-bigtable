@@ -17,13 +17,17 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 
 import static org.apache.kafka.test.TestUtils.waitForCondition;
 
+import com.google.api.gax.rpc.FailedPreconditionException;
+import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.protobuf.ByteString;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import org.apache.kafka.test.TestCondition;
 import org.junit.After;
 import org.junit.Before;
 import org.slf4j.Logger;
@@ -77,7 +81,8 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
   public void waitUntilBigtableContainsNumberOfRows(String tableId, long numberOfRows)
       throws InterruptedException {
     waitForCondition(
-        () -> readAllRows(bigtableData, tableId).size() == numberOfRows,
+        testConditionIgnoringTransientErrors(
+            () -> readAllRows(bigtableData, tableId).size() == numberOfRows),
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Records not consumed in time.");
   }
@@ -85,17 +90,19 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
   public void waitUntilBigtableContainsNumberOfCells(String tableId, long numberOfCells)
       throws InterruptedException {
     waitForCondition(
-        () -> cellCount(readAllRows(bigtableData, tableId)) == numberOfCells,
+        testConditionIgnoringTransientErrors(
+            () -> cellCount(readAllRows(bigtableData, tableId)) == numberOfCells),
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Records not consumed in time");
   }
 
   public void waitUntilBigtableTableExists(String tableId) throws InterruptedException {
     waitForCondition(
-        () -> {
-          bigtableAdmin.getTable(tableId);
-          return true;
-        },
+        testConditionIgnoringTransientErrors(
+            () -> {
+              bigtableAdmin.getTable(tableId);
+              return true;
+            }),
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Table not created in time.");
   }
@@ -103,10 +110,22 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
   public void waitUntilBigtableTableHasColumnFamily(String tableId, String columnFamily)
       throws InterruptedException {
     waitForCondition(
-        () ->
-            bigtableAdmin.getTable(tableId).getColumnFamilies().stream()
-                .anyMatch(cf -> cf.getId().equals(columnFamily)),
+        testConditionIgnoringTransientErrors(
+            () ->
+                bigtableAdmin.getTable(tableId).getColumnFamilies().stream()
+                    .anyMatch(cf -> cf.getId().equals(columnFamily))),
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
         "Column Family not created in time.");
+  }
+
+  // These exceptions are thrown around the moment of a table or column family creation.
+  private TestCondition testConditionIgnoringTransientErrors(Supplier<Boolean> supplier) {
+    return () -> {
+      try {
+        return supplier.get();
+      } catch (NotFoundException | FailedPreconditionException e) {
+        return false;
+      }
+    };
   }
 }
