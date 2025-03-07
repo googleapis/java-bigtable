@@ -501,6 +501,7 @@ public class BigtableSinkConfig extends AbstractConfig {
 
     EnhancedBigtableStubSettings.Builder dataStubSettings = dataSettingsBuilder.stubSettings();
     dataStubSettings.mutateRowSettings().setRetrySettings(retrySettings);
+    dataStubSettings.checkAndMutateRowSettings().setRetrySettings(retrySettings);
     dataStubSettings.bulkMutateRowsSettings().setRetrySettings(retrySettings);
     dataStubSettings.readRowSettings().setRetrySettings(retrySettings);
     dataStubSettings.readRowsSettings().setRetrySettings(retrySettings);
