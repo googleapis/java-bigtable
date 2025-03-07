@@ -18,6 +18,7 @@ print_timestamp() {
 }
 
 do_prepare() {
+    terraform init
     terraform apply -auto-approve
     TERRAFORM_OUTPUT="$(terraform output -json)"
     KAFKA_CONNECT_DOCKER_REPO="$(echo "$TERRAFORM_OUTPUT" | jq -rc .kafka_connect_docker_registry_url.value)"

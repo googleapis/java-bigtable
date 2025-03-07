@@ -30,7 +30,7 @@ resource "google_bigtable_instance" "bigtable" {
   cluster {
     cluster_id   = "kafka-connect-bigtable-sink-test-cluster"
     num_nodes    = 1
-    storage_type = "HDD"
+    storage_type = "SSD"
     zone         = "europe-central2-a"
   }
 }
@@ -40,30 +40,32 @@ resource "google_bigtable_instance" "bigtable" {
 This section is optional, you can skip it if you want to use Application Default Credentials.
 
 Create a service account and grant it Bigtable Administrator (`roles/bigtable.admin`) permissions (such wide permissions are needed for table and column family auto creation).
+Download its key.
 
-##### Configure the integration tests to use the created instance
-Ensure that the sink's [pom.xml](../../pom.xml) does **not** contain the following section in Failsafe's `<configuration>` section:
-```xml
-<environmentVariables>
-	<GOOGLE_APPLICATION_CREDENTIALS>target/test-classes/fake_service_key.json</GOOGLE_APPLICATION_CREDENTIALS>
-	<BIGTABLE_EMULATOR_HOST>localhost:8086</BIGTABLE_EMULATOR_HOST>
-</environmentVariables>
-```
+##### Configure the permissions for integration tests
+Note that we provide the credentials not only to our sink, but also to Confluent's (in ConfluentCompatibilityIT).
 
 <!-- TODO: update this section when transitioning to kokoro -->
-Replace the following TODO values with you GCP project ID and Cloud Bigtable instance ID in `BaseIT#baseConnectorProps()` function:
+If you want to use Application Default Credentials, configure the machine appropriately (on a workstation, log in with `gcloud` into an account with Bigtable Administrator permissions to the instance created in one of the previous steps).
+
+Otherwise, you need to use service account's permissions.
+
+##### Configure the integration tests to use the created instance
+- Ensure that the sink's [pom.xml](../../pom.xml) does **not** contain `BIGTABLE_EMULATOR_HOST` variable in Failsafe's `configuration` section within `environmentVariables` subsection:
+- Ensure that `GOOGLE_APPLICATION_CREDENTIALS` in the same subsection points to the appropriate account's key.
+The code below shows how to use configured Application Default Credentials on a UNIX workstation.
+Alternatively, you could point it to [the service account key created before](#optional-create-service-account-with-required-permissions).
+```xml
+<environmentVariables>
+	<GOOGLE_APPLICATION_CREDENTIALS>${user.home}/.config/gcloud/application_default_credentials.json</GOOGLE_APPLICATION_CREDENTIALS>
+</environmentVariables>
+```
+<!-- TODO: update this section when transitioning to kokoro -->
+- Replace the following TODO values with you GCP project ID and Cloud Bigtable instance ID in `BaseIT#baseConnectorProps()` function:
 ```java
 result.put(GCP_PROJECT_ID_CONFIG, "todotodo");
 result.put(BIGTABLE_INSTANCE_ID_CONFIG, "todotodo");
 ```
-
-##### [optional] Configure the permissions for integration tests
-<!-- TODO: update this section when transitioning to kokoro -->
-If you want to use Application Default Credentials, configure the machine (on a workstation, log in with `gcloud` into an account with Bigtable Administrator permissions to the instance created in one of the previous steps).
-
-Otherwise, you need to use service account's permissions:
-- download a service account key.
-- put that key or path to it to the properties in `BaseIT#baseConnectorProps()` with a key defined in `BigtableSinkConfig`.
 
 #### Emulator
 Start the emulator using `gcloud` directly:

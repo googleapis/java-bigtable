@@ -169,7 +169,11 @@ A single test run consists of just running a load generator for a stretch of tim
 - `kubectl`
 - `jq`
 - `bash` + coreutils
-- `gcloud` (logged into the desired project)
+- `envsubst`
+- `docker`
+- `gcloud` (logged into the desired project, with Application Default Credentials configured)
+- `java` 11, 17, or 21
+- `maven`
 
 ### Preparation
 - Adjust variables such as project name and region in [`main.tf`](terraform/main.tf)
