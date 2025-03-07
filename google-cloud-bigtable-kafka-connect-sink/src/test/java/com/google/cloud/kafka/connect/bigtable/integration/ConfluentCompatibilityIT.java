@@ -169,10 +169,6 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
     connectorProps.put("confluent.license", "");
     connectorProps.put("confluent.topic.bootstrap.servers", connect.kafka().bootstrapServers());
     connectorProps.put("confluent.topic.replication.factor", "1");
-    // TODO: fix it when transitioning to kokoro.
-    connectorProps.put(
-        BigtableSinkConfig.GCP_CREDENTIALS_PATH_CONFIG,
-        Objects.requireNonNull(System.getenv("GOOGLE_APPLICATION_CREDENTIALS")));
     return startConnector(connectorProps);
   }
 

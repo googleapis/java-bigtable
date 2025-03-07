@@ -29,11 +29,16 @@ import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.util.TestId;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.storage.StringConverter;
 
 public abstract class BaseIT {
+  // The Confluent's sink cannot use Application Default Credentials. We set the credentials
+  // explicitly (rather than use ADC) to avoid having a special case for ConfluentCompatibilityIT.
+  public String CREDENTIALS_PATH_ENV_VAR = "GOOGLE_APPLICATION_CREDENTIALS";
+
   public int numTasks = 1;
   public int maxKafkaMessageSizeBytes = 300 * 1024 * 1024;
 
@@ -58,6 +63,10 @@ public abstract class BaseIT {
     // TODO: get it from environment variables after migrating to kokoro.
     result.put(GCP_PROJECT_ID_CONFIG, "todotodo");
     result.put(BIGTABLE_INSTANCE_ID_CONFIG, "todotodo");
+    // TODO: fix it when transitioning to kokoro.
+    result.put(
+        BigtableSinkConfig.GCP_CREDENTIALS_PATH_CONFIG,
+        Objects.requireNonNull(System.getenv(CREDENTIALS_PATH_ENV_VAR)));
 
     return result;
   }
