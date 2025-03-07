@@ -49,7 +49,7 @@ public class VersionIT extends BaseKafkaConnectIT {
     PluginInfo[] pluginInfos = mapper.readValue(response.body(), PluginInfo[].class);
     PluginInfo pluginInfo =
         Arrays.stream(pluginInfos)
-            .filter(i -> i.className().equals(BigtableSinkConnector.class.getCanonicalName()))
+            .filter(i -> i.className().equals(BigtableSinkConnector.class.getName()))
             .findFirst()
             .get();
     assertNotEquals(PackageMetadata.UNKNOWN_VERSION, pluginInfo.version());

@@ -40,7 +40,7 @@ public abstract class BaseIT {
   public Map<String, String> baseConnectorProps() {
     Map<String, String> result = new HashMap<>();
 
-    result.put(CONNECTOR_CLASS_CONFIG, BigtableSinkConnector.class.getCanonicalName());
+    result.put(CONNECTOR_CLASS_CONFIG, BigtableSinkConnector.class.getName());
     result.put(TASKS_MAX_CONFIG, Integer.toString(numTasks));
     result.put(KEY_CONVERTER_CLASS_CONFIG, StringConverter.class.getName());
     result.put(VALUE_CONVERTER_CLASS_CONFIG, StringConverter.class.getName());
