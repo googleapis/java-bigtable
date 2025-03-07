@@ -129,6 +129,6 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     waitUntilBigtableContainsNumberOfRows(testId, expectedRowsInBigtable);
 
     connect.deleteConnector(testId);
-    connect.assertions().assertConnectorAndTasksAreNotRunning(testId, "Connector deletion timeout");
+    connect.assertions().assertConnectorDoesNotExist(testId, "Connector deletion timeout");
   }
 }

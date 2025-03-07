@@ -11,18 +11,24 @@
         Google Bigtable sink connector for Apache Kafka Connect
     </description>
     <properties>
-        <google.cloud.bom.version>26.54.0</google.cloud.bom.version>
-        <kafka.version>3.6.1</kafka.version>
+        <google.cloud.bom.version>26.53.0</google.cloud.bom.version>
+        <google.bigtable.version>2.52.0</google.bigtable.version>
+        <kafka.version>3.7.1</kafka.version>
         <kafka.scala.version>2.12</kafka.scala.version>
         <hbase.version>2.6.1</hbase.version>
-        <slf4j.version>2.0.16</slf4j.version>
-        <jackson.version>2.14.2</jackson.version>
+        <slf4j.api.version>1.7.33</slf4j.api.version>
+        <slf4j.reload4j.version>1.7.36</slf4j.reload4j.version>
+        <jackson.version>2.12.7</jackson.version>
 
-        <mockito.version>5.14.2</mockito.version>
-        <junit.version>4.13.2</junit.version>
-        <!-- Needed by the integration test helpers. -->
+        <mockito.version>5.15.2</mockito.version>
+        <junit.version>4.8.2</junit.version>
+        <!--
+            Needed by the integration test helpers, which are provided as test-jars with test-scoped dependencies.
+            Maven does not resolve test-scoped transitive dependencies automatically.
+            See https://maven.apache.org/plugins/maven-jar-plugin/examples/create-test-jar.html#the-easy-way for details.
+        -->
         <junit.jupiter.version>5.11.3</junit.jupiter.version>
-        <confluent.version>7.6.0</confluent.version>
+        <confluent.version>7.7.0</confluent.version>
         <spotless.version>2.43.0</spotless.version>
         <google.java.format.version>1.19.2</google.java.format.version>
         <javadoc.version>3.11.2</javadoc.version>
@@ -69,10 +75,12 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-bigtable</artifactId>
+            <version>${google.bigtable.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hbase</groupId>
@@ -82,12 +90,12 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.version}</version>
+            <version>${slf4j.api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-reload4j</artifactId>
-            <version>${slf4j.version}</version>
+            <version>${slf4j.reload4j.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
