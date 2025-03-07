@@ -23,7 +23,7 @@ package com.google.bigtable.v2;
  *
  *
  * <pre>
- * Batch of serialized ProtoRows.
+ * A part of a serialized `ProtoRows` message.
  * </pre>
  *
  * Protobuf type {@code google.bigtable.v2.ProtoRowsBatch}
@@ -69,8 +69,11 @@ public final class ProtoRowsBatch extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Merge partial results by concatenating these bytes, then parsing the
-   * overall value as a `ProtoRows` message.
+   * Part of a serialized `ProtoRows` message.
+   * A complete, parseable ProtoRows message is constructed by
+   * concatenating `batch_data` from multiple `ProtoRowsBatch` messages. The
+   * `PartialResultSet` that contains the last part has `complete_batch` set to
+   * `true`.
    * </pre>
    *
    * <code>bytes batch_data = 1;</code>
@@ -243,7 +246,7 @@ public final class ProtoRowsBatch extends com.google.protobuf.GeneratedMessageV3
    *
    *
    * <pre>
-   * Batch of serialized ProtoRows.
+   * A part of a serialized `ProtoRows` message.
    * </pre>
    *
    * Protobuf type {@code google.bigtable.v2.ProtoRowsBatch}
@@ -424,8 +427,11 @@ public final class ProtoRowsBatch extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Merge partial results by concatenating these bytes, then parsing the
-     * overall value as a `ProtoRows` message.
+     * Part of a serialized `ProtoRows` message.
+     * A complete, parseable ProtoRows message is constructed by
+     * concatenating `batch_data` from multiple `ProtoRowsBatch` messages. The
+     * `PartialResultSet` that contains the last part has `complete_batch` set to
+     * `true`.
      * </pre>
      *
      * <code>bytes batch_data = 1;</code>
@@ -440,8 +446,11 @@ public final class ProtoRowsBatch extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Merge partial results by concatenating these bytes, then parsing the
-     * overall value as a `ProtoRows` message.
+     * Part of a serialized `ProtoRows` message.
+     * A complete, parseable ProtoRows message is constructed by
+     * concatenating `batch_data` from multiple `ProtoRowsBatch` messages. The
+     * `PartialResultSet` that contains the last part has `complete_batch` set to
+     * `true`.
      * </pre>
      *
      * <code>bytes batch_data = 1;</code>
@@ -462,8 +471,11 @@ public final class ProtoRowsBatch extends com.google.protobuf.GeneratedMessageV3
      *
      *
      * <pre>
-     * Merge partial results by concatenating these bytes, then parsing the
-     * overall value as a `ProtoRows` message.
+     * Part of a serialized `ProtoRows` message.
+     * A complete, parseable ProtoRows message is constructed by
+     * concatenating `batch_data` from multiple `ProtoRowsBatch` messages. The
+     * `PartialResultSet` that contains the last part has `complete_batch` set to
+     * `true`.
      * </pre>
      *
      * <code>bytes batch_data = 1;</code>
