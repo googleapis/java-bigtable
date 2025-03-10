@@ -18,11 +18,14 @@ package com.google.cloud.kafka.connect.bigtable;
 import static com.google.cloud.kafka.connect.bigtable.config.BigtableSinkTaskConfig.TASK_ID_CONFIG;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.cloud.kafka.connect.bigtable.util.BasicPropertiesFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
+import org.apache.kafka.connect.sink.SinkConnector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -80,5 +83,11 @@ public class BigtableSinkConnectorTest {
   @Test
   public void testVersion() {
     assertNotNull(connector.version());
+  }
+
+  @Test
+  public void testServiceLoader() {
+    ServiceLoader<SinkConnector> serviceLoader = ServiceLoader.load(SinkConnector.class);
+    assertTrue(serviceLoader.stream().anyMatch(x -> BigtableSinkConnector.class.equals(x.type())));
   }
 }
