@@ -24,7 +24,7 @@ package com.google.cloud.kafka.connect.bigtable.mapping;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertThrows;
 
 import com.google.cloud.kafka.connect.bigtable.util.JsonConverterFactory;
 import java.io.ByteArrayOutputStream;

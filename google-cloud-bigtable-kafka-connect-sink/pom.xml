@@ -21,7 +21,7 @@
         <jackson.version>2.12.7</jackson.version>
 
         <mockito.version>5.15.2</mockito.version>
-        <junit.version>4.8.2</junit.version>
+        <junit.version>4.13.2</junit.version>
         <!--
             Needed by the integration test helpers, which are provided as test-jars with test-scoped dependencies.
             Maven does not resolve test-scoped transitive dependencies automatically.
