@@ -155,8 +155,9 @@ public final class BulkMutation implements Serializable, Cloneable {
     String tableName = request.getTableName();
     String authorizedViewName = request.getAuthorizedViewName();
 
+    // Materialized Views are read only entities.
     BulkMutation bulkMutation =
-        BulkMutation.create(NameUtil.extractTargetId(tableName, authorizedViewName));
+        BulkMutation.create(NameUtil.extractTargetId(tableName, authorizedViewName, ""));
     bulkMutation.builder = request.toBuilder();
 
     return bulkMutation;

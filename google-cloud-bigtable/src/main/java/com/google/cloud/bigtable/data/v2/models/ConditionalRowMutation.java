@@ -177,9 +177,10 @@ public final class ConditionalRowMutation implements Serializable {
     String tableName = request.getTableName();
     String authorizedViewName = request.getAuthorizedViewName();
 
+    // Materialized Views are read only entities.
     ConditionalRowMutation rowMutation =
         ConditionalRowMutation.create(
-            NameUtil.extractTargetId(tableName, authorizedViewName), request.getRowKey());
+            NameUtil.extractTargetId(tableName, authorizedViewName, ""), request.getRowKey());
     rowMutation.builder = request.toBuilder();
 
     return rowMutation;
