@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.cloud.bigtable.data.v2.models.AuthorizedViewId;
+import com.google.cloud.bigtable.data.v2.models.MaterializedViewId;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import org.junit.Rule;
 import org.junit.Test;
@@ -106,19 +107,36 @@ public class NameUtilTest {
     String testTableName = "projects/my-project/instances/my-instance/tables/my-table";
     String testAuthorizedViewName =
         "projects/my-project/instances/my-instance/tables/my-table/authorizedViews/my-authorized-view";
+    String testMaterializedViewName =
+        "projects/my-project/instances/my-instance/materializedViews/my-materialized-view";
     assertThat(
-            com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(testTableName, ""))
+            com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+                testTableName, "", ""))
         .isEqualTo(TableId.of("my-table"));
     assertThat(
             com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
-                "", testAuthorizedViewName))
+                "", testAuthorizedViewName, ""))
         .isEqualTo(AuthorizedViewId.of("my-table", "my-authorized-view"));
+    assertThat(
+            com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+                "", "", testMaterializedViewName))
+        .isEqualTo(MaterializedViewId.of("my-materialized-view"));
 
+    // No name is provided
     exception.expect(IllegalArgumentException.class);
-    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId("", "");
+    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId("", "", "");
+
+    // Multiple names are provided
+    exception.expect(IllegalArgumentException.class);
+    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+        testTableName, testAuthorizedViewName, "");
 
     exception.expect(IllegalArgumentException.class);
     com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
-        testTableName, testAuthorizedViewName);
+        testTableName, "", testMaterializedViewName);
+
+    exception.expect(IllegalArgumentException.class);
+    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+        "", testAuthorizedViewName, testMaterializedViewName);
   }
 }

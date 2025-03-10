@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.internal;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.data.v2.models.AuthorizedViewId;
+import com.google.cloud.bigtable.data.v2.models.MaterializedViewId;
 import com.google.cloud.bigtable.data.v2.models.TableId;
 import com.google.cloud.bigtable.data.v2.models.TargetId;
 import java.util.regex.Matcher;
@@ -35,6 +36,8 @@ public class NameUtil {
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)");
   private static final Pattern AUTHORIZED_VIEW_PATTERN =
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/authorizedViews/([^/]+)");
+  private static final Pattern MATERIALIZED_VIEW_PATTERN =
+      Pattern.compile("projects/([^/]+)/instances/([^/]+)/materializedView/([^/]+)");
 
   public static String formatInstanceName(@Nonnull String projectId, @Nonnull String instanceId) {
     return "projects/" + projectId + "/instances/" + instanceId;
@@ -51,6 +54,11 @@ public class NameUtil {
       @Nonnull String tableId,
       @Nonnull String authorizedViewId) {
     return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + authorizedViewId;
+  }
+
+  public static String formatMaterializedViewName(
+      @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String materializedViewId) {
+    return formatInstanceName(projectId, instanceId) + "/materializedViews/" + materializedViewId;
   }
 
   public static String extractTableIdFromTableName(@Nonnull String fullTableName) {
@@ -88,31 +96,64 @@ public class NameUtil {
     return matcher.group(4);
   }
 
-  /** A helper to convert fully qualified tableName and authorizedViewName to a {@link TargetId} */
-  public static TargetId extractTargetId(
-      @Nonnull String tableName, @Nonnull String authorizedViewName) {
-    if (tableName.isEmpty() && authorizedViewName.isEmpty()) {
+  public static String extractMaterializedViewIdFromMaterializedViewName(
+      @Nonnull String fullMaterializedViewName) {
+    Matcher matcher = MATERIALIZED_VIEW_PATTERN.matcher(fullMaterializedViewName);
+    if (!matcher.matches()) {
       throw new IllegalArgumentException(
-          "Either table name or authorized view name must be specified. Table name: "
-              + tableName
-              + ", authorized view name: "
-              + authorizedViewName);
+          "Invalid materialized view name: " + fullMaterializedViewName);
     }
-    if (!tableName.isEmpty() && !authorizedViewName.isEmpty()) {
+    return matcher.group(3);
+  }
+
+  /**
+   * A helper to convert fully qualified tableName, authorizedViewName and materializedViewName to a
+   * {@link TargetId}
+   */
+  public static TargetId extractTargetId(
+      @Nonnull String tableName,
+      @Nonnull String authorizedViewName,
+      @Nonnull String materializedViewName) {
+    if (tableName.isEmpty() && authorizedViewName.isEmpty() && materializedViewName.isEmpty()) {
       throw new IllegalArgumentException(
-          "Table name and authorized view name cannot be specified at the same time. Table name: "
+          "Either table name, authorized view name or materialized view name must be specified. Table name: "
               + tableName
               + ", authorized view name: "
-              + authorizedViewName);
+              + authorizedViewName
+              + ", materialized view name: "
+              + materializedViewName);
+    }
+    int names = 0;
+    if (!tableName.isEmpty()) {
+      ++names;
+    }
+    if (!authorizedViewName.isEmpty()) {
+      ++names;
+    }
+    if (!materializedViewName.isEmpty()) {
+      ++names;
+    }
+    if (names > 1) {
+      throw new IllegalArgumentException(
+          "Only one of table name, authorized view name and materialized view name can be specified at the same time. Table name: "
+              + tableName
+              + ", authorized view name: "
+              + authorizedViewName
+              + ", materialized view name: "
+              + materializedViewName);
     }
 
     if (!tableName.isEmpty()) {
       String tableId = extractTableIdFromTableName(tableName);
       return TableId.of(tableId);
-    } else {
+    } else if (!authorizedViewName.isEmpty()) {
       String tableId = extractTableIdFromAuthorizedViewName(authorizedViewName);
       String authorizedViewId = extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
       return AuthorizedViewId.of(tableId, authorizedViewId);
+    } else {
+      String materializedViewId =
+          extractMaterializedViewIdFromMaterializedViewName(materializedViewName);
+      return MaterializedViewId.of(materializedViewId);
     }
   }
 }
