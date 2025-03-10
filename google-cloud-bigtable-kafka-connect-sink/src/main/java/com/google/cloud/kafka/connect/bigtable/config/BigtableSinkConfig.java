@@ -458,9 +458,9 @@ public class BigtableSinkConfig extends AbstractConfig {
     adminStubSettings
         .modifyColumnFamiliesSettings()
         .setRetrySettings(adminApiWriteRetrySettings)
-        // Retry createTable() for status codes other admin operations retry by default as
-        // seen in BigtableTableAdminStubSettings and for FAILED_PRECONDITION which is
-        // returned when concurrent column family creation is detected.
+        // Retry modifyColumnFamilies() for status codes other admin operations retry by
+        // default as seen in BigtableTableAdminStubSettings and for FAILED_PRECONDITION,
+        // which is returned when concurrent column family creation is detected.
         .setRetryableCodes(
             StatusCode.Code.UNAVAILABLE,
             StatusCode.Code.DEADLINE_EXCEEDED,
