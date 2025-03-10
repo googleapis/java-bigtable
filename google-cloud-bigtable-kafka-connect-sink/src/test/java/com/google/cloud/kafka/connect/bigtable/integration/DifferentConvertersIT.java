@@ -15,15 +15,14 @@
  */
 package com.google.cloud.kafka.connect.bigtable.integration;
 
-import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import io.confluent.connect.avro.AvroConverter;
 import io.confluent.connect.json.JsonSchemaConverter;
-import io.confluent.connect.protobuf.ProtobufConverter;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Supplier;
 import org.apache.kafka.connect.json.JsonConverter;
 import org.apache.kafka.connect.json.JsonConverterConfig;
@@ -44,7 +43,9 @@ public class DifferentConvertersIT extends BaseDataGeneratorIT {
     return Arrays.asList(
         new Object[][] {
           {(Supplier<Converter>) AvroConverter::new, Map.of(), true},
-          {(Supplier<Converter>) ProtobufConverter::new, Map.of(), true},
+          // TODO: uncomment once it starts using java-protobuf 4.x. Broken due to a dependency
+          // version mismatch for now.
+          // {(Supplier<Converter>) ProtobufConverter::new, Map.of(), true},
           {(Supplier<Converter>) JsonSchemaConverter::new, Map.of(), true},
           {
             (Supplier<Converter>) JsonConverter::new,
@@ -69,7 +70,7 @@ public class DifferentConvertersIT extends BaseDataGeneratorIT {
   }
 
   @Test
-  public void testConverter() throws InterruptedException {
+  public void testConverter() throws InterruptedException, ExecutionException {
     Map<String, String> converterProps = new HashMap<>(converterBaseConfig);
     if (converterUsesSchemaRegistry) {
       converterProps.put(
@@ -81,7 +82,7 @@ public class DifferentConvertersIT extends BaseDataGeneratorIT {
     Converter valueConverter = converterConstructor.get();
     valueConverter.configure(converterProps, false);
 
-    Map<String, String> connectorProps = connectorProps();
+    Map<String, String> connectorProps = baseConnectorProps();
     for (Map.Entry<String, String> prop : converterProps.entrySet()) {
       connectorProps.put(
           ConnectorConfig.KEY_CONVERTER_CLASS_CONFIG + "." + prop.getKey(), prop.getValue());
@@ -93,18 +94,12 @@ public class DifferentConvertersIT extends BaseDataGeneratorIT {
     connectorProps.put(
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, valueConverter.getClass().getName());
     String topic = startSingleTopicConnector(connectorProps);
+    createTablesAndColumnFamilies(Map.of(topic, valueFields(topic)));
     connect
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(topic, numTasks, "Connector start timeout");
     populateKafkaTopic(topic, numRecords, keyConverter, valueConverter);
 
     waitUntilBigtableContainsNumberOfRows(topic, numRecords);
-  }
-
-  private Map<String, String> connectorProps() {
-    Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
-    return props;
   }
 }

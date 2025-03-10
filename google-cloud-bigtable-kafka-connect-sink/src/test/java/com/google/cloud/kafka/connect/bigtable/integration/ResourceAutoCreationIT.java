@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.data.v2.models.Range;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
@@ -63,7 +62,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
   private static final String COLUMN_QUALIFIER = "cq";
 
   @Test
-  public void testDisabledResourceAutoCreation() throws InterruptedException {
+  public void testDisabledResourceAutoCreation() throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
@@ -97,7 +96,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     assertConnectorAndAllTasksAreRunning(testId);
 
     // With the table and column family created.
-    bigtableAdmin.createTable(CreateTableRequest.of(testId).addFamily(COLUMN_FAMILY1));
+    createTablesAndColumnFamilies(Map.of(testId, Set.of(COLUMN_FAMILY1)));
     connect.kafka().produce(testId, KEY2, serializedValue1);
     waitUntilBigtableContainsNumberOfRows(testId, 1);
     assertTrue(
@@ -152,7 +151,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
 
   @Test
   public void testTableAutoCreationDisabledColumnFamilyAutoCreationEnabled()
-      throws InterruptedException {
+      throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
     configureDlq(props, dlqTopic);
@@ -170,7 +169,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     connect.kafka().produce(testId, KEY1, value);
     assertSingleDlqEntry(dlqTopic, KEY1, value, null);
 
-    bigtableAdmin.createTable(CreateTableRequest.of(testId));
+    createTablesAndColumnFamilies(Map.of(testId, Set.of()));
     assertTrue(bigtableAdmin.getTable(testId).getColumnFamilies().isEmpty());
     connect.kafka().produce(testId, KEY2, value);
     waitUntilBigtableContainsNumberOfRows(testId, 1);

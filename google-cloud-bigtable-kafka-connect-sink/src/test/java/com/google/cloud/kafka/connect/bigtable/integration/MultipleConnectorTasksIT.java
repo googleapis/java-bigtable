@@ -17,12 +17,13 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 
 import static org.junit.Assert.assertEquals;
 
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.cloud.kafka.connect.bigtable.config.InsertMode;
 import io.confluent.connect.avro.AvroConverter;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
 import org.apache.kafka.connect.storage.Converter;
 import org.junit.Test;
@@ -35,7 +36,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
   // to a too low value and retries of table/column family creation exhausted the quota that should
   // be used for creation of different column families.
   @Test
-  public void testMultipleTasks() throws InterruptedException {
+  public void testMultipleTasks() throws InterruptedException, ExecutionException {
     numRecords = 1000L;
     numTasks = 10;
 
@@ -49,8 +50,6 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     valueConverter.configure(converterProps, false);
 
     Map<String, String> connectorProps = baseConnectorProps();
-    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     connectorProps.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
 
     for (Map.Entry<String, String> prop : converterProps.entrySet()) {
@@ -65,6 +64,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
         ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, valueConverter.getClass().getName());
 
     String testId = startSingleTopicConnector(connectorProps);
+    createTablesAndColumnFamilies(Map.of(testId, valueFields(testId)));
     connect
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
@@ -75,7 +75,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
   }
 
   @Test
-  public void testRestartPauseStop() throws InterruptedException {
+  public void testRestartPauseStop() throws InterruptedException, ExecutionException {
     numTasks = 10;
     int expectedRowsInBigtable = 0;
     String defaultColumnFamily = "default";
@@ -83,7 +83,7 @@ public class MultipleConnectorTasksIT extends BaseDataGeneratorIT {
     Map<String, String> connectorProps = baseConnectorProps();
     connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, defaultColumnFamily);
     String testId = startSingleTopicConnector(connectorProps);
-    bigtableAdmin.createTable(CreateTableRequest.of(testId).addFamily(defaultColumnFamily));
+    createTablesAndColumnFamilies(Map.of(testId, Set.of(defaultColumnFamily)));
 
     connect
         .assertions()

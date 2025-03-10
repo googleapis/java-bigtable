@@ -26,7 +26,6 @@ import static org.apache.kafka.connect.runtime.ConnectorConfig.CONNECTOR_CLASS_C
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
@@ -44,9 +43,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import kafka.common.MessageReader;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -101,13 +103,15 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
   }
 
   @Test
-  public void testCasesUsingSchemaRegistry() throws InterruptedException, IOException {
+  public void testCasesUsingSchemaRegistry()
+      throws InterruptedException, IOException, ExecutionException {
     String confluentTestId = startConfluentConnector();
     String googleTestId = startThisConnector(confluentTestId);
     assertNotEquals(confluentTestId, googleTestId);
-
-    bigtableAdmin.createTable(CreateTableRequest.of(confluentTestId));
-    bigtableAdmin.createTable(CreateTableRequest.of(googleTestId));
+    createTablesAndColumnFamilies(
+        Map.of(
+            confluentTestId, getNeededColumnFamilies(confluentTestId),
+            googleTestId, getNeededColumnFamilies(confluentTestId)));
 
     populateTopic(confluentTestId);
     populateTopic(googleTestId);
@@ -191,8 +195,6 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
             + "."
             + AbstractKafkaSchemaSerDeConfig.SCHEMA_REGISTRY_URL_CONFIG,
         schemaRegistry.schemaRegistryUrl());
-    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "false");
-    connectorProps.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     connectorProps.put(BigtableSinkConfig.ROW_KEY_DELIMITER_CONFIG, "#");
     String topic = startSingleTopicConnector(connectorProps);
     connect
@@ -235,6 +237,16 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
       }
       message = messageReader.readMessage();
     }
+  }
+
+  public Set<String> getNeededColumnFamilies(String defaultColumnFamily) throws IOException {
+    return Stream.concat(
+            Stream.of(defaultColumnFamily),
+            Arrays.stream(
+                    readStringResource(getTestCaseDir() + "/column-families.strings").split("\n"))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty()))
+        .collect(Collectors.toSet());
   }
 
   private static String readStringResource(String resourceName) throws IOException {

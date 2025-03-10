@@ -27,6 +27,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import org.apache.kafka.connect.data.Date;
@@ -40,6 +41,14 @@ import org.apache.kafka.connect.data.Timestamp;
 import org.apache.kafka.connect.storage.Converter;
 
 public class BaseDataGeneratorIT extends BaseKafkaConnectBigtableSchemaRegistryIT {
+  private static final String FIELD_STRING = "f1";
+  private static final String FIELD_BOOL = "f2";
+  private static final String FIELD_FLOAT = "f3";
+  private static final String FIELD_BYTES = "bytes_field";
+  private static final String FIELD_NESTED = "nested_field";
+  private static final String FIELD_PRIMITIVES = "primitives_field";
+  private static final String FIELD_LOGICALS = "logicals_field";
+  private static final String FIELD_ARRAY = "array_field";
   private static final Schema SUB_STRUCT_SCHEMA =
       SchemaBuilder.struct()
           .field("ssf1", Schema.INT64_SCHEMA)
@@ -74,15 +83,29 @@ public class BaseDataGeneratorIT extends BaseKafkaConnectBigtableSchemaRegistryI
   private static final Schema VALUE_SCHEMA =
       SchemaBuilder.struct()
           .optional()
-          .field("f1", Schema.STRING_SCHEMA)
-          .field("f2", Schema.BOOLEAN_SCHEMA)
-          .field("f3", Schema.FLOAT64_SCHEMA)
-          .field("bytes_field", Schema.OPTIONAL_BYTES_SCHEMA)
-          .field("nested_field", NESTED_STRUCT_SCHEMA)
-          .field("primitives_field", PRIMITIVES_SCHEMA)
-          .field("logicals_field", LOGICALS_SCHEMA)
-          .field("array_field", ARRAY_SCHEMA)
+          .field(FIELD_STRING, Schema.STRING_SCHEMA)
+          .field(FIELD_BOOL, Schema.BOOLEAN_SCHEMA)
+          .field(FIELD_FLOAT, Schema.FLOAT64_SCHEMA)
+          .field(FIELD_BYTES, Schema.OPTIONAL_BYTES_SCHEMA)
+          .field(FIELD_NESTED, NESTED_STRUCT_SCHEMA)
+          .field(FIELD_PRIMITIVES, PRIMITIVES_SCHEMA)
+          .field(FIELD_LOGICALS, LOGICALS_SCHEMA)
+          .field(FIELD_ARRAY, ARRAY_SCHEMA)
           .build();
+
+  public static Set<String> valueFields(String defaultColumnFamily) {
+    return Set.of(
+        FIELD_STRING,
+        FIELD_BOOL,
+        FIELD_FLOAT,
+        FIELD_BYTES,
+        FIELD_NESTED,
+        FIELD_PRIMITIVES,
+        FIELD_LOGICALS,
+        FIELD_ARRAY,
+        defaultColumnFamily);
+  }
+
   public long numRecords = 100L;
 
   public void populateKafkaTopic(

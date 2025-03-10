@@ -20,11 +20,17 @@ import static org.apache.kafka.test.TestUtils.waitForCondition;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.models.Query;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.protobuf.ByteString;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.kafka.test.TestCondition;
@@ -56,6 +62,27 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
     }
     if (bigtableAdmin != null) {
       bigtableAdmin.close();
+    }
+  }
+
+  public void createTablesAndColumnFamilies(String testId)
+      throws ExecutionException, InterruptedException {
+    createTablesAndColumnFamilies(Map.of(testId, Set.of(testId)));
+  }
+
+  public void createTablesAndColumnFamilies(Map<String, Set<String>> tablesAndColumnFamilies)
+      throws ExecutionException, InterruptedException {
+    List<Future<Table>> futures =
+        tablesAndColumnFamilies.entrySet().parallelStream()
+            .map(
+                e -> {
+                  CreateTableRequest ctr = CreateTableRequest.of(e.getKey());
+                  e.getValue().forEach(ctr::addFamily);
+                  return bigtableAdmin.createTableAsync(ctr);
+                })
+            .collect(Collectors.toList());
+    for (Future<Table> f : futures) {
+      f.get();
     }
   }
 

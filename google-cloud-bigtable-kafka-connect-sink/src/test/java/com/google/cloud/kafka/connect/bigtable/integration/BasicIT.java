@@ -20,11 +20,11 @@ import static org.junit.Assert.assertEquals;
 
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
-import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,11 +32,10 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class BasicIT extends BaseKafkaConnectBigtableIT {
   @Test
-  public void testSimpleWrite() throws InterruptedException {
+  public void testSimpleWrite() throws InterruptedException, ExecutionException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     String topic = startSingleTopicConnector(props);
+    createTablesAndColumnFamilies(topic);
 
     String key = "key";
     ByteString keyBytes = ByteString.copyFrom(key.getBytes(StandardCharsets.UTF_8));

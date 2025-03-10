@@ -26,6 +26,7 @@ import com.google.protobuf.ByteString;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,15 +51,14 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
       ByteString.copyFrom(VALUE3.getBytes(StandardCharsets.UTF_8));
 
   @Test
-  public void testInsert() throws InterruptedException {
+  public void testInsert() throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());
     props.put(BigtableSinkConfig.ERROR_MODE_CONFIG, BigtableErrorMode.IGNORE.name());
     configureDlq(props, dlqTopic);
     String testId = startSingleTopicConnector(props);
+    createTablesAndColumnFamilies(testId);
 
     connect.kafka().produce(testId, KEY1, VALUE1);
     waitUntilBigtableContainsNumberOfRows(testId, 1);
@@ -79,12 +79,11 @@ public class InsertUpsertIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testUpsert() throws InterruptedException {
+  public void testUpsert() throws InterruptedException, ExecutionException {
     Map<String, String> props = baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     String testId = startSingleTopicConnector(props);
+    createTablesAndColumnFamilies(testId);
 
     connect.kafka().produce(testId, KEY1, VALUE1);
     waitUntilBigtableContainsNumberOfRows(testId, 1);

@@ -21,7 +21,6 @@ import static com.google.cloud.kafka.connect.bigtable.util.NestedNullStructFacto
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
@@ -36,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.SchemaAndValue;
@@ -74,10 +74,11 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testIgnoreMode() throws InterruptedException {
+  public void testIgnoreMode() throws InterruptedException, ExecutionException {
     Map<String, String> connectorProps = connectorProps();
     connectorProps.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.IGNORE.name());
     String testId = startSingleTopicConnector(connectorProps);
+    createTablesAndColumnFamilies(Map.of(testId, Set.of(testId, NESTED_NULL_STRUCT_FIELD_NAME)));
     connect
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
@@ -125,7 +126,7 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testWriteMode() throws InterruptedException {
+  public void testWriteMode() throws InterruptedException, ExecutionException {
     String defaultColumnFamily = "family";
     String defaultColumnQualifier = "qualifier";
     ByteString defaultColumnQualifierBytes =
@@ -136,6 +137,8 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
     connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_FAMILY_CONFIG, defaultColumnFamily);
     connectorProps.put(BigtableSinkConfig.DEFAULT_COLUMN_QUALIFIER_CONFIG, defaultColumnQualifier);
     String testId = startSingleTopicConnector(connectorProps);
+    createTablesAndColumnFamilies(
+        Map.of(testId, Set.of(testId, defaultColumnFamily, NESTED_NULL_STRUCT_FIELD_NAME)));
     connect
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
@@ -191,21 +194,22 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testDeleteMode() throws InterruptedException {
+  public void testDeleteMode() throws InterruptedException, ExecutionException {
+    String columnFamily1 = "cf1";
+    String columnFamily2 = "cf2";
+    String columnQualifier1 = "cq1";
+    String columnQualifier2 = "cq2";
     Map<String, String> connectorProps = connectorProps();
     connectorProps.put(BigtableSinkConfig.VALUE_NULL_MODE_CONFIG, NullValueMode.DELETE.name());
     connectorProps.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.UPSERT.name());
     String testId = startSingleTopicConnector(connectorProps);
+    createTablesAndColumnFamilies(
+        Map.of(
+            testId, Set.of(testId, NESTED_NULL_STRUCT_FIELD_NAME, columnFamily1, columnFamily2)));
     connect
         .assertions()
         .assertConnectorAndExactlyNumTasksAreRunning(testId, numTasks, "Connector start timeout");
 
-    String columnFamily1 = "cf1";
-    String columnFamily2 = "cf2";
-    bigtableAdmin.createTable(
-        CreateTableRequest.of(testId).addFamily(columnFamily1).addFamily(columnFamily2));
-    String columnQualifier1 = "cq1";
-    String columnQualifier2 = "cq2";
     ByteString columnQualifierBytes1 =
         ByteString.copyFrom(columnQualifier1.getBytes(StandardCharsets.UTF_8));
     ByteString columnQualifierBytes2 =
@@ -327,8 +331,6 @@ public class NullHandlingIT extends BaseKafkaConnectBigtableIT {
 
   private Map<String, String> connectorProps() {
     Map<String, String> props = super.baseConnectorProps();
-    props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, "true");
-    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, "true");
     // We use JsonConverter since it doesn't care about schemas, so we may use differently-shaped
     // data within a single test.
     props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
