@@ -304,7 +304,8 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
     String authorizedViewName = request.getAuthorizedViewName();
 
     return RowMutation.create(
-        NameUtil.extractTargetId(tableName, authorizedViewName),
+        // Materialized Views are read only entities.
+        NameUtil.extractTargetId(tableName, authorizedViewName, ""),
         request.getRowKey(),
         Mutation.fromProto(request.getMutationsList()));
   }
