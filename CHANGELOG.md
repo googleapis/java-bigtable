@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.55.0](https://github.com/googleapis/java-bigtable/compare/v2.54.0...v2.55.0) (2025-03-10)
+
+
+### Features
+
+* Add MaterializedViews and LogicalViews APIs ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+* Publish row_key_schema fields in table proto and relevant admin APIs to setup a table with a row_key_schema ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+
+
+### Bug Fixes
+
+* **deps:** Update the Java code generator (gapic-generator-java) to 2.54.0 ([91e4369](https://github.com/googleapis/java-bigtable/commit/91e4369d280c09fd2d1b4b5dd88809b6da01b0f8))
+
+
+### Documentation
+
+* Fixed formatting of resource path strings ([7340527](https://github.com/googleapis/java-bigtable/commit/73405272c3fc77ca81c1df7cce1b8d889d4a96c4))
+
 ## [2.54.0](https://github.com/googleapis/java-bigtable/compare/v2.53.0...v2.54.0) (2025-02-28)
 
 
