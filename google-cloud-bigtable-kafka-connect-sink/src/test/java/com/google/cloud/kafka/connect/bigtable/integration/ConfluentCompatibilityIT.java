@@ -32,6 +32,7 @@ import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
 import com.google.protobuf.ByteString;
 import io.confluent.connect.avro.AvroConverter;
 import io.confluent.kafka.formatter.AvroMessageReader;
+import io.confluent.kafka.formatter.SchemaMessageReader;
 import io.confluent.kafka.serializers.AbstractKafkaSchemaSerDeConfig;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +50,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import kafka.common.MessageReader;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.connect.runtime.ConnectorConfig;
@@ -224,7 +224,7 @@ public class ConfluentCompatibilityIT extends BaseKafkaConnectBigtableSchemaRegi
     messageReaderProps.put("key.schema", keySchema);
     messageReaderProps.put("value.schema", valueSchema);
     InputStream dataStream = getClassLoader().getResourceAsStream(getTestCaseDir() + "/data.json");
-    MessageReader messageReader = new AvroMessageReader();
+    SchemaMessageReader<Object> messageReader = new AvroMessageReader();
     messageReader.init(dataStream, messageReaderProps);
 
     Producer<byte[], byte[]> kafkaProducer = getKafkaProducer();

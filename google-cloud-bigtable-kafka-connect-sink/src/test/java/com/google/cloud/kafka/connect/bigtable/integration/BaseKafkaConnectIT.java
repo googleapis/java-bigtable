@@ -104,7 +104,7 @@ public abstract class BaseKafkaConnectIT extends BaseIT {
             .numBrokers(numBrokers)
             .brokerProps(brokerProps)
             .workerProps(workerProps())
-            .clientConfigs(clientConfigs)
+            .clientProps(clientConfigs)
             .build();
 
     // Start the clusters
