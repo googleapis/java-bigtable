@@ -491,7 +491,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
    *   <li>Add tracing & metrics.
    * </ul>
    */
-  private <ReqT, RowT> ServerStreamingCallable<Query, RowT> createSkipLargeRowsCallable(
+  public <ReqT, RowT> ServerStreamingCallable<Query, RowT> createSkipLargeRowsCallable(
       RowAdapter<RowT> rowAdapter) {
 
     ServerStreamingCallSettings<ReqT, Row> readRowsSettings =
