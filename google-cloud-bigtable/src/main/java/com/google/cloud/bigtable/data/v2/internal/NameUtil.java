@@ -106,6 +106,41 @@ public class NameUtil {
     return matcher.group(3);
   }
 
+  /** A helper to convert fully qualified tableName andauthorizedViewName to a {@link TargetId} */
+  public static TargetId extractTargetId(
+      @Nonnull String tableName, @Nonnull String authorizedViewName) {
+    if (tableName.isEmpty() && authorizedViewName.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Either table name, authorized view name or materialized view name must be specified. Table name: "
+              + tableName
+              + ", authorized view name: "
+              + authorizedViewName);
+    }
+    int names = 0;
+    if (!tableName.isEmpty()) {
+      ++names;
+    }
+    if (!authorizedViewName.isEmpty()) {
+      ++names;
+    }
+    if (names > 1) {
+      throw new IllegalArgumentException(
+          "Only one of table name and authorized view name can be specified at the same time. Table name: "
+              + tableName
+              + ", authorized view name: "
+              + authorizedViewName);
+    }
+
+    if (!tableName.isEmpty()) {
+      String tableId = extractTableIdFromTableName(tableName);
+      return TableId.of(tableId);
+    } else if (!authorizedViewName.isEmpty()) {
+      String tableId = extractTableIdFromAuthorizedViewName(authorizedViewName);
+      String authorizedViewId = extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
+      return AuthorizedViewId.of(tableId, authorizedViewId);
+    }
+  }
+
   /**
    * A helper to convert fully qualified tableName, authorizedViewName and materializedViewName to a
    * {@link TargetId}

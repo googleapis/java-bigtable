@@ -174,10 +174,9 @@ public final class ReadModifyWriteRow implements Serializable {
     String tableName = request.getTableName();
     String authorizedViewName = request.getAuthorizedViewName();
 
-    // Materialized Views are read only entities.
     ReadModifyWriteRow row =
         ReadModifyWriteRow.create(
-            NameUtil.extractTargetId(tableName, authorizedViewName, ""), request.getRowKey());
+            NameUtil.extractTargetId(tableName, authorizedViewName), request.getRowKey());
     row.builder = request.toBuilder();
 
     return row;

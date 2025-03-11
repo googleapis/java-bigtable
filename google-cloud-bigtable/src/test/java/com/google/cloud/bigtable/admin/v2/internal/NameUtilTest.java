@@ -103,7 +103,31 @@ public class NameUtilTest {
   }
 
   @Test
-  public void testExtractTargetId() {
+  public void testExtractTargetId2() {
+    String testTableName = "projects/my-project/instances/my-instance/tables/my-table";
+    String testAuthorizedViewName =
+        "projects/my-project/instances/my-instance/tables/my-table/authorizedViews/my-authorized-view";
+    assertThat(
+            com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+                testTableName, "", ""))
+        .isEqualTo(TableId.of("my-table"));
+    assertThat(
+            com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+                "", testAuthorizedViewName, ""))
+        .isEqualTo(AuthorizedViewId.of("my-table", "my-authorized-view"));
+
+    // No name is provided
+    exception.expect(IllegalArgumentException.class);
+    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId("", "");
+
+    // Multiple names are provided
+    exception.expect(IllegalArgumentException.class);
+    com.google.cloud.bigtable.data.v2.internal.NameUtil.extractTargetId(
+        testTableName, testAuthorizedViewName);
+  }
+
+  @Test
+  public void testExtractTargetId3() {
     String testTableName = "projects/my-project/instances/my-instance/tables/my-table";
     String testAuthorizedViewName =
         "projects/my-project/instances/my-instance/tables/my-table/authorizedViews/my-authorized-view";
