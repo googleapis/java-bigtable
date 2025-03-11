@@ -134,11 +134,10 @@ public class NameUtil {
     if (!tableName.isEmpty()) {
       String tableId = extractTableIdFromTableName(tableName);
       return TableId.of(tableId);
-    } else if (!authorizedViewName.isEmpty()) {
-      String tableId = extractTableIdFromAuthorizedViewName(authorizedViewName);
-      String authorizedViewId = extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
-      return AuthorizedViewId.of(tableId, authorizedViewId);
     }
+    String tableId = extractTableIdFromAuthorizedViewName(authorizedViewName);
+    String authorizedViewId = extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
+    return AuthorizedViewId.of(tableId, authorizedViewId);
   }
 
   /**
@@ -185,10 +184,9 @@ public class NameUtil {
       String tableId = extractTableIdFromAuthorizedViewName(authorizedViewName);
       String authorizedViewId = extractAuthorizedViewIdFromAuthorizedViewName(authorizedViewName);
       return AuthorizedViewId.of(tableId, authorizedViewId);
-    } else {
-      String materializedViewId =
-          extractMaterializedViewIdFromMaterializedViewName(materializedViewName);
-      return MaterializedViewId.of(materializedViewId);
     }
+    String materializedViewId =
+        extractMaterializedViewIdFromMaterializedViewName(materializedViewName);
+    return MaterializedViewId.of(materializedViewId);
   }
 }
