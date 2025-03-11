@@ -1361,7 +1361,6 @@ public class BigtableDataClient implements AutoCloseable {
     return stub.createReadRowsCallable(rowAdapter);
   }
 
-
   /**
    * Streams back the results of the query. This callable allows for customization of the logical
    * representation of a row. It's meant for advanced use cases.
@@ -1394,7 +1393,8 @@ public class BigtableDataClient implements AutoCloseable {
    * @see com.google.cloud.bigtable.data.v2.models.Filters For the filter building DSL.
    */
   @InternalApi("only to be used by Bigtable beam connector")
-  public  <RowT> ServerStreamingCallable<Query, RowT> skipLargeRowsCallable(RowAdapter<RowT> rowAdapter) {
+  public <RowT> ServerStreamingCallable<Query, RowT> skipLargeRowsCallable(
+      RowAdapter<RowT> rowAdapter) {
     return stub.createSkipLargeRowsCallable(rowAdapter);
   }
 
