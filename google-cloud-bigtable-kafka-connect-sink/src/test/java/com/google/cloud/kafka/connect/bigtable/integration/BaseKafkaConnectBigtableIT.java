@@ -20,6 +20,7 @@ import static org.apache.kafka.test.TestUtils.waitForCondition;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
@@ -134,15 +135,17 @@ public abstract class BaseKafkaConnectBigtableIT extends BaseKafkaConnectIT {
         "Table not created in time.");
   }
 
-  public void waitUntilBigtableTableHasColumnFamily(String tableId, String columnFamily)
-      throws InterruptedException {
+  public void waitUntilBigtableTableHasExactSetOfColumnFamilies(
+      String tableId, Set<String> columnFamilies) throws InterruptedException {
     waitForCondition(
         testConditionIgnoringTransientErrors(
             () ->
                 bigtableAdmin.getTable(tableId).getColumnFamilies().stream()
-                    .anyMatch(cf -> cf.getId().equals(columnFamily))),
+                    .map(ColumnFamily::getId)
+                    .collect(Collectors.toSet())
+                    .equals(columnFamilies)),
         DEFAULT_BIGTABLE_RETRY_TIMEOUT_MILLIS,
-        "Column Family not created in time.");
+        "Column Families not created in time or an extra one created.");
   }
 
   // These exceptions are thrown around the moment of a table or column family creation.

@@ -17,10 +17,8 @@ package com.google.cloud.kafka.connect.bigtable.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.data.v2.models.Range;
 import com.google.cloud.kafka.connect.bigtable.config.BigtableSinkConfig;
@@ -141,7 +139,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
 
     String value = jsonify(testId, Schema.INT64_SCHEMA, 1234L);
 
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
+    assertFalse(bigtableAdmin.listTables().contains(testId));
     connect.kafka().produce(testId, KEY1, value);
     waitUntilBigtableTableExists(testId);
 
@@ -164,7 +162,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
         String.valueOf(true));
 
     String testId = startSingleTopicConnector(props);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
+    assertFalse(bigtableAdmin.listTables().contains(testId));
     String value = jsonify(testId, Schema.INT64_SCHEMA, 1234L);
     connect.kafka().produce(testId, KEY1, value);
     assertSingleDlqEntry(dlqTopic, KEY1, value, null);
@@ -172,8 +170,8 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     createTablesAndColumnFamilies(Map.of(testId, Set.of()));
     assertTrue(bigtableAdmin.getTable(testId).getColumnFamilies().isEmpty());
     connect.kafka().produce(testId, KEY2, value);
+    waitUntilBigtableTableHasExactSetOfColumnFamilies(testId, Set.of(testId));
     waitUntilBigtableContainsNumberOfRows(testId, 1);
-    assertFalse(bigtableAdmin.getTable(testId).getColumnFamilies().isEmpty());
 
     assertConnectorAndAllTasksAreRunning(testId);
   }
@@ -192,14 +190,10 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     Set<String> topics = topicSuffixes.stream().map(s -> testId + s).collect(Collectors.toSet());
 
     for (String topic : topics) {
-      assertThrows(Throwable.class, () -> bigtableAdmin.getTable(topic));
+      assertFalse(bigtableAdmin.listTables().contains(topic));
       connect.kafka().produce(topic, topic, "value");
+      waitUntilBigtableTableHasExactSetOfColumnFamilies(topic, Set.of(topic));
       waitUntilBigtableContainsNumberOfRows(topic, 1);
-      assertEquals(
-          Set.of(topic),
-          bigtableAdmin.getTable(topic).getColumnFamilies().stream()
-              .map(ColumnFamily::getId)
-              .collect(Collectors.toSet()));
     }
     assertDlqIsEmpty(dlqTopic);
 
@@ -244,7 +238,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String testId = startSingleTopicConnector(props);
 
     String rowDeletionValue = jsonify(testId, Schema.OPTIONAL_BYTES_SCHEMA, null);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
+    assertFalse(bigtableAdmin.listTables().contains(testId));
     connect.kafka().produce(testId, KEY1, rowDeletionValue);
     waitUntilBigtableTableExists(testId);
     assertTrue(bigtableAdmin.getTable(testId).getColumnFamilies().isEmpty());
@@ -274,16 +268,11 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     Struct deleteColumnFamily =
         new Struct(SchemaBuilder.struct().field(COLUMN_FAMILY1, Schema.OPTIONAL_BYTES_SCHEMA))
             .put(COLUMN_FAMILY1, null);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
+    assertFalse(bigtableAdmin.listTables().contains(testId));
     connect
         .kafka()
         .produce(testId, KEY1, jsonify(testId, deleteColumnFamily.schema(), deleteColumnFamily));
-    waitUntilBigtableTableHasColumnFamily(testId, COLUMN_FAMILY1);
-    assertEquals(
-        Set.of(COLUMN_FAMILY1),
-        bigtableAdmin.getTable(testId).getColumnFamilies().stream()
-            .map(ColumnFamily::getId)
-            .collect(Collectors.toSet()));
+    waitUntilBigtableTableHasExactSetOfColumnFamilies(testId, Set.of(COLUMN_FAMILY1));
 
     assertDlqIsEmpty(dlqTopic);
     assertConnectorAndAllTasksAreRunning(testId);
@@ -313,14 +302,9 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     Struct deleteColumn =
         new Struct(SchemaBuilder.struct().field(COLUMN_FAMILY2, innerStruct.schema()))
             .put(COLUMN_FAMILY2, innerStruct);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(testId));
+    assertFalse(bigtableAdmin.listTables().contains(testId));
     connect.kafka().produce(testId, KEY3, jsonify(testId, deleteColumn.schema(), deleteColumn));
-    waitUntilBigtableTableHasColumnFamily(testId, COLUMN_FAMILY2);
-    assertEquals(
-        Set.of(COLUMN_FAMILY2),
-        bigtableAdmin.getTable(testId).getColumnFamilies().stream()
-            .map(ColumnFamily::getId)
-            .collect(Collectors.toSet()));
+    waitUntilBigtableTableHasExactSetOfColumnFamilies(testId, Set.of(COLUMN_FAMILY2));
 
     assertDlqIsEmpty(dlqTopic);
     assertConnectorAndAllTasksAreRunning(testId);
@@ -355,14 +339,14 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
 
     String deleteRowTopic = testId + deleteRowSuffix;
     String rowDeletionValue = jsonify(deleteRowTopic, Schema.OPTIONAL_BYTES_SCHEMA, null);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(deleteRowTopic));
+    assertFalse(bigtableAdmin.listTables().contains(deleteRowTopic));
     connect.kafka().produce(deleteRowTopic, KEY1, rowDeletionValue);
 
     String deleteColumnFamilyTopic = testId + deleteColumnFamilySuffix;
     Struct deleteColumnFamily =
         new Struct(SchemaBuilder.struct().field(COLUMN_FAMILY1, Schema.OPTIONAL_BYTES_SCHEMA))
             .put(COLUMN_FAMILY1, null);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(deleteColumnFamilyTopic));
+    assertFalse(bigtableAdmin.listTables().contains(deleteColumnFamilyTopic));
     connect
         .kafka()
         .produce(
@@ -374,7 +358,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     Struct deleteColumn =
         new Struct(SchemaBuilder.struct().field(COLUMN_FAMILY2, deleteColumnFamily.schema()))
             .put(COLUMN_FAMILY2, deleteColumnFamily);
-    assertThrows(Throwable.class, () -> bigtableAdmin.getTable(deleteColumnTopic));
+    assertFalse(bigtableAdmin.listTables().contains(deleteColumnTopic));
     connect
         .kafka()
         .produce(
