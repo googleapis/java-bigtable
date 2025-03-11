@@ -106,6 +106,15 @@ public class BigtableSinkConfigTest {
   }
 
   @Test
+  public void testTableAutoCreationRequiresColumnFamilyAutoCreation() {
+    Map<String, String> props = BasicPropertiesFactory.getSinkProps();
+    props.put(AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(false));
+    BigtableSinkConfig config = new BigtableSinkConfig(props);
+    assertFalse(configIsValid(config));
+  }
+
+  @Test
   public void testNullDeletionIsIncompatibleWithInsertMode() {
     Map<String, String> props = BasicPropertiesFactory.getSinkProps();
     props.put(BigtableSinkConfig.INSERT_MODE_CONFIG, InsertMode.INSERT.name());

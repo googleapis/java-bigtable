@@ -20,7 +20,6 @@ import static com.google.cloud.kafka.connect.bigtable.util.FutureUtil.failedApiF
 import static com.google.cloud.kafka.connect.bigtable.util.MockUtil.assertTotalNumberOfInvocations;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,7 +54,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.junit.Before;
 import org.junit.Test;
@@ -112,8 +110,12 @@ public class BigtableSchemaManagerTest {
 
   @Test
   public void testTableCachePopulationError() {
+    Map<String, Optional<Set<String>>> cache = Map.of("table", Optional.of(Set.of("cf")));
+    bigtableSchemaManager.tableNameToColumnFamilies = new HashMap<>(cache);
     doThrow(ApiExceptionFactory.create()).when(bigtable).listTables();
-    assertThrows(ConnectException.class, () -> bigtableSchemaManager.refreshTableNamesCache());
+    bigtableSchemaManager.refreshTableNamesCache();
+    verify(bigtable, times(1)).listTables();
+    assertEquals(cache, bigtableSchemaManager.getCache());
   }
 
   @Test
@@ -157,15 +159,14 @@ public class BigtableSchemaManagerTest {
   @Test
   public void testTableColumnFamiliesCachePopulationErrors() {
     doThrow(ApiExceptionFactory.create()).when(bigtable).listTables();
-    assertThrows(
-        ConnectException.class,
-        () -> bigtableSchemaManager.refreshTableColumnFamiliesCache(Collections.emptySet()));
+    bigtableSchemaManager.refreshTableColumnFamiliesCache(Collections.emptySet());
     verify(bigtable, times(1)).listTables();
     reset(bigtable);
 
     String successTable = "table1";
     String errorTable = "table2";
-    List<String> allTables = List.of(successTable, errorTable);
+    String notFoundTable = "table3";
+    List<String> allTables = List.of(successTable, errorTable, notFoundTable);
 
     doReturn(allTables).when(bigtable).listTables();
     mockGetTableSuccess(bigtable, successTable, Collections.emptySet());
@@ -173,12 +174,16 @@ public class BigtableSchemaManagerTest {
     doReturn(failedApiFuture(ApiExceptionFactory.create()))
         .when(bigtable)
         .getTableAsync(errorTable);
+    doReturn(failedApiFuture(ApiExceptionFactory.create(Status.Code.NOT_FOUND)))
+        .when(bigtable)
+        .getTableAsync(notFoundTable);
     bigtableSchemaManager.refreshTableColumnFamiliesCache(new HashSet<>(allTables));
-    assertEquals(Set.of(successTable), bigtableSchemaManager.getCache().keySet());
+    assertEquals(Set.of(successTable, errorTable), bigtableSchemaManager.getCache().keySet());
     verify(bigtable, times(1)).listTables();
     verify(bigtable, times(1)).getTableAsync(successTable);
     verify(bigtable, times(1)).getTableAsync(errorTable);
-    assertTotalNumberOfInvocations(bigtable, 3);
+    verify(bigtable, times(1)).getTableAsync(notFoundTable);
+    assertTotalNumberOfInvocations(bigtable, 4);
   }
 
   @Test

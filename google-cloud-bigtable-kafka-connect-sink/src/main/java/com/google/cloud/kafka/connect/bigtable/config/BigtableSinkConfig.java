@@ -27,6 +27,7 @@ import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Sets;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import org.apache.kafka.common.config.AbstractConfig;
 import org.apache.kafka.common.config.Config;
@@ -72,10 +74,6 @@ public class BigtableSinkConfig extends AbstractConfig {
   public static final String DEFAULT_COLUMN_FAMILY_CONFIG = "default.column.family";
   public static final String DEFAULT_COLUMN_QUALIFIER_CONFIG = "default.column.qualifier";
   public static final String RETRY_TIMEOUT_MILLIS_CONFIG = "retry.timeout.ms";
-  private static final InsertMode INSERT_MODE_DEFAULT = InsertMode.INSERT;
-  private static final NullValueMode NULL_VALUE_MODE_DEFAULT = NullValueMode.WRITE;
-  private static final BigtableErrorMode ERROR_MODE_DEFAULT = BigtableErrorMode.FAIL;
-  private static final Integer MAX_BATCH_SIZE_DEFAULT = 1;
   private static final List<String> BIGTABLE_CONFIGURATION_PROPERTIES =
       List.of(
           GCP_CREDENTIALS_JSON_CONFIG,
@@ -123,71 +121,91 @@ public class BigtableSinkConfig extends AbstractConfig {
    */
   @VisibleForTesting
   static Config validate(Map<String, String> props, boolean accessBigtableToValidateConfiguration) {
-    // Note that we only need to verify the properties we define, the generic Sink configuration is
-    // handled in SinkConnectorConfig::validate().
-    String credentialsPath = props.get(GCP_CREDENTIALS_PATH_CONFIG);
-    String credentialsJson = props.get(GCP_CREDENTIALS_JSON_CONFIG);
-    String insertMode = props.get(INSERT_MODE_CONFIG);
-    String nullValueMode = props.get(VALUE_NULL_MODE_CONFIG);
-    String maxBatchSize = props.get(MAX_BATCH_SIZE_CONFIG);
-    String effectiveInsertMode =
-        Optional.ofNullable(insertMode).orElse(INSERT_MODE_DEFAULT.name()).toUpperCase();
-    String effectiveNullValueMode =
-        Optional.ofNullable(nullValueMode).orElse(NULL_VALUE_MODE_DEFAULT.name()).toUpperCase();
-    String effectiveMaxBatchSize =
-        Optional.ofNullable(maxBatchSize).orElse(MAX_BATCH_SIZE_DEFAULT.toString()).trim();
-
+    // We create it without validation to use the same getters as the config users.
     Map<String, ConfigValue> validationResult = getDefinition().validateAll(props);
-    if (!Utils.isBlank(credentialsPath) && !Utils.isBlank(credentialsJson)) {
-      String errorMessage =
-          GCP_CREDENTIALS_JSON_CONFIG
-              + " and "
-              + GCP_CREDENTIALS_PATH_CONFIG
-              + " are mutually exclusive options, but both are set.";
-      addErrorMessage(validationResult, GCP_CREDENTIALS_JSON_CONFIG, credentialsJson, errorMessage);
-      addErrorMessage(validationResult, GCP_CREDENTIALS_PATH_CONFIG, credentialsPath, errorMessage);
-    }
-    if (effectiveInsertMode.equals(InsertMode.INSERT.name())
-        && !effectiveMaxBatchSize.equals("1")) {
-      String errorMessage =
-          "When using `"
-              + INSERT_MODE_CONFIG
-              + "` of `"
-              + InsertMode.INSERT.name()
-              + "`, "
-              + MAX_BATCH_SIZE_CONFIG
-              + " must be set to `1`.";
-      addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
-      addErrorMessage(validationResult, MAX_BATCH_SIZE_CONFIG, maxBatchSize, errorMessage);
-    }
-    if (effectiveInsertMode.equals(InsertMode.INSERT.name())
-        && effectiveNullValueMode.equals(NullValueMode.DELETE.name())) {
-      String errorMessage =
-          "When using `"
-              + VALUE_NULL_MODE_CONFIG
-              + "` of `"
-              + NullValueMode.DELETE.name()
-              + "`, "
-              + INSERT_MODE_CONFIG
-              + " must not be set to `"
-              + InsertMode.INSERT.name()
-              + "`.";
-      addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
-      addErrorMessage(validationResult, VALUE_NULL_MODE_CONFIG, nullValueMode, errorMessage);
-    }
 
-    if (accessBigtableToValidateConfiguration
-        && validationResult.values().stream().allMatch(v -> v.errorMessages().isEmpty())) {
-      // We validate the user's credentials in order to warn them early rather than fill DLQ
-      // with records whose processing would fail due to invalid credentials.
-      // We only call it after validating that all other parameters are fine since creating
-      // a Cloud Bigtable client uses many of these parameters, and we don't want to warn
-      // the user unnecessarily.
+    if (validationResult.values().stream().allMatch(v -> v.errorMessages().isEmpty())) {
       BigtableSinkConfig config = new BigtableSinkConfig(props);
-      if (!config.isBigtableConfigurationValid()) {
-        String errorMessage = "Cloud Bigtable configuration is invalid.";
-        for (String bigtableProp : BIGTABLE_CONFIGURATION_PROPERTIES) {
-          addErrorMessage(validationResult, bigtableProp, props.get(bigtableProp), errorMessage);
+
+      // Note that we only need to verify the properties we define, the generic Sink configuration
+      // is handled in SinkConnectorConfig::validate().
+      String credentialsPath = config.getString(GCP_CREDENTIALS_PATH_CONFIG);
+      String credentialsJson = config.getString(GCP_CREDENTIALS_JSON_CONFIG);
+      String insertMode = config.getString(INSERT_MODE_CONFIG);
+      String nullValueMode = config.getString(VALUE_NULL_MODE_CONFIG);
+      Integer maxBatchSize = config.getInt(MAX_BATCH_SIZE_CONFIG);
+      Boolean autoCreateTables = config.getBoolean(AUTO_CREATE_TABLES_CONFIG);
+      Boolean autoCreateColumnFamilies = config.getBoolean(AUTO_CREATE_COLUMN_FAMILIES_CONFIG);
+
+      if (!Utils.isBlank(credentialsPath) && !Utils.isBlank(credentialsJson)) {
+        String errorMessage =
+            GCP_CREDENTIALS_JSON_CONFIG
+                + " and "
+                + GCP_CREDENTIALS_PATH_CONFIG
+                + " are mutually exclusive options, but both are set.";
+        addErrorMessage(
+            validationResult, GCP_CREDENTIALS_JSON_CONFIG, credentialsJson, errorMessage);
+        addErrorMessage(
+            validationResult, GCP_CREDENTIALS_PATH_CONFIG, credentialsPath, errorMessage);
+      }
+      if (InsertMode.INSERT.name().equals(insertMode) && !Integer.valueOf(1).equals(maxBatchSize)) {
+        String errorMessage =
+            "When using `"
+                + INSERT_MODE_CONFIG
+                + "` of `"
+                + InsertMode.INSERT.name()
+                + "`, "
+                + MAX_BATCH_SIZE_CONFIG
+                + " must be set to `1`.";
+        addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
+        addErrorMessage(
+            validationResult, MAX_BATCH_SIZE_CONFIG, String.valueOf(maxBatchSize), errorMessage);
+      }
+      if (InsertMode.INSERT.name().equals(insertMode)
+          && NullValueMode.DELETE.name().equals(nullValueMode)) {
+        String errorMessage =
+            "When using `"
+                + VALUE_NULL_MODE_CONFIG
+                + "` of `"
+                + NullValueMode.DELETE.name()
+                + "`, "
+                + INSERT_MODE_CONFIG
+                + " must not be set to `"
+                + InsertMode.INSERT.name()
+                + "`.";
+        addErrorMessage(validationResult, INSERT_MODE_CONFIG, insertMode, errorMessage);
+        addErrorMessage(validationResult, VALUE_NULL_MODE_CONFIG, nullValueMode, errorMessage);
+      }
+      if (Boolean.TRUE.equals(autoCreateTables) && Boolean.FALSE.equals(autoCreateColumnFamilies)) {
+        String errorMessage =
+            "If you enable `"
+                + AUTO_CREATE_TABLES_CONFIG
+                + "`, you must also enable `"
+                + AUTO_CREATE_COLUMN_FAMILIES_CONFIG
+                + "`.";
+        addErrorMessage(
+            validationResult,
+            AUTO_CREATE_TABLES_CONFIG,
+            String.valueOf(autoCreateTables),
+            errorMessage);
+        addErrorMessage(
+            validationResult,
+            AUTO_CREATE_TABLES_CONFIG,
+            String.valueOf(autoCreateColumnFamilies),
+            errorMessage);
+      }
+
+      if (accessBigtableToValidateConfiguration) {
+        // We validate the user's credentials in order to warn them early rather than fill DLQ
+        // with records whose processing would fail due to invalid credentials.
+        // We only call it after validating that all other parameters are fine since creating
+        // a Cloud Bigtable client uses many of these parameters, and we don't want to warn
+        // the user unnecessarily.
+        if (!config.isBigtableConfigurationValid()) {
+          String errorMessage = "Cloud Bigtable configuration is invalid.";
+          for (String bigtableProp : BIGTABLE_CONFIGURATION_PROPERTIES) {
+            addErrorMessage(validationResult, bigtableProp, props.get(bigtableProp), errorMessage);
+          }
         }
       }
     }
@@ -246,7 +264,7 @@ public class BigtableSinkConfig extends AbstractConfig {
         .define(
             INSERT_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            INSERT_MODE_DEFAULT.name(),
+            InsertMode.INSERT.name(),
             enumValidator(InsertMode.values()),
             ConfigDef.Importance.HIGH,
             "Defines the insertion mode to use. Supported modes are:"
@@ -257,7 +275,7 @@ public class BigtableSinkConfig extends AbstractConfig {
         .define(
             MAX_BATCH_SIZE_CONFIG,
             ConfigDef.Type.INT,
-            MAX_BATCH_SIZE_DEFAULT,
+            1,
             ConfigDef.Range.atLeast(1),
             ConfigDef.Importance.MEDIUM,
             "The maximum number of records that can be batched into a batch of upserts."
@@ -269,7 +287,7 @@ public class BigtableSinkConfig extends AbstractConfig {
         .define(
             VALUE_NULL_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            NULL_VALUE_MODE_DEFAULT.name(),
+            NullValueMode.WRITE.name(),
             enumValidator(NullValueMode.values()),
             ConfigDef.Importance.MEDIUM,
             "Defines what to do with `null`s within Kafka values. Supported modes are:"
@@ -284,7 +302,7 @@ public class BigtableSinkConfig extends AbstractConfig {
         .define(
             ERROR_MODE_CONFIG,
             ConfigDef.Type.STRING,
-            ERROR_MODE_DEFAULT.name(),
+            BigtableErrorMode.FAIL.name(),
             enumValidator(BigtableErrorMode.values()),
             ConfigDef.Importance.MEDIUM,
             "Specifies how to handle errors that result from writes, after retries. It is ignored"
@@ -438,8 +456,8 @@ public class BigtableSinkConfig extends AbstractConfig {
 
     BigtableTableAdminSettings.Builder adminSettingsBuilder =
         BigtableTableAdminSettings.newBuilder()
-            .setProjectId(getString(BigtableSinkTaskConfig.GCP_PROJECT_ID_CONFIG))
-            .setInstanceId(getString(BigtableSinkTaskConfig.BIGTABLE_INSTANCE_ID_CONFIG));
+            .setProjectId(getString(GCP_PROJECT_ID_CONFIG))
+            .setInstanceId(getString(BIGTABLE_INSTANCE_ID_CONFIG));
     if (credentialsProvider.isPresent()) {
       adminSettingsBuilder.setCredentialsProvider(credentialsProvider.get());
     } else {
@@ -454,7 +472,10 @@ public class BigtableSinkConfig extends AbstractConfig {
         .setRetrySettings(adminApiWriteRetrySettings)
         // Retry createTable() for status codes other admin operations retry by default as
         // seen in BigtableTableAdminStubSettings.
-        .setRetryableCodes(StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED);
+        .setRetryableCodes(
+            Sets.union(
+                adminStubSettings.createTableSettings().getRetryableCodes(),
+                Set.of(StatusCode.Code.UNAVAILABLE, StatusCode.Code.DEADLINE_EXCEEDED)));
     adminStubSettings
         .modifyColumnFamiliesSettings()
         .setRetrySettings(adminApiWriteRetrySettings)
@@ -462,9 +483,12 @@ public class BigtableSinkConfig extends AbstractConfig {
         // default as seen in BigtableTableAdminStubSettings and for FAILED_PRECONDITION,
         // which is returned when concurrent column family creation is detected.
         .setRetryableCodes(
-            StatusCode.Code.UNAVAILABLE,
-            StatusCode.Code.DEADLINE_EXCEEDED,
-            StatusCode.Code.FAILED_PRECONDITION);
+            Sets.union(
+                adminStubSettings.createTableSettings().getRetryableCodes(),
+                Set.of(
+                    StatusCode.Code.UNAVAILABLE,
+                    StatusCode.Code.DEADLINE_EXCEEDED,
+                    StatusCode.Code.FAILED_PRECONDITION)));
 
     try {
       return BigtableTableAdminClient.create(adminSettingsBuilder.build());
@@ -485,14 +509,14 @@ public class BigtableSinkConfig extends AbstractConfig {
 
     BigtableDataSettings.Builder dataSettingsBuilder =
         BigtableDataSettings.newBuilder()
-            .setProjectId(getString(BigtableSinkTaskConfig.GCP_PROJECT_ID_CONFIG))
-            .setInstanceId(getString(BigtableSinkTaskConfig.BIGTABLE_INSTANCE_ID_CONFIG));
+            .setProjectId(getString(GCP_PROJECT_ID_CONFIG))
+            .setInstanceId(getString(BIGTABLE_INSTANCE_ID_CONFIG));
     if (credentialsProvider.isPresent()) {
       dataSettingsBuilder.setCredentialsProvider(credentialsProvider.get());
     } else {
       // Use the default credential provider that utilizes Application Default Credentials.
     }
-    String appProfileId = getString(BigtableSinkTaskConfig.BIGTABLE_APP_PROFILE_ID_CONFIG);
+    String appProfileId = getString(BIGTABLE_APP_PROFILE_ID_CONFIG);
     if (appProfileId == null) {
       dataSettingsBuilder.setDefaultAppProfileId();
     } else {
@@ -505,7 +529,53 @@ public class BigtableSinkConfig extends AbstractConfig {
     dataStubSettings.bulkMutateRowsSettings().setRetrySettings(retrySettings);
     dataStubSettings.readRowSettings().setRetrySettings(retrySettings);
     dataStubSettings.readRowsSettings().setRetrySettings(retrySettings);
+    dataStubSettings.bulkReadRowsSettings().setRetrySettings(retrySettings);
 
+    // After a schema modification, Bigtable API sometimes transiently returns NOT_FOUND and
+    // FAILED_PRECONDITION errors. We just need to retry them. We do it if - and only if - the
+    // column family auto creation is enabled, because then BigtableSchemaManager ensures that
+    // processing of records, for which the tables and/or column families are missing, is
+    // finished early, before the actual data requests are sent.
+    if (getBoolean(AUTO_CREATE_COLUMN_FAMILIES_CONFIG)) {
+      Set<StatusCode.Code> transientErrorsAfterSchemaModification =
+          Set.of(StatusCode.Code.NOT_FOUND, StatusCode.Code.FAILED_PRECONDITION);
+      dataStubSettings
+          .mutateRowSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.mutateRowSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+      dataStubSettings
+          .checkAndMutateRowSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.checkAndMutateRowSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+      dataStubSettings
+          .bulkMutateRowsSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.bulkMutateRowsSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+      dataStubSettings
+          .readRowSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.readRowSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+      dataStubSettings
+          .readRowsSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.readRowsSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+      dataStubSettings
+          .bulkReadRowsSettings()
+          .setRetryableCodes(
+              Sets.union(
+                  dataStubSettings.bulkReadRowsSettings().getRetryableCodes(),
+                  transientErrorsAfterSchemaModification));
+    }
     try {
       return BigtableDataClient.create(dataSettingsBuilder.build());
     } catch (IOException e) {
@@ -555,8 +625,7 @@ public class BigtableSinkConfig extends AbstractConfig {
    *     BigtableSinkConfig#getDefinition()}.
    */
   private Duration getTotalRetryTimeout() {
-    return Duration.of(
-        getLong(BigtableSinkTaskConfig.RETRY_TIMEOUT_MILLIS_CONFIG), ChronoUnit.MILLIS);
+    return Duration.of(getLong(RETRY_TIMEOUT_MILLIS_CONFIG), ChronoUnit.MILLIS);
   }
 
   /**
@@ -588,8 +657,8 @@ public class BigtableSinkConfig extends AbstractConfig {
    *     BigtableSinkConfig#getDefinition()} otherwise.
    */
   protected Optional<CredentialsProvider> getUserConfiguredBigtableCredentialsProvider() {
-    String credentialsJson = getString(BigtableSinkTaskConfig.GCP_CREDENTIALS_JSON_CONFIG);
-    String credentialsPath = getString(BigtableSinkTaskConfig.GCP_CREDENTIALS_PATH_CONFIG);
+    String credentialsJson = getString(GCP_CREDENTIALS_JSON_CONFIG);
+    String credentialsPath = getString(GCP_CREDENTIALS_PATH_CONFIG);
     byte[] credentials;
     if (!Utils.isBlank(credentialsJson)) {
       credentials = credentialsJson.getBytes(StandardCharsets.UTF_8);

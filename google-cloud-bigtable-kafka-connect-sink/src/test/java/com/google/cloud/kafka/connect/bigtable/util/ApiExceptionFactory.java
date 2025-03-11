@@ -22,7 +22,7 @@ import io.grpc.Status;
 
 public class ApiExceptionFactory {
   public static ApiException create() {
-    return create(Status.Code.NOT_FOUND);
+    return create(Status.Code.UNKNOWN);
   }
 
   public static ApiException create(Status.Code code) {

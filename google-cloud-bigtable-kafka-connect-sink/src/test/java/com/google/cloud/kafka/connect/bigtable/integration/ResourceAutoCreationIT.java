@@ -122,32 +122,6 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
   }
 
   @Test
-  public void testTableAutoCreationEnabledColumnFamilyAutoCreationDisabled()
-      throws InterruptedException {
-    String dlqTopic = createDlq();
-    Map<String, String> props = baseConnectorProps();
-    configureDlq(props, dlqTopic);
-    props.put(BigtableSinkTaskConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
-    props.put(ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG, JsonConverter.class.getName());
-    props.put(
-        ConnectorConfig.VALUE_CONVERTER_CLASS_CONFIG
-            + "."
-            + JsonConverterConfig.SCHEMAS_ENABLE_CONFIG,
-        String.valueOf(true));
-
-    String testId = startSingleTopicConnector(props);
-
-    String value = jsonify(testId, Schema.INT64_SCHEMA, 1234L);
-
-    assertFalse(bigtableAdmin.listTables().contains(testId));
-    connect.kafka().produce(testId, KEY1, value);
-    waitUntilBigtableTableExists(testId);
-
-    assertSingleDlqEntry(dlqTopic, KEY1, value, null);
-    assertConnectorAndAllTasksAreRunning(testId);
-  }
-
-  @Test
   public void testTableAutoCreationDisabledColumnFamilyAutoCreationEnabled()
       throws InterruptedException, ExecutionException {
     String dlqTopic = createDlq();
@@ -207,6 +181,7 @@ public class ResourceAutoCreationIT extends BaseKafkaConnectBigtableIT {
     String invalidTableName = "T".repeat(MAX_BIGTABLE_TABLE_NAME_LENGTH + 1);
     props.put(BigtableSinkConfig.TABLE_NAME_FORMAT_CONFIG, invalidTableName);
     props.put(BigtableSinkConfig.AUTO_CREATE_TABLES_CONFIG, String.valueOf(true));
+    props.put(BigtableSinkConfig.AUTO_CREATE_COLUMN_FAMILIES_CONFIG, String.valueOf(true));
     props.put(BigtableSinkConfig.RETRY_TIMEOUT_MILLIS_CONFIG, "10000");
 
     configureDlq(props, dlqTopic);

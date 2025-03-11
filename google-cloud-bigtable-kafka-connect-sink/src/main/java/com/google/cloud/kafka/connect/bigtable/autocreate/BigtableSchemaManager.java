@@ -23,7 +23,6 @@ import com.google.cloud.bigtable.admin.v2.models.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.ModifyColumnFamiliesRequest;
 import com.google.cloud.bigtable.admin.v2.models.Table;
-import com.google.cloud.kafka.connect.bigtable.exception.BatchException;
 import com.google.cloud.kafka.connect.bigtable.mapping.MutationData;
 import com.google.common.annotations.VisibleForTesting;
 import java.util.AbstractMap;
@@ -221,10 +220,15 @@ public class BigtableSchemaManager {
     try {
       tables = new HashSet<>(bigtable.listTables());
     } catch (ApiException e) {
-      logger.error("listTables() exception", e);
-      // We don't allow listTables() to fail. It means something is seriously wrong, so we fail the
-      // whole batch.
-      throw new BatchException(e);
+      logger.error(
+          "listTables() exception. If a table got deleted in the meantime, the sink might attempt"
+              + " to write some records to a nonexistent table. If a table got created in the"
+              + " meantime, records targeting it might be failed prematurely.",
+          e);
+      // We don't know exactly which tables exist, but we expect the set not to shrink.
+      // So we carry on, hoping that our cache is up-to-date.
+      // The alternative is to throw an exception and fail the whole batch that way.
+      return;
     }
     for (String key : new HashSet<>(tableNameToColumnFamilies.keySet())) {
       if (!tables.contains(key)) {
@@ -264,11 +268,22 @@ public class BigtableSchemaManager {
                 .collect(Collectors.toSet());
         newCache.put(tableName, Optional.of(tableColumnFamilies));
       } catch (ExecutionException | InterruptedException e) {
-        // We don't allow getTable() to fail. If it does, the entry is removed from the cache. This
-        // way its SinkRecord will be failed by ensureColumnFamiliesExist(). The alternative is to
-        // throw an exception and fail the whole batch that way.
-        logger.warn("getTable({}) exception", tableName, e);
-        newCache.remove(tableName);
+        if (SchemaApiExceptions.maybeExtractBigtableStatusCode(e)
+            .map(sc -> StatusCode.Code.NOT_FOUND.equals(sc.getCode()))
+            .orElse(false)) {
+          newCache.remove(tableName);
+        } else {
+          // We don't know exactly which column families exist, but we expect the set not to shrink.
+          // So we carry on, hoping that our cache is up-to-date.
+          // The alternative is to throw an exception and fail the whole batch that way.
+          logger.error(
+              "getTable({}) exception. If a column family got deleted in the meantime, the sink"
+                  + " might attempt to write some records to a nonexistent column family. If"
+                  + " a column family got created in the meantime, records targeting it might be"
+                  + " failed prematurely.",
+              tableName,
+              e);
+        }
       }
     }
     // Note that we update the cache atomically to avoid partial errors. If an unexpected exception
