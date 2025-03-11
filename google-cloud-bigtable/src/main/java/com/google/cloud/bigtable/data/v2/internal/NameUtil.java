@@ -37,7 +37,7 @@ public class NameUtil {
   private static final Pattern AUTHORIZED_VIEW_PATTERN =
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/authorizedViews/([^/]+)");
   private static final Pattern MATERIALIZED_VIEW_PATTERN =
-      Pattern.compile("projects/([^/]+)/instances/([^/]+)/materializedView/([^/]+)");
+      Pattern.compile("projects/([^/]+)/instances/([^/]+)/materializedViews/([^/]+)");
 
   public static String formatInstanceName(@Nonnull String projectId, @Nonnull String instanceId) {
     return "projects/" + projectId + "/instances/" + instanceId;
