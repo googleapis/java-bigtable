@@ -1362,7 +1362,7 @@ public class BigtableDataClient implements AutoCloseable {
   }
 
   /**
-   * Streams back the results of the query. This callable allows for customization of the logical
+   * Streams back the results of the query skipping the large-rows. This callable allows for customization of the logical
    * representation of a row. It's meant for advanced use cases.
    *
    * <p>Sample code:
