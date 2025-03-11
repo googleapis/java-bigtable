@@ -330,5 +330,10 @@
     <difference>
         <differenceType>8001</differenceType>
         <className>com/google/cloud/bigtable/data/v2/stub/metrics/RpcViews</className>
+    <difference>
+        <!-- TargetId is an InternalApi-->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/TargetId</className>
+        <method>*scopedForMaterializedView()</method>
     </difference>
 </differences>
