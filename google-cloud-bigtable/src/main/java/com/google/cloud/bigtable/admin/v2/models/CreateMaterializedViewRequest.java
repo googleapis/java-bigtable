@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.admin.v2.models;
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -71,7 +70,6 @@ public final class CreateMaterializedViewRequest {
     return this;
   }
 
-  
   @Override
   public boolean equals(Object o) {
     if (this == o) {

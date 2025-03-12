@@ -17,7 +17,6 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.admin.v2.MaterializedViewName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
