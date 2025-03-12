@@ -17,6 +17,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
+import com.google.common.base.Objects;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -67,6 +69,25 @@ public final class CreateMaterializedViewRequest {
   public CreateMaterializedViewRequest setEtag(@Nonnull String etag) {
     proto.getMaterializedViewBuilder().setEtag(etag);
     return this;
+  }
+
+  
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    CreateMaterializedViewRequest that = (CreateMaterializedViewRequest) o;
+    return Objects.equal(proto.build(), that.proto.build())
+        && Objects.equal(instanceId, that.instanceId);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(proto.build(), instanceId);
   }
 
   /**
