@@ -40,6 +40,8 @@ import com.google.cloud.Policy;
 import com.google.cloud.Role;
 import com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListAppProfilesPage;
 import com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListAppProfilesPagedResponse;
+import com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListMaterializedViewsPage;
+import com.google.cloud.bigtable.admin.v2.BaseBigtableInstanceAdminClient.ListMaterializedViewsPagedResponse;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile.MultiClusterRoutingPolicy;
@@ -50,12 +52,15 @@ import com.google.cloud.bigtable.admin.v2.models.ClusterAutoscalingConfig;
 import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateClusterRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
+import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.PartialListClustersException;
 import com.google.cloud.bigtable.admin.v2.models.PartialListInstancesException;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateInstanceRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.stub.BigtableInstanceAdminStub;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -233,6 +238,35 @@ public class BigtableInstanceAdminClientTests {
   private UnaryCallable<
           com.google.iam.v1.TestIamPermissionsRequest, com.google.iam.v1.TestIamPermissionsResponse>
       mockTestIamPermissionsCallable;
+
+  @Mock
+  private UnaryCallable<
+          com.google.bigtable.admin.v2.CreateMaterializedViewRequest,
+          com.google.bigtable.admin.v2.MaterializedView>
+      mockCreateMaterializedViewCallable;
+
+  @Mock
+  private UnaryCallable<
+          com.google.bigtable.admin.v2.GetMaterializedViewRequest,
+          com.google.bigtable.admin.v2.MaterializedView>
+      mockGetMaterializedViewCallable;
+
+  @Mock
+  private UnaryCallable<
+          com.google.bigtable.admin.v2.ListMaterializedViewsRequest,
+          ListMaterializedViewsPagedResponse>
+      mockListMaterializedViewsCallable;
+
+  @Mock
+  private OperationCallable<
+          com.google.bigtable.admin.v2.UpdateMaterializedViewRequest,
+          com.google.bigtable.admin.v2.MaterializedView,
+          com.google.bigtable.admin.v2.UpdateMaterializedViewMetadata>
+      mockUpdateMaterializedViewCallable;
+
+  @Mock
+  private UnaryCallable<com.google.bigtable.admin.v2.DeleteMaterializedViewRequest, Empty>
+      mockDeleteMaterializedViewCallable;
 
   @Before
   public void setUp() {
