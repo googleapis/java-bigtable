@@ -102,9 +102,13 @@ public class BuiltinMetricsView {
       throws IOException {
     MetricExporter publicExporter =
         BigtableCloudMonitoringExporter.create(
-            credentials, endpoint, new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
+            "bigtable metrics",
+            credentials,
+            endpoint,
+            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter());
     MetricExporter internalExporter =
         BigtableCloudMonitoringExporter.create(
+            "application metrics",
             credentials,
             endpoint,
             new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(

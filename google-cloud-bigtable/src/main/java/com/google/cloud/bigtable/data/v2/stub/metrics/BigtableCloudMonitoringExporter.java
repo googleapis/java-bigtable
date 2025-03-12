@@ -57,6 +57,7 @@ import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.export.MetricExporter;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -95,6 +96,8 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   // https://cloud.google.com/monitoring/quotas#custom_metrics_quotas.
   private static final int EXPORT_BATCH_SIZE_LIMIT = 200;
 
+  private static String exporterName;
+
   private final MetricServiceClient client;
 
   private final TimeSeriesConverter timeSeriesConverter;
@@ -105,9 +108,14 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   private final AtomicBoolean exportFailureLogged = new AtomicBoolean(false);
 
-  public static BigtableCloudMonitoringExporter create(
-      @Nullable Credentials credentials, @Nullable String endpoint, TimeSeriesConverter converter)
+  static BigtableCloudMonitoringExporter create(
+      String exporterName,
+      @Nullable Credentials credentials,
+      @Nullable String endpoint,
+      TimeSeriesConverter converter)
       throws IOException {
+    BigtableCloudMonitoringExporter.exporterName = exporterName;
+
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
         Optional.ofNullable(credentials)
@@ -123,7 +131,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       settingsBuilder.setEndpoint(endpoint);
     }
 
-    java.time.Duration timeout = java.time.Duration.ofMinutes(1);
+    Duration timeout = Duration.ofMinutes(1);
     // TODO: createServiceTimeSeries needs special handling if the request failed. Leaving
     // it as not retried for now.
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetriesDuration(timeout);
@@ -139,15 +147,15 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   }
 
   @Override
-  public CompletableResultCode export(Collection<MetricData> collection) {
+  public CompletableResultCode export(Collection<MetricData> metricData) {
     Preconditions.checkState(!isShutdown.get(), "Exporter is shutting down");
 
-    lastExportCode = exportBigtableResourceMetrics(collection);
+    lastExportCode = doExport(metricData);
     return lastExportCode;
   }
 
   /** Export metrics associated with a BigtableTable resource. */
-  private CompletableResultCode exportBigtableResourceMetrics(Collection<MetricData> metricData) {
+  private CompletableResultCode doExport(Collection<MetricData> metricData) {
     Map<ProjectName, List<TimeSeries>> bigtableTimeSeries = timeSeriesConverter.convert(metricData);
 
     // Skips exporting if there's none
@@ -165,7 +173,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
                 @Override
                 public void onFailure(Throwable throwable) {
                   if (exportFailureLogged.compareAndSet(false, true)) {
-                    String msg = "createServiceTimeSeries request failed for bigtable metrics.";
+                    String msg =
+                        String.format(
+                            "createServiceTimeSeries request failed for bigtable metrics %s.",
+                            exporterName);
                     if (throwable instanceof PermissionDeniedException) {
                       msg +=
                           String.format(
@@ -283,14 +294,14 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     @Override
     public Map<ProjectName, List<TimeSeries>> convert(Collection<MetricData> metricData) {
-      List<MetricData> bigtableMetricData =
+      List<MetricData> relevantData =
           metricData.stream()
               .filter(md -> BIGTABLE_TABLE_METRICS.contains(md.getName()))
               .collect(Collectors.toList());
-      if (bigtableMetricData.isEmpty()) {
+      if (relevantData.isEmpty()) {
         return ImmutableMap.of();
       }
-      return BigtableExporterUtils.convertToBigtableTimeSeries(metricData, taskId);
+      return BigtableExporterUtils.convertToBigtableTimeSeries(relevantData, taskId);
     }
   }
 
@@ -330,7 +341,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       return ImmutableMap.of(
           ProjectName.of(monitoredResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID)),
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              metricData, taskId, monitoredResource));
+              relevantData, taskId, monitoredResource));
     }
   }
 }
