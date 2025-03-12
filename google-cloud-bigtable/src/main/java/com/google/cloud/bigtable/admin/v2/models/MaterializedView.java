@@ -51,7 +51,7 @@ public final class MaterializedView {
   private MaterializedView(@Nonnull com.google.bigtable.admin.v2.MaterializedView proto) {
     Preconditions.checkNotNull(proto);
     Preconditions.checkArgument(!proto.getName().isEmpty(), "MaterializedView must have a name");
-    Preconditions.checkArgument(proto.getQuery().isEmpty(), "MaterializedView must have a query");
+    Preconditions.checkArgument(!proto.getQuery().isEmpty(), "MaterializedView must have a query");
     this.proto = proto;
   }
 
