@@ -1601,7 +1601,7 @@ public class BigtableInstanceAdminClientTests {
   @Test
   public void testCreateMaterializedView() {
     // Setup
-    Mockito.when(mockStub.createMaterializedViewCallable())
+    Mockito.when(mockStub.createMaterializedViewOperationCallable())
         .thenReturn(mockCreateMaterializedViewCallable);
 
     com.google.bigtable.admin.v2.CreateMaterializedViewRequest expectedRequest =
@@ -1746,7 +1746,7 @@ public class BigtableInstanceAdminClientTests {
     MaterializedView actualResult =
         adminClient.updateMaterializedView(
             UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setDescription("SELECT 1+1 FROM Table"));
+                .setQuery("SELECT 1+1 FROM Table"));
 
     // Verify
     assertThat(actualResult).isEqualTo(MaterializedView.fromProto(expectedResponse));
