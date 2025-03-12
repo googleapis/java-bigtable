@@ -32,6 +32,7 @@ import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StubSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.rpc.UnaryCallSettings;
+import com.google.auth.Credentials;
 import com.google.bigtable.v2.FeatureFlags;
 import com.google.bigtable.v2.PingAndWarmRequest;
 import com.google.cloud.bigtable.Version;
@@ -46,6 +47,7 @@ import com.google.cloud.bigtable.data.v2.models.ReadModifyWriteRow;
 import com.google.cloud.bigtable.data.v2.models.Row;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.sql.Statement;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableExporterUtils;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
@@ -55,6 +57,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -261,6 +264,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
   private final MetricsProvider metricsProvider;
   @Nullable private final String metricsEndpoint;
+  private final InternalMetricsProvider internalMetricsProvider;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -291,6 +295,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     enableSkipTrailers = builder.enableSkipTrailers;
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
+    internalMetricsProvider = builder.internalMetricsProvider;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -386,6 +391,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @Nullable
   public String getMetricsEndpoint() {
     return metricsEndpoint;
+  }
+
+  InternalMetricsProvider getInternalMetricsProvider() {
+    return internalMetricsProvider;
   }
 
   /** Returns a builder for the default ChannelProvider for this service. */
@@ -711,6 +720,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     private MetricsProvider metricsProvider;
     @Nullable private String metricsEndpoint;
+    private InternalMetricsProvider internalMetricsProvider;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -730,6 +740,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableRetryInfo = true;
       this.enableSkipTrailers = SKIP_TRAILERS;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
+      this.internalMetricsProvider = DEFAULT_INTERNAL_OTEL_PROVIDER;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -864,6 +875,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       enableRetryInfo = settings.enableRetryInfo;
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
+      internalMetricsProvider = settings.internalMetricsProvider;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -1050,6 +1062,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return metricsEndpoint;
     }
 
+    public Builder disableInternalMetrics() {
+      return setInternalMetricsProvider(DISABLED_INTERNAL_OTEL_PROVIDER);
+    }
+
+    @InternalApi
+    public Builder setInternalMetricsProvider(InternalMetricsProvider internalMetricsProvider) {
+      this.internalMetricsProvider = internalMetricsProvider;
+      return this;
+    }
+
     @InternalApi("Used for internal testing")
     public Map<String, String> getJwtAudienceMapping() {
       return jwtAudienceMapping;
@@ -1214,6 +1236,18 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     // </editor-fold>
   }
 
+  @InternalApi
+  @FunctionalInterface
+  public interface InternalMetricsProvider {
+    @Nullable
+    OpenTelemetrySdk createOtelProvider(@Nullable String endpoint, Credentials creds);
+  }
+
+  private static final InternalMetricsProvider DISABLED_INTERNAL_OTEL_PROVIDER =
+      BigtableExporterUtils::createInternalOtel;
+  private static final InternalMetricsProvider DEFAULT_INTERNAL_OTEL_PROVIDER =
+      (ignored1, ignored2) -> null;
+
   @Override
   public String toString() {
     return MoreObjects.toStringHelper(this)
@@ -1242,6 +1276,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("executeQuerySettings", executeQuerySettings)
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
+        .add("enableInternalMetrics", internalMetricsProvider == DEFAULT_INTERNAL_OTEL_PROVIDER)
         .add("parent", super.toString())
         .toString();
   }

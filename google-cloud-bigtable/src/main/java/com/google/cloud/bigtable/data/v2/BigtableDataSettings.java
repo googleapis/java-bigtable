@@ -128,6 +128,7 @@ public final class BigtableDataSettings {
         // disable channel refreshing when creating an emulator
         .setRefreshingChannel(false)
         .setMetricsProvider(NoopMetricsProvider.INSTANCE) // disable exporting metrics for emulator
+        .disableInternalMetrics()
         .setTransportChannelProvider(
             InstantiatingGrpcChannelProvider.newBuilder()
                 .setMaxInboundMessageSize(256 * 1024 * 1024)

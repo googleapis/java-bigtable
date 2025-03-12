@@ -36,11 +36,12 @@ import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConst
 import com.google.api.Distribution;
 import com.google.api.Metric;
 import com.google.api.MonitoredResource;
-import com.google.cloud.opentelemetry.detection.AttributeKeys;
-import com.google.cloud.opentelemetry.detection.DetectedPlatform;
-import com.google.cloud.opentelemetry.detection.GCPPlatformDetector;
-import com.google.common.base.MoreObjects;
-import com.google.common.base.Preconditions;
+import com.google.api.core.InternalApi;
+import com.google.auth.Credentials;
+import com.google.cloud.opentelemetry.detectors.GCPResource;
+import com.google.cloud.opentelemetry.metric.GoogleCloudMetricExporter;
+import com.google.cloud.opentelemetry.metric.MetricConfiguration;
+import com.google.cloud.opentelemetry.metric.MetricDescriptorStrategy;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.TimeInterval;
@@ -49,6 +50,9 @@ import com.google.monitoring.v3.TypedValue;
 import com.google.protobuf.util.Timestamps;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
 import io.opentelemetry.sdk.metrics.data.AggregationTemporality;
 import io.opentelemetry.sdk.metrics.data.DoublePointData;
 import io.opentelemetry.sdk.metrics.data.HistogramData;
@@ -58,11 +62,13 @@ import io.opentelemetry.sdk.metrics.data.MetricData;
 import io.opentelemetry.sdk.metrics.data.MetricDataType;
 import io.opentelemetry.sdk.metrics.data.PointData;
 import io.opentelemetry.sdk.metrics.data.SumData;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import io.opentelemetry.sdk.resources.Resource;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +79,18 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 /** Utils to convert OpenTelemetry types to Google Cloud Monitoring types. */
-class BigtableExporterUtils {
+@InternalApi
+public class BigtableExporterUtils {
+  // This system property can be used to override the monitoring endpoint
+  // to a different environment. It's meant for internal testing only and
+  // will be removed in future versions. Use settings in EnhancedBigtableStubSettings
+  // to override the endpoint.
+  @Deprecated @Nullable
+  public static final String MONITORING_ENDPOINT_OVERRIDE_SYS_PROP =
+      System.getProperty("bigtable.test-monitoring-endpoint");
+
+  private static final Set<String> SUPPORTED_INTERNAL_PLATFORMS =
+      ImmutableSet.of("gcp_compute_engine", "gcp_kubernetes_engine");
 
   private static final Logger logger = Logger.getLogger(BigtableExporterUtils.class.getName());
 
@@ -90,7 +107,7 @@ class BigtableExporterUtils {
    * In most cases this should look like java-${UUID}@${hostname}. The hostname will be retrieved
    * from the jvm name and fallback to the local hostname.
    */
-  static String getDefaultTaskValue() {
+  public static String getDefaultTaskValue() {
     // Something like '<pid>@<hostname>'
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     // If jvm doesn't have the expected format, fallback to the local hostname
@@ -134,97 +151,46 @@ class BigtableExporterUtils {
     return allTimeSeries;
   }
 
-  static List<TimeSeries> convertToApplicationResourceTimeSeries(
-      Collection<MetricData> collection, String taskId, MonitoredResource applicationResource) {
-    Preconditions.checkNotNull(
-        applicationResource,
-        "convert application metrics is called when the supported resource is not detected");
-    List<TimeSeries> allTimeSeries = new ArrayList<>();
-    for (MetricData metricData : collection) {
-      if (!metricData.getInstrumentationScopeInfo().getName().equals(METER_NAME)) {
-        // Filter out metric data for instruments that are not part of the bigtable builtin metrics
-        continue;
-      }
-      metricData.getData().getPoints().stream()
-          .map(
-              pointData ->
-                  convertPointToApplicationResourceTimeSeries(
-                      metricData, pointData, taskId, applicationResource))
-          .forEach(allTimeSeries::add);
-    }
-    return allTimeSeries;
-  }
-
   @Nullable
-  static MonitoredResource detectResourceSafe() {
-    try {
-      return detectResource();
-    } catch (Exception e) {
-      logger.log(
-          Level.WARNING,
-          "Failed to detect resource, will skip exporting application level metrics ",
-          e);
+  public static OpenTelemetrySdk createInternalOtel(@Nullable String endpoint, Credentials creds) {
+    // TODO: replace with newer api
+    com.google.cloud.opentelemetry.detectors.GCPResource gcpResource = new GCPResource();
+
+    if (!SUPPORTED_INTERNAL_PLATFORMS.contains(
+        gcpResource.getAttributes().get(AttributeKey.stringKey("cloud.platform")))) {
       return null;
     }
-  }
 
-  @Nullable
-  private static MonitoredResource detectResource() {
-    GCPPlatformDetector detector = GCPPlatformDetector.DEFAULT_INSTANCE;
-    DetectedPlatform detectedPlatform = detector.detectPlatform();
-    MonitoredResource monitoredResource = null;
-    try {
-      switch (detectedPlatform.getSupportedPlatform()) {
-        case GOOGLE_COMPUTE_ENGINE:
-          monitoredResource =
-              createGceMonitoredResource(
-                  detectedPlatform.getProjectId(), detectedPlatform.getAttributes());
-          break;
-        case GOOGLE_KUBERNETES_ENGINE:
-          monitoredResource =
-              createGkeMonitoredResource(
-                  detectedPlatform.getProjectId(), detectedPlatform.getAttributes());
-          break;
+    MetricConfiguration.Builder exporterBuilder =
+        MetricConfiguration.builder()
+            .setProjectId(
+                gcpResource.getAttributes().get(AttributeKey.stringKey("cloud.account.id")))
+            .setDeadline(Duration.ofMinutes(1))
+            .setDescriptorStrategy(MetricDescriptorStrategy.NEVER_SEND)
+            .setCredentials(creds)
+            .setPrefix("bigtable.googleapis.com")
+            .setUseServiceTimeSeries(true);
+
+    {
+      @Nullable String effectiveEndpoint = endpoint;
+      if (effectiveEndpoint == null) {
+        effectiveEndpoint = MONITORING_ENDPOINT_OVERRIDE_SYS_PROP;
       }
-    } catch (IllegalStateException e) {
-      logger.log(
-          Level.WARNING,
-          "Failed to create monitored resource for " + detectedPlatform.getSupportedPlatform(),
-          e);
+      if (effectiveEndpoint != null) {
+        exporterBuilder.setMetricServiceEndpoint(effectiveEndpoint);
+      }
     }
-    return monitoredResource;
-  }
 
-  private static MonitoredResource createGceMonitoredResource(
-      String projectId, Map<String, String> attributes) {
-    return MonitoredResource.newBuilder()
-        .setType("gce_instance")
-        .putLabels("project_id", projectId)
-        .putLabels("instance_id", getAttribute(attributes, AttributeKeys.GCE_INSTANCE_ID))
-        .putLabels("zone", getAttribute(attributes, AttributeKeys.GCE_AVAILABILITY_ZONE))
-        .build();
-  }
+    SdkMeterProviderBuilder meterProviderBuilder =
+        SdkMeterProvider.builder()
+            .setResource(Resource.create(gcpResource.getAttributes()))
+            .registerMetricReader(
+                PeriodicMetricReader.builder(
+                        GoogleCloudMetricExporter.createWithConfiguration(exporterBuilder.build()))
+                    .setInterval(Duration.ofMinutes(1))
+                    .build());
 
-  private static MonitoredResource createGkeMonitoredResource(
-      String projectId, Map<String, String> attributes) {
-    return MonitoredResource.newBuilder()
-        .setType("k8s_container")
-        .putLabels("project_id", projectId)
-        .putLabels("location", getAttribute(attributes, AttributeKeys.GKE_CLUSTER_LOCATION))
-        .putLabels("cluster_name", getAttribute(attributes, AttributeKeys.GKE_CLUSTER_NAME))
-        .putLabels("namespace_name", MoreObjects.firstNonNull(System.getenv("NAMESPACE"), ""))
-        .putLabels("pod_name", MoreObjects.firstNonNull(System.getenv("HOSTNAME"), ""))
-        .putLabels("container_name", MoreObjects.firstNonNull(System.getenv("CONTAINER_NAME"), ""))
-        .build();
-  }
-
-  private static String getAttribute(Map<String, String> attributes, String key) {
-    String value = attributes.get(key);
-    if (value == null) {
-      throw new IllegalStateException(
-          "Required attribute " + key + " does not exist in the attributes map " + attributes);
-    }
-    return value;
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
   }
 
   private static TimeSeries convertPointToBigtableTimeSeries(
@@ -260,37 +226,6 @@ class BigtableExporterUtils {
 
     builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
 
-    return builder.build();
-  }
-
-  private static TimeSeries convertPointToApplicationResourceTimeSeries(
-      MetricData metricData,
-      PointData pointData,
-      String taskId,
-      MonitoredResource applicationResource) {
-    TimeSeries.Builder builder =
-        TimeSeries.newBuilder()
-            .setMetricKind(convertMetricKind(metricData))
-            .setValueType(convertValueType(metricData.getType()))
-            .setResource(applicationResource);
-
-    Metric.Builder metricBuilder = Metric.newBuilder().setType(metricData.getName());
-
-    Attributes attributes = pointData.getAttributes();
-    for (AttributeKey<?> key : attributes.asMap().keySet()) {
-      metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
-    }
-
-    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
-    builder.setMetric(metricBuilder.build());
-
-    TimeInterval timeInterval =
-        TimeInterval.newBuilder()
-            .setStartTime(Timestamps.fromNanos(pointData.getStartEpochNanos()))
-            .setEndTime(Timestamps.fromNanos(pointData.getEpochNanos()))
-            .build();
-
-    builder.addPoints(createPoint(metricData.getType(), pointData, timeInterval));
     return builder.build();
   }
 

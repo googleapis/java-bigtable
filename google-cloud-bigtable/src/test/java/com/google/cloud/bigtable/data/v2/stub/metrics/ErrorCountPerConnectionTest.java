@@ -103,7 +103,7 @@ public class ErrorCountPerConnectionTest {
             .setBackgroundExecutorProvider(FixedExecutorProvider.create(executors))
             .setProjectId("fake-project")
             .setInstanceId("fake-instance")
-            .setMetricsProvider(CustomOpenTelemetryMetricsProvider.create(otel));
+            .setInternalMetricsProvider((ignored1, ignored2) -> otel);
 
     runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
     when(executors.scheduleAtFixedRate(runnableCaptor.capture(), anyLong(), anyLong(), any()))

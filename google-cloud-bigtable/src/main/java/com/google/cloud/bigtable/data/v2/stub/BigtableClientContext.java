@@ -26,6 +26,7 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
+import com.google.cloud.bigtable.data.v2.stub.metrics.BigtableExporterUtils;
 import com.google.cloud.bigtable.data.v2.stub.metrics.CustomOpenTelemetryMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
@@ -33,6 +34,8 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
 import io.grpc.ManagedChannelBuilder;
 import io.opentelemetry.api.OpenTelemetry;
+import io.opentelemetry.api.common.Attributes;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,6 +54,7 @@ public class BigtableClientContext {
 
   @Nullable private final OpenTelemetry openTelemetry;
   private final ClientContext clientContext;
+  @Nullable private final OpenTelemetrySdk internalOtel;
 
   public static BigtableClientContext create(EnhancedBigtableStubSettings settings)
       throws IOException {
@@ -84,18 +88,26 @@ public class BigtableClientContext {
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
 
-    ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
+    @Nullable OpenTelemetrySdk internalOtel = null;
+    @Nullable ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
+
+    if (transportProvider != null) {
+      internalOtel =
+          settings
+              .getInternalMetricsProvider()
+              .createOtelProvider(settings.getMetricsEndpoint(), credentials);
+      if (internalOtel != null) {
+        errorCountPerConnectionMetricTracker =
+            setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
+      }
+    }
 
     if (transportProvider != null) {
       // Set up cookie holder if routing cookie is enabled
       if (builder.getEnableRoutingCookie()) {
         setupCookieHolder(transportProvider);
       }
-      // Set up per connection error count tracker if OpenTelemetry is not null
-      if (openTelemetry != null) {
-        errorCountPerConnectionMetricTracker =
-            setupPerConnectionErrorTracer(builder, transportProvider, openTelemetry);
-      }
+
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
         transportProvider.setChannelPrimer(
@@ -117,12 +129,14 @@ public class BigtableClientContext {
           clientContext.getExecutor());
     }
 
-    return new BigtableClientContext(clientContext, openTelemetry);
+    return new BigtableClientContext(clientContext, openTelemetry, internalOtel);
   }
 
-  private BigtableClientContext(ClientContext clientContext, OpenTelemetry openTelemetry) {
+  private BigtableClientContext(
+      ClientContext clientContext, OpenTelemetry openTelemetry, OpenTelemetrySdk internalOtel) {
     this.clientContext = clientContext;
     this.openTelemetry = openTelemetry;
+    this.internalOtel = internalOtel;
   }
 
   public OpenTelemetry getOpenTelemetry() {
@@ -136,6 +150,9 @@ public class BigtableClientContext {
   public void close() throws Exception {
     for (BackgroundResource resource : clientContext.getBackgroundResources()) {
       resource.close();
+    }
+    if (internalOtel != null) {
+      internalOtel.close();
     }
   }
 
@@ -200,9 +217,15 @@ public class BigtableClientContext {
       EnhancedBigtableStubSettings.Builder builder,
       InstantiatingGrpcChannelProvider.Builder transportProvider,
       OpenTelemetry openTelemetry) {
+
+    Attributes attrs =
+        EnhancedBigtableStub.createBuiltinAttributes(builder.build())
+            .toBuilder()
+            .put("client_uid", BigtableExporterUtils.getDefaultTaskValue())
+            .build();
+
     ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker =
-        new ErrorCountPerConnectionMetricTracker(
-            openTelemetry, EnhancedBigtableStub.createBuiltinAttributes(builder.build()));
+        new ErrorCountPerConnectionMetricTracker(openTelemetry, attrs);
     ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder> oldChannelConfigurator =
         transportProvider.getChannelConfigurator();
     transportProvider.setChannelConfigurator(

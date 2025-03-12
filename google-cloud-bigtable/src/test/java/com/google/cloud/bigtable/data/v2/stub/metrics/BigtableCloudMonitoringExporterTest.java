@@ -17,7 +17,6 @@ package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APP_PROFILE_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.BIGTABLE_PROJECT_ID_KEY;
-import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_NAME_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_UID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLUSTER_ID_KEY;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.INSTANCE_ID_KEY;
@@ -31,13 +30,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.api.Distribution;
-import com.google.api.MonitoredResource;
 import com.google.api.core.ApiFuture;
 import com.google.api.core.ApiFutures;
 import com.google.api.gax.rpc.UnaryCallable;
 import com.google.cloud.monitoring.v3.MetricServiceClient;
 import com.google.cloud.monitoring.v3.stub.MetricServiceStub;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.monitoring.v3.CreateTimeSeriesRequest;
@@ -94,9 +91,7 @@ public class BigtableCloudMonitoringExporterTest {
   public void setUp() {
     fakeMetricServiceClient = new FakeMetricServiceClient(mockMetricServiceStub);
 
-    exporter =
-        new BigtableCloudMonitoringExporter(
-            fakeMetricServiceClient, /* applicationResource= */ Suppliers.ofInstance(null), taskId);
+    exporter = new BigtableCloudMonitoringExporter(fakeMetricServiceClient, taskId);
 
     attributes =
         Attributes.builder()
@@ -301,87 +296,6 @@ public class BigtableCloudMonitoringExporterTest {
           .isEqualTo(startEpoch);
       assertThat(timeSeries.getPoints(0).getInterval().getEndTime().getNanos()).isEqualTo(endEpoch);
     }
-  }
-
-  @Test
-  public void testTimeSeriesForMetricWithGceOrGkeResource() {
-    String gceProjectId = "fake-gce-project";
-    BigtableCloudMonitoringExporter exporter =
-        new BigtableCloudMonitoringExporter(
-            fakeMetricServiceClient,
-            Suppliers.ofInstance(
-                MonitoredResource.newBuilder()
-                    .setType("gce-instance")
-                    .putLabels("some-gce-key", "some-gce-value")
-                    .putLabels("project_id", gceProjectId)
-                    .build()),
-            taskId);
-    ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
-        ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
-
-    UnaryCallable<CreateTimeSeriesRequest, Empty> mockCallable = mock(UnaryCallable.class);
-    when(mockMetricServiceStub.createServiceTimeSeriesCallable()).thenReturn(mockCallable);
-    ApiFuture<Empty> future = ApiFutures.immediateFuture(Empty.getDefaultInstance());
-    when(mockCallable.futureCall(argumentCaptor.capture())).thenReturn(future);
-
-    long startEpoch = 10;
-    long endEpoch = 15;
-    HistogramPointData histogramPointData =
-        ImmutableHistogramPointData.create(
-            startEpoch,
-            endEpoch,
-            Attributes.of(
-                BIGTABLE_PROJECT_ID_KEY,
-                projectId,
-                INSTANCE_ID_KEY,
-                instanceId,
-                APP_PROFILE_KEY,
-                appProfileId,
-                CLIENT_NAME_KEY,
-                clientName),
-            3d,
-            true,
-            1d, // min
-            true,
-            2d, // max
-            Arrays.asList(1.0),
-            Arrays.asList(1L, 2L));
-
-    MetricData histogramData =
-        ImmutableMetricData.createDoubleHistogram(
-            resource,
-            scope,
-            "bigtable.googleapis.com/internal/client/per_connection_error_count",
-            "description",
-            "ms",
-            ImmutableHistogramData.create(
-                AggregationTemporality.CUMULATIVE, ImmutableList.of(histogramPointData)));
-
-    exporter.export(Arrays.asList(histogramData));
-
-    CreateTimeSeriesRequest request = argumentCaptor.getValue();
-
-    assertThat(request.getName()).isEqualTo("projects/" + gceProjectId);
-    assertThat(request.getTimeSeriesList()).hasSize(1);
-
-    com.google.monitoring.v3.TimeSeries timeSeries = request.getTimeSeriesList().get(0);
-
-    assertThat(timeSeries.getResource().getLabelsMap())
-        .containsExactly("some-gce-key", "some-gce-value", "project_id", gceProjectId);
-
-    assertThat(timeSeries.getMetric().getLabelsMap()).hasSize(5);
-    assertThat(timeSeries.getMetric().getLabelsMap())
-        .containsAtLeast(
-            BIGTABLE_PROJECT_ID_KEY.getKey(),
-            projectId,
-            INSTANCE_ID_KEY.getKey(),
-            instanceId,
-            APP_PROFILE_KEY.getKey(),
-            appProfileId,
-            CLIENT_NAME_KEY.getKey(),
-            clientName,
-            CLIENT_UID_KEY.getKey(),
-            taskId);
   }
 
   @Test

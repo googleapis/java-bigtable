@@ -976,6 +976,7 @@ public class EnhancedBigtableStubSettingsTest {
     "executeQuerySettings",
     "metricsProvider",
     "metricsEndpoint",
+    "enableInternalMetrics"
   };
 
   @Test

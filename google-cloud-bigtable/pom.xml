@@ -224,9 +224,23 @@
       <groupId>io.opentelemetry</groupId>
       <artifactId>opentelemetry-sdk-common</artifactId>
     </dependency>
+    <!-- TODO: remove this -->
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-sdk-extension-autoconfigure</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud.opentelemetry</groupId>
+      <artifactId>detector-resources</artifactId>
+      <version>0.27.0-alpha</version>
+    </dependency>
     <dependency>
       <groupId>com.google.cloud.opentelemetry</groupId>
       <artifactId>detector-resources-support</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.cloud.opentelemetry</groupId>
+      <artifactId>exporter-metrics</artifactId>
     </dependency>
     <dependency>
       <groupId>io.opentelemetry</groupId>
