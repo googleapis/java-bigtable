@@ -59,11 +59,13 @@ public class CreateMaterializedViewRequestTest {
 
     assertThat(request)
         .isEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID).setQuery("test 1"));
+            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID).setQuery("test 1")
+            .setDeletionProtection(false));
 
     assertThat(request)
         .isNotEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID).setQuery("test 2"));
+            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID).setQuery("test 2")
+            .setDeletionProtection(false));
   }
 
   @Test
@@ -77,12 +79,14 @@ public class CreateMaterializedViewRequestTest {
         .isEqualTo(
             CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
                 .setQuery("test 1")
+                .setDeletionProtection(false)
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
                 .setQuery("test 2")
+                .setDeletionProtection(false)
                 .hashCode());
   }
 }
