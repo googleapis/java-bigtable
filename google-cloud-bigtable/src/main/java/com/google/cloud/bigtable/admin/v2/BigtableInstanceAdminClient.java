@@ -1439,7 +1439,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
   public ApiFuture<MaterializedView> createMaterializedViewAsync(
       CreateMaterializedViewRequest request) {
     return ApiFutures.transform(
-        stub.createMaterializedViewCallable().futureCall(request.toProto(projectId)),
+        stub.createMaterializedViewOperationCallable().futureCall(request.toProto(projectId)),
         new ApiFunction<com.google.bigtable.admin.v2.MaterializedView, MaterializedView>() {
           @Override
           public MaterializedView apply(com.google.bigtable.admin.v2.MaterializedView proto) {
@@ -1644,8 +1644,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
   public ApiFuture<MaterializedView> updateMaterializedViewAsync(
       UpdateMaterializedViewRequest request) {
     return ApiFutures.transform(
-        stub.updateMaterializedViewOperationCallable()
-            .futureCall(request.toProto(projectId, instanceId)),
+        stub.updateMaterializedViewOperationCallable().futureCall(request.toProto(projectId)),
         new ApiFunction<com.google.bigtable.admin.v2.MaterializedView, MaterializedView>() {
           @Override
           public MaterializedView apply(com.google.bigtable.admin.v2.MaterializedView proto) {

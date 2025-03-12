@@ -116,7 +116,7 @@ public final class BigtableInstanceAdminSettings {
         .add("createMaterializedViewSettings", stubSettings.createMaterializedViewSettings())
         .add("getMaterializedViewSettings", stubSettings.getMaterializedViewSettings())
         .add("listMaterializedViewsSettings", stubSettings.listMaterializedViewsSettings())
-        .add("updateMaterializedViewSettings", stubSettings.updateMaterializedViewSettings())        
+        .add("updateMaterializedViewSettings", stubSettings.updateMaterializedViewSettings())
         .add("deleteMaterializedViewSettings", stubSettings.deleteMaterializedViewSettings())
         .add("stubSettings", stubSettings)
         .toString();

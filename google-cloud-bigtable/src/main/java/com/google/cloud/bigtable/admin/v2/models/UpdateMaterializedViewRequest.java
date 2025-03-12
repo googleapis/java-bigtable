@@ -111,7 +111,7 @@ public final class UpdateMaterializedViewRequest {
    */
   @InternalApi
   public com.google.bigtable.admin.v2.UpdateMaterializedViewRequest toProto(
-      @Nonnull String projectId, @Nonnull String instanceId) {
+      @Nonnull String projectId) {
     requestBuilder
         .getMaterializedViewBuilder()
         .setName(NameUtil.formatMaterializedViewName(projectId, instanceId, materializedViewId));

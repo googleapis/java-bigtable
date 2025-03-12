@@ -18,7 +18,6 @@ package com.google.cloud.bigtable.admin.v2.internal;
 import com.google.api.core.InternalApi;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.annotation.Nonnull;
 
 /**
