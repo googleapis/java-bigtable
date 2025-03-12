@@ -96,7 +96,8 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
-            fakeMetricServiceClient, /* applicationResource= */ Suppliers.ofInstance(null), taskId);
+            fakeMetricServiceClient,
+            new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter(taskId));
 
     attributes =
         Attributes.builder()
@@ -309,13 +310,14 @@ public class BigtableCloudMonitoringExporterTest {
     BigtableCloudMonitoringExporter exporter =
         new BigtableCloudMonitoringExporter(
             fakeMetricServiceClient,
-            Suppliers.ofInstance(
-                MonitoredResource.newBuilder()
-                    .setType("gce-instance")
-                    .putLabels("some-gce-key", "some-gce-value")
-                    .putLabels("project_id", gceProjectId)
-                    .build()),
-            taskId);
+            new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
+                Suppliers.ofInstance(
+                    MonitoredResource.newBuilder()
+                        .setType("gce-instance")
+                        .putLabels("some-gce-key", "some-gce-value")
+                        .putLabels("project_id", gceProjectId)
+                        .build()),
+                taskId));
     ArgumentCaptor<CreateTimeSeriesRequest> argumentCaptor =
         ArgumentCaptor.forClass(CreateTimeSeriesRequest.class);
 

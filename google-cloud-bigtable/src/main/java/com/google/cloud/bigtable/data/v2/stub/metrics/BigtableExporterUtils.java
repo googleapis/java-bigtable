@@ -43,6 +43,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
+import com.google.monitoring.v3.ProjectName;
 import com.google.monitoring.v3.TimeInterval;
 import com.google.monitoring.v3.TimeSeries;
 import com.google.monitoring.v3.TypedValue;
@@ -107,14 +108,14 @@ class BigtableExporterUtils {
     return "java-" + UUID.randomUUID() + jvmName;
   }
 
-  static String getProjectId(PointData pointData) {
-    return pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY);
+  static ProjectName getProjectName(PointData pointData) {
+    return ProjectName.of(pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY));
   }
 
   // Returns a list of timeseries by project id
-  static Map<String, List<TimeSeries>> convertToBigtableTimeSeries(
-      List<MetricData> collection, String taskId) {
-    Map<String, List<TimeSeries>> allTimeSeries = new HashMap<>();
+  static Map<ProjectName, List<TimeSeries>> convertToBigtableTimeSeries(
+      Collection<MetricData> collection, String taskId) {
+    Map<ProjectName, List<TimeSeries>> allTimeSeries = new HashMap<>();
 
     for (MetricData metricData : collection) {
       if (!metricData.getInstrumentationScopeInfo().getName().equals(METER_NAME)) {
@@ -123,7 +124,7 @@ class BigtableExporterUtils {
       }
 
       for (PointData pd : metricData.getData().getPoints()) {
-        String projectId = getProjectId(pd);
+        ProjectName projectId = getProjectName(pd);
         List<TimeSeries> current =
             allTimeSeries.computeIfAbsent(projectId, ignored -> new ArrayList<>());
         current.add(convertPointToBigtableTimeSeries(metricData, pd, taskId));
