@@ -24,7 +24,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class CreateMaterializedViewRequestTest {
+public class UpdateMaterializedViewRequestTest {
   private static final String PROJECT_ID = "my-project";
   private static final String INSTANCE_ID = "my-instance";
   private static final String MATERIALIZED_VIEW_ID = "my-materialized-view";
@@ -32,62 +32,55 @@ public class CreateMaterializedViewRequestTest {
   @Test
   public void testToProto() {
     String query = "SELECT * FROM Table";
-    CreateMaterializedViewRequest request =
-        CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
+    UpdateMaterializedViewRequest request =
+        UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
             .setDeletionProtection(true)
             .setQuery(query);
 
-    com.google.bigtable.admin.v2.CreateMaterializedViewRequest requestProto =
-        com.google.bigtable.admin.v2.CreateMaterializedViewRequest.newBuilder()
+    com.google.bigtable.admin.v2.UpdateMaterializedViewRequest requestProto =
+        com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .setMaterializedViewId(MATERIALIZED_VIEW_ID)
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
-                    .setDeletionProtection(true)
-                    .setQuery(query))
+                    .setDeletionProtection(true))
             .build();
     assertThat(request.toProto(PROJECT_ID)).isEqualTo(requestProto);
   }
 
   @Test
   public void testEquality() {
-    CreateMaterializedViewRequest request =
-        CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-            .setQuery("test 1")
+    UpdateMaterializedViewRequest request =
+        UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
             .setDeletionProtection(false);
 
     assertThat(request)
         .isEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setQuery("test 1")
+            UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
                 .setDeletionProtection(false));
 
     assertThat(request)
         .isNotEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setQuery("test 2")
-                .setDeletionProtection(false));
+            UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
+                .setDeletionProtection(true));
   }
 
   @Test
   public void testHashCode() {
-    CreateMaterializedViewRequest request =
-        CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-            .setQuery("test 1")
+    UpdateMaterializedViewRequest request =
+        UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
             .setDeletionProtection(false);
 
     assertThat(request.hashCode())
         .isEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setQuery("test 1")
+            UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
                 .setDeletionProtection(false)
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
-            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setQuery("test 2")
-                .setDeletionProtection(false)
+            UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
+                .setDeletionProtection(true)
                 .hashCode());
   }
 }
