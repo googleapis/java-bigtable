@@ -52,8 +52,7 @@ public final class MaterializedView {
   private MaterializedView(@Nonnull com.google.bigtable.admin.v2.MaterializedView proto) {
     Preconditions.checkNotNull(proto);
     Preconditions.checkArgument(!proto.getName().isEmpty(), "MaterializedView must have a name");
-    Preconditions.checkArgument(
-        proto.hasSubsetView(), "MaterializedView must have a subset_view field");
+    Preconditions.checkArgument(proto.getQuery().isEmpty(), "MaterializedView must have a query");
     this.proto = proto;
   }
 
@@ -111,11 +110,4 @@ public final class MaterializedView {
   public int hashCode() {
     return Objects.hashCode(proto);
   }
-
-  /**
-   * Represents a subset of a Table. Please check the implementations of this interface for more
-   * details.
-   */
-  @InternalExtensionOnly
-  public interface MaterializedViewType {}
 }
