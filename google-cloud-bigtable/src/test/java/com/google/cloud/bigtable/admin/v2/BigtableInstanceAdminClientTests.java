@@ -97,6 +97,7 @@ public class BigtableInstanceAdminClientTests {
   private static final String INSTANCE_ID = "my-instance";
   private static final String CLUSTER_ID = "my-cluster";
   private static final String APP_PROFILE_ID = "my-app-profile";
+  private static final String MATERIALIZED_VIEW_ID = "my-materialized-view";
 
   private static final String PROJECT_NAME = NameUtil.formatProjectName(PROJECT_ID);
   private static final String INSTANCE_NAME = NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID);
@@ -104,6 +105,8 @@ public class BigtableInstanceAdminClientTests {
       NameUtil.formatClusterName(PROJECT_ID, INSTANCE_ID, CLUSTER_ID);
   private static final String APP_PROFILE_NAME =
       NameUtil.formatAppProfileName(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID);
+      private static final String MATERIALIZED_VIEW_NAME =
+          NameUtil.formatAppProfileName(PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID);
 
   private BigtableInstanceAdminClient adminClient;
 
@@ -1559,5 +1562,187 @@ public class BigtableInstanceAdminClientTests {
 
     // Verify
     assertThat(found).isFalse();
+  }
+
+  @Test
+  public void testCreateMaterializedView() {
+    // Setup
+    Mockito.when(mockStub.createMaterializedViewCallable()).thenReturn(mockCreateMaterializedViewCallable);
+
+    com.google.bigtable.admin.v2.CreateMaterializedViewRequest expectedRequest =
+        com.google.bigtable.admin.v2.CreateMaterializedViewRequest.newBuilder()
+            .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+            .setMaterializedViewId(MATERIALIZED_VIEW_ID)
+            .setMaterializedView(
+                com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+                    .setDeletionProtection(false)
+                    .setQuery("SELECT 1 FROM Table"))
+            .build();
+
+    com.google.bigtable.admin.v2.MaterializedView expectedResponse =
+        com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+            .setName(MATERIALIZED_VIEW_NAME)
+            .setDeletionProtection(false)
+            .setQuery("SELECT 1 FROM Table")
+            .build();
+
+    Mockito.when(mockCreateMaterializedViewCallable.futureCall(expectedRequest))
+        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    MaterializedView actualResult =
+        adminClient.createMaterializedView(
+            CreateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
+                .setDeletionProtection(false)
+                .setQuery("SELECT 1 FROM Table"));
+
+    // Verify
+    assertThat(actualResult).isEqualTo(MaterializedView.fromProto(expectedResponse));
+  }
+
+  
+  @Test
+  public void testGetMaterializedView() {
+    // Setup
+    Mockito.when(mockStub.getMaterializedViewCallable()).thenReturn(mockGetMaterializedViewCallable);
+
+    com.google.bigtable.admin.v2.GetMaterializedViewRequest expectedRequest =
+        com.google.bigtable.admin.v2.GetMaterializedViewRequest.newBuilder()
+            .setName(MATERIALIZED_VIEW_NAME)
+            .build();
+
+    com.google.bigtable.admin.v2.MaterializedView expectedResponse =
+        com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+            .setName(MATERIALIZED_VIEW_NAME)
+            .setDeletionProtection(false)
+            .setQuery("SELECT 1 FROM Table")
+            .build();
+
+    Mockito.when(mockGetMaterializedViewCallable.futureCall(expectedRequest))
+        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+
+    // Execute
+    MaterializedView actualResult = adminClient.getMaterializedView(INSTANCE_ID, MATERIALIZED_VIEW_ID);
+
+    // Verify
+    assertThat(actualResult).isEqualTo(MaterializedView.fromProto(expectedResponse));
+  }
+
+  @Test
+  public void testListMaterializedViews() {
+    // Setup
+    Mockito.when(mockStub.listMaterializedViewsPagedCallable()).thenReturn(mockListMaterializedViewsCallable);
+
+    com.google.bigtable.admin.v2.ListMaterializedViewsRequest expectedRequest =
+        com.google.bigtable.admin.v2.ListMaterializedViewsRequest.newBuilder()
+            .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
+            .build();
+
+    // 3 MaterializedViews spread across 2 pages
+    List<com.google.bigtable.admin.v2.MaterializedView> expectedProtos = Lists.newArrayList();
+    for (int i = 0; i < 3; i++) {
+      expectedProtos.add(
+          com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+              .setName(MATERIALIZED_VIEW_NAME + i)
+              setDeletionProtection(false)
+                .setQuery("SELECT 1 FROM Table" + i)
+              .build());
+    }
+    // 2 on the first page
+    ListMaterializedViewsPage page0 = Mockito.mock(ListMaterializedViewsPage.class);
+    Mockito.when(page0.getValues()).thenReturn(expectedProtos.subList(0, 2));
+    Mockito.when(page0.hasNextPage()).thenReturn(true);
+
+    // 1 on the last page
+    ListMaterializedViewsPage page1 = Mockito.mock(ListMaterializedViewsPage.class);
+    Mockito.when(page1.getValues()).thenReturn(expectedProtos.subList(2, 3));
+
+    // Link page0 to page1
+    Mockito.when(page0.getNextPageAsync()).thenReturn(ApiFutures.immediateFuture(page1));
+
+    // Link page to the response
+    ListMaterializedViewsPagedResponse response0 = Mockito.mock(ListMaterializedViewsPagedResponse.class);
+    Mockito.when(response0.getPage()).thenReturn(page0);
+
+    Mockito.when(mockListMaterializedViewsCallable.futureCall(expectedRequest))
+        .thenReturn(ApiFutures.immediateFuture(response0));
+
+    // Execute
+    List<MaterializedView> actualResults = adminClient.listMaterializedViews(INSTANCE_ID);
+
+    // Verify
+    List<MaterializedView> expectedResults = Lists.newArrayList();
+    for (com.google.bigtable.admin.v2.MaterializedView expectedProto : expectedProtos) {
+      expectedResults.add(MaterializedView.fromProto(expectedProto));
+    }
+
+    assertThat(actualResults).containsExactlyElementsIn(expectedResults);
+  }
+
+  @Test
+  public void testUpdateMaterializedView() {
+    // Setup
+    Mockito.when(mockStub.updateMaterializedViewOperationCallable())
+        .thenReturn(mockUpdateMaterializedViewCallable);
+
+    com.google.bigtable.admin.v2.UpdateMaterializedViewRequest expectedRequest =
+        com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.newBuilder()
+            .setMaterializedView(
+                com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+                    .setName(MATERIALIZED_VIEW_NAME)
+                    .setDeletionProtection(false)
+                    .setQuery("SELECT 1+1 FROM Table"))
+            .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection"))
+            .build();
+
+    com.google.bigtable.admin.v2.MaterializedView expectedResponse =
+        com.google.bigtable.admin.v2.MaterializedView.newBuilder()
+            .setName(MATERIALIZED_VIEW_NAME)
+            .setDeletionProtection(false)
+            .setQuery("SELECT 1+1 FROM Table")             
+            .build();
+
+    mockOperationResult(mockUpdateMaterializedViewCallable, expectedRequest, expectedResponse);
+
+    // Execute
+    MaterializedView actualResult =
+        adminClient.updateMaterializedView(
+            UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
+                .setDescription("SELECT 1+1 FROM Table"));
+
+    // Verify
+    assertThat(actualResult).isEqualTo(MaterializedView.fromProto(expectedResponse));
+  }
+
+  
+  @Test
+  public void testDeleteMaterializedView() throws Exception {
+    // Setup
+    Mockito.when(mockStub.deleteMaterializedViewCallable()).thenReturn(mockDeleteMaterializedViewCallable);
+
+    com.google.bigtable.admin.v2.DeleteMaterializedViewRequest expectedRequest =
+        com.google.bigtable.admin.v2.DeleteMaterializedViewRequest.newBuilder()
+            .setName(MATERIALIZED_VIEW_NAME)
+            .build();
+
+    final AtomicInteger wasCalled = new AtomicInteger(0);
+
+    Mockito.when(mockDeleteMaterializedViewCallable.futureCall(expectedRequest))
+        .thenAnswer(
+            new Answer<ApiFuture<Empty>>() {
+              @Override
+              public ApiFuture<Empty> answer(InvocationOnMock invocationOnMock) {
+                wasCalled.incrementAndGet();
+                return ApiFutures.immediateFuture(Empty.getDefaultInstance());
+              }
+            });
+
+    // Execute
+    adminClient.deleteMaterializedView(INSTANCE_ID, MATERIALIZED_VIEW_ID);
+
+    adminClient.deleteMaterializedViewAsync(INSTANCE_ID, MATERIALIZED_VIEW_ID).get();
+
+    // Verify
+    assertThat(wasCalled.get()).isEqualTo(2);
   }
 }
