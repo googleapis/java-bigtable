@@ -314,6 +314,11 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     @Override
     public Map<ProjectName, List<TimeSeries>> convert(Collection<MetricData> metricData) {
+      MonitoredResource monitoredResource = this.monitoredResource.get();
+      if (monitoredResource == null) {
+        return ImmutableMap.of();
+      }
+
       List<MetricData> relevantData =
           metricData.stream()
               .filter(md -> APPLICATION_METRICS.contains(md.getName()))
@@ -323,9 +328,9 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       }
 
       return ImmutableMap.of(
-          ProjectName.of(monitoredResource.get().getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID)),
+          ProjectName.of(monitoredResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID)),
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              metricData, taskId, monitoredResource.get()));
+              metricData, taskId, monitoredResource));
     }
   }
 }
