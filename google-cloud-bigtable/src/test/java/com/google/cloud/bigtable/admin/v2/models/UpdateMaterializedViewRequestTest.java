@@ -38,7 +38,6 @@ public class UpdateMaterializedViewRequestTest {
 
     com.google.bigtable.admin.v2.UpdateMaterializedViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.newBuilder()
-            .setMaterializedViewId(MATERIALIZED_VIEW_ID)
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
                     .setDeletionProtection(true))
