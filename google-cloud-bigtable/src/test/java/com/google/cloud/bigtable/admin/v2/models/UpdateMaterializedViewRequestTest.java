@@ -34,12 +34,10 @@ public class UpdateMaterializedViewRequestTest {
     String query = "SELECT * FROM Table";
     UpdateMaterializedViewRequest request =
         UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-            .setDeletionProtection(true)
-            .setQuery(query);
+            .setDeletionProtection(true);
 
     com.google.bigtable.admin.v2.UpdateMaterializedViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.newBuilder()
-            .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .setMaterializedViewId(MATERIALIZED_VIEW_ID)
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
