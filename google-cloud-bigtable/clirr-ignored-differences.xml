@@ -317,7 +317,7 @@
 
     <difference>
         <differenceType>7009</differenceType>
-        <className>com.google.cloud.bigtable.data.v2.stub.metrics.BigtableCloudMonitoringExporter</className>
+        <className>com/google/cloud/bigtable/data/v2/stub/metrics/BigtableCloudMonitoringExporter</className>
         <method>*</method>
     </difference>
 </differences>
