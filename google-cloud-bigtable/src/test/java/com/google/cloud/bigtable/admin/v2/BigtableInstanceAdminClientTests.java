@@ -1728,6 +1728,7 @@ public class BigtableInstanceAdminClientTests {
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
                     .setName(MATERIALIZED_VIEW_NAME)
+                    .setQuery("SELECT 1 FROM Table")
                     .setDeletionProtection(false))
             .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection"))
             .build();

@@ -25,17 +25,17 @@ import com.google.protobuf.util.FieldMaskUtil;
 import javax.annotation.Nonnull;
 
 /**
- * Parameters for updating an existing Cloud Bigtable {@link AuthorizedView}.
+ * Parameters for updating an existing Cloud Bigtable {@link MaterializedView}.
  *
  * <p>Sample code:
  *
  * <pre>{@code
- * AuthorizedView existingAuthorizedView = client.getAuthorizedView("my-table", "my-authorized-view");
+ * MaterializedView existingMaterializedView = client.getMaterializedView("my-table", "my-materialized-view");
  * UpdateMaterializedViewRequest request =
- *     UpdateMaterializedViewRequest.of(existingAuthorizedView).setDeletionProtection(true);
+ *     UpdateMaterializedViewRequest.of(existingMaterializedView).setDeletionProtection(true);
  * }</pre>
  *
- * @see AuthorizedView for more details.
+ * @see MaterializedView for more details.
  */
 public final class UpdateMaterializedViewRequest {
   private final com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.Builder requestBuilder;
@@ -51,7 +51,7 @@ public final class UpdateMaterializedViewRequest {
             .setMaterializedView(materializedView.toProto()));
   }
 
-  /** Builds a new update authorized view request. */
+  /** Builds a new update materialized view request. */
   public static UpdateMaterializedViewRequest of(
       @Nonnull String instanceId, @Nonnull String materializedViewId) {
     return new UpdateMaterializedViewRequest(
@@ -73,17 +73,17 @@ public final class UpdateMaterializedViewRequest {
     this.requestBuilder = requestBuilder;
   }
 
-  /** Changes the deletion protection of an existing authorized view. */
+  /** Changes the deletion protection of an existing materialized view. */
   public UpdateMaterializedViewRequest setDeletionProtection(boolean deletionProtection) {
     requestBuilder.getMaterializedViewBuilder().setDeletionProtection(deletionProtection);
-    updateFieldMask(com.google.bigtable.admin.v2.AuthorizedView.DELETION_PROTECTION_FIELD_NUMBER);
+    updateFieldMask(com.google.bigtable.admin.v2.MaterializedView.DELETION_PROTECTION_FIELD_NUMBER);
     return this;
   }
 
   private void updateFieldMask(int fieldNumber) {
     FieldMask newMask =
         FieldMaskUtil.fromFieldNumbers(
-            com.google.bigtable.admin.v2.AuthorizedView.class, fieldNumber);
+            com.google.bigtable.admin.v2.MaterializedView.class, fieldNumber);
     requestBuilder.setUpdateMask(FieldMaskUtil.union(requestBuilder.getUpdateMask(), newMask));
   }
 
