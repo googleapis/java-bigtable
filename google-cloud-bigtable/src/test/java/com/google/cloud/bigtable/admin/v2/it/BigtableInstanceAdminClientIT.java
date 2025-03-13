@@ -643,7 +643,7 @@ public class BigtableInstanceAdminClientIT {
         client.createMaterializedView(
             CreateMaterializedViewRequest.of(instanceId, testMaterializedView)
                 .setDeletionProtection(true)
-                .setQuery("SELECT _key, MAX(cf1['column']) FROM `" + tableId + "`"));
+                .setQuery("SELECT _key, MAX(cf1['column']) as column FROM `" + tableId + "`"));
 
     MaterializedView updated =
         client.updateMaterializedView(
