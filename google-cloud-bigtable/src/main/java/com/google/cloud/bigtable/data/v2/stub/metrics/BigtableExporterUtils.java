@@ -41,6 +41,8 @@ import com.google.cloud.opentelemetry.detection.DetectedPlatform;
 import com.google.cloud.opentelemetry.detection.GCPPlatformDetector;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableSet;
 import com.google.monitoring.v3.Point;
 import com.google.monitoring.v3.ProjectName;
@@ -91,7 +93,14 @@ class BigtableExporterUtils {
    * In most cases this should look like java-${UUID}@${hostname}. The hostname will be retrieved
    * from the jvm name and fallback to the local hostname.
    */
-  static String getDefaultTaskValue() {
+  private static String defaultTaskValue = null;
+
+  static final Supplier<String> DEFAULT_TABLE_VALUE = Suppliers.memoize(BigtableExporterUtils::computeDefaultTaskValue);
+
+  private static String computeDefaultTaskValue() {
+    if (defaultTaskValue != null) {
+      return defaultTaskValue;
+    }
     // Something like '<pid>@<hostname>'
     final String jvmName = ManagementFactory.getRuntimeMXBean().getName();
     // If jvm doesn't have the expected format, fallback to the local hostname

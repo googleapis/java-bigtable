@@ -175,7 +175,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
                   if (exportFailureLogged.compareAndSet(false, true)) {
                     String msg =
                         String.format(
-                            "createServiceTimeSeries request failed for bigtable metrics %s.",
+                            "createServiceTimeSeries request failed for %s.",
                             exporterName);
                     if (throwable instanceof PermissionDeniedException) {
                       msg +=
@@ -285,7 +285,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     private final String taskId;
 
     PublicTimeSeriesConverter() {
-      this(BigtableExporterUtils.getDefaultTaskValue());
+      this(BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
     }
 
     PublicTimeSeriesConverter(String taskId) {
@@ -315,7 +315,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     private final Supplier<MonitoredResource> monitoredResource;
 
     InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource) {
-      this(monitoredResource, BigtableExporterUtils.getDefaultTaskValue());
+      this(monitoredResource, BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
     }
 
     InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource, String taskId) {
