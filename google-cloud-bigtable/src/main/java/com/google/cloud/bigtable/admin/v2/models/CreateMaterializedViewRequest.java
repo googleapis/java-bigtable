@@ -49,24 +49,17 @@ public final class CreateMaterializedViewRequest {
     proto.setMaterializedViewId(materializedViewId);
   }
 
-  /** Configures if safety warnings should be disabled. */
+  /** Configures if the materialized view is deletion protected. */
   @SuppressWarnings("WeakerAccess")
   public CreateMaterializedViewRequest setDeletionProtection(boolean value) {
     proto.getMaterializedViewBuilder().setDeletionProtection(value);
     return this;
   }
 
-  /** Sets the optional long form description of the use case for the MaterializedView. */
+  /** Sets the query of the MaterializedView. */
   @SuppressWarnings("WeakerAccess")
   public CreateMaterializedViewRequest setQuery(@Nonnull String query) {
     proto.getMaterializedViewBuilder().setQuery(query);
-    return this;
-  }
-
-  /** Sets the optional long form description of the use case for the MaterializedView. */
-  @SuppressWarnings("WeakerAccess")
-  public CreateMaterializedViewRequest setEtag(@Nonnull String etag) {
-    proto.getMaterializedViewBuilder().setEtag(etag);
     return this;
   }
 

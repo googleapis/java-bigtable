@@ -1408,7 +1408,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * <pre>{@code
    * MaterializedView materializedView = client.createMaterializedView(
    *   CreateMaterializedViewRequest.of("my-instance", "my-new-materialized-view")
-   *     .setRoutingPolicy(SingleClusterRoutingPolicy.of("my-cluster"))
+   *     .setQuery(query)
    * );
    * }</pre>
    *
@@ -1427,7 +1427,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    * <pre>{@code
    * ApiFuture<MaterializedView> materializedViewFuture = client.createMaterializedViewAsync(
    *   CreateMaterializedViewRequest.of("my-instance", "my-new-materialized-view")
-   *     .setRoutingPolicy(SingleClusterRoutingPolicy.of("my-cluster"))
+   *     .setQuery(query)
    * );
    *
    * MaterializedView materializedView = materializedViewFuture.get();
@@ -1603,7 +1603,7 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
    *
    * MaterializedView updatedMaterializedView = client.updateMaterializedView(
    *   UpdateMaterializedViewRequest.of(existingMaterializedView)
-   *     .setRoutingPolicy(SingleClusterRoutingPolicy.of("my-cluster"))
+   *     .setDeletionProtection(false)
    * );
    * }</pre>
    *
