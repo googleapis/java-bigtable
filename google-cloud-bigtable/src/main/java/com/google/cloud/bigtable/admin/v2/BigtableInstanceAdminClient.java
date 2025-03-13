@@ -1699,6 +1699,296 @@ public final class BigtableInstanceAdminClient implements AutoCloseable {
   }
 
   /**
+   * Creates a new logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * LogicalView logicalView = client.createLogicalView(
+   *   CreateLogicalViewRequest.of("my-instance", "my-new-logical-view")
+   *     .setQuery(query)
+   * );
+   * }</pre>
+   *
+   * @see CreateLogicalViewRequest
+   */
+  @SuppressWarnings("WeakerAccess")
+  public LogicalView createLogicalView(CreateLogicalViewRequest request) {
+    return ApiExceptions.callAndTranslateApiException(createLogicalViewAsync(request));
+  }
+
+  /**
+   * Asynchronously creates a new logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<LogicalView> logicalViewFuture = client.createLogicalViewAsync(
+   *   CreateLogicalViewRequest.of("my-instance", "my-new-logical-view")
+   *     .setQuery(query)
+   * );
+   *
+   * LogicalView logicalView = logicalViewFuture.get();
+   * }</pre>
+   *
+   * @see CreateLogicalViewRequest
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<LogicalView> createLogicalViewAsync(CreateLogicalViewRequest request) {
+    return ApiFutures.transform(
+        stub.createLogicalViewOperationCallable().futureCall(request.toProto(projectId)),
+        new ApiFunction<com.google.bigtable.admin.v2.LogicalView, LogicalView>() {
+          @Override
+          public LogicalView apply(com.google.bigtable.admin.v2.LogicalView proto) {
+            return LogicalView.fromProto(proto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Gets the logical view by ID.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * LogicalView logicalView = client.getLogicalView("my-instance", "my-logical-view");
+   * }</pre>
+   *
+   * @see LogicalView
+   */
+  public LogicalView getLogicalView(String instanceId, String logicalViewId) {
+    return ApiExceptions.callAndTranslateApiException(
+        getLogicalViewAsync(instanceId, logicalViewId));
+  }
+
+  /**
+   * Asynchronously gets the logical view by ID.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<LogicalView> logicalViewFuture = client.getLogicalViewAsync("my-instance", "my-logical-view");
+   *
+   * LogicalView logicalView = logicalViewFuture.get();
+   * }</pre>
+   *
+   * @see LogicalView
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<LogicalView> getLogicalViewAsync(String instanceId, String logicalViewId) {
+    String name = NameUtil.formatLogicalViewName(projectId, instanceId, logicalViewId);
+
+    GetLogicalViewRequest request = GetLogicalViewRequest.newBuilder().setName(name).build();
+
+    return ApiFutures.transform(
+        stub.getLogicalViewCallable().futureCall(request),
+        new ApiFunction<com.google.bigtable.admin.v2.LogicalView, LogicalView>() {
+          @Override
+          public LogicalView apply(com.google.bigtable.admin.v2.LogicalView proto) {
+            return LogicalView.fromProto(proto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Lists all logical views of the specified instance.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * List<LogicalView> logicalViews = client.listLogicalViews("my-instance");
+   * }</pre>
+   *
+   * @see LogicalView
+   */
+  @SuppressWarnings("WeakerAccess")
+  public List<LogicalView> listLogicalViews(String instanceId) {
+    return ApiExceptions.callAndTranslateApiException(listLogicalViewsAsync(instanceId));
+  }
+
+  /**
+   * Asynchronously lists all logical views of the specified instance.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<List<LogicalView>> logicalViewsFuture = client.listLogicalViewsAsync("my-instance");
+   *
+   * List<LogicalView> logicalViews = logicalViewFuture.get();
+   * }</pre>
+   *
+   * @see LogicalView
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<List<LogicalView>> listLogicalViewsAsync(String instanceId) {
+    String instanceName = NameUtil.formatInstanceName(projectId, instanceId);
+
+    ListLogicalViewsRequest request =
+        ListLogicalViewsRequest.newBuilder().setParent(instanceName).build();
+
+    // TODO(igorbernstein2): try to upstream pagination spooling or figure out a way to expose the
+    // paginated responses while maintaining the wrapper facade.
+
+    // Fetches the first page.
+    ApiFuture<ListLogicalViewsPage> firstPageFuture =
+        ApiFutures.transform(
+            stub.listLogicalViewsPagedCallable().futureCall(request),
+            new ApiFunction<ListLogicalViewsPagedResponse, ListLogicalViewsPage>() {
+              @Override
+              public ListLogicalViewsPage apply(ListLogicalViewsPagedResponse response) {
+                return response.getPage();
+              }
+            },
+            MoreExecutors.directExecutor());
+
+    // Fetches the rest of the pages by chaining the futures.
+    ApiFuture<List<com.google.bigtable.admin.v2.LogicalView>> allProtos =
+        ApiFutures.transformAsync(
+            firstPageFuture,
+            new ApiAsyncFunction<
+                ListLogicalViewsPage, List<com.google.bigtable.admin.v2.LogicalView>>() {
+              List<com.google.bigtable.admin.v2.LogicalView> responseAccumulator =
+                  Lists.newArrayList();
+
+              @Override
+              public ApiFuture<List<com.google.bigtable.admin.v2.LogicalView>> apply(
+                  ListLogicalViewsPage page) {
+                // Add all entries from the page
+                responseAccumulator.addAll(Lists.newArrayList(page.getValues()));
+
+                // If this is the last page, just return the accumulated responses.
+                if (!page.hasNextPage()) {
+                  return ApiFutures.immediateFuture(responseAccumulator);
+                }
+
+                // Otherwise fetch the next page.
+                return ApiFutures.transformAsync(
+                    page.getNextPageAsync(), this, MoreExecutors.directExecutor());
+              }
+            },
+            MoreExecutors.directExecutor());
+
+    // Wraps all of the accumulated protos.
+    return ApiFutures.transform(
+        allProtos,
+        new ApiFunction<List<com.google.bigtable.admin.v2.LogicalView>, List<LogicalView>>() {
+          @Override
+          public List<LogicalView> apply(List<com.google.bigtable.admin.v2.LogicalView> input) {
+            List<LogicalView> results = Lists.newArrayListWithCapacity(input.size());
+            for (com.google.bigtable.admin.v2.LogicalView logicalView : input) {
+              results.add(LogicalView.fromProto(logicalView));
+            }
+            return results;
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Updates an existing logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * LogicalView existingLogicalView = client.getLogicalView("my-instance", "my-logical-view");
+   *
+   * LogicalView updatedLogicalView = client.updateLogicalView(
+   *   UpdateLogicalViewRequest.of(existingLogicalView)
+   *     .setQuery(query)
+   * );
+   * }</pre>
+   *
+   * @see UpdateLogicalViewRequest
+   */
+  @SuppressWarnings("WeakerAccess")
+  public LogicalView updateLogicalView(UpdateLogicalViewRequest request) {
+    return ApiExceptions.callAndTranslateApiException(updateLogicalViewAsync(request));
+  }
+
+  /**
+   * Asynchronously updates an existing logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<LogicalView> existingLogicalViewFuture = client.getLogicalViewAsync("my-instance", "my-logical-view");
+   *
+   * ApiFuture<LogicalView> updatedLogicalViewFuture = ApiFutures.transformAsync(
+   *   existingLogicalViewFuture,
+   *   new ApiAsyncFunction<LogicalView, LogicalView>() {
+   *     public ApiFuture<LogicalView> apply(LogicalView existingLogicalView) {
+   *       return client.updateLogicalViewAsync(
+   *         UpdateLogicalViewRequest.of(existingLogicalView)
+   *           .setQuery(query)
+   *       );
+   *     }
+   *   },
+   *   MoreExecutors.directExecutor()
+   * );
+   *
+   * ApiFuture<LogicalView> logicalView = updatedLogicalViewFuture.get();
+   * }</pre>
+   *
+   * @see UpdateLogicalViewRequest
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<LogicalView> updateLogicalViewAsync(UpdateLogicalViewRequest request) {
+    return ApiFutures.transform(
+        stub.updateLogicalViewOperationCallable().futureCall(request.toProto(projectId)),
+        new ApiFunction<com.google.bigtable.admin.v2.LogicalView, LogicalView>() {
+          @Override
+          public LogicalView apply(com.google.bigtable.admin.v2.LogicalView proto) {
+            return LogicalView.fromProto(proto);
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
+   * Deletes the specified logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * client.deleteLogicalView("my-instance", "my-logical-view");
+   * }</pre>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public void deleteLogicalView(String instanceId, String logicalViewId) {
+    ApiExceptions.callAndTranslateApiException(deleteLogicalViewAsync(instanceId, logicalViewId));
+  }
+
+  /**
+   * Asynchronously deletes the specified logical view.
+   *
+   * <p>Sample code:
+   *
+   * <pre>{@code
+   * ApiFuture<Void> deleteFuture = client.deleteLogicalViewAsync("my-instance", "my-logical-view");
+   *
+   * deleteFuture.get();
+   * }</pre>
+   */
+  @SuppressWarnings("WeakerAccess")
+  public ApiFuture<Void> deleteLogicalViewAsync(String instanceId, String logicalViewId) {
+
+    String name = NameUtil.formatLogicalViewName(projectId, instanceId, logicalViewId);
+    DeleteLogicalViewRequest request = DeleteLogicalViewRequest.newBuilder().setName(name).build();
+
+    return ApiFutures.transform(
+        stub.deleteLogicalViewCallable().futureCall(request),
+        new ApiFunction<Empty, Void>() {
+          @Override
+          public Void apply(Empty input) {
+            return null;
+          }
+        },
+        MoreExecutors.directExecutor());
+  }
+
+  /**
    * Simple adapter to expose {@link DefaultMarshaller} to this class. It enables this client to
    * convert to/from IAM wrappers and protobufs.
    */
