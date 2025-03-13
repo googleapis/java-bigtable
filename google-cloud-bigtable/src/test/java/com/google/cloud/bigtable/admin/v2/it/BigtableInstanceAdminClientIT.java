@@ -29,16 +29,19 @@ import com.google.cloud.bigtable.admin.v2.models.ClusterAutoscalingConfig;
 import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateClusterRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateLogicalViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
+import com.google.cloud.bigtable.admin.v2.models.LogicalView;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.StaticClusterSize;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateInstanceRequest;
+import com.google.cloud.bigtable.admin.v2.models.UpdateLogicalViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
@@ -658,6 +661,36 @@ public class BigtableInstanceAdminClientIT {
     assertThat(client.listMaterializedViews(instanceId)).contains(freshMaterializedView);
 
     client.deleteMaterializedView(instanceId, testMaterializedView);
+  }
+
+  
+  @Test
+  public void logicalViewTest() {
+    BigtableTableAdminClient tableAdmin = testEnvRule.env().getTableAdminClient();
+    String tableId =
+        PrefixGenerator.newPrefix("BigtableInstanceAdminClientIT#logicalViewTest");
+    Table testTable = tableAdmin.createTable(CreateTableRequest.of(tableId).addFamily("cf1"));
+
+    String testLogicalView = prefixGenerator.newPrefix();
+
+    LogicalView newlyCreatedLogicalView =
+        client.createLogicalView(
+            CreateLogicalViewRequest.of(instanceId, testLogicalView)
+                .setQuery("SELECT _key, MAX(cf1['column']) as column FROM `" + tableId + "`"));
+
+    LogicalView updated =
+        client.updateLogicalView(
+            UpdateLogicalViewRequest.of(newlyCreatedLogicalView)
+                .setQuery("SELECT _key, MAX(cf1['column2']) as column FROM `" + tableId + "`"));
+
+    LogicalView freshLogicalView =
+        client.getLogicalView(instanceId, testLogicalView);
+    assertThat(freshLogicalView.getQuery())
+        .isEqualTo(updated.getQuery());
+
+    assertThat(client.listLogicalViews(instanceId)).contains(freshLogicalView);
+
+    client.deleteLogicalView(instanceId, testLogicalView);
   }
 
   // To improve test runtime, piggyback off the instance creation/deletion test's fresh instance.
