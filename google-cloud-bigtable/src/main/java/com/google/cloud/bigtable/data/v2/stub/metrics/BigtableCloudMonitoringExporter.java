@@ -156,7 +156,18 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
   /** Export metrics associated with a BigtableTable resource. */
   private CompletableResultCode doExport(Collection<MetricData> metricData) {
-    Map<ProjectName, List<TimeSeries>> bigtableTimeSeries = timeSeriesConverter.convert(metricData);
+    Map<ProjectName, List<TimeSeries>> bigtableTimeSeries;
+
+    try {
+      bigtableTimeSeries = timeSeriesConverter.convert(metricData);
+    } catch (Throwable t) {
+      logger.log(
+          Level.WARNING,
+          String.format(
+              "Failed to convert %s metric data to cloud monitoring timeseries.", exporterName),
+          t);
+      return CompletableResultCode.ofFailure();
+    }
 
     // Skips exporting if there's none
     if (bigtableTimeSeries.isEmpty()) {
