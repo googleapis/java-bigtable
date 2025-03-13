@@ -39,6 +39,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import com.google.api.client.util.Lists;
 import com.google.api.core.ApiFunction;
+import com.google.api.core.ApiFuture;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.batching.Batcher;
 import com.google.api.gax.batching.BatchingException;
@@ -701,9 +702,10 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testQueuedOnChannelServerStreamLatencies() {
+  public void testQueuedOnChannelServerStreamLatencies() throws Exception {
+    ApiFuture<List<Row>> f = stub.readRowsCallable().all().futureCall(Query.create(TABLE));
     Duration proxyDelayPriorTest = delayProxyDetector.getCurrentDelayUsed();
-    stub.readRowsCallable().all().call(Query.create(TABLE));
+    f.get();
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
@@ -722,9 +724,12 @@ public class BuiltinMetricsTracerTest {
   }
 
   @Test
-  public void testQueuedOnChannelUnaryLatencies() {
+  public void testQueuedOnChannelUnaryLatencies() throws Exception {
+    ApiFuture<Void> f =
+        stub.mutateRowCallable()
+            .futureCall(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
     Duration proxyDelayPriorTest = delayProxyDetector.getCurrentDelayUsed();
-    stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
+    f.get();
 
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
