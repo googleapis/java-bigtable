@@ -30,11 +30,13 @@ import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateClusterRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
+import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.StaticClusterSize;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
+import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
@@ -650,8 +652,8 @@ public class BigtableInstanceAdminClientIT {
 
     MaterializedView freshMaterializedView =
         client.getMaterializedView(instanceId, testMaterializedView);
-    assertThat(freshMaterializedView.getDeletionProtection())
-        .isEqualTo(updated.getDeletionProtection());
+    assertThat(freshMaterializedView.isDeletionProtected())
+        .isEqualTo(updated.isDeletionProtected());
 
     assertThat(client.listMaterializedViews(instanceId)).contains(freshMaterializedView);
 
