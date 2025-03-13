@@ -95,7 +95,8 @@ class BigtableExporterUtils {
    */
   private static String defaultTaskValue = null;
 
-  static final Supplier<String> DEFAULT_TABLE_VALUE = Suppliers.memoize(BigtableExporterUtils::computeDefaultTaskValue);
+  static final Supplier<String> DEFAULT_TABLE_VALUE =
+      Suppliers.memoize(BigtableExporterUtils::computeDefaultTaskValue);
 
   private static String computeDefaultTaskValue() {
     if (defaultTaskValue != null) {

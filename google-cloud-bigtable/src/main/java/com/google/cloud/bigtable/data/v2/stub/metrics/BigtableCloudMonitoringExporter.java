@@ -175,8 +175,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
                   if (exportFailureLogged.compareAndSet(false, true)) {
                     String msg =
                         String.format(
-                            "createServiceTimeSeries request failed for %s.",
-                            exporterName);
+                            "createServiceTimeSeries request failed for %s.", exporterName);
                     if (throwable instanceof PermissionDeniedException) {
                       msg +=
                           String.format(
