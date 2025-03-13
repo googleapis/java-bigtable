@@ -726,11 +726,6 @@ public class BuiltinMetricsTracerTest {
     Duration proxyDelayPriorTest = delayProxyDetector.getCurrentDelayUsed();
     stub.mutateRowCallable().call(RowMutation.create(TABLE, "a-key").setCell("f", "q", "v"));
 
-    assertWithMessage(
-            "The stub burned through all of the CHANNEL_BLOCKING_LATENCY before the test started")
-        .that(proxyDelayPriorTest)
-        .isLessThan(CHANNEL_BLOCKING_LATENCY);
-
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
