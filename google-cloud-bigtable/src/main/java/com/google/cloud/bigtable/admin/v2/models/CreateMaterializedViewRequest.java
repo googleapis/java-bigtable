@@ -37,7 +37,7 @@ public final class CreateMaterializedViewRequest {
   private final String instanceId;
   private final com.google.bigtable.admin.v2.CreateMaterializedViewRequest.Builder proto;
 
-  /** Builds a new request to create a new app profile in the specified instance. */
+  /** Builds a new request to create a new materialized view in the specified instance. */
   public static CreateMaterializedViewRequest of(String instanceId, String materializedViewId) {
     return new CreateMaterializedViewRequest(instanceId, materializedViewId);
   }
