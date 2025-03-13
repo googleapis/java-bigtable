@@ -96,6 +96,7 @@ public class BigtableCloudMonitoringExporterTest {
 
     exporter =
         new BigtableCloudMonitoringExporter(
+            "bigtable metrics",
             fakeMetricServiceClient,
             new BigtableCloudMonitoringExporter.PublicTimeSeriesConverter(taskId));
 
@@ -309,6 +310,7 @@ public class BigtableCloudMonitoringExporterTest {
     String gceProjectId = "fake-gce-project";
     BigtableCloudMonitoringExporter exporter =
         new BigtableCloudMonitoringExporter(
+            "application metrics",
             fakeMetricServiceClient,
             new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
                 Suppliers.ofInstance(

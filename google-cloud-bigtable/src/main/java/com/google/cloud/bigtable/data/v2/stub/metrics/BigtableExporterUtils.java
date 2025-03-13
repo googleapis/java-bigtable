@@ -122,7 +122,7 @@ class BigtableExporterUtils {
     return ProjectName.of(pointData.getAttributes().get(BIGTABLE_PROJECT_ID_KEY));
   }
 
-  // Returns a list of timeseries by project id
+  // Returns a list of timeseries by project name
   static Map<ProjectName, List<TimeSeries>> convertToBigtableTimeSeries(
       Collection<MetricData> collection, String taskId) {
     Map<ProjectName, List<TimeSeries>> allTimeSeries = new HashMap<>();
@@ -134,11 +134,11 @@ class BigtableExporterUtils {
       }
 
       for (PointData pd : metricData.getData().getPoints()) {
-        ProjectName projectId = getProjectName(pd);
+        ProjectName projectName = getProjectName(pd);
         List<TimeSeries> current =
-            allTimeSeries.computeIfAbsent(projectId, ignored -> new ArrayList<>());
+            allTimeSeries.computeIfAbsent(projectName, ignored -> new ArrayList<>());
         current.add(convertPointToBigtableTimeSeries(metricData, pd, taskId));
-        allTimeSeries.put(projectId, current);
+        allTimeSeries.put(projectName, current);
       }
     }
 

@@ -96,7 +96,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
   // https://cloud.google.com/monitoring/quotas#custom_metrics_quotas.
   private static final int EXPORT_BATCH_SIZE_LIMIT = 200;
 
-  private static String exporterName;
+  private final String exporterName;
 
   private final MetricServiceClient client;
 
@@ -114,7 +114,6 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
       @Nullable String endpoint,
       TimeSeriesConverter converter)
       throws IOException {
-    BigtableCloudMonitoringExporter.exporterName = exporterName;
 
     MetricServiceSettings.Builder settingsBuilder = MetricServiceSettings.newBuilder();
     CredentialsProvider credentialsProvider =
@@ -137,11 +136,13 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     settingsBuilder.createServiceTimeSeriesSettings().setSimpleTimeoutNoRetriesDuration(timeout);
 
     return new BigtableCloudMonitoringExporter(
-        MetricServiceClient.create(settingsBuilder.build()), converter);
+        exporterName, MetricServiceClient.create(settingsBuilder.build()), converter);
   }
 
   @VisibleForTesting
-  BigtableCloudMonitoringExporter(MetricServiceClient client, TimeSeriesConverter converter) {
+  BigtableCloudMonitoringExporter(
+      String exporterName, MetricServiceClient client, TimeSeriesConverter converter) {
+    this.exporterName = exporterName;
     this.client = client;
     this.timeSeriesConverter = converter;
   }
