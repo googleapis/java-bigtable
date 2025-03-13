@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
+import com.google.protobuf.FieldMask;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -30,7 +32,6 @@ public class UpdateMaterializedViewRequestTest {
 
   @Test
   public void testToProto() {
-    String query = "SELECT * FROM Table";
     UpdateMaterializedViewRequest request =
         UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
             .setDeletionProtection(true);
@@ -39,7 +40,11 @@ public class UpdateMaterializedViewRequestTest {
         com.google.bigtable.admin.v2.UpdateMaterializedViewRequest.newBuilder()
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
-                    .setDeletionProtection(true))
+                    .setDeletionProtection(true)
+                    .setName(
+                        NameUtil.formatMaterializedViewName(
+                            PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID)))
+            .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection").build())
             .build();
     assertThat(request.toProto(PROJECT_ID)).isEqualTo(requestProto);
   }
