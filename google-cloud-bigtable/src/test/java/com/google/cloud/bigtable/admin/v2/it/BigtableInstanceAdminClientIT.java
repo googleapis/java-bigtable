@@ -663,12 +663,10 @@ public class BigtableInstanceAdminClientIT {
     client.deleteMaterializedView(instanceId, testMaterializedView);
   }
 
-  
   @Test
   public void logicalViewTest() {
     BigtableTableAdminClient tableAdmin = testEnvRule.env().getTableAdminClient();
-    String tableId =
-        PrefixGenerator.newPrefix("BigtableInstanceAdminClientIT#logicalViewTest");
+    String tableId = PrefixGenerator.newPrefix("BigtableInstanceAdminClientIT#logicalViewTest");
     Table testTable = tableAdmin.createTable(CreateTableRequest.of(tableId).addFamily("cf1"));
 
     String testLogicalView = prefixGenerator.newPrefix();
@@ -683,10 +681,8 @@ public class BigtableInstanceAdminClientIT {
             UpdateLogicalViewRequest.of(newlyCreatedLogicalView)
                 .setQuery("SELECT _key, MAX(cf1['column2']) as column FROM `" + tableId + "`"));
 
-    LogicalView freshLogicalView =
-        client.getLogicalView(instanceId, testLogicalView);
-    assertThat(freshLogicalView.getQuery())
-        .isEqualTo(updated.getQuery());
+    LogicalView freshLogicalView = client.getLogicalView(instanceId, testLogicalView);
+    assertThat(freshLogicalView.getQuery()).isEqualTo(updated.getQuery());
 
     assertThat(client.listLogicalViews(instanceId)).contains(freshLogicalView);
 
