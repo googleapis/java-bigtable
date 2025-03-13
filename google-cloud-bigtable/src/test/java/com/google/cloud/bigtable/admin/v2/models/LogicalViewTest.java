@@ -31,8 +31,7 @@ public class LogicalViewTest {
 
   @Test
   public void testFromProto() {
-    LogicalViewName logicalViewName =
-        LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
+    LogicalViewName logicalViewName = LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
 
     com.google.bigtable.admin.v2.LogicalView logicalViewProto =
         com.google.bigtable.admin.v2.LogicalView.newBuilder()
@@ -66,8 +65,7 @@ public class LogicalViewTest {
 
   @Test
   public void testEquality() {
-    LogicalViewName logicalViewName =
-        LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
+    LogicalViewName logicalViewName = LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
     com.google.bigtable.admin.v2.LogicalView proto =
         com.google.bigtable.admin.v2.LogicalView.newBuilder()
             .setName(logicalViewName.toString())
@@ -87,8 +85,7 @@ public class LogicalViewTest {
 
   @Test
   public void testHashCode() {
-    LogicalViewName logicalViewName =
-        LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
+    LogicalViewName logicalViewName = LogicalViewName.of(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID);
     com.google.bigtable.admin.v2.LogicalView proto =
         com.google.bigtable.admin.v2.LogicalView.newBuilder()
             .setName(logicalViewName.toString())

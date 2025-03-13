@@ -24,16 +24,14 @@ import com.google.common.base.Verify;
 import javax.annotation.Nonnull;
 
 /**
- * A class that wraps the {@link com.google.bigtable.admin.v2.LogicalView} protocol buffer
- * object.
+ * A class that wraps the {@link com.google.bigtable.admin.v2.LogicalView} protocol buffer object.
  *
  * <p>A LogicalView represents subsets of a particular table based on rules. The access to each
  * LogicalView can be configured separately from the Table.
  *
- * <p>Users can perform read/write operation on a LogicalView by providing a logicalView
- * id besides a table id, in which case the semantics remain identical as reading/writing on a Table
- * except that visibility is restricted to the subset of the Table that the LogicalView
- * represents.
+ * <p>Users can perform read/write operation on a LogicalView by providing a logicalView id besides
+ * a table id, in which case the semantics remain identical as reading/writing on a Table except
+ * that visibility is restricted to the subset of the Table that the LogicalView represents.
  */
 public final class LogicalView {
   private final com.google.bigtable.admin.v2.LogicalView proto;
@@ -43,8 +41,7 @@ public final class LogicalView {
    * to be used by applications.
    */
   @InternalApi
-  public static LogicalView fromProto(
-      @Nonnull com.google.bigtable.admin.v2.LogicalView proto) {
+  public static LogicalView fromProto(@Nonnull com.google.bigtable.admin.v2.LogicalView proto) {
     return new LogicalView(proto);
   }
 

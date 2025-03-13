@@ -33,17 +33,15 @@ public class UpdateLogicalViewRequestTest {
   @Test
   public void testToProto() {
     UpdateLogicalViewRequest request =
-        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("query 1");
+        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("query 1");
 
     com.google.bigtable.admin.v2.UpdateLogicalViewRequest requestProto =
         com.google.bigtable.admin.v2.UpdateLogicalViewRequest.newBuilder()
             .setLogicalView(
                 com.google.bigtable.admin.v2.LogicalView.newBuilder()
-                .setQuery("query 1")
+                    .setQuery("query 1")
                     .setName(
-                        NameUtil.formatLogicalViewName(
-                            PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID)))
+                        NameUtil.formatLogicalViewName(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID)))
             .setUpdateMask(FieldMask.newBuilder().addPaths("query").build())
             .build();
     assertThat(request.toProto(PROJECT_ID)).isEqualTo(requestProto);
@@ -52,36 +50,31 @@ public class UpdateLogicalViewRequestTest {
   @Test
   public void testEquality() {
     UpdateLogicalViewRequest request =
-        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-        .setQuery("query 1");
+        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("query 1");
 
     assertThat(request)
-        .isEqualTo(
-            UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("query 1"));
+        .isEqualTo(UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("query 1"));
 
     assertThat(request)
         .isNotEqualTo(
-            UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("query 2"));
+            UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("query 2"));
   }
 
   @Test
   public void testHashCode() {
     UpdateLogicalViewRequest request =
-        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-        .setQuery("query 1");
+        UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("query 1");
 
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("query 1")
+                .setQuery("query 1")
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("query 2")
+                .setQuery("query 2")
                 .hashCode());
   }
 }

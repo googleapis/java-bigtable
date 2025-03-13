@@ -82,8 +82,7 @@ public final class UpdateLogicalViewRequest {
 
   private void updateFieldMask(int fieldNumber) {
     FieldMask newMask =
-        FieldMaskUtil.fromFieldNumbers(
-            com.google.bigtable.admin.v2.LogicalView.class, fieldNumber);
+        FieldMaskUtil.fromFieldNumbers(com.google.bigtable.admin.v2.LogicalView.class, fieldNumber);
     requestBuilder.setUpdateMask(FieldMaskUtil.union(requestBuilder.getUpdateMask(), newMask));
   }
 
@@ -110,8 +109,7 @@ public final class UpdateLogicalViewRequest {
    * not meant to be used by applications.
    */
   @InternalApi
-  public com.google.bigtable.admin.v2.UpdateLogicalViewRequest toProto(
-      @Nonnull String projectId) {
+  public com.google.bigtable.admin.v2.UpdateLogicalViewRequest toProto(@Nonnull String projectId) {
     requestBuilder
         .getLogicalViewBuilder()
         .setName(NameUtil.formatLogicalViewName(projectId, instanceId, logicalViewId));

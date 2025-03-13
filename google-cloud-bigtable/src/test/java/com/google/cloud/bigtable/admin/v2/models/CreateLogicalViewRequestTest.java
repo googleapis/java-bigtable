@@ -33,16 +33,13 @@ public class CreateLogicalViewRequestTest {
   public void testToProto() {
     String query = "SELECT * FROM Table";
     CreateLogicalViewRequest request =
-        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery(query);
+        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery(query);
 
     com.google.bigtable.admin.v2.CreateLogicalViewRequest requestProto =
         com.google.bigtable.admin.v2.CreateLogicalViewRequest.newBuilder()
             .setParent(NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID))
             .setLogicalViewId(LOGICAL_VIEW_ID)
-            .setLogicalView(
-                com.google.bigtable.admin.v2.LogicalView.newBuilder()
-                    .setQuery(query))
+            .setLogicalView(com.google.bigtable.admin.v2.LogicalView.newBuilder().setQuery(query))
             .build();
     assertThat(request.toProto(PROJECT_ID)).isEqualTo(requestProto);
   }
@@ -50,25 +47,19 @@ public class CreateLogicalViewRequestTest {
   @Test
   public void testEquality() {
     CreateLogicalViewRequest request =
-        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("test 1");
+        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("test 1");
 
     assertThat(request)
-        .isEqualTo(
-            CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-                .setQuery("test 1"));
+        .isEqualTo(CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("test 1"));
 
     assertThat(request)
-        .isNotEqualTo(
-            CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-                .setQuery("test 2"));
+        .isNotEqualTo(CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("test 2"));
   }
 
   @Test
   public void testHashCode() {
     CreateLogicalViewRequest request =
-        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID)
-            .setQuery("test 1");
+        CreateLogicalViewRequest.of(INSTANCE_ID, LOGICAL_VIEW_ID).setQuery("test 1");
 
     assertThat(request.hashCode())
         .isEqualTo(
