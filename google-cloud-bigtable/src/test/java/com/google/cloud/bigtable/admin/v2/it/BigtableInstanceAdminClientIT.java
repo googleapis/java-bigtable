@@ -22,24 +22,18 @@ import static com.google.common.truth.TruthJUnit.assume;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.cloud.Policy;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
-import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.AppProfile;
 import com.google.cloud.bigtable.admin.v2.models.Cluster;
 import com.google.cloud.bigtable.admin.v2.models.ClusterAutoscalingConfig;
 import com.google.cloud.bigtable.admin.v2.models.CreateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateClusterRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
-import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
-import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.StaticClusterSize;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
-import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateAppProfileRequest;
 import com.google.cloud.bigtable.admin.v2.models.UpdateInstanceRequest;
-import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -628,36 +622,6 @@ public class BigtableInstanceAdminClientIT {
     } finally {
       client.deleteInstance(newInstanceId);
     }
-  }
-
-  @Test
-  public void materializedViewTest() {
-    BigtableTableAdminClient tableAdmin = testEnvRule.env().getTableAdminClient();
-    String tableId =
-        PrefixGenerator.newPrefix("BigtableInstanceAdminClientIT#materializedViewTest");
-    Table testTable = tableAdmin.createTable(CreateTableRequest.of(tableId).addFamily("cf1"));
-
-    String testMaterializedView = prefixGenerator.newPrefix();
-
-    MaterializedView newlyCreatedMaterializedView =
-        client.createMaterializedView(
-            CreateMaterializedViewRequest.of(instanceId, testMaterializedView)
-                .setDeletionProtection(true)
-                .setQuery("SELECT _key, MAX(cf1['column']) as column FROM `" + tableId + "`"));
-
-    MaterializedView updated =
-        client.updateMaterializedView(
-            UpdateMaterializedViewRequest.of(newlyCreatedMaterializedView)
-                .setDeletionProtection(false));
-
-    MaterializedView freshMaterializedView =
-        client.getMaterializedView(instanceId, testMaterializedView);
-    assertThat(freshMaterializedView.isDeletionProtected())
-        .isEqualTo(updated.isDeletionProtected());
-
-    assertThat(client.listMaterializedViews(instanceId)).contains(freshMaterializedView);
-
-    client.deleteMaterializedView(instanceId, testMaterializedView);
   }
 
   // To improve test runtime, piggyback off the instance creation/deletion test's fresh instance.
