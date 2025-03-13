@@ -240,9 +240,10 @@ public class BigtableInstanceAdminClientTests {
       mockTestIamPermissionsCallable;
 
   @Mock
-  private UnaryCallable<
+  private OperationCallable<
           com.google.bigtable.admin.v2.CreateMaterializedViewRequest,
-          com.google.bigtable.admin.v2.MaterializedView>
+          com.google.bigtable.admin.v2.MaterializedView,
+          com.google.bigtable.admin.v2.CreateMaterializedViewMetadata>
       mockCreateMaterializedViewCallable;
 
   @Mock
@@ -1621,8 +1622,7 @@ public class BigtableInstanceAdminClientTests {
             .setQuery("SELECT 1 FROM Table")
             .build();
 
-    Mockito.when(mockCreateMaterializedViewCallable.futureCall(expectedRequest))
-        .thenReturn(ApiFutures.immediateFuture(expectedResponse));
+    mockOperationResult(mockCreateMaterializedViewCallable, expectedRequest, expectedResponse);
 
     // Execute
     MaterializedView actualResult =
@@ -1728,8 +1728,7 @@ public class BigtableInstanceAdminClientTests {
             .setMaterializedView(
                 com.google.bigtable.admin.v2.MaterializedView.newBuilder()
                     .setName(MATERIALIZED_VIEW_NAME)
-                    .setDeletionProtection(false)
-                    .setQuery("SELECT 1+1 FROM Table"))
+                    .setDeletionProtection(false))
             .setUpdateMask(FieldMask.newBuilder().addPaths("deletion_protection"))
             .build();
 
@@ -1737,7 +1736,6 @@ public class BigtableInstanceAdminClientTests {
         com.google.bigtable.admin.v2.MaterializedView.newBuilder()
             .setName(MATERIALIZED_VIEW_NAME)
             .setDeletionProtection(false)
-            .setQuery("SELECT 1+1 FROM Table")
             .build();
 
     mockOperationResult(mockUpdateMaterializedViewCallable, expectedRequest, expectedResponse);
@@ -1746,7 +1744,7 @@ public class BigtableInstanceAdminClientTests {
     MaterializedView actualResult =
         adminClient.updateMaterializedView(
             UpdateMaterializedViewRequest.of(INSTANCE_ID, MATERIALIZED_VIEW_ID)
-                .setQuery("SELECT 1+1 FROM Table"));
+                .setDeletionProtection(false));
 
     // Verify
     assertThat(actualResult).isEqualTo(MaterializedView.fromProto(expectedResponse));
