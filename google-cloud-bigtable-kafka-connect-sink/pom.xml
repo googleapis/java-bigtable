@@ -3,13 +3,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.google.cloud.kafka.connect.bigtable</groupId>
-    <artifactId>sink</artifactId>
+    <artifactId>sink-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>kafka-connect-bigtable-sink</name>
+    <packaging>pom</packaging>
+    <name>kafka-connect-bigtable-sink-parent</name>
     <description>
-        Google Bigtable sink connector for Apache Kafka Connect
+        Parent of Google Bigtable sink connector for Apache Kafka Connect
     </description>
+    <modules>
+        <module>sink</module>
+        <module>integration-tests</module>
+    </modules>
     <properties>
         <google.cloud.bom.version>26.53.0</google.cloud.bom.version>
         <google.bigtable.version>2.52.0</google.bigtable.version>
@@ -17,18 +21,12 @@
         <kafka.scala.version>2.12</kafka.scala.version>
         <hbase.version>2.6.1</hbase.version>
         <slf4j.api.version>1.7.33</slf4j.api.version>
-        <slf4j.reload4j.version>1.7.36</slf4j.reload4j.version>
         <jackson.version>2.12.7</jackson.version>
 
-        <mockito.version>5.15.2</mockito.version>
         <junit.version>4.13.2</junit.version>
-        <!--
-            Needed by the integration test helpers, which are provided as test-jars with test-scoped dependencies.
-            Maven does not resolve test-scoped transitive dependencies automatically.
-            See https://maven.apache.org/plugins/maven-jar-plugin/examples/create-test-jar.html#the-easy-way for details.
-        -->
-        <junit.jupiter.version>5.11.3</junit.jupiter.version>
-        <confluent.version>7.7.0</confluent.version>
+        <mockito.version>5.15.2</mockito.version>
+        <slf4j.reload4j.version>1.7.36</slf4j.reload4j.version>
+
         <spotless.version>2.43.0</spotless.version>
         <google.java.format.version>1.19.2</google.java.format.version>
         <javadoc.version>3.11.2</javadoc.version>
@@ -37,15 +35,10 @@
         <surefire.version>3.5.2</surefire.version>
         <failsafe.version>3.5.2</failsafe.version>
         <maven-jar.version>3.4.2</maven-jar.version>
-        <jetty.version>9.4.57.v20241219</jetty.version>
 
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
-        <integration.test.plugin.path>${project.basedir}/integration_test_plugins</integration.test.plugin.path>
-        <confluent.sink.url>https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-gcp-bigtable/versions/2.0.28/confluentinc-kafka-connect-gcp-bigtable-2.0.28.zip</confluent.sink.url>
-        <confluent.sink.filename>confluentsink.zip</confluent.sink.filename>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -58,186 +51,8 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>connect-api</artifactId>
-            <version>${kafka.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>connect-runtime</artifactId>
-            <version>${kafka.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${kafka.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-bigtable</artifactId>
-            <version>${google.bigtable.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hbase</groupId>
-            <artifactId>hbase-common</artifactId>
-            <version>${hbase.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j.api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-reload4j</artifactId>
-            <version>${slf4j.reload4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>connect-runtime</artifactId>
-            <version>${kafka.version}</version>
-            <classifier>test</classifier>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${kafka.version}</version>
-            <classifier>test</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${kafka.scala.version}</artifactId>
-            <version>${kafka.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_${kafka.scala.version}</artifactId>
-            <version>${kafka.version}</version>
-            <classifier>test</classifier>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-schema-registry</artifactId>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-schema-registry</artifactId>
-            <classifier>tests</classifier>
-            <type>test-jar</type>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-avro-serializer</artifactId>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-connect-avro-converter</artifactId>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-connect-protobuf-converter</artifactId>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.confluent</groupId>
-            <artifactId>kafka-connect-json-schema-converter</artifactId>
-            <version>${confluent.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlets</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-client</artifactId>
-            <version>${jetty.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
     <build>
         <plugins>
-            <plugin>
-                <!--
-                The kafka connect plugins are isolated [1].
-                Thus, we can use simpler maven-assembly plugin rather than maven-shade-plugin.
-                [1] https://cwiki.apache.org/confluence/display/KAFKA/KIP-146+-+Classloading+Isolation+in+Connect
-                -->
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <descriptors>
-                        <descriptor>src/main/assembly/package.xml</descriptor>
-                    </descriptors>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
@@ -264,67 +79,10 @@
                             <formatJavadoc>true</formatJavadoc>
                         </googleJavaFormat>
                         <licenseHeader>
-                            <file>${project.basedir}/license.header</file>
+                            <file>license.header</file>
                         </licenseHeader>
                         <removeUnusedImports/>
                     </java>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire.version}</version>
-                <configuration>
-                    <!-- Enable the ability to skip unit tests, while running integration tests. -->
-                    <skipTests>${skipUnitTests}</skipTests>
-                    <trimStackTrace>false</trimStackTrace>
-                    <!-- Enable concurrent test execution by default. -->
-                    <parallel>classes</parallel>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
-                    <environmentVariables>
-                        <!-- TODO: remove it when transitioning to kokoro. -->
-                        <GOOGLE_APPLICATION_CREDENTIALS>target/test-classes/fake_service_key.json</GOOGLE_APPLICATION_CREDENTIALS>
-                    </environmentVariables>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe.version}</version>
-                <configuration>
-                    <!-- Enable the ability to skip integration tests, while running unit tests. -->
-                    <skip>${skipIntegrationTests}</skip>
-                    <trimStackTrace>false</trimStackTrace>
-                    <!-- Enable concurrent test execution by default. -->
-                    <parallel>classes</parallel>
-                    <useUnlimitedThreads>true</useUnlimitedThreads>
-                    <environmentVariables>
-                        <!-- TODO: remove it when transitioning to kokoro. -->
-                        <GOOGLE_APPLICATION_CREDENTIALS>target/test-classes/fake_service_key.json</GOOGLE_APPLICATION_CREDENTIALS>
-                        <!-- TODO: remove it when transitioning to kokoro, use a real Cloud Bigtable instance instead -->
-                        <BIGTABLE_EMULATOR_HOST>localhost:8086</BIGTABLE_EMULATOR_HOST>
-                        <INTEGRATION_TEST_PLUGINS_PATH>${integration.test.plugin.path}</INTEGRATION_TEST_PLUGINS_PATH>
-                    </environmentVariables>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify</goal>
-                            <goal>integration-test</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar.version}</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                    </archive>
                 </configuration>
             </plugin>
             <plugin>
@@ -341,28 +99,15 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>${antrun.version}</version>
-                <executions>
-                    <execution>
-                        <id>download-and-unzip-confluent-sink</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <get src="${confluent.sink.url}"
-                                     dest="${confluent.sink.filename}"
-                                     skipexisting="true" />
-                                <unzip
-                                    src="${confluent.sink.filename}"
-                                    dest="${integration.test.plugin.path}"
-                                />
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar.version}</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -380,11 +125,4 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <repositories>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
 </project>
