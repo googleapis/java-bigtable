@@ -71,15 +71,12 @@ public class NameUtilTest {
         .isEqualTo(testMaterializedViewName);
   }
 
-  
   @Test
   public void formatLogicalViewNameTest() {
     String testLogicalViewName =
         "projects/my-project/instances/my-instance/logicalViews/my-logical-view";
 
-    assertThat(
-            NameUtil.formatLogicalViewName(
-                "my-project", "my-instance", "my-logical-view"))
+    assertThat(NameUtil.formatLogicalViewName("my-project", "my-instance", "my-logical-view"))
         .isEqualTo(testLogicalViewName);
   }
 
