@@ -111,7 +111,7 @@ public class BigtableInstanceAdminClientTests {
   private static final String APP_PROFILE_NAME =
       NameUtil.formatAppProfileName(PROJECT_ID, INSTANCE_ID, APP_PROFILE_ID);
   private static final String MATERIALIZED_VIEW_NAME =
-      NameUtil.formatAppProfileName(PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID);
+      NameUtil.formatMaterializedViewName(PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID);
 
   private BigtableInstanceAdminClient adminClient;
 
