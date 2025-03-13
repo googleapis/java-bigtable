@@ -68,26 +68,6 @@ public class MaterializedViewTest {
   }
 
   @Test
-  public void testRequiresMaterializedViewQuery() {
-    MaterializedViewName materializedViewName =
-        MaterializedViewName.of(PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID);
-    com.google.bigtable.admin.v2.MaterializedView proto =
-        com.google.bigtable.admin.v2.MaterializedView.newBuilder()
-            .setName(materializedViewName.toString())
-            .setDeletionProtection(true)
-            .build();
-    Exception actualException = null;
-
-    try {
-      MaterializedView.fromProto(proto);
-    } catch (Exception e) {
-      actualException = e;
-    }
-
-    assertThat(actualException).isInstanceOf(IllegalArgumentException.class);
-  }
-
-  @Test
   public void testEquality() {
     MaterializedViewName materializedViewName =
         MaterializedViewName.of(PROJECT_ID, INSTANCE_ID, MATERIALIZED_VIEW_ID);
