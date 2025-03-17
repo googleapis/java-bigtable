@@ -31,11 +31,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import com.google.api.gax.core.NoCredentialsProvider;
+import com.google.api.gax.grpc.GrpcStatusCode;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.FixedTransportChannelProvider;
+import com.google.api.gax.rpc.InternalException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.bigtable.v2.ExecuteQueryResponse;
 import com.google.bigtable.v2.ResultSetMetadata;
@@ -54,7 +56,9 @@ import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.TestBigtableSq
 import com.google.cloud.bigtable.gaxx.reframing.IncompleteStreamException;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.ByteString;
+import io.grpc.Status;
 import io.grpc.Status.Code;
+import io.grpc.StatusRuntimeException;
 import io.grpc.testing.GrpcServerRule;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -796,5 +800,100 @@ public class ExecuteQueryRetryTest {
     assertThat(service.prepareCount).isEqualTo(2);
     // refresh error plus timed out req
     assertThat(service.executeCount).isEqualTo(2);
+  }
+
+  @Test
+  public void retriesRstStreamError() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    ApiException rstStreamException =
+        new InternalException(
+            new StatusRuntimeException(
+                Status.INTERNAL.withDescription(
+                    "INTERNAL: HTTP/2 error code: INTERNAL_ERROR\nReceived Rst Stream")),
+            GrpcStatusCode.of(Status.Code.INTERNAL),
+            false);
+    service.addExpectation(
+        ExecuteRpcExpectation.create().respondWithException(Code.INTERNAL, rstStreamException));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("foo"))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(1);
+  }
+
+  @Test
+  public void retriesRetriableAuthException() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    ApiException authException =
+        new InternalException(
+            new StatusRuntimeException(
+                Status.INTERNAL.withDescription(
+                    "Authentication backend internal server error. Please retry")),
+            GrpcStatusCode.of(Status.Code.INTERNAL),
+            false);
+    service.addExpectation(
+        ExecuteRpcExpectation.create().respondWithException(Code.INTERNAL, authException));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("foo"))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(1);
+  }
+
+  @Test
+  public void retriesGoAwayException() {
+    service.addExpectation(
+        PrepareRpcExpectation.create()
+            .withSql("SELECT * FROM table")
+            .respondWith(
+                prepareResponse(
+                    ByteString.copyFromUtf8("foo"),
+                    metadata(columnMetadata("strCol", stringType())))));
+    ApiException authException =
+        new InternalException(
+            new StatusRuntimeException(
+                Status.INTERNAL.withDescription("Stream closed before write could take place")),
+            GrpcStatusCode.of(Status.Code.INTERNAL),
+            false);
+    service.addExpectation(
+        ExecuteRpcExpectation.create().respondWithException(Code.INTERNAL, authException));
+    service.addExpectation(
+        ExecuteRpcExpectation.create()
+            .withPreparedQuery(ByteString.copyFromUtf8("foo"))
+            .respondWith(partialResultSetWithToken(stringValue("s"))));
+
+    PreparedStatement ps = client.prepareStatement("SELECT * FROM table", new HashMap<>());
+    ResultSet rs = client.executeQuery(ps.bind().build());
+    assertThat(rs.next()).isTrue();
+    assertThat(rs.getString("strCol")).isEqualTo("s");
+    assertThat(rs.next()).isFalse();
+    assertThat(service.executeCount).isEqualTo(2);
+    assertThat(service.prepareCount).isEqualTo(1);
   }
 }

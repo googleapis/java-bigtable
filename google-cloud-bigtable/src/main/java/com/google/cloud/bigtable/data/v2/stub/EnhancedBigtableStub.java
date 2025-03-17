@@ -1175,6 +1175,13 @@ public class EnhancedBigtableStub implements AutoCloseable {
     ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> withPlanRefresh =
         new PlanRefreshingCallable(withStatsHeaders, requestContext);
 
+    // Sometimes ExecuteQuery connections are disconnected via an RST frame. This error is transient
+    // and should be treated similar to UNAVAILABLE. However, this exception has an INTERNAL error
+    // code which by default is not retryable. Convert the exception, so it can be retried in the
+    // client.
+    ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> convertException =
+        new ConvertExceptionCallable<>(withPlanRefresh);
+
     ServerStreamingCallSettings<ExecuteQueryCallContext, ExecuteQueryResponse> retrySettings =
         ServerStreamingCallSettings.<ExecuteQueryCallContext, ExecuteQueryResponse>newBuilder()
             .setResumptionStrategy(new ExecuteQueryResumptionStrategy())
@@ -1189,7 +1196,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
     // attempt stream will have reset set to true, so any unyielded data from the previous
     // attempt will be reset properly
     ServerStreamingCallable<ExecuteQueryCallContext, ExecuteQueryResponse> retries =
-        withRetries(withPlanRefresh, retrySettings);
+        withRetries(convertException, retrySettings);
 
     ServerStreamingCallable<ExecuteQueryCallContext, SqlRow> merging =
         new SqlRowMergingCallable(retries);
