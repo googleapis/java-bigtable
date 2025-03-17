@@ -98,7 +98,8 @@ public class BigtableClientContext {
               .getInternalMetricsProvider()
               .createOtelProvider(credentials, settings.getMetricsEndpoint());
       if (internalOtel != null) {
-        // Set up per connection error count tracker if OpenTelemetry is not null
+        // Set up per connection error count tracker if all dependencies are met:
+        // a configurable transport provider + otel
         errorCountPerConnectionMetricTracker =
             setupPerConnectionErrorTracer(builder, transportProvider, internalOtel);
       }
