@@ -147,10 +147,7 @@ public class LargeRowIT {
     }
   }
 
-  // TODO: remove the ignore annotation once the server code (large row error with metadata) is
-  // released on prod
   @Test
-  @Ignore("large-row-error with metadata yet to be released on prod")
   public void read() throws Throwable {
     assume()
         .withMessage("Large row read errors are not supported by emulator")
