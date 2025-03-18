@@ -33,7 +33,6 @@ import com.google.cloud.bigtable.data.v2.models.RowCell;
 import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.data.v2.models.RowMutationEntry;
 import com.google.cloud.bigtable.data.v2.models.TableId;
-import com.google.cloud.bigtable.test_helpers.env.CloudEnv;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
@@ -49,7 +48,6 @@ import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -155,12 +153,11 @@ public class LargeRowIT {
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
 
-//    TODO: remove this once skip large row for read is released
+    //    TODO: remove this once skip large row for read is released
     assume()
-          .withMessage("Skip large row for read is not released yet")
-          .that(System.getProperty("bigtable.testSkipLargeRowIntegrationTests"))
-          .isEqualTo("true");
-
+        .withMessage("Skip large row for read is not released yet")
+        .that(System.getProperty("bigtable.testSkipLargeRowIntegrationTests"))
+        .isEqualTo("true");
 
     BigtableDataClient client = testEnvRule.env().getDataClient();
     String tableId = table.getId();
