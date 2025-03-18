@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.57.0](https://github.com/googleapis/java-bigtable/compare/v2.56.0...v2.57.0) (2025-03-18)
+
+
+### Features
+
+* Large-row-skip | IT are running now ([#2525](https://github.com/googleapis/java-bigtable/issues/2525)) ([4da61d6](https://github.com/googleapis/java-bigtable/commit/4da61d6af346460a0662a1e0c264ef2528ccd2e6))
+
 ## [2.56.0](https://github.com/googleapis/java-bigtable/compare/v2.55.0...v2.56.0) (2025-03-18)
 
 
