@@ -146,7 +146,7 @@ public class LargeRowIT {
     }
   }
 
-  @Test
+  @Testsh
   public void read() throws Throwable {
     assume()
         .withMessage("Large row read errors are not supported by emulator")
