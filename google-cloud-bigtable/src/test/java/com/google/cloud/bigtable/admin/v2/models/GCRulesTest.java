@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
+import java.time.Duration;
 
 @RunWith(JUnit4.class)
 public class GCRulesTest {
@@ -40,7 +40,7 @@ public class GCRulesTest {
   public void duration() {
     DurationRule actual = GCRULES.maxAge(Duration.ofSeconds(61, 9));
     GcRule expected = buildAgeRule(61, 9);
-    assertNotNull(actual.getMaxAge());
+    assertNotNull(actual.getMaxAgeDuration());
     assertThat(actual.toProto()).isEqualTo(expected);
   }
 
@@ -314,7 +314,7 @@ public class GCRulesTest {
     GCRules.GCRule modelGCRule =
         GCRules.GCRULES
             .intersection()
-            .rule(GCRULES.maxAge(org.threeten.bp.Duration.ofSeconds(10, 5)))
+            .rule(GCRULES.maxAge(Duration.ofSeconds(10, 5)))
             .rule(GCRULES.maxVersions(1))
             .rule(GCRULES.maxVersions(2));
     assertThat(GCRULES.fromProto(protoGCRule)).isEqualTo(modelGCRule);

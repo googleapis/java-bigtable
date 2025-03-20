@@ -15,7 +15,9 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.bigtable.admin.v2.ColumnFamily;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
@@ -108,6 +110,7 @@ public final class CreateTableRequest {
   }
 
   /** Add change stream retention period between 1 day and 7 days. */
+  @ObsoleteApi("threeten is being deprecated, please use addChangeStreamRetention(java.time.Duration retention) instead")
   public CreateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     requestBuilder
@@ -123,6 +126,11 @@ public final class CreateTableRequest {
     return this;
   }
 
+  /** Add change stream retention period between 1 day and 7 days. */
+  public CreateTableRequest addChangeStreamRetention(java.time.Duration retention) {
+    return addChangeStreamRetention(toThreetenDuration(retention));
+  }
+
   /** Configures if the table is deletion protected. */
   public CreateTableRequest setDeletionProtection(boolean deletionProtection) {
     requestBuilder.getTableBuilder().setDeletionProtection(deletionProtection);
@@ -130,6 +138,7 @@ public final class CreateTableRequest {
   }
 
   /** Set an automated backup policy for the table. */
+  @ObsoleteApi("threeten is being deprecated, please use setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) instead")
   public CreateTableRequest setAutomatedBackup(Duration retentionPeriod, Duration frequency) {
     com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy policy =
         com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
@@ -147,6 +156,11 @@ public final class CreateTableRequest {
 
     requestBuilder.getTableBuilder().setAutomatedBackupPolicy(policy);
     return this;
+  }
+
+  /** Set an automated backup policy for the table. */
+  public CreateTableRequest setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) {
+    return setAutomatedBackup(toThreetenDuration(retentionPeriod), toThreetenDuration(frequency));
   }
 
   @Override

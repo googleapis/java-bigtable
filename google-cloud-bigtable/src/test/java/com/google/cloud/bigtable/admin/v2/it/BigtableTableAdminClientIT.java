@@ -52,7 +52,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
+import java.time.Duration;
 
 @RunWith(JUnit4.class)
 public class BigtableTableAdminClientIT {
@@ -103,7 +103,7 @@ public class BigtableTableAdminClientIT {
     assertFalse(columnFamilyById.get("cf1").hasGCRule());
     assertTrue(columnFamilyById.get("cf2").hasGCRule());
     assertEquals(10, ((VersionRule) columnFamilyById.get("cf2").getGCRule()).getMaxVersions());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
 
     // Disable change stream so the table can be deleted.
     UpdateTableRequest updateTableRequest =
@@ -124,18 +124,18 @@ public class BigtableTableAdminClientIT {
             .addChangeStreamRetention(Duration.ofDays(2));
     Table tableResponse = tableAdmin.createTable(createTableReq);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(2), tableResponse.getChangeStreamRetentionDuration());
 
     UpdateTableRequest updateTableRequest =
         UpdateTableRequest.of(tableId).addChangeStreamRetention(Duration.ofDays(4));
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetention());
+    assertEquals(Duration.ofDays(4), tableResponse.getChangeStreamRetentionDuration());
 
     updateTableRequest = UpdateTableRequest.of(tableId).disableChangeStreamRetention();
     tableResponse = tableAdmin.updateTable(updateTableRequest);
     assertEquals(tableId, tableResponse.getId());
-    assertNull(tableResponse.getChangeStreamRetention());
+    assertNull(tableResponse.getChangeStreamRetentionDuration());
   }
 
   @Test
@@ -176,13 +176,13 @@ public class BigtableTableAdminClientIT {
     assertNotNull(columnFamilyById.get("mf2"));
     assertEquals(2, ((UnionRule) columnFamilyById.get("mf1").getGCRule()).getRulesList().size());
     assertEquals(
-        1000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAge().getSeconds());
+        1000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getSeconds());
     assertEquals(
-        20000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAge().getNano());
+        20000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getNano());
     assertEquals(
         2, ((IntersectionRule) columnFamilyById.get("mf3").getGCRule()).getRulesList().size());
     assertEquals(
-        360, ((DurationRule) columnFamilyById.get("mf4").getGCRule()).getMaxAge().getSeconds());
+        360, ((DurationRule) columnFamilyById.get("mf4").getGCRule()).getMaxAgeDuration().getSeconds());
     assertNotNull(columnFamilyById.get("mf7"));
   }
 

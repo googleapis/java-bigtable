@@ -16,7 +16,9 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.TableName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -216,8 +218,13 @@ public final class Table {
     return columnFamilies;
   }
 
+  @ObsoleteApi("threeten is being deprecated, please use getChangeStreamRetentionDuration() instead")
   public Duration getChangeStreamRetention() {
     return changeStreamRetention;
+  }
+
+  public java.time.Duration getChangeStreamRetentionDuration() {
+    return toJavaTimeDuration(getChangeStreamRetention());
   }
 
   /** Returns whether this table is deletion protected. */

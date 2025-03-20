@@ -16,7 +16,9 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Preconditions;
@@ -52,6 +54,7 @@ public class UpdateTableRequest {
   }
 
   /** Update change stream retention period between 1 day and 7 days. */
+  @ObsoleteApi("threten is being deprecated, please use addChangeStreamRetention(java.time.Duration retention) instead")
   public UpdateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     if (!retention.isZero()) {
@@ -71,6 +74,11 @@ public class UpdateTableRequest {
       requestBuilder.getUpdateMaskBuilder().addPaths("change_stream_config");
     }
     return this;
+  }
+
+  /** Update change stream retention period between 1 day and 7 days. */
+  public UpdateTableRequest addChangeStreamRetention(java.time.Duration retention) {
+    return addChangeStreamRetention(toThreetenDuration(retention));
   }
 
   /** Disable change stream for table. */
@@ -93,6 +101,7 @@ public class UpdateTableRequest {
   }
 
   /** Set an automated backup policy for the table. */
+  @ObsoleteApi("threeten is being deprecated, please use setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) instead")
   public UpdateTableRequest setAutomatedBackup(Duration retentionPeriod, Duration frequency) {
     com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy policy =
         com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
@@ -113,7 +122,13 @@ public class UpdateTableRequest {
     return this;
   }
 
+  /** Set an automated backup policy for the table. */
+  public UpdateTableRequest setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) {
+    return setAutomatedBackup(toThreetenDuration(retentionPeriod), toThreetenDuration(frequency));
+  }
+
   /** Updates table automated backup policy retention period. */
+  @ObsoleteApi("threeten is being deprecated, please use setAutomatedBackupRetentionPeriod(java.time.Duration retention) instead")
   public UpdateTableRequest setAutomatedBackupRetentionPeriod(Duration retention) {
     requestBuilder
         .getTableBuilder()
@@ -129,7 +144,13 @@ public class UpdateTableRequest {
     return this;
   }
 
+  /** Updates table automated backup policy retention period. */
+  public UpdateTableRequest setAutomatedBackupRetentionPeriod(java.time.Duration retention) {
+    return setAutomatedBackupRetentionPeriod(toThreetenDuration(retention));
+  }
+
   /** Updates table automated backup policy frequency. */
+  @ObsoleteApi("threeten is being deprecated, please use setAutomatedBackupFrequency(java.time.Duration frequency) instead")
   public UpdateTableRequest setAutomatedBackupFrequency(Duration frequency) {
     requestBuilder
         .getTableBuilder()
@@ -143,6 +164,11 @@ public class UpdateTableRequest {
                 .build());
     requestBuilder.getUpdateMaskBuilder().addPaths("automated_backup_policy.frequency");
     return this;
+  }
+
+  /** Updates table automated backup policy frequency. */
+  public UpdateTableRequest setAutomatedBackupFrequency(java.time.Duration frequency) {
+    return setAutomatedBackupFrequency(toThreetenDuration(frequency));
   }
 
   @InternalApi

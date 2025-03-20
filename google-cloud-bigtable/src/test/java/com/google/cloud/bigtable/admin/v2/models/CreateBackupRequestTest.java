@@ -24,8 +24,8 @@ import com.google.protobuf.util.Timestamps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
+import java.time.Duration;
+import java.time.Instant;
 
 @RunWith(JUnit4.class)
 public class CreateBackupRequestTest {
