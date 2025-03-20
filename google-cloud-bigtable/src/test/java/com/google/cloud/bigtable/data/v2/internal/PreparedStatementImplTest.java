@@ -140,6 +140,7 @@ public class PreparedStatementImplTest {
     do {
       Thread.sleep(10);
     } while (service.prepareCount < 2);
+    Thread.sleep(50);
     PreparedQueryData updatedPlan = preparedStatement.getLatestPrepareResponse();
     PrepareResponse updatedResponse = updatedPlan.prepareFuture().get();
     assertThat(updatedPlan.version()).isNotEqualTo(initialPlan.version());

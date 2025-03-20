@@ -243,7 +243,7 @@ public class PlanRefreshingCallableTest {
   }
 
   @Test
-  public void planRefreshDelayIsFactoredIntoExecuteTimeout() {
+  public void planRefreshDelayIsFactoredIntoExecuteTimeout() throws InterruptedException {
     MockServerStreamingCallable<ExecuteQueryRequest, ExecuteQueryResponse> innerCallable =
         new MockServerStreamingCallable<>();
     RequestContext requestContext = RequestContext.create("project", "instance", "profile");
@@ -276,6 +276,7 @@ public class PlanRefreshingCallableTest {
         Deadline.after(originalAttemptTimeout.toMillis() + 5, TimeUnit.MILLISECONDS);
     callable.call(callContext, outerObserver, context);
     scheduler.shutdown();
+    scheduler.awaitTermination(30, TimeUnit.SECONDS);
     GrpcCallContext grpcCallContext =
         (GrpcCallContext) innerCallable.popLastCall().getApiCallContext();
     Deadline executeDeadline = grpcCallContext.getCallOptions().getDeadline();

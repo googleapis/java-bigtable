@@ -548,8 +548,8 @@ public class ExecuteQueryRetryTest {
                 // First attempt triggers plan refresh retry.
                 // Second should time out
                 .setMaxAttempts(2)
-                .setInitialRpcTimeoutDuration(Duration.ofMillis(10))
-                .setMaxRpcTimeoutDuration(Duration.ofMinutes(10))
+                .setInitialRpcTimeoutDuration(Duration.ofMillis(500))
+                .setMaxRpcTimeoutDuration(Duration.ofMinutes(500))
                 .setTotalTimeoutDuration(Duration.ZERO)
                 .build())
         .build();
@@ -699,9 +699,9 @@ public class ExecuteQueryRetryTest {
                 // First attempt triggers plan refresh retry.
                 // Second should time out, third should succeed
                 .setMaxAttempts(3)
-                .setInitialRpcTimeoutDuration(Duration.ofMillis(100))
-                .setMaxRpcTimeoutDuration(Duration.ofMillis(100))
-                .setTotalTimeoutDuration(Duration.ofMinutes(500))
+                .setInitialRpcTimeoutDuration(Duration.ofSeconds(1))
+                .setMaxRpcTimeoutDuration(Duration.ofSeconds(1))
+                .setTotalTimeoutDuration(Duration.ofSeconds(5))
                 .build())
         .build();
     settings.stubSettings().build();
@@ -724,7 +724,7 @@ public class ExecuteQueryRetryTest {
         PrepareRpcExpectation.create()
             .withSql("SELECT * FROM table")
             // first refresh attempt times out, but then it succeeds
-            .withDelay(Duration.ofMillis(150))
+            .withDelay(Duration.ofMillis(1500))
             .respondWith(
                 prepareResponse(
                     ByteString.copyFromUtf8("bar"),
@@ -756,9 +756,9 @@ public class ExecuteQueryRetryTest {
                 // First attempt triggers plan refresh retry.
                 // Second should time out, third should succeed
                 .setMaxAttempts(2)
-                .setInitialRpcTimeoutDuration(Duration.ofMillis(30))
-                .setMaxRpcTimeoutDuration(Duration.ofMillis(30))
-                .setTotalTimeoutDuration(Duration.ofMinutes(30))
+                .setInitialRpcTimeoutDuration(Duration.ofMillis(500))
+                .setMaxRpcTimeoutDuration(Duration.ofMillis(500))
+                .setTotalTimeoutDuration(Duration.ofMinutes(500))
                 .build())
         .build();
     settings.stubSettings().build();
@@ -779,7 +779,7 @@ public class ExecuteQueryRetryTest {
         PrepareRpcExpectation.create()
             .withSql("SELECT * FROM table")
             // Burn most of the execute attempt timeout and succeed
-            .withDelay(Duration.ofMillis(20))
+            .withDelay(Duration.ofMillis(350))
             .respondWith(
                 prepareResponse(
                     ByteString.copyFromUtf8("bar"),
@@ -787,8 +787,8 @@ public class ExecuteQueryRetryTest {
     service.addExpectation(
         ExecuteRpcExpectation.create()
             .withPreparedQuery(ByteString.copyFromUtf8("bar"))
-            // Should timeout bc we used 20 ms on prepare refresh and have 30ms timeout
-            .withDelay(Duration.ofMillis(20))
+            // Should timeout bc we used 350 ms on prepare refresh and have 500ms timeout
+            .withDelay(Duration.ofMillis(350))
             .respondWith(partialResultSetWithToken(stringValue("s"))));
 
     PreparedStatement ps =
