@@ -17,6 +17,7 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
+
 import com.google.api.core.InternalApi;
 import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.TableName;
@@ -218,7 +219,8 @@ public final class Table {
     return columnFamilies;
   }
 
-  @ObsoleteApi("threeten is being deprecated, please use getChangeStreamRetentionDuration() instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use getChangeStreamRetentionDuration() instead")
   public Duration getChangeStreamRetention() {
     return changeStreamRetention;
   }

@@ -39,6 +39,8 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -50,8 +52,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Instant;
-import java.time.Duration;
 
 /**
  * Tests our CMEK offering. It can take up to 5 mins after a CMEK-protected table is created for the

@@ -105,7 +105,6 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
-import java.time.Instant;
 
 @RunWith(JUnit4.class)
 /**
@@ -731,7 +730,8 @@ public class BigtableTableAdminClientTests {
             .setSourceTableId(TABLE_ID)
             .setExpireTime(java.time.Instant.ofEpochMilli(Timestamps.toMillis(expireTime)))
             .setBackupType(Backup.BackupType.HOT)
-            .setHotToStandardTime(java.time.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
+            .setHotToStandardTime(
+                java.time.Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     mockOperationResult(
         mockCreateBackupOperationCallable,
         req.toProto(PROJECT_ID, INSTANCE_ID),

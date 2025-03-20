@@ -24,8 +24,6 @@ import com.google.protobuf.util.Timestamps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class UpdateBackupRequestTest {
@@ -35,9 +33,12 @@ public class UpdateBackupRequestTest {
   private static final String PROJECT_ID = "my-project";
   private static final String INSTANCE_ID = "my-instance";
   private static final String CLUSTER_ID = "my-cluster";
-  private static final java.time.Instant EXPIRE_TIME = java.time.Instant.now().plus(java.time.Duration.ofDays(15));
-  private static final java.time.Instant EXPIRE_TIME_2 = java.time.Instant.now().plus(java.time.Duration.ofDays(20));
-  private static final java.time.Instant HOT_TO_STANDARD_TIME = java.time.Instant.now().plus(java.time.Duration.ofDays(10));
+  private static final java.time.Instant EXPIRE_TIME =
+      java.time.Instant.now().plus(java.time.Duration.ofDays(15));
+  private static final java.time.Instant EXPIRE_TIME_2 =
+      java.time.Instant.now().plus(java.time.Duration.ofDays(20));
+  private static final java.time.Instant HOT_TO_STANDARD_TIME =
+      java.time.Instant.now().plus(java.time.Duration.ofDays(10));
 
   @Test
   public void testToProto() {

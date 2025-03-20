@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
 import com.google.api.core.ObsoleteApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
@@ -77,7 +78,8 @@ public final class CopyBackupRequest {
     return this;
   }
 
-  @ObsoleteApi("threeten is being deprecated, please use setExpireTime(java.time.Instant expireTime) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use setExpireTime(java.time.Instant expireTime) instead")
   public CopyBackupRequest setExpireTime(Instant expireTime) {
     Preconditions.checkNotNull(expireTime);
     requestBuilder.setExpireTime(Timestamps.fromMillis(expireTime.toEpochMilli()));

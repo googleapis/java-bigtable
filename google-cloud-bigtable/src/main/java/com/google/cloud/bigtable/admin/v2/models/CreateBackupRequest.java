@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.api.gax.util.TimeConversionUtils.toThreetenInstant;
+
 import com.google.api.core.InternalApi;
 import com.google.api.core.ObsoleteApi;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
@@ -52,7 +53,8 @@ public final class CreateBackupRequest {
     return this;
   }
 
-  @ObsoleteApi("threeten is being deprecated, please use setExpireTime(java.time.Instant expireTime) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use setExpireTime(java.time.Instant expireTime) instead")
   public CreateBackupRequest setExpireTime(Instant expireTime) {
     Preconditions.checkNotNull(expireTime);
     requestBuilder
@@ -74,7 +76,8 @@ public final class CreateBackupRequest {
   // The time at which this backup will be converted from a hot backup to a standard backup. Only
   // applicable for hot backups. If not set, the backup will remain as a hot backup until it is
   // deleted.
-  @ObsoleteApi("threeten is being deprecated, please use setHotToStandardTime(java.time.Instant expireTime) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use setHotToStandardTime(java.time.Instant expireTime) instead")
   public CreateBackupRequest setHotToStandardTime(Instant hotToStandardTime) {
     Preconditions.checkNotNull(hotToStandardTime);
     requestBuilder

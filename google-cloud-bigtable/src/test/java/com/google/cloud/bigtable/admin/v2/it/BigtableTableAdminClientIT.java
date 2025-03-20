@@ -42,6 +42,7 @@ import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.collect.Maps;
 import com.google.protobuf.ByteString;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import org.junit.After;
@@ -52,7 +53,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Duration;
 
 @RunWith(JUnit4.class)
 public class BigtableTableAdminClientIT {
@@ -176,13 +176,16 @@ public class BigtableTableAdminClientIT {
     assertNotNull(columnFamilyById.get("mf2"));
     assertEquals(2, ((UnionRule) columnFamilyById.get("mf1").getGCRule()).getRulesList().size());
     assertEquals(
-        1000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getSeconds());
+        1000,
+        ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getSeconds());
     assertEquals(
-        20000, ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getNano());
+        20000,
+        ((DurationRule) columnFamilyById.get("mf2").getGCRule()).getMaxAgeDuration().getNano());
     assertEquals(
         2, ((IntersectionRule) columnFamilyById.get("mf3").getGCRule()).getRulesList().size());
     assertEquals(
-        360, ((DurationRule) columnFamilyById.get("mf4").getGCRule()).getMaxAgeDuration().getSeconds());
+        360,
+        ((DurationRule) columnFamilyById.get("mf4").getGCRule()).getMaxAgeDuration().getSeconds());
     assertNotNull(columnFamilyById.get("mf7"));
   }
 

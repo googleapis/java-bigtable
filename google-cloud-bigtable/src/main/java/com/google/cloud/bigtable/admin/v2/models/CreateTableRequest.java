@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
+
 import com.google.api.core.InternalApi;
 import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.ChangeStreamConfig;
@@ -110,7 +111,8 @@ public final class CreateTableRequest {
   }
 
   /** Add change stream retention period between 1 day and 7 days. */
-  @ObsoleteApi("threeten is being deprecated, please use addChangeStreamRetention(java.time.Duration retention) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use addChangeStreamRetention(java.time.Duration retention) instead")
   public CreateTableRequest addChangeStreamRetention(Duration retention) {
     Preconditions.checkNotNull(retention);
     requestBuilder
@@ -138,7 +140,8 @@ public final class CreateTableRequest {
   }
 
   /** Set an automated backup policy for the table. */
-  @ObsoleteApi("threeten is being deprecated, please use setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) instead")
   public CreateTableRequest setAutomatedBackup(Duration retentionPeriod, Duration frequency) {
     com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy policy =
         com.google.bigtable.admin.v2.Table.AutomatedBackupPolicy.newBuilder()
@@ -159,7 +162,8 @@ public final class CreateTableRequest {
   }
 
   /** Set an automated backup policy for the table. */
-  public CreateTableRequest setAutomatedBackup(java.time.Duration retentionPeriod, java.time.Duration frequency) {
+  public CreateTableRequest setAutomatedBackup(
+      java.time.Duration retentionPeriod, java.time.Duration frequency) {
     return setAutomatedBackup(toThreetenDuration(retentionPeriod), toThreetenDuration(frequency));
   }
 
