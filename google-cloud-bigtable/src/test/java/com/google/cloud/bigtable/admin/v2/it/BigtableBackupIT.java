@@ -45,6 +45,8 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -59,8 +61,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Duration;
-import java.time.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableBackupIT {
@@ -141,7 +141,8 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(6)).toEpochMilli());
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(6)).toEpochMilli());
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetCluster, backupId)
@@ -187,8 +188,10 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetHotBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
-    Instant hotToStandardTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
+    Instant hotToStandardTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetClusterHot, backupId)
@@ -275,14 +278,17 @@ public class BigtableBackupIT {
             .setBackupType(Backup.BackupType.HOT)
             .setHotToStandardTime(Instant.now().plus(Duration.ofDays(10))));
 
-    Instant expireTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofDays(20)).toEpochMilli());
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofDays(20)).toEpochMilli());
     UpdateBackupRequest req =
         UpdateBackupRequest.of(targetClusterHot, backupId)
             .setExpireTime(expireTime)
             .clearHotToStandardTime();
     try {
       Backup backup = tableAdminHot.updateBackup(req);
-      assertWithMessage("Incorrect expire time").that(backup.getExpireInstant()).isEqualTo(expireTime);
+      assertWithMessage("Incorrect expire time")
+          .that(backup.getExpireInstant())
+          .isEqualTo(expireTime);
       assertWithMessage("Incorrect hot to standard time")
           .that(backup.getHotToStandardInstant())
           .isNull();
@@ -399,7 +405,8 @@ public class BigtableBackupIT {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
     // The library clamps nanos on the write path
-    Instant expireTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
 
     // Create the backup
     tableAdmin.createBackup(
@@ -440,7 +447,8 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
 
     // Create the backup
     tableAdmin.createBackup(

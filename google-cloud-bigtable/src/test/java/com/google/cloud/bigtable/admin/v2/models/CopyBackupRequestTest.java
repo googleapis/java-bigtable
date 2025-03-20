@@ -19,11 +19,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.util.Timestamps;
+import java.time.Duration;
+import java.time.Instant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Duration;
-import java.time.Instant;
 
 @RunWith(JUnit4.class)
 public class CopyBackupRequestTest {

@@ -22,10 +22,10 @@ import com.google.bigtable.admin.v2.ChangeStreamConfig;
 import com.google.bigtable.admin.v2.Table;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.FieldMask;
+import java.time.Duration;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Duration;
 
 @RunWith(JUnit4.class)
 public class UpdateTableRequestTest {

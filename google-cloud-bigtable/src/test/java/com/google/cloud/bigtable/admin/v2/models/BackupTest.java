@@ -23,11 +23,11 @@ import com.google.common.collect.Lists;
 import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import com.google.rpc.Code;
+import java.time.Instant;
 import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Instant;
 
 @RunWith(JUnit4.class)
 public class BackupTest {
@@ -95,7 +95,8 @@ public class BackupTest {
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(expireTime)));
     assertThat(result.getStartInstant())
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(startTime)));
-    assertThat(result.getEndInstant()).isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
+    assertThat(result.getEndInstant())
+        .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(endTime)));
     assertThat(result.getHotToStandardInstant())
         .isEqualTo(Instant.ofEpochMilli(Timestamps.toMillis(hotToStandardTime)));
     assertThat(result.getSizeBytes()).isEqualTo(123456);

@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
 import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
+
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.api.core.ObsoleteApi;
@@ -81,7 +82,8 @@ public final class GCRules {
    *
    * @param duration - age expressed as duration
    */
-  @ObsoleteApi("threeten is being deprecated, please use maxAge(java.time.Duration duration) instead")
+  @ObsoleteApi(
+      "threeten is being deprecated, please use maxAge(java.time.Duration duration) instead")
   public DurationRule maxAge(Duration duration) {
     return new DurationRule(duration);
   }

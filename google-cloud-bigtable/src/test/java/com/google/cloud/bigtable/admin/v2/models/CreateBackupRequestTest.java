@@ -21,11 +21,11 @@ import com.google.bigtable.admin.v2.Backup;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.cloud.bigtable.admin.v2.models.Backup.BackupType;
 import com.google.protobuf.util.Timestamps;
+import java.time.Duration;
+import java.time.Instant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import java.time.Duration;
-import java.time.Instant;
 
 @RunWith(JUnit4.class)
 public class CreateBackupRequestTest {
