@@ -15,8 +15,11 @@
  */
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeDuration;
+import static com.google.api.gax.util.TimeConversionUtils.toThreetenDuration;
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.GcRule;
 import com.google.bigtable.admin.v2.GcRule.Intersection;
 import com.google.bigtable.admin.v2.GcRule.Union;
@@ -78,8 +81,18 @@ public final class GCRules {
    *
    * @param duration - age expressed as duration
    */
+  @ObsoleteApi("threeten is being deprecated, please use maxAge(java.time.Duration duration) instead")
   public DurationRule maxAge(Duration duration) {
     return new DurationRule(duration);
+  }
+
+  /**
+   * Creates a new instance of the DurationRule
+   *
+   * @param duration - age expressed as duration
+   */
+  public DurationRule maxAge(java.time.Duration duration) {
+    return maxAge(toThreetenDuration(duration));
   }
 
   /** Creates an empty default rule */
@@ -295,8 +308,14 @@ public final class GCRules {
     }
 
     /** Gets the configured maximum age */
+    @ObsoleteApi("threeten is being deprecated, please use getMaxAgeDuration()")
     public Duration getMaxAge() {
       return Duration.ofSeconds(builder.getSeconds(), builder.getNanos());
+    }
+
+    /** Gets the configured maximum age */
+    public java.time.Duration getMaxAgeDuration() {
+      return toJavaTimeDuration(getMaxAge());
     }
 
     @Override
@@ -318,7 +337,7 @@ public final class GCRules {
 
     @Override
     public String toString() {
-      return MoreObjects.toStringHelper(this).add("maxAge", getMaxAge()).toString();
+      return MoreObjects.toStringHelper(this).add("maxAge", getMaxAgeDuration()).toString();
     }
 
     @InternalApi

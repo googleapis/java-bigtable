@@ -16,7 +16,9 @@
 
 package com.google.cloud.bigtable.admin.v2.models;
 
+import static com.google.api.gax.util.TimeConversionUtils.toJavaTimeInstant;
 import com.google.api.core.InternalApi;
+import com.google.api.core.ObsoleteApi;
 import com.google.bigtable.admin.v2.BackupName;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
@@ -167,11 +169,18 @@ public class Backup {
   }
 
   /** Get the expire time of this backup. */
+  @ObsoleteApi("threeten is being deprecated, please use getExpireInstant() instead")
   public Instant getExpireTime() {
     return Instant.ofEpochMilli(Timestamps.toMillis(proto.getExpireTime()));
   }
 
+  /** Get the expire time of this backup. */
+  public java.time.Instant getExpireInstant() {
+    return toJavaTimeInstant(getExpireTime());
+  }
+
   /** Get the start time when this backup is taken. */
+  @ObsoleteApi("threeten is being deprecated, please use getStartInstant() instead")
   public @Nullable Instant getStartTime() {
     if (proto.hasStartTime()) {
       return Instant.ofEpochMilli(Timestamps.toMillis(proto.getStartTime()));
@@ -179,12 +188,23 @@ public class Backup {
     return null;
   }
 
+  /** Get the start time when this backup is taken. */
+  public @Nullable java.time.Instant getStartInstant() {
+    return toJavaTimeInstant(getStartTime());
+  }
+
   /** Get the end time when the creation of this backup has completed. */
+  @ObsoleteApi("threeten is being deprecated, please use getEndInstant() instead")
   public @Nullable Instant getEndTime() {
     if (proto.hasEndTime()) {
       return Instant.ofEpochMilli(Timestamps.toMillis(proto.getEndTime()));
     }
     return null;
+  }
+
+  /** Get the end time when the creation of this backup has completed. */
+  public @Nullable java.time.Instant getEndInstant() {
+    return toJavaTimeInstant(getEndTime());
   }
 
   /** Get the size of this backup. */
@@ -204,11 +224,18 @@ public class Backup {
 
   /** Get the time at which this backup will be converted from a hot backup to a standard backup. */
   @Nullable
+  @ObsoleteApi("threeten is being deprecated, please use getHotToStandardInstant() instead")
   public Instant getHotToStandardTime() {
     if (proto.hasHotToStandardTime()) {
       return Instant.ofEpochMilli(Timestamps.toMillis(proto.getHotToStandardTime()));
     }
     return null;
+  }
+
+  /** Get the time at which this backup will be converted from a hot backup to a standard backup. */
+  @Nullable
+  public java.time.Instant getHotToStandardInstant() {
+    return toJavaTimeInstant(getHotToStandardTime());
   }
 
   /**

@@ -184,7 +184,7 @@ public class TestEnvRule implements TestRule {
     if (!(env() instanceof EmulatorEnv)) {
       // unprotect table
       Table table = env().getTableAdminClient().getTable(tableId);
-      if (table.isDeletionProtected() || table.getChangeStreamRetention() != null) {
+      if (table.isDeletionProtected() || table.getChangeStreamRetentionDuration() != null) {
         env()
             .getTableAdminClient()
             .updateTable(

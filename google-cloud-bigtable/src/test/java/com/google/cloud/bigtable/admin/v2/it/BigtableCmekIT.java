@@ -50,8 +50,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Instant;
-import org.threeten.bp.temporal.ChronoUnit;
+import java.time.Instant;
+import java.time.Duration;
 
 /**
  * Tests our CMEK offering. It can take up to 5 mins after a CMEK-protected table is created for the
@@ -207,7 +207,7 @@ public class BigtableCmekIT {
     // taken
     tableAdmin.createBackup(
         CreateBackupRequest.of(clusterId1, BACKUP_ID)
-            .setExpireTime(Instant.now().plus(6, ChronoUnit.HOURS))
+            .setExpireTime(Instant.now().plus(Duration.ofHours(6)))
             .setSourceTableId(TEST_TABLE_ID));
 
     Backup backup = tableAdmin.getBackup(clusterId1, BACKUP_ID);
