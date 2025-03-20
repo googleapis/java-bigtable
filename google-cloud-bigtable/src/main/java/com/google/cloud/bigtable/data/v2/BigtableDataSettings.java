@@ -189,16 +189,14 @@ public final class BigtableDataSettings {
   }
 
   /**
-   * @deprecated OpenCensus support is deprecated and will be removed in a future version
-   * Enables OpenCensus GFE metric aggregations.
-   *
-   * <p>This will register views for gfe_latency and gfe_header_missing_count metrics.
-   *
-   * <p>gfe_latency measures the latency between Google's network receives an RPC and reads back the
-   * first byte of the response. gfe_header_missing_count is a counter of the number of RPC
-   * responses received without the server-timing header.
+   * @deprecated OpenCensus support is deprecated and will be removed in a future version Enables
+   *     OpenCensus GFE metric aggregations.
+   *     <p>This will register views for gfe_latency and gfe_header_missing_count metrics.
+   *     <p>gfe_latency measures the latency between Google's network receives an RPC and reads back
+   *     the first byte of the response. gfe_header_missing_count is a counter of the number of RPC
+   *     responses received without the server-timing header.
    */
-   @Deprecated
+  @Deprecated
   public static void enableGfeOpenCensusStats() {
     com.google.cloud.bigtable.data.v2.stub.metrics.RpcViews.registerBigtableClientGfeViews();
   }
