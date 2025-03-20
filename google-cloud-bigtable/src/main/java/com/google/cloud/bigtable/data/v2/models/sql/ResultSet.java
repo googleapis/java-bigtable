@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-
 /**
  * A set of SQL data, generated as the result of an ExecuteQuery request.
  *

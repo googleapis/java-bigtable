@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-
 /**
  * The results of query preparation that can be used to create {@link BoundStatement}s to execute
  * queries.

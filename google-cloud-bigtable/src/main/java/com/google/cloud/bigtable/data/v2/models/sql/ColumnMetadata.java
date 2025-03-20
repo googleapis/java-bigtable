@@ -15,7 +15,6 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
-
 /** Represents the metadata for a column in a {@link ResultSet} */
 public interface ColumnMetadata {
   /** The name of the column. Returns Empty string if the column has no name */
