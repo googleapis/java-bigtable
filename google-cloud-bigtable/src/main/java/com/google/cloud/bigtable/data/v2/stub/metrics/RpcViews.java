@@ -22,7 +22,7 @@ import io.opencensus.stats.Stats;
 import io.opencensus.stats.View;
 import io.opencensus.stats.ViewManager;
 
-@BetaApi
+@Deprecated
 public class RpcViews {
   @VisibleForTesting
   private static final ImmutableSet<View> BIGTABLE_CLIENT_VIEWS_SET =
