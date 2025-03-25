@@ -158,7 +158,7 @@ class BigtableExporterUtils {
   }
 
   static List<TimeSeries> convertToApplicationResourceTimeSeries(
-      Collection<MetricData> collection, String taskId, MonitoredResource applicationResource) {
+      Collection<MetricData> collection, MonitoredResource applicationResource) {
     Preconditions.checkNotNull(
         applicationResource,
         "convert application metrics is called when the supported resource is not detected");
@@ -172,7 +172,7 @@ class BigtableExporterUtils {
           .map(
               pointData ->
                   convertPointToApplicationResourceTimeSeries(
-                      metricData, pointData, taskId, applicationResource))
+                      metricData, pointData, applicationResource))
           .forEach(allTimeSeries::add);
     }
     return allTimeSeries;
@@ -291,10 +291,7 @@ class BigtableExporterUtils {
   }
 
   private static TimeSeries convertPointToApplicationResourceTimeSeries(
-      MetricData metricData,
-      PointData pointData,
-      String taskId,
-      MonitoredResource applicationResource) {
+      MetricData metricData, PointData pointData, MonitoredResource applicationResource) {
     TimeSeries.Builder builder =
         TimeSeries.newBuilder()
             .setMetricKind(convertMetricKind(metricData))
@@ -308,7 +305,6 @@ class BigtableExporterUtils {
       metricBuilder.putLabels(key.getKey(), String.valueOf(attributes.get(key)));
     }
 
-    metricBuilder.putLabels(CLIENT_UID_KEY.getKey(), taskId);
     builder.setMetric(metricBuilder.build());
 
     TimeInterval timeInterval =
