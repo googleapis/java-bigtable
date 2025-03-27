@@ -1,0 +1,10 @@
+{
+  "type": "record",
+  "name": "primitives",
+  "fields": [
+    {
+      "name": "bytes_prim",
+      "type": "bytes"
+    }
+  ]
+}
