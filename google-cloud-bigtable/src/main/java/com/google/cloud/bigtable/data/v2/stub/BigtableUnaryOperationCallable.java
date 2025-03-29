@@ -181,6 +181,7 @@ class BigtableUnaryOperationCallable<ReqT, RespT> extends UnaryCallable<ReqT, Re
 
     @Override
     public void onComplete() {
+      System.out.println("onComplete called on unary operation callable");
       if (allowNoResponse && set(null)) {
         tracer.operationSucceeded();
         return;
