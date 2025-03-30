@@ -172,8 +172,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
 
     // Skips exporting if there's none
     if (bigtableTimeSeries.isEmpty()) {
+      System.out.println("skipping empty metrics: " + this.exporterName);
       return CompletableResultCode.ofSuccess();
     }
+    System.out.println(bigtableTimeSeries);
 
     CompletableResultCode exportCode = new CompletableResultCode();
     bigtableTimeSeries.forEach(
@@ -296,7 +298,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     private final String taskId;
 
     PublicTimeSeriesConverter() {
-      this(BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
+      this(BigtableExporterUtils.DEFAULT_TASK_VALUE.get());
     }
 
     PublicTimeSeriesConverter(String taskId) {
@@ -322,16 +324,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             .map(m -> METER_NAME + m)
             .collect(ImmutableList.toImmutableList());
 
-    private final String taskId;
     private final Supplier<MonitoredResource> monitoredResource;
 
     InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource) {
-      this(monitoredResource, BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
-    }
-
-    InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource, String taskId) {
       this.monitoredResource = monitoredResource;
-      this.taskId = taskId;
     }
 
     @Override
@@ -341,18 +337,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
         return ImmutableMap.of();
       }
 
-      List<MetricData> relevantData =
-          metricData.stream()
-              .filter(md -> APPLICATION_METRICS.contains(md.getName()))
-              .collect(Collectors.toList());
-      if (relevantData.isEmpty()) {
-        return ImmutableMap.of();
-      }
-
       return ImmutableMap.of(
           ProjectName.of(monitoredResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID)),
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              relevantData, taskId, monitoredResource));
+              metricData, monitoredResource));
     }
   }
 }
