@@ -87,7 +87,7 @@ public class BuiltinMetricsTracerFactory extends BaseApiTracerFactory {
     attemptLatencies2Histogram =
         meter
             .histogramBuilder(ATTEMPT_LATENCIES2_NAME)
-            .setDescription("Client observed latency per RPC attempt.")
+            .setDescription("Client observed latency per RPC attempt with transport labels.")
             .setUnit(MILLISECOND)
             .build();
     serverLatenciesHistogram =
