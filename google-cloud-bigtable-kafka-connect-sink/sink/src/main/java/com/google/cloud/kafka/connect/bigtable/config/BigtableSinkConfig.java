@@ -18,6 +18,8 @@ package com.google.cloud.kafka.connect.bigtable.config;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.api.gax.retrying.RetrySettings;
+import com.google.api.gax.rpc.FixedHeaderProvider;
+import com.google.api.gax.rpc.HeaderProvider;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
@@ -26,6 +28,7 @@ import com.google.cloud.bigtable.admin.v2.stub.BigtableTableAdminStubSettings;
 import com.google.cloud.bigtable.data.v2.BigtableDataClient;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
 import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.cloud.kafka.connect.bigtable.version.PackageMetadata;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import java.io.ByteArrayInputStream;
@@ -465,6 +468,7 @@ public class BigtableSinkConfig extends AbstractConfig {
     }
 
     BigtableTableAdminStubSettings.Builder adminStubSettings = adminSettingsBuilder.stubSettings();
+    adminStubSettings.setHeaderProvider(getHeaderProvider());
     adminStubSettings.listTablesSettings().setRetrySettings(defaultRetrySettings);
     adminStubSettings.getTableSettings().setRetrySettings(defaultRetrySettings);
     adminStubSettings
@@ -524,6 +528,7 @@ public class BigtableSinkConfig extends AbstractConfig {
     }
 
     EnhancedBigtableStubSettings.Builder dataStubSettings = dataSettingsBuilder.stubSettings();
+    dataStubSettings.setHeaderProvider(getHeaderProvider());
     dataStubSettings.mutateRowSettings().setRetrySettings(retrySettings);
     dataStubSettings.checkAndMutateRowSettings().setRetrySettings(retrySettings);
     dataStubSettings.bulkMutateRowsSettings().setRetrySettings(retrySettings);
@@ -681,5 +686,14 @@ public class BigtableSinkConfig extends AbstractConfig {
     } catch (IOException e) {
       throw new ConfigException("Cloud Bigtable credentials creation failed.");
     }
+  }
+
+  /**
+   * @return {@link HeaderProvider} allowing the service provider to monitor the usage of this
+   *     connector.
+   */
+  private static HeaderProvider getHeaderProvider() {
+    return FixedHeaderProvider.create(
+        "user-agent", "bigtable-java/kafka-connect-sink/" + PackageMetadata.getVersion());
   }
 }
