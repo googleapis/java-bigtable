@@ -106,6 +106,8 @@ public class DirectPathFallbackIT {
         defaultTransportProvider
             .toBuilder()
             .setAttemptDirectPath(true)
+            .setAttemptDirectPathXds()
+            .setAllowNonDefaultServiceAccount(true)
             .setPoolSize(1)
             .setChannelConfigurator(
                 new ApiFunction<ManagedChannelBuilder, ManagedChannelBuilder>() {
