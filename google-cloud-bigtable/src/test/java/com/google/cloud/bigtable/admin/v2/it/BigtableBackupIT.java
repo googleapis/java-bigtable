@@ -45,6 +45,8 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.common.base.Stopwatch;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -59,8 +61,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.threeten.bp.Duration;
-import org.threeten.bp.Instant;
 
 @RunWith(JUnit4.class)
 public class BigtableBackupIT {
@@ -144,7 +144,8 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(6));
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(6)).toEpochMilli());
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetCluster, backupId)
@@ -159,7 +160,7 @@ public class BigtableBackupIT {
           .that(response.getSourceTableId())
           .isEqualTo(testTable.getId());
       assertWithMessage("Got wrong expire time in CreateBackup")
-          .that(response.getExpireTime())
+          .that(response.getExpireInstant())
           .isEqualTo(expireTime);
 
       Backup result = tableAdmin.getBackup(targetCluster, backupId);
@@ -170,10 +171,10 @@ public class BigtableBackupIT {
           .that(result.getSourceTableId())
           .isEqualTo(testTable.getId());
       assertWithMessage("Got wrong expire time in GetBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got empty start time in GetBackup API")
-          .that(result.getStartTime())
+          .that(result.getStartInstant())
           .isNotNull();
       assertWithMessage("Got wrong size bytes in GetBackup API")
           .that(result.getSizeBytes())
@@ -190,8 +191,10 @@ public class BigtableBackupIT {
   @Test
   public void createAndGetHotBackupTest() {
     String backupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(24));
-    Instant hotToStandardTime = Instant.now().plus(Duration.ofHours(24));
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
+    Instant hotToStandardTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(24)).toEpochMilli());
 
     CreateBackupRequest request =
         CreateBackupRequest.of(targetClusterHot, backupId)
@@ -208,13 +211,13 @@ public class BigtableBackupIT {
           .that(response.getSourceTableId())
           .isEqualTo(testTableHot.getId());
       assertWithMessage("Got wrong expire time in CreateBackup")
-          .that(response.getExpireTime())
+          .that(response.getExpireInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got wrong backup type in CreateBackup")
           .that(response.getBackupType())
           .isEqualTo(Backup.BackupType.HOT);
       assertWithMessage("Got wrong hot to standard time in CreateBackup")
-          .that(response.getHotToStandardTime())
+          .that(response.getHotToStandardInstant())
           .isEqualTo(hotToStandardTime);
 
       Backup result = tableAdminHot.getBackup(targetClusterHot, backupId);
@@ -225,13 +228,13 @@ public class BigtableBackupIT {
           .that(result.getSourceTableId())
           .isEqualTo(testTableHot.getId());
       assertWithMessage("Got wrong expire time in GetBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got wrong hot to standard time in GetBackup API")
-          .that(result.getHotToStandardTime())
+          .that(result.getHotToStandardInstant())
           .isEqualTo(hotToStandardTime);
       assertWithMessage("Got empty start time in GetBackup API")
-          .that(result.getStartTime())
+          .that(result.getStartInstant())
           .isNotNull();
       assertWithMessage("Got wrong size bytes in GetBackup API")
           .that(result.getSizeBytes())
@@ -278,16 +281,19 @@ public class BigtableBackupIT {
             .setBackupType(Backup.BackupType.HOT)
             .setHotToStandardTime(Instant.now().plus(Duration.ofDays(10))));
 
-    Instant expireTime = Instant.now().plus(Duration.ofDays(20));
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofDays(20)).toEpochMilli());
     UpdateBackupRequest req =
         UpdateBackupRequest.of(targetClusterHot, backupId)
             .setExpireTime(expireTime)
             .clearHotToStandardTime();
     try {
       Backup backup = tableAdminHot.updateBackup(req);
-      assertWithMessage("Incorrect expire time").that(backup.getExpireTime()).isEqualTo(expireTime);
+      assertWithMessage("Incorrect expire time")
+          .that(backup.getExpireInstant())
+          .isEqualTo(expireTime);
       assertWithMessage("Incorrect hot to standard time")
-          .that(backup.getHotToStandardTime())
+          .that(backup.getHotToStandardInstant())
           .isNull();
     } finally {
       deleteBackupIgnoreErrors(tableAdminHot, targetClusterHot, backupId);
@@ -401,7 +407,9 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
+    // The library clamps nanos on the write path
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
 
     // Create the backup
     tableAdmin.createBackup(
@@ -422,10 +430,10 @@ public class BigtableBackupIT {
           .that(result.getSourceBackupId())
           .isEqualTo(backupId);
       assertWithMessage("Got wrong expire time in CopyBackup API")
-          .that(result.getExpireTime())
+          .that(result.getExpireInstant())
           .isEqualTo(expireTime);
       assertWithMessage("Got empty start time in CopyBackup API")
-          .that(result.getStartTime())
+          .that(result.getStartInstant())
           .isNotNull();
       assertWithMessage("Got wrong state in CopyBackup API")
           .that(result.getState())
@@ -442,7 +450,8 @@ public class BigtableBackupIT {
       throws InterruptedException, IOException, ExecutionException, TimeoutException {
     String backupId = prefixGenerator.newPrefix();
     String copiedBackupId = prefixGenerator.newPrefix();
-    Instant expireTime = Instant.now().plus(Duration.ofHours(36));
+    Instant expireTime =
+        Instant.ofEpochMilli(Instant.now().plus(Duration.ofHours(36)).toEpochMilli());
 
     // Create the backup
     tableAdmin.createBackup(
@@ -477,10 +486,10 @@ public class BigtableBackupIT {
             .that(result.getSourceBackupId())
             .isEqualTo(backupId);
         assertWithMessage("Got wrong expire time in CopyBackup API")
-            .that(result.getExpireTime())
+            .that(result.getExpireInstant())
             .isEqualTo(expireTime);
         assertWithMessage("Got empty start time in CopyBackup API")
-            .that(result.getStartTime())
+            .that(result.getStartInstant())
             .isNotNull();
         assertWithMessage("Got wrong state in CopyBackup API")
             .that(result.getState())
