@@ -33,7 +33,6 @@ retry_with_backoff 3 10 \
     -DskipTests=true \
     -Dclirr.skip=true \
     -Denforcer.skip=true \
-    -Dcheckstyle.skip=true \
     -Dmaven.javadoc.skip=true \
     -Dgcloud.download.skip=true \
     -T 1C
@@ -42,6 +41,7 @@ retry_with_backoff 3 10 \
 if [[ ! -z "${GOOGLE_APPLICATION_CREDENTIALS}" && "${GOOGLE_APPLICATION_CREDENTIALS}" != /* ]]; then
     export GOOGLE_APPLICATION_CREDENTIALS=$(realpath ${KOKORO_GFILE_DIR}/${GOOGLE_APPLICATION_CREDENTIALS})
 fi
+
 
 RETURN_CODE=0
 set +e
@@ -67,17 +67,11 @@ integration)
       -DtrimStackTrace=false \
       -Dclirr.skip=true \
       -Denforcer.skip=true \
-      -Dcheckstyle.skip=true \
-      -DskipUnitTests=true \
+      -fae \
       verify
     RETURN_CODE=$?
     ;;
 graalvm)
-    # Run Unit and Integration Tests with Native Image
-    mvn -B ${INTEGRATION_TEST_ARGS} -ntp -Pnative test
-    RETURN_CODE=$?
-    ;;
-graalvm17)
     # Run Unit and Integration Tests with Native Image
     mvn -B ${INTEGRATION_TEST_ARGS} -ntp -Pnative test
     RETURN_CODE=$?
@@ -130,7 +124,7 @@ bash .kokoro/coerce_logs.sh
 if [[ "${ENABLE_FLAKYBOT}" == "true" ]]
 then
     chmod +x ${KOKORO_GFILE_DIR}/linux_amd64/flakybot
-    ${KOKORO_GFILE_DIR}/linux_amd64/flakybot -repo=googleapis/java-bigtable
+    ${KOKORO_GFILE_DIR}/linux_amd64/flakybot -repo=googleapis/java-storage
 fi
 
 echo "exiting with ${RETURN_CODE}"
