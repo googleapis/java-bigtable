@@ -1,11 +1,11 @@
 #!/bin/bash
-# Copyright 2019 Google LLC
+# Copyright 2025 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#      http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,6 @@ retry_with_backoff 3 10 \
     -DskipTests=true \
     -Dclirr.skip=true \
     -Denforcer.skip=true \
-    -Dcheckstyle.skip=true \
     -Dmaven.javadoc.skip=true \
     -Dgcloud.download.skip=true \
     -T 1C
@@ -42,6 +41,7 @@ retry_with_backoff 3 10 \
 if [[ ! -z "${GOOGLE_APPLICATION_CREDENTIALS}" && "${GOOGLE_APPLICATION_CREDENTIALS}" != /* ]]; then
     export GOOGLE_APPLICATION_CREDENTIALS=$(realpath ${KOKORO_GFILE_DIR}/${GOOGLE_APPLICATION_CREDENTIALS})
 fi
+
 
 RETURN_CODE=0
 set +e
@@ -69,15 +69,11 @@ integration)
       -Denforcer.skip=true \
       -Dcheckstyle.skip=true \
       -DskipUnitTests=true \
+      -fae \
       verify
     RETURN_CODE=$?
     ;;
 graalvm)
-    # Run Unit and Integration Tests with Native Image
-    mvn -B ${INTEGRATION_TEST_ARGS} -ntp -Pnative test
-    RETURN_CODE=$?
-    ;;
-graalvm17)
     # Run Unit and Integration Tests with Native Image
     mvn -B ${INTEGRATION_TEST_ARGS} -ntp -Pnative test
     RETURN_CODE=$?

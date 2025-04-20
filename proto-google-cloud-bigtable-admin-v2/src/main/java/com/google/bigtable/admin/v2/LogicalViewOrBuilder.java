@@ -38,6 +38,7 @@ public interface LogicalViewOrBuilder
    * @return The name.
    */
   java.lang.String getName();
+
   /**
    *
    *
@@ -65,6 +66,7 @@ public interface LogicalViewOrBuilder
    * @return The query.
    */
   java.lang.String getQuery();
+
   /**
    *
    *
@@ -93,6 +95,7 @@ public interface LogicalViewOrBuilder
    * @return The etag.
    */
   java.lang.String getEtag();
+
   /**
    *
    *
