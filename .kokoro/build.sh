@@ -50,7 +50,7 @@ fi
 # maven.main.skip skips recompiling the project with modified dependency versions. This
 # makes the build similar to users' environment where they would upgrade their dependencies
 # (without recompiling Cloud Java libraries).
-INTEGRATION_TEST_ARGS="${INTEGRATION_TEST_ARGS} -Dmaven.main.skip -Dgrpc.version=1.72.0"
+INTEGRATION_TEST_ARGS="${INTEGRATION_TEST_ARGS} -Dmaven.main.skip -Dgrpc.version=1.72.0 -Dprotobuf.version=4.31.0-RC1"
 echo "Start dependency tree of modified dependencies by: ${INTEGRATION_TEST_ARGS}"
 mvn -B -ntp dependency:tree ${INTEGRATION_TEST_ARGS}
 echo "End of dependency tree"
