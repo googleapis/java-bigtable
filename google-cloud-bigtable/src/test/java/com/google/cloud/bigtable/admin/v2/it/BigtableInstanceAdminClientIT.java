@@ -646,7 +646,10 @@ public class BigtableInstanceAdminClientIT {
         client.createMaterializedView(
             CreateMaterializedViewRequest.of(instanceId, testMaterializedView)
                 .setDeletionProtection(true)
-                .setQuery("SELECT _key, MAX(cf1['column']) as column FROM `" + tableId + "`"));
+                .setQuery(
+                    "SELECT _key, MAX(cf1['column']) as column FROM `"
+                        + tableId
+                        + "` GROUP BY _key"));
 
     MaterializedView updated =
         client.updateMaterializedView(
@@ -674,12 +677,12 @@ public class BigtableInstanceAdminClientIT {
     LogicalView newlyCreatedLogicalView =
         client.createLogicalView(
             CreateLogicalViewRequest.of(instanceId, testLogicalView)
-                .setQuery("SELECT _key, MAX(cf1['column']) as column FROM `" + tableId + "`"));
+                .setQuery("SELECT _key, cf1['column'] as column FROM `" + tableId + "`"));
 
     LogicalView updated =
         client.updateLogicalView(
             UpdateLogicalViewRequest.of(newlyCreatedLogicalView)
-                .setQuery("SELECT _key, MAX(cf1['column2']) as column FROM `" + tableId + "`"));
+                .setQuery("SELECT _key, cf1['column2'] as column FROM `" + tableId + "`"));
 
     LogicalView freshLogicalView = client.getLogicalView(instanceId, testLogicalView);
     assertThat(freshLogicalView.getQuery()).isEqualTo(updated.getQuery());
