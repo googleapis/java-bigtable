@@ -114,11 +114,9 @@ public class BigtableMaterializedViewIT {
           client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
 
       List<MaterializedView> response = client.listMaterializedViews(instanceId);
-      // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
-      // containsExactly.
       assertWithMessage("Got wrong materialized view Ids in listMaterializedViews")
           .that(response)
-          .containsAtLeast(materializedView);
+          .contains(materializedView);
     } finally {
       client.deleteMaterializedView(instanceId, materializedViewId);
     }

@@ -104,11 +104,9 @@ public class BigtableLogicalViewIT {
       LogicalView logicalView = client.createLogicalView(createLogicalViewRequest(logicalViewId));
 
       List<LogicalView> response = client.listLogicalViews(instanceId);
-      // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
-      // containsExactly.
       assertWithMessage("Got wrong logical view Ids in listLogicalViews")
           .that(response)
-          .containsAtLeast(logicalView);
+          .contains(logicalView);
     } finally {
       client.deleteLogicalView(instanceId, logicalViewId);
     }
