@@ -148,8 +148,7 @@ public class BigtableMaterializedViewIT {
 
     // Update the deletion protection bit of the materialized view.
     UpdateMaterializedViewRequest updateRequest =
-        UpdateMaterializedViewRequest.of(response)
-            .setDeletionProtection(false);
+        UpdateMaterializedViewRequest.of(response).setDeletionProtection(false);
     response = client.updateMaterializedView(updateRequest);
     assertWithMessage("Got wrong deletion protection in UpdateMaterializedView")
         .that(response.isDeletionProtected())
