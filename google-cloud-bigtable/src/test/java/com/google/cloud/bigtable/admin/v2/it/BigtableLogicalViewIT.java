@@ -82,7 +82,7 @@ public class BigtableLogicalViewIT {
           .isEqualTo(logicalViewId);
       assertWithMessage("Got wrong query in CreateLogicalView")
           .that(response.getQuery())
-          .isEqualTo(request.getQuery());
+          .isEqualTo(getQuery);
 
       response = client.getLogicalView(instanceId, logicalViewId);
       assertWithMessage("Got wrong logical view Id in getLogicalView")
@@ -90,7 +90,7 @@ public class BigtableLogicalViewIT {
           .isEqualTo(logicalViewId);
       assertWithMessage("Got wrong query in getLogicalView")
           .that(response.getQuery())
-          .isEqualTo(request.getQuery());
+          .isEqualTo(getQuery);
     } finally {
       client.deleteLogicalView(instanceId, logicalViewId);
     }
@@ -154,8 +154,11 @@ public class BigtableLogicalViewIT {
   }
 
   private CreateLogicalViewRequest createLogicalViewRequest(String logicalViewId) {
-    return CreateLogicalViewRequest.of(instanceId, logicalViewId)
-        .setQuery("SELECT _key, cf1['column'] as column FROM `" + testTable.getId() + "`");
+    return CreateLogicalViewRequest.of(instanceId, logicalViewId).setQuery(getQuery());
+  }
+
+  private String getQuery() {
+    return "SELECT _key, cf1['column'] as column FROM `" + testTable.getId() + "`";
   }
 
   private static Table createTestTable(BigtableTableAdminClient tableAdmin)

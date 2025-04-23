@@ -88,7 +88,7 @@ public class BigtableMaterializedViewIT {
           .isFalse();
       assertWithMessage("Got wrong deletion protection in CreateMaterializedView")
           .that(response.getQuery())
-          .isEqualTo(request.getQuery());
+          .isEqualTo(getQuery);
 
       response = client.getMaterializedView(instanceId, materializedViewId);
       assertWithMessage("Got wrong materialized view Id in getMaterializedView")
@@ -99,7 +99,7 @@ public class BigtableMaterializedViewIT {
           .isFalse();
       assertWithMessage("Got wrong deletion protection in getMaterializedView")
           .that(response.getQuery())
-          .isEqualTo(request.getQuery());
+          .isEqualTo(getQuery);
     } finally {
       client.deleteMaterializedView(instanceId, materializedViewId);
     }
@@ -110,7 +110,8 @@ public class BigtableMaterializedViewIT {
     String materializedViewId = prefixGenerator.newPrefix();
 
     try {
-      MaterializedView materializedView = client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
+      MaterializedView materializedView =
+          client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
 
       List<String> response = client.listMaterializedViews(instanceId);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
@@ -177,11 +178,13 @@ public class BigtableMaterializedViewIT {
   }
 
   private CreateMaterializedViewRequest createMaterializedViewRequest(String materializedViewId) {
-    return CreateMaterializedViewRequest.of(instanceId, materializedViewId)
-        .setQuery(
-            "SELECT _key, MAX(cf1['column']) as column FROM `"
-                + testTable.getId()
-                + "` GROUP BY _key");
+    return CreateMaterializedViewRequest.of(instanceId, materializedViewId).setQuery(getQuery());
+  }
+
+  private String getQuery() {
+    return "SELECT _key, MAX(cf1['column']) as column FROM `"
+        + testTable.getId()
+        + "` GROUP BY _key";
   }
 
   private static Table createTestTable(BigtableTableAdminClient tableAdmin)
