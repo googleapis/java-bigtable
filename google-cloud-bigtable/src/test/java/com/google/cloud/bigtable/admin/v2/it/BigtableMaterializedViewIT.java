@@ -110,14 +110,14 @@ public class BigtableMaterializedViewIT {
     String materializedViewId = prefixGenerator.newPrefix();
 
     try {
-      client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
+      MaterializedView materializedView = client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
 
       List<String> response = client.listMaterializedViews(instanceId);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
       // containsExactly.
       assertWithMessage("Got wrong materialized view Ids in listMaterializedViews")
           .that(response)
-          .containsAtLeast(client.getMaterializedView(instanceId, materializedViewId).getId());
+          .containsAtLeast(materializedView);
     } finally {
       client.deleteMaterializedView(instanceId, materializedViewId);
     }

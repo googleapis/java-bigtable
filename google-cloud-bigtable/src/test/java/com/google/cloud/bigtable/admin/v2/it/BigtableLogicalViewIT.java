@@ -101,14 +101,14 @@ public class BigtableLogicalViewIT {
     String logicalViewId = prefixGenerator.newPrefix();
 
     try {
-      client.createLogicalView(createLogicalViewRequest(logicalViewId));
+      LogicalView logicalView = client.createLogicalView(createLogicalViewRequest(logicalViewId));
 
       List<String> response = client.listLogicalViews(instanceId);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
       // containsExactly.
       assertWithMessage("Got wrong logical view Ids in listLogicalViews")
           .that(response)
-          .containsAtLeast(client.getLogicalView(instanceId, logicalViewId).getId());
+          .containsAtLeast(logicalView);
     } finally {
       client.deleteLogicalView(instanceId, logicalViewId);
     }
@@ -124,12 +124,13 @@ public class BigtableLogicalViewIT {
     LogicalView response = client.createLogicalView(request);
 
     // Update the query of the logical view.
+    String query = "SELECT 1 AS value";
     UpdateLogicalViewRequest updateRequest =
-        UpdateLogicalViewRequest.of(instanceId, logicalViewId).setQuery("SELECT 1 AS value");
+        UpdateLogicalViewRequest.of(instanceId, logicalViewId).setQuery(query);
     response = client.updateLogicalView(updateRequest);
     assertWithMessage("Got wrong query in UpdateLogicalView")
         .that(response.getQuery())
-        .isEqualTo(updateRequest.getQuery());
+        .isEqualTo(query);
 
     // Now we should be able to successfully delete the LogicalView.
     client.deleteLogicalView(instanceId, logicalViewId);
@@ -154,7 +155,7 @@ public class BigtableLogicalViewIT {
 
   private CreateLogicalViewRequest createLogicalViewRequest(String logicalViewId) {
     return CreateLogicalViewRequest.of(instanceId, logicalViewId)
-        .setQuery("SELECT _key, cf1['column'] as column FROM `" + tableId + "`");
+        .setQuery("SELECT _key, cf1['column'] as column FROM `" + testTable.getId() + "`");
   }
 
   private static Table createTestTable(BigtableTableAdminClient tableAdmin)
