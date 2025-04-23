@@ -82,7 +82,7 @@ public class BigtableLogicalViewIT {
           .isEqualTo(logicalViewId);
       assertWithMessage("Got wrong query in CreateLogicalView")
           .that(response.getQuery())
-          .isEqualTo(getQuery);
+          .isEqualTo(getQuery());
 
       response = client.getLogicalView(instanceId, logicalViewId);
       assertWithMessage("Got wrong logical view Id in getLogicalView")
@@ -90,7 +90,7 @@ public class BigtableLogicalViewIT {
           .isEqualTo(logicalViewId);
       assertWithMessage("Got wrong query in getLogicalView")
           .that(response.getQuery())
-          .isEqualTo(getQuery);
+          .isEqualTo(getQuery());
     } finally {
       client.deleteLogicalView(instanceId, logicalViewId);
     }
@@ -103,7 +103,7 @@ public class BigtableLogicalViewIT {
     try {
       LogicalView logicalView = client.createLogicalView(createLogicalViewRequest(logicalViewId));
 
-      List<String> response = client.listLogicalViews(instanceId);
+      List<LogicalView> response = client.listLogicalViews(instanceId);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
       // containsExactly.
       assertWithMessage("Got wrong logical view Ids in listLogicalViews")

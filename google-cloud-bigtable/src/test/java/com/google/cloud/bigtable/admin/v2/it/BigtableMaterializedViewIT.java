@@ -88,7 +88,7 @@ public class BigtableMaterializedViewIT {
           .isFalse();
       assertWithMessage("Got wrong deletion protection in CreateMaterializedView")
           .that(response.getQuery())
-          .isEqualTo(getQuery);
+          .isEqualTo(getQuery());
 
       response = client.getMaterializedView(instanceId, materializedViewId);
       assertWithMessage("Got wrong materialized view Id in getMaterializedView")
@@ -99,7 +99,7 @@ public class BigtableMaterializedViewIT {
           .isFalse();
       assertWithMessage("Got wrong deletion protection in getMaterializedView")
           .that(response.getQuery())
-          .isEqualTo(getQuery);
+          .isEqualTo(getQuery());
     } finally {
       client.deleteMaterializedView(instanceId, materializedViewId);
     }
@@ -113,7 +113,7 @@ public class BigtableMaterializedViewIT {
       MaterializedView materializedView =
           client.createMaterializedView(createMaterializedViewRequest(materializedViewId));
 
-      List<String> response = client.listMaterializedViews(instanceId);
+      List<MaterializedView> response = client.listMaterializedViews(instanceId);
       // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
       // containsExactly.
       assertWithMessage("Got wrong materialized view Ids in listMaterializedViews")
