@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.fail;
 
-import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateLogicalViewRequest;
@@ -73,16 +72,12 @@ public class BigtableLogicalViewIT {
   public void createLogicalViewAndGetLogicalViewTest() {
     String logicalViewId = prefixGenerator.newPrefix();
 
-    CreateLogicalViewRequest request =
-        CreateLogicalViewRequest.of(instanceId, logicalViewId).setDeletionProtection(false);
+    CreateLogicalViewRequest request = CreateLogicalViewRequest.of(instanceId, logicalViewId);
     try {
       LogicalView response = client.createLogicalView(request);
       assertWithMessage("Got wrong logical view Id in CreateLogicalView")
           .that(response.getId())
           .isEqualTo(logicalViewId);
-      assertWithMessage("Got wrong deletion protection in CreateLogicalView")
-          .that(response.isDeletionProtected())
-          .isFalse();
       assertWithMessage("Got wrong query in CreateLogicalView")
           .that(response.getQuery())
           .isEqualTo(request.getQuery());
@@ -91,9 +86,6 @@ public class BigtableLogicalViewIT {
       assertWithMessage("Got wrong logical view Id in getLogicalView")
           .that(response.getId())
           .isEqualTo(logicalViewId);
-      assertWithMessage("Got wrong deletion protection in getLogicalView")
-          .that(response.isDeletionProtected())
-          .isFalse();
       assertWithMessage("Got wrong query in getLogicalView")
           .that(response.getQuery())
           .isEqualTo(request.getQuery());
@@ -124,32 +116,18 @@ public class BigtableLogicalViewIT {
   public void updateLogicalViewAndDeleteLogicalViewTest() throws InterruptedException {
     String logicalViewId = prefixGenerator.newPrefix();
 
-    // Create a deletion-protected logical view.
-    CreateLogicalViewRequest request =
-        createLogicalViewRequest(logicalViewId).setDeletionProtection(true);
+    // Create a logical view.
+    CreateLogicalViewRequest request = createLogicalViewRequest(logicalViewId);
 
     LogicalView response = client.createLogicalView(request);
-    assertWithMessage("Got wrong deletion protection in CreateLogicalView")
-        .that(response.isDeletionProtected())
-        .isTrue();
 
-    // We should not be able to delete the logical view.
-    try {
-      client.deleteLogicalView(instanceId, logicalViewId);
-      fail("A delete-protected logical view should not have been able to be deleted");
-    } catch (FailedPreconditionException e) {
-      assertWithMessage("Incorrect exception type")
-          .that(e.getCause())
-          .isInstanceOf(StatusRuntimeException.class);
-    }
-
-    // Update the deletion protection bit of the logical view.
+    // Update the query of the logical view.
     UpdateLogicalViewRequest updateRequest =
-        UpdateLogicalViewRequest.of(instanceId, logicalViewId).setDeletionProtection(false);
+        UpdateLogicalViewRequest.of(instanceId, logicalViewId).setQuery("SELECT 1 AS value");
     response = client.updateLogicalView(updateRequest);
-    assertWithMessage("Got wrong deletion protection in UpdateLogicalView")
-        .that(response.isDeletionProtected())
-        .isFalse();
+    assertWithMessage("Got wrong query in UpdateLogicalView")
+        .that(response.getQuery())
+        .isEqualTo(updateRequest.getQuery());
 
     // Now we should be able to successfully delete the LogicalView.
     client.deleteLogicalView(instanceId, logicalViewId);
