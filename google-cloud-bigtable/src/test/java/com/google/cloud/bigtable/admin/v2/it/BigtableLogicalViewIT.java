@@ -21,6 +21,7 @@ import static com.google.common.truth.TruthJUnit.assume;
 import static org.junit.Assert.fail;
 
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateLogicalViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
@@ -33,6 +34,7 @@ import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import io.grpc.StatusRuntimeException;
 import java.util.List;
 import java.util.logging.Logger;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
