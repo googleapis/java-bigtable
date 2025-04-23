@@ -77,6 +77,7 @@ public class BigtableMaterializedViewIT {
 
     CreateMaterializedViewRequest request =
         CreateMaterializedViewRequest.of(instanceId, materializedViewId)
+            .setQuery(getQuery())
             .setDeletionProtection(false);
     try {
       MaterializedView response = client.createMaterializedView(request);
@@ -147,7 +148,7 @@ public class BigtableMaterializedViewIT {
 
     // Update the deletion protection bit of the materialized view.
     UpdateMaterializedViewRequest updateRequest =
-        UpdateMaterializedViewRequest.of(instanceId, materializedViewId)
+        UpdateMaterializedViewRequest.of(response)
             .setDeletionProtection(false);
     response = client.updateMaterializedView(updateRequest);
     assertWithMessage("Got wrong deletion protection in UpdateMaterializedView")

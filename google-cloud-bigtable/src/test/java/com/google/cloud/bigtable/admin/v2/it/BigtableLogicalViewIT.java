@@ -74,7 +74,7 @@ public class BigtableLogicalViewIT {
   public void createLogicalViewAndGetLogicalViewTest() {
     String logicalViewId = prefixGenerator.newPrefix();
 
-    CreateLogicalViewRequest request = CreateLogicalViewRequest.of(instanceId, logicalViewId);
+    CreateLogicalViewRequest request = CreateLogicalViewRequest.of(instanceId, logicalViewId).setQuery(getQuery());
     try {
       LogicalView response = client.createLogicalView(request);
       assertWithMessage("Got wrong logical view Id in CreateLogicalView")
@@ -124,7 +124,7 @@ public class BigtableLogicalViewIT {
     // Update the query of the logical view.
     String query = "SELECT 1 AS value";
     UpdateLogicalViewRequest updateRequest =
-        UpdateLogicalViewRequest.of(instanceId, logicalViewId).setQuery(query);
+        UpdateLogicalViewRequest.of(response).setQuery(query);
     response = client.updateLogicalView(updateRequest);
     assertWithMessage("Got wrong query in UpdateLogicalView")
         .that(response.getQuery())
