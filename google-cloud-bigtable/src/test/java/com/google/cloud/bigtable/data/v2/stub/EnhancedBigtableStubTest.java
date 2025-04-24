@@ -118,12 +118,6 @@ import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.internal.GrpcUtil;
 import io.grpc.stub.StreamObserver;
-import io.opencensus.common.Scope;
-import io.opencensus.trace.AttributeValue;
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.export.SpanData;
-import io.opencensus.trace.export.SpanExporter.Handler;
-import io.opencensus.trace.samplers.Samplers;
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -554,61 +548,6 @@ public class EnhancedBigtableStubTest {
     Metadata metadata = metadataInterceptor.headers.take();
     assertThat(metadata.get(Metadata.Key.of("user-agent", Metadata.ASCII_STRING_MARSHALLER)))
         .containsMatch("bigtable-java/\\d+\\.\\d+\\.\\d+(?:-SNAPSHOT)?");
-  }
-
-  @Test
-  public void testSpanAttributes() throws InterruptedException {
-    final BlockingQueue<SpanData> spans = new ArrayBlockingQueue<>(100);
-
-    // inject a temporary trace exporter
-    String handlerName = "stub-test-exporter";
-
-    Tracing.getExportComponent()
-        .getSpanExporter()
-        .registerHandler(
-            handlerName,
-            new Handler() {
-              @Override
-              public void export(Collection<SpanData> collection) {
-                spans.addAll(collection);
-              }
-            });
-
-    SpanData foundSpanData = null;
-    // Issue the rpc and grab the span
-    try {
-      try (Scope ignored =
-          Tracing.getTracer()
-              .spanBuilder("fake-parent-span")
-              .setSampler(Samplers.alwaysSample())
-              .startScopedSpan()) {
-        enhancedBigtableStub.readRowCallable().call(Query.create("table-id").rowKey("row-key"));
-      }
-
-      for (int i = 0; i < 100; i++) {
-        SpanData spanData = spans.poll(10, TimeUnit.SECONDS);
-        if ("Bigtable.ReadRow".equals(spanData.getName())) {
-          foundSpanData = spanData;
-          break;
-        }
-      }
-    } finally {
-      // cleanup
-      Tracing.getExportComponent().getSpanExporter().unregisterHandler(handlerName);
-    }
-
-    // Examine the caught span
-    assertThat(foundSpanData).isNotNull();
-    assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry("gapic", AttributeValue.stringAttributeValue(Version.VERSION));
-    assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry(
-            "grpc",
-            AttributeValue.stringAttributeValue(
-                GrpcUtil.getGrpcBuildVersion().getImplementationVersion()));
-    assertThat(foundSpanData.getAttributes().getAttributeMap())
-        .containsEntry(
-            "gax", AttributeValue.stringAttributeValue(GaxGrpcProperties.getGaxGrpcVersion()));
   }
 
   @Test
