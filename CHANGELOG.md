@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.57.3](https://github.com/googleapis/java-bigtable/compare/v2.57.2...v2.57.3) (2025-04-01)
+
+
+### Bug Fixes
+
+* Remove debug messages ([#2552](https://github.com/googleapis/java-bigtable/issues/2552)) ([6359834](https://github.com/googleapis/java-bigtable/commit/63598346ca39767d59d254fce2c718d1258e27d5))
+
+## [2.57.2](https://github.com/googleapis/java-bigtable/compare/v2.57.1...v2.57.2) (2025-03-31)
+
+
+### Bug Fixes
+
+* Library should released as 2.57.2 ([#2549](https://github.com/googleapis/java-bigtable/issues/2549)) ([58d0bbd](https://github.com/googleapis/java-bigtable/commit/58d0bbdcb983e3b5ee403edf45c4e98a6eb8dc16))
+
+## [2.57.1](https://github.com/googleapis/java-bigtable/compare/v2.57.0...v2.57.1) (2025-03-24)
+
+
+### Bug Fixes
+
+* Handling of totalTimeout on sql plan refresh ([#2541](https://github.com/googleapis/java-bigtable/issues/2541)) ([bf49cf9](https://github.com/googleapis/java-bigtable/commit/bf49cf93f9a3b9cbdb155bb6cbb7a9f763b6f738))
+
+## [2.57.0](https://github.com/googleapis/java-bigtable/compare/v2.56.0...v2.57.0) (2025-03-24)
+
+
+### Features
+
+* Add PreparedStatement and update ExecuteQuery API to use it ([#2534](https://github.com/googleapis/java-bigtable/issues/2534)) ([49d4d09](https://github.com/googleapis/java-bigtable/commit/49d4d09fd16a1eb4eb566227a049bca2aaaa61e3))
+
 ## [2.56.0](https://github.com/googleapis/java-bigtable/compare/v2.55.0...v2.56.0) (2025-03-18)
 
 

@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub.metrics;
 
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.APPLICATION_BLOCKING_LATENCIES_NAME;
+import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES2_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.ATTEMPT_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CLIENT_BLOCKING_LATENCIES_NAME;
 import static com.google.cloud.bigtable.data.v2.stub.metrics.BuiltinMetricsConstants.CONNECTIVITY_ERROR_COUNT_NAME;
@@ -282,6 +283,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
         ImmutableSet.of(
                 OPERATION_LATENCIES_NAME,
                 ATTEMPT_LATENCIES_NAME,
+                ATTEMPT_LATENCIES2_NAME,
                 SERVER_LATENCIES_NAME,
                 FIRST_RESPONSE_LATENCIES_NAME,
                 CLIENT_BLOCKING_LATENCIES_NAME,
@@ -296,7 +298,7 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     private final String taskId;
 
     PublicTimeSeriesConverter() {
-      this(BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
+      this(BigtableExporterUtils.DEFAULT_TASK_VALUE.get());
     }
 
     PublicTimeSeriesConverter(String taskId) {
@@ -322,16 +324,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
             .map(m -> METER_NAME + m)
             .collect(ImmutableList.toImmutableList());
 
-    private final String taskId;
     private final Supplier<MonitoredResource> monitoredResource;
 
     InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource) {
-      this(monitoredResource, BigtableExporterUtils.DEFAULT_TABLE_VALUE.get());
-    }
-
-    InternalTimeSeriesConverter(Supplier<MonitoredResource> monitoredResource, String taskId) {
       this.monitoredResource = monitoredResource;
-      this.taskId = taskId;
     }
 
     @Override
@@ -341,18 +337,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
         return ImmutableMap.of();
       }
 
-      List<MetricData> relevantData =
-          metricData.stream()
-              .filter(md -> APPLICATION_METRICS.contains(md.getName()))
-              .collect(Collectors.toList());
-      if (relevantData.isEmpty()) {
-        return ImmutableMap.of();
-      }
-
       return ImmutableMap.of(
           ProjectName.of(monitoredResource.getLabelsOrThrow(APPLICATION_RESOURCE_PROJECT_ID)),
           BigtableExporterUtils.convertToApplicationResourceTimeSeries(
-              relevantData, taskId, monitoredResource));
+              metricData, monitoredResource));
     }
   }
 }

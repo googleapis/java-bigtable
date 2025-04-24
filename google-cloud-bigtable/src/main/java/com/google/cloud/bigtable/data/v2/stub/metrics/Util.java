@@ -22,6 +22,7 @@ import com.google.api.gax.rpc.ApiCallContext;
 import com.google.api.gax.rpc.ApiException;
 import com.google.api.gax.rpc.StatusCode;
 import com.google.api.gax.rpc.StatusCode.Code;
+import com.google.auth.Credentials;
 import com.google.bigtable.v2.AuthorizedViewName;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
@@ -33,6 +34,8 @@ import com.google.bigtable.v2.ReadRowsRequest;
 import com.google.bigtable.v2.ResponseParams;
 import com.google.bigtable.v2.SampleRowKeysRequest;
 import com.google.bigtable.v2.TableName;
+import com.google.cloud.bigtable.data.v2.stub.EnhancedBigtableStubSettings;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.grpc.CallOptions;
@@ -41,6 +44,13 @@ import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
 import io.opencensus.tags.TagValue;
+import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.InstrumentSelector;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
+import io.opentelemetry.sdk.metrics.SdkMeterProviderBuilder;
+import io.opentelemetry.sdk.metrics.View;
+import io.opentelemetry.sdk.metrics.export.PeriodicMetricReader;
+import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -236,5 +246,26 @@ public class Util {
       // so we can see what class context is.
       throw new RuntimeException("Unexpected context class: " + context.getClass().getName());
     }
+  }
+
+  public static OpenTelemetrySdk newInternalOpentelemetry(
+      EnhancedBigtableStubSettings settings, Credentials credentials) throws IOException {
+    SdkMeterProviderBuilder meterProviderBuilder = SdkMeterProvider.builder();
+
+    for (Map.Entry<InstrumentSelector, View> e :
+        BuiltinMetricsConstants.getInternalViews().entrySet()) {
+      meterProviderBuilder.registerView(e.getKey(), e.getValue());
+    }
+
+    meterProviderBuilder.registerMetricReader(
+        PeriodicMetricReader.create(
+            BigtableCloudMonitoringExporter.create(
+                "application metrics",
+                credentials,
+                settings.getMetricsEndpoint(),
+                new BigtableCloudMonitoringExporter.InternalTimeSeriesConverter(
+                    Suppliers.memoize(
+                        () -> BigtableExporterUtils.createInternalMonitoredResource(settings))))));
+    return OpenTelemetrySdk.builder().setMeterProvider(meterProviderBuilder.build()).build();
   }
 }
