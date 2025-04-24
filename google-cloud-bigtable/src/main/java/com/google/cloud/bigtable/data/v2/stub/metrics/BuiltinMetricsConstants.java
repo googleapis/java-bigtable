@@ -50,9 +50,18 @@ public class BuiltinMetricsConstants {
   static final AttributeKey<String> STATUS_KEY = AttributeKey.stringKey("status");
   static final AttributeKey<String> CLIENT_UID_KEY = AttributeKey.stringKey("client_uid");
 
+  static final AttributeKey<String> TRANSPORT_TYPE = AttributeKey.stringKey("transport_type");
+  static final AttributeKey<String> TRANSPORT_REGION = AttributeKey.stringKey("transport_region");
+  static final AttributeKey<String> TRANSPORT_ZONE = AttributeKey.stringKey("transport_zone");
+  static final AttributeKey<String> TRANSPORT_SUBZONE = AttributeKey.stringKey("transport_subzone");
+
+  public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
+
   // Metric names
   public static final String OPERATION_LATENCIES_NAME = "operation_latencies";
   public static final String ATTEMPT_LATENCIES_NAME = "attempt_latencies";
+  // Temporary workaround for not being able to add new labels to ATTEMPT_LATENCIES_NAME
+  public static final String ATTEMPT_LATENCIES2_NAME = "attempt_latencies2";
   static final String RETRY_COUNT_NAME = "retry_count";
   static final String CONNECTIVITY_ERROR_COUNT_NAME = "connectivity_error_count";
   static final String SERVER_LATENCIES_NAME = "server_latencies";
@@ -61,6 +70,40 @@ public class BuiltinMetricsConstants {
   static final String REMAINING_DEADLINE_NAME = "remaining_deadline";
   static final String CLIENT_BLOCKING_LATENCIES_NAME = "throttling_latencies";
   static final String PER_CONNECTION_ERROR_COUNT_NAME = "per_connection_error_count";
+
+  // Start allow list of metrics that will be exported as internal
+  public static final Map<String, Set<String>> GRPC_METRICS =
+      ImmutableMap.<String, Set<String>>builder()
+          .put(
+              "grpc.client.attempt.duration",
+              ImmutableSet.of("grpc.lb.locality", "grpc.method", "grpc.target", "grpc.status"))
+          .put(
+              "grpc.lb.rls.default_target_picks",
+              ImmutableSet.of("grpc.lb.rls.data_plane_target", "grpc.lb.pick_result"))
+          .put(
+              "grpc.lb.rls.target_picks",
+              ImmutableSet.of(
+                  "grpc.target",
+                  "grpc.lb.rls.server_target",
+                  "grpc.lb.rls.data_plane_target",
+                  "grpc.lb.pick_result"))
+          .put(
+              "grpc.lb.rls.failed_picks",
+              ImmutableSet.of("grpc.target", "grpc.lb.rls.server_target"))
+          // TODO: "grpc.xds_client.connected"
+          .put("grpc.xds_client.server_failure", ImmutableSet.of("grpc.target", "grpc.xds.server"))
+          // TODO: "grpc.xds_client.resource_updates_valid",
+          .put(
+              "grpc.xds_client.resource_updates_invalid",
+              ImmutableSet.of("grpc.target", "grpc.xds.server", "grpc.xds.resource_type"))
+          // TODO: "grpc.xds_client.resources"
+          .build();
+
+  public static final Set<String> INTERNAL_METRICS =
+      ImmutableSet.of(PER_CONNECTION_ERROR_COUNT_NAME).stream()
+          .map(m -> METER_NAME + m)
+          .collect(ImmutableSet.toImmutableSet());
+  // End allow list of metrics that will be exported
 
   // Buckets under 100,000 are identical to buckets for server side metrics handler_latencies.
   // Extending client side bucket to up to 3,200,000.
@@ -96,8 +139,6 @@ public class BuiltinMetricsConstants {
               250_000.0,
               500_000.0,
               1_000_000.0));
-
-  public static final String METER_NAME = "bigtable.googleapis.com/internal/client/";
 
   static final Set<AttributeKey> COMMON_ATTRIBUTES =
       ImmutableSet.of(
@@ -140,6 +181,20 @@ public class BuiltinMetricsConstants {
     viewMap.put(selector, view);
   }
 
+  public static Map<InstrumentSelector, View> getInternalViews() {
+    ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
+    defineView(
+        views,
+        PER_CONNECTION_ERROR_COUNT_NAME,
+        AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "1",
+        ImmutableSet.<AttributeKey>builder()
+            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
+            .build());
+    return views.build();
+  }
+
   public static Map<InstrumentSelector, View> getAllViews() {
     ImmutableMap.Builder<InstrumentSelector, View> views = ImmutableMap.builder();
 
@@ -162,6 +217,22 @@ public class BuiltinMetricsConstants {
         ImmutableSet.<AttributeKey>builder()
             .addAll(COMMON_ATTRIBUTES)
             .add(STREAMING_KEY, STATUS_KEY)
+            .build());
+    defineView(
+        views,
+        ATTEMPT_LATENCIES2_NAME,
+        AGGREGATION_WITH_MILLIS_HISTOGRAM,
+        InstrumentType.HISTOGRAM,
+        "ms",
+        ImmutableSet.<AttributeKey>builder()
+            .addAll(COMMON_ATTRIBUTES)
+            .add(
+                STREAMING_KEY,
+                STATUS_KEY,
+                TRANSPORT_TYPE,
+                TRANSPORT_REGION,
+                TRANSPORT_ZONE,
+                TRANSPORT_SUBZONE)
             .build());
     defineView(
         views,
@@ -205,16 +276,6 @@ public class BuiltinMetricsConstants {
         InstrumentType.COUNTER,
         "1",
         ImmutableSet.<AttributeKey>builder().addAll(COMMON_ATTRIBUTES).add(STATUS_KEY).build());
-
-    defineView(
-        views,
-        PER_CONNECTION_ERROR_COUNT_NAME,
-        AGGREGATION_PER_CONNECTION_ERROR_COUNT_HISTOGRAM,
-        InstrumentType.HISTOGRAM,
-        "1",
-        ImmutableSet.<AttributeKey>builder()
-            .add(BIGTABLE_PROJECT_ID_KEY, INSTANCE_ID_KEY, APP_PROFILE_KEY, CLIENT_NAME_KEY)
-            .build());
     defineView(
         views,
         REMAINING_DEADLINE_NAME,

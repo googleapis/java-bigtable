@@ -102,6 +102,7 @@ import java.net.SocketAddress;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -286,8 +287,7 @@ public class BuiltinMetricsTracerTest {
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -312,8 +312,7 @@ public class BuiltinMetricsTracerTest {
     long elapsed = stopwatch.elapsed(TimeUnit.MILLISECONDS);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -358,8 +357,7 @@ public class BuiltinMetricsTracerTest {
             });
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, FIRST_RESPONSE_TABLE_ID)
             .put(ZONE_ID_KEY, ZONE)
@@ -379,8 +377,7 @@ public class BuiltinMetricsTracerTest {
     Lists.newArrayList(stub.readRowsCallable().call(Query.create(TABLE)));
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -397,8 +394,7 @@ public class BuiltinMetricsTracerTest {
     MetricData connectivityErrorCountMetricData =
         getMetricData(metricReader, CONNECTIVITY_ERROR_COUNT_NAME);
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -407,8 +403,7 @@ public class BuiltinMetricsTracerTest {
             .put(CLIENT_NAME_KEY, CLIENT_NAME)
             .build();
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -463,8 +458,7 @@ public class BuiltinMetricsTracerTest {
         getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -499,8 +493,7 @@ public class BuiltinMetricsTracerTest {
         getMetricData(metricReader, APPLICATION_BLOCKING_LATENCIES_NAME);
 
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -529,8 +522,7 @@ public class BuiltinMetricsTracerTest {
 
     MetricData metricData = getMetricData(metricReader, RETRY_COUNT_NAME);
     Attributes expectedAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
             .put(CLUSTER_ID_KEY, CLUSTER)
@@ -551,8 +543,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -563,8 +554,7 @@ public class BuiltinMetricsTracerTest {
             .build();
 
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -592,8 +582,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -621,8 +610,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "NOT_FOUND")
             .put(TABLE_ID_KEY, BAD_TABLE_ID)
             .put(ZONE_ID_KEY, "global")
@@ -642,8 +630,7 @@ public class BuiltinMetricsTracerTest {
     MetricData metricData = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected1 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, "global")
@@ -654,8 +641,7 @@ public class BuiltinMetricsTracerTest {
             .build();
 
     Attributes expected2 =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -684,8 +670,7 @@ public class BuiltinMetricsTracerTest {
       MetricData applicationLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
       Attributes expectedAttributes =
-          baseAttributes
-              .toBuilder()
+          baseAttributes.toBuilder()
               .put(TABLE_ID_KEY, TABLE)
               .put(ZONE_ID_KEY, ZONE)
               .put(CLUSTER_ID_KEY, CLUSTER)
@@ -711,8 +696,7 @@ public class BuiltinMetricsTracerTest {
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
@@ -738,8 +722,7 @@ public class BuiltinMetricsTracerTest {
     MetricData clientLatency = getMetricData(metricReader, CLIENT_BLOCKING_LATENCIES_NAME);
 
     Attributes attributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(TABLE_ID_KEY, TABLE)
             .put(CLUSTER_ID_KEY, CLUSTER)
             .put(ZONE_ID_KEY, ZONE)
@@ -765,8 +748,7 @@ public class BuiltinMetricsTracerTest {
     MetricData attemptLatency = getMetricData(metricReader, ATTEMPT_LATENCIES_NAME);
 
     Attributes expected =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "NOT_FOUND")
             .put(TABLE_ID_KEY, BAD_TABLE_ID)
             .put(CLUSTER_ID_KEY, "<unspecified>")
@@ -788,8 +770,7 @@ public class BuiltinMetricsTracerTest {
     MetricData deadlineMetric = getMetricData(metricReader, REMAINING_DEADLINE_NAME);
 
     Attributes retryAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "UNAVAILABLE")
             .put(TABLE_ID_KEY, TABLE)
             .put(METHOD_KEY, "Bigtable.ReadRows")
@@ -809,8 +790,7 @@ public class BuiltinMetricsTracerTest {
     assertThat(retryRemainingDeadline).isEqualTo(9000);
 
     Attributes okAttributes =
-        baseAttributes
-            .toBuilder()
+        baseAttributes.toBuilder()
             .put(STATUS_KEY, "OK")
             .put(TABLE_ID_KEY, TABLE)
             .put(ZONE_ID_KEY, ZONE)
@@ -968,11 +948,12 @@ public class BuiltinMetricsTracerTest {
 
     Duration getCurrentDelayUsed() {
       Instant local = lastProxyDelay;
-      // If the delay was never injected
+      // If the delay was never injected - add 1 ms for channel establishment
       if (local == null) {
-        return Duration.ZERO;
+        return Duration.ofMillis(1);
       }
-      Duration duration = Duration.between(local, Instant.now());
+      Duration duration =
+          Duration.between(local, Instant.now()).plus(Duration.of(10, ChronoUnit.MICROS));
 
       assertWithMessage("test burned through all channel blocking latency during setup")
           .that(duration)
