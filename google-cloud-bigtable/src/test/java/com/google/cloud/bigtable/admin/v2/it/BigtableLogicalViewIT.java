@@ -72,7 +72,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void createLogicalViewAndGetLogicalViewTest() {
-    String logicalViewId = "createLogicalViewAndGetLogicalViewTest#logical-view";
+    String logicalViewId = "createLogicalViewAndGetLogicalViewTest-logical-view";
 
     CreateLogicalViewRequest request =
         CreateLogicalViewRequest.of(instanceId, logicalViewId).setQuery(getQuery());
@@ -99,7 +99,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void listLogicalViewsTest() {
-    String logicalViewId = "listLogicalViewsTest#logical-view";
+    String logicalViewId = "listLogicalViewsTest-logical-view";
 
     try {
       LogicalView logicalView = client.createLogicalView(createLogicalViewRequest(logicalViewId));
@@ -115,7 +115,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void updateLogicalViewAndDeleteLogicalViewTest() throws InterruptedException {
-    String logicalViewId = "updateLogicalViewAndDeleteLogicalViewTest#logical-view";
+    String logicalViewId = "updateLogicalViewAndDeleteLogicalViewTest-logical-view";
 
     // Create a logical view.
     CreateLogicalViewRequest request = createLogicalViewRequest(logicalViewId);
