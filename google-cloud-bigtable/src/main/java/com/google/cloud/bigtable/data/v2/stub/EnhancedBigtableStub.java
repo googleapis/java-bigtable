@@ -213,8 +213,7 @@ public class EnhancedBigtableStub implements AutoCloseable {
   }
 
   public static ApiTracerFactory createBigtableTracerFactory(
-      EnhancedBigtableStubSettings settings,
-      @Nullable OpenTelemetry openTelemetry)
+      EnhancedBigtableStubSettings settings, @Nullable OpenTelemetry openTelemetry)
       throws IOException {
 
     ImmutableList.Builder<ApiTracerFactory> tracerFactories = ImmutableList.builder();
