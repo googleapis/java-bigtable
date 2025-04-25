@@ -45,7 +45,8 @@ public class UpdateLogicalViewRequestTest {
                     .setDeletionProtection(true)
                     .setName(
                         NameUtil.formatLogicalViewName(PROJECT_ID, INSTANCE_ID, LOGICAL_VIEW_ID)))
-            .setUpdateMask(FieldMask.newBuilder().addPaths("query").build())
+            .setUpdateMask(
+                FieldMask.newBuilder().addPaths("query").addPaths("deletion_protection").build())
             .build();
     assertThat(request.toProto(PROJECT_ID)).isEqualTo(requestProto);
   }
