@@ -1346,8 +1346,7 @@ public final class CreateInstanceRequest extends com.google.protobuf.GeneratedMe
           defaultEntry() {
         return ClustersDefaultEntryHolder.defaultEntry;
       }
-    }
-    ;
+    };
 
     private static final ClustersConverter clustersConverter = new ClustersConverter();
 

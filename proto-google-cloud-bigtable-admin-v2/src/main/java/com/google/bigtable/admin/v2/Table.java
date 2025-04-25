@@ -4921,8 +4921,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           defaultEntry() {
         return ClusterStatesDefaultEntryHolder.defaultEntry;
       }
-    }
-    ;
+    };
 
     private static final ClusterStatesConverter clusterStatesConverter =
         new ClusterStatesConverter();
@@ -5217,8 +5216,7 @@ public final class Table extends com.google.protobuf.GeneratedMessageV3
           defaultEntry() {
         return ColumnFamiliesDefaultEntryHolder.defaultEntry;
       }
-    }
-    ;
+    };
 
     private static final ColumnFamiliesConverter columnFamiliesConverter =
         new ColumnFamiliesConverter();

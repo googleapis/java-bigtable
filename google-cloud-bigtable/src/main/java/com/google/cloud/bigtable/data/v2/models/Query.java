@@ -50,9 +50,7 @@ public final class Query implements Serializable {
   private final TargetId targetId;
   private transient ReadRowsRequest.Builder builder = ReadRowsRequest.newBuilder();
 
-  /**
-   * @deprecated Please use {@link Query#create(TargetId)} instead.
-   */
+  /** @deprecated Please use {@link Query#create(TargetId)} instead. */
   @Deprecated
   public static Query create(String tableId) {
     return new Query(TableId.of(tableId));

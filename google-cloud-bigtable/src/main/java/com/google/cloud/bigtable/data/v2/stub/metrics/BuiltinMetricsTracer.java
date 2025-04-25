@@ -379,7 +379,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     // Publish metric data with all the attributes. The attributes get filtered in
     // BuiltinMetricsConstants when we construct the views.
     Attributes attributes =
-        baseAttributes.toBuilder()
+        baseAttributes
+            .toBuilder()
             .put(TABLE_ID_KEY, tableId)
             .put(CLUSTER_ID_KEY, cluster)
             .put(ZONE_ID_KEY, zone)
@@ -434,7 +435,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     String statusStr = Util.extractStatus(status);
 
     Attributes attributes =
-        baseAttributes.toBuilder()
+        baseAttributes
+            .toBuilder()
             .put(TABLE_ID_KEY, tableId)
             .put(CLUSTER_ID_KEY, cluster)
             .put(ZONE_ID_KEY, zone)
@@ -471,7 +473,8 @@ class BuiltinMetricsTracer extends BigtableTracer {
     }
     attemptLatencies2Histogram.record(
         convertToMs(attemptTimer.elapsed(TimeUnit.NANOSECONDS)),
-        attributes.toBuilder()
+        attributes
+            .toBuilder()
             .put(TRANSPORT_TYPE, transportType)
             .put(TRANSPORT_REGION, transportRegion)
             .put(TRANSPORT_ZONE, transportZone)

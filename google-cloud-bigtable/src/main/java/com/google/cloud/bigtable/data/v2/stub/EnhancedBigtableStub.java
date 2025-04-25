@@ -206,7 +206,9 @@ public class EnhancedBigtableStub implements AutoCloseable {
     BigtableClientContext bigtableClientContext = createBigtableClientContext(settings);
     OpenTelemetry openTelemetry = bigtableClientContext.getOpenTelemetry();
     ClientContext contextWithTracer =
-        bigtableClientContext.getClientContext().toBuilder()
+        bigtableClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(createBigtableTracerFactory(settings, openTelemetry))
             .build();
     return new EnhancedBigtableStub(settings, contextWithTracer);

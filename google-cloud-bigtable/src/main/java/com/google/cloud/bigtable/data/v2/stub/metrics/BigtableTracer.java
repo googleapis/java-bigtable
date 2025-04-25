@@ -95,9 +95,7 @@ public class BigtableTracer extends BaseApiTracer {
   public void setTransportAttrs(BuiltinMetricsTracer.TransportAttrs attrs) {}
 
   @Deprecated
-  /**
-   * @deprecated {@link #grpcMessageSent()} is called instead.
-   */
+  /** @deprecated {@link #grpcMessageSent()} is called instead. */
   public void grpcChannelQueuedLatencies(long queuedTimeMs) {
     // noop
   }

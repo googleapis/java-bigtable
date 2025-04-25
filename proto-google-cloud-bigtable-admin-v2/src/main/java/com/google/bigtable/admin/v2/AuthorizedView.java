@@ -2274,8 +2274,7 @@ public final class AuthorizedView extends com.google.protobuf.GeneratedMessageV3
             defaultEntry() {
           return FamilySubsetsDefaultEntryHolder.defaultEntry;
         }
-      }
-      ;
+      };
 
       private static final FamilySubsetsConverter familySubsetsConverter =
           new FamilySubsetsConverter();

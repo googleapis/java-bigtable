@@ -101,7 +101,8 @@ public class DirectPathFallbackIT {
         (InstantiatingGrpcChannelProvider)
             defaultSettings.getStubSettings().getTransportChannelProvider();
     InstantiatingGrpcChannelProvider instrumentedTransportChannelProvider =
-        defaultTransportProvider.toBuilder()
+        defaultTransportProvider
+            .toBuilder()
             .setAttemptDirectPath(true)
             .setPoolSize(1)
             .setChannelConfigurator(
@@ -190,9 +191,7 @@ public class DirectPathFallbackIT {
     nettyChannelBuilder.eventLoopGroup(eventLoopGroup);
   }
 
-  /**
-   * @see com.google.cloud.bigtable.data.v2.it.DirectPathFallbackIT.MyChannelHandler
-   */
+  /** @see com.google.cloud.bigtable.data.v2.it.DirectPathFallbackIT.MyChannelHandler */
   private class MyChannelFactory implements ChannelFactory<NioSocketChannel> {
     @Override
     public NioSocketChannel newChannel() {

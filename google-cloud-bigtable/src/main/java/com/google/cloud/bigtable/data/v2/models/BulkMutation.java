@@ -43,9 +43,7 @@ public final class BulkMutation implements Serializable, Cloneable {
 
   private long mutationCountSum = 0;
 
-  /**
-   * @deprecated Please use {@link BulkMutation#create(TargetId)} instead.
-   */
+  /** @deprecated Please use {@link BulkMutation#create(TargetId)} instead. */
   @Deprecated
   public static BulkMutation create(String tableId) {
     return new BulkMutation(TableId.of(tableId));

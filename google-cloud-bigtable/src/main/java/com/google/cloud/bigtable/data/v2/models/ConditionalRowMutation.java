@@ -44,9 +44,7 @@ public final class ConditionalRowMutation implements Serializable {
     builder.setRowKey(rowKey);
   }
 
-  /**
-   * @deprecated Please use {@link ConditionalRowMutation#create(TargetId, String)} instead.
-   */
+  /** @deprecated Please use {@link ConditionalRowMutation#create(TargetId, String)} instead. */
   @Deprecated
   public static ConditionalRowMutation create(String tableId, String rowKey) {
     return create(tableId, ByteString.copyFromUtf8(rowKey));
@@ -62,9 +60,7 @@ public final class ConditionalRowMutation implements Serializable {
     return create(targetId, ByteString.copyFromUtf8(rowKey));
   }
 
-  /**
-   * @deprecated Please use {@link ConditionalRowMutation#create(TargetId, ByteString)} instead.
-   */
+  /** @deprecated Please use {@link ConditionalRowMutation#create(TargetId, ByteString)} instead. */
   @Deprecated
   public static ConditionalRowMutation create(String tableId, ByteString rowKey) {
     Validations.validateTableId(tableId);

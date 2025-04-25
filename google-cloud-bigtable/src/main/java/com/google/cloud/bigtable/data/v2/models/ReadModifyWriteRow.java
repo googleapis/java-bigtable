@@ -45,9 +45,7 @@ public final class ReadModifyWriteRow implements Serializable {
     builder.setRowKey(key);
   }
 
-  /**
-   * @deprecated Please use {@link ReadModifyWriteRow#create(TargetId, String)} instead.
-   */
+  /** @deprecated Please use {@link ReadModifyWriteRow#create(TargetId, String)} instead. */
   @Deprecated
   public static ReadModifyWriteRow create(String tableId, String key) {
     Preconditions.checkNotNull(key, "key can't be null.");
@@ -64,9 +62,7 @@ public final class ReadModifyWriteRow implements Serializable {
     return new ReadModifyWriteRow(targetId, ByteString.copyFromUtf8(key));
   }
 
-  /**
-   * @deprecated Please use {@link ReadModifyWriteRow#create(TargetId, ByteString)} instead.
-   */
+  /** @deprecated Please use {@link ReadModifyWriteRow#create(TargetId, ByteString)} instead. */
   @Deprecated
   public static ReadModifyWriteRow create(String tableId, ByteString key) {
     return new ReadModifyWriteRow(TableId.of(tableId), key);

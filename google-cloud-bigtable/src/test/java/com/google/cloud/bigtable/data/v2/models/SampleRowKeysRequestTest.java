@@ -106,7 +106,8 @@ public class SampleRowKeysRequestTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithInvalidTableId() {
     SampleRowKeysRequest.fromProto(
-        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance().toBuilder()
+        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance()
+            .toBuilder()
             .setTableName("invalid-name")
             .build());
 
@@ -117,7 +118,8 @@ public class SampleRowKeysRequestTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithInvalidAuthorizedViewId() {
     SampleRowKeysRequest.fromProto(
-        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance().toBuilder()
+        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance()
+            .toBuilder()
             .setAuthorizedViewName("invalid-name")
             .build());
 
@@ -137,7 +139,8 @@ public class SampleRowKeysRequestTest {
   @Test(expected = IllegalArgumentException.class)
   public void testFromProtoWithBothTableAndAuthorizedViewId() {
     SampleRowKeysRequest.fromProto(
-        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance().toBuilder()
+        com.google.bigtable.v2.SampleRowKeysRequest.getDefaultInstance()
+            .toBuilder()
             .setTableName(NameUtil.formatTableName(PROJECT_ID, INSTANCE_ID, TABLE_ID))
             .setAuthorizedViewName(
                 NameUtil.formatAuthorizedViewName(

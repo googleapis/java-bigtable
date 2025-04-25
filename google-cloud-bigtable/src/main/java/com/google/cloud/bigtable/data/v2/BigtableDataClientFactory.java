@@ -108,7 +108,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   public BigtableDataClient createDefault() {
     try {
       ClientContext clientContext =
-          sharedClientContext.getClientContext().toBuilder()
+          sharedClientContext
+              .getClientContext()
+              .toBuilder()
               .setTracerFactory(
                   EnhancedBigtableStub.createBigtableTracerFactory(
                       defaultSettings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
@@ -136,7 +138,9 @@ public final class BigtableDataClientFactory implements AutoCloseable {
         defaultSettings.toBuilder().setAppProfileId(appProfileId).build();
 
     ClientContext clientContext =
-        sharedClientContext.getClientContext().toBuilder()
+        sharedClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
@@ -156,14 +160,17 @@ public final class BigtableDataClientFactory implements AutoCloseable {
   public BigtableDataClient createForInstance(@Nonnull String projectId, @Nonnull String instanceId)
       throws IOException {
     BigtableDataSettings settings =
-        defaultSettings.toBuilder()
+        defaultSettings
+            .toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
             .setDefaultAppProfileId()
             .build();
 
     ClientContext clientContext =
-        sharedClientContext.getClientContext().toBuilder()
+        sharedClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))
@@ -185,13 +192,16 @@ public final class BigtableDataClientFactory implements AutoCloseable {
       @Nonnull String projectId, @Nonnull String instanceId, @Nonnull String appProfileId)
       throws IOException {
     BigtableDataSettings settings =
-        defaultSettings.toBuilder()
+        defaultSettings
+            .toBuilder()
             .setProjectId(projectId)
             .setInstanceId(instanceId)
             .setAppProfileId(appProfileId)
             .build();
     ClientContext clientContext =
-        sharedClientContext.getClientContext().toBuilder()
+        sharedClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(), sharedClientContext.getOpenTelemetry()))

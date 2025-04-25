@@ -37,7 +37,8 @@ public class RetryInfoRetryAlgorithm<ResponseT> extends BasicResultRetryAlgorith
       Throwable prevThrowable, ResponseT prevResponse, TimedAttemptSettings prevSettings) {
     java.time.Duration retryDelay = extractRetryDelay(prevThrowable);
     if (retryDelay != null) {
-      return prevSettings.toBuilder()
+      return prevSettings
+          .toBuilder()
           .setRandomizedRetryDelayDuration(retryDelay)
           .setAttemptCount(prevSettings.getAttemptCount() + 1)
           .setOverallAttemptCount(prevSettings.getAttemptCount() + 1)

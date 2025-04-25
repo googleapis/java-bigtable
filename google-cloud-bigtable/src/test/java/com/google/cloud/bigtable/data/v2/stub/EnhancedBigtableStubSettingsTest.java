@@ -549,13 +549,17 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(builder.build().toBuilder().bulkMutateRowsSettings().getTargetRpcLatencyMs())
         .isEqualTo(targetLatency);
     assertThat(
-            builder.build().toBuilder()
+            builder
+                .build()
+                .toBuilder()
                 .bulkMutateRowsSettings()
                 .getDynamicFlowControlSettings()
                 .getMaxOutstandingElementCount())
         .isEqualTo(flowControlSetting);
     assertThat(
-            builder.build().toBuilder()
+            builder
+                .build()
+                .toBuilder()
                 .bulkMutateRowsSettings()
                 .getDynamicFlowControlSettings()
                 .getMaxOutstandingRequestBytes())
@@ -700,12 +704,16 @@ public class EnhancedBigtableStubSettingsTest {
         .isEqualTo(retrySettings);
 
     assertThat(
-            builder.build().toBuilder()
+            builder
+                .build()
+                .toBuilder()
                 .generateInitialChangeStreamPartitionsSettings()
                 .getRetryableCodes())
         .containsAtLeast(Code.ABORTED, Code.DEADLINE_EXCEEDED);
     assertThat(
-            builder.build().toBuilder()
+            builder
+                .build()
+                .toBuilder()
                 .generateInitialChangeStreamPartitionsSettings()
                 .getRetrySettings())
         .isEqualTo(retrySettings);
@@ -1029,7 +1037,8 @@ public class EnhancedBigtableStubSettingsTest {
     assertThat(defaultSettings.toString()).contains("primedTableIds=[]");
 
     EnhancedBigtableStubSettings settings =
-        defaultSettings.toBuilder()
+        defaultSettings
+            .toBuilder()
             .setPrimedTableIds("2", "12", "85", "06")
             .setEndpoint("example.com:1234")
             .build();

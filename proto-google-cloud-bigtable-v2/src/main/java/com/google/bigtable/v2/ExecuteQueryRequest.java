@@ -1994,8 +1994,7 @@ public final class ExecuteQueryRequest extends com.google.protobuf.GeneratedMess
           defaultEntry() {
         return ParamsDefaultEntryHolder.defaultEntry;
       }
-    }
-    ;
+    };
 
     private static final ParamsConverter paramsConverter = new ParamsConverter();
 

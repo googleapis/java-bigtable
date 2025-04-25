@@ -130,7 +130,9 @@ public class BigtableTracerCallableTest {
     BigtableClientContext bigtableClientContext =
         EnhancedBigtableStub.createBigtableClientContext(settings.getStubSettings());
     ClientContext clientContext =
-        bigtableClientContext.getClientContext().toBuilder()
+        bigtableClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     settings.getStubSettings(),
@@ -155,7 +157,9 @@ public class BigtableTracerCallableTest {
     BigtableClientContext noHeaderBigtableClientContext =
         EnhancedBigtableStub.createBigtableClientContext(noHeaderSettings.getStubSettings());
     ClientContext noHeaderClientContext =
-        noHeaderBigtableClientContext.getClientContext().toBuilder()
+        noHeaderBigtableClientContext
+            .getClientContext()
+            .toBuilder()
             .setTracerFactory(
                 EnhancedBigtableStub.createBigtableTracerFactory(
                     noHeaderSettings.getStubSettings(),
