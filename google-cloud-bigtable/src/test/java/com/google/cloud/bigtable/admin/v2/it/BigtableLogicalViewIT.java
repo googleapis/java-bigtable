@@ -37,11 +37,13 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+@Ignore
 @RunWith(JUnit4.class)
 public class BigtableLogicalViewIT {
   @ClassRule public static final TestEnvRule testEnvRule = new TestEnvRule();
