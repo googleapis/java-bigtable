@@ -1646,7 +1646,8 @@ public final class PrepareQueryRequest extends com.google.protobuf.GeneratedMess
           defaultEntry() {
         return ParamTypesDefaultEntryHolder.defaultEntry;
       }
-    };
+    }
+    ;
 
     private static final ParamTypesConverter paramTypesConverter = new ParamTypesConverter();
 

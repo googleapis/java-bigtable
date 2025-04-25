@@ -223,8 +223,7 @@ public class EnhancedBigtableStubTest {
     // Create a stub with overridden audience
     String expectedAudience = "http://localaudience";
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setJwtAudienceMapping(ImmutableMap.of("localhost", expectedAudience))
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
             .build();
@@ -699,8 +698,7 @@ public class EnhancedBigtableStubTest {
   public void testCallContextPropagatedInMutationBatcher()
       throws IOException, InterruptedException, ExecutionException {
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setRefreshingChannel(true)
             .setPrimedTableIds("table1", "table2")
             .build();
@@ -730,8 +728,7 @@ public class EnhancedBigtableStubTest {
   public void testCallContextPropagatedInReadBatcher()
       throws IOException, InterruptedException, ExecutionException {
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setRefreshingChannel(true)
             .setPrimedTableIds("table1", "table2")
             .build();

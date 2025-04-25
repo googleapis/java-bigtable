@@ -2493,7 +2493,8 @@ public final class CreateClusterMetadata extends com.google.protobuf.GeneratedMe
           defaultEntry() {
         return TablesDefaultEntryHolder.defaultEntry;
       }
-    };
+    }
+    ;
 
     private static final TablesConverter tablesConverter = new TablesConverter();
 
