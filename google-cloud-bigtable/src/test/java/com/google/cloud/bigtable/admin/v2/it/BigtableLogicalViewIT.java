@@ -38,12 +38,14 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
+@Ignore("Not fully working yet in production")
 public class BigtableLogicalViewIT {
   @ClassRule public static final TestEnvRule testEnvRule = new TestEnvRule();
   @Rule public final PrefixGenerator prefixGenerator = new PrefixGenerator();
@@ -73,7 +75,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void createLogicalViewAndGetLogicalViewTest() {
-    String logicalViewId = "createLogicalViewAndGetLogicalViewTest-logical-view";
+    String logicalViewId = prefixGenerator.newPrefix();
 
     CreateLogicalViewRequest request =
         CreateLogicalViewRequest.of(instanceId, logicalViewId)
@@ -108,7 +110,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void listLogicalViewsTest() {
-    String logicalViewId = "listLogicalViewsTest-logical-view";
+    String logicalViewId = prefixGenerator.newPrefix();
 
     try {
       LogicalView logicalView = client.createLogicalView(createLogicalViewRequest(logicalViewId));
@@ -124,7 +126,7 @@ public class BigtableLogicalViewIT {
 
   @Test
   public void updateLogicalViewAndDeleteLogicalViewTest() throws InterruptedException {
-    String logicalViewId = "updateLogicalViewAndDeleteLogicalViewTest-logical-view";
+    String logicalViewId = prefixGenerator.newPrefix();
 
     // Create a deletion-protected logical view.
     CreateLogicalViewRequest request =
