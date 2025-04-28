@@ -194,6 +194,9 @@ public class BigtableClientContext {
     if (internalOpenTelemetry != null) {
       internalOpenTelemetry.close();
     }
+    if (openTelemetry != null && openTelemetry instanceof OpenTelemetrySdk) {
+      ((OpenTelemetrySdk) openTelemetry).close();
+    }
   }
 
   private static OpenTelemetry getOpenTelemetryFromMetricsProvider(
