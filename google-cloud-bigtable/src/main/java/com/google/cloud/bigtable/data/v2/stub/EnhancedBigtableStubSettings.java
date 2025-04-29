@@ -801,6 +801,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
 
       setEndpoint(baseDefaults.getEndpoint());
+      setMtlsEndpoint(baseDefaults.getMtlsEndpoint());
       setTransportChannelProvider(defaultTransportChannelProvider());
       setStreamWatchdogCheckInterval(baseDefaults.getStreamWatchdogCheckInterval());
       setStreamWatchdogProvider(baseDefaults.getStreamWatchdogProvider());
