@@ -149,40 +149,6 @@ public class BigtableClientContext {
         clientContext, openTelemetry, internalOtel, settings.getMetricsProvider());
   }
 
-  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
-      throws IOException {
-    // Default jwt audience is always the service name unless it's override to
-    // test / staging for testing
-    String audience =
-        MoreObjects.firstNonNull(
-            System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
-
-    URI audienceUri = null;
-    try {
-      audienceUri = new URI(audience);
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
-    }
-
-    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
-    if (credentialsProvider == null) {
-      return;
-    }
-
-    Credentials credentials = credentialsProvider.getCredentials();
-    if (credentials == null) {
-      return;
-    }
-
-    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
-      return;
-    }
-
-    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
-    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
-    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
-  }
-
   private static void configureGrpcOtel(
       InstantiatingGrpcChannelProvider.Builder transportProvider, OpenTelemetrySdk otel) {
 
@@ -208,6 +174,40 @@ public class BigtableClientContext {
           grpcOtel.configureChannelBuilder(b);
           return b;
         });
+  }
+
+  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
+          throws IOException {
+    // Default jwt audience is always the service name unless it's override to
+    // test / staging for testing
+    String audience =
+            MoreObjects.firstNonNull(
+                    System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
+
+    URI audienceUri = null;
+    try {
+      audienceUri = new URI(audience);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("invalid JWT audience override", e);
+    }
+
+    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
+    if (credentialsProvider == null) {
+      return;
+    }
+
+    Credentials credentials = credentialsProvider.getCredentials();
+    if (credentials == null) {
+      return;
+    }
+
+    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
+      return;
+    }
+
+    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
+    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
+    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
 
   private BigtableClientContext(

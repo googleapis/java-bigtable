@@ -39,7 +39,6 @@
     <bigtable.directpath-data-endpoint/>
     <bigtable.directpath-jwt-audience/>
     <bigtable.directpath-admin-endpoint/>
-    <bigtable.directpath-admin-jwt-audience/>
 
     <!-- This is used by bigtable-prod-batch-it profile to ensure that tests work on the batch endpoint.
      Also, this property will be augmented by `internal-bigtable-prod-batch-it-prop-helper` profile -->
