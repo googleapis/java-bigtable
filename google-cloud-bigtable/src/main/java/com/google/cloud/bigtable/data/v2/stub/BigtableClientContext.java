@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.common.base.MoreObjects;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -51,6 +52,9 @@ import javax.annotation.Nullable;
 public class BigtableClientContext {
 
   private static final Logger logger = Logger.getLogger(BigtableClientContext.class.getName());
+
+  private static final String DEFAULT_DATA_JWT_AUDIENCE = "https://bigtable.googleapis.com/";
+  private static final String DATA_JWT_OVERRIDE_NAME = "bigtable.data-jwt-audience";
 
   @Nullable private final OpenTelemetry openTelemetry;
   @Nullable private final OpenTelemetrySdk internalOpenTelemetry;
@@ -145,6 +149,40 @@ public class BigtableClientContext {
         clientContext, openTelemetry, internalOtel, settings.getMetricsProvider());
   }
 
+  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
+      throws IOException {
+    // Default jwt audience is always the service name unless it's override to
+    // test / staging for testing
+    String audience =
+        MoreObjects.firstNonNull(
+            System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
+
+    URI audienceUri = null;
+    try {
+      audienceUri = new URI(audience);
+    } catch (URISyntaxException e) {
+      throw new IllegalStateException("invalid JWT audience override", e);
+    }
+
+    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
+    if (credentialsProvider == null) {
+      return;
+    }
+
+    Credentials credentials = credentialsProvider.getCredentials();
+    if (credentials == null) {
+      return;
+    }
+
+    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
+      return;
+    }
+
+    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
+    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
+    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
+  }
+
   private static void configureGrpcOtel(
       InstantiatingGrpcChannelProvider.Builder transportProvider, OpenTelemetrySdk otel) {
 
@@ -224,41 +262,6 @@ public class BigtableClientContext {
       return null;
     }
     throw new IOException("Invalid MetricsProvider type " + metricsProvider);
-  }
-
-  private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
-      throws IOException {
-    int i = settings.getEndpoint().lastIndexOf(":");
-    String host = settings.getEndpoint().substring(0, i);
-    String audience = settings.getJwtAudienceMapping().get(host);
-
-    if (audience == null) {
-      return;
-    }
-    URI audienceUri = null;
-    try {
-      audienceUri = new URI(audience);
-    } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
-    }
-
-    CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
-    if (credentialsProvider == null) {
-      return;
-    }
-
-    Credentials credentials = credentialsProvider.getCredentials();
-    if (credentials == null) {
-      return;
-    }
-
-    if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
-      return;
-    }
-
-    ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
-    JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
-    settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
 
   private static ErrorCountPerConnectionMetricTracker setupPerConnectionErrorTracer(
