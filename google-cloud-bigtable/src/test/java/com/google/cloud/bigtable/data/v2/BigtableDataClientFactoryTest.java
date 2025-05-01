@@ -183,8 +183,7 @@ public class BigtableDataClientFactoryTest {
       // Make sure that only 1 instance is created by each provider
       Mockito.verify(transportChannelProvider, Mockito.times(1)).getTransportChannel();
       // getCredentials was called twice, in patchCredentials and when creating the fixed
-      // credentials
-      // in BigtableClientContext
+      // credentials in BigtableClientContext
       Mockito.verify(credentialsProvider, Mockito.times(2)).getCredentials();
       Mockito.verify(executorProvider, Mockito.times(1)).getExecutor();
       Mockito.verify(watchdogProvider, Mockito.times(1)).getWatchdog();
