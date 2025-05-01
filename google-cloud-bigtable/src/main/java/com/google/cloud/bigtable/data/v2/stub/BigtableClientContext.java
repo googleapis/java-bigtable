@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
@@ -54,7 +55,8 @@ public class BigtableClientContext {
   private static final Logger logger = Logger.getLogger(BigtableClientContext.class.getName());
 
   private static final String DEFAULT_DATA_JWT_AUDIENCE = "https://bigtable.googleapis.com/";
-  private static final String DATA_JWT_OVERRIDE_NAME = "bigtable.data-jwt-audience";
+
+  @VisibleForTesting static final String DATA_JWT_OVERRIDE_NAME = "bigtable.data-jwt-audience";
 
   @Nullable private final OpenTelemetry openTelemetry;
   @Nullable private final OpenTelemetrySdk internalOpenTelemetry;
@@ -231,12 +233,12 @@ public class BigtableClientContext {
   }
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
-          throws IOException {
+      throws IOException {
     // Default jwt audience is always the service name unless it's override to
     // test / staging for testing
     String audience =
-            MoreObjects.firstNonNull(
-                    System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
+        MoreObjects.firstNonNull(
+            System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
 
     URI audienceUri = null;
     try {

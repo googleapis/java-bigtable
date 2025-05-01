@@ -93,7 +93,6 @@ import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
 import com.google.common.io.BaseEncoding;
 import com.google.protobuf.ByteString;
@@ -211,9 +210,9 @@ public class EnhancedBigtableStubTest {
 
     // Create a stub with overridden audience
     String expectedAudience = "http://localaudience";
+    System.setProperty(BigtableClientContext.DATA_JWT_OVERRIDE_NAME, expectedAudience);
     EnhancedBigtableStubSettings settings =
         defaultSettings.toBuilder()
-            .setJwtAudienceMapping(ImmutableMap.of("localhost", expectedAudience))
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
             .build();
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
