@@ -252,18 +252,24 @@ public class BigtableClientContext {
       return;
     }
 
+
     Credentials credentials = credentialsProvider.getCredentials();
     if (credentials == null) {
       return;
     }
+
+    System.out.println("credential class is " + credentials.getClass());
+    logger.info("credential class is " + credentials.getClass());
 
     if (!(credentials instanceof ServiceAccountJwtAccessCredentials)) {
       return;
     }
 
     logger.info("using service account ");
+    System.out.println("using service account ");
     ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
     logger.info("patched audience url " + audienceUri);
+    System.out.println("patched audience url " + audienceUri);
     JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
     settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
