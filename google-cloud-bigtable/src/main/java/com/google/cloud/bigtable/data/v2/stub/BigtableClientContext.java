@@ -261,7 +261,9 @@ public class BigtableClientContext {
       return;
     }
 
+    logger.info("using service account ");
     ServiceAccountJwtAccessCredentials jwtCreds = (ServiceAccountJwtAccessCredentials) credentials;
+    logger.info("patched audience url " + audienceUri);
     JwtCredentialsWithAudience patchedCreds = new JwtCredentialsWithAudience(jwtCreds, audienceUri);
     settings.setCredentialsProvider(FixedCredentialsProvider.create(patchedCreds));
   }
