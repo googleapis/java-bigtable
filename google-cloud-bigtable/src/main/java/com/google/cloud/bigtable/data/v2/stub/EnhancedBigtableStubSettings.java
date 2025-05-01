@@ -367,6 +367,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return primedTableIds;
   }
 
+  /**
+   * @deprecated This is a no op and will always return an empty map. Audience is always set to
+   *     bigtable service name.
+   */
+  @InternalApi("Used for internal testing")
+  @Deprecated
+  public Map<String, String> getJwtAudienceMapping() {
+    return ImmutableMap.of();
+  }
+
   public MetricsProvider getMetricsProvider() {
     return metricsProvider;
   }
@@ -1059,6 +1069,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
+     * @deprecated This is a no op. Audience is always set to bigtable service name.
+     */
+    @InternalApi("Used for internal testing")
+    @Deprecated
+    public Builder setJwtAudienceMapping(Map<String, String> jwtAudienceMapping) {
+      return this;
+    }
+
+    /**
      * Sets the {@link MetricsProvider}.
      *
      * <p>By default, this is set to {@link
@@ -1115,6 +1134,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     /** Checks if internal metrics are disabled */
     public boolean areInternalMetricsEnabled() {
       return internalMetricsProvider == DISABLED_INTERNAL_OTEL_PROVIDER;
+    }
+
+    /**
+     * @deprecated This is a no op and will always return an empty map. Audience is always set to
+     *     bigtable service name.
+     */
+    @InternalApi("Used for internal testing")
+    @Deprecated
+    public Map<String, String> getJwtAudienceMapping() {
+      return ImmutableMap.of();
     }
 
     /**
