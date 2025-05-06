@@ -1012,7 +1012,7 @@ public class EnhancedBigtableStubSettingsTest {
     "metricsProvider",
     "metricsEndpoint",
     "areInternalMetricsEnabled",
-    "jwtAudienceOverride",
+    "jwtAudience",
   };
 
   @Test
