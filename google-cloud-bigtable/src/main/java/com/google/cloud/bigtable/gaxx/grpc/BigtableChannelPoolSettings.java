@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,16 @@ import com.google.common.base.Preconditions;
 import java.time.Duration;
 
 /**
- * Settings to control {@link ChannelPool} behavior.
+ * Settings to control {@link BigtableChannelPool} behavior.
  *
- * <p>To facilitate low latency/high throughout applications, gax provides a {@link ChannelPool}.
+ * <p>To facilitate low latency/high throughout applications, gax provides a {@link BigtableChannelPool}.
  * The pool is meant to facilitate high throughput/low latency clients. By splitting load across
  * multiple gRPC channels the client can spread load across multiple frontends and overcome gRPC's
- * limit of 100 concurrent RPCs per channel. However oversizing the {@link ChannelPool} can lead to
+ * limit of 100 concurrent RPCs per channel. However oversizing the {@link BigtableChannelPool} can lead to
  * underutilized channels which will lead to high tail latency due to GFEs disconnecting idle
  * channels.
  *
- * <p>The {@link ChannelPool} is designed to adapt to varying traffic patterns by tracking
+ * <p>The {@link BigtableChannelPool} is designed to adapt to varying traffic patterns by tracking
  * outstanding RPCs and resizing the pool size. This class configures the behavior. In general
  * clients should aim to have less than 50 concurrent RPCs per channel and at least 1 outstanding
  * per channel per minute.
@@ -39,8 +39,8 @@ import java.time.Duration;
  */
 @BetaApi("surface for channel pool sizing is not yet stable")
 @AutoValue
-public abstract class ChannelPoolSettings {
-  /** How often to check and possibly resize the {@link ChannelPool}. */
+public abstract class BigtableChannelPoolSettings {
+  /** How often to check and possibly resize the {@link BigtableChannelPool}. */
   static final Duration RESIZE_INTERVAL = Duration.ofMinutes(1);
   /** The maximum number of channels that can be added or removed at a time. */
   static final int MAX_RESIZE_DELTA = 2;
@@ -93,7 +93,7 @@ public abstract class ChannelPoolSettings {
    */
   public abstract boolean isPreemptiveRefreshEnabled();
 
-  /** Helper to check if the {@link ChannelPool} implementation can skip dynamic size logic */
+  /** Helper to check if the {@link BigtableChannelPool} implementation can skip dynamic size logic */
   boolean isStaticSize() {
     // When range is restricted to a single size
     if (getMinChannelCount() == getMaxChannelCount()) {
@@ -109,7 +109,7 @@ public abstract class ChannelPoolSettings {
 
   public abstract Builder toBuilder();
 
-  public static ChannelPoolSettings staticallySized(int size) {
+  public static BigtableChannelPoolSettings staticallySized(int size) {
     return builder()
         .setInitialChannelCount(size)
         .setMinRpcsPerChannel(0)
@@ -120,7 +120,7 @@ public abstract class ChannelPoolSettings {
   }
 
   public static Builder builder() {
-    return new AutoValue_ChannelPoolSettings.Builder()
+    return new AutoValue_BigtableChannelPoolSettings.Builder()
         .setInitialChannelCount(1)
         .setMinChannelCount(1)
         .setMaxChannelCount(200)
@@ -143,10 +143,10 @@ public abstract class ChannelPoolSettings {
 
     public abstract Builder setPreemptiveRefreshEnabled(boolean enabled);
 
-    abstract ChannelPoolSettings autoBuild();
+    abstract BigtableChannelPoolSettings autoBuild();
 
-    public ChannelPoolSettings build() {
-      ChannelPoolSettings s = autoBuild();
+    public BigtableChannelPoolSettings build() {
+      BigtableChannelPoolSettings s = autoBuild();
 
       Preconditions.checkState(
           s.getMinRpcsPerChannel() <= s.getMaxRpcsPerChannel(), "rpcsPerChannel range is invalid");

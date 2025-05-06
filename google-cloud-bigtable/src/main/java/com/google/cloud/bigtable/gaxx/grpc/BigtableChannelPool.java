@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,11 +53,11 @@ import javax.annotation.Nullable;
  *
  * <p>Package-private for internal use.
  */
-class ChannelPool extends ManagedChannel {
-  @VisibleForTesting static final Logger LOG = Logger.getLogger(ChannelPool.class.getName());
+class BigtableChannelPool extends ManagedChannel {
+  @VisibleForTesting static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
   private static final java.time.Duration REFRESH_PERIOD = java.time.Duration.ofMinutes(50);
 
-  private final ChannelPoolSettings settings;
+  private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
   private final ScheduledExecutorService executor;
 
@@ -66,9 +66,9 @@ class ChannelPool extends ManagedChannel {
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
-  static ChannelPool create(ChannelPoolSettings settings, ChannelFactory channelFactory)
+  static BigtableChannelPool create(BigtableChannelPoolSettings settings, ChannelFactory channelFactory)
       throws IOException {
-    return new ChannelPool(settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
+    return new BigtableChannelPool(settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
   }
 
   /**
@@ -79,8 +79,8 @@ class ChannelPool extends ManagedChannel {
    * @param executor periodically refreshes the channels
    */
   @VisibleForTesting
-  ChannelPool(
-      ChannelPoolSettings settings,
+  BigtableChannelPool(
+      BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
       ScheduledExecutorService executor)
       throws IOException {
@@ -100,8 +100,8 @@ class ChannelPool extends ManagedChannel {
     if (!settings.isStaticSize()) {
       executor.scheduleAtFixedRate(
           this::resizeSafely,
-          ChannelPoolSettings.RESIZE_INTERVAL.getSeconds(),
-          ChannelPoolSettings.RESIZE_INTERVAL.getSeconds(),
+          BigtableChannelPoolSettings.RESIZE_INTERVAL.getSeconds(),
+          BigtableChannelPoolSettings.RESIZE_INTERVAL.getSeconds(),
           TimeUnit.SECONDS);
     }
     if (settings.isPreemptiveRefreshEnabled()) {
@@ -229,7 +229,7 @@ class ChannelPool extends ManagedChannel {
    *   <li>Get the maximum number of outstanding RPCs since last invocation
    *   <li>Determine a valid range of number of channels to handle that many outstanding RPCs
    *   <li>If the current number of channel falls outside of that range, add or remove at most
-   *       {@link ChannelPoolSettings#MAX_RESIZE_DELTA} to get closer to middle of that range.
+   *       {@link BigtableChannelPoolSettings#MAX_RESIZE_DELTA} to get closer to middle of that range.
    * </ul>
    *
    * <p>Not threadsafe, must be called under the entryWriteLock monitor
@@ -267,9 +267,9 @@ class ChannelPool extends ManagedChannel {
     int currentSize = localEntries.size();
     int delta = tentativeTarget - currentSize;
     int dampenedTarget = tentativeTarget;
-    if (Math.abs(delta) > ChannelPoolSettings.MAX_RESIZE_DELTA) {
+    if (Math.abs(delta) > BigtableChannelPoolSettings.MAX_RESIZE_DELTA) {
       dampenedTarget =
-          currentSize + (int) Math.copySign(ChannelPoolSettings.MAX_RESIZE_DELTA, delta);
+          currentSize + (int) Math.copySign(BigtableChannelPoolSettings.MAX_RESIZE_DELTA, delta);
     }
 
     // Only resize the pool when thresholds are crossed
