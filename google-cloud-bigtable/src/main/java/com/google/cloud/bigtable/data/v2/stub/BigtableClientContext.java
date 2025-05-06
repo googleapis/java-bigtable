@@ -236,9 +236,10 @@ public class BigtableClientContext {
       throws IOException {
     // Default jwt audience is always the service name unless it's override to
     // test / staging for testing
-    String audience =
-        MoreObjects.firstNonNull(
-            System.getProperty(DATA_JWT_OVERRIDE_NAME), DEFAULT_DATA_JWT_AUDIENCE);
+    String audience = System.getProperty(DATA_JWT_OVERRIDE_NAME);
+    if (audience == null || audience.isEmpty()) {
+      audience = DEFAULT_DATA_JWT_AUDIENCE;
+    }
 
     URI audienceUri = null;
     try {
