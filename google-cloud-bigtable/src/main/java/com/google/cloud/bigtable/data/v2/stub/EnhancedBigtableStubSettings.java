@@ -285,7 +285,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final MetricsProvider metricsProvider;
   @Nullable private final String metricsEndpoint;
   @Nonnull private final InternalMetricsProvider internalMetricsProvider;
-  private final String jwtAudienceOverride;
+  private final String jwtAudience;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -316,7 +316,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
     internalMetricsProvider = builder.internalMetricsProvider;
-    jwtAudienceOverride = builder.jwtAudienceOverride;
+    jwtAudience = builder.jwtAudience;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -752,7 +752,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String appProfileId;
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
-    private String jwtAudienceOverride;
+    private String jwtAudience;
     private boolean enableRoutingCookie;
     private boolean enableRetryInfo;
     private boolean enableSkipTrailers;
@@ -799,7 +799,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableSkipTrailers = SKIP_TRAILERS;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
       this.internalMetricsProvider = DEFAULT_INTERNAL_OTEL_PROVIDER;
-      this.jwtAudienceOverride = DEFAULT_DATA_JWT_AUDIENCE;
+      this.jwtAudience = DEFAULT_DATA_JWT_AUDIENCE;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -937,7 +937,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
       internalMetricsProvider = settings.internalMetricsProvider;
-      jwtAudienceOverride = settings.jwtAudienceOverride;
+      jwtAudience = settings.jwtAudience;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -1080,8 +1080,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * @deprecated This is a no op. Audience is always set to bigtable service name. Set the
-     *     audience with {@link #setJwtAudienceOverride(String)} instead.
+     * @deprecated This is a no op. Audience is always set to bigtable service name.
+     * @see #setJwtAudience(String) to override the audience.
      */
     @InternalApi("Used for internal testing")
     @Deprecated
@@ -1091,8 +1091,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
 
     /** Set the jwt audience override. */
     @InternalApi("Used for internal testing")
-    public Builder setJwtAudienceOverride(String audienceOverride) {
-      this.jwtAudienceOverride = audienceOverride;
+    public Builder setJwtAudience(String audience) {
+      this.jwtAudience = audience;
       return this;
     }
 
@@ -1158,6 +1158,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     /**
      * @deprecated This is a no op and will always return an empty map. Audience is always set to
      *     bigtable service name.
+     * @see #getJwtAudience() to get the audience.
      */
     @InternalApi("Used for internal testing")
     @Deprecated
@@ -1166,8 +1167,8 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /** Return the jwt audience override. */
-    String getJwtAudienceOverride() {
-      return this.jwtAudienceOverride;
+    String getJwtAudience() {
+      return this.jwtAudience;
     }
 
     /**
@@ -1364,7 +1365,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", internalMetricsProvider == DEFAULT_INTERNAL_OTEL_PROVIDER)
-        .add("jwtAudienceOverride", jwtAudienceOverride)
+        .add("jwtAudience", jwtAudience)
         .add("parent", super.toString())
         .toString();
   }

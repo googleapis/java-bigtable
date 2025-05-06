@@ -141,7 +141,7 @@ public class CloudEnv extends AbstractTestEnv {
       dataSettings.setAppProfileId(appProfileId);
     }
     if (!Strings.isNullOrEmpty(jwtAudienceOverride)) {
-      dataSettings.stubSettings().setJwtAudienceOverride(jwtAudienceOverride);
+      dataSettings.stubSettings().setJwtAudience(jwtAudienceOverride);
     }
 
     configureConnection(dataSettings.stubSettings());

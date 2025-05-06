@@ -224,7 +224,7 @@ public class EnhancedBigtableStubTest {
     EnhancedBigtableStubSettings settings =
         defaultSettings.toBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
-            .setJwtAudienceOverride(expectedAudience)
+            .setJwtAudience(expectedAudience)
             .build();
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
       stub.readRowCallable().futureCall(Query.create("fake-table")).get();

@@ -228,13 +228,13 @@ public class BigtableClientContext {
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
       throws IOException {
-    String audience = settings.getJwtAudienceOverride();
+    String audience = settings.getJwtAudience();
 
     URI audienceUri = null;
     try {
       audienceUri = new URI(audience);
     } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
+      throw new IllegalStateException("invalid JWT audience", e);
     }
 
     CredentialsProvider credentialsProvider = settings.getCredentialsProvider();
