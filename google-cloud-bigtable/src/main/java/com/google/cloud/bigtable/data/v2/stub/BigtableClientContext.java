@@ -52,8 +52,6 @@ public class BigtableClientContext {
 
   private static final Logger logger = Logger.getLogger(BigtableClientContext.class.getName());
 
-  private static final String DEFAULT_DATA_JWT_AUDIENCE = "https://bigtable.googleapis.com/";
-
   @Nullable private final OpenTelemetry openTelemetry;
   @Nullable private final OpenTelemetrySdk internalOpenTelemetry;
   private final MetricsProvider metricsProvider;
@@ -230,12 +228,7 @@ public class BigtableClientContext {
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
       throws IOException {
-    // Default jwt audience is always the service name unless it's override to
-    // test / staging for testing
-    String audience = DEFAULT_DATA_JWT_AUDIENCE;
-    if (settings.getJwtAudienceOverride() != null) {
-      audience = settings.getJwtAudienceOverride();
-    }
+    String audience = settings.getJwtAudienceOverride();
 
     URI audienceUri = null;
     try {

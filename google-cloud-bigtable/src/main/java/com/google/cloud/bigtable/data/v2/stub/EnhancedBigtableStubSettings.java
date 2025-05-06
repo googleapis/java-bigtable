@@ -249,6 +249,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .add("https://www.googleapis.com/auth/cloud-platform")
           .build();
 
+  /**
+   * Default jwt audience is always the service name unless it's override to test / staging for
+   * testing.
+   */
+  private static final String DEFAULT_DATA_JWT_AUDIENCE = "https://bigtable.googleapis.com/";
+
   private final String projectId;
   private final String instanceId;
   private final String appProfileId;
@@ -793,6 +799,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.enableSkipTrailers = SKIP_TRAILERS;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
       this.internalMetricsProvider = DEFAULT_INTERNAL_OTEL_PROVIDER;
+      this.jwtAudienceOverride = DEFAULT_DATA_JWT_AUDIENCE;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
