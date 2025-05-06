@@ -279,6 +279,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final MetricsProvider metricsProvider;
   @Nullable private final String metricsEndpoint;
   @Nonnull private final InternalMetricsProvider internalMetricsProvider;
+  private final String jwtAudienceOverride;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -309,6 +310,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
     internalMetricsProvider = builder.internalMetricsProvider;
+    jwtAudienceOverride = builder.jwtAudienceOverride;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -744,6 +746,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String appProfileId;
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
+    private String jwtAudienceOverride;
     private boolean enableRoutingCookie;
     private boolean enableRetryInfo;
     private boolean enableSkipTrailers;
@@ -927,6 +930,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
       internalMetricsProvider = settings.internalMetricsProvider;
+      jwtAudienceOverride = settings.jwtAudienceOverride;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -1069,11 +1073,19 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     /**
-     * @deprecated This is a no op. Audience is always set to bigtable service name.
+     * @deprecated This is a no op. Audience is always set to bigtable service name. Set the
+     *     audience with {@link #setJwtAudienceOverride(String)} instead.
      */
     @InternalApi("Used for internal testing")
     @Deprecated
     public Builder setJwtAudienceMapping(Map<String, String> jwtAudienceMapping) {
+      return this;
+    }
+
+    /** Set the jwt audience override. */
+    @InternalApi("Used for internal testing")
+    public Builder setJwtAudienceOverride(String audienceOverride) {
+      this.jwtAudienceOverride = audienceOverride;
       return this;
     }
 
@@ -1144,6 +1156,11 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     @Deprecated
     public Map<String, String> getJwtAudienceMapping() {
       return ImmutableMap.of();
+    }
+
+    /** Return the jwt audience override. */
+    String getJwtAudienceOverride() {
+      return this.jwtAudienceOverride;
     }
 
     /**
@@ -1340,6 +1357,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", internalMetricsProvider == DEFAULT_INTERNAL_OTEL_PROVIDER)
+        .add("jwtAudienceOverride", jwtAudienceOverride)
         .add("parent", super.toString())
         .toString();
   }

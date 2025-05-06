@@ -221,10 +221,10 @@ public class EnhancedBigtableStubTest {
 
     // Create a stub with overridden audience
     String expectedAudience = "http://localaudience";
-    System.setProperty(BigtableClientContext.DATA_JWT_OVERRIDE_NAME, expectedAudience);
     EnhancedBigtableStubSettings settings =
         defaultSettings.toBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
+            .setJwtAudienceOverride(expectedAudience)
             .build();
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
       stub.readRowCallable().futureCall(Query.create("fake-table")).get();
