@@ -250,18 +250,16 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
           .build();
 
   /**
-   * In most cases, jwt audience == service name. However in some cases, this is not the case. The
-   * following mapping is used to patch the audience in a JWT token.
+   * Default jwt audience is always the service name unless it's override to test / staging for
+   * testing.
    */
-  private static final Map<String, String> DEFAULT_JWT_AUDIENCE_MAPPING =
-      ImmutableMap.of("batch-bigtable.googleapis.com", "https://bigtable.googleapis.com/");
+  private static final String DEFAULT_DATA_JWT_AUDIENCE = "https://bigtable.googleapis.com/";
 
   private final String projectId;
   private final String instanceId;
   private final String appProfileId;
   private final boolean isRefreshingChannel;
   private ImmutableList<String> primedTableIds;
-  private final Map<String, String> jwtAudienceMapping;
   private final boolean enableRoutingCookie;
   private final boolean enableRetryInfo;
   private final boolean enableSkipTrailers;
@@ -287,6 +285,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   private final MetricsProvider metricsProvider;
   @Nullable private final String metricsEndpoint;
   @Nonnull private final InternalMetricsProvider internalMetricsProvider;
+  private final String jwtAudience;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -311,13 +310,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     appProfileId = builder.appProfileId;
     isRefreshingChannel = builder.isRefreshingChannel;
     primedTableIds = builder.primedTableIds;
-    jwtAudienceMapping = builder.jwtAudienceMapping;
     enableRoutingCookie = builder.enableRoutingCookie;
     enableRetryInfo = builder.enableRetryInfo;
     enableSkipTrailers = builder.enableSkipTrailers;
     metricsProvider = builder.metricsProvider;
     metricsEndpoint = builder.metricsEndpoint;
     internalMetricsProvider = builder.internalMetricsProvider;
+    jwtAudience = builder.jwtAudience;
 
     // Per method settings.
     readRowsSettings = builder.readRowsSettings.build();
@@ -376,9 +375,14 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     return primedTableIds;
   }
 
+  /**
+   * @deprecated This is a no op and will always return an empty map. Audience is always set to
+   *     bigtable service name.
+   */
   @InternalApi("Used for internal testing")
+  @Deprecated
   public Map<String, String> getJwtAudienceMapping() {
-    return jwtAudienceMapping;
+    return ImmutableMap.of();
   }
 
   public MetricsProvider getMetricsProvider() {
@@ -725,6 +729,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   public UnaryCallSettings<PrepareQueryRequest, PrepareResponse> prepareQuerySettings() {
     return prepareQuerySettings;
   }
+
   /**
    * Returns the object with the settings used for calls to PingAndWarm.
    *
@@ -747,7 +752,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private String appProfileId;
     private boolean isRefreshingChannel;
     private ImmutableList<String> primedTableIds;
-    private Map<String, String> jwtAudienceMapping;
+    private String jwtAudience;
     private boolean enableRoutingCookie;
     private boolean enableRetryInfo;
     private boolean enableSkipTrailers;
@@ -788,13 +793,13 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       this.appProfileId = SERVER_DEFAULT_APP_PROFILE_ID;
       this.isRefreshingChannel = true;
       primedTableIds = ImmutableList.of();
-      jwtAudienceMapping = DEFAULT_JWT_AUDIENCE_MAPPING;
       setCredentialsProvider(defaultCredentialsProviderBuilder().build());
       this.enableRoutingCookie = true;
       this.enableRetryInfo = true;
       this.enableSkipTrailers = SKIP_TRAILERS;
       metricsProvider = DefaultMetricsProvider.INSTANCE;
       this.internalMetricsProvider = DEFAULT_INTERNAL_OTEL_PROVIDER;
+      this.jwtAudience = DEFAULT_DATA_JWT_AUDIENCE;
 
       // Defaults provider
       BigtableStubSettings.Builder baseDefaults = BigtableStubSettings.newBuilder();
@@ -822,8 +827,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       sampleRowKeysSettings
           .setRetryableCodes(IDEMPOTENT_RETRY_CODES)
           .setRetrySettings(
-              IDEMPOTENT_RETRY_SETTINGS
-                  .toBuilder()
+              IDEMPOTENT_RETRY_SETTINGS.toBuilder()
                   .setInitialRpcTimeout(Duration.ofMinutes(5))
                   .setMaxRpcTimeout(Duration.ofMinutes(5))
                   .build());
@@ -928,12 +932,12 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       appProfileId = settings.appProfileId;
       isRefreshingChannel = settings.isRefreshingChannel;
       primedTableIds = settings.primedTableIds;
-      jwtAudienceMapping = settings.jwtAudienceMapping;
       enableRoutingCookie = settings.enableRoutingCookie;
       enableRetryInfo = settings.enableRetryInfo;
       metricsProvider = settings.metricsProvider;
       metricsEndpoint = settings.getMetricsEndpoint();
       internalMetricsProvider = settings.internalMetricsProvider;
+      jwtAudience = settings.jwtAudience;
 
       // Per method settings.
       readRowsSettings = settings.readRowsSettings.toBuilder();
@@ -952,6 +956,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       prepareQuerySettings = settings.prepareQuerySettings().toBuilder();
       featureFlags = settings.featureFlags.toBuilder();
     }
+
     // <editor-fold desc="Private Helpers">
 
     /**
@@ -963,6 +968,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       dest.setRetryableCodes(source.getRetryableCodes());
       dest.setRetrySettings(source.getRetrySettings());
     }
+
     // </editor-fold>
 
     // <editor-fold desc="Public API">
@@ -1073,9 +1079,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return primedTableIds;
     }
 
+    /**
+     * @deprecated This is a no op. Audience is always set to bigtable service name.
+     * @see #setJwtAudience(String) to override the audience.
+     */
     @InternalApi("Used for internal testing")
+    @Deprecated
     public Builder setJwtAudienceMapping(Map<String, String> jwtAudienceMapping) {
-      this.jwtAudienceMapping = Preconditions.checkNotNull(jwtAudienceMapping);
+      return this;
+    }
+
+    /** Set the jwt audience override. */
+    @InternalApi("Used for internal testing")
+    public Builder setJwtAudience(String audience) {
+      this.jwtAudience = audience;
       return this;
     }
 
@@ -1138,9 +1155,20 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return internalMetricsProvider == DISABLED_INTERNAL_OTEL_PROVIDER;
     }
 
+    /**
+     * @deprecated This is a no op and will always return an empty map. Audience is always set to
+     *     bigtable service name.
+     * @see #getJwtAudience() to get the audience.
+     */
     @InternalApi("Used for internal testing")
+    @Deprecated
     public Map<String, String> getJwtAudienceMapping() {
-      return jwtAudienceMapping;
+      return ImmutableMap.of();
+    }
+
+    /** Return the jwt audience override. */
+    String getJwtAudience() {
+      return this.jwtAudience;
     }
 
     /**
@@ -1316,7 +1344,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("appProfileId", appProfileId)
         .add("isRefreshingChannel", isRefreshingChannel)
         .add("primedTableIds", primedTableIds)
-        .add("jwtAudienceMapping", jwtAudienceMapping)
         .add("enableRoutingCookie", enableRoutingCookie)
         .add("enableRetryInfo", enableRetryInfo)
         .add("enableSkipTrailers", enableSkipTrailers)
@@ -1338,6 +1365,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
         .add("metricsProvider", metricsProvider)
         .add("metricsEndpoint", metricsEndpoint)
         .add("areInternalMetricsEnabled", internalMetricsProvider == DEFAULT_INTERNAL_OTEL_PROVIDER)
+        .add("jwtAudience", jwtAudience)
         .add("parent", super.toString())
         .toString();
   }

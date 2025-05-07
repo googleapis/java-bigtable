@@ -49,20 +49,20 @@ If you are using Maven without the BOM, add this to your dependencies:
 If you are using Gradle 5.x or later, add this to your dependencies:
 
 ```Groovy
-implementation platform('com.google.cloud:libraries-bom:26.56.0')
+implementation platform('com.google.cloud:libraries-bom:26.59.0')
 
 implementation 'com.google.cloud:google-cloud-bigtable'
 ```
 If you are using Gradle without BOM, add this to your dependencies:
 
 ```Groovy
-implementation 'com.google.cloud:google-cloud-bigtable:2.57.3'
+implementation 'com.google.cloud:google-cloud-bigtable:2.58.1'
 ```
 
 If you are using SBT, add this to your dependencies:
 
 ```Scala
-libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.57.3"
+libraryDependencies += "com.google.cloud" % "google-cloud-bigtable" % "2.58.1"
 ```
 
 ## Authentication
@@ -247,82 +247,9 @@ your OpenTelemetry instance. You can refer to
 [CustomOpenTelemetryMetricsProvider](https://github.com/googleapis/java-bigtable/blob/main/google-cloud-bigtable/src/main/java/com/google/cloud/bigtable/data/v2/stub/metrics/CustomOpenTelemetryMetricsProvider.java)
 on how to set it up.
 
-## Client request tracing: OpenCensus Tracing
-
-Cloud Bigtable client supports [OpenCensus Tracing](https://opencensus.io/tracing/),
-which gives insight into the client internals and aids in debugging production issues.
-By default, the functionality is disabled. For example to enable tracing using
-[Google Stackdriver](https://cloud.google.com/trace/docs/):
-
-[//]: # (TODO: figure out how to keep opencensus version in sync with pom.xml)
-
-If you are using Maven, add this to your pom.xml file
-```xml
-<dependency>
-  <groupId>io.opencensus</groupId>
-  <artifactId>opencensus-impl</artifactId>
-  <version>0.31.1</version>
-  <scope>runtime</scope>
-</dependency>
-<dependency>
-  <groupId>io.opencensus</groupId>
-  <artifactId>opencensus-exporter-trace-stackdriver</artifactId>
-  <version>0.31.1</version>
-  <exclusions>
-    <exclusion>
-      <groupId>io.grpc</groupId>
-      <artifactId>*</artifactId>
-    </exclusion>
-    <exclusion>
-      <groupId>com.google.auth</groupId>
-      <artifactId>*</artifactId>
-    </exclusion>
-  </exclusions>
-</dependency>
-```
-If you are using Gradle, add this to your dependencies
-```Groovy
-compile 'io.opencensus:opencensus-impl:0.24.0'
-compile 'io.opencensus:opencensus-exporter-trace-stackdriver:0.24.0'
-```
-If you are using SBT, add this to your dependencies
-```Scala
-libraryDependencies += "io.opencensus" % "opencensus-impl" % "0.24.0"
-libraryDependencies += "io.opencensus" % "opencensus-exporter-trace-stackdriver" % "0.24.0"
-```
-
-At the start of your application configure the exporter:
-
-```java
-import io.opencensus.exporter.trace.stackdriver.StackdriverTraceConfiguration;
-import io.opencensus.exporter.trace.stackdriver.StackdriverTraceExporter;
-
-StackdriverTraceExporter.createAndRegister(
-  StackdriverTraceConfiguration.builder()
-      .setProjectId("YOUR_PROJECT_ID")
-      .build());
-```
-
-You can view the traces on the Google Cloud Platform Console
-[Trace](https://console.cloud.google.com/traces) page.
-
-By default traces are [sampled](https://opencensus.io/tracing/sampling) at a rate of about 1/10,000.
-You can configure a higher rate by updating the active tracing params:
-
-```java
-import io.opencensus.trace.Tracing;
-import io.opencensus.trace.samplers.Samplers;
-
-Tracing.getTraceConfig().updateActiveTraceParams(
-    Tracing.getTraceConfig().getActiveTraceParams().toBuilder()
-        .setSampler(Samplers.probabilitySampler(0.01))
-        .build()
-);
-```
-
 ### Disable Bigtbale traces
 
-If your application already has OpenCensus Tracing integration and you want to disable Bigtable
+If your application already has tracing integration and you want to disable Bigtable
 traces, you can do the following:
 
 ```java
@@ -543,7 +470,7 @@ Java is a registered trademark of Oracle and/or its affiliates.
 [kokoro-badge-link-5]: http://storage.googleapis.com/cloud-devrel-public/java/badges/java-bigtable/java11.html
 [stability-image]: https://img.shields.io/badge/stability-stable-green
 [maven-version-image]: https://img.shields.io/maven-central/v/com.google.cloud/google-cloud-bigtable.svg
-[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.57.3
+[maven-version-link]: https://central.sonatype.com/artifact/com.google.cloud/google-cloud-bigtable/2.58.1
 [authentication]: https://github.com/googleapis/google-cloud-java#authentication
 [auth-scopes]: https://developers.google.com/identity/protocols/oauth2/scopes
 [predefined-iam-roles]: https://cloud.google.com/iam/docs/understanding-roles#predefined_roles

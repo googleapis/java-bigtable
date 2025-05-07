@@ -95,7 +95,6 @@ import com.google.cloud.bigtable.data.v2.stub.sql.ExecuteQueryCallable;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory;
 import com.google.cloud.bigtable.data.v2.stub.sql.SqlServerStream;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Queues;
 import com.google.common.io.BaseEncoding;
 import com.google.protobuf.ByteString;
@@ -223,10 +222,9 @@ public class EnhancedBigtableStubTest {
     // Create a stub with overridden audience
     String expectedAudience = "http://localaudience";
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
-            .setJwtAudienceMapping(ImmutableMap.of("localhost", expectedAudience))
+        defaultSettings.toBuilder()
             .setCredentialsProvider(FixedCredentialsProvider.create(jwtCreds))
+            .setJwtAudience(expectedAudience)
             .build();
     try (EnhancedBigtableStub stub = EnhancedBigtableStub.create(settings)) {
       stub.readRowCallable().futureCall(Query.create("fake-table")).get();
@@ -699,8 +697,7 @@ public class EnhancedBigtableStubTest {
   public void testCallContextPropagatedInMutationBatcher()
       throws IOException, InterruptedException, ExecutionException {
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setRefreshingChannel(true)
             .setPrimedTableIds("table1", "table2")
             .build();
@@ -730,8 +727,7 @@ public class EnhancedBigtableStubTest {
   public void testCallContextPropagatedInReadBatcher()
       throws IOException, InterruptedException, ExecutionException {
     EnhancedBigtableStubSettings settings =
-        defaultSettings
-            .toBuilder()
+        defaultSettings.toBuilder()
             .setRefreshingChannel(true)
             .setPrimedTableIds("table1", "table2")
             .build();
@@ -870,7 +866,8 @@ public class EnhancedBigtableStubTest {
         assertThrows(BatchingException.class, () -> batcher.close());
     assertThat(batchingException.getMessage())
         .contains(
-            "Batching finished with 1 partial failures. The 1 partial failures contained 1 entries that failed with: 1 ApiException(1 PERMISSION_DENIED).");
+            "Batching finished with 1 partial failures. The 1 partial failures contained 1 entries"
+                + " that failed with: 1 ApiException(1 PERMISSION_DENIED).");
     assertThat(batchingException.getMessage()).contains("fake partial error");
     assertThat(batchingException.getMessage()).doesNotContain("INTERNAL");
   }
@@ -894,7 +891,8 @@ public class EnhancedBigtableStubTest {
         assertThrows(BatchingException.class, () -> batcher.close());
     assertThat(batchingException.getMessage())
         .contains(
-            "Batching finished with 1 batches failed to apply due to: 1 ApiException(1 PERMISSION_DENIED) and 0 partial failures");
+            "Batching finished with 1 batches failed to apply due to: 1 ApiException(1"
+                + " PERMISSION_DENIED) and 0 partial failures");
   }
 
   @Test
