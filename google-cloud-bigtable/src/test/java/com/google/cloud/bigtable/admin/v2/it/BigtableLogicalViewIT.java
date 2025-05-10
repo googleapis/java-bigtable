@@ -37,19 +37,17 @@ import java.util.logging.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-@Ignore("Not fully working yet in production")
 public class BigtableLogicalViewIT {
   @ClassRule public static final TestEnvRule testEnvRule = new TestEnvRule();
   @Rule public final PrefixGenerator prefixGenerator = new PrefixGenerator();
   private static final Logger LOGGER = Logger.getLogger(BigtableLogicalViewIT.class.getName());
-  private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
+  private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512};
 
   private static BigtableInstanceAdminClient client;
   private static Table testTable;
