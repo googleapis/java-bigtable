@@ -22,12 +22,12 @@ import static org.junit.Assert.fail;
 
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
-import com.google.bigtable.admin.v2.CreateInstanceRequest;
-import com.google.bigtable.admin.v2.Instance;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
+import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
@@ -78,7 +78,7 @@ public class BigtableMaterializedViewIT {
         .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD)
     );
     instanceId = instance.getId();
-    tableAdminClient = BigtableTableAdminClient.create(instance.getProjectId(), instanceId);
+    tableAdminClient = BigtableTableAdminClient.create(testEnvRule.env().getProjectId(), instanceId);
   }
 
   @AfterClass
