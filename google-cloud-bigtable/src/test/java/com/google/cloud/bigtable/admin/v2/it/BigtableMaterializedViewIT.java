@@ -36,6 +36,7 @@ import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.PrefixGenerator;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import io.grpc.StatusRuntimeException;
+import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
 import org.junit.AfterClass;
@@ -70,7 +71,7 @@ public class BigtableMaterializedViewIT {
   }
 
   @BeforeClass
-  public static void createInstance() throws RuntimeException{
+  public static void createInstance() throws IOException{
     client = testEnvRule.env().getInstanceAdminClient();
 
     Instance instance = client.createInstance(
