@@ -70,7 +70,7 @@ public class BigtableMaterializedViewIT {
   }
 
   @BeforeClass
-  public static void createInstance() {
+  public static void createInstance() throws RuntimeException{
     client = testEnvRule.env().getInstanceAdminClient();
 
     Instance instance = client.createInstance(
