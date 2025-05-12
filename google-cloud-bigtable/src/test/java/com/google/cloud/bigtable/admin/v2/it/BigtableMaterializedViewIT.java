@@ -22,11 +22,14 @@ import static org.junit.Assert.fail;
 
 import com.google.api.gax.rpc.FailedPreconditionException;
 import com.google.api.gax.rpc.NotFoundException;
+import com.google.bigtable.admin.v2.CreateInstanceRequest;
+import com.google.bigtable.admin.v2.Instance;
 import com.google.cloud.bigtable.admin.v2.BigtableInstanceAdminClient;
 import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
+import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
 import com.google.cloud.bigtable.admin.v2.models.UpdateMaterializedViewRequest;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
@@ -52,6 +55,7 @@ public class BigtableMaterializedViewIT {
   private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
   private static BigtableInstanceAdminClient client;
+  private static BigtableTableAdminClient tableAdminClient;
   private static Table testTable;
   private static String instanceId;
 
@@ -74,6 +78,7 @@ public class BigtableMaterializedViewIT {
         .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD)
     );
     instanceId = instance.getId();
+    tableAdminClient = BigtableTableAdminClient.create(instance.getProjectId(), instanceId);
   }
 
   @AfterClass
@@ -83,7 +88,6 @@ public class BigtableMaterializedViewIT {
 
   @Before
   public void setUp() throws InterruptedException {
-    BigtableTableAdminClient tableAdminClient = BigtableTableAdminClient.create(instance.getProjectId(), instanceId);
     testTable = createTestTable(tableAdminClient);
   }
 
