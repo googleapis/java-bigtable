@@ -23,12 +23,12 @@ import java.time.Duration;
 /**
  * Settings to control {@link BigtableChannelPool} behavior.
  *
- * <p>To facilitate low latency/high throughout applications, gax provides a {@link BigtableChannelPool}.
- * The pool is meant to facilitate high throughput/low latency clients. By splitting load across
- * multiple gRPC channels the client can spread load across multiple frontends and overcome gRPC's
- * limit of 100 concurrent RPCs per channel. However oversizing the {@link BigtableChannelPool} can lead to
- * underutilized channels which will lead to high tail latency due to GFEs disconnecting idle
- * channels.
+ * <p>To facilitate low latency/high throughout applications, gax provides a {@link
+ * BigtableChannelPool}. The pool is meant to facilitate high throughput/low latency clients. By
+ * splitting load across multiple gRPC channels the client can spread load across multiple frontends
+ * and overcome gRPC's limit of 100 concurrent RPCs per channel. However oversizing the {@link
+ * BigtableChannelPool} can lead to underutilized channels which will lead to high tail latency due
+ * to GFEs disconnecting idle channels.
  *
  * <p>The {@link BigtableChannelPool} is designed to adapt to varying traffic patterns by tracking
  * outstanding RPCs and resizing the pool size. This class configures the behavior. In general
@@ -42,6 +42,7 @@ import java.time.Duration;
 public abstract class BigtableChannelPoolSettings {
   /** How often to check and possibly resize the {@link BigtableChannelPool}. */
   static final Duration RESIZE_INTERVAL = Duration.ofMinutes(1);
+
   /** The maximum number of channels that can be added or removed at a time. */
   static final int MAX_RESIZE_DELTA = 2;
 
@@ -93,7 +94,9 @@ public abstract class BigtableChannelPoolSettings {
    */
   public abstract boolean isPreemptiveRefreshEnabled();
 
-  /** Helper to check if the {@link BigtableChannelPool} implementation can skip dynamic size logic */
+  /**
+   * Helper to check if the {@link BigtableChannelPool} implementation can skip dynamic size logic
+   */
   boolean isStaticSize() {
     // When range is restricted to a single size
     if (getMinChannelCount() == getMaxChannelCount()) {

@@ -54,7 +54,9 @@ import javax.annotation.Nullable;
  * <p>Package-private for internal use.
  */
 class BigtableChannelPool extends ManagedChannel {
-  @VisibleForTesting static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
+  @VisibleForTesting
+  static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
+
   private static final java.time.Duration REFRESH_PERIOD = java.time.Duration.ofMinutes(50);
 
   private final BigtableChannelPoolSettings settings;
@@ -66,9 +68,10 @@ class BigtableChannelPool extends ManagedChannel {
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
-  static BigtableChannelPool create(BigtableChannelPoolSettings settings, ChannelFactory channelFactory)
-      throws IOException {
-    return new BigtableChannelPool(settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
+  static BigtableChannelPool create(
+      BigtableChannelPoolSettings settings, ChannelFactory channelFactory) throws IOException {
+    return new BigtableChannelPool(
+        settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
   }
 
   /**
@@ -229,7 +232,8 @@ class BigtableChannelPool extends ManagedChannel {
    *   <li>Get the maximum number of outstanding RPCs since last invocation
    *   <li>Determine a valid range of number of channels to handle that many outstanding RPCs
    *   <li>If the current number of channel falls outside of that range, add or remove at most
-   *       {@link BigtableChannelPoolSettings#MAX_RESIZE_DELTA} to get closer to middle of that range.
+   *       {@link BigtableChannelPoolSettings#MAX_RESIZE_DELTA} to get closer to middle of that
+   *       range.
    * </ul>
    *
    * <p>Not threadsafe, must be called under the entryWriteLock monitor
