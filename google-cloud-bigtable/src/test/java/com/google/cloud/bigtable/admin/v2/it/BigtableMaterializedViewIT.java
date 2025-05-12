@@ -58,19 +58,20 @@ public class BigtableMaterializedViewIT {
   private static BigtableInstanceAdminClient client;
   private static BigtableTableAdminClient tableAdminClient;
   private static Table testTable;
-  private static String instanceId;
+  private static String instanceId = "";
 
   // TODO: Update this test once emulator supports InstanceAdmin operation
   // https://github.com/googleapis/google-cloud-go/issues/1069
   @BeforeClass
-  public static void validatePlatform() {
+  public static void validatePlatform() throws IOException{
     assume()
         .withMessage("BigtableInstanceAdminClient doesn't support on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
+
+    createInstance();
   }
 
-  @BeforeClass
   public static void createInstance() throws IOException{
     client = testEnvRule.env().getInstanceAdminClient();
 
@@ -84,7 +85,9 @@ public class BigtableMaterializedViewIT {
 
   @AfterClass
   public static void deleteInstance() {
-    client.deleteInstance(instanceId);
+    if (!instanceId.isEmpty()){
+      client.deleteInstance(instanceId);
+    }
   }
 
   @Before
