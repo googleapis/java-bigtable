@@ -27,6 +27,7 @@ import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.retrying.RetrySettings;
 import com.google.api.gax.rpc.FixedHeaderProvider;
+import com.google.api.gax.rpc.HeaderProvider;
 import com.google.api.gax.rpc.ServerStreamingCallSettings;
 import com.google.api.gax.rpc.StatusCode.Code;
 import com.google.api.gax.rpc.StubSettings;
@@ -286,7 +287,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
   @Nullable private final String metricsEndpoint;
   @Nonnull private final InternalMetricsProvider internalMetricsProvider;
   private final String jwtAudience;
-  private final Map<String, String> internalHeaders;
 
   private EnhancedBigtableStubSettings(Builder builder) {
     super(builder);
@@ -335,7 +335,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     executeQuerySettings = builder.executeQuerySettings.build();
     prepareQuerySettings = builder.prepareQuerySettings.build();
     featureFlags = builder.featureFlags.build();
-    internalHeaders = builder.internalHeaders;
   }
 
   /** Create a new builder. */
@@ -782,7 +781,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     private MetricsProvider metricsProvider;
     @Nullable private String metricsEndpoint;
     private InternalMetricsProvider internalMetricsProvider;
-    private Map<String, String> internalHeaders;
 
     /**
      * Initializes a new Builder with sane defaults for all settings.
@@ -958,7 +956,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       executeQuerySettings = settings.executeQuerySettings().toBuilder();
       prepareQuerySettings = settings.prepareQuerySettings().toBuilder();
       featureFlags = settings.featureFlags.toBuilder();
-      internalHeaders = settings.internalHeaders;
     }
 
     // <editor-fold desc="Private Helpers">
@@ -1218,9 +1215,10 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
       return this;
     }
 
-    /** Gets the internal headers set on InternalHeaderProvider. */
-    Map<String, String> getInternalHeaders() {
-      return internalHeaders;
+    @Override
+    @InternalApi
+    public HeaderProvider getInternalHeaderProvider() {
+      return super.getInternalHeaderProvider();
     }
 
     /** Returns the builder for the settings used for calls to readRows. */
@@ -1339,8 +1337,6 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
               .put("bigtable-features", new String(encodedFlags, StandardCharsets.UTF_8))
               .build();
       setInternalHeaderProvider(FixedHeaderProvider.create(headers));
-
-      internalHeaders = headers;
 
       return new EnhancedBigtableStubSettings(this);
     }

@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.common.collect.ImmutableMap;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -122,13 +123,18 @@ public class BigtableClientContext {
 
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
+        ImmutableMap<String, String> headers =
+            ImmutableMap.<String, String>builder()
+                .putAll(builder.getInternalHeaderProvider().getHeaders())
+                .putAll(builder.getHeaderProvider().getHeaders())
+                .build();
         transportProvider.setChannelPrimer(
             BigtableChannelPrimer.create(
                 builder.getProjectId(),
                 builder.getInstanceId(),
                 builder.getAppProfileId(),
                 credentials,
-                builder.getInternalHeaders()));
+                headers));
       }
 
       builder.setTransportChannelProvider(transportProvider.build());
