@@ -120,6 +120,7 @@ public class BigtableClientContext {
         setupCookieHolder(transportProvider);
       }
 
+      System.out.println(builder.getInternalHeaders());
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
         transportProvider.setChannelPrimer(
@@ -128,7 +129,7 @@ public class BigtableClientContext {
                 builder.getInstanceId(),
                 builder.getAppProfileId(),
                 credentials,
-                builder.getHeaderProvider().getHeaders()));
+                builder.getInternalHeaders()));
       }
 
       builder.setTransportChannelProvider(transportProvider.build());
