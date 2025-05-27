@@ -63,6 +63,11 @@ public class JwtCredentialsWithAudience extends Credentials {
   }
 
   @Override
+  public String getUniverseDomain() {
+    return delegate.getUniverseDomain();
+  }
+
+  @Override
   public boolean hasRequestMetadata() {
     return delegate.hasRequestMetadata();
   }
