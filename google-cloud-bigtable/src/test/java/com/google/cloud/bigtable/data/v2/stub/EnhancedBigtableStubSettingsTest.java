@@ -1044,9 +1044,8 @@ public class EnhancedBigtableStubSettingsTest {
         nonStaticFields++;
       }
     }
-    // failure will signal about adding a new settings property - feature flag field - internal
-    // headers field
-    assertThat(SETTINGS_LIST.length).isEqualTo(nonStaticFields - 2);
+    // failure will signal about adding a new settings property - feature flag field
+    assertThat(SETTINGS_LIST.length).isEqualTo(nonStaticFields - 1);
   }
 
   void checkToString(EnhancedBigtableStubSettings settings) {
