@@ -307,7 +307,10 @@ public final class BigtableCloudMonitoringExporter implements MetricExporter {
     private final String taskId;
 
     PublicTimeSeriesConverter() {
-      this(BigtableExporterUtils.DEFAULT_TASK_VALUE.get() + "-" + nextTaskIdSuffix.getAndIncrement());
+      this(
+          BigtableExporterUtils.DEFAULT_TASK_VALUE.get()
+              + "-"
+              + nextTaskIdSuffix.getAndIncrement());
     }
 
     PublicTimeSeriesConverter(String taskId) {
