@@ -55,6 +55,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.Util;
 import com.google.cloud.bigtable.data.v2.stub.mutaterows.MutateRowsBatchingDescriptor;
 import com.google.cloud.bigtable.data.v2.stub.readrows.ReadRowsBatchingDescriptor;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -1216,7 +1217,15 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
     }
 
     @Override
+    @VisibleForTesting
+    /** Sets the internal header provider. This is needed for CloudEnv to override user agent. */
+    public Builder setInternalHeaderProvider(HeaderProvider internalHeaderProvider) {
+      return super.setInternalHeaderProvider(internalHeaderProvider);
+    }
+
+    @Override
     @InternalApi
+    /** Returns the internal header provider. This is needed for channel primer. */
     public HeaderProvider getInternalHeaderProvider() {
       return super.getInternalHeaderProvider();
     }

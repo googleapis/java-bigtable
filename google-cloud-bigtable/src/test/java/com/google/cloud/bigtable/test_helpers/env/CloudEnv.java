@@ -304,7 +304,8 @@ public class CloudEnv extends AbstractTestEnv {
 
     // Use the existing user-agent to use as a prefix
     Map<String, String> existingHeaders =
-        MoreObjects.firstNonNull(stubSettings.getHeaderProvider(), FixedHeaderProvider.create())
+        MoreObjects.firstNonNull(
+                stubSettings.getInternalHeaderProvider(), FixedHeaderProvider.create())
             .getHeaders();
     String existingUserAgent = existingHeaders.get("user-agent");
     if (existingUserAgent != null) {
@@ -314,7 +315,7 @@ public class CloudEnv extends AbstractTestEnv {
     Map<String, String> newHeaders = new HashMap<>(existingHeaders);
     newHeaders.put("user-agent", newUserAgent);
 
-    stubSettings.setHeaderProvider(FixedHeaderProvider.create(newHeaders));
+    stubSettings.setInternalHeaderProvider(FixedHeaderProvider.create(newHeaders));
   }
 
   @Override
