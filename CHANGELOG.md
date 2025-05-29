@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.59.1](https://github.com/googleapis/java-bigtable/compare/v2.59.0...v2.59.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* Ensure that multiple instances of a client in the same process dont clobber each other ([#2590](https://github.com/googleapis/java-bigtable/issues/2590)) ([8d3dca4](https://github.com/googleapis/java-bigtable/commit/8d3dca43224179829829bcf91972610c666b130b))
+
 ## [2.59.0](https://github.com/googleapis/java-bigtable/compare/v2.58.2...v2.59.0) (2025-05-16)
 
 
