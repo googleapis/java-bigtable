@@ -20,8 +20,18 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
+import com.google.api.gax.grpc.ChannelPoolSettings;
+import com.google.api.gax.rpc.TransportChannel;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings;
+import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
+import com.google.api.gax.rpc.TransportChannelProvider;
+import com.google.api.gax.grpc.ChannelFactory;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
+import io.grpc.ManagedChannel;
+import io.grpc.netty.shaded.io.netty.channel.ChannelFactory;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -32,11 +42,15 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import java.util.function.Supplier;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
+import io.grpc.ManagedChannel;
+import io.grpc.Channel;
+import com.google.api.gax.grpc.GrpcTransportChannel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -60,6 +74,47 @@ public class BigtableClientContext {
   public static BigtableClientContext create(EnhancedBigtableStubSettings settings)
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
+
+    TransportChannelProvider transportChannelProvider = settings.getTransportChannelProvider();
+    if (transportChannelProvider instanceof InstantiatingGrpcChannelProvider) {
+      InstantiatingGrpcChannelProvider provider = (InstantiatingGrpcChannelProvider) transportChannelProvider;
+      ChannelPoolSettings originalPoolSettings = ((InstantiatingGrpcChannelProvider) transportChannelProvider).getChannelPoolSettings();
+
+      BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
+          .setInitialChannelCount(originalPoolSettings.getInitialChannelCount())
+          .setMinChannelCount(originalPoolSettings.getMinChannelCount())
+          .setMaxChannelCount(originalPoolSettings.getMaxChannelCount())
+          .setMinRpcsPerChannel(originalPoolSettings.getMinRpcsPerChannel())
+          .setMaxRpcsPerChannel(originalPoolSettings.getMaxRpcsPerChannel())
+          .setPreemptiveRefreshEnabled(originalPoolSettings.isPreemptiveRefreshEnabled())
+          .build();
+
+      Supplier<ManagedChannel> channelSupplier =
+          ()->{
+            try {
+              Channel channel = (Channel) transportChannelProvider.getTransportChannel();
+              return (ManagedChannel) channel;
+            } catch (IllegalStateException | IOException e) {
+              throw new IllegalStateException(e);
+            }
+          };
+
+      ChannelFactory channelFactory =
+          new ChannelFactory() {
+        @Override
+            public ManagedChannel createSingleChannel() {
+          return channelSupplier.get();
+          }
+        };
+
+      BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
+
+      BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
+          (InstantiatingGrpcChannelProvider) transportChannelProvider,
+          (TransportChannel) btChannelPool);
+
+      builder.setTransportChannelProvider(btTransportProvider);
+    }
 
     // Set up credentials
     patchCredentials(builder);

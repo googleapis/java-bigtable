@@ -53,7 +53,7 @@ import javax.annotation.Nullable;
  *
  * <p>Package-private for internal use.
  */
-class BigtableChannelPool extends ManagedChannel {
+public class BigtableChannelPool extends ManagedChannel {
   @VisibleForTesting
   static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
 
@@ -68,7 +68,7 @@ class BigtableChannelPool extends ManagedChannel {
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
-  static BigtableChannelPool create(
+  public static BigtableChannelPool create(
       BigtableChannelPoolSettings settings, ChannelFactory channelFactory) throws IOException {
     return new BigtableChannelPool(
         settings, channelFactory, Executors.newSingleThreadScheduledExecutor());
@@ -82,7 +82,7 @@ class BigtableChannelPool extends ManagedChannel {
    * @param executor periodically refreshes the channels
    */
   @VisibleForTesting
-  BigtableChannelPool(
+  public BigtableChannelPool(
       BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
       ScheduledExecutorService executor)
