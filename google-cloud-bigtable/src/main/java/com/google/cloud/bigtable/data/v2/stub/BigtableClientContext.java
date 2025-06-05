@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,11 +27,9 @@ import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
-import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import io.grpc.ManagedChannel;
-import io.grpc.netty.shaded.io.netty.channel.ChannelFactory;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -48,9 +46,7 @@ import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
-import io.grpc.ManagedChannel;
 import io.grpc.Channel;
-import com.google.api.gax.grpc.GrpcTransportChannel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -77,41 +73,36 @@ public class BigtableClientContext {
 
     TransportChannelProvider transportChannelProvider = settings.getTransportChannelProvider();
     if (transportChannelProvider instanceof InstantiatingGrpcChannelProvider) {
-      InstantiatingGrpcChannelProvider provider = (InstantiatingGrpcChannelProvider) transportChannelProvider;
-      ChannelPoolSettings originalPoolSettings = ((InstantiatingGrpcChannelProvider) transportChannelProvider).getChannelPoolSettings();
-
-      BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
-          .setInitialChannelCount(originalPoolSettings.getInitialChannelCount())
-          .setMinChannelCount(originalPoolSettings.getMinChannelCount())
-          .setMaxChannelCount(originalPoolSettings.getMaxChannelCount())
-          .setMinRpcsPerChannel(originalPoolSettings.getMinRpcsPerChannel())
-          .setMaxRpcsPerChannel(originalPoolSettings.getMaxRpcsPerChannel())
-          .setPreemptiveRefreshEnabled(originalPoolSettings.isPreemptiveRefreshEnabled())
-          .build();
-
-      Supplier<ManagedChannel> channelSupplier =
-          ()->{
-            try {
-              Channel channel = (Channel) transportChannelProvider.getTransportChannel();
-              return (ManagedChannel) channel;
-            } catch (IllegalStateException | IOException e) {
-              throw new IllegalStateException(e);
-            }
-          };
-
-      ChannelFactory channelFactory =
-          new ChannelFactory() {
-        @Override
-            public ManagedChannel createSingleChannel() {
-          return channelSupplier.get();
-          }
-        };
-
-      BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
+      // InstantiatingGrpcChannelProvider provider = (InstantiatingGrpcChannelProvider) transportChannelProvider;
+      // ChannelPoolSettings originalPoolSettings = ((InstantiatingGrpcChannelProvider) transportChannelProvider).getChannelPoolSettings();
+      // InstantiatingGrpcChannelProvider singleChannelProvider = provider.toBuilder().setChannelPoolSettings(ChannelPoolSettings.staticallySized(1)).needsHeadsrs(false).build();
+      //
+      //
+      // BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
+      //     .setInitialChannelCount(originalPoolSettings.getInitialChannelCount())
+      //     .setMinChannelCount(originalPoolSettings.getMinChannelCount())
+      //     .setMaxChannelCount(originalPoolSettings.getMaxChannelCount())
+      //     .setMinRpcsPerChannel(originalPoolSettings.getMinRpcsPerChannel())
+      //     .setMaxRpcsPerChannel(originalPoolSettings.getMaxRpcsPerChannel())
+      //     .setPreemptiveRefreshEnabled(originalPoolSettings.isPreemptiveRefreshEnabled())
+      //     .build();
+      //
+      // Supplier<ManagedChannel> channelSupplier =
+      //     ()->{
+      //       try {
+      //         Channel channel = (Channel) singleChannelProvider.getTransportChannel();
+      //         return (ManagedChannel) channel;
+      //       } catch (IllegalStateException | IOException e) {
+      //         throw new IllegalStateException(e);
+      //       }
+      //     };
+      //
+      // ChannelFactory channelFactory = channelSupplier::get;
+      //
+      // BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
 
       BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
-          (InstantiatingGrpcChannelProvider) transportChannelProvider,
-          (TransportChannel) btChannelPool);
+          (InstantiatingGrpcChannelProvider) transportChannelProvider);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

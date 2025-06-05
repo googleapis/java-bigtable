@@ -1,46 +1,35 @@
 /*
- * Copyright 2017 Google LLC
+ * Copyright 2025 Google LLC
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google LLC nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     https://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
     import com.google.api.core.InternalExtensionOnly;
+    import com.google.api.gax.grpc.ChannelFactory;
+    import com.google.api.gax.grpc.ChannelPoolSettings;
     import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
     import com.google.auth.Credentials;
     import com.google.common.base.Preconditions;
+    import io.grpc.Channel;
+    import io.grpc.ManagedChannel;
     import java.io.IOException;
     import java.util.Map;
     import java.util.concurrent.Executor;
     import java.util.concurrent.ScheduledExecutorService;
     import com.google.api.gax.rpc.TransportChannel;
-    import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
     import com.google.api.gax.rpc.TransportChannelProvider;
-    import jdk.internal.net.http.websocket.Transport;
+    import java.util.function.Supplier;
 
 
 /** An instance of TransportChannelProvider that always provides the same TransportChannel. */
@@ -48,12 +37,10 @@ package com.google.cloud.bigtable.gaxx.grpc;
 public class BigtableTransportChannelProvider implements TransportChannelProvider {
 
   private final InstantiatingGrpcChannelProvider ogGrpcChannelProvider;
-  private final TransportChannel transportChannel;
 
   private BigtableTransportChannelProvider(
-      InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider, TransportChannel transportChannel) {
-    this.ogGrpcChannelProvider = instantiatingGrpcChannelProvider;
-    this.transportChannel = Preconditions.checkNotNull(transportChannel);
+      InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
+    this.ogGrpcChannelProvider = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
   }
 
   @Override
@@ -74,7 +61,7 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
   @Override
   public BigtableTransportChannelProvider withExecutor(Executor executor) {
     InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withExecutor(executor);
-    return new BigtableTransportChannelProvider(newChannelProvider, this.transportChannel);
+    return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
@@ -87,7 +74,7 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider)
             ogGrpcChannelProvider.withHeaders(headers);
-    return new BigtableTransportChannelProvider(newChannelProvider, this.transportChannel);
+    return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
@@ -99,7 +86,7 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
   public TransportChannelProvider withEndpoint(String endpoint) {
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withEndpoint(endpoint);
-    return new BigtableTransportChannelProvider(newChannelProvider, this.transportChannel);
+    return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   /**
@@ -118,12 +105,36 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
   @Override
   public TransportChannelProvider withPoolSize(int size) {
     InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withPoolSize(size);
-    return new BigtableTransportChannelProvider(newChannelProvider, this.transportChannel);
+    return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
   public TransportChannel getTransportChannel() throws IOException {
-    return transportChannel;
+    ChannelPoolSettings ogPoolSettings = ogGrpcChannelProvider.getChannelPoolSettings();
+    InstantiatingGrpcChannelProvider singleChannelProvider = ogGrpcChannelProvider.toBuilder().setChannelPoolSettings(ChannelPoolSettings.staticallySized(1)).build();
+
+    BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
+        .setInitialChannelCount(ogPoolSettings.getInitialChannelCount())
+        .setMinChannelCount(ogPoolSettings.getMinChannelCount())
+        .setMaxChannelCount(ogPoolSettings.getMaxChannelCount())
+        .setMinRpcsPerChannel(ogPoolSettings.getMinRpcsPerChannel())
+        .setMaxRpcsPerChannel(ogPoolSettings.getMaxRpcsPerChannel())
+        .setPreemptiveRefreshEnabled(ogPoolSettings.isPreemptiveRefreshEnabled())
+        .build();
+    Supplier<ManagedChannel> channelSupplier = ()-> {
+      try {
+        Channel channel = (Channel) singleChannelProvider.getTransportChannel();
+        return (ManagedChannel) channel;
+      } catch (IllegalStateException | IOException e) {
+        throw new IllegalStateException(e);
+      }
+    };
+
+    ChannelFactory channelFactory = channelSupplier::get;
+
+    BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
+
+    return (TransportChannel) btChannelPool;
   }
 
   @Override
@@ -139,11 +150,11 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
   @Override
   public TransportChannelProvider withCredentials(Credentials credentials) {
     InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withCredentials(credentials);
-    return new BigtableTransportChannelProvider(newChannelProvider, this.transportChannel);
+    return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   /** Creates a FixedTransportChannelProvider. */
-  public static BigtableTransportChannelProvider create(InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider, TransportChannel transportChannel) {
-    return new BigtableTransportChannelProvider(instantiatingGrpcChannelProvider, TransportChannel transportChannel);
+  public static BigtableTransportChannelProvider create(InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
+    return new BigtableTransportChannelProvider(instantiatingGrpcChannelProvider);
   }
 }
