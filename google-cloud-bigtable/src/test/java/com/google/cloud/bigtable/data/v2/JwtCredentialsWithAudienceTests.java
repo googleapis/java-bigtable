@@ -16,16 +16,15 @@
 
 package com.google.cloud.bigtable.data.v2;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.auth.oauth2.OAuth2Utils;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.internal.JwtCredentialsWithAudience;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.net.URI;
 import java.security.PrivateKey;
-
-import static com.google.common.truth.Truth.assertThat;
+import org.junit.Test;
 
 public class JwtCredentialsWithAudienceTests {
 
@@ -45,8 +44,8 @@ public class JwtCredentialsWithAudienceTests {
           + "SXagBxzp8PecbaCHjzNRSQE2in81qYnrAFNB4o3DpHyMMY6s5ALLeHKscEWnqP8Ur6X4PvzZecCWU9BKAZAkAut"
           + "LPknAuxSCsUOvUfS1i87ex77Ot+w6POp34pEX+UWb+u5iFn2cQacDTHLV1LtE80L8jVLSbrbrlH43H0DjU5AkEA"
           + "gidhycxS86dxpEljnOMCw8CKoUBd5I880IUahEiUltk7OLJYS/Ts1wbn3kPOVX3wyJs8WBDtBkFrDHW2ezth2QJ"
-          + "ADj3e1YhMVdjJW5jqwlD/VNddGjgzyunmiZg0uOXsHXbytYmsA545S8KRQFaJKFXYYFo2kOjqOiC1T2cAzMDjCQ"
-          + "==\n-----END PRIVATE KEY-----\n";
+          + "ADj3e1YhMVdjJW5jqwlD/VNddGjgzyunmiZg0uOXsHXbytYmsA545S8KRQFaJKFXYYFo2kOjqOiC1T2cAzMDjCQ==\n"
+          + "-----END PRIVATE KEY-----\n";
   private static final String QUOTA_PROJECT = "sample-quota-project-id";
 
   @Test
