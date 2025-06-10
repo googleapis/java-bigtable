@@ -73,34 +73,6 @@ public class BigtableClientContext {
 
     TransportChannelProvider transportChannelProvider = settings.getTransportChannelProvider();
     if (transportChannelProvider instanceof InstantiatingGrpcChannelProvider) {
-      // InstantiatingGrpcChannelProvider provider = (InstantiatingGrpcChannelProvider) transportChannelProvider;
-      // ChannelPoolSettings originalPoolSettings = ((InstantiatingGrpcChannelProvider) transportChannelProvider).getChannelPoolSettings();
-      // InstantiatingGrpcChannelProvider singleChannelProvider = provider.toBuilder().setChannelPoolSettings(ChannelPoolSettings.staticallySized(1)).needsHeadsrs(false).build();
-      //
-      //
-      // BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
-      //     .setInitialChannelCount(originalPoolSettings.getInitialChannelCount())
-      //     .setMinChannelCount(originalPoolSettings.getMinChannelCount())
-      //     .setMaxChannelCount(originalPoolSettings.getMaxChannelCount())
-      //     .setMinRpcsPerChannel(originalPoolSettings.getMinRpcsPerChannel())
-      //     .setMaxRpcsPerChannel(originalPoolSettings.getMaxRpcsPerChannel())
-      //     .setPreemptiveRefreshEnabled(originalPoolSettings.isPreemptiveRefreshEnabled())
-      //     .build();
-      //
-      // Supplier<ManagedChannel> channelSupplier =
-      //     ()->{
-      //       try {
-      //         Channel channel = (Channel) singleChannelProvider.getTransportChannel();
-      //         return (ManagedChannel) channel;
-      //       } catch (IllegalStateException | IOException e) {
-      //         throw new IllegalStateException(e);
-      //       }
-      //     };
-      //
-      // ChannelFactory channelFactory = channelSupplier::get;
-      //
-      // BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
-
       BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
           (InstantiatingGrpcChannelProvider) transportChannelProvider);
 
