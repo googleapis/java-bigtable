@@ -18,10 +18,10 @@ package com.google.cloud.bigtable.gaxx.grpc;
     import com.google.api.core.InternalExtensionOnly;
     import com.google.api.gax.grpc.ChannelFactory;
     import com.google.api.gax.grpc.ChannelPoolSettings;
+    import com.google.api.gax.grpc.GrpcTransportChannel;
     import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
     import com.google.auth.Credentials;
     import com.google.common.base.Preconditions;
-    import io.grpc.Channel;
     import io.grpc.ManagedChannel;
     import java.io.IOException;
     import java.util.Map;
@@ -34,23 +34,25 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 /** An instance of TransportChannelProvider that always provides the same TransportChannel. */
 @InternalExtensionOnly
-public class BigtableTransportChannelProvider implements TransportChannelProvider {
+public final class BigtableTransportChannelProvider implements TransportChannelProvider {
 
-  private final InstantiatingGrpcChannelProvider ogGrpcChannelProvider;
+  private final InstantiatingGrpcChannelProvider delegate;
+  private final Object lock = new Object();
+  private volatile TransportChannel transportChannel;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
-    this.ogGrpcChannelProvider = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
+    delegate = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
   }
 
   @Override
   public boolean shouldAutoClose() {
-    return ogGrpcChannelProvider.shouldAutoClose();
+    return delegate.shouldAutoClose();
   }
 
   @Override
   public boolean needsExecutor() {
-    return ogGrpcChannelProvider.needsExecutor();
+    return delegate.needsExecutor();
   }
 
   @Override
@@ -60,96 +62,120 @@ public class BigtableTransportChannelProvider implements TransportChannelProvide
 
   @Override
   public BigtableTransportChannelProvider withExecutor(Executor executor) {
-    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withExecutor(executor);
+    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) delegate.withExecutor(executor);
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
   public boolean needsHeaders() {
-    return this.ogGrpcChannelProvider.needsHeaders();
+    return delegate.needsHeaders();
   }
 
   @Override
   public BigtableTransportChannelProvider withHeaders(Map<String, String> headers) {
     InstantiatingGrpcChannelProvider newChannelProvider =
         (InstantiatingGrpcChannelProvider)
-            ogGrpcChannelProvider.withHeaders(headers);
+            delegate.withHeaders(headers);
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
   public boolean needsEndpoint() {
-    return false;
+    return delegate.needsEndpoint();
   }
 
   @Override
   public TransportChannelProvider withEndpoint(String endpoint) {
     InstantiatingGrpcChannelProvider newChannelProvider =
-        (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withEndpoint(endpoint);
+        (InstantiatingGrpcChannelProvider) delegate.withEndpoint(endpoint);
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
-  /**
-   * @deprecated FixedTransportChannelProvider doesn't support ChannelPool configuration
-   */
+
   @Deprecated
   @Override
   public boolean acceptsPoolSize() {
-    return ogGrpcChannelProvider.acceptsPoolSize();
+    return delegate.acceptsPoolSize();
   }
 
-  /**
-   * @deprecated FixedTransportChannelProvider doesn't support ChannelPool configuration
-   */
+
   @Deprecated
   @Override
   public TransportChannelProvider withPoolSize(int size) {
-    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withPoolSize(size);
+    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) delegate.withPoolSize(size);
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
   @Override
   public TransportChannel getTransportChannel() throws IOException {
-    ChannelPoolSettings ogPoolSettings = ogGrpcChannelProvider.getChannelPoolSettings();
-    InstantiatingGrpcChannelProvider singleChannelProvider = ogGrpcChannelProvider.toBuilder().setChannelPoolSettings(ChannelPoolSettings.staticallySized(1)).build();
+    TransportChannel result = transportChannel;
+    if (result == null){
+      synchronized(lock) {
+        result = transportChannel;
+        if (result == null) {
+          transportChannel = result = createTransportChannel();
+        }
+      }
+    }
+    return result;
+  }
 
-    BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.builder()
-        .setInitialChannelCount(ogPoolSettings.getInitialChannelCount())
-        .setMinChannelCount(ogPoolSettings.getMinChannelCount())
-        .setMaxChannelCount(ogPoolSettings.getMaxChannelCount())
-        .setMinRpcsPerChannel(ogPoolSettings.getMinRpcsPerChannel())
-        .setMaxRpcsPerChannel(ogPoolSettings.getMaxRpcsPerChannel())
-        .setPreemptiveRefreshEnabled(ogPoolSettings.isPreemptiveRefreshEnabled())
-        .build();
-    Supplier<ManagedChannel> channelSupplier = ()-> {
+  private TransportChannel createTransportChannel() throws IOException {
+    // This provider's main purpose is to replace the default GAX ChannelPool
+    // with a custom BigtableChannelPool, reusing the delegate's configuration.
+
+    // To create our pool, we need a factory for raw gRPC channels.
+    // We achieve this by configuring our delegate to not use its own pooling
+    // (by setting pool size to 1) and then calling getTransportChannel() on it.
+    InstantiatingGrpcChannelProvider singleChannelProvider =
+        delegate.toBuilder()
+            .setChannelPoolSettings(ChannelPoolSettings.staticallySized(1))
+            .build();
+
+    // Supplier<Channel> channelSupplier =
+    ChannelFactory channelFactory = () -> {
+        // () -> {
       try {
-        Channel channel = (Channel) singleChannelProvider.getTransportChannel();
-        return (ManagedChannel) channel;
-      } catch (IllegalStateException | IOException e) {
-        throw new IllegalStateException(e);
+        // Each call creates a new underlying channel for the pool.
+        GrpcTransportChannel channel = (GrpcTransportChannel) singleChannelProvider.getTransportChannel();
+        return (ManagedChannel) channel.getChannel();
+      } catch (IOException e) {
+        throw new java.io.UncheckedIOException(e);
       }
     };
+    // ChannelFactory channelFactory = () -> (ManagedChannel) channelSupplier.get();
 
-    ChannelFactory channelFactory = channelSupplier::get;
+    // Transfer pooling settings from the original delegate to the BigtableChannelPool.
+    ChannelPoolSettings ogPoolSettings = delegate.getChannelPoolSettings();
+    BigtableChannelPoolSettings btPoolSettings =
+        BigtableChannelPoolSettings.builder()
+            .setInitialChannelCount(ogPoolSettings.getInitialChannelCount())
+            .setMinChannelCount(ogPoolSettings.getMinChannelCount())
+            .setMaxChannelCount(ogPoolSettings.getMaxChannelCount())
+            .setMinRpcsPerChannel(ogPoolSettings.getMinRpcsPerChannel())
+            .setMaxRpcsPerChannel(ogPoolSettings.getMaxRpcsPerChannel())
+            .setPreemptiveRefreshEnabled(ogPoolSettings.isPreemptiveRefreshEnabled())
+            .build();
 
-    BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings,channelFactory);
+    BigtableChannelPool btChannelPool =
+        BigtableChannelPool.create(btPoolSettings, channelFactory);
 
-    return (TransportChannel) btChannelPool;
+    return GrpcTransportChannel.create(btChannelPool);
   }
 
   @Override
   public String getTransportName() {
-    return transportChannel.getTransportName();
+    return "bigtable";
   }
 
   @Override
   public boolean needsCredentials() {
-    return ogGrpcChannelProvider.needsCredentials();
+    return delegate.needsCredentials();
   }
 
   @Override
   public TransportChannelProvider withCredentials(Credentials credentials) {
-    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) ogGrpcChannelProvider.withCredentials(credentials);
+    InstantiatingGrpcChannelProvider newChannelProvider = (InstantiatingGrpcChannelProvider) delegate.withCredentials(credentials);
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
