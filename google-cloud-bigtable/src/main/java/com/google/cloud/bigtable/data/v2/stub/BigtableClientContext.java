@@ -20,16 +20,10 @@ import com.google.api.core.InternalApi;
 import com.google.api.gax.core.BackgroundResource;
 import com.google.api.gax.core.CredentialsProvider;
 import com.google.api.gax.core.FixedCredentialsProvider;
-import com.google.api.gax.grpc.ChannelPoolSettings;
-import com.google.api.gax.rpc.TransportChannel;
-import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings;
 import com.google.api.gax.rpc.TransportChannelProvider;
-import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.ClientContext;
-import com.google.api.gax.grpc.ChannelFactory;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
-import io.grpc.ManagedChannel;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountJwtAccessCredentials;
 import com.google.cloud.bigtable.data.v2.BigtableDataSettings;
@@ -40,13 +34,11 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
-import java.util.function.Supplier;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import java.io.IOException;
-import io.grpc.Channel;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.logging.Level;
@@ -71,13 +63,16 @@ public class BigtableClientContext {
       throws IOException {
     EnhancedBigtableStubSettings.Builder builder = settings.toBuilder();
 
-    TransportChannelProvider transportChannelProvider = settings.getTransportChannelProvider();
-    if (transportChannelProvider instanceof InstantiatingGrpcChannelProvider) {
-      BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
-          (InstantiatingGrpcChannelProvider) transportChannelProvider);
-
-      builder.setTransportChannelProvider(btTransportProvider);
-    }
+    // TransportChannelProvider transportChannelProvider = settings.getTransportChannelProvider();
+    // if (transportChannelProvider instanceof InstantiatingGrpcChannelProvider) {
+    //
+    //
+    //
+    //   BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
+    //       (InstantiatingGrpcChannelProvider) transportChannelProvider);
+    //
+    //   builder.setTransportChannelProvider(btTransportProvider);
+    // }
 
     // Set up credentials
     patchCredentials(builder);
@@ -111,6 +106,7 @@ public class BigtableClientContext {
         builder.getTransportChannelProvider() instanceof InstantiatingGrpcChannelProvider
             ? ((InstantiatingGrpcChannelProvider) builder.getTransportChannelProvider()).toBuilder()
             : null;
+
 
     @Nullable OpenTelemetrySdk internalOtel = null;
     @Nullable ErrorCountPerConnectionMetricTracker errorCountPerConnectionMetricTracker = null;
@@ -149,7 +145,13 @@ public class BigtableClientContext {
                 builder.getHeaderProvider().getHeaders()));
       }
 
-      builder.setTransportChannelProvider(transportProvider.build());
+
+      BigtableTransportChannelProvider btTransportProvider = BigtableTransportChannelProvider.create(
+          (InstantiatingGrpcChannelProvider) transportProvider.build());
+
+      builder.setTransportChannelProvider(btTransportProvider);
+
+      //builder.setTransportChannelProvider(transportProvider.build());
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
