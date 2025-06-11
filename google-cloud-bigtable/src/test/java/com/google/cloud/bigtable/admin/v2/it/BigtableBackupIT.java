@@ -31,6 +31,7 @@ import com.google.cloud.bigtable.admin.v2.models.CopyBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateBackupRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
+import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.Instance.Type;
 import com.google.cloud.bigtable.admin.v2.models.RestoreTableRequest;
 import com.google.cloud.bigtable.admin.v2.models.RestoredTableResult;
@@ -78,6 +79,7 @@ public class BigtableBackupIT {
 
   private static String targetCluster;
   private static String targetClusterHot;
+  private static Instance testInstance;
   private static Table testTable;
   private static Table testTableHot;
 
@@ -98,9 +100,12 @@ public class BigtableBackupIT {
     String newInstanceId = PrefixGenerator.newPrefix("backupIT");
     targetClusterHot = newInstanceId + "-c1";
 
-    instanceAdmin.createInstance(
-        CreateInstanceRequest.of(newInstanceId)
-            .addCluster(targetClusterHot, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
+    testInstance =
+        instanceAdmin.createInstance(
+            CreateInstanceRequest.of(newInstanceId)
+                .setDisplayName("BigtableBackupIT")
+                .addCluster(
+                    targetClusterHot, testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
 
     tableAdminHot =
         BigtableTableAdminClient.create(
@@ -118,6 +123,13 @@ public class BigtableBackupIT {
     if (testTable != null) {
       try {
         tableAdmin.deleteTable(testTable.getId());
+      } catch (Exception e) {
+        // Ignore.
+      }
+    }
+    if (testInstance != null) {
+      try {
+        instanceAdmin.deleteInstance(testInstance.getId());
       } catch (Exception e) {
         // Ignore.
       }
