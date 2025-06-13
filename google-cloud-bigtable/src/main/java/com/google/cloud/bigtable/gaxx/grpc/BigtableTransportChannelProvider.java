@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
-import com.google.api.core.InternalExtensionOnly;
+import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.api.gax.grpc.GrpcTransportChannel;
@@ -23,6 +23,8 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.TransportChannel;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
+import com.google.cloud.bigtable.gaxx.utils.ChannelPoolSettingsCopier;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
@@ -31,12 +33,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
 /** An instance of TransportChannelProvider that always provides the same TransportChannel. */
-@InternalExtensionOnly
+@InternalApi
 public final class BigtableTransportChannelProvider implements TransportChannelProvider {
 
   private final InstantiatingGrpcChannelProvider delegate;
-  private final Object lock = new Object();
-  private volatile TransportChannel transportChannel;
+  private TransportChannel transportChannel;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
@@ -106,13 +107,8 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   @Override
   public TransportChannel getTransportChannel() throws IOException {
     TransportChannel result = transportChannel;
-    if (result == null) {
-      synchronized (lock) {
-        result = transportChannel;
-        if (result == null) {
+    if (transportChannel == null) {
           transportChannel = result = createTransportChannel();
-        }
-      }
     }
     return result;
   }
@@ -138,17 +134,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
           }
         };
 
-    // Transfer pooling settings from the original delegate to the BigtableChannelPool.
-    ChannelPoolSettings ogPoolSettings = delegate.getChannelPoolSettings();
-    BigtableChannelPoolSettings btPoolSettings =
-        BigtableChannelPoolSettings.builder()
-            .setInitialChannelCount(ogPoolSettings.getInitialChannelCount())
-            .setMinChannelCount(ogPoolSettings.getMinChannelCount())
-            .setMaxChannelCount(ogPoolSettings.getMaxChannelCount())
-            .setMinRpcsPerChannel(ogPoolSettings.getMinRpcsPerChannel())
-            .setMaxRpcsPerChannel(ogPoolSettings.getMaxRpcsPerChannel())
-            .setPreemptiveRefreshEnabled(ogPoolSettings.isPreemptiveRefreshEnabled())
-            .build();
+    BigtableChannelPoolSettings btPoolSettings = ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(delegate.getChannelPoolSettings());
 
     BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings, channelFactory);
 
