@@ -46,14 +46,6 @@ public class ChannelPoolCopyTest {
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
 
-  // @Test
-  // public void testToBigtableChannelPoolSettingsNullInputReturnsNull() {
-  //   ChannelPoolSettings originalSettings = null;
-  //   BigtableChannelPoolSettings copiedSettings =
-  //       ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(originalSettings);
-  //   assertThat(copiedSettings).isNull();
-  // }
-
   private void assertSettingsCopiedCorrectly(
       ChannelPoolSettings originalSettings, BigtableChannelPoolSettings copiedSettings)
       throws Exception {
@@ -80,8 +72,7 @@ public class ChannelPoolCopyTest {
             .collect(Collectors.toSet());
 
     // If this fails then we need to add support for the additional attributes on the gax
-    // ChannelPool
-    // Relevant things to update the copier and the other tests in this file
+    // ChannelPool by updating the BigtableChannelPoolSettings.copyFrom method
     assertThat(supportedGetters).containsAtLeastElementsIn(actualGetters);
 
     assertThat(originalSettings.getInitialChannelCount())
