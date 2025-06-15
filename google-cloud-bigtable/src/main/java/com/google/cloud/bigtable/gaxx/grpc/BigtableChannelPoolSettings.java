@@ -16,9 +16,8 @@
 package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.BetaApi;
-import com.google.auto.value.AutoValue;
 import com.google.api.gax.grpc.ChannelPoolSettings;
-import com.google.common.annotations.VisibleForTesting;
+import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
 import java.time.Duration;
 

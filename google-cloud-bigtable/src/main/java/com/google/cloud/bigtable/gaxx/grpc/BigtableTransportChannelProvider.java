@@ -106,7 +106,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   public TransportChannel getTransportChannel() throws IOException {
     TransportChannel result = transportChannel;
     if (transportChannel == null) {
-          transportChannel = result = createTransportChannel();
+      transportChannel = result = createTransportChannel();
     }
     return result;
   }
@@ -132,7 +132,8 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
           }
         };
 
-    BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.copyFrom(delegate.getChannelPoolSettings());
+    BigtableChannelPoolSettings btPoolSettings =
+        BigtableChannelPoolSettings.copyFrom(delegate.getChannelPoolSettings());
 
     BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings, channelFactory);
 

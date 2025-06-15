@@ -4,11 +4,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings;
-import java.lang.reflect.Modifier;
-import java.util.Set;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,14 +33,16 @@ public class ChannelPoolCopyTest {
             .setPreemptiveRefreshEnabled(true)
             .build();
 
-    BigtableChannelPoolSettings copiedSettings = BigtableChannelPoolSettings.copyFrom(originalSettings);
+    BigtableChannelPoolSettings copiedSettings =
+        BigtableChannelPoolSettings.copyFrom(originalSettings);
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
 
   @Test
   public void testToBigtableChannelPoolSettingsDefaultValuesCopiesCorrectly() throws Exception {
     ChannelPoolSettings originalSettings = ChannelPoolSettings.builder().build();
-    BigtableChannelPoolSettings copiedSettings = BigtableChannelPoolSettings.copyFrom(originalSettings);
+    BigtableChannelPoolSettings copiedSettings =
+        BigtableChannelPoolSettings.copyFrom(originalSettings);
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
 
@@ -56,25 +58,45 @@ public class ChannelPoolCopyTest {
       ChannelPoolSettings originalSettings, BigtableChannelPoolSettings copiedSettings)
       throws Exception {
 
-    Set<String> supportedGetters = ImmutableSet.of("getMinRpcsPerChannel", "getMaxRpcsPerChannel", "getMinChannelCount", "getMaxChannelCount", "getInitialChannelCount", "isPreemptiveRefreshEnabled", "isStaticSize");
+    Set<String> supportedGetters =
+        ImmutableSet.of(
+            "getMinRpcsPerChannel",
+            "getMaxRpcsPerChannel",
+            "getMinChannelCount",
+            "getMaxChannelCount",
+            "getInitialChannelCount",
+            "isPreemptiveRefreshEnabled",
+            "isStaticSize");
 
-    Set<String> actualGetters = Arrays.stream(ChannelPoolSettings.class.getDeclaredMethods())
-        .filter(method -> Modifier.isPublic(method.getModifiers())
-            && Modifier.isAbstract(method.getModifiers())
-            && (method.getName().startsWith("get") || method.getName().startsWith("is")))
-        .map(Method::getName)
-        .collect(Collectors.toSet());
+    Set<String> actualGetters =
+        Arrays.stream(ChannelPoolSettings.class.getDeclaredMethods())
+            .filter(
+                method ->
+                    Modifier.isPublic(method.getModifiers())
+                        && Modifier.isAbstract(method.getModifiers())
+                        && (method.getName().startsWith("get")
+                            || method.getName().startsWith("is")))
+            .map(Method::getName)
+            .collect(Collectors.toSet());
 
-    // If this fails then we need to add support for the additional attributes on the gax ChannelPool
+    // If this fails then we need to add support for the additional attributes on the gax
+    // ChannelPool
     // Relevant things to update the copier and the other tests in this file
     assertThat(supportedGetters).containsAtLeastElementsIn(actualGetters);
 
-    assertThat(originalSettings.getInitialChannelCount()).isEqualTo(copiedSettings.getInitialChannelCount());
-    assertThat(originalSettings.getMaxChannelCount()).isEqualTo(copiedSettings.getMaxChannelCount());
-    assertThat(originalSettings.getMinChannelCount()).isEqualTo(copiedSettings.getMinChannelCount());
-    assertThat(originalSettings.getMaxRpcsPerChannel()).isEqualTo(copiedSettings.getMaxRpcsPerChannel());
-    assertThat(originalSettings.getMinRpcsPerChannel()).isEqualTo(copiedSettings.getMinRpcsPerChannel());
-    assertThat(originalSettings.getInitialChannelCount()).isEqualTo(copiedSettings.getInitialChannelCount());
-    assertThat(originalSettings.isPreemptiveRefreshEnabled()).isEqualTo(copiedSettings.isPreemptiveRefreshEnabled());
+    assertThat(originalSettings.getInitialChannelCount())
+        .isEqualTo(copiedSettings.getInitialChannelCount());
+    assertThat(originalSettings.getMaxChannelCount())
+        .isEqualTo(copiedSettings.getMaxChannelCount());
+    assertThat(originalSettings.getMinChannelCount())
+        .isEqualTo(copiedSettings.getMinChannelCount());
+    assertThat(originalSettings.getMaxRpcsPerChannel())
+        .isEqualTo(copiedSettings.getMaxRpcsPerChannel());
+    assertThat(originalSettings.getMinRpcsPerChannel())
+        .isEqualTo(copiedSettings.getMinRpcsPerChannel());
+    assertThat(originalSettings.getInitialChannelCount())
+        .isEqualTo(copiedSettings.getInitialChannelCount());
+    assertThat(originalSettings.isPreemptiveRefreshEnabled())
+        .isEqualTo(copiedSettings.isPreemptiveRefreshEnabled());
   }
 }
