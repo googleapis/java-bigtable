@@ -17,6 +17,8 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.BetaApi;
 import com.google.auto.value.AutoValue;
+import com.google.api.gax.grpc.ChannelPoolSettings;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import java.time.Duration;
 
@@ -111,6 +113,17 @@ public abstract class BigtableChannelPoolSettings {
   }
 
   public abstract Builder toBuilder();
+
+  public static BigtableChannelPoolSettings copyFrom(ChannelPoolSettings externalSettings) {
+    return BigtableChannelPoolSettings.builder()
+        .setMinRpcsPerChannel(externalSettings.getMinRpcsPerChannel())
+        .setMaxRpcsPerChannel(externalSettings.getMaxRpcsPerChannel())
+        .setMinChannelCount(externalSettings.getMinChannelCount())
+        .setMaxChannelCount(externalSettings.getMaxChannelCount())
+        .setInitialChannelCount(externalSettings.getInitialChannelCount())
+        .setPreemptiveRefreshEnabled(externalSettings.isPreemptiveRefreshEnabled())
+        .build();
+  }
 
   public static BigtableChannelPoolSettings staticallySized(int size) {
     return builder()

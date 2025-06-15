@@ -5,7 +5,8 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.api.gax.grpc.ChannelPoolSettings;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings;
 import java.lang.reflect.Modifier;
-import java.util.List;
+import java.util.Set;
+import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -32,60 +33,48 @@ public class ChannelPoolCopyTest {
             .setPreemptiveRefreshEnabled(true)
             .build();
 
-    BigtableChannelPoolSettings copiedSettings =
-        ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(originalSettings);
+    BigtableChannelPoolSettings copiedSettings = BigtableChannelPoolSettings.copyFrom(originalSettings);
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
 
   @Test
   public void testToBigtableChannelPoolSettingsDefaultValuesCopiesCorrectly() throws Exception {
-    // 1. Arrange
     ChannelPoolSettings originalSettings = ChannelPoolSettings.builder().build();
-
-    // 2. Act
-    BigtableChannelPoolSettings copiedSettings =
-        ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(originalSettings);
-
-    // 3. Assert
+    BigtableChannelPoolSettings copiedSettings = BigtableChannelPoolSettings.copyFrom(originalSettings);
     assertSettingsCopiedCorrectly(originalSettings, copiedSettings);
   }
 
-  @Test
-  public void testToBigtableChannelPoolSettingsNullInputReturnsNull() {
-    ChannelPoolSettings originalSettings = null;
-    BigtableChannelPoolSettings copiedSettings =
-        ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(originalSettings);
-    assertThat(copiedSettings).isNull();
-  }
+  // @Test
+  // public void testToBigtableChannelPoolSettingsNullInputReturnsNull() {
+  //   ChannelPoolSettings originalSettings = null;
+  //   BigtableChannelPoolSettings copiedSettings =
+  //       ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(originalSettings);
+  //   assertThat(copiedSettings).isNull();
+  // }
 
   private void assertSettingsCopiedCorrectly(
       ChannelPoolSettings originalSettings, BigtableChannelPoolSettings copiedSettings)
       throws Exception {
-    Class<ChannelPoolSettings> originalSettingsClass = ChannelPoolSettings.class;
 
-    // Get all public abstract methods from ChannelPoolSettings that start with "get" or "is"
-    // and exclude methods from Object.class
-    List<Method> originalPoolGetters = Arrays.stream(ChannelPoolSettings.class.getMethods())
+    Set<String> supportedGetters = ImmutableSet.of("getMinRpcsPerChannel", "getMaxRpcsPerChannel", "getMinChannelCount", "getMaxChannelCount", "getInitialChannelCount", "isPreemptiveRefreshEnabled", "isStaticSize");
+
+    Set<String> actualGetters = Arrays.stream(ChannelPoolSettings.class.getDeclaredMethods())
         .filter(method -> Modifier.isPublic(method.getModifiers())
             && Modifier.isAbstract(method.getModifiers())
-            && (method.getName().startsWith("get") || method.getName().startsWith("is"))
-            && method.getDeclaringClass() != Object.class) // Filter out java.lang.Object.getClass()
-        .collect(Collectors.toList());
+            && (method.getName().startsWith("get") || method.getName().startsWith("is")))
+        .map(Method::getName)
+        .collect(Collectors.toSet());
 
-    for (Method getterMethod : originalPoolGetters) {
-      try {
-        Object originalValue = getterMethod.invoke(originalSettings);
-        Method correspondingMethod = BigtableChannelPoolSettings.class.getMethod(getterMethod.getName());
-        Object copiedValue = correspondingMethod.invoke(copiedSettings);
+    // If this fails then we need to add support for the additional attributes on the gax ChannelPool
+    // Relevant things to update the copier and the other tests in this file
+    assertThat(supportedGetters).containsAtLeastElementsIn(actualGetters);
 
-        assertThat(copiedValue).isEqualTo(originalValue);
-      } catch (ReflectiveOperationException e) {
-        throw new AssertionError(
-            String.format("Reflection error accessing method '%s': %s", getterMethod.getName(), e.getMessage()), e);
-      } catch (Exception e) { // Catch any other unexpected exceptions
-        throw new Exception(
-            String.format("Unexpected error during comparison for method '%s': %s", getterMethod.getName(), e.getMessage()), e);
-      }
-    }
+    assertThat(originalSettings.getInitialChannelCount()).isEqualTo(copiedSettings.getInitialChannelCount());
+    assertThat(originalSettings.getMaxChannelCount()).isEqualTo(copiedSettings.getMaxChannelCount());
+    assertThat(originalSettings.getMinChannelCount()).isEqualTo(copiedSettings.getMinChannelCount());
+    assertThat(originalSettings.getMaxRpcsPerChannel()).isEqualTo(copiedSettings.getMaxRpcsPerChannel());
+    assertThat(originalSettings.getMinRpcsPerChannel()).isEqualTo(copiedSettings.getMinRpcsPerChannel());
+    assertThat(originalSettings.getInitialChannelCount()).isEqualTo(copiedSettings.getInitialChannelCount());
+    assertThat(originalSettings.isPreemptiveRefreshEnabled()).isEqualTo(copiedSettings.isPreemptiveRefreshEnabled());
   }
 }

@@ -23,8 +23,6 @@ import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.TransportChannel;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
-import com.google.cloud.bigtable.gaxx.utils.ChannelPoolSettingsCopier;
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
@@ -134,7 +132,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
           }
         };
 
-    BigtableChannelPoolSettings btPoolSettings = ChannelPoolSettingsCopier.toBigtableChannelPoolSettings(delegate.getChannelPoolSettings());
+    BigtableChannelPoolSettings btPoolSettings = BigtableChannelPoolSettings.copyFrom(delegate.getChannelPoolSettings());
 
     BigtableChannelPool btChannelPool = BigtableChannelPool.create(btPoolSettings, channelFactory);
 
