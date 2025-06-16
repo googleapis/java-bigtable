@@ -35,7 +35,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public final class BigtableTransportChannelProvider implements TransportChannelProvider {
 
   private final InstantiatingGrpcChannelProvider delegate;
-  private TransportChannel transportChannel;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
@@ -104,11 +103,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
   @Override
   public TransportChannel getTransportChannel() throws IOException {
-    TransportChannel result = transportChannel;
-    if (transportChannel == null) {
-      transportChannel = result = createTransportChannel();
-    }
-    return result;
+    return createTransportChannel();
   }
 
   private TransportChannel createTransportChannel() throws IOException {

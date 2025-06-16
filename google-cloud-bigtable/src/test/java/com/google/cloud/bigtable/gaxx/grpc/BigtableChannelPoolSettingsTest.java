@@ -1,9 +1,8 @@
-package com.google.cloud.bigtable.gaxx.utils;
+package com.google.cloud.bigtable.gaxx.grpc;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.api.gax.grpc.ChannelPoolSettings;
-import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPoolSettings;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,7 +17,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
 @RunWith(JUnit4.class)
-public class ChannelPoolCopyTest {
+public class BigtableChannelPoolSettingsTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
 
   @Test
