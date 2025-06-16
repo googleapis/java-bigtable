@@ -103,10 +103,6 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
 
   @Override
   public TransportChannel getTransportChannel() throws IOException {
-    return createTransportChannel();
-  }
-
-  private TransportChannel createTransportChannel() throws IOException {
     // This provider's main purpose is to replace the default GAX ChannelPool
     // with a custom BigtableChannelPool, reusing the delegate's configuration.
 
