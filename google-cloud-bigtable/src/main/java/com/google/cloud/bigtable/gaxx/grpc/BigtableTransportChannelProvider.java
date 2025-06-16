@@ -30,7 +30,10 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-/** An instance of TransportChannelProvider that provides a TransportChannel through a supplied InstantiatingGrpcChannelProvider. */
+/**
+ * An instance of TransportChannelProvider that provides a TransportChannel through a supplied
+ * InstantiatingGrpcChannelProvider.
+ */
 @InternalApi
 public final class BigtableTransportChannelProvider implements TransportChannelProvider {
 
@@ -101,7 +104,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
     return new BigtableTransportChannelProvider(newChannelProvider);
   }
 
-  /**Expected to only be called once when BigtableClientContext is created*/
+  /** Expected to only be called once when BigtableClientContext is created */
   @Override
   public TransportChannel getTransportChannel() throws IOException {
     // This provider's main purpose is to replace the default GAX ChannelPool
