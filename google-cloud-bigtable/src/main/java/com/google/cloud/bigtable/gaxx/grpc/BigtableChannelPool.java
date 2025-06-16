@@ -51,7 +51,7 @@ import javax.annotation.Nullable;
  *
  * <p>Internal API
  */
-@InternalApi("")
+@InternalApi
 public class BigtableChannelPool extends ManagedChannel {
   @VisibleForTesting
   static final Logger LOG = Logger.getLogger(BigtableChannelPool.class.getName());
