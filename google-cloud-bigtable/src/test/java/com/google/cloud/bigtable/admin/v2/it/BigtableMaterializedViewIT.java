@@ -80,8 +80,7 @@ public class BigtableMaterializedViewIT {
             CreateInstanceRequest.of(new PrefixGenerator().newPrefix())
                 .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD));
     instanceId = instance.getId();
-    tableAdminClient =
-        BigtableTableAdminClient.create(testEnvRule.env().getProjectId(), instanceId);
+    tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(instanceId);
   }
 
   @AfterClass
