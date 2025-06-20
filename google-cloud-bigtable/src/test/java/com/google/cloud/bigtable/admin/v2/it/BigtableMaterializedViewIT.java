@@ -78,6 +78,7 @@ public class BigtableMaterializedViewIT {
     Instance instance =
         client.createInstance(
             CreateInstanceRequest.of(new PrefixGenerator().newPrefix())
+                .setDisplayName("BigtableMaterializedViewIT")
                 .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD));
     instanceId = instance.getId();
     tableAdminClient =
