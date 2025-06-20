@@ -77,8 +77,8 @@ public class BigtableMaterializedViewIT {
 
     instanceId = new PrefixGenerator().newPrefix();
     client.createInstance(
-        CreateInstanceRequest.of(newInstanceId)
-            .addCluster(newInstanceId+"-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
+        CreateInstanceRequest.of(instanceId)
+            .addCluster(instanceId+"-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
     tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(instanceId);
 
   }
