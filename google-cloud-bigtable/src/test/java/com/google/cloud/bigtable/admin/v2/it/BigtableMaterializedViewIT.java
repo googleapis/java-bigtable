@@ -38,7 +38,7 @@ import io.grpc.StatusRuntimeException;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -57,7 +57,7 @@ public class BigtableMaterializedViewIT {
   private static BigtableInstanceAdminClient client;
   private static BigtableTableAdminClient tableAdminClient;
   private static Table testTable;
-  private static String instanceId = "";
+  private String instanceId = "";
 
   // TODO: Update this test once emulator supports InstanceAdmin operation
   // https://github.com/googleapis/google-cloud-go/issues/1069
@@ -73,7 +73,10 @@ public class BigtableMaterializedViewIT {
 
   public static void createInstance() throws IOException {
     client = testEnvRule.env().getInstanceAdminClient();
+  }
 
+  @Before
+  public void setUp() throws InterruptedException {
     instanceId = new PrefixGenerator().newPrefix();
     client.createInstance(
         CreateInstanceRequest.of(instanceId)
@@ -81,18 +84,15 @@ public class BigtableMaterializedViewIT {
             .addCluster(
                 instanceId + "-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
     tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(instanceId);
+
+    testTable = createTestTable(tableAdminClient);
   }
 
-  @AfterClass
-  public static void deleteInstance() {
+  @After
+  public void deleteInstance() {
     if (!instanceId.isEmpty()) {
       client.deleteInstance(instanceId);
     }
-  }
-
-  @Before
-  public void setUp() throws InterruptedException {
-    testTable = createTestTable(tableAdminClient);
   }
 
   @Test
