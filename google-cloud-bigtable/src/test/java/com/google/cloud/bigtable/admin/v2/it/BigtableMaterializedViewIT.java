@@ -75,13 +75,12 @@ public class BigtableMaterializedViewIT {
   public static void createInstance() throws IOException {
     client = testEnvRule.env().getInstanceAdminClient();
 
-    Instance instance =
-        client.createInstance(
-            CreateInstanceRequest.of(new PrefixGenerator().newPrefix())
-                .addCluster("my-cluster", "us-east1-c", 3, StorageType.SSD));
-    instanceId = instance.getId();
-    tableAdminClient =
-        BigtableTableAdminClient.create(testEnvRule.env().getProjectId(), instanceId);
+    instanceId = new PrefixGenerator().newPrefix();
+    client.createInstance(
+        CreateInstanceRequest.of(newInstanceId)
+            .addCluster(newInstanceId+"-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
+    tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(instanceId);
+
   }
 
   @AfterClass
