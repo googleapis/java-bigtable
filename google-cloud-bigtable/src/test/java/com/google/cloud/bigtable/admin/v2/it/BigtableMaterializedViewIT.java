@@ -54,9 +54,9 @@ public class BigtableMaterializedViewIT {
   private static final Logger LOGGER = Logger.getLogger(BigtableMaterializedViewIT.class.getName());
   private static final int[] BACKOFF_DURATION = {2, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 
-  private static BigtableInstanceAdminClient client;
-  private static BigtableTableAdminClient tableAdminClient;
-  private static Table testTable;
+  private BigtableInstanceAdminClient client;
+  private BigtableTableAdminClient tableAdminClient;
+  private Table testTable;
   private String instanceId = "";
 
   // TODO: Update this test once emulator supports InstanceAdmin operation
@@ -67,16 +67,12 @@ public class BigtableMaterializedViewIT {
         .withMessage("BigtableInstanceAdminClient doesn't support on Emulator")
         .that(testEnvRule.env())
         .isNotInstanceOf(EmulatorEnv.class);
-
-    createInstance();
-  }
-
-  public static void createInstance() throws IOException {
-    client = testEnvRule.env().getInstanceAdminClient();
   }
 
   @Before
-  public void setUp() throws InterruptedException {
+  public void setUp() throws InterruptedException, IOException {
+    client = testEnvRule.env().getInstanceAdminClient();
+
     instanceId = new PrefixGenerator().newPrefix();
     client.createInstance(
         CreateInstanceRequest.of(instanceId)
@@ -209,8 +205,7 @@ public class BigtableMaterializedViewIT {
         + "` GROUP BY _key";
   }
 
-  private static Table createTestTable(BigtableTableAdminClient tableAdmin)
-      throws InterruptedException {
+  private Table createTestTable(BigtableTableAdminClient tableAdmin) throws InterruptedException {
     String tableId = PrefixGenerator.newPrefix("BigtableMaterializedViewIT#createTestTable");
     Table testTable = tableAdmin.createTable(CreateTableRequest.of(tableId).addFamily("cf1"));
 
