@@ -27,7 +27,6 @@ import com.google.cloud.bigtable.admin.v2.BigtableTableAdminClient;
 import com.google.cloud.bigtable.admin.v2.models.CreateInstanceRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateMaterializedViewRequest;
 import com.google.cloud.bigtable.admin.v2.models.CreateTableRequest;
-import com.google.cloud.bigtable.admin.v2.models.Instance;
 import com.google.cloud.bigtable.admin.v2.models.MaterializedView;
 import com.google.cloud.bigtable.admin.v2.models.StorageType;
 import com.google.cloud.bigtable.admin.v2.models.Table;
@@ -78,9 +77,9 @@ public class BigtableMaterializedViewIT {
     instanceId = new PrefixGenerator().newPrefix();
     client.createInstance(
         CreateInstanceRequest.of(instanceId)
-            .addCluster(instanceId+"-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
+            .addCluster(
+                instanceId + "-c1", testEnvRule.env().getPrimaryZone(), 1, StorageType.SSD));
     tableAdminClient = testEnvRule.env().getTableAdminClientForInstance(instanceId);
-
   }
 
   @AfterClass
