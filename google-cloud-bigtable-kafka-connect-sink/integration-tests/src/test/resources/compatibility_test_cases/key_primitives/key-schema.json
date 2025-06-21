@@ -1,0 +1,34 @@
+{
+  "type": "record",
+  "name": "primitives",
+  "fields": [
+    {
+      "name": "row",
+      "type": "int"
+    },
+    {
+      "name": "boolean_prim",
+      "type": "boolean"
+    },
+    {
+      "name": "int_prim",
+      "type": "int"
+    },
+    {
+      "name": "long_prim",
+      "type": "long"
+    },
+    {
+      "name": "float_prim",
+      "type": "float"
+    },
+    {
+      "name": "double_prim",
+      "type": "double"
+    },
+    {
+      "name": "string_prim",
+      "type": "string"
+    }
+  ]
+}
