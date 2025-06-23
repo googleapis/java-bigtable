@@ -673,18 +673,6 @@
         <artifactId>maven-enforcer-plugin</artifactId>
         <version>3.5.0</version>
         <executions>
-          <!-- Prevent users from mistyping a profile name -->
-          <execution>
-            <id>enforce-valid-profile</id>
-            <configuration>
-              <rules>
-                <requireProfileIdsExist/>
-              </rules>
-            </configuration>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-          </execution>
           <!-- Ensure that greatest version of each transitive dependency got selected -->
           <execution>
             <id>enforce-dependency-upper-bound</id>
