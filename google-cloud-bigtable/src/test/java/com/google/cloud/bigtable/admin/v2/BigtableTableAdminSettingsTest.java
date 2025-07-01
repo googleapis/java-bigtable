@@ -142,7 +142,14 @@ public class BigtableTableAdminSettingsTest {
     "updateAuthorizedViewOperationSettings",
     "deleteAuthorizedViewSettings",
     "listAuthorizedViewsSettings",
-    "getAuthorizedViewSettings"
+    "getAuthorizedViewSettings",
+    "createSchemaBundleSettings",
+    "createSchemaBundleOperationSettings",
+    "updateSchemaBundleSettings",
+    "updateSchemaBundleOperationSettings",
+    "getSchemaBundleSettings",
+    "listSchemaBundlesSettings",
+    "deleteSchemaBundleSettings"
   };
 
   @Test
