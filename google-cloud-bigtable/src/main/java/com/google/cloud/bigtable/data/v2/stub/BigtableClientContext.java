@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.google.cloud.bigtable.data.v2.stub.metrics.DefaultMetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.ErrorCountPerConnectionMetricTracker;
 import com.google.cloud.bigtable.data.v2.stub.metrics.MetricsProvider;
 import com.google.cloud.bigtable.data.v2.stub.metrics.NoopMetricsProvider;
+import com.google.cloud.bigtable.gaxx.grpc.BigtableTransportChannelProvider;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.opentelemetry.GrpcOpenTelemetry;
 import io.opentelemetry.api.OpenTelemetry;
@@ -131,7 +132,11 @@ public class BigtableClientContext {
                 builder.getHeaderProvider().getHeaders()));
       }
 
-      builder.setTransportChannelProvider(transportProvider.build());
+      BigtableTransportChannelProvider btTransportProvider =
+          BigtableTransportChannelProvider.create(
+              (InstantiatingGrpcChannelProvider) transportProvider.build());
+
+      builder.setTransportChannelProvider(btTransportProvider);
     }
 
     ClientContext clientContext = ClientContext.create(builder.build());
@@ -228,18 +233,13 @@ public class BigtableClientContext {
 
   private static void patchCredentials(EnhancedBigtableStubSettings.Builder settings)
       throws IOException {
-    int i = settings.getEndpoint().lastIndexOf(":");
-    String host = settings.getEndpoint().substring(0, i);
-    String audience = settings.getJwtAudienceMapping().get(host);
+    String audience = settings.getJwtAudience();
 
-    if (audience == null) {
-      return;
-    }
     URI audienceUri = null;
     try {
       audienceUri = new URI(audience);
     } catch (URISyntaxException e) {
-      throw new IllegalStateException("invalid JWT audience override", e);
+      throw new IllegalStateException("invalid JWT audience", e);
     }
 
     CredentialsProvider credentialsProvider = settings.getCredentialsProvider();

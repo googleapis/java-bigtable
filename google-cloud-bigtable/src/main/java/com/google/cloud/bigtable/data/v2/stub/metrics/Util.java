@@ -26,6 +26,7 @@ import com.google.auth.Credentials;
 import com.google.bigtable.v2.AuthorizedViewName;
 import com.google.bigtable.v2.CheckAndMutateRowRequest;
 import com.google.bigtable.v2.GenerateInitialChangeStreamPartitionsRequest;
+import com.google.bigtable.v2.MaterializedViewName;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.ReadChangeStreamRequest;
@@ -43,6 +44,7 @@ import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
+import io.opencensus.tags.TagValue;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.InstrumentSelector;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
@@ -56,11 +58,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 
-/** Utilities to help with metrics. */
+/** Utilities to help integrating with OpenCensus. */
 @InternalApi("For internal use only")
 public class Util {
   static final Metadata.Key<String> ATTEMPT_HEADER_KEY =
@@ -74,7 +78,7 @@ public class Util {
   static final Metadata.Key<byte[]> LOCATION_METADATA_KEY =
       Metadata.Key.of("x-goog-ext-425905942-bin", Metadata.BINARY_BYTE_MARSHALLER);
 
-  /** Convert an exception into a string. */
+  /** Convert an exception into a value that can be used to create an OpenCensus tag value. */
   static String extractStatus(@Nullable Throwable error) {
     final String statusString;
 
@@ -95,12 +99,34 @@ public class Util {
     return statusString;
   }
 
+  /**
+   * Await the result of the future and convert it into a value that can be used as an OpenCensus
+   * tag value.
+   */
+  static TagValue extractStatusFromFuture(Future<?> future) {
+    Throwable error = null;
+
+    try {
+      future.get();
+    } catch (InterruptedException e) {
+      error = e;
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException e) {
+      error = e.getCause();
+    } catch (RuntimeException e) {
+      error = e;
+    }
+    return TagValue.create(extractStatus(error));
+  }
+
   static String extractTableId(Object request) {
     String tableName = null;
     String authorizedViewName = null;
+    String materializedViewName = null;
     if (request instanceof ReadRowsRequest) {
       tableName = ((ReadRowsRequest) request).getTableName();
       authorizedViewName = ((ReadRowsRequest) request).getAuthorizedViewName();
+      materializedViewName = ((ReadRowsRequest) request).getMaterializedViewName();
     } else if (request instanceof MutateRowsRequest) {
       tableName = ((MutateRowsRequest) request).getTableName();
       authorizedViewName = ((MutateRowsRequest) request).getAuthorizedViewName();
@@ -110,6 +136,7 @@ public class Util {
     } else if (request instanceof SampleRowKeysRequest) {
       tableName = ((SampleRowKeysRequest) request).getTableName();
       authorizedViewName = ((SampleRowKeysRequest) request).getAuthorizedViewName();
+      materializedViewName = ((SampleRowKeysRequest) request).getMaterializedViewName();
     } else if (request instanceof CheckAndMutateRowRequest) {
       tableName = ((CheckAndMutateRowRequest) request).getTableName();
       authorizedViewName = ((CheckAndMutateRowRequest) request).getAuthorizedViewName();
@@ -126,6 +153,9 @@ public class Util {
     }
     if (authorizedViewName != null && !authorizedViewName.isEmpty()) {
       return AuthorizedViewName.parse(authorizedViewName).getTable();
+    }
+    if (materializedViewName != null && !materializedViewName.isEmpty()) {
+      return MaterializedViewName.parse(materializedViewName).getMaterializedView();
     }
     return "<unspecified>";
   }

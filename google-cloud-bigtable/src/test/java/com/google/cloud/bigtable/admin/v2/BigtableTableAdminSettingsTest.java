@@ -142,7 +142,7 @@ public class BigtableTableAdminSettingsTest {
     "updateAuthorizedViewOperationSettings",
     "deleteAuthorizedViewSettings",
     "listAuthorizedViewsSettings",
-    "getAuthorizedViewSettings",
+    "getAuthorizedViewSettings"
   };
 
   @Test
