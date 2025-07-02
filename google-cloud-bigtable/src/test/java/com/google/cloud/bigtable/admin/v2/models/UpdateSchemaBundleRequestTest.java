@@ -18,11 +18,10 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.io.IOException;
-
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.FieldMask;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -33,12 +32,16 @@ public class UpdateSchemaBundleRequestTest {
   private static final String INSTANCE_ID = "my-instance";
   private static final String TABLE_ID = "my-table";
   private static final String SCHEMA_BUNDLE_ID = "my-schema-bundle";
+  // Location: `google-cloud-bigtable/src/test/resources/proto_schema_bundle.pb`
+  private static final String TEST_PROTO_SCHEMA_BUNDLE = "proto_schema_bundle.pb";
+  // Location: `google-cloud-bigtable/src/test/resources/updated_proto_schema_bundle.pb`
+  private static final String TEST_UPDATED_PROTO_SCHEMA_BUNDLE = "updated_proto_schema_bundle.pb";
 
   @Test
-  public void testToProto() throws IOException{
+  public void testToProto() throws IOException {
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema("file.pb")
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE)
             .setIgnoreWarnings(true);
 
     com.google.bigtable.admin.v2.UpdateSchemaBundleRequest requestProto =
@@ -60,7 +63,7 @@ public class UpdateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testUpdateProtoSchema() throws IOException{
+  public void testUpdateProtoSchema() throws IOException {
     com.google.bigtable.admin.v2.SchemaBundle existingSchemaBundle =
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
             .setName(
@@ -74,7 +77,7 @@ public class UpdateSchemaBundleRequestTest {
 
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(SchemaBundle.fromProto(existingSchemaBundle))
-            .setProtoSchema("updated_file.pb");
+            .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE);
 
     com.google.bigtable.admin.v2.UpdateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.UpdateSchemaBundleRequest.newBuilder()
@@ -85,35 +88,38 @@ public class UpdateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testEquality() throws IOException{
+  public void testEquality() throws IOException {
     UpdateSchemaBundleRequest request =
-        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     assertThat(request)
         .isEqualTo(
-            UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb"));
+            UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request)
         .isNotEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("updated_file.pb"));
+                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
   }
 
   @Test
-  public void testHashCode()  throws IOException{
+  public void testHashCode() throws IOException {
     UpdateSchemaBundleRequest request =
-        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("file.pb")
+                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE)
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("updated_file.pb")
+                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)
                 .hashCode());
   }
 }

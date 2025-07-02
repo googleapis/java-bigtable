@@ -26,9 +26,7 @@ import com.google.protobuf.FieldMask;
 import com.google.protobuf.util.FieldMaskUtil;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javax.annotation.Nonnull;
 
 /**

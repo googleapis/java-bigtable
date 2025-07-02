@@ -18,10 +18,9 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import java.io.IOException;
-
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
+import java.io.IOException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,11 +31,16 @@ public class CreateSchemaBundleRequestTest {
   private static final String INSTANCE_ID = "my-instance";
   private static final String TABLE_ID = "my-table";
   private static final String SCHEMA_BUNDLE_ID = "my-schema-bundle";
+  // Location: `google-cloud-bigtable/src/test/resources/proto_schema_bundle.pb`
+  private static final String TEST_PROTO_SCHEMA_BUNDLE = "proto_schema_bundle.pb";
+  // Location: `google-cloud-bigtable/src/test/resources/updated_proto_schema_bundle.pb`
+  private static final String TEST_UPDATED_PROTO_SCHEMA_BUNDLE = "updated_proto_schema_bundle.pb";
 
   @Test
-  public void testToProto() throws IOException{
+  public void testToProto() throws IOException {
     CreateSchemaBundleRequest request =
-        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     com.google.bigtable.admin.v2.CreateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.CreateSchemaBundleRequest.newBuilder()
@@ -54,35 +58,38 @@ public class CreateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testEquality() throws IOException{
+  public void testEquality() throws IOException {
     CreateSchemaBundleRequest request =
-        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     assertThat(request)
         .isEqualTo(
-            CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb"));
+            CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request)
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("updated_file.pb"));
+                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
   }
 
   @Test
-  public void testHashCode() throws IOException{
+  public void testHashCode() throws IOException {
     CreateSchemaBundleRequest request =
-        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     assertThat(request.hashCode())
         .isEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("file.pb")
+                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE)
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema("updated_file.pb")
+                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)
                 .hashCode());
   }
 }

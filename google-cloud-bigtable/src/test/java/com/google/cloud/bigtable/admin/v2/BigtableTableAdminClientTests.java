@@ -133,6 +133,10 @@ public class BigtableTableAdminClientTests {
   private static final String BACKUP_ID = "my-backup";
   private static final String AUTHORIZED_VIEW_ID = "my-authorized-view";
   private static final String SCHEMA_BUNDLE_ID = "my-schema-bundle";
+  // Location: `google-cloud-bigtable/src/test/resources/proto_schema_bundle.pb`
+  private static final String TEST_PROTO_SCHEMA_BUNDLE = "proto_schema_bundle.pb";
+  // Location: `google-cloud-bigtable/src/test/resources/updated_proto_schema_bundle.pb`
+  private static final String TEST_UPDATED_PROTO_SCHEMA_BUNDLE = "updated_proto_schema_bundle.pb";
 
   private static final String INSTANCE_NAME = NameUtil.formatInstanceName(PROJECT_ID, INSTANCE_ID);
   private static final String TABLE_NAME =
@@ -1367,7 +1371,7 @@ public class BigtableTableAdminClientTests {
             .build());
 
     CreateSchemaBundleRequest req =
-        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
+        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     // Execute
     SchemaBundle actualResult = adminClient.createSchemaBundle(req);
@@ -1415,7 +1419,7 @@ public class BigtableTableAdminClientTests {
             .build());
 
     UpdateSchemaBundleRequest req =
-        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("updated_file.pb");
+        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE);
 
     // Execute
     SchemaBundle actualResult = adminClient.updateSchemaBundle(req);
