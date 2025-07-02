@@ -104,9 +104,10 @@ public class NameUtilTest {
 
   @Test
   public void extractSchemaBundleIdFromSchemaBundleNameTest() {
-      String testAuthorizedViewName = "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
+      String testSchemaBundleName = "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
 
-      assertThat(NameUtil.extractSchemaBundleIdFromSchemaBundleName(testAuthorizedViewName))
+      assertThat(NameUtil.extractSchemaBundleIdFromSchemaBundleName(
+              testSchemaBundleName))
               .isEqualTo("my-schema-bundle");
 
       exception.expect(IllegalArgumentException.class);
