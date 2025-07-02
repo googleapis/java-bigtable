@@ -21,6 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -37,10 +40,13 @@ public class CreateSchemaBundleRequestTest {
   private static final String TEST_UPDATED_PROTO_SCHEMA_BUNDLE = "updated_proto_schema_bundle.pb";
 
   @Test
-  public void testToProto() throws IOException {
+  public void testToProto() throws IOException, URISyntaxException {
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    URL protoSchema = cl.getResource(TEST_PROTO_SCHEMA_BUNDLE);
+
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
+            .setProtoSchema(Paths.get(protoSchema.toURI()).toAbsolutePath().toString());
 
     com.google.bigtable.admin.v2.CreateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.CreateSchemaBundleRequest.newBuilder()
