@@ -99,6 +99,10 @@ import com.google.protobuf.util.Timestamps;
 import io.grpc.Status;
 import io.grpc.Status.Code;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -1339,6 +1343,7 @@ public class BigtableTableAdminClientTests {
     // Setup
     Mockito.when(mockStub.createSchemaBundleOperationCallable())
         .thenReturn(mockCreateSchemaBundleOperationCallable);
+    byte[] content = Files.readAllBytes(Paths.get(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
     com.google.bigtable.admin.v2.CreateSchemaBundleRequest expectedRequest =
         com.google.bigtable.admin.v2.CreateSchemaBundleRequest.newBuilder()
@@ -1348,7 +1353,7 @@ public class BigtableTableAdminClientTests {
                 com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
                     .setProtoSchema(
                         com.google.bigtable.admin.v2.ProtoSchema.newBuilder()
-                            .setProtoDescriptors(ByteString.copyFromUtf8("schema"))))
+                            .setProtoDescriptors(ByteString.copyFrom(content))))
             .build();
 
     com.google.bigtable.admin.v2.SchemaBundle expectedResponse =
@@ -1358,7 +1363,7 @@ public class BigtableTableAdminClientTests {
                     PROJECT_ID, INSTANCE_ID, TABLE_ID, SCHEMA_BUNDLE_ID))
             .setProtoSchema(
                 com.google.bigtable.admin.v2.ProtoSchema.newBuilder()
-                    .setProtoDescriptors(ByteString.copyFromUtf8("schema")))
+                    .setProtoDescriptors(ByteString.copyFrom(content)))
             .build();
 
     mockOperationResult(
@@ -1371,7 +1376,7 @@ public class BigtableTableAdminClientTests {
 
     CreateSchemaBundleRequest req =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
+            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     // Execute
     SchemaBundle actualResult = adminClient.createSchemaBundle(req);
@@ -1385,6 +1390,8 @@ public class BigtableTableAdminClientTests {
     // Setup
     Mockito.when(mockStub.updateSchemaBundleOperationCallable())
         .thenReturn(mockUpdateSchemaBundleOperationCallable);
+    byte[] content =
+        Files.readAllBytes(Paths.get(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
 
     com.google.bigtable.admin.v2.UpdateSchemaBundleRequest expectedRequest =
         com.google.bigtable.admin.v2.UpdateSchemaBundleRequest.newBuilder()
@@ -1395,7 +1402,7 @@ public class BigtableTableAdminClientTests {
                             PROJECT_ID, INSTANCE_ID, TABLE_ID, SCHEMA_BUNDLE_ID))
                     .setProtoSchema(
                         com.google.bigtable.admin.v2.ProtoSchema.newBuilder()
-                            .setProtoDescriptors(ByteString.copyFromUtf8("schema")))
+                            .setProtoDescriptors(ByteString.copyFrom(content)))
                     .build())
             .setUpdateMask(FieldMask.newBuilder().addPaths("proto_schema"))
             .build();
@@ -1407,7 +1414,7 @@ public class BigtableTableAdminClientTests {
                     PROJECT_ID, INSTANCE_ID, TABLE_ID, SCHEMA_BUNDLE_ID))
             .setProtoSchema(
                 com.google.bigtable.admin.v2.ProtoSchema.newBuilder()
-                    .setProtoDescriptors(ByteString.copyFromUtf8("schema")))
+                    .setProtoDescriptors(ByteString.copyFrom(content)))
             .build();
 
     mockOperationResult(
@@ -1420,7 +1427,7 @@ public class BigtableTableAdminClientTests {
 
     UpdateSchemaBundleRequest req =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE);
+            .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
 
     // Execute
     SchemaBundle actualResult = adminClient.updateSchemaBundle(req);
@@ -1666,5 +1673,11 @@ public class BigtableTableAdminClientTests {
     OperationFuture<RespT, MetaT> operationFuture =
         OperationFutures.immediateOperationFuture(operationSnapshot);
     Mockito.when(callable.futureCall(request)).thenReturn(operationFuture);
+  }
+
+  private String getResourceFilePath(String filePath) throws URISyntaxException {
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    URL protoSchema = cl.getResource(filePath);
+    return Paths.get(protoSchema.toURI()).toAbsolutePath().toString();
   }
 }
