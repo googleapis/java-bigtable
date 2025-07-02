@@ -20,6 +20,7 @@ import static com.google.cloud.bigtable.misc_utilities.AuthorizedViewTestHelper.
 import static com.google.cloud.bigtable.misc_utilities.AuthorizedViewTestHelper.createTestAuthorizedView;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.TruthJUnit.assume;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import com.google.api.gax.rpc.PermissionDeniedException;
@@ -31,6 +32,8 @@ import com.google.cloud.bigtable.data.v2.models.RowMutation;
 import com.google.cloud.bigtable.test_helpers.env.EmulatorEnv;
 import com.google.cloud.bigtable.test_helpers.env.TestEnvRule;
 import com.google.protobuf.ByteString;
+
+import java.math.BigInteger;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.junit.ClassRule;
@@ -40,6 +43,16 @@ import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
 public class MutateRowIT {
+  static {
+    System.setProperty("bigtable.env", "cloud");
+    System.setProperty("bigtable.project", "google.com:cloud-bigtable-dev");
+    System.setProperty("bigtable.instance", "stepanian-agg");
+    System.setProperty("bigtable.table", "my-table");
+    System.setProperty("bigtable.data-endpoint", "test-bigtable.sandbox.googleapis.com:443");
+    System.setProperty("bigtable.admin-endpoint", "test-bigtableadmin.sandbox.googleapis.com:443");
+
+// -D -Dbigtable.data-endpoint=bigtable.googleapis.com -Dbigtable.admin-endpoint=test-bigtableadmin.sandbox.googleapis.com    
+  }
   @ClassRule public static TestEnvRule testEnvRule = new TestEnvRule();
 
   @Test
@@ -151,5 +164,59 @@ public class MutateRowIT {
         .env()
         .getTableAdminClient()
         .deleteAuthorizedView(testEnvRule.env().getTableId(), testAuthorizedView.getId());
+  }
+
+  @Test
+  public void testIdempotentAggregates() throws Exception {
+    String rowKey = UUID.randomUUID().toString();
+    // String familyId = testEnvRule.env().getFamilyId();
+    String familyId = "cfagg1";
+
+    // First mutation w/ idempotency token.
+    testEnvRule
+        .env()
+        .getDataClient()
+        .mutateRowAsync(
+            RowMutation.create(testEnvRule.env().getTableId(), rowKey)
+            .addToCell(familyId, "cq", 0, 10)
+            .setIdempotency(ByteString.copyFromUtf8("abcdefgh"))
+        )
+        .get(1, TimeUnit.MINUTES);
+
+    // Now replay the mutation.
+    testEnvRule
+        .env()
+        .getDataClient()
+        .mutateRowAsync(
+            RowMutation.create(testEnvRule.env().getTableId(), rowKey)
+            .addToCell(familyId, "cq", 0, 10)
+            .setIdempotency(ByteString.copyFromUtf8("abcdefgh"))
+        )
+        .get(1, TimeUnit.MINUTES);
+
+    Row row =
+        testEnvRule
+            .env()
+            .getDataClient()
+            .readRowsCallable()
+            .first()
+            .call(Query.create(testEnvRule.env().getTableId()).rowKey(rowKey));
+
+    System.out.println("Shant! " + row.toString());
+    System.out.println("Shant! " + row.getCells().get(0));
+    System.out.println("Shant! " + row.getCells().get(0).getValue().toByteArray());
+    for (byte b : row.getCells().get(0).getValue().toByteArray()) {
+        System.out.println("SHant byte " + b);
+    }
+    System.out.println("Shant bigint " + new BigInteger(row.getCells().get(0).getValue().toByteArray()));
+    System.out.println("Shant bytebufsize " + row.getCells().get(0).getValue().size());
+    System.out.println("Shant bytebuf " + java.nio.ByteBuffer.wrap(row.getCells().get(0).getValue().toByteArray()).getInt());
+    System.out.println("Shant bytebuf " + java.nio.ByteBuffer.wrap(row.getCells().get(0).getValue().toByteArray()).order(java.nio.ByteOrder.BIG_ENDIAN).getInt());
+
+    // assertEquals(row.toString(), "shant");
+    assertThat(row.getCells()).hasSize(1);
+    // Ensure that the increment is only applied once.
+    assertThat(new BigInteger(row.getCells().get(0).getValue().toByteArray())).isEqualTo(10);
+    // assertThat(java.nio.ByteBuffer.wrap(row.getCells().get(0).getValue().toByteArray()).order(java.nio.ByteOrder.BIG_ENDIAN).getInt()).isEqualTo(10);
   }
 }

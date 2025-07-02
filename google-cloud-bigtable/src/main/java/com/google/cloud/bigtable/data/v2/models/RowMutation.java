@@ -17,6 +17,7 @@ package com.google.cloud.bigtable.data.v2.models;
 
 import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
+import com.google.bigtable.v2.Idempotency;
 import com.google.bigtable.v2.MutateRowRequest;
 import com.google.bigtable.v2.MutateRowsRequest;
 import com.google.bigtable.v2.MutateRowsRequest.Entry;
@@ -38,6 +39,7 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
   private final TargetId targetId;
   private final ByteString key;
   private final Mutation mutation;
+  private ByteString idempotency_token;
 
   private RowMutation(TargetId targetId, ByteString key, Mutation mutation) {
     Preconditions.checkNotNull(targetId, "target id can't be null.");
@@ -255,6 +257,11 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
     return this;
   }
 
+  public RowMutation setIdempotency(@Nonnull ByteString token) {
+    this.idempotency_token = token;
+    return this;
+  }
+
   @InternalApi
   public MutateRowRequest toProto(RequestContext requestContext) {
     MutateRowRequest.Builder builder = MutateRowRequest.newBuilder();
@@ -264,6 +271,12 @@ public final class RowMutation implements MutationApi<RowMutation>, Serializable
       builder.setAuthorizedViewName(resourceName);
     } else {
       builder.setTableName(resourceName);
+    }
+
+    if (idempotency_token != null) {
+      Idempotency.Builder idempotencyBuilder = Idempotency.newBuilder();
+      idempotencyBuilder.setToken(idempotency_token);
+      builder.setIdempotency(idempotencyBuilder);
     }
 
     return builder
