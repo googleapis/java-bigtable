@@ -1339,7 +1339,7 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testCreateSchemaBundle() throws IOException {
+  public void testCreateSchemaBundle() throws IOException, URISyntaxException {
     // Setup
     Mockito.when(mockStub.createSchemaBundleOperationCallable())
         .thenReturn(mockCreateSchemaBundleOperationCallable);
@@ -1386,7 +1386,7 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testUpdateSchemaBundle() throws IOException {
+  public void testUpdateSchemaBundle() throws IOException, URISyntaxException {
     // Setup
     Mockito.when(mockStub.updateSchemaBundleOperationCallable())
         .thenReturn(mockUpdateSchemaBundleOperationCallable);
