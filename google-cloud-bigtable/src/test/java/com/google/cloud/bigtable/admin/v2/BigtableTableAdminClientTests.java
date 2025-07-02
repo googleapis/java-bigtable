@@ -98,7 +98,6 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.grpc.Status;
 import io.grpc.Status.Code;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -1371,7 +1370,8 @@ public class BigtableTableAdminClientTests {
             .build());
 
     CreateSchemaBundleRequest req =
-        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
+        CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
 
     // Execute
     SchemaBundle actualResult = adminClient.createSchemaBundle(req);
@@ -1419,7 +1419,8 @@ public class BigtableTableAdminClientTests {
             .build());
 
     UpdateSchemaBundleRequest req =
-        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE);
+        UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
+            .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE);
 
     // Execute
     SchemaBundle actualResult = adminClient.updateSchemaBundle(req);
