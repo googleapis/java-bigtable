@@ -23,6 +23,7 @@ import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +42,11 @@ public class CreateSchemaBundleRequestTest {
 
   @Test
   public void testToProto() throws IOException, URISyntaxException {
-    ClassLoader cl = Thread.currentThread().getContextClassLoader();
-    URL protoSchema = cl.getResource(TEST_PROTO_SCHEMA_BUNDLE);
-
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(Paths.get(protoSchema.toURI()).toAbsolutePath().toString());
+            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+
+    byte[] content = Files.readAllBytes(Paths.get(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
     com.google.bigtable.admin.v2.CreateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.CreateSchemaBundleRequest.newBuilder()
@@ -56,7 +56,7 @@ public class CreateSchemaBundleRequestTest {
                 com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
                     .setProtoSchema(
                         com.google.bigtable.admin.v2.ProtoSchema.newBuilder()
-                            .setProtoDescriptors(ByteString.copyFromUtf8("schema"))
+                            .setProtoDescriptors(ByteString.copyFrom(content))
                             .build())
                     .build())
             .build();
@@ -64,38 +64,44 @@ public class CreateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testEquality() throws IOException {
+  public void testEquality() throws IOException, URISyntaxException {
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
+            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request)
         .isEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE));
+                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
     assertThat(request)
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
+                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
   }
 
   @Test
-  public void testHashCode() throws IOException {
+  public void testHashCode() throws IOException, URISyntaxException {
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE);
+            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request.hashCode())
         .isEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(TEST_PROTO_SCHEMA_BUNDLE)
+                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)
+                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
+  }
+
+  private String getResourceFilePath(String filePath) throws URISyntaxException {
+    ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    URL protoSchema = cl.getResource(filePath);
+    return Paths.get(protoSchema.toURI()).toAbsolutePath().toString();
   }
 }
