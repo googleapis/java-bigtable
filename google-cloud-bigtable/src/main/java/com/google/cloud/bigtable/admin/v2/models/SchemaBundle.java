@@ -24,14 +24,6 @@ import javax.annotation.Nonnull;
 
 /**
  * A class that wraps the {@link com.google.bigtable.admin.v2.SchemaBundle} protocol buffer object.
- *
- * <p>An AuthorizedView represents subsets of a particular table based on rules. The access to each
- * AuthorizedView can be configured separately from the Table.
- *
- * <p>Users can perform read/write operation on an AuthorizedView by providing an authorizedView id
- * besides a table id, in which case the semantics remain identical as reading/writing on a Table
- * except that visibility is restricted to the subset of the Table that the AuthorizedView
- * represents.
  */
 public final class SchemaBundle {
   private final com.google.bigtable.admin.v2.SchemaBundle proto;
