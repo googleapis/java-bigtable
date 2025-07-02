@@ -98,6 +98,8 @@ import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import io.grpc.Status;
 import io.grpc.Status.Code;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -1330,7 +1332,7 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testCreateSchemaBundle() {
+  public void testCreateSchemaBundle() throws IOException {
     // Setup
     Mockito.when(mockStub.createSchemaBundleOperationCallable())
         .thenReturn(mockCreateSchemaBundleOperationCallable);
@@ -1375,7 +1377,7 @@ public class BigtableTableAdminClientTests {
   }
 
   @Test
-  public void testUpdateSchemaBundle() {
+  public void testUpdateSchemaBundle() throws IOException {
     // Setup
     Mockito.when(mockStub.updateSchemaBundleOperationCallable())
         .thenReturn(mockUpdateSchemaBundleOperationCallable);

@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.io.IOException;
+
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.FieldMask;
@@ -33,7 +35,7 @@ public class UpdateSchemaBundleRequestTest {
   private static final String SCHEMA_BUNDLE_ID = "my-schema-bundle";
 
   @Test
-  public void testToProto() {
+  public void testToProto() throws IOException{
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
             .setProtoSchema("file.pb")
@@ -58,7 +60,7 @@ public class UpdateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testUpdateProtoSchema() {
+  public void testUpdateProtoSchema() throws IOException{
     com.google.bigtable.admin.v2.SchemaBundle existingSchemaBundle =
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
             .setName(
@@ -83,7 +85,7 @@ public class UpdateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testEquality() {
+  public void testEquality() throws IOException{
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
 
@@ -98,7 +100,7 @@ public class UpdateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testHashCode() {
+  public void testHashCode()  throws IOException{
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
 

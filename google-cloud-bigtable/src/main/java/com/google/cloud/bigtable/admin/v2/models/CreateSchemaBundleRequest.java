@@ -17,9 +17,16 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
+import com.google.bigtable.admin.v2.ProtoSchema;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.ByteString;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -59,9 +66,14 @@ public final class CreateSchemaBundleRequest {
    *
    * @see SchemaBundleType for details.
    */
-  public CreateSchemaBundleRequest setProtoSchema(@Nonnull String protoFile) {
-    Preconditions.checkNotNull(protoFile, "protoSchema must be set");
-
+  public CreateSchemaBundleRequest setProtoSchema(@Nonnull String protoSchemaFile)
+      throws IOException {
+    Preconditions.checkNotNull(protoSchemaFile, "protoSchema must be set");
+    byte[] content = Files.readAllBytes(Paths.get(protoSchemaFile));
+    requestBuilder.setSchemaBundle(
+        com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
+            .setProtoSchema(
+                ProtoSchema.newBuilder().setProtoDescriptors(ByteString.copyFrom(content))));
     return this;
   }
 

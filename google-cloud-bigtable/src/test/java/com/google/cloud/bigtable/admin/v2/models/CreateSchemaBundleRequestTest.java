@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import java.io.IOException;
+
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
 import org.junit.Test;
@@ -32,7 +34,7 @@ public class CreateSchemaBundleRequestTest {
   private static final String SCHEMA_BUNDLE_ID = "my-schema-bundle";
 
   @Test
-  public void testToProto() {
+  public void testToProto() throws IOException{
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
 
@@ -52,7 +54,7 @@ public class CreateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testEquality() {
+  public void testEquality() throws IOException{
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
 
@@ -67,7 +69,7 @@ public class CreateSchemaBundleRequestTest {
   }
 
   @Test
-  public void testHashCode() {
+  public void testHashCode() throws IOException{
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID).setProtoSchema("file.pb");
 
