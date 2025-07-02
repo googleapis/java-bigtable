@@ -71,6 +71,8 @@ public class UpdateSchemaBundleRequestTest {
   @Test
   public void testUpdateProtoSchema() throws IOException, URISyntaxException {
     byte[] content = Files.readAllBytes(Paths.get(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
+    byte[] updated_content =
+        Files.readAllBytes(Paths.get(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
 
     com.google.bigtable.admin.v2.SchemaBundle existingSchemaBundle =
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
@@ -92,7 +94,8 @@ public class UpdateSchemaBundleRequestTest {
             .setSchemaBundle(
                 existingSchemaBundle.toBuilder()
                     .setProtoSchema(
-                        ProtoSchema.newBuilder().setProtoDescriptors(ByteString.copyFrom(content))))
+                        ProtoSchema.newBuilder()
+                            .setProtoDescriptors(ByteString.copyFrom(updated_content))))
             .setUpdateMask(FieldMask.newBuilder().addPaths("proto_schema"))
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
