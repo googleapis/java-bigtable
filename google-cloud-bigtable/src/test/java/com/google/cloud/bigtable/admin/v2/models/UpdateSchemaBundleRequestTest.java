@@ -18,6 +18,7 @@ package com.google.cloud.bigtable.admin.v2.models;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.google.bigtable.admin.v2.ProtoSchema;
 import com.google.cloud.bigtable.admin.v2.internal.NameUtil;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.FieldMask;
@@ -88,7 +89,10 @@ public class UpdateSchemaBundleRequestTest {
 
     com.google.bigtable.admin.v2.UpdateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.UpdateSchemaBundleRequest.newBuilder()
-            .setSchemaBundle(existingSchemaBundle.toBuilder())
+            .setSchemaBundle(
+                existingSchemaBundle.toBuilder()
+                    .setProtoSchema(
+                        ProtoSchema.newBuilder().setProtoDescriptors(ByteString.copyFrom(content))))
             .setUpdateMask(FieldMask.newBuilder().addPaths("proto_schema"))
             .build();
     assertThat(request.toProto(PROJECT_ID, INSTANCE_ID)).isEqualTo(requestProto);
