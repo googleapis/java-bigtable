@@ -23,8 +23,8 @@ import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 
 /**
- * Parameters for creating a new Cloud Bigtable {@link SchemaBundle}, which represents subsets of
- * a particular table.
+ * Parameters for creating a new Cloud Bigtable {@link SchemaBundle}, which represents subsets of a
+ * particular table.
  *
  * <p>Sample code:
  *
@@ -59,8 +59,7 @@ public final class CreateSchemaBundleRequest {
    *
    * @see SchemaBundleType for details.
    */
-  public CreateSchemaBundleRequest setProtoSchema(
-      @Nonnull String protoFile) {
+  public CreateSchemaBundleRequest setProtoSchema(@Nonnull String protoFile) {
     Preconditions.checkNotNull(protoFile, "protoSchema must be set");
 
     return this;

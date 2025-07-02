@@ -17,15 +17,13 @@
 package com.google.cloud.bigtable.admin.v2.models;
 
 import com.google.api.core.InternalApi;
-import com.google.api.core.InternalExtensionOnly;
 import com.google.bigtable.admin.v2.SchemaBundleName;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import javax.annotation.Nonnull;
 
 /**
- * A class that wraps the {@link com.google.bigtable.admin.v2.SchemaBundle} protocol buffer
- * object.
+ * A class that wraps the {@link com.google.bigtable.admin.v2.SchemaBundle} protocol buffer object.
  *
  * <p>An AuthorizedView represents subsets of a particular table based on rules. The access to each
  * AuthorizedView can be configured separately from the Table.
@@ -43,8 +41,7 @@ public final class SchemaBundle {
    * to be used by applications.
    */
   @InternalApi
-  public static SchemaBundle fromProto(
-      @Nonnull com.google.bigtable.admin.v2.SchemaBundle proto) {
+  public static SchemaBundle fromProto(@Nonnull com.google.bigtable.admin.v2.SchemaBundle proto) {
     return new SchemaBundle(proto);
   }
 
@@ -58,7 +55,7 @@ public final class SchemaBundle {
 
   /** Gets the schema bundle's id. */
   public String getId() {
-// Constructor ensures that name is not null.
+    // Constructor ensures that name is not null.
     SchemaBundleName fullName = SchemaBundleName.parse(proto.getName());
 
     //noinspection ConstantConditions
@@ -76,11 +73,10 @@ public final class SchemaBundle {
 
   /** Gets the proto schema of this schema bundle. */
   public com.google.protobuf.ByteString getProtoSchema() {
-    if (proto.hasProtoSchema()){
-        return proto.getProtoSchema().getProtoDescriptors();
+    if (proto.hasProtoSchema()) {
+      return proto.getProtoSchema().getProtoDescriptors();
     }
     throw new IllegalStateException("This SchemaBundle doesn't have a valid type specified");
-
   }
 
   /**

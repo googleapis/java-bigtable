@@ -62,12 +62,13 @@ public class NameUtilTest {
 
   @Test
   public void formatSchemabundleNameTest() {
-      String testSchemaBundleName = "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
+    String testSchemaBundleName =
+        "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
 
-      assertThat(
-              NameUtil.formatSchemaBundleName(
-                      "my-project", "my-instance", "my-table", "my-schema-bundle"))
-              .isEqualTo(testSchemaBundleName);
+    assertThat(
+            NameUtil.formatSchemaBundleName(
+                "my-project", "my-instance", "my-table", "my-schema-bundle"))
+        .isEqualTo(testSchemaBundleName);
   }
 
   @Test
@@ -104,14 +105,14 @@ public class NameUtilTest {
 
   @Test
   public void extractSchemaBundleIdFromSchemaBundleNameTest() {
-      String testSchemaBundleName = "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
+    String testSchemaBundleName =
+        "projects/my-project/instances/my-instance/tables/my-table/schemaBundles/my-schema-bundle";
 
-      assertThat(NameUtil.extractSchemaBundleIdFromSchemaBundleName(
-              testSchemaBundleName))
-              .isEqualTo("my-schema-bundle");
+    assertThat(NameUtil.extractSchemaBundleIdFromSchemaBundleName(testSchemaBundleName))
+        .isEqualTo("my-schema-bundle");
 
-      exception.expect(IllegalArgumentException.class);
-      NameUtil.extractSchemaBundleIdFromSchemaBundleName("bad-format");
+    exception.expect(IllegalArgumentException.class);
+    NameUtil.extractSchemaBundleIdFromSchemaBundleName("bad-format");
   }
 
   @Test

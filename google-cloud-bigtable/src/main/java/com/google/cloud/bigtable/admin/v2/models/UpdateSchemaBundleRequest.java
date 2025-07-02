@@ -75,13 +75,14 @@ public final class UpdateSchemaBundleRequest {
 
   /** Changes the deletion protection of an existing schema bundle. */
   public UpdateSchemaBundleRequest setProtoSchema(String protoSchemaFile) {
-    //requestBuilder.getSchemaBundleBuilder().setDeletionProtection(deletionProtection);
+    // requestBuilder.getSchemaBundleBuilder().setDeletionProtection(deletionProtection);
     updateFieldMask(com.google.bigtable.admin.v2.SchemaBundle.PROTO_SCHEMA_FIELD_NUMBER);
     return this;
   }
 
   /**
-   * Configures if safety warnings should be disabled. If set, then non backwards compatible changes are allowed.
+   * Configures if safety warnings should be disabled. If set, then non backwards compatible changes
+   * are allowed.
    */
   @SuppressWarnings("WeakerAccess")
   public UpdateSchemaBundleRequest setIgnoreWarnings(boolean value) {
@@ -124,8 +125,7 @@ public final class UpdateSchemaBundleRequest {
       @Nonnull String projectId, @Nonnull String instanceId) {
     requestBuilder
         .getSchemaBundleBuilder()
-        .setName(
-            NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId));
+        .setName(NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId));
     return requestBuilder.build();
   }
 }

@@ -38,8 +38,8 @@ public class NameUtil {
   private static final Pattern AUTHORIZED_VIEW_PATTERN =
       Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/authorizedViews/([^/]+)");
 
-  private static final Pattern SCHEMA_BUNDLE_PATTERN = Pattern
-      .compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/schemaBundles/([^/]+)");
+  private static final Pattern SCHEMA_BUNDLE_PATTERN =
+      Pattern.compile("projects/([^/]+)/instances/([^/]+)/tables/([^/]+)/schemaBundles/([^/]+)");
 
   public static String formatProjectName(String projectId) {
     return "projects/" + projectId;
@@ -77,10 +77,10 @@ public class NameUtil {
     return formatTableName(projectId, instanceId, tableId) + "/authorizedViews/" + viewId;
   }
 
-public static String formatSchemaBundleName(
-    String projectId, String instanceId, String tableId, String bundleId) {
-  return formatTableName(projectId, instanceId, tableId) + "/schemaBundles/" + bundleId;
-}
+  public static String formatSchemaBundleName(
+      String projectId, String instanceId, String tableId, String bundleId) {
+    return formatTableName(projectId, instanceId, tableId) + "/schemaBundles/" + bundleId;
+  }
 
   public static String extractTableIdFromTableName(String fullTableName) {
     Matcher matcher = TABLE_PATTERN.matcher(fullTableName);
@@ -107,8 +107,7 @@ public static String formatSchemaBundleName(
     return matcher.group(4);
   }
 
-  public static String extractSchemaBundleIdFromSchemaBundleName(
-      String fullSchemaBundleName) {
+  public static String extractSchemaBundleIdFromSchemaBundleName(String fullSchemaBundleName) {
     Matcher matcher = SCHEMA_BUNDLE_PATTERN.matcher(fullSchemaBundleName);
     if (!matcher.matches()) {
       throw new IllegalArgumentException("Invalid schema bundle name: " + fullSchemaBundleName);

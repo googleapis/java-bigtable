@@ -24,9 +24,9 @@ import com.google.api.gax.rpc.ApiExceptions;
 import com.google.api.gax.rpc.NotFoundException;
 import com.google.bigtable.admin.v2.DeleteAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.DeleteBackupRequest;
+import com.google.bigtable.admin.v2.DeleteSchemaBundleRequest;
 import com.google.bigtable.admin.v2.DeleteTableRequest;
 import com.google.bigtable.admin.v2.DropRowRangeRequest;
-import com.google.bigtable.admin.v2.DeleteSchemaBundleRequest;
 import com.google.bigtable.admin.v2.GetAuthorizedViewRequest;
 import com.google.bigtable.admin.v2.GetBackupRequest;
 import com.google.bigtable.admin.v2.GetSchemaBundleRequest;
@@ -1808,8 +1808,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /**
    * Creates a new schema bundle with the specified configuration.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * CreateSchemaBundleRequest request = CreateSchemaBundleRequest.of("my-table", "my-new-schema-bundle")
@@ -1832,8 +1831,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /**
    * Asynchronously creates a new schema bundle with the specified configuration.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * CreateSchemaBundleRequest request = CreateSchemaBundleRequest.of("my-table", "my-new-schema-bundle")
@@ -1868,8 +1866,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
             .futureCall(request.toProto(projectId, instanceId)),
         new ApiFunction<com.google.bigtable.admin.v2.SchemaBundle, SchemaBundle>() {
           @Override
-          public SchemaBundle apply(
-              com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
+          public SchemaBundle apply(com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
             return SchemaBundle.fromProto(schemaBundleProto);
           }
         },
@@ -1879,8 +1876,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /**
    * Updates an existing schema bundle with the specified configuration.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * SchemaBundle existingSchemaBundle = client.getSchemaBundle("my-table", "my-schema-bundle");
@@ -1897,11 +1893,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously updates an existing schema bundle with the specified
-   * configuration.
+   * Asynchronously updates an existing schema bundle with the specified configuration.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * SchemaBundle existingSchemaBundle = client.getSchemaBundle("my-table", "my-schema-bundle");
@@ -1932,8 +1926,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
             .futureCall(request.toProto(projectId, instanceId)),
         new ApiFunction<com.google.bigtable.admin.v2.SchemaBundle, SchemaBundle>() {
           @Override
-          public SchemaBundle apply(
-              com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
+          public SchemaBundle apply(com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
             return SchemaBundle.fromProto(schemaBundleProto);
           }
         },
@@ -1941,11 +1934,9 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Gets an schema bundle with the specified schema bundle ID in the specified
-   * table.
+   * Gets an schema bundle with the specified schema bundle ID in the specified table.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * SchemaBundle schemaBundle = client.getSchemaBundle("my-table", "my-schema-bundle");
@@ -1957,12 +1948,10 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Asynchronously gets an schema bundle with the specified schema bundle ID in
-   * the specified
+   * Asynchronously gets an schema bundle with the specified schema bundle ID in the specified
    * table.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * ApiFuture<SchemaBundle> future = client.getSchemaBundleAsync("my-table", "my-schema-bundle");
@@ -1982,16 +1971,16 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<SchemaBundle> getSchemaBundleAsync(String tableId, String schemaBundleId) {
-    GetSchemaBundleRequest request = GetSchemaBundleRequest.newBuilder()
-        .setName(
-            NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId))
-        .build();
+    GetSchemaBundleRequest request =
+        GetSchemaBundleRequest.newBuilder()
+            .setName(
+                NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId))
+            .build();
     return ApiFutures.transform(
         stub.getSchemaBundleCallable().futureCall(request),
         new ApiFunction<com.google.bigtable.admin.v2.SchemaBundle, SchemaBundle>() {
           @Override
-          public SchemaBundle apply(
-              com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
+          public SchemaBundle apply(com.google.bigtable.admin.v2.SchemaBundle schemaBundleProto) {
             return SchemaBundle.fromProto(schemaBundleProto);
           }
         },
@@ -2001,8 +1990,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /**
    * Lists all schema bundle IDs in the specified table.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * List<String> schemaBundles = client.listSchemaBundles("my-table");
@@ -2015,8 +2003,7 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   /**
    * Asynchronously lists all schema bundle IDs in the specified table.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * ApiFuture<List<String>> future = client.listSchemaBundlesAsync("my-table");
@@ -2039,48 +2026,53 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<List<String>> listSchemaBundlesAsync(String tableId) {
-    ListSchemaBundlesRequest request = ListSchemaBundlesRequest.newBuilder()
-        .setParent(NameUtil.formatTableName(projectId, instanceId, tableId))
-        .build();
+    ListSchemaBundlesRequest request =
+        ListSchemaBundlesRequest.newBuilder()
+            .setParent(NameUtil.formatTableName(projectId, instanceId, tableId))
+            .build();
 
     // TODO(igorbernstein2): try to upstream pagination spooling or figure out a way
     // to expose the
     // paginated responses while maintaining the wrapper facade.
 
     // Fetches the first page.
-    ApiFuture<ListSchemaBundlesPage> firstPageFuture = ApiFutures.transform(
-        stub.listSchemaBundlesPagedCallable().futureCall(request),
-        new ApiFunction<ListSchemaBundlesPagedResponse, ListSchemaBundlesPage>() {
-          @Override
-          public ListSchemaBundlesPage apply(ListSchemaBundlesPagedResponse response) {
-            return response.getPage();
-          }
-        },
-        MoreExecutors.directExecutor());
+    ApiFuture<ListSchemaBundlesPage> firstPageFuture =
+        ApiFutures.transform(
+            stub.listSchemaBundlesPagedCallable().futureCall(request),
+            new ApiFunction<ListSchemaBundlesPagedResponse, ListSchemaBundlesPage>() {
+              @Override
+              public ListSchemaBundlesPage apply(ListSchemaBundlesPagedResponse response) {
+                return response.getPage();
+              }
+            },
+            MoreExecutors.directExecutor());
 
     // Fetches the rest of the pages by chaining the futures.
-    ApiFuture<List<com.google.bigtable.admin.v2.SchemaBundle>> allProtos = ApiFutures.transformAsync(
-        firstPageFuture,
-        new ApiAsyncFunction<ListSchemaBundlesPage, List<com.google.bigtable.admin.v2.SchemaBundle>>() {
-          List<com.google.bigtable.admin.v2.SchemaBundle> responseAccumulator = Lists.newArrayList();
+    ApiFuture<List<com.google.bigtable.admin.v2.SchemaBundle>> allProtos =
+        ApiFutures.transformAsync(
+            firstPageFuture,
+            new ApiAsyncFunction<
+                ListSchemaBundlesPage, List<com.google.bigtable.admin.v2.SchemaBundle>>() {
+              List<com.google.bigtable.admin.v2.SchemaBundle> responseAccumulator =
+                  Lists.newArrayList();
 
-          @Override
-          public ApiFuture<List<com.google.bigtable.admin.v2.SchemaBundle>> apply(
-              ListSchemaBundlesPage page) {
-            // Add all entries from the page
-            responseAccumulator.addAll(Lists.newArrayList(page.getValues()));
+              @Override
+              public ApiFuture<List<com.google.bigtable.admin.v2.SchemaBundle>> apply(
+                  ListSchemaBundlesPage page) {
+                // Add all entries from the page
+                responseAccumulator.addAll(Lists.newArrayList(page.getValues()));
 
-            // If this is the last page, just return the accumulated responses.
-            if (!page.hasNextPage()) {
-              return ApiFutures.immediateFuture(responseAccumulator);
-            }
+                // If this is the last page, just return the accumulated responses.
+                if (!page.hasNextPage()) {
+                  return ApiFutures.immediateFuture(responseAccumulator);
+                }
 
-            // Otherwise fetch the next page.
-            return ApiFutures.transformAsync(
-                page.getNextPageAsync(), this, MoreExecutors.directExecutor());
-          }
-        },
-        MoreExecutors.directExecutor());
+                // Otherwise fetch the next page.
+                return ApiFutures.transformAsync(
+                    page.getNextPageAsync(), this, MoreExecutors.directExecutor());
+              }
+            },
+            MoreExecutors.directExecutor());
 
     // Wraps all of the accumulated protos.
     return ApiFutures.transform(
@@ -2099,33 +2091,25 @@ public final class BigtableTableAdminClient implements AutoCloseable {
   }
 
   /**
-   * Deletes an schema bundle with the specified schema bundle ID in the specified
-   * table. Note
-   * that the deletion is prohibited if the schema bundle has deletion_protection
-   * field set to
-   * true.
+   * Deletes an schema bundle with the specified schema bundle ID in the specified table. Note that
+   * the deletion is prohibited if the schema bundle has deletion_protection field set to true.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * client.deleteSchemaBundle("my-table", "my-schema-bundle");
    * }</pre>
    */
   public void deleteSchemaBundle(String tableId, String schemaBundleId) {
-    ApiExceptions.callAndTranslateApiException(
-        deleteSchemaBundleAsync(tableId, schemaBundleId));
+    ApiExceptions.callAndTranslateApiException(deleteSchemaBundleAsync(tableId, schemaBundleId));
   }
 
   /**
-   * Asynchronously deletes an schema bundle with the specified schema bundle ID
-   * in the
-   * specified table. Note that the deletion is prohibited if the schema bundle
-   * has
-   * deletion_protection field set to true.
+   * Asynchronously deletes an schema bundle with the specified schema bundle ID in the specified
+   * table. Note that the deletion is prohibited if the schema bundle has deletion_protection field
+   * set to true.
    *
-   * <p>
-   * Sample code:
+   * <p>Sample code:
    *
    * <pre>{@code
    * ApiFuture<void> future = client.deleteSchemaBundleAsync("my-table", "my-schema-bundle");
@@ -2146,10 +2130,11 @@ public final class BigtableTableAdminClient implements AutoCloseable {
    * }</pre>
    */
   public ApiFuture<Void> deleteSchemaBundleAsync(String tableId, String schemaBundleId) {
-    DeleteSchemaBundleRequest request = DeleteSchemaBundleRequest.newBuilder()
-        .setName(
-            NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId))
-        .build();
+    DeleteSchemaBundleRequest request =
+        DeleteSchemaBundleRequest.newBuilder()
+            .setName(
+                NameUtil.formatSchemaBundleName(projectId, instanceId, tableId, schemaBundleId))
+            .build();
 
     return transformToVoid(this.stub.deleteSchemaBundleCallable().futureCall(request));
   }
