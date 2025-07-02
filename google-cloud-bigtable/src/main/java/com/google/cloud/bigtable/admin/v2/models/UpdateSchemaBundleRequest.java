@@ -26,7 +26,6 @@ import com.google.protobuf.FieldMask;
 import com.google.protobuf.util.FieldMaskUtil;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nonnull;
 
@@ -81,7 +80,7 @@ public final class UpdateSchemaBundleRequest {
 
   /** Changes the deletion protection of an existing schema bundle. */
   public UpdateSchemaBundleRequest setProtoSchema(String protoSchemaFile) throws IOException {
-    byte[] content = Files.readAllBytes(Path.of(protoSchemaFile));
+    byte[] content = Files.readAllBytes(Paths.get(protoSchemaFile));
     requestBuilder.setSchemaBundle(
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
             .setProtoSchema(

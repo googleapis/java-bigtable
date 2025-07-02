@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.Paths;
 import javax.annotation.Nonnull;
 
 /**
@@ -67,7 +67,7 @@ public final class CreateSchemaBundleRequest {
   public CreateSchemaBundleRequest setProtoSchema(@Nonnull String protoSchemaFile)
       throws IOException {
     Preconditions.checkNotNull(protoSchemaFile, "protoSchema must be set");
-    byte[] content = Files.readAllBytes(Path.of(protoSchemaFile));
+    byte[] content = Files.readAllBytes(Paths.get(protoSchemaFile));
     requestBuilder.setSchemaBundle(
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
             .setProtoSchema(
