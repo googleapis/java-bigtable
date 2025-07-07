@@ -129,22 +129,17 @@ public class BigtableSchemaBundleIT {
     String SchemaBundleId1 = prefixGenerator.newPrefix();
     String SchemaBundleId2 = prefixGenerator.newPrefix();
 
-    try {
-      tableAdmin.createSchemaBundle(createSchemaBundleRequest(SchemaBundleId1));
-      tableAdmin.createSchemaBundle(createSchemaBundleRequest(SchemaBundleId2));
+    tableAdmin.createSchemaBundle(createSchemaBundleRequest(SchemaBundleId1));
+    tableAdmin.createSchemaBundle(createSchemaBundleRequest(SchemaBundleId2));
 
-      List<String> response = tableAdmin.listSchemaBundles(testTable.getId());
-      // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
-      // containsExactly.
-      assertWithMessage("Got wrong schema bundle Ids in listSchemaBundles")
-          .that(response)
-          .containsAtLeast(
-              tableAdmin.getSchemaBundle(testTable.getId(), SchemaBundleId1).getId(),
-              tableAdmin.getSchemaBundle(testTable.getId(), SchemaBundleId2).getId());
-    } finally {
-      tableAdmin.deleteSchemaBundle(testTable.getId(), SchemaBundleId1);
-      tableAdmin.deleteSchemaBundle(testTable.getId(), SchemaBundleId2);
-    }
+    List<String> response = tableAdmin.listSchemaBundles(testTable.getId());
+    // Concurrent tests running may cause flakiness. Use containsAtLeast instead of
+    // containsExactly.
+    assertWithMessage("Got wrong schema bundle Ids in listSchemaBundles")
+        .that(response)
+        .containsAtLeast(
+            tableAdmin.getSchemaBundle(testTable.getId(), SchemaBundleId1).getId(),
+            tableAdmin.getSchemaBundle(testTable.getId(), SchemaBundleId2).getId());
   }
 
   @Test
