@@ -43,7 +43,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -65,7 +64,7 @@ public class BigtableSchemaBundleIT {
 
   private static BigtableTableAdminClient tableAdmin;
   private static BigtableDataClient dataClient;
-  private static Table testTable;
+  private Table testTable;
 
   @BeforeClass
   public static void setUpClass() throws InterruptedException {
@@ -76,12 +75,15 @@ public class BigtableSchemaBundleIT {
 
     tableAdmin = testEnvRule.env().getTableAdminClient();
     dataClient = testEnvRule.env().getDataClient();
+  }
 
+  @Before
+  public void setUp() throws InterruptedException {
     testTable = createAndPopulateTestTable(tableAdmin, dataClient);
   }
 
-  @AfterClass
-  public static void tearDownClass() {
+  @After
+  public void tearDown() {
     if (testTable != null) {
       try {
         tableAdmin.deleteTable(testTable.getId());
