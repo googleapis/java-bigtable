@@ -46,7 +46,7 @@ public class UpdateSchemaBundleRequestTest {
   public void testToProto() throws IOException, URISyntaxException {
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
             .setIgnoreWarnings(true);
     byte[] content = Files.readAllBytes(Paths.get(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
@@ -87,7 +87,7 @@ public class UpdateSchemaBundleRequestTest {
 
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(SchemaBundle.fromProto(existingSchemaBundle))
-            .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
 
     com.google.bigtable.admin.v2.UpdateSchemaBundleRequest requestProto =
         com.google.bigtable.admin.v2.UpdateSchemaBundleRequest.newBuilder()
@@ -105,35 +105,35 @@ public class UpdateSchemaBundleRequestTest {
   public void testEquality() throws IOException, URISyntaxException {
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request)
         .isEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
+                .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
     assertThat(request)
         .isNotEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
+                .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
   }
 
   @Test
   public void testHashCode() throws IOException, URISyntaxException {
     UpdateSchemaBundleRequest request =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request.hashCode())
         .isEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
+                .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE))
+                .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
   }
 

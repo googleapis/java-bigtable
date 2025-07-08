@@ -102,7 +102,7 @@ public class BigtableSchemaBundleIT {
 
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(testTable.getId(), SchemaBundleId)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
     try {
       SchemaBundle response = tableAdmin.createSchemaBundle(request);
       assertWithMessage("Got wrong schema bundle Id in createSchemaBundle")
@@ -157,7 +157,7 @@ public class BigtableSchemaBundleIT {
         Files.readAllBytes(Paths.get(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
     UpdateSchemaBundleRequest updateRequest =
         UpdateSchemaBundleRequest.of(testTable.getId(), SchemaBundleId)
-            .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
     response = tableAdmin.updateSchemaBundle(updateRequest);
     assertWithMessage("Got wrong deletion protection in UpdateSchemaBundle")
         .that(response.getProtoSchema())
@@ -187,7 +187,7 @@ public class BigtableSchemaBundleIT {
   private CreateSchemaBundleRequest createSchemaBundleRequest(String SchemaBundleId)
       throws IOException, URISyntaxException {
     return CreateSchemaBundleRequest.of(testTable.getId(), SchemaBundleId)
-        .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+        .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
   }
 
   private static Table createAndPopulateTestTable(

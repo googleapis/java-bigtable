@@ -36,7 +36,7 @@ import javax.annotation.Nonnull;
  * <pre>{@code
  * CreateSchemaBundleRequest request =
  *     CreateSchemaBundleRequest.of("my-table", "my-new-schema-bundle")
- *         .setProtoSchema("proto_file.pb");
+ *         .setProtoSchemaFile("proto_file.pb");
  * }</pre>
  *
  * @see SchemaBundle for more details.
@@ -59,19 +59,21 @@ public final class CreateSchemaBundleRequest {
     requestBuilder.setSchemaBundleId(schemaBundleId);
   }
 
-  /**
-   * Sets the proto schema for this schema bundle.
-   *
-   * @see SchemaBundleType for details.
-   */
-  public CreateSchemaBundleRequest setProtoSchema(@Nonnull String protoSchemaFile)
+  /** Sets the proto schema for this schema bundle. */
+  public CreateSchemaBundleRequest setProtoSchemaFile(@Nonnull String protoSchemaFile)
       throws IOException {
-    Preconditions.checkNotNull(protoSchemaFile, "protoSchema must be set");
+    Preconditions.checkNotNull(protoSchemaFile, "protoSchemaFile must be set");
     byte[] content = Files.readAllBytes(Paths.get(protoSchemaFile));
+    return setProtoSchema(ByteString.copyFrom(content));
+  }
+
+  /** Sets the proto schema for this schema bundle. */
+  public CreateSchemaBundleRequest setProtoSchema(@Nonnull ByteString protoSchema)
+      throws IOException {
+    Preconditions.checkNotNull(protoSchema, "protoSchema must be set");
     requestBuilder.setSchemaBundle(
         com.google.bigtable.admin.v2.SchemaBundle.newBuilder()
-            .setProtoSchema(
-                ProtoSchema.newBuilder().setProtoDescriptors(ByteString.copyFrom(content))));
+            .setProtoSchema(ProtoSchema.newBuilder().setProtoDescriptors(protoSchema)));
     return this;
   }
 

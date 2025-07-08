@@ -27,6 +27,7 @@ import javax.annotation.Nonnull;
  */
 public final class SchemaBundle {
   private final com.google.bigtable.admin.v2.SchemaBundle proto;
+  private final SchemaBundleName schemaBundleName;
 
   /**
    * Wraps the protobuf. This method is considered an internal implementation detail and not meant
@@ -43,22 +44,17 @@ public final class SchemaBundle {
     Preconditions.checkArgument(
         proto.hasProtoSchema(), "Schemabundle must have a proto_schema field");
     this.proto = proto;
+    this.schemaBundleName = SchemaBundleName.parse(proto.getName());
   }
 
   /** Gets the schema bundle's id. */
   public String getId() {
-    // Constructor ensures that name is not null.
-    SchemaBundleName fullName = SchemaBundleName.parse(proto.getName());
-
     //noinspection ConstantConditions
     return fullName.getSchemaBundle();
   }
 
   /** Gets the id of the table that owns this schema bundle. */
   public String getTableId() {
-    // Constructor ensures that name is not null.
-    SchemaBundleName fullName = SchemaBundleName.parse(proto.getName());
-
     //noinspection ConstantConditions
     return fullName.getTable();
   }

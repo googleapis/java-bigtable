@@ -44,7 +44,7 @@ public class CreateSchemaBundleRequestTest {
   public void testToProto() throws IOException, URISyntaxException {
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     byte[] content = Files.readAllBytes(Paths.get(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
@@ -67,35 +67,35 @@ public class CreateSchemaBundleRequestTest {
   public void testEquality() throws IOException, URISyntaxException {
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request)
         .isEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
+                .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE)));
 
     assertThat(request)
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
+                .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE)));
   }
 
   @Test
   public void testHashCode() throws IOException, URISyntaxException {
     CreateSchemaBundleRequest request =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     assertThat(request.hashCode())
         .isEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
+                .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
 
     assertThat(request.hashCode())
         .isNotEqualTo(
             CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-                .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE))
+                .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE))
                 .hashCode());
   }
 
