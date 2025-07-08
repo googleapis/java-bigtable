@@ -1376,7 +1376,7 @@ public class BigtableTableAdminClientTests {
 
     CreateSchemaBundleRequest req =
         CreateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_PROTO_SCHEMA_BUNDLE));
 
     // Execute
     SchemaBundle actualResult = adminClient.createSchemaBundle(req);
@@ -1427,7 +1427,7 @@ public class BigtableTableAdminClientTests {
 
     UpdateSchemaBundleRequest req =
         UpdateSchemaBundleRequest.of(TABLE_ID, SCHEMA_BUNDLE_ID)
-            .setProtoSchema(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
+            .setProtoSchemaFile(getResourceFilePath(TEST_UPDATED_PROTO_SCHEMA_BUNDLE));
 
     // Execute
     SchemaBundle actualResult = adminClient.updateSchemaBundle(req);
