@@ -79,7 +79,7 @@ public final class UpdateSchemaBundleRequest {
   }
 
   /** Sets the proto schema for this schema bundle. */
-  public CreateSchemaBundleRequest setProtoSchemaFile(@Nonnull String protoSchemaFile)
+  public UpdateSchemaBundleRequest setProtoSchemaFile(@Nonnull String protoSchemaFile)
       throws IOException {
     Preconditions.checkNotNull(protoSchemaFile, "protoSchemaFile must be set");
     byte[] content = Files.readAllBytes(Paths.get(protoSchemaFile));
@@ -87,7 +87,7 @@ public final class UpdateSchemaBundleRequest {
   }
 
   /** Sets the proto schema for this schema bundle. */
-  public CreateSchemaBundleRequest setProtoSchema(@Nonnull ByteString protoSchema)
+  public UpdateSchemaBundleRequest setProtoSchema(@Nonnull ByteString protoSchema)
       throws IOException {
     Preconditions.checkNotNull(protoSchema, "protoSchema must be set");
     requestBuilder.setSchemaBundle(
