@@ -7,109 +7,125 @@
     ":updateNotScheduled",
     ":automergeDisabled",
     ":ignoreModulesAndTests",
-    ":maintainLockFilesDisabled",
-    ":autodetectPinVersions"
+    ":maintainLockFilesDisabled"
   ],
-  "ignorePaths": [".kokoro/requirements.txt"],
+  "ignorePaths": [
+    ".kokoro/requirements.txt"
+  ],
   "packageRules": [
     {
-      "packagePatterns": [
-        "^com.google.guava:"
-      ],
-      "versionScheme": "docker"
+      "versioning": "docker",
+      "matchPackageNames": [
+        "/^com.google.guava:/"
+      ]
     },
     {
-      "packagePatterns": [
-        "*"
-      ],
       "semanticCommitType": "deps",
-      "semanticCommitScope": null
+      "semanticCommitScope": null,
+      "matchPackageNames": [
+        "*"
+      ]
     },
     {
-      "packagePatterns": [
-        "^org.apache.maven",
-        "^org.jacoco:",
-        "^org.codehaus.mojo:",
-        "^org.sonatype.plugins:",
-        "^com.coveo:",
-        "^com.google.cloud:google-cloud-shared-config"
-      ],
       "semanticCommitType": "build",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "matchPackageNames": [
+        "/^org.apache.maven/",
+        "/^org.jacoco:/",
+        "/^org.codehaus.mojo:/",
+        "/^org.sonatype.plugins:/",
+        "/^com.coveo:/",
+        "/^com.google.cloud:google-cloud-shared-config/"
+      ]
     },
     {
-      "packagePatterns": [
-        "^com.google.cloud:google-cloud-bigtable",
-        "^com.google.cloud:libraries-bom",
-        "^com.google.cloud.samples:shared-configuration"
-      ],
       "semanticCommitType": "chore",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "matchPackageNames": [
+        "/^com.google.cloud:google-cloud-bigtable/",
+        "/^com.google.cloud:libraries-bom/",
+        "/^com.google.cloud.samples:shared-configuration/"
+      ]
     },
     {
-      "packagePatterns": [
-        "^junit:junit",
-        "^com.google.truth:truth",
-        "^org.mockito:mockito-core",
-        "^org.objenesis:objenesis",
-        "^com.google.cloud:google-cloud-conformance-tests",
-        "^io.grpc:protoc-gen-grpc-java",
-        "^com.google.protobuf:protoc"
-      ],
       "semanticCommitType": "test",
-      "semanticCommitScope": "deps"
+      "semanticCommitScope": "deps",
+      "matchPackageNames": [
+        "/^junit:junit/",
+        "/^com.google.truth:truth/",
+        "/^org.mockito:mockito-core/",
+        "/^org.objenesis:objenesis/",
+        "/^com.google.cloud:google-cloud-conformance-tests/",
+        "/^io.grpc:protoc-gen-grpc-java/",
+        "/^com.google.protobuf:protoc/"
+      ]
     },
     {
-      "packagePatterns": [
-        "^com.google.cloud:google-cloud-"
-      ],
-      "ignoreUnstable": false
+      "ignoreUnstable": false,
+      "matchPackageNames": [
+        "/^com.google.cloud:google-cloud-/"
+      ]
     },
     {
-      "packagePatterns": [
-        "^com.fasterxml.jackson.core"
-      ],
-      "groupName": "jackson dependencies"
+      "groupName": "jackson dependencies",
+      "matchPackageNames": [
+        "/^com.fasterxml.jackson.core/"
+      ]
     },
     {
-      "packagePatterns": [
-        "^com.google.cloud:sdk-platform-java-config",
-        "^com.google.cloud:gapic-libraries-bom"
-      ],
-      "groupName": "shared dependencies"
+      "groupName": "shared dependencies",
+      "matchPackageNames": [
+        "/^com.google.cloud:sdk-platform-java-config/",
+        "/^com.google.cloud:gapic-libraries-bom/"
+      ]
     }
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": ["^.*\/pom\\.xml$"],
-      "matchStrings": ["\\<test\\-protoc\\-grpc\\.version>(?<currentValue>.*?)\\<\\/test\\-protoc\\-grpc\\.version\\>"],
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.*/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "\\<test\\-protoc\\-grpc\\.version>(?<currentValue>.*?)\\<\\/test\\-protoc\\-grpc\\.version\\>"
+      ],
       "depNameTemplate": "io.grpc:protoc-gen-grpc-java",
       "datasourceTemplate": "maven"
     },
     {
-      "fileMatch": ["^.*\/pom\\.xml$"],
-      "matchStrings": ["\\<test\\-protoc\\.version>(?<currentValue>.*?)\\<\\/test\\-protoc\\.version\\>"],
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.*/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "\\<test\\-protoc\\.version>(?<currentValue>.*?)\\<\\/test\\-protoc\\.version\\>"
+      ],
       "depNameTemplate": "com.google.protobuf:protoc",
       "datasourceTemplate": "maven"
     },
     {
-      "fileMatch": [
-        "^.kokoro/presubmit/graalvm-native.*.cfg$"
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^.kokoro/presubmit/graalvm-native.*.cfg$/"
       ],
-      "matchStrings": ["value: \"gcr.io/cloud-devrel-public-resources/graalvm.*:(?<currentValue>.*?)\""],
+      "matchStrings": [
+        "value: \"gcr.io/cloud-devrel-public-resources/graalvm.*:(?<currentValue>.*?)\""
+      ],
       "depNameTemplate": "com.google.cloud:sdk-platform-java-config",
       "datasourceTemplate": "maven"
     },
     {
       "customType": "regex",
-      "fileMatch": [
-        "^.github/workflows/unmanaged_dependency_check.yaml$"
+      "managerFilePatterns": [
+        "/^.github/workflows/unmanaged_dependency_check.yaml$/"
       ],
-      "matchStrings": ["uses: googleapis/sdk-platform-java/java-shared-dependencies/unmanaged-dependency-check@google-cloud-shared-dependencies/v(?<currentValue>.+?)\\n"],
+      "matchStrings": [
+        "uses: googleapis/sdk-platform-java/java-shared-dependencies/unmanaged-dependency-check@google-cloud-shared-dependencies/v(?<currentValue>.+?)\\n"
+      ],
       "depNameTemplate": "com.google.cloud:sdk-platform-java-config",
       "datasourceTemplate": "maven"
     }
   ],
-  "semanticCommits": true,
+  "semanticCommits": "enabled",
   "dependencyDashboard": true
 }
