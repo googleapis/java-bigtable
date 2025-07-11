@@ -258,7 +258,8 @@ public class PlanRefreshingCallableTest {
     ExecuteQueryCallContext callContext =
         ExecuteQueryCallContext.create(preparedStatement.bind().build(), metadataFuture);
 
-    Duration originalAttemptTimeout = Duration.ofMillis(100);
+    // Simulate delay for prepare response
+    int prepareDelayMs = 50;
     scheduler.schedule(
         () -> {
           prepareFuture.set(
@@ -267,21 +268,25 @@ public class PlanRefreshingCallableTest {
                       ByteString.copyFromUtf8("initialPlan"),
                       metadata(columnMetadata("strCol", stringType())))));
         },
-        50,
+        prepareDelayMs,
         TimeUnit.MILLISECONDS);
+
+    Duration originalAttemptTimeout = Duration.ofMillis(5000);
     ApiCallContext context =
         GrpcCallContext.createDefault().withTimeoutDuration(originalAttemptTimeout);
-    // prepare takes 50 ms to resolve. Despite that the execute timeout should be around 100ms from
-    // now (w padding)
-    Deadline paddedDeadlineAtStartOfCall =
-        Deadline.after(originalAttemptTimeout.toMillis() + 5, TimeUnit.MILLISECONDS);
+    Instant startOfCall = Instant.now();
     callable.call(callContext, outerObserver, context);
     scheduler.shutdown();
     scheduler.awaitTermination(30, TimeUnit.SECONDS);
     GrpcCallContext grpcCallContext =
         (GrpcCallContext) innerCallable.popLastCall().getApiCallContext();
+
+    // Deadline should be at most (original deadline - prepare delay). Add 1ms to avoid flakiness.
+    Deadline deadlineUpperBound =
+        Deadline.after(
+            originalAttemptTimeout.toMillis() - prepareDelayMs + 1, TimeUnit.MILLISECONDS);
     Deadline executeDeadline = grpcCallContext.getCallOptions().getDeadline();
-    assertThat(executeDeadline.isBefore(paddedDeadlineAtStartOfCall)).isTrue();
+    assertThat(executeDeadline.isBefore(deadlineUpperBound)).isTrue();
   }
 
   @Test
