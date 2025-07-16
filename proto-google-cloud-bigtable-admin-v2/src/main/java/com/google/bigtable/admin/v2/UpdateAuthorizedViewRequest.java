@@ -73,8 +73,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
    * <pre>
    * Required. The AuthorizedView to update. The `name` in `authorized_view` is
    * used to identify the AuthorizedView. AuthorizedView name must in this
-   * format
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+   * format:
+   * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
    * </pre>
    *
    * <code>
@@ -94,8 +94,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
    * <pre>
    * Required. The AuthorizedView to update. The `name` in `authorized_view` is
    * used to identify the AuthorizedView. AuthorizedView name must in this
-   * format
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+   * format:
+   * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
    * </pre>
    *
    * <code>
@@ -117,8 +117,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
    * <pre>
    * Required. The AuthorizedView to update. The `name` in `authorized_view` is
    * used to identify the AuthorizedView. AuthorizedView name must in this
-   * format
-   * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+   * format:
+   * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
    * </pre>
    *
    * <code>
@@ -655,8 +655,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -675,8 +675,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -701,8 +701,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -729,8 +729,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -755,8 +755,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -789,8 +789,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -814,8 +814,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -834,8 +834,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>
@@ -858,8 +858,8 @@ public final class UpdateAuthorizedViewRequest extends com.google.protobuf.Gener
      * <pre>
      * Required. The AuthorizedView to update. The `name` in `authorized_view` is
      * used to identify the AuthorizedView. AuthorizedView name must in this
-     * format
-     * projects/&lt;project&gt;/instances/&lt;instance&gt;/tables/&lt;table&gt;/authorizedViews/&lt;authorized_view&gt;
+     * format:
+     * `projects/{project}/instances/{instance}/tables/{table}/authorizedViews/{authorized_view}`.
      * </pre>
      *
      * <code>

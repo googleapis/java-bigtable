@@ -215,8 +215,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
    *
    *
    * <pre>
-   * Optional. The resource_view to be applied to the returned views' fields.
-   * Default to NAME_ONLY.
+   * Optional. The resource_view to be applied to the returned AuthorizedViews'
+   * fields. Default to NAME_ONLY.
    * </pre>
    *
    * <code>
@@ -234,8 +234,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
    *
    *
    * <pre>
-   * Optional. The resource_view to be applied to the returned views' fields.
-   * Default to NAME_ONLY.
+   * Optional. The resource_view to be applied to the returned AuthorizedViews'
+   * fields. Default to NAME_ONLY.
    * </pre>
    *
    * <code>
@@ -998,8 +998,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
      *
      *
      * <pre>
-     * Optional. The resource_view to be applied to the returned views' fields.
-     * Default to NAME_ONLY.
+     * Optional. The resource_view to be applied to the returned AuthorizedViews'
+     * fields. Default to NAME_ONLY.
      * </pre>
      *
      * <code>
@@ -1017,8 +1017,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
      *
      *
      * <pre>
-     * Optional. The resource_view to be applied to the returned views' fields.
-     * Default to NAME_ONLY.
+     * Optional. The resource_view to be applied to the returned AuthorizedViews'
+     * fields. Default to NAME_ONLY.
      * </pre>
      *
      * <code>
@@ -1039,8 +1039,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
      *
      *
      * <pre>
-     * Optional. The resource_view to be applied to the returned views' fields.
-     * Default to NAME_ONLY.
+     * Optional. The resource_view to be applied to the returned AuthorizedViews'
+     * fields. Default to NAME_ONLY.
      * </pre>
      *
      * <code>
@@ -1062,8 +1062,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
      *
      *
      * <pre>
-     * Optional. The resource_view to be applied to the returned views' fields.
-     * Default to NAME_ONLY.
+     * Optional. The resource_view to be applied to the returned AuthorizedViews'
+     * fields. Default to NAME_ONLY.
      * </pre>
      *
      * <code>
@@ -1087,8 +1087,8 @@ public final class ListAuthorizedViewsRequest extends com.google.protobuf.Genera
      *
      *
      * <pre>
-     * Optional. The resource_view to be applied to the returned views' fields.
-     * Default to NAME_ONLY.
+     * Optional. The resource_view to be applied to the returned AuthorizedViews'
+     * fields. Default to NAME_ONLY.
      * </pre>
      *
      * <code>
