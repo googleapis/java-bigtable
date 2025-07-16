@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.google.cloud</groupId>
         <artifactId>sdk-platform-java-config</artifactId>
-        <version>3.50.0</version>
+        <version>3.50.1</version>
         <relativePath/>
     </parent>
 
@@ -190,7 +190,6 @@
                 <groupId>com.google.truth.extensions</groupId>
                 <artifactId>truth-proto-extension</artifactId>
                 <version>1.4.4</version>
-                <scope>test</scope>
                 <exclusions>
                     <!-- exclude protobuf-java as it is managed in the shared deps bom-->
                     <exclusion>
@@ -206,30 +205,15 @@
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
+                <artifactId>mockito-bom</artifactId>
                 <version>4.11.0</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <!-- TODO: remove this next release -->
-                <!-- Temporarily disable requireUpperBoundDeps
-                    rule to downgrade bad grpc release:
-                     https://github.com/grpc/grpc-java/releases/tag/v1.68.0-->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <configuration>
-                        <rulesToSkip>requireUpperBoundDeps</rulesToSkip>
-                        <failIfNoRules>false</failIfNoRules>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <!-- Using maven site plugin only as a hook for javadoc:aggregate, don't need the reports -->
             <plugin>
