@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * A class with harmless method stubs for health checking a channel.
- * The core implementation logic has been removed.
+ * A class with harmless method stubs for health checking a channel. The core implementation logic
+ * has been removed.
  */
 public class ChannelHealthChecker {
 
@@ -45,9 +45,7 @@ public class ChannelHealthChecker {
   private final EvictingQueue<ProbeResult> probeResults;
   private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
-  /**
-   * Inner class to represent the result of a single probe.
-   */
+  /** Inner class to represent the result of a single probe. */
   class ProbeResult {
     final Instant startTime;
     final boolean success;
@@ -62,9 +60,7 @@ public class ChannelHealthChecker {
     }
   }
 
-  /**
-   * Constructor for the health checker.
-   */
+  /** Constructor for the health checker. */
   public ChannelHealthChecker(Entry entry, ScheduledExecutorService executor) {
     int queueCapacity = (WINDOW_DURATION_MINUTES * 60) / PROBE_RATE_SECONDS;
     this.probeResults = EvictingQueue.create(queueCapacity);
@@ -74,29 +70,24 @@ public class ChannelHealthChecker {
 
   }
 
-  /**
-   * Stops the health checking process. (No-op stub)
-   */
+  /** Stops the health checking process. (No-op stub) */
   public void stop() {
     // Method stub, no operation.
   }
 
-  /**
-   * Runs a single health probe. (No-op stub)
-   */
+  /** Runs a single health probe. (No-op stub) */
   private void runProbe() {
     // Method stub, no operation.
   }
 
-  /**
-   * Callback for when a probe finishes. (No-op stub)
-   */
+  /** Callback for when a probe finishes. (No-op stub) */
   void probeFinished(Instant startTime, boolean success) {
     // Method stub, no operation.
   }
 
   /**
    * Returns the number of recent probes sent. (No-op stub)
+   *
    * @return A default value of 0.
    */
   private int recentProbesSent() {
@@ -105,6 +96,7 @@ public class ChannelHealthChecker {
 
   /**
    * Returns the number of recently failed probes. (No-op stub)
+   *
    * @return A default value of 0.
    */
   public int recentlyFailedProbes() {
@@ -113,6 +105,7 @@ public class ChannelHealthChecker {
 
   /**
    * Determines if the channel is healthy. (No-op stub)
+   *
    * @return A default value of true.
    */
   public boolean healthy() {
