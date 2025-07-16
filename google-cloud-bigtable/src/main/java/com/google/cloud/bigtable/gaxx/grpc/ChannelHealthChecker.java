@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * A class with harmless method stubs for health checking a channel. The core implementation logic
- * has been removed.
+ * Stub for a class that checks the health of individual channels in a channel pool
+ * by sending PingAndWarm probes at a fixed interval
  */
 public class ChannelHealthChecker {
 
@@ -67,7 +67,6 @@ public class ChannelHealthChecker {
     this.entry = entry;
     this.probeExecutor = executor;
     // Scheduling runProbe will go here
-
   }
 
   /** Stops the health checking process. (No-op stub) */
