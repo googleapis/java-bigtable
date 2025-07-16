@@ -25,8 +25,8 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Stub for a class that checks the health of individual channels in a channel pool
- * by sending PingAndWarm probes at a fixed interval
+ * Stub for a class that checks the health of individual channels in a channel pool by sending
+ * PingAndWarm probes at a fixed interval
  */
 public class ChannelHealthChecker {
 
