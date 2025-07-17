@@ -69,7 +69,7 @@ public class ChannelHealthChecker {
     // Scheduling runProbe will go here
   }
 
-  /** Stops the health checking process. (No-op stub) */
+  /** Cancel health checking future (No-op stub) */
   public void stop() {
     // Method stub, no operation.
   }
@@ -85,18 +85,14 @@ public class ChannelHealthChecker {
   }
 
   /**
-   * Returns the number of recent probes sent. (No-op stub)
-   *
-   * @return A default value of 0.
+   * Number of probes in flight plus number of probe results. (No-op stub)
    */
   private int recentProbesSent() {
     return 0;
   }
 
   /**
-   * Returns the number of recently failed probes. (No-op stub)
-   *
-   * @return A default value of 0.
+   * Number of recently failed probes. (No-op stub)
    */
   public int recentlyFailedProbes() {
     return 0;
