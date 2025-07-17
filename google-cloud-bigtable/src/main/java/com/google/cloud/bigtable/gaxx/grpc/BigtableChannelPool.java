@@ -64,6 +64,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
+  private final ChannelPoolHealthChecker channelPoolHealthChecker =
+      new ChannelPoolHealthChecker(() -> entries.get());
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
@@ -438,6 +440,10 @@ public class BigtableChannelPool extends ManagedChannel {
 
     private Entry(ManagedChannel channel) {
       this.channel = channel;
+    }
+
+    ManagedChannel getManagedChannel() {
+      return this.channel;
     }
 
     int getAndResetMaxOutstanding() {
