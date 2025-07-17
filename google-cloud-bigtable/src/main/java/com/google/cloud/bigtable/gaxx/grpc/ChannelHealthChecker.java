@@ -84,16 +84,12 @@ public class ChannelHealthChecker {
     // Method stub, no operation.
   }
 
-  /**
-   * Number of probes in flight plus number of probe results. (No-op stub)
-   */
+  /** Number of probes in flight plus number of probe results. (No-op stub) */
   private int recentProbesSent() {
     return 0;
   }
 
-  /**
-   * Number of recently failed probes. (No-op stub)
-   */
+  /** Number of recently failed probes. (No-op stub) */
   public int recentlyFailedProbes() {
     return 0;
   }
