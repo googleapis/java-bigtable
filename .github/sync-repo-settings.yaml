@@ -206,8 +206,10 @@ branchProtectionRules:
       - dependencies (17)
       - lint
       - clirr
-      - units (8)
       - units (11)
+      - units (17)
+      - units (21)
+      - units (24)
       - 'Kokoro - Test: Integration'
       - cla/google
       - 'Kokoro - Test: Java GraalVM Native Image A'
