@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
+import org.checkerframework.checker.units.qual.A;
 
 /**
  * A {@link ManagedChannel} that will send requests round-robin via a set of channels.
@@ -64,6 +65,7 @@ public class BigtableChannelPool extends ManagedChannel {
 
   private final ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
+  private final ScheduledExecutorService channelHealthProbingExecutor = Executors.newSingleThreadScheduledExecutor();
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
@@ -104,7 +106,7 @@ public class BigtableChannelPool extends ManagedChannel {
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
       channelPrimer.primeChannel(newChannel);
-      initialListBuilder.add(new Entry(newChannel));
+      initialListBuilder.add(new Entry(newChannel, channelHealthProbingExecutor));
     }
 
     entries.set(initialListBuilder.build());
@@ -162,6 +164,9 @@ public class BigtableChannelPool extends ManagedChannel {
       // shutdownNow will cancel scheduled tasks
       executor.shutdownNow();
     }
+    if (channelHealthProbingExecutor != null){
+      channelHealthProbingExecutor.shutdownNow();
+    }
     return this;
   }
 
@@ -201,6 +206,9 @@ public class BigtableChannelPool extends ManagedChannel {
     }
     if (executor != null) {
       executor.shutdownNow();
+    }
+    if (channelHealthProbingExecutor != null) {
+      channelHealthProbingExecutor.shutdownNow();
     }
     return this;
   }
@@ -330,7 +338,7 @@ public class BigtableChannelPool extends ManagedChannel {
       try {
         ManagedChannel newChannel = channelFactory.createSingleChannel();
         this.channelPrimer.primeChannel(newChannel);
-        newEntries.add(new Entry(newChannel));
+        newEntries.add(new Entry(newChannel, channelHealthProbingExecutor));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
       }
@@ -370,7 +378,7 @@ public class BigtableChannelPool extends ManagedChannel {
         try {
           ManagedChannel newChannel = channelFactory.createSingleChannel();
           this.channelPrimer.primeChannel(newChannel);
-          newEntries.set(i, new Entry(newChannel));
+          newEntries.set(i, new Entry(newChannel, channelHealthProbingExecutor));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);
         }
@@ -467,18 +475,39 @@ public class BigtableChannelPool extends ManagedChannel {
       return true;
     }
 
+    /** Number of probes in flight plus number of probe results. (No-op stub) */
+    AtomicInteger recentProbesSent() {
+      return new AtomicInteger(0);
+    }
+
+    /** Number of recently failed probes. (No-op stub) */
+    AtomicInteger recentlyFailedProbes() {
+      return new AtomicInteger(0);
+    }
+
+    private final AtomicInteger probesInFlight = new AtomicInteger(0);
+
+
     // Flag that the channel should be closed once all of the outstanding RPC complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
+    private final ChannelHealthChecker healthChecker;
 
-    private Entry(ManagedChannel channel) {
+    private Entry(ManagedChannel channel, ScheduledExecutorService executor) {
       this.channel = channel;
+      this.healthChecker = new ChannelHealthChecker(this, executor);
     }
 
     ManagedChannel getManagedChannel() {
       return this.channel;
     }
+
+    // Add a getter for the healthChecker
+    public ChannelHealthChecker getHealthChecker() {
+      return healthChecker;
+    }
+
 
     int getAndResetMaxOutstanding() {
       return maxOutstanding.getAndSet(outstandingRpcs.get());
