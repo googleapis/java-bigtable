@@ -43,6 +43,7 @@ public class ChannelHealthChecker {
   private volatile ScheduledFuture<?> scheduledProbeFuture;
   private final ReadWriteLock probeResultsLock = new ReentrantReadWriteLock();
   private final EvictingQueue<ProbeResult> probeResults;
+
   // private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
   /** Inner class to represent the result of a single probe. */
