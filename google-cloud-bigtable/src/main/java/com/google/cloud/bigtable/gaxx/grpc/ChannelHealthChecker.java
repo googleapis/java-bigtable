@@ -84,6 +84,16 @@ public class ChannelHealthChecker {
     // Method stub, no operation.
   }
 
+  /** Number of probes in flight plus number of probe results. (No-op stub) */
+  AtomicInteger recentProbesSent() {
+    return new AtomicInteger(0);
+  }
+
+  /** Number of recently failed probes. (No-op stub) */
+  AtomicInteger recentlyFailedProbes() {
+    return new AtomicInteger(0);
+  }
+
   /**
    * Determines if the channel is healthy. (No-op stub)
    *

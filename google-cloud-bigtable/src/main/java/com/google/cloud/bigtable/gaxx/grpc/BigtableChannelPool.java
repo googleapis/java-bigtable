@@ -440,17 +440,6 @@ public class BigtableChannelPool extends ManagedChannel {
     @VisibleForTesting final AtomicInteger outstandingRpcs = new AtomicInteger(0);
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
-
-    /** Number of probes in flight plus number of probe results. (No-op stub) */
-    AtomicInteger recentProbesSent() {
-      return new AtomicInteger(0);
-    }
-
-    /** Number of recently failed probes. (No-op stub) */
-    AtomicInteger recentlyFailedProbes() {
-      return new AtomicInteger(0);
-    }
-
     private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
 
