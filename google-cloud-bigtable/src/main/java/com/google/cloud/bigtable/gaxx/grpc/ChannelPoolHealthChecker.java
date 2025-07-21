@@ -31,13 +31,11 @@ public class ChannelPoolHealthChecker {
 
   // Class fields
   private final Supplier<ImmutableList<Entry>> entrySupplier;
-  private Map<Entry, ChannelHealthChecker> healthCheckers;
   private Instant lastEviction;
   private ScheduledExecutorService executor;
 
   /** Constructor for the pool health checker. */
   public ChannelPoolHealthChecker(Supplier<ImmutableList<Entry>> entrySupplier) {
-    this.healthCheckers = Collections.synchronizedMap(new WeakHashMap<>());
     this.entrySupplier = entrySupplier;
     this.lastEviction = Instant.MIN;
     this.executor = Executors.newSingleThreadScheduledExecutor();

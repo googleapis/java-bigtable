@@ -43,7 +43,7 @@ public class ChannelHealthChecker {
   private volatile ScheduledFuture<?> scheduledProbeFuture;
   private final ReadWriteLock probeResultsLock = new ReentrantReadWriteLock();
   private final EvictingQueue<ProbeResult> probeResults;
-  private final AtomicInteger probesInFlight = new AtomicInteger(0);
+  // private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
   /** Inner class to represent the result of a single probe. */
   class ProbeResult {
@@ -82,16 +82,6 @@ public class ChannelHealthChecker {
   /** Callback for when a probe finishes. (No-op stub) */
   void probeFinished(Instant startTime, boolean success) {
     // Method stub, no operation.
-  }
-
-  /** Number of probes in flight plus number of probe results. (No-op stub) */
-  private int recentProbesSent() {
-    return 0;
-  }
-
-  /** Number of recently failed probes. (No-op stub) */
-  public int recentlyFailedProbes() {
-    return 0;
   }
 
   /**
