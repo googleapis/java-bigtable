@@ -43,7 +43,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
-import org.checkerframework.checker.units.qual.A;
 
 /**
  * A {@link ManagedChannel} that will send requests round-robin via a set of channels.
@@ -65,7 +64,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
   private final ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
-  private final ScheduledExecutorService channelHealthProbingExecutor = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService channelHealthProbingExecutor =
+      Executors.newSingleThreadScheduledExecutor();
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
@@ -164,7 +164,7 @@ public class BigtableChannelPool extends ManagedChannel {
       // shutdownNow will cancel scheduled tasks
       executor.shutdownNow();
     }
-    if (channelHealthProbingExecutor != null){
+    if (channelHealthProbingExecutor != null) {
       channelHealthProbingExecutor.shutdownNow();
     }
     return this;
