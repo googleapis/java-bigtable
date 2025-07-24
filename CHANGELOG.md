@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.63.0](https://github.com/googleapis/java-bigtable/compare/v2.62.0...v2.63.0) (2025-07-24)
+
+
+### Features
+
+* Add Idempotency to Cloud Bigtable MutateRowsRequest API ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Add type support for Proto and Enum ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+* Publish Proto and Enum types to CBT data API ([ace12d5](https://github.com/googleapis/java-bigtable/commit/ace12d53fe9f4d3779b2b1a2aed69ceeedd11600))
+
+
+### Documentation
+
+* Sync generated comments from the API Protos ([bc58b4f](https://github.com/googleapis/java-bigtable/commit/bc58b4f31ef457bd322f270b044735e4b62d298f))
+
 ## [2.62.0](https://github.com/googleapis/java-bigtable/compare/v2.61.0...v2.62.0) (2025-07-15)
 
 
