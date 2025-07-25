@@ -61,9 +61,13 @@ public class BigtableChannelPool extends ManagedChannel {
   private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
   private final ScheduledExecutorService executor;
+  private final ScheduledExecutorService channelHealthProbingExecutor =
+      Executors.newSingleThreadScheduledExecutor();
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
+  private final ChannelPoolHealthChecker channelPoolHealthChecker =
+      new ChannelPoolHealthChecker(() -> entries.get());
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
@@ -92,7 +96,8 @@ public class BigtableChannelPool extends ManagedChannel {
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
 
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
-      initialListBuilder.add(new Entry(channelFactory.createSingleChannel()));
+      initialListBuilder.add(
+          new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
     }
 
     entries.set(initialListBuilder.build());
@@ -150,6 +155,9 @@ public class BigtableChannelPool extends ManagedChannel {
       // shutdownNow will cancel scheduled tasks
       executor.shutdownNow();
     }
+    if (channelHealthProbingExecutor != null) {
+      channelHealthProbingExecutor.shutdownNow();
+    }
     return this;
   }
 
@@ -189,6 +197,9 @@ public class BigtableChannelPool extends ManagedChannel {
     }
     if (executor != null) {
       executor.shutdownNow();
+    }
+    if (channelHealthProbingExecutor != null) {
+      channelHealthProbingExecutor.shutdownNow();
     }
     return this;
   }
@@ -316,7 +327,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
     for (int i = 0; i < desiredSize - localEntries.size(); i++) {
       try {
-        newEntries.add(new Entry(channelFactory.createSingleChannel()));
+        newEntries.add(
+            new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
       }
@@ -354,7 +366,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
       for (int i = 0; i < newEntries.size(); i++) {
         try {
-          newEntries.set(i, new Entry(channelFactory.createSingleChannel()));
+          newEntries.set(
+              i, new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);
         }
@@ -430,14 +443,26 @@ public class BigtableChannelPool extends ManagedChannel {
     @VisibleForTesting final AtomicInteger outstandingRpcs = new AtomicInteger(0);
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
+    private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
     // Flag that the channel should be closed once all of the outstanding RPC complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
+    private final ChannelHealthChecker healthChecker;
 
-    private Entry(ManagedChannel channel) {
+    private Entry(ManagedChannel channel, ScheduledExecutorService executor) {
       this.channel = channel;
+      this.healthChecker = new ChannelHealthChecker(this, executor);
+    }
+
+    ManagedChannel getManagedChannel() {
+      return this.channel;
+    }
+
+    // Add a getter for the healthChecker
+    public ChannelHealthChecker getHealthChecker() {
+      return healthChecker;
     }
 
     int getAndResetMaxOutstanding() {
@@ -454,7 +479,7 @@ public class BigtableChannelPool extends ManagedChannel {
       // register desire to start RPC
       int currentOutstanding = outstandingRpcs.incrementAndGet();
 
-      // Rough book keeping
+      // Rough bookkeeping
       int prevMax = maxOutstanding.get();
       if (currentOutstanding > prevMax) {
         maxOutstanding.incrementAndGet();
@@ -491,6 +516,9 @@ public class BigtableChannelPool extends ManagedChannel {
      */
     private void requestShutdown() {
       shutdownRequested.set(true);
+      if (healthChecker != null) {
+        healthChecker.stop();
+      }
       if (outstandingRpcs.get() == 0) {
         shutdown();
       }
