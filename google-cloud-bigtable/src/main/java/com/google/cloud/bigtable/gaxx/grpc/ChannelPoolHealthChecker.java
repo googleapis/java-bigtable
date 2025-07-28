@@ -91,8 +91,8 @@ public class ChannelPoolHealthChecker {
   /** Periodically detects and removes outlier channels from the pool. (No-op stub) */
   private void detectAndRemoveOutlierEntries() {
     // Method stub, no operation.
-    for (Entry entry: this.entrySupplier.get()) {
-      //if not healthy, enterIdle
+    for (Entry entry : this.entrySupplier.get()) {
+      // if not healthy, enterIdle
     }
   }
 }
