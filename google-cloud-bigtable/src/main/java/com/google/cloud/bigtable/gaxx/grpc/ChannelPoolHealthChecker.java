@@ -70,15 +70,13 @@ public class ChannelPoolHealthChecker {
   /** Runs probes on all the channels in the pool. (No-op stub) */
   private void runProbes() {
     // Method stub, no operation.
-    for (Entry entry: this.entrySupplier.get()) {
-      //pingAndWarm
+    for (Entry entry : this.entrySupplier.get()) {
+      // pingAndWarm
     }
   }
 
   /** Callback that will update Entry data on probe complete. (No-op stub) */
-  private void onComplete() {
-
-  }
+  private void onComplete() {}
 
   /**
    * Finds a channel that is an outlier in terms of health. (No-op stub)
@@ -93,8 +91,8 @@ public class ChannelPoolHealthChecker {
   /** Periodically detects and removes outlier channels from the pool. (No-op stub) */
   private void detectAndRemoveOutlierEntries() {
     // Method stub, no operation.
-    for (Entry entry: this.entrySupplier.get()) {
-      //if not healthy, enterIdle
+    for (Entry entry : this.entrySupplier.get()) {
+      // if not healthy, enterIdle
     }
   }
 }

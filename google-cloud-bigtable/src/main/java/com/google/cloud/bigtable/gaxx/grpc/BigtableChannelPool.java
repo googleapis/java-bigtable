@@ -94,8 +94,7 @@ public class BigtableChannelPool extends ManagedChannel {
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
 
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
-      initialListBuilder.add(
-          new Entry(channelFactory.createSingleChannel()));
+      initialListBuilder.add(new Entry(channelFactory.createSingleChannel()));
     }
 
     entries.set(initialListBuilder.build());
@@ -319,8 +318,7 @@ public class BigtableChannelPool extends ManagedChannel {
 
     for (int i = 0; i < desiredSize - localEntries.size(); i++) {
       try {
-        newEntries.add(
-            new Entry(channelFactory.createSingleChannel()));
+        newEntries.add(new Entry(channelFactory.createSingleChannel()));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
       }
@@ -358,8 +356,7 @@ public class BigtableChannelPool extends ManagedChannel {
 
       for (int i = 0; i < newEntries.size(); i++) {
         try {
-          newEntries.set(
-              i, new Entry(channelFactory.createSingleChannel()));
+          newEntries.set(i, new Entry(channelFactory.createSingleChannel()));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);
         }
