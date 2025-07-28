@@ -26,6 +26,28 @@ import javax.annotation.Nullable;
 /** Stub for a class that will manage the health checking in the BigtableChannelPool */
 public class ChannelPoolHealthChecker {
 
+  // Configuration constants
+  private static final int WINDOW_DURATION_MINUTES = 5;
+  private static final int PROBE_RATE_SECONDS = 30;
+  private static final int PROBE_DEADLINE_MILLISECONDS = 500;
+  private static final int MIN_PROBES_FOR_EVALUATION = 4;
+  private static final int FAILURE_PERCENT_THRESHOLD = 60;
+
+  /** Inner class to represent the result of a single probe. */
+  class ProbeResult {
+    final Instant startTime;
+    final boolean success;
+
+    ProbeResult(Instant startTime, boolean success) {
+      this.startTime = startTime;
+      this.success = success;
+    }
+
+    public boolean isSuccessful() {
+      return success;
+    }
+  }
+
   // Class fields
   private final Supplier<ImmutableList<Entry>> entrySupplier;
   private Instant lastEviction;
@@ -36,7 +58,26 @@ public class ChannelPoolHealthChecker {
     this.entrySupplier = entrySupplier;
     this.lastEviction = Instant.MIN;
     this.executor = Executors.newSingleThreadScheduledExecutor();
-    // Scheduling for detectAndRemoveOutlierChannels goes here
+    // Scheduling for runProbes and detectAndRemoveOutlierChannels goes here
+
+  }
+
+  /** Stop running health checking (No-op stub) */
+  public void stop() {
+    // Method stub, no operation.
+  }
+
+  /** Runs probes on all the channels in the pool. (No-op stub) */
+  private void runProbes() {
+    // Method stub, no operation.
+    for (Entry entry: this.entrySupplier.get()) {
+      //pingAndWarm
+    }
+  }
+
+  /** Callback that will update Entry data on probe complete. (No-op stub) */
+  private void onComplete() {
+
   }
 
   /**
@@ -52,5 +93,8 @@ public class ChannelPoolHealthChecker {
   /** Periodically detects and removes outlier channels from the pool. (No-op stub) */
   private void detectAndRemoveOutlierEntries() {
     // Method stub, no operation.
+    for (Entry entry: this.entrySupplier.get()) {
+      //if not healthy, enterIdle
+    }
   }
 }

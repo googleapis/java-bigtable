@@ -61,8 +61,6 @@ public class BigtableChannelPool extends ManagedChannel {
   private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
   private final ScheduledExecutorService executor;
-  private final ScheduledExecutorService channelHealthProbingExecutor =
-      Executors.newSingleThreadScheduledExecutor();
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
@@ -97,7 +95,7 @@ public class BigtableChannelPool extends ManagedChannel {
 
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       initialListBuilder.add(
-          new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
+          new Entry(channelFactory.createSingleChannel()));
     }
 
     entries.set(initialListBuilder.build());
@@ -155,9 +153,6 @@ public class BigtableChannelPool extends ManagedChannel {
       // shutdownNow will cancel scheduled tasks
       executor.shutdownNow();
     }
-    if (channelHealthProbingExecutor != null) {
-      channelHealthProbingExecutor.shutdownNow();
-    }
     return this;
   }
 
@@ -197,9 +192,6 @@ public class BigtableChannelPool extends ManagedChannel {
     }
     if (executor != null) {
       executor.shutdownNow();
-    }
-    if (channelHealthProbingExecutor != null) {
-      channelHealthProbingExecutor.shutdownNow();
     }
     return this;
   }
@@ -328,7 +320,7 @@ public class BigtableChannelPool extends ManagedChannel {
     for (int i = 0; i < desiredSize - localEntries.size(); i++) {
       try {
         newEntries.add(
-            new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
+            new Entry(channelFactory.createSingleChannel()));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
       }
@@ -367,7 +359,7 @@ public class BigtableChannelPool extends ManagedChannel {
       for (int i = 0; i < newEntries.size(); i++) {
         try {
           newEntries.set(
-              i, new Entry(channelFactory.createSingleChannel(), channelHealthProbingExecutor));
+              i, new Entry(channelFactory.createSingleChannel()));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);
         }
@@ -445,24 +437,36 @@ public class BigtableChannelPool extends ManagedChannel {
     private final AtomicInteger maxOutstanding = new AtomicInteger();
     private final AtomicInteger probesInFlight = new AtomicInteger(0);
 
+    /** Number of probes in flight plus number of probe results. (No-op stub) */
+    AtomicInteger recentProbesSent() {
+      return new AtomicInteger(0);
+    }
+
+    /** Number of recently failed probes. (No-op stub) */
+    AtomicInteger recentlyFailedProbes() {
+      return new AtomicInteger(0);
+    }
+
+    /**
+     * Determines if the channel is healthy. (No-op stub)
+     *
+     * @return A default value of true.
+     */
+    public boolean healthy() {
+      return true;
+    }
+
     // Flag that the channel should be closed once all of the outstanding RPC complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
-    private final ChannelHealthChecker healthChecker;
 
-    private Entry(ManagedChannel channel, ScheduledExecutorService executor) {
+    private Entry(ManagedChannel channel) {
       this.channel = channel;
-      this.healthChecker = new ChannelHealthChecker(this, executor);
     }
 
     ManagedChannel getManagedChannel() {
       return this.channel;
-    }
-
-    // Add a getter for the healthChecker
-    public ChannelHealthChecker getHealthChecker() {
-      return healthChecker;
     }
 
     int getAndResetMaxOutstanding() {
