@@ -110,12 +110,6 @@ public class BigtableChannelPrimer implements ChannelPrimer {
     }
   }
 
-  /**
-   * Asynchronously sends a PingAndWarm request.
-   *
-   * @param managedChannel The channel to send the request on.
-   * @return A ListenableFuture that will be completed with the PingAndWarmResponse or an exception.
-   */
   public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(
       ManagedChannel managedChannel) {
     ClientCall<PingAndWarmRequest, PingAndWarmResponse> clientCall =
