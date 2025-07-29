@@ -15,7 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
-import com.google.api.core.BetaApi;
+import com.google.api.core.InternalApi;
 import com.google.api.core.SettableApiFuture;
 import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.auth.Credentials;
@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * <p>This implementation is subject to change in the future, but currently it will prime the
  * channel by sending a ReadRow request for a hardcoded, non-existent row key.
  */
-@BetaApi("Channel priming is not currently stable and might change in the future")
+@InternalApi("Channel priming is not currently stable and might change in the future")
 public class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
 
