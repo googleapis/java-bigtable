@@ -47,7 +47,7 @@ import java.util.logging.Logger;
  * channel by sending a ReadRow request for a hardcoded, non-existent row key.
  */
 @BetaApi("Channel priming is not currently stable and might change in the future")
-class BigtableChannelPrimer implements ChannelPrimer {
+public class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
 
   static final Metadata.Key<String> REQUEST_PARAMS =
