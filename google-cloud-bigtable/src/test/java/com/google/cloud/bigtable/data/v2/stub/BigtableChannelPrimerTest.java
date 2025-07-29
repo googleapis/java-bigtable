@@ -16,6 +16,7 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.assertThrows;
 
 import com.google.api.core.ApiFunction;
 import com.google.api.core.SettableApiFuture;
@@ -193,12 +194,9 @@ public class BigtableChannelPrimerTest {
 
     SettableApiFuture<PingAndWarmResponse> future = primer.sendPrimeRequestsAsync(channel);
 
-    try {
-      future.get(1, TimeUnit.SECONDS);
-    } catch (Exception e) {
-      // Assert that the future completes with an ExecutionException
-      assertThat(e).isInstanceOf(ExecutionException.class);
-    }
+    ExecutionException e =
+        assertThrows(ExecutionException.class, () -> future.get(1, TimeUnit.SECONDS));
+    assertThat(e).hasCauseThat().hasMessageThat().contains("UNAVAILABLE");
   }
 
   private static class MetadataInterceptor implements ServerInterceptor {
