@@ -25,7 +25,7 @@ public class NoOpChannelPrimer implements ChannelPrimer {
     return new NoOpChannelPrimer();
   }
 
-  NoOpChannelPrimer() {}
+  private NoOpChannelPrimer() {}
 
   @Override
   public void primeChannel(ManagedChannel managedChannel) {
