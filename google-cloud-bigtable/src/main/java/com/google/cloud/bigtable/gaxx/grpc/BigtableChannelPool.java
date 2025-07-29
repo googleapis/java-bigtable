@@ -101,9 +101,7 @@ public class BigtableChannelPool extends ManagedChannel {
 
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
-      if (channelPrimer != null) {
-        channelPrimer.primeChannel(newChannel);
-      }
+      channelPrimer.primeChannel(newChannel);
       initialListBuilder.add(new Entry(newChannel));
     }
 
@@ -329,9 +327,7 @@ public class BigtableChannelPool extends ManagedChannel {
     for (int i = 0; i < desiredSize - localEntries.size(); i++) {
       try {
         ManagedChannel newChannel = channelFactory.createSingleChannel();
-        if (this.channelPrimer != null) {
-          this.channelPrimer.primeChannel(newChannel);
-        }
+        this.channelPrimer.primeChannel(newChannel);
         newEntries.add(new Entry(newChannel));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
@@ -371,9 +367,7 @@ public class BigtableChannelPool extends ManagedChannel {
       for (int i = 0; i < newEntries.size(); i++) {
         try {
           ManagedChannel newChannel = channelFactory.createSingleChannel();
-          if (this.channelPrimer != null) {
-            this.channelPrimer.primeChannel(newChannel);
-          }
+          this.channelPrimer.primeChannel(newChannel);
           newEntries.set(i, new Entry(newChannel));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);

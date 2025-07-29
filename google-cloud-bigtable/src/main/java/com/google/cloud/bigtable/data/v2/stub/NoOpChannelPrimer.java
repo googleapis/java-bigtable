@@ -15,9 +15,11 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelPrimer;
 import io.grpc.ManagedChannel;
 
+@InternalApi
 public class NoOpChannelPrimer implements ChannelPrimer {
   static NoOpChannelPrimer create() {
     return new NoOpChannelPrimer();
