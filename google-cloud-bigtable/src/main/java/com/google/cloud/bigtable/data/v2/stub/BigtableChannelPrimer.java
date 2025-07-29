@@ -46,7 +46,7 @@ import java.util.logging.Logger;
  * <p>This implementation is subject to change in the future, but currently it will prime the
  * channel by sending a ReadRow request for a hardcoded, non-existent row key.
  */
-@InternalApi("Channel priming is not currently stable and might change in the future")
+@InternalApi
 public class BigtableChannelPrimer implements ChannelPrimer {
   private static Logger LOG = Logger.getLogger(BigtableChannelPrimer.class.toString());
 
