@@ -41,7 +41,7 @@ import java.util.logging.Logger;
 
 /**
  * A channel warmer that ensures that a Bigtable channel is ready to be used before being added to
- * the active {@link com.google.api.gax.grpc.ChannelPool}.
+ * the active {@link com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool}.
  *
  * <p>This implementation is subject to change in the future, but currently it will prime the
  * channel by sending a ReadRow request for a hardcoded, non-existent row key.

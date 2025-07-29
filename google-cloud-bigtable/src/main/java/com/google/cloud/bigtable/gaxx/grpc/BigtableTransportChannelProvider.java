@@ -18,19 +18,18 @@ package com.google.cloud.bigtable.gaxx.grpc;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.api.gax.grpc.ChannelPoolSettings;
+import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.api.gax.grpc.GrpcTransportChannel;
 import com.google.api.gax.grpc.InstantiatingGrpcChannelProvider;
 import com.google.api.gax.rpc.TransportChannel;
 import com.google.api.gax.rpc.TransportChannelProvider;
 import com.google.auth.Credentials;
-import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import com.google.common.base.Preconditions;
 import io.grpc.ManagedChannel;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import javax.annotation.Nullable;
 
 /**
  * An instance of TransportChannelProvider that provides a TransportChannel through a supplied
@@ -40,11 +39,11 @@ import javax.annotation.Nullable;
 public final class BigtableTransportChannelProvider implements TransportChannelProvider {
 
   private final InstantiatingGrpcChannelProvider delegate;
-  @Nullable private final BigtableChannelPrimer channelPrimer;
+  private final ChannelPrimer channelPrimer;
 
   private BigtableTransportChannelProvider(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
-      BigtableChannelPrimer channelPrimer) {
+      ChannelPrimer channelPrimer) {
     delegate = Preconditions.checkNotNull(instantiatingGrpcChannelProvider);
     this.channelPrimer = channelPrimer;
   }
@@ -161,7 +160,7 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   /** Creates a BigtableTransportChannelProvider. */
   public static BigtableTransportChannelProvider create(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
-      BigtableChannelPrimer channelPrimer) {
+      ChannelPrimer channelPrimer) {
     return new BigtableTransportChannelProvider(instantiatingGrpcChannelProvider, channelPrimer);
   }
 }
