@@ -132,9 +132,8 @@ public class BigtableClientContext {
                 builder.getAppProfileId(),
                 credentials,
                 builder.getHeaderProvider().getHeaders());
-      } else {
-        channelPrimer = null;
       }
+
       BigtableTransportChannelProvider btTransportProvider =
           BigtableTransportChannelProvider.create(
               (InstantiatingGrpcChannelProvider) transportProvider.build(), channelPrimer);
