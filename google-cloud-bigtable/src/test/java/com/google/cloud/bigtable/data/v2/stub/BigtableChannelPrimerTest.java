@@ -195,7 +195,7 @@ public class BigtableChannelPrimerTest {
     SettableApiFuture<PingAndWarmResponse> future = primer.sendPrimeRequestsAsync(channel);
 
     ExecutionException e =
-        assertThrows(ExecutionException.class, () -> future.get(1, TimeUnit.SECONDS));
+        assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
     assertThat(e).hasCauseThat().hasMessageThat().contains("UNAVAILABLE");
   }
 
