@@ -17,7 +17,7 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
-import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
+import com.google.api.gax.grpc.ChannelPrimer;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -62,7 +62,7 @@ public class BigtableChannelPool extends ManagedChannel {
   private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
 
-  @Nullable private final BigtableChannelPrimer channelPrimer;
+  private final ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
 
   private final Object entryWriteLock = new Object();
@@ -75,7 +75,7 @@ public class BigtableChannelPool extends ManagedChannel {
   public static BigtableChannelPool create(
       BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
-      BigtableChannelPrimer channelPrimer)
+      ChannelPrimer channelPrimer)
       throws IOException {
     return new BigtableChannelPool(
         settings, channelFactory, channelPrimer, Executors.newSingleThreadScheduledExecutor());
@@ -92,7 +92,7 @@ public class BigtableChannelPool extends ManagedChannel {
   BigtableChannelPool(
       BigtableChannelPoolSettings settings,
       ChannelFactory channelFactory,
-      BigtableChannelPrimer channelPrimer,
+      ChannelPrimer channelPrimer,
       ScheduledExecutorService executor)
       throws IOException {
     this.settings = settings;
