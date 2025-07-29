@@ -121,26 +121,23 @@ public class BigtableClientContext {
         setupCookieHolder(transportProvider);
       }
 
-      BigtableChannelPrimer channelPrimer =
-          BigtableChannelPrimer.create(
-              builder.getProjectId(),
-              builder.getInstanceId(),
-              builder.getAppProfileId(),
-              credentials,
-              builder.getHeaderProvider().getHeaders());
-      
-      BigtableTransportChannelProvider btTransportProvider;
+      BigtableChannelPrimer channelPrimer;
 
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
-        btTransportProvider =
-            BigtableTransportChannelProvider.create(
-                (InstantiatingGrpcChannelProvider) transportProvider.build(), channelPrimer);
+        channelPrimer =
+            BigtableChannelPrimer.create(
+                builder.getProjectId(),
+                builder.getInstanceId(),
+                builder.getAppProfileId(),
+                credentials,
+                builder.getHeaderProvider().getHeaders());
       } else {
-        btTransportProvider =
-            BigtableTransportChannelProvider.createWithoutChannelPriming(
-                (InstantiatingGrpcChannelProvider) transportProvider.build());
+        channelPrimer = null;
       }
+      BigtableTransportChannelProvider btTransportProvider =
+          BigtableTransportChannelProvider.create(
+              (InstantiatingGrpcChannelProvider) transportProvider.build(), channelPrimer);
 
       builder.setTransportChannelProvider(btTransportProvider);
     }

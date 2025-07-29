@@ -162,12 +162,6 @@ public final class BigtableTransportChannelProvider implements TransportChannelP
   public static BigtableTransportChannelProvider create(
       InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider,
       BigtableChannelPrimer channelPrimer) {
-    Preconditions.checkNotNull(channelPrimer);
     return new BigtableTransportChannelProvider(instantiatingGrpcChannelProvider, channelPrimer);
-  }
-
-  public static BigtableTransportChannelProvider createWithoutChannelPriming(
-      InstantiatingGrpcChannelProvider instantiatingGrpcChannelProvider) {
-    return new BigtableTransportChannelProvider(instantiatingGrpcChannelProvider, null);
   }
 }
