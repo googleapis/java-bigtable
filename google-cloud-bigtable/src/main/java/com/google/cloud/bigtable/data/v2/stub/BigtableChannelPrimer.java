@@ -157,6 +157,46 @@ public class BigtableChannelPrimer implements ChannelPrimer {
     return future;
   }
 
+  private void sendPrimeRequestsNonBlocking(ManagedChannel managedChannel) {
+    try {
+      ClientCall<PingAndWarmRequest, PingAndWarmResponse> clientCall =
+          managedChannel.newCall(
+              BigtableGrpc.getPingAndWarmMethod(),
+              CallOptions.DEFAULT
+                  .withCallCredentials(callCredentials)
+                  .withDeadline(Deadline.after(1, TimeUnit.MINUTES)));
+
+      SettableApiFuture<PingAndWarmResponse> future = SettableApiFuture.create();
+      clientCall.start(
+          new ClientCall.Listener<PingAndWarmResponse>() {
+            PingAndWarmResponse response;
+
+            @Override
+            public void onMessage(PingAndWarmResponse message) {
+              response = message;
+            }
+
+            @Override
+            public void onClose(Status status, Metadata trailers) {
+              if (status.isOk()) {
+                future.set(response);
+              } else {
+                future.setException(status.asException());
+              }
+            }
+          },
+          createMetadata(headers, request));
+      clientCall.sendMessage(request);
+      clientCall.halfClose();
+      clientCall.request(Integer.MAX_VALUE);
+    } catch (Throwable e) {
+      // TODO: Not sure if we should swallow the error here. We are pre-emptively swapping
+      // channels if the new
+      // channel is bad.
+      LOG.log(Level.WARNING, "Failed to prime channel", e);
+    }
+  }
+
   private static Metadata createMetadata(Map<String, String> headers, PingAndWarmRequest request) {
     Metadata metadata = new Metadata();
 
