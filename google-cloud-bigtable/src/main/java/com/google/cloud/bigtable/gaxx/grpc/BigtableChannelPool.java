@@ -106,7 +106,7 @@ public class BigtableChannelPool extends ManagedChannel {
     for (int i = 0; i < settings.getInitialChannelCount(); i++) {
       ManagedChannel newChannel = channelFactory.createSingleChannel();
       channelPrimer.primeChannel(newChannel);
-      initialListBuilder.add(new Entry(newChannel, channelHealthProbingExecutor));
+      initialListBuilder.add(new Entry(newChannel));
     }
 
     entries.set(initialListBuilder.build());
@@ -338,7 +338,7 @@ public class BigtableChannelPool extends ManagedChannel {
       try {
         ManagedChannel newChannel = channelFactory.createSingleChannel();
         this.channelPrimer.primeChannel(newChannel);
-        newEntries.add(new Entry(newChannel, channelHealthProbingExecutor));
+        newEntries.add(new Entry(newChannel));
       } catch (IOException e) {
         LOG.log(Level.WARNING, "Failed to add channel", e);
       }
@@ -378,7 +378,7 @@ public class BigtableChannelPool extends ManagedChannel {
         try {
           ManagedChannel newChannel = channelFactory.createSingleChannel();
           this.channelPrimer.primeChannel(newChannel);
-          newEntries.set(i, new Entry(newChannel, channelHealthProbingExecutor));
+          newEntries.set(i, new Entry(newChannel));
         } catch (IOException e) {
           LOG.log(Level.WARNING, "Failed to refresh channel, leaving old channel", e);
         }
@@ -480,22 +480,14 @@ public class BigtableChannelPool extends ManagedChannel {
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
-    private final ChannelHealthChecker healthChecker;
 
-    private Entry(ManagedChannel channel, ScheduledExecutorService executor) {
+    private Entry(ManagedChannel channel) {
       this.channel = channel;
-      this.healthChecker = new ChannelHealthChecker(this, executor);
     }
 
     ManagedChannel getManagedChannel() {
       return this.channel;
     }
-
-    // Add a getter for the healthChecker
-    public ChannelHealthChecker getHealthChecker() {
-      return healthChecker;
-    }
-
 
     int getAndResetMaxOutstanding() {
       return maxOutstanding.getAndSet(outstandingRpcs.get());
@@ -548,9 +540,6 @@ public class BigtableChannelPool extends ManagedChannel {
      */
     private void requestShutdown() {
       shutdownRequested.set(true);
-      if (healthChecker != null) {
-        healthChecker.stop();
-      }
       if (outstandingRpcs.get() == 0) {
         shutdown();
       }
