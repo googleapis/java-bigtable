@@ -67,6 +67,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
+  private final ChannelPoolHealthChecker channelPoolHealthChecker =
+      new ChannelPoolHealthChecker(() -> entries.get());
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
@@ -444,6 +446,26 @@ public class BigtableChannelPool extends ManagedChannel {
     @VisibleForTesting final AtomicInteger outstandingRpcs = new AtomicInteger(0);
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
+    private final AtomicInteger probesInFlight = new AtomicInteger(0);
+
+    /** Number of probes in flight plus number of probe results. (No-op stub) */
+    AtomicInteger recentProbesSent() {
+      return new AtomicInteger(0);
+    }
+
+    /** Number of recently failed probes. (No-op stub) */
+    AtomicInteger recentlyFailedProbes() {
+      return new AtomicInteger(0);
+    }
+
+    /**
+     * Determines if the channel is healthy. (No-op stub)
+     *
+     * @return A default value of true.
+     */
+    public boolean healthy() {
+      return true;
+    }
 
     // Flag that the channel should be closed once all of the outstanding RPC complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
@@ -452,6 +474,10 @@ public class BigtableChannelPool extends ManagedChannel {
 
     private Entry(ManagedChannel channel) {
       this.channel = channel;
+    }
+
+    ManagedChannel getManagedChannel() {
+      return this.channel;
     }
 
     int getAndResetMaxOutstanding() {
@@ -468,7 +494,7 @@ public class BigtableChannelPool extends ManagedChannel {
       // register desire to start RPC
       int currentOutstanding = outstandingRpcs.incrementAndGet();
 
-      // Rough book keeping
+      // Rough bookkeeping
       int prevMax = maxOutstanding.get();
       if (currentOutstanding > prevMax) {
         maxOutstanding.incrementAndGet();
@@ -505,6 +531,9 @@ public class BigtableChannelPool extends ManagedChannel {
      */
     private void requestShutdown() {
       shutdownRequested.set(true);
+      if (healthChecker != null) {
+        healthChecker.stop();
+      }
       if (outstandingRpcs.get() == 0) {
         shutdown();
       }
