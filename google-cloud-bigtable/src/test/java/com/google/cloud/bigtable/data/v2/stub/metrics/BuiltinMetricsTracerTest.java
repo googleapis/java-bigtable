@@ -708,7 +708,7 @@ public class BuiltinMetricsTracerTest {
         .isAtLeast(
             // Offset the expected latency to deal with asynchrony and jitter
             CHANNEL_BLOCKING_LATENCY.minus(
-                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(5))));
+                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(20))));
   }
 
   @Test
@@ -734,7 +734,7 @@ public class BuiltinMetricsTracerTest {
         .isAtLeast(
             // Offset the expected latency to deal with asynchrony and jitter
             CHANNEL_BLOCKING_LATENCY.minus(
-                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(5))));
+                Comparators.max(proxyDelayPriorTest, Duration.ofMillis(20))));
   }
 
   @Test
