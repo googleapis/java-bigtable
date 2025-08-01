@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.gaxx.grpc;
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
 import com.google.api.gax.grpc.ChannelPrimer;
+import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
+import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -31,9 +33,11 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.Status;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -62,15 +66,11 @@ public class BigtableChannelPool extends ManagedChannel {
   private final BigtableChannelPoolSettings settings;
   private final ChannelFactory channelFactory;
 
-  private final ChannelPrimer channelPrimer;
+  private ChannelPrimer channelPrimer;
   private final ScheduledExecutorService executor;
-  private final ScheduledExecutorService channelHealthProbingExecutor =
-      Executors.newSingleThreadScheduledExecutor();
-
   private final Object entryWriteLock = new Object();
   @VisibleForTesting final AtomicReference<ImmutableList<Entry>> entries = new AtomicReference<>();
-  private final ChannelPoolHealthChecker channelPoolHealthChecker =
-      new ChannelPoolHealthChecker(() -> entries.get());
+  private ChannelPoolHealthChecker channelPoolHealthChecker;
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
 
@@ -100,6 +100,11 @@ public class BigtableChannelPool extends ManagedChannel {
     this.settings = settings;
     this.channelFactory = channelFactory;
     this.channelPrimer = channelPrimer;
+    Clock systemClock = Clock.systemUTC();
+    this.channelPoolHealthChecker =
+        new ChannelPoolHealthChecker(
+            () -> entries.get(), (BigtableChannelPrimer) channelPrimer, executor, systemClock);
+    this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();
 
@@ -164,9 +169,6 @@ public class BigtableChannelPool extends ManagedChannel {
       // shutdownNow will cancel scheduled tasks
       executor.shutdownNow();
     }
-    if (channelHealthProbingExecutor != null) {
-      channelHealthProbingExecutor.shutdownNow();
-    }
     return this;
   }
 
@@ -206,9 +208,6 @@ public class BigtableChannelPool extends ManagedChannel {
     }
     if (executor != null) {
       executor.shutdownNow();
-    }
-    if (channelHealthProbingExecutor != null) {
-      channelHealthProbingExecutor.shutdownNow();
     }
     return this;
   }
@@ -455,33 +454,20 @@ public class BigtableChannelPool extends ManagedChannel {
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
 
-    private final AtomicInteger probesInFlight = new AtomicInteger(0);
+    @VisibleForTesting
+    final ConcurrentLinkedQueue<ProbeResult> probeHistory = new ConcurrentLinkedQueue<>();
 
-    /** Number of probes in flight plus number of probe results. (No-op stub) */
-    AtomicInteger recentProbesSent() {
-      return new AtomicInteger(0);
-    }
-
-    /** Number of recently failed probes. (No-op stub) */
-    AtomicInteger recentlyFailedProbes() {
-      return new AtomicInteger(0);
-    }
-
-    /**
-     * Determines if the channel is healthy. (No-op stub)
-     *
-     * @return A default value of true.
-     */
-    public boolean healthy() {
-      return true;
-    }
+    // we keep both so that we don't have to check size() on the ConcurrentLinkedQueue all the time
+    AtomicInteger failedProbesInWindow = new AtomicInteger();
+    AtomicInteger successfulProbesInWindow = new AtomicInteger();
 
     // Flag that the channel should be closed once all of the outstanding RPC complete.
     private final AtomicBoolean shutdownRequested = new AtomicBoolean();
     // Flag that the channel has been closed.
     private final AtomicBoolean shutdownInitiated = new AtomicBoolean();
 
-    private Entry(ManagedChannel channel) {
+    @VisibleForTesting
+    Entry(ManagedChannel channel) {
       this.channel = channel;
     }
 
