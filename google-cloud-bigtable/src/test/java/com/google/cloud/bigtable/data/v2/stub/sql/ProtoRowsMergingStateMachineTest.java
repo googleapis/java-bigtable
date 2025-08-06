@@ -654,6 +654,20 @@ public final class ProtoRowsMergingStateMachineTest {
                           structValue(
                               stringValue("key2"), bytesValue("val2"), bytesValue("val3")))));
           break;
+        case PROTO:
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  ProtoRowsMergingStateMachine.validateValueAndType(
+                      SqlType.protoOf("test"), stringValue("test")));
+          break;
+        case ENUM:
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  ProtoRowsMergingStateMachine.validateValueAndType(
+                      SqlType.enumOf("test"), bytesValue("val")));
+          break;
         default:
           assertWithMessage(
                   "Unknown TypeCase "

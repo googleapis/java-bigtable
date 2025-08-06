@@ -20,10 +20,14 @@ import com.google.cloud.Date;
 import com.google.cloud.bigtable.common.Type;
 import com.google.cloud.bigtable.common.Type.SchemalessStruct;
 import com.google.cloud.bigtable.common.Type.StructWithSchema;
+import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.ByteString;
+import com.google.protobuf.Parser;
+import com.google.protobuf.ProtocolMessageEnum;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Represents a data type in a SQL query.
@@ -47,7 +51,9 @@ public interface SqlType<T> extends Serializable {
     DATE,
     STRUCT,
     ARRAY,
-    MAP
+    MAP,
+    PROTO,
+    ENUM
   }
 
   /**
@@ -131,6 +137,34 @@ public interface SqlType<T> extends Serializable {
     int getColumnIndex(String fieldName);
   }
 
+  /**
+   * Represents a protobuf message type in SQL.
+   *
+   * @param <T> Java type of the protobuf message
+   */
+  interface Proto<T extends AbstractMessage> extends SqlType<T> {
+
+    /**
+     * @return the parser for the proto message.
+     */
+    Parser<T> getParserForType();
+
+    String getMessageName();
+  }
+
+  /**
+   * Represents a protobuf enum type in SQL.
+   *
+   * @param <T> Java type of the protobuf enum
+   */
+  interface Enum<T extends ProtocolMessageEnum> extends SqlType<T> {
+
+    /**
+     * @return the function to convert an integer to the enum value.
+     */
+    Function<Integer, T> getForNumber();
+  }
+
   /** returns a {@link SqlType} for the {@code BYTES} type. */
   static SqlType<ByteString> bytes() {
     return Type.Bytes.create();
@@ -211,6 +245,79 @@ public interface SqlType<T> extends Serializable {
   }
 
   /**
+   * Creates a fake {@link SqlType.Proto} for use on in {@link StructReader} methods that require a
+   * {@link SqlType} to validate against. This does not specify a schema because the proto schema
+   * will be validated on calls to the structs data accessors.
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static SqlType.Proto protoOf(com.google.bigtable.v2.Type.Proto protoType) {
+    return Type.SchemalessProto.fromProto(protoType);
+  }
+
+  /**
+   * Creates a fake {@link SqlType.Enum} for use on in {@link StructReader} methods that require a
+   * {@link SqlType} to validate against. This does not specify a schema because the enum schema
+   * will be validated on calls to the structs data accessors.
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static SqlType.Enum enumOf(com.google.bigtable.v2.Type.Enum enumType) {
+    return Type.SchemalessEnum.fromProto(enumType);
+  }
+
+  /**
+   * Creates a fake {@link SqlType.Proto} for use on in {@link StructReader} methods that require a
+   * {@link SqlType} to validate against. This does not specify a schema because the proto schema
+   * will be validated on calls to the structs data accessors.
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static SqlType.Proto protoOf(String messageName) {
+    return Type.SchemalessProto.create(messageName);
+  }
+
+  /**
+   * Creates a fake {@link SqlType.Enum} for use on in {@link StructReader} methods that require a
+   * {@link SqlType} to validate against. This does not specify a schema because the enum schema
+   * will be validated on calls to the structs data accessors.
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static SqlType.Enum enumOf(String enumName) {
+    return Type.SchemalessEnum.create(enumName);
+  }
+
+  /**
+   * Returns a {@link SqlType} for a protobuf message.
+   *
+   * @param message an instance of the message. {@code MyMessage.getDefaultInstance()} can be used.
+   * @param <T> the message type
+   */
+  static <T extends AbstractMessage> SqlType.Proto<T> protoOf(T message) {
+    return Type.Proto.create(message);
+  }
+
+  /**
+   * Returns a {@link SqlType} for a protobuf enum.
+   *
+   * @param method a function to convert an integer to the enum value. This is usually {@code
+   *     MyEnum::forNumber}
+   * @param <T> the enum type
+   */
+  static <T extends ProtocolMessageEnum> SqlType.Enum<T> enumOf(Function<Integer, T> method) {
+    return Type.Enum.create(method);
+  }
+
+  /**
    * Creates a {@link SqlType} from the protobuf representation of Types.
    *
    * <p>This is considered an internal implementation detail and not meant to be used by
@@ -242,6 +349,10 @@ public interface SqlType<T> extends Serializable {
       case MAP_TYPE:
         com.google.bigtable.v2.Type.Map mapType = proto.getMapType();
         return mapOf(fromProto(mapType.getKeyType()), fromProto(mapType.getValueType()));
+      case PROTO_TYPE:
+        return protoOf(proto.getProtoType());
+      case ENUM_TYPE:
+        return enumOf(proto.getEnumType());
       case KIND_NOT_SET:
         throw new IllegalStateException("Unrecognized Type. You may need to update your client.");
       default:
@@ -271,6 +382,32 @@ public interface SqlType<T> extends Serializable {
       case TIMESTAMP:
       case DATE:
         return left.equals(right);
+      case PROTO:
+        {
+          if (!left.getCode().equals(right.getCode())) {
+            return false;
+          }
+          if (left instanceof Type.SchemalessProto && right instanceof Type.SchemalessProto) {
+            return left.equals(right);
+          }
+          if (left instanceof Type.SchemalessProto || right instanceof Type.SchemalessProto) {
+            return true;
+          }
+          return left.equals(right);
+        }
+      case ENUM:
+        {
+          if (!left.getCode().equals(right.getCode())) {
+            return false;
+          }
+          if (left instanceof Type.SchemalessEnum && right instanceof Type.SchemalessEnum) {
+            return left.equals(right);
+          }
+          if (left instanceof Type.SchemalessEnum || right instanceof Type.SchemalessEnum) {
+            return left.getCode().equals(right.getCode());
+          }
+          return left.equals(right);
+        }
       case STRUCT:
         // Don't validate fields since the field types will be validated on
         // accessor calls to struct

@@ -19,6 +19,7 @@ import com.google.api.core.InternalApi;
 import com.google.bigtable.v2.PartialResultSet;
 import com.google.bigtable.v2.ProtoRows;
 import com.google.bigtable.v2.Value;
+import com.google.bigtable.v2.Value.KindCase;
 import com.google.cloud.bigtable.data.v2.internal.ProtoSqlRow;
 import com.google.cloud.bigtable.data.v2.internal.SqlRow;
 import com.google.cloud.bigtable.data.v2.models.sql.ColumnMetadata;
@@ -253,6 +254,10 @@ final class ProtoRowsMergingStateMachine {
               mapType.getValueType(), mapElement.getArrayValue().getValuesList().get(1));
         }
         break;
+      case PROTO:
+        checkExpectedKind(value, Value.KindCase.BYTES_VALUE, type);
+      case ENUM:
+        checkExpectedKind(value, KindCase.INT_VALUE, type);
       default:
         // This should be caught already at ResultSetMetadata creation
         throw new IllegalStateException("Unrecognized type: " + type);

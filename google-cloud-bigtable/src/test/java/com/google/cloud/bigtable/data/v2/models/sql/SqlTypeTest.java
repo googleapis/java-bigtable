@@ -19,10 +19,12 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.arrayTy
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.boolType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.bytesType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.dateType;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.enumType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float32Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.float64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.int64Type;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.mapType;
+import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.protoType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.stringType;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structField;
 import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.structType;
@@ -32,6 +34,10 @@ import static com.google.common.truth.Truth.assertThat;
 import com.google.bigtable.v2.Type;
 import com.google.cloud.bigtable.common.Type.StructWithSchema;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType.Code;
+import com.google.cloud.bigtable.data.v2.test.AlbumProto.Album;
+import com.google.cloud.bigtable.data.v2.test.AlbumProto.Format;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Genre;
+import com.google.cloud.bigtable.data.v2.test.SingerProto.Singer;
 import com.google.protobuf.ByteString;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -68,6 +74,8 @@ public class SqlTypeTest {
     protoToJavaMapping.put(arrayType(stringType()), SqlType.arrayOf(SqlType.string()));
     protoToJavaMapping.put(
         mapType(bytesType(), stringType()), SqlType.mapOf(SqlType.bytes(), SqlType.string()));
+    protoToJavaMapping.put(protoType("foo"), SqlType.protoOf("foo"));
+    protoToJavaMapping.put(enumType("foo"), SqlType.enumOf("foo"));
   }
 
   @Test
@@ -156,6 +164,32 @@ public class SqlTypeTest {
                 SqlType.mapOf(SqlType.bytes(), bytesBytesMap),
                 SqlType.mapOf(SqlType.bytes(), bytesStringMap)))
         .isFalse();
+  }
+
+  @Test
+  public void typesMatch_checksProto() {
+    SqlType.Proto<Singer> proto = SqlType.protoOf(Singer.getDefaultInstance());
+    SqlType.Proto<Album> anotherProto = SqlType.protoOf(Album.getDefaultInstance());
+    SqlType.Proto schemalessProto = SqlType.protoOf("MyMessage");
+    SqlType.Proto anotherSchemalessProto = SqlType.protoOf("MyAnotherMessage");
+
+    assertThat(SqlType.typesMatch(schemalessProto, proto)).isTrue();
+    assertThat(SqlType.typesMatch(proto, schemalessProto)).isTrue();
+    assertThat(SqlType.typesMatch(schemalessProto, anotherSchemalessProto)).isFalse();
+    assertThat(SqlType.typesMatch(proto, anotherProto)).isFalse();
+  }
+
+  @Test
+  public void typesMatch_checksEnum() {
+    SqlType.Enum<Genre> myEnum = SqlType.enumOf(Genre::forNumber);
+    SqlType.Enum<Format> anotherEnum = SqlType.enumOf(Format::forNumber);
+    SqlType.Enum schemalessEnum = SqlType.enumOf("MyEnum");
+    SqlType.Enum anotherSchemalessEnum = SqlType.enumOf("MyAnotherEnum");
+
+    assertThat(SqlType.typesMatch(schemalessEnum, myEnum)).isTrue();
+    assertThat(SqlType.typesMatch(myEnum, schemalessEnum)).isTrue();
+    assertThat(SqlType.typesMatch(schemalessEnum, anotherSchemalessEnum)).isFalse();
+    assertThat(SqlType.typesMatch(myEnum, anotherEnum)).isFalse();
   }
 
   @Test
