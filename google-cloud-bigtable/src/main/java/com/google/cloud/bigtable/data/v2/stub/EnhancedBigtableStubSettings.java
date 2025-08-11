@@ -447,7 +447,7 @@ public class EnhancedBigtableStubSettings extends StubSettings<EnhancedBigtableS
                 .setInitialChannelCount(10)
                 .setMinRpcsPerChannel(1)
                 // Keep it conservative as we scale the channel size every 1min
-                // and delta is 2 channels. 
+                // and delta is 2 channels.
                 .setMaxRpcsPerChannel(25)
                 .setPreemptiveRefreshEnabled(true)
                 .build())
