@@ -124,7 +124,7 @@ public final class CreateInstanceRequest {
    * <p>Tags are a way to organize and govern resources across Google Cloud. Unlike labels,
    * Tags are standalone resources created and managed through the Resource Manager API.
    *
-   * @see <a href="https://https://cloud.google.com/bigtable/docs/tags">For more details</a>
+   * @see <a href="https://cloud.google.com/bigtable/docs/tags">For more details</a>
    */
   @SuppressWarnings("WeakerAccess")
   public CreateInstanceRequest addTag(@Nonnull String key, @Nonnull String value) {
