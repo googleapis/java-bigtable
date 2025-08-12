@@ -28,15 +28,16 @@ public class InstanceTest {
 
   @Test
   public void testFromProto() {
-    com.google.bigtable.admin.v2.Instance proto =
-        com.google.bigtable.admin.v2.Instance.newBuilder()
-            .setName("projects/my-project/instances/my-instance")
-            .setDisplayName("my display name")
-            .setType(com.google.bigtable.admin.v2.Instance.Type.PRODUCTION)
-            .setState(com.google.bigtable.admin.v2.Instance.State.READY)
-            .putLabels("label1", "value1")
-            .putLabels("label2", "value2")
-            .build();
+    com.google.bigtable.admin.v2.Instance proto = com.google.bigtable.admin.v2.Instance.newBuilder()
+        .setName("projects/my-project/instances/my-instance")
+        .setDisplayName("my display name")
+        .setType(com.google.bigtable.admin.v2.Instance.Type.PRODUCTION)
+        .setState(com.google.bigtable.admin.v2.Instance.State.READY)
+        .putLabels("label1", "value1")
+        .putLabels("label2", "value2")
+        .putTags("tagKeys/123", "tagValues/456")
+        .putTags("tagKeys/234", "tagValues/567")
+        .build();
 
     Instance result = Instance.fromProto(proto);
 
@@ -48,18 +49,19 @@ public class InstanceTest {
         .containsExactly(
             "label1", "value1",
             "label2", "value2");
+    assertThat(result.getTags()).containsExactly("tagKeys/123", "tagValues/456", "tagKeys/234", "tagValues/567");
   }
 
   @Test
   public void testRequiresName() {
-    com.google.bigtable.admin.v2.Instance proto =
-        com.google.bigtable.admin.v2.Instance.newBuilder()
-            .setDisplayName("my display name")
-            .setType(com.google.bigtable.admin.v2.Instance.Type.PRODUCTION)
-            .setState(com.google.bigtable.admin.v2.Instance.State.READY)
-            .putLabels("label1", "value1")
-            .putLabels("label2", "value2")
-            .build();
+    com.google.bigtable.admin.v2.Instance proto = com.google.bigtable.admin.v2.Instance.newBuilder()
+        .setDisplayName("my display name")
+        .setType(com.google.bigtable.admin.v2.Instance.Type.PRODUCTION)
+        .setState(com.google.bigtable.admin.v2.Instance.State.READY)
+        .putLabels("label1", "value1")
+        .putLabels("label2", "value2")
+        .putTags("tagKeys/123", "tagValues/456")
+        .build();
 
     Exception actualException = null;
 
@@ -74,8 +76,8 @@ public class InstanceTest {
 
   @Test
   public void testTypeEnumUpToDate() {
-    List<com.google.bigtable.admin.v2.Instance.Type> validProtoValues =
-        Lists.newArrayList(com.google.bigtable.admin.v2.Instance.Type.values());
+    List<com.google.bigtable.admin.v2.Instance.Type> validProtoValues = Lists
+        .newArrayList(com.google.bigtable.admin.v2.Instance.Type.values());
 
     // TYPE_UNSPECIFIED is not surfaced
     validProtoValues.remove(com.google.bigtable.admin.v2.Instance.Type.TYPE_UNSPECIFIED);
@@ -100,8 +102,8 @@ public class InstanceTest {
 
   @Test
   public void testStateEnumUpToDate() {
-    List<com.google.bigtable.admin.v2.Instance.State> validProtoValues =
-        Lists.newArrayList(com.google.bigtable.admin.v2.Instance.State.values());
+    List<com.google.bigtable.admin.v2.Instance.State> validProtoValues = Lists
+        .newArrayList(com.google.bigtable.admin.v2.Instance.State.values());
 
     List<Instance.State> validModelValues = Lists.newArrayList(Instance.State.values());
 

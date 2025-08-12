@@ -334,7 +334,8 @@ public class BigtableInstanceAdminClientTests {
             .setInstance(
                 com.google.bigtable.admin.v2.Instance.newBuilder()
                     .setType(com.google.bigtable.admin.v2.Instance.Type.DEVELOPMENT)
-                    .setDisplayName(INSTANCE_ID))
+                    .setDisplayName(INSTANCE_ID)
+                    .putTags("tagKeys/123", "tagValues/456"))
             .putClusters(
                 "cluster1",
                 com.google.bigtable.admin.v2.Cluster.newBuilder()
