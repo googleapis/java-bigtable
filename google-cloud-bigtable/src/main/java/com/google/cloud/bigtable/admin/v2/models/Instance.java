@@ -152,7 +152,7 @@ public final class Instance {
 
   /** Gets the instance's tags. */
   @SuppressWarnings("WeakerAccess")
-  public Map<String,String> getTags() {
+  public Map<String, String> getTags() {
     return proto.getTagsMap();
   }
 

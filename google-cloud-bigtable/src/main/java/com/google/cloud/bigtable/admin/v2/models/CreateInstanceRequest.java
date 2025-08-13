@@ -121,8 +121,8 @@ public final class CreateInstanceRequest {
   /**
    * Adds a tag to the instance.
    *
-   * <p>Tags are a way to organize and govern resources across Google Cloud. Unlike labels,
-   * Tags are standalone resources created and managed through the Resource Manager API.
+   * <p>Tags are a way to organize and govern resources across Google Cloud. Unlike labels, Tags are
+   * standalone resources created and managed through the Resource Manager API.
    *
    * @see <a href="https://cloud.google.com/bigtable/docs/tags">For more details</a>
    */
