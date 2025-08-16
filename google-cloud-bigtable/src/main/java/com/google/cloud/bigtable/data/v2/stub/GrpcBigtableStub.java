@@ -210,12 +210,16 @@ public class GrpcBigtableStub extends BigtableStub {
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate READ_ROWS_2_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
+  private static final PathTemplate READ_ROWS_3_PATH_TEMPLATE =
+      PathTemplate.create("{name=projects/*/instances/*}/**");
   private static final PathTemplate SAMPLE_ROW_KEYS_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate SAMPLE_ROW_KEYS_1_PATH_TEMPLATE =
       PathTemplate.create("{app_profile_id=**}");
   private static final PathTemplate SAMPLE_ROW_KEYS_2_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}/**");
+  private static final PathTemplate SAMPLE_ROW_KEYS_3_PATH_TEMPLATE =
+      PathTemplate.create("{name=projects/*/instances/*}/**");
   private static final PathTemplate MUTATE_ROW_0_PATH_TEMPLATE =
       PathTemplate.create("{table_name=projects/*/instances/*/tables/*}");
   private static final PathTemplate MUTATE_ROW_1_PATH_TEMPLATE =
@@ -299,6 +303,7 @@ public class GrpcBigtableStub extends BigtableStub {
                       request.getAppProfileId(), "app_profile_id", READ_ROWS_1_PATH_TEMPLATE);
                   builder.add(
                       request.getAuthorizedViewName(), "table_name", READ_ROWS_2_PATH_TEMPLATE);
+                  builder.add(request.getMaterializedViewName(), "name", READ_ROWS_3_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
@@ -316,6 +321,8 @@ public class GrpcBigtableStub extends BigtableStub {
                       request.getAuthorizedViewName(),
                       "table_name",
                       SAMPLE_ROW_KEYS_2_PATH_TEMPLATE);
+                  builder.add(
+                      request.getMaterializedViewName(), "name", SAMPLE_ROW_KEYS_3_PATH_TEMPLATE);
                   return builder.build();
                 })
             .build();
