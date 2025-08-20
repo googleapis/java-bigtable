@@ -67,6 +67,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/ReadRows")
               .setRequestMarshaller(ProtoUtils.marshaller(ReadRowsRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(ReadRowsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<SampleRowKeysRequest, SampleRowKeysResponse>
@@ -78,6 +79,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(SampleRowKeysRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(SampleRowKeysResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<MutateRowRequest, MutateRowResponse>
@@ -87,6 +89,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/MutateRow")
               .setRequestMarshaller(ProtoUtils.marshaller(MutateRowRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(MutateRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<MutateRowsRequest, MutateRowsResponse>
@@ -96,6 +99,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setFullMethodName("google.bigtable.v2.Bigtable/MutateRows")
               .setRequestMarshaller(ProtoUtils.marshaller(MutateRowsRequest.getDefaultInstance()))
               .setResponseMarshaller(ProtoUtils.marshaller(MutateRowsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<CheckAndMutateRowRequest, CheckAndMutateRowResponse>
@@ -107,6 +111,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(CheckAndMutateRowRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(CheckAndMutateRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<PingAndWarmRequest, PingAndWarmResponse>
@@ -117,6 +122,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(PingAndWarmRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(PingAndWarmResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ReadModifyWriteRowRequest, ReadModifyWriteRowResponse>
@@ -128,6 +134,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(ReadModifyWriteRowRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ReadModifyWriteRowResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<
@@ -147,6 +154,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setResponseMarshaller(
                   ProtoUtils.marshaller(
                       GenerateInitialChangeStreamPartitionsResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ReadChangeStreamRequest, ReadChangeStreamResponse>
@@ -158,6 +166,7 @@ public class GrpcBigtableStub extends BigtableStub {
                   ProtoUtils.marshaller(ReadChangeStreamRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ReadChangeStreamResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<PrepareQueryRequest, PrepareQueryResponse>
@@ -168,6 +177,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(PrepareQueryRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(PrepareQueryResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private static final MethodDescriptor<ExecuteQueryRequest, ExecuteQueryResponse>
@@ -178,6 +188,7 @@ public class GrpcBigtableStub extends BigtableStub {
               .setRequestMarshaller(ProtoUtils.marshaller(ExecuteQueryRequest.getDefaultInstance()))
               .setResponseMarshaller(
                   ProtoUtils.marshaller(ExecuteQueryResponse.getDefaultInstance()))
+              .setSampledToLocalTracing(true)
               .build();
 
   private final ServerStreamingCallable<ReadRowsRequest, ReadRowsResponse> readRowsCallable;
