@@ -113,7 +113,7 @@ public class ChannelPoolHealthCheckerTest {
   @Test
   public void testPruning_removesOldProbesAndCounters() {
     Entry entry = createTestEntry();
-    healthChecker.addProbeResult(entry, new ProbeResult(mockClock.instant(), false));
+    healthChecker.addProbeResult(entry, ProbeResult.create(mockClock.instant(), false));
     assertThat(entry.failedProbesInWindow.get()).isEqualTo(1);
 
     Instant newTime = mockClock.instant().plus(Duration.ofMinutes(6));

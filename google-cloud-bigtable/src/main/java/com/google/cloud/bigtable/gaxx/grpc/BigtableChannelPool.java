@@ -17,8 +17,6 @@ package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 import com.google.api.gax.grpc.ChannelFactory;
-import com.google.api.gax.grpc.ChannelPrimer;
-import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import com.google.cloud.bigtable.gaxx.grpc.ChannelPoolHealthChecker.ProbeResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
@@ -102,8 +100,7 @@ public class BigtableChannelPool extends ManagedChannel {
     this.channelPrimer = channelPrimer;
     Clock systemClock = Clock.systemUTC();
     this.channelPoolHealthChecker =
-        new ChannelPoolHealthChecker(
-            () -> entries.get(), (BigtableChannelPrimer) channelPrimer, executor, systemClock);
+        new ChannelPoolHealthChecker(() -> entries.get(), channelPrimer, executor, systemClock);
     this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();

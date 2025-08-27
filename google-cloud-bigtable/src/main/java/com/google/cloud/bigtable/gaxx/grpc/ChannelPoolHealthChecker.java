@@ -16,8 +16,8 @@
 package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.SettableApiFuture;
+import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.PingAndWarmResponse;
-import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool.Entry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -37,42 +37,47 @@ import javax.annotation.Nullable;
 public class ChannelPoolHealthChecker {
 
   // Configuration constants
+  // Window_Duration is the duration over which we keep probe results
   private static final Duration WINDOW_DURATION = Duration.ofMinutes(5);
-  static final Duration PROBE_RATE = Duration.ofSeconds(30);
+  // Interval at which we probe channel health
+  static final Duration PROBE_INTERVAL = Duration.ofSeconds(30);
+  // Timeout deadline for a probe
   @VisibleForTesting static final Duration PROBE_DEADLINE = Duration.ofMillis(500);
+  // Minimum interval between new idle channel evictions
   private static final Duration MIN_EVICTION_INTERVAL = Duration.ofMinutes(10);
+  // Minimum number of probes that must be sent to a channel before it will be considered for
+  // eviction
   private static final int MIN_PROBES_FOR_EVALUATION = 4;
+  // Percentage of probes that must fail for a channel to be considered unhealthy
   private static final int SINGLE_CHANNEL_FAILURE_PERCENT_THRESHOLD = 60;
+  // "Circuitbreaker" - If this or a higher percentage of channels in a pool are bad, we will not
+  // evict any channels
   private static final int POOLWIDE_BAD_CHANNEL_CIRCUITBREAKER_PERCENT = 70;
 
   /** Inner class to represent the result of a single probe. */
-  static class ProbeResult {
-    final Instant startTime;
-    final boolean success;
+  @AutoValue
+  abstract static class ProbeResult {
+    abstract Instant startTime();
 
-    ProbeResult(Instant startTime, boolean success) {
-      this.startTime = startTime;
-      this.success = success;
-    }
+    abstract boolean isSuccessful();
 
-    public boolean isSuccessful() {
-      return success;
+    static ProbeResult create(Instant startTime, boolean success) {
+      return new AutoValue_ChannelPoolHealthChecker_ProbeResult(startTime, success);
     }
   }
 
-  // Class fields
   private final Supplier<ImmutableList<Entry>> entrySupplier;
   private Instant lastEviction;
   private ScheduledExecutorService executor;
 
-  private BigtableChannelPrimer channelPrimer;
+  private ChannelPrimer channelPrimer;
 
   private final Clock clock;
 
   /** Constructor for the pool health checker. */
   public ChannelPoolHealthChecker(
       Supplier<ImmutableList<Entry>> entrySupplier,
-      BigtableChannelPrimer channelPrimer,
+      ChannelPrimer channelPrimer,
       ScheduledExecutorService executor,
       Clock clock) {
     this.entrySupplier = entrySupplier;
@@ -84,18 +89,18 @@ public class ChannelPoolHealthChecker {
 
   void start() {
     Duration initialDelayProbe =
-        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_RATE.toMillis()));
+        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
     executor.scheduleAtFixedRate(
         this::runProbes,
         initialDelayProbe.toMillis(),
-        PROBE_RATE.toMillis(),
+        PROBE_INTERVAL.toMillis(),
         TimeUnit.MILLISECONDS);
     Duration initialDelayDetect =
-        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_RATE.toMillis()));
+        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
     executor.scheduleAtFixedRate(
         this::detectAndRemoveOutlierEntries,
         initialDelayDetect.toMillis(),
-        PROBE_RATE.toMillis(),
+        PROBE_INTERVAL.toMillis(),
         TimeUnit.MILLISECONDS);
   }
 
@@ -127,7 +132,7 @@ public class ChannelPoolHealthChecker {
     } catch (Exception e) {
       success = false;
     }
-    addProbeResult(entry, new ProbeResult(startTime, success));
+    addProbeResult(entry, ProbeResult.create(startTime, success));
   }
 
   @VisibleForTesting
@@ -144,7 +149,7 @@ public class ChannelPoolHealthChecker {
   void pruneHistoryFor(Entry entry) {
     Instant windowStart = clock.instant().minus(WINDOW_DURATION);
     while (!entry.probeHistory.isEmpty()
-        && entry.probeHistory.peek().startTime.isBefore(windowStart)) {
+        && entry.probeHistory.peek().startTime().isBefore(windowStart)) {
       ProbeResult removedResult = entry.probeHistory.poll();
       if (removedResult.isSuccessful()) {
         entry.successfulProbesInWindow.decrementAndGet();
@@ -157,8 +162,6 @@ public class ChannelPoolHealthChecker {
   /** Checks if a single entry is currently healthy based on its probe history. */
   @VisibleForTesting
   boolean isEntryHealthy(Entry entry) {
-    pruneHistoryFor(entry); // Ensure window is current before calculation
-
     int failedProbes = entry.failedProbesInWindow.get();
     int totalProbes = failedProbes + entry.successfulProbesInWindow.get();
 
@@ -178,10 +181,6 @@ public class ChannelPoolHealthChecker {
   @Nullable
   @VisibleForTesting
   Entry findOutlierEntry() {
-    if (lastEviction.plus(WINDOW_DURATION).isAfter(clock.instant())) {
-      return null;
-    }
-
     List<Entry> unhealthyEntries =
         this.entrySupplier.get().stream()
             .peek(this::pruneHistoryFor)
