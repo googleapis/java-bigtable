@@ -122,7 +122,7 @@ public class BigtableClientContext {
         setupCookieHolder(transportProvider);
       }
 
-      ChannelPrimer channelPrimer = (ChannelPrimer) NoOpChannelPrimer.create();
+      ChannelPrimer channelPrimer = NoOpChannelPrimer.create();
 
       // Inject channel priming if enabled
       if (builder.isRefreshingChannel()) {
