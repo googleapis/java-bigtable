@@ -35,7 +35,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
-/** Stub for a class that will manage the health checking in the BigtableChannelPool */
+/** Class that manages the health checking in the BigtableChannelPool */
 public class ChannelPoolHealthChecker {
 
   // Configuration constants
@@ -106,7 +106,7 @@ public class ChannelPoolHealthChecker {
         TimeUnit.MILLISECONDS);
   }
 
-  /** Stop running health checking (No-op stub) */
+  /** Stop running health checking */
   public void stop() {
     executor.shutdownNow();
   }
@@ -213,7 +213,7 @@ public class ChannelPoolHealthChecker {
         .orElse(null);
   }
 
-  /** Periodically detects and removes outlier channels from the pool. (No-op stub) */
+  /** Periodically detects and removes outlier channels from the pool. */
   @VisibleForTesting
   void detectAndRemoveOutlierEntries() {
     if (clock.instant().isBefore(lastEviction.plus(MIN_EVICTION_INTERVAL))) {
