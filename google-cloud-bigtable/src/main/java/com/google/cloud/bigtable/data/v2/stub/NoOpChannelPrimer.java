@@ -16,7 +16,9 @@
 package com.google.cloud.bigtable.data.v2.stub;
 
 import com.google.api.core.InternalApi;
-import com.google.api.gax.grpc.ChannelPrimer;
+import com.google.api.core.SettableApiFuture;
+import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.ManagedChannel;
 
 @InternalApi
@@ -30,5 +32,10 @@ public class NoOpChannelPrimer implements ChannelPrimer {
   @Override
   public void primeChannel(ManagedChannel managedChannel) {
     // No op
+  }
+
+  @Override
+  public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1) {
+    return null;
   }
 }

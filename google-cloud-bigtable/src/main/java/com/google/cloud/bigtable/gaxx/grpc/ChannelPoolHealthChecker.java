@@ -67,7 +67,7 @@ public class ChannelPoolHealthChecker {
   }
 
   private final Supplier<ImmutableList<Entry>> entrySupplier;
-  private Instant lastEviction;
+  private volatile Instant lastEviction;
   private ScheduledExecutorService executor;
 
   private ChannelPrimer channelPrimer;
@@ -112,7 +112,6 @@ public class ChannelPoolHealthChecker {
   /** Runs probes on all the channels in the pool. */
   @VisibleForTesting
   void runProbes() {
-    // Method stub, no operation.
     for (Entry entry : this.entrySupplier.get()) {
       Instant startTime = clock.instant();
       SettableApiFuture<PingAndWarmResponse> probeFuture =
