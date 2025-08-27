@@ -36,6 +36,8 @@ public class NoOpChannelPrimer implements ChannelPrimer {
 
   @Override
   public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1) {
-    return null;
+    SettableApiFuture future = SettableApiFuture.create();
+    future.set(PingAndWarmResponse.getDefaultInstance());
+    return future;
   }
 }

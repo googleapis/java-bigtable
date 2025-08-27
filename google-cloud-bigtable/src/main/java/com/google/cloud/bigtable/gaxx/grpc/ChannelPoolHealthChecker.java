@@ -18,6 +18,8 @@ package com.google.cloud.bigtable.gaxx.grpc;
 import com.google.api.core.SettableApiFuture;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.PingAndWarmResponse;
+import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
+import com.google.cloud.bigtable.data.v2.stub.NoOpChannelPrimer;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool.Entry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
@@ -113,9 +115,18 @@ public class ChannelPoolHealthChecker {
   @VisibleForTesting
   void runProbes() {
     for (Entry entry : this.entrySupplier.get()) {
-      Instant startTime = clock.instant();
-      SettableApiFuture<PingAndWarmResponse> probeFuture =
-          channelPrimer.sendPrimeRequestsAsync(entry.getManagedChannel());
+      final Instant startTime = clock.instant();
+      final SettableApiFuture<PingAndWarmResponse> probeFuture;
+
+      if (channelPrimer instanceof BigtableChannelPrimer) {
+        BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
+        probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
+      } else if (channelPrimer instanceof NoOpChannelPrimer) {
+        NoOpChannelPrimer primer = (NoOpChannelPrimer) channelPrimer;
+        probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
+      } else {
+        continue;
+      }
       probeFuture.addListener(() -> onComplete(entry, startTime, probeFuture), executor);
     }
   }
