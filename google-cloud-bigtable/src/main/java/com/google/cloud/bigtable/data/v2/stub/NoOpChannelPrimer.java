@@ -30,12 +30,12 @@ public class NoOpChannelPrimer implements ChannelPrimer {
   private NoOpChannelPrimer() {}
 
   @Override
-  public void primeChannel(ManagedChannel managedChannel) {
+  public void primeChannel(ManagedChannel channel) {
     // No op
   }
 
   @Override
-  public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1) {
+  public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
     SettableApiFuture future = SettableApiFuture.create();
     future.set(PingAndWarmResponse.getDefaultInstance());
     return future;

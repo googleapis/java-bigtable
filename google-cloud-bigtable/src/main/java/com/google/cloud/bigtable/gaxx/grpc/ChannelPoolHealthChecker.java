@@ -36,13 +36,13 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /** Class that manages the health checking in the BigtableChannelPool */
-public class ChannelPoolHealthChecker {
+class ChannelPoolHealthChecker {
 
   // Configuration constants
   // Window_Duration is the duration over which we keep probe results
   private static final Duration WINDOW_DURATION = Duration.ofMinutes(5);
   // Interval at which we probe channel health
-  static final Duration PROBE_INTERVAL = Duration.ofSeconds(30);
+  private static final Duration PROBE_INTERVAL = Duration.ofSeconds(30);
   // Timeout deadline for a probe
   @VisibleForTesting static final Duration PROBE_DEADLINE = Duration.ofMillis(500);
   // Minimum interval between new idle channel evictions
@@ -121,9 +121,6 @@ public class ChannelPoolHealthChecker {
       if (channelPrimer instanceof BigtableChannelPrimer) {
         BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
         probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
-      } else if (channelPrimer instanceof NoOpChannelPrimer) {
-        NoOpChannelPrimer primer = (NoOpChannelPrimer) channelPrimer;
-        probeFuture = primer.sendPrimeRequestsAsync(entry.getManagedChannel());
       } else {
         continue;
       }
@@ -156,7 +153,7 @@ public class ChannelPoolHealthChecker {
   }
 
   @VisibleForTesting
-  void pruneHistoryFor(Entry entry) {
+  void pruneHistory(Entry entry) {
     Instant windowStart = clock.instant().minus(WINDOW_DURATION);
     while (!entry.probeHistory.isEmpty()
         && entry.probeHistory.peek().startTime().isBefore(windowStart)) {
@@ -186,14 +183,14 @@ public class ChannelPoolHealthChecker {
   /**
    * Finds a channel that is an outlier in terms of health.
    *
-   * @return Entry
+   * @return the entry to be evicted. Returns null if nothing to evict.
    */
   @Nullable
   @VisibleForTesting
   Entry findOutlierEntry() {
     List<Entry> unhealthyEntries =
         this.entrySupplier.get().stream()
-            .peek(this::pruneHistoryFor)
+            .peek(this::pruneHistory)
             .filter(entry -> !isEntryHealthy(entry))
             .collect(Collectors.toList());
 

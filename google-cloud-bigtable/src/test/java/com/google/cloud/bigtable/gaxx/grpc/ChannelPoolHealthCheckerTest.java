@@ -118,7 +118,7 @@ public class ChannelPoolHealthCheckerTest {
 
     Instant newTime = mockClock.instant().plus(Duration.ofMinutes(6));
     Mockito.when(mockClock.instant()).thenReturn(newTime);
-    healthChecker.pruneHistoryFor(entry); // Manually call for direct testing
+    healthChecker.pruneHistory(entry); // Manually call for direct testing
 
     assertThat(entry.probeHistory).isEmpty();
     assertThat(entry.failedProbesInWindow.get()).isEqualTo(0);
