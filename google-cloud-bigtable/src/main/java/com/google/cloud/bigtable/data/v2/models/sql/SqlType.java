@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
+import com.google.api.core.BetaApi;
 import com.google.api.core.InternalApi;
 import com.google.cloud.Date;
 import com.google.cloud.bigtable.common.Type;
@@ -245,63 +246,12 @@ public interface SqlType<T> extends Serializable {
   }
 
   /**
-   * Creates a fake {@link SqlType.Proto} for use on in {@link StructReader} methods that require a
-   * {@link SqlType} to validate against. This does not specify a schema because the proto schema
-   * will be validated on calls to the structs data accessors.
-   *
-   * <p>This is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
-  static SqlType.Proto protoOf(com.google.bigtable.v2.Type.Proto protoType) {
-    return Type.SchemalessProto.fromProto(protoType);
-  }
-
-  /**
-   * Creates a fake {@link SqlType.Enum} for use on in {@link StructReader} methods that require a
-   * {@link SqlType} to validate against. This does not specify a schema because the enum schema
-   * will be validated on calls to the structs data accessors.
-   *
-   * <p>This is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
-  static SqlType.Enum enumOf(com.google.bigtable.v2.Type.Enum enumType) {
-    return Type.SchemalessEnum.fromProto(enumType);
-  }
-
-  /**
-   * Creates a fake {@link SqlType.Proto} for use on in {@link StructReader} methods that require a
-   * {@link SqlType} to validate against. This does not specify a schema because the proto schema
-   * will be validated on calls to the structs data accessors.
-   *
-   * <p>This is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
-  static SqlType.Proto protoOf(String messageName) {
-    return Type.SchemalessProto.create(messageName);
-  }
-
-  /**
-   * Creates a fake {@link SqlType.Enum} for use on in {@link StructReader} methods that require a
-   * {@link SqlType} to validate against. This does not specify a schema because the enum schema
-   * will be validated on calls to the structs data accessors.
-   *
-   * <p>This is considered an internal implementation detail and not meant to be used by
-   * applications.
-   */
-  @InternalApi
-  static SqlType.Enum enumOf(String enumName) {
-    return Type.SchemalessEnum.create(enumName);
-  }
-
-  /**
    * Returns a {@link SqlType} for a protobuf message.
    *
    * @param message an instance of the message. {@code MyMessage.getDefaultInstance()} can be used.
    * @param <T> the message type
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   static <T extends AbstractMessage> SqlType.Proto<T> protoOf(T message) {
     return Type.Proto.create(message);
   }
@@ -313,6 +263,7 @@ public interface SqlType<T> extends Serializable {
    *     MyEnum::forNumber}
    * @param <T> the enum type
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   static <T extends ProtocolMessageEnum> SqlType.Enum<T> enumOf(Function<Integer, T> method) {
     return Type.Enum.create(method);
   }
@@ -350,9 +301,9 @@ public interface SqlType<T> extends Serializable {
         com.google.bigtable.v2.Type.Map mapType = proto.getMapType();
         return mapOf(fromProto(mapType.getKeyType()), fromProto(mapType.getValueType()));
       case PROTO_TYPE:
-        return protoOf(proto.getProtoType());
+        return Type.SchemalessProto.fromProto(proto.getProtoType());
       case ENUM_TYPE:
-        return enumOf(proto.getEnumType());
+        return Type.SchemalessEnum.fromProto(proto.getEnumType());
       case KIND_NOT_SET:
         throw new IllegalStateException("Unrecognized Type. You may need to update your client.");
       default:

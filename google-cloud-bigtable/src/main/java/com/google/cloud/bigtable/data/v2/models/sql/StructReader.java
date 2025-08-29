@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.models.sql;
 
+import com.google.api.core.BetaApi;
 import com.google.cloud.Date;
 import com.google.protobuf.AbstractMessage;
 import com.google.protobuf.ByteString;
@@ -210,6 +211,7 @@ public interface StructReader {
    * @see <a
    *     href="https://developers.google.com/protocol-buffers/docs/reference/java-generated#message">getDefaultInstance()</a>
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   <MsgType extends AbstractMessage> MsgType getProtoMessage(int columnIndex, MsgType message);
 
   /**
@@ -222,6 +224,7 @@ public interface StructReader {
    * @see <a
    *     href="https://developers.google.com/protocol-buffers/docs/reference/java-generated#message">getDefaultInstance()</a>
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   <MsgType extends AbstractMessage> MsgType getProtoMessage(String columnName, MsgType message);
 
   /**
@@ -234,6 +237,7 @@ public interface StructReader {
    * @see <a
    *     href="https://developers.google.com/protocol-buffers/docs/reference/java-generated#enum">forNumber()</a>
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   <EnumType extends ProtocolMessageEnum> EnumType getProtoEnum(
       int columnIndex, Function<Integer, EnumType> forNumber);
 
@@ -247,6 +251,7 @@ public interface StructReader {
    * @see <a
    *     href="https://developers.google.com/protocol-buffers/docs/reference/java-generated#enum">forNumber()</a>
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   <EnumType extends ProtocolMessageEnum> EnumType getProtoEnum(
       String columnName, Function<Integer, EnumType> forNumber);
 }

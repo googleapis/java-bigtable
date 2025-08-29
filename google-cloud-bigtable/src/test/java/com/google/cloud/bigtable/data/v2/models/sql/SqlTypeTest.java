@@ -32,6 +32,8 @@ import static com.google.cloud.bigtable.data.v2.stub.sql.SqlProtoFactory.timesta
 import static com.google.common.truth.Truth.assertThat;
 
 import com.google.bigtable.v2.Type;
+import com.google.cloud.bigtable.common.Type.SchemalessEnum;
+import com.google.cloud.bigtable.common.Type.SchemalessProto;
 import com.google.cloud.bigtable.common.Type.StructWithSchema;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType.Code;
 import com.google.cloud.bigtable.data.v2.test.AlbumProto.Album;
@@ -74,8 +76,8 @@ public class SqlTypeTest {
     protoToJavaMapping.put(arrayType(stringType()), SqlType.arrayOf(SqlType.string()));
     protoToJavaMapping.put(
         mapType(bytesType(), stringType()), SqlType.mapOf(SqlType.bytes(), SqlType.string()));
-    protoToJavaMapping.put(protoType("foo"), SqlType.protoOf("foo"));
-    protoToJavaMapping.put(enumType("foo"), SqlType.enumOf("foo"));
+    protoToJavaMapping.put(protoType("foo"), SchemalessProto.create("foo"));
+    protoToJavaMapping.put(enumType("foo"), SchemalessEnum.create("foo"));
   }
 
   @Test
@@ -170,8 +172,8 @@ public class SqlTypeTest {
   public void typesMatch_checksProto() {
     SqlType.Proto<Singer> proto = SqlType.protoOf(Singer.getDefaultInstance());
     SqlType.Proto<Album> anotherProto = SqlType.protoOf(Album.getDefaultInstance());
-    SqlType.Proto schemalessProto = SqlType.protoOf("MyMessage");
-    SqlType.Proto anotherSchemalessProto = SqlType.protoOf("MyAnotherMessage");
+    SqlType.Proto schemalessProto = SchemalessProto.create("MyMessage");
+    SqlType.Proto anotherSchemalessProto = SchemalessProto.create("MyAnotherMessage");
 
     assertThat(SqlType.typesMatch(schemalessProto, proto)).isTrue();
     assertThat(SqlType.typesMatch(proto, schemalessProto)).isTrue();
@@ -183,8 +185,8 @@ public class SqlTypeTest {
   public void typesMatch_checksEnum() {
     SqlType.Enum<Genre> myEnum = SqlType.enumOf(Genre::forNumber);
     SqlType.Enum<Format> anotherEnum = SqlType.enumOf(Format::forNumber);
-    SqlType.Enum schemalessEnum = SqlType.enumOf("MyEnum");
-    SqlType.Enum anotherSchemalessEnum = SqlType.enumOf("MyAnotherEnum");
+    SqlType.Enum schemalessEnum = SchemalessEnum.create("MyEnum");
+    SqlType.Enum anotherSchemalessEnum = SchemalessEnum.create("MyAnotherEnum");
 
     assertThat(SqlType.typesMatch(schemalessEnum, myEnum)).isTrue();
     assertThat(SqlType.typesMatch(myEnum, schemalessEnum)).isTrue();

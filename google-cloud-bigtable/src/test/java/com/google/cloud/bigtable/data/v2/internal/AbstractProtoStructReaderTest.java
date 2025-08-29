@@ -290,22 +290,6 @@ public class AbstractProtoStructReaderTest {
                       SqlType.bytes(),
                       SchemalessProto.create("com.google.cloud.bigtable.data.v2.test.Singer"))));
       assertThrows(
-          UnsupportedOperationException.class,
-          () ->
-              structWithMap.getMap(
-                  "testField",
-                  SqlType.mapOf(
-                      SqlType.bytes(),
-                      SqlType.protoOf("com.google.cloud.bigtable.data.v2.test.Singer"))));
-      assertThrows(
-          UnsupportedOperationException.class,
-          () ->
-              structWithMap.getMap(
-                  0,
-                  SqlType.mapOf(
-                      SqlType.bytes(),
-                      SqlType.protoOf("com.google.cloud.bigtable.data.v2.test.Singer"))));
-      assertThrows(
           IllegalStateException.class,
           () ->
               structWithMap.getMap(
@@ -372,7 +356,7 @@ public class AbstractProtoStructReaderTest {
                   "testField",
                   SqlType.mapOf(
                       SqlType.bytes(),
-                      SqlType.enumOf("com.google.cloud.bigtable.data.v2.test.Genre"))));
+                      SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre"))));
       assertThrows(
           UnsupportedOperationException.class,
           () ->
@@ -380,7 +364,7 @@ public class AbstractProtoStructReaderTest {
                   0,
                   SqlType.mapOf(
                       SqlType.bytes(),
-                      SqlType.enumOf("com.google.cloud.bigtable.data.v2.test.Genre"))));
+                      SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre"))));
       assertThrows(
           IllegalStateException.class,
           () -> structWithMap.getMap("testField", SqlType.mapOf(SqlType.bytes(), SqlType.bytes())));

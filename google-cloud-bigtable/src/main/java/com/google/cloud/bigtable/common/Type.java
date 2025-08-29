@@ -402,7 +402,7 @@ public interface Type {
     }
 
     @Nonnull
-    abstract T message();
+    abstract T getMessage();
 
     @Override
     public Code getCode() {
@@ -412,12 +412,12 @@ public interface Type {
     @Nonnull
     @Override
     public Parser<T> getParserForType() {
-      return (Parser<T>) message().getParserForType();
+      return (Parser<T>) getMessage().getParserForType();
     }
 
     @Override
     public java.lang.String getMessageName() {
-      return message().getDescriptorForType().getFullName();
+      return getMessage().getDescriptorForType().getFullName();
     }
 
     @Override
@@ -489,10 +489,9 @@ public interface Type {
   }
 
   /**
-   * This is a special version of proto that is intended to only be used in the {@link
-   * com.google.cloud.bigtable.data.v2.models.sql.StructReader} getters that require types. We don't
-   * want users to need to specify the proto schema when the schema will be validated on calls to
-   * {@link com.google.cloud.bigtable.data.v2.models.sql.StructReader} methods on the struct.
+   * This is a special version of proto that is intended to only be used internally, to facilitate
+   * proto schema parsing, which does not have the full information required to parse the protobuf
+   * messages.
    *
    * <p>Any attempts to call getParserForType() will throw an exception.
    */
@@ -507,17 +506,13 @@ public interface Type {
       return new AutoValue_Type_SchemalessProto(messageName);
     }
 
-    abstract java.lang.String messageName();
+    @Override
+    public abstract java.lang.String getMessageName();
 
     @Override
     public Parser<AbstractMessage> getParserForType() {
       throw new UnsupportedOperationException(
           "Cannot get parser for unresolved proto type. Please use the getProtoMessage overload that takes a message instance.");
-    }
-
-    @Override
-    public java.lang.String getMessageName() {
-      return messageName();
     }
 
     @Override
@@ -527,15 +522,14 @@ public interface Type {
 
     @Override
     public java.lang.String toString() {
-      return getCode().name() + "{messageName=" + messageName() + "}";
+      return getCode().name() + "{messageName=" + getMessageName() + "}";
     }
   }
 
   /**
-   * This is a special version of enum that is intended to only be used in the {@link
-   * com.google.cloud.bigtable.data.v2.models.sql.StructReader} getters that require types. We don't
-   * want users to need to specify the enum schema when the schema will be validated on calls to
-   * {@link com.google.cloud.bigtable.data.v2.models.sql.StructReader} methods on the struct.
+   * This is a special version of enum that is intended to only be used internally, to facilitate
+   * enum schema parsing, which does not have the full information required to parse the protobuf
+   * enum messages.
    *
    * <p>Any attempts to call getForNumber() will throw an exception.
    */
@@ -550,7 +544,7 @@ public interface Type {
       return new AutoValue_Type_SchemalessEnum(enumName);
     }
 
-    abstract java.lang.String enumName();
+    abstract java.lang.String getEnumName();
 
     @Override
     public Function<Integer, ProtocolMessageEnum> getForNumber() {
@@ -565,7 +559,7 @@ public interface Type {
 
     @Override
     public java.lang.String toString() {
-      return getCode().name() + "{enumName=" + enumName() + "}";
+      return getCode().name() + "{enumName=" + getEnumName() + "}";
     }
   }
 
@@ -573,6 +567,7 @@ public interface Type {
   // autovalue generated class from the abstract base classes.
   @InternalApi
   class DefaultInstances {
+
     private static final Bytes BYTES = new AutoValue_Type_Bytes();
     private static final String STRING = new AutoValue_Type_String();
     private static final Int64 INT64 = new AutoValue_Type_Int64();

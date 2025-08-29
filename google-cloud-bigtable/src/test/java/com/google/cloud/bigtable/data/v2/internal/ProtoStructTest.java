@@ -47,6 +47,8 @@ import com.google.bigtable.v2.Type;
 import com.google.bigtable.v2.Type.Struct;
 import com.google.bigtable.v2.Value;
 import com.google.cloud.Date;
+import com.google.cloud.bigtable.common.Type.SchemalessEnum;
+import com.google.cloud.bigtable.common.Type.SchemalessProto;
 import com.google.cloud.bigtable.data.v2.models.sql.SqlType;
 import com.google.cloud.bigtable.data.v2.test.SingerProto.Genre;
 import com.google.cloud.bigtable.data.v2.test.SingerProto.Singer;
@@ -182,9 +184,9 @@ public class ProtoStructTest {
     assertThat(struct.getColumnType("mapField"))
         .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
     assertThat(struct.getColumnType("protoField"))
-        .isEqualTo(SqlType.protoOf("com.google.cloud.bigtable.data.v2.test.Singer"));
+        .isEqualTo(SchemalessProto.create("com.google.cloud.bigtable.data.v2.test.Singer"));
     assertThat(struct.getColumnType("enumField"))
-        .isEqualTo(SqlType.enumOf("com.google.cloud.bigtable.data.v2.test.Genre"));
+        .isEqualTo(SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre"));
   }
 
   @Test
@@ -203,9 +205,9 @@ public class ProtoStructTest {
     assertThat(struct.getColumnType(10))
         .isEqualTo(SqlType.mapOf(SqlType.string(), SqlType.string()));
     assertThat(struct.getColumnType(11))
-        .isEqualTo(SqlType.protoOf("com.google.cloud.bigtable.data.v2.test.Singer"));
+        .isEqualTo(SchemalessProto.create("com.google.cloud.bigtable.data.v2.test.Singer"));
     assertThat(struct.getColumnType(12))
-        .isEqualTo(SqlType.enumOf("com.google.cloud.bigtable.data.v2.test.Genre"));
+        .isEqualTo(SchemalessEnum.create("com.google.cloud.bigtable.data.v2.test.Genre"));
   }
 
   @Test
