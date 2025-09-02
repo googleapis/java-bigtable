@@ -451,16 +451,16 @@ public class BigtableChannelPool extends ManagedChannel {
 
     private final AtomicInteger maxOutstanding = new AtomicInteger();
 
-    /**
-     * Queue storing the last 5 minutes of probe results
-     */
+    /** Queue storing the last 5 minutes of probe results */
     @VisibleForTesting
     final ConcurrentLinkedQueue<ProbeResult> probeHistory = new ConcurrentLinkedQueue<>();
 
     /**
-     * Keep both # of failed and # of successful probes so that we don't have to check size() on the ConcurrentLinkedQueue all the time
+     * Keep both # of failed and # of successful probes so that we don't have to check size() on the
+     * ConcurrentLinkedQueue all the time
      */
     final AtomicInteger failedProbesInWindow = new AtomicInteger();
+
     final AtomicInteger successfulProbesInWindow = new AtomicInteger();
 
     // Flag that the channel should be closed once all the outstanding RPCs complete.
