@@ -100,7 +100,7 @@ public class BigtableChannelPool extends ManagedChannel {
     this.channelPrimer = channelPrimer;
     Clock systemClock = Clock.systemUTC();
     this.channelPoolHealthChecker =
-        new ChannelPoolHealthChecker(() -> entries.get(), channelPrimer, executor, systemClock);
+        new ChannelPoolHealthChecker(entries::get, channelPrimer, executor, systemClock);
     this.channelPoolHealthChecker.start();
 
     ImmutableList.Builder<Entry> initialListBuilder = ImmutableList.builder();

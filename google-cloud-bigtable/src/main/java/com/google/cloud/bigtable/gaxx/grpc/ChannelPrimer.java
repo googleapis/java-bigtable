@@ -15,8 +15,8 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
+import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
-import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.PingAndWarmResponse;
 import io.grpc.ManagedChannel;
 
@@ -24,5 +24,5 @@ import io.grpc.ManagedChannel;
 public interface ChannelPrimer {
   void primeChannel(ManagedChannel var1);
 
-  SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1);
+  ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1);
 }

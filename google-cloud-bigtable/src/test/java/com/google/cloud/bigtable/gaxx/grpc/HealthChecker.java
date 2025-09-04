@@ -15,6 +15,9 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
+import com.google.api.core.InternalApi;
+
+@InternalApi
 public interface HealthChecker {
   void start();
 

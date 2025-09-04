@@ -15,27 +15,33 @@
  */
 package com.google.cloud.bigtable.gaxx.grpc;
 
-import com.google.api.core.SettableApiFuture;
+import com.google.api.core.ApiFuture;
 import com.google.auto.value.AutoValue;
 import com.google.bigtable.v2.PingAndWarmResponse;
 import com.google.cloud.bigtable.data.v2.stub.BigtableChannelPrimer;
 import com.google.cloud.bigtable.gaxx.grpc.BigtableChannelPool.Entry;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 /** Class that manages the health checking in the BigtableChannelPool */
 class ChannelPoolHealthChecker {
+
+  private static final Logger logger = Logger.getLogger(ChannelPoolHealthChecker.class.getName());
 
   // Configuration constants
   // Window_Duration is the duration over which we keep probe results
@@ -69,9 +75,12 @@ class ChannelPoolHealthChecker {
 
   private final Supplier<ImmutableList<Entry>> entrySupplier;
   private volatile Instant lastEviction;
-  private ScheduledExecutorService executor;
+  private final ScheduledExecutorService executor;
 
-  private ChannelPrimer channelPrimer;
+  private final ChannelPrimer channelPrimer;
+
+  private ScheduledFuture<?> probeTaskScheduledFuture;
+  private ScheduledFuture<?> detectAndRemoveTaskScheduledFuture;
 
   private final Clock clock;
 
@@ -89,25 +98,36 @@ class ChannelPoolHealthChecker {
   }
 
   void start() {
-    Duration initialDelayProbe =
-        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
-    executor.scheduleAtFixedRate(
-        this::runProbes,
-        initialDelayProbe.toMillis(),
-        PROBE_INTERVAL.toMillis(),
-        TimeUnit.MILLISECONDS);
-    Duration initialDelayDetect =
-        Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
-    executor.scheduleAtFixedRate(
-        this::detectAndRemoveOutlierEntries,
-        initialDelayDetect.toMillis(),
-        PROBE_INTERVAL.toMillis(),
-        TimeUnit.MILLISECONDS);
+    if (channelPrimer instanceof BigtableChannelPrimer) {
+      Duration initialDelayProbe =
+          Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
+      this.probeTaskScheduledFuture =
+          executor.scheduleAtFixedRate(
+              this::runProbes,
+              initialDelayProbe.toMillis(),
+              PROBE_INTERVAL.toMillis(),
+              TimeUnit.MILLISECONDS);
+      Duration initialDelayDetect =
+          Duration.ofMillis(ThreadLocalRandom.current().nextLong(PROBE_INTERVAL.toMillis()));
+      this.detectAndRemoveTaskScheduledFuture =
+          executor.scheduleAtFixedRate(
+              this::detectAndRemoveOutlierEntries,
+              initialDelayDetect.toMillis(),
+              PROBE_INTERVAL.toMillis(),
+              TimeUnit.MILLISECONDS);
+    } else {
+      logger.log(Level.WARNING, "NoOpChannelPrimer was provided, not checking channel health.");
+    }
   }
 
   /** Stop running health checking */
   public void stop() {
-    executor.shutdownNow();
+    if (probeTaskScheduledFuture != null) {
+      probeTaskScheduledFuture.cancel(true);
+    }
+    if (detectAndRemoveTaskScheduledFuture != null) {
+      detectAndRemoveTaskScheduledFuture.cancel(true);
+    }
   }
 
   /** Runs probes on all the channels in the pool. */
@@ -115,7 +135,7 @@ class ChannelPoolHealthChecker {
   void runProbes() {
     for (Entry entry : this.entrySupplier.get()) {
       final Instant startTime = clock.instant();
-      final SettableApiFuture<PingAndWarmResponse> probeFuture;
+      final ApiFuture<PingAndWarmResponse> probeFuture;
 
       if (channelPrimer instanceof BigtableChannelPrimer) {
         BigtableChannelPrimer primer = (BigtableChannelPrimer) channelPrimer;
@@ -123,20 +143,21 @@ class ChannelPoolHealthChecker {
       } else {
         continue;
       }
-      probeFuture.addListener(() -> onComplete(entry, startTime, probeFuture), executor);
+      probeFuture.addListener(
+          () -> onComplete(entry, startTime, probeFuture), MoreExecutors.directExecutor());
     }
   }
 
   /** Callback that will update Entry data on probe complete. */
   @VisibleForTesting
-  void onComplete(
-      Entry entry, Instant startTime, SettableApiFuture<PingAndWarmResponse> probeFuture) {
+  void onComplete(Entry entry, Instant startTime, ApiFuture<PingAndWarmResponse> probeFuture) {
     boolean success;
     try {
       probeFuture.get(PROBE_DEADLINE.toMillis(), TimeUnit.MILLISECONDS);
       success = true;
     } catch (Exception e) {
       success = false;
+      logger.log(Level.WARNING, "Probe failed");
     }
     addProbeResult(entry, ProbeResult.create(startTime, success));
   }
@@ -219,6 +240,9 @@ class ChannelPoolHealthChecker {
     Entry outlier = findOutlierEntry();
     if (outlier != null) {
       this.lastEviction = clock.instant();
+      outlier.failedProbesInWindow.set(0);
+      outlier.successfulProbesInWindow.set(0);
+      outlier.probeHistory.clear();
       outlier.getManagedChannel().enterIdle();
     }
   }

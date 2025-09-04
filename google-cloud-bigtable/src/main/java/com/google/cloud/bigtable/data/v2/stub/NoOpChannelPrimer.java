@@ -15,6 +15,7 @@
  */
 package com.google.cloud.bigtable.data.v2.stub;
 
+import com.google.api.core.ApiFuture;
 import com.google.api.core.InternalApi;
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.PingAndWarmResponse;
@@ -35,7 +36,7 @@ public class NoOpChannelPrimer implements ChannelPrimer {
   }
 
   @Override
-  public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
+  public ApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
     SettableApiFuture future = SettableApiFuture.create();
     future.set(PingAndWarmResponse.getDefaultInstance());
     return future;
