@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executors;
@@ -71,6 +72,7 @@ public class BigtableChannelPool extends ManagedChannel {
   private ChannelPoolHealthChecker channelPoolHealthChecker;
   private final AtomicInteger indexTicker = new AtomicInteger();
   private final String authority;
+  private final Random rng = new Random();
 
   public static BigtableChannelPool create(
       BigtableChannelPoolSettings settings,
@@ -138,15 +140,94 @@ public class BigtableChannelPool extends ManagedChannel {
   }
 
   /**
-   * Create a {@link ClientCall} on a Channel from the pool chosen in a round-robin fashion to the
-   * remote operation specified by the given {@link MethodDescriptor}. The returned {@link
-   * ClientCall} does not trigger any remote behavior until {@link
-   * ClientCall#start(ClientCall.Listener, io.grpc.Metadata)} is invoked.
+   * Create a {@link ClientCall} on a Channel from the pool to the remote operation specified by the
+   * given {@link MethodDescriptor}. The returned {@link ClientCall} does not trigger any remote
+   * behavior until {@link ClientCall#start(ClientCall.Listener, io.grpc.Metadata)} is invoked.
    */
   @Override
   public <ReqT, RespT> ClientCall<ReqT, RespT> newCall(
       MethodDescriptor<ReqT, RespT> methodDescriptor, CallOptions callOptions) {
-    return getChannel(indexTicker.getAndIncrement()).newCall(methodDescriptor, callOptions);
+    return new AffinityChannel(pickEntryIndex()).newCall(methodDescriptor, callOptions);
+  }
+
+  /** Pick an entry to use for the next call. */
+  private int pickEntryIndex() {
+    switch (settings.getLoadBalancingStrategy()) {
+      case ROUND_ROBIN:
+        return pickEntryIndexRoundRobin();
+      case LEAST_IN_FLIGHT:
+        return pickEntryIndexLeastInFlight();
+      case POWER_OF_TWO_LEAST_IN_FLIGHT:
+        return pickEntryIndexPowerOfTwoLeastInFlight();
+      default:
+          LOG.warning(String.format(
+            "Unknown load balancing strategy %s, falling back to ROUND_ROBIN.",
+            settings.getLoadBalancingStrategy()));
+          return pickEntryIndexRoundRobin();
+
+    }
+  }
+
+  /** Pick an entry using the Round Robin algorithm. */
+  private int pickEntryIndexRoundRobin() {
+    return indexTicker.getAndIncrement();
+  }
+
+  /** Pick an entry at random. */
+  private int pickEntryIndexRandom() {
+    List<Entry> localEntries = entries.get();
+    for (int attempt = 0; attempt < 5; attempt++) {
+      int choice = rng.nextInt(localEntries.size());
+      if (localEntries.get(choice).retainable()) {
+        return choice;
+      }
+    }
+    LOG.warning("couldn't find retainable channel, picking at random");
+    return rng.nextInt(localEntries.size());
+  }
+  
+  /** Pick an entry using the least-in-flight algorithm. */
+  private int pickEntryIndexLeastInFlight() {
+    List<Entry> localEntries = entries.get();
+    int minRpcs = Integer.MAX_VALUE;
+    List<Integer> candidates = new ArrayList<>();
+
+    for (int i = 0; i < localEntries.size(); i++) {
+      Entry entry = localEntries.get(i);
+      if (entry.retainable()) {
+        int rpcs = entry.outstandingRpcs.get();
+        if (rpcs < minRpcs) {
+          minRpcs = rpcs;
+          candidates.clear();
+          candidates.add(i);
+        } else if (rpcs == minRpcs) {
+          candidates.add(i);
+        }
+      }
+    }
+    if (candidates.isEmpty()) {
+      LOG.warning(
+        "Least-in-flight picker couldn't find available channel. Picking at random.");
+      return pickEntryIndexRandom();
+    }
+    // If there are multiple matching entries, pick one at random.
+    return candidates.get(rng.nextInt(candidates.size()));
+  }
+
+  /** Pick an entry using the power-of-two algorithm. */
+  private int pickEntryIndexPowerOfTwoLeastInFlight() {
+    List<Entry> localEntries = entries.get();
+    int choice1 = pickEntryIndexRandom();
+    int choice2 = pickEntryIndexRandom();
+    if (choice1 == choice2) {
+      // Try to pick two different entries. If this picks the same entry again, it's likely that
+      // there's only one healthy channel in the pool and we should proceed anyway.
+      choice2 = pickEntryIndexRandom();
+    }
+
+    Entry entry1 = localEntries.get(choice1);
+    Entry entry2 = localEntries.get(choice2);
+    return entry1.outstandingRpcs.get() < entry2.outstandingRpcs.get() ? choice1 : choice2;
   }
 
   Channel getChannel(int affinity) {
@@ -392,27 +473,6 @@ public class BigtableChannelPool extends ManagedChannel {
   }
 
   /**
-   * Get and retain a Channel Entry. The returned Entry will have its rpc count incremented,
-   * preventing it from getting recycled.
-   */
-  Entry getRetainedEntry(int affinity) {
-    // The maximum number of concurrent calls to this method for any given time span is at most 2,
-    // so the loop can actually be 2 times. But going for 5 times for a safety margin for potential
-    // code evolving
-    for (int i = 0; i < 5; i++) {
-      Entry entry = getEntry(affinity);
-      if (entry.retain()) {
-        return entry;
-      }
-    }
-    // It is unlikely to reach here unless the pool code evolves to increase the maximum possible
-    // concurrent calls to this method. If it does, this is a bug in the channel pool implementation
-    // the number of retries above should be greater than the number of contending maintenance
-    // tasks.
-    throw new IllegalStateException("Bug: failed to retain a channel");
-  }
-
-  /**
    * Returns one of the channels managed by this pool. The pool continues to "own" the channel, and
    * the caller should not shut it down.
    *
@@ -422,11 +482,22 @@ public class BigtableChannelPool extends ManagedChannel {
    *     same channel. However, the implementation should attempt to spread load evenly.
    */
   private Entry getEntry(int affinity) {
-    List<Entry> localEntries = entries.get();
-
-    int index = Math.abs(affinity % localEntries.size());
-
-    return localEntries.get(index);
+    // The maximum number of concurrent calls to this method for any given time span is at most 2,
+    // so the loop can actually be 2 times. But going for 5 times for a safety margin for potential
+    // code evolving
+    for (int i = 0; i < 5; i++) {
+      List<Entry> localEntries = entries.get();
+      int index = Math.abs(affinity % localEntries.size());
+      Entry entry = localEntries.get(index);
+      if (entry.retainable()) {
+        return entry;
+      }
+    }
+    // It is unlikely to reach here unless the pool code evolves to increase the maximum possible
+    // concurrent calls to this method. If it does, this is a bug in the channel pool implementation
+    // the number of retries above should be greater than the number of contending maintenance
+    // tasks.
+    throw new IllegalStateException("Bug: failed to retain a channel");
   }
 
   /** Bundles a gRPC {@link ManagedChannel} with some usage accounting. */
@@ -480,29 +551,30 @@ public class BigtableChannelPool extends ManagedChannel {
     int getAndResetMaxOutstanding() {
       return maxOutstanding.getAndSet(outstandingRpcs.get());
     }
+   /**
+     * The method will return false if the channel is closing and the caller should pick a different
+     * channel. If the method returned true, the channel is useable and can be retained.
+     */
+    private boolean retainable() {
+      if (shutdownRequested.get()) {
+        requestShutdown();
+        return false;
+      }
+      return true;
+    }
 
     /**
-     * Try to increment the outstanding RPC count. The method will return false if the channel is
-     * closing and the caller should pick a different channel. If the method returned true, the
-     * channel has been successfully retained and it is the responsibility of the caller to release
-     * it.
+     * Try to increment the outstanding RPC count. It is the responsibility of the caller to check
+     * that the channel is retainable, and to release it after RPC completion.
      */
-    private boolean retain() {
+    private void retain() {
       // register desire to start RPC
       int currentOutstanding = outstandingRpcs.incrementAndGet();
-
       // Rough bookkeeping
       int prevMax = maxOutstanding.get();
       if (currentOutstanding > prevMax) {
         maxOutstanding.incrementAndGet();
       }
-
-      // abort if the channel is closing
-      if (shutdownRequested.get()) {
-        release();
-        return false;
-      }
-      return true;
     }
 
     /**
@@ -517,8 +589,8 @@ public class BigtableChannelPool extends ManagedChannel {
 
       // Must check outstandingRpcs after shutdownRequested (in reverse order of retain()) to ensure
       // mutual exclusion.
-      if (shutdownRequested.get() && outstandingRpcs.get() == 0) {
-        shutdown();
+      if (shutdownRequested.get()) {
+        requestShutdown();
       }
     }
 
@@ -557,9 +629,13 @@ public class BigtableChannelPool extends ManagedChannel {
     @Override
     public <RequestT, ResponseT> ClientCall<RequestT, ResponseT> newCall(
         MethodDescriptor<RequestT, ResponseT> methodDescriptor, CallOptions callOptions) {
-
-      Entry entry = getRetainedEntry(affinity);
-
+      Entry entry = getEntry(affinity);
+      if (entry.retainable()) {
+        entry.retain();
+      } else {
+        LOG.warning("newCall() called on channel entry that is shutting down. The call may not "
+        + "succeed.");
+      }
       return new ReleasingClientCall<>(entry.channel.newCall(methodDescriptor, callOptions), entry);
     }
   }
