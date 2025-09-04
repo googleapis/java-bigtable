@@ -13,31 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.cloud.bigtable.data.v2.stub;
+package com.google.cloud.bigtable.gaxx.grpc;
 
 import com.google.api.core.InternalApi;
 import com.google.api.core.SettableApiFuture;
 import com.google.bigtable.v2.PingAndWarmResponse;
-import com.google.cloud.bigtable.gaxx.grpc.ChannelPrimer;
 import io.grpc.ManagedChannel;
 
-@InternalApi
-public class NoOpChannelPrimer implements ChannelPrimer {
-  static NoOpChannelPrimer create() {
-    return new NoOpChannelPrimer();
-  }
+@InternalApi("For internal use by google-cloud-java clients only")
+public interface ChannelPrimer {
+  void primeChannel(ManagedChannel var1);
 
-  private NoOpChannelPrimer() {}
-
-  @Override
-  public void primeChannel(ManagedChannel channel) {
-    // No op
-  }
-
-  @Override
-  public SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel channel) {
-    SettableApiFuture future = SettableApiFuture.create();
-    future.set(PingAndWarmResponse.getDefaultInstance());
-    return future;
-  }
+  SettableApiFuture<PingAndWarmResponse> sendPrimeRequestsAsync(ManagedChannel var1);
 }
