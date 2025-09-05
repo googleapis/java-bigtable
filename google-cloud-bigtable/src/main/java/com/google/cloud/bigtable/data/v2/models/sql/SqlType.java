@@ -143,6 +143,7 @@ public interface SqlType<T> extends Serializable {
    *
    * @param <T> Java type of the protobuf message
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   interface Proto<T extends AbstractMessage> extends SqlType<T> {
 
     /**
@@ -158,6 +159,7 @@ public interface SqlType<T> extends Serializable {
    *
    * @param <T> Java type of the protobuf enum
    */
+  @BetaApi("This feature is currently experimental and can change in the future")
   interface Enum<T extends ProtocolMessageEnum> extends SqlType<T> {
 
     /**

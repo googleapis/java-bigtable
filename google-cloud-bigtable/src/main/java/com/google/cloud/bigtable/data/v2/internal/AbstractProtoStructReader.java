@@ -357,7 +357,8 @@ public abstract class AbstractProtoStructReader implements StructReader {
         return ProtoStruct.create(schema, value.getArrayValue());
       case PROTO:
         try {
-          return ((SqlType.Proto<?>) type).getParserForType().parseFrom(value.getBytesValue());
+          SqlType.Proto protoType = (SqlType.Proto) type;
+          return protoType.getParserForType().parseFrom(value.getBytesValue());
         } catch (InvalidProtocolBufferException e) {
           throw new IllegalStateException("Unable to parse value to proto " + type, e);
         }
