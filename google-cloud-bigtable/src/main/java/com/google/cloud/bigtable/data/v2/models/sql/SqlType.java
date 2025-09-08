@@ -273,6 +273,22 @@ public interface SqlType<T> extends Serializable {
   }
 
   /**
+   * Extracts the unqualified name from a fully qualified proto message or enum name. For example,
+   * "my.package.MyMessage" becomes "MyMessage".
+   *
+   * <p>This is considered an internal implementation detail and not meant to be used by
+   * applications.
+   */
+  @InternalApi
+  static String getUnqualifiedName(String fullName) {
+    if (fullName == null || fullName.isEmpty()) {
+      return "";
+    }
+    int lastDotIndex = fullName.lastIndexOf('.');
+    return (lastDotIndex == -1) ? fullName : fullName.substring(lastDotIndex + 1);
+  }
+
+  /**
    * Creates a {@link SqlType} from the protobuf representation of Types.
    *
    * <p>This is considered an internal implementation detail and not meant to be used by
@@ -327,16 +343,6 @@ public interface SqlType<T> extends Serializable {
    */
   @InternalApi
   static boolean typesMatch(SqlType<?> left, SqlType<?> right) {
-    Function<String, String> getUnqualifiedMessageName =
-        fullMessageName -> {
-          if (fullMessageName == null || fullMessageName.isEmpty()) {
-            return "";
-          }
-          int lastDotIndex = fullMessageName.lastIndexOf('.');
-          return (lastDotIndex == -1)
-              ? fullMessageName
-              : fullMessageName.substring(lastDotIndex + 1);
-        };
     switch (left.getCode()) {
       case BYTES:
       case STRING:
@@ -359,9 +365,8 @@ public interface SqlType<T> extends Serializable {
             return left.equals(right);
           }
           // Compares mixed SchemalessProto and Proto
-          return getUnqualifiedMessageName
-              .apply(((SqlType.Proto) left).getMessageName())
-              .equals(getUnqualifiedMessageName.apply(((SqlType.Proto) right).getMessageName()));
+          return getUnqualifiedName(((SqlType.Proto) left).getMessageName())
+              .equals(getUnqualifiedName(((SqlType.Proto) right).getMessageName()));
         }
       case ENUM:
         {
@@ -375,9 +380,8 @@ public interface SqlType<T> extends Serializable {
             return left.equals(right);
           }
           // Compares mixed SchemalessEnum and Enum
-          return getUnqualifiedMessageName
-              .apply(((SqlType.Enum) left).getEnumName())
-              .equals(getUnqualifiedMessageName.apply(((SqlType.Enum) right).getEnumName()));
+          return getUnqualifiedName(((SqlType.Enum) left).getEnumName())
+              .equals(getUnqualifiedName(((SqlType.Enum) right).getEnumName()));
         }
       case STRUCT:
         // Don't validate fields since the field types will be validated on

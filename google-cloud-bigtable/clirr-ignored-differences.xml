@@ -356,6 +356,12 @@
         <method>*enumOf(*)</method>
     </difference>
     <difference>
+        <!-- InternalApi was added -->
+        <differenceType>7012</differenceType>
+        <className>com/google/cloud/bigtable/data/v2/models/sql/SqlType</className>
+        <method>*getUnqualifiedName*</method>
+    </difference>
+    <difference>
         <!-- InternalApi was updated -->
         <differenceType>7004</differenceType>
         <className>com/google/cloud/bigtable/data/v2/internal/SqlRowMergerUtil</className>
