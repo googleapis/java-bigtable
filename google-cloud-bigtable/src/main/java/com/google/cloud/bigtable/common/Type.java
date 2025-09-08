@@ -441,17 +441,22 @@ public interface Type {
     public abstract Function<Integer, T> getForNumber();
 
     @Override
+    public java.lang.String getEnumName() {
+      T thisEnum = getForNumber().apply(0);
+      if (thisEnum == null) {
+        return "";
+      }
+      return thisEnum.getDescriptorForType().getFullName();
+    }
+
+    @Override
     public Code getCode() {
       return Code.ENUM;
     }
 
     @Override
     public java.lang.String toString() {
-      T thisEnum = getForNumber().apply(0);
-      if (thisEnum == null) {
-        return getCode().name() + "{function=" + getForNumber() + "}";
-      }
-      return getCode().name() + "{enum=" + thisEnum.getDescriptorForType().getFullName() + "}";
+      return getCode().name() + "{enum=" + getEnumName() + "}";
     }
 
     @Override
@@ -544,7 +549,7 @@ public interface Type {
       return new AutoValue_Type_SchemalessEnum(enumName);
     }
 
-    abstract java.lang.String getEnumName();
+    public abstract java.lang.String getEnumName();
 
     @Override
     public Function<Integer, ProtocolMessageEnum> getForNumber() {

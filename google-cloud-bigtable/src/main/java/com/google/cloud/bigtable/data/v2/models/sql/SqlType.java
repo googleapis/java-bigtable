@@ -166,6 +166,8 @@ public interface SqlType<T> extends Serializable {
      * @return the function to convert an integer to the enum value.
      */
     Function<Integer, T> getForNumber();
+
+    String getEnumName();
   }
 
   /** returns a {@link SqlType} for the {@code BYTES} type. */
@@ -325,6 +327,16 @@ public interface SqlType<T> extends Serializable {
    */
   @InternalApi
   static boolean typesMatch(SqlType<?> left, SqlType<?> right) {
+    Function<String, String> getUnqualifiedMessageName =
+        fullMessageName -> {
+          if (fullMessageName == null || fullMessageName.isEmpty()) {
+            return "";
+          }
+          int lastDotIndex = fullMessageName.lastIndexOf('.');
+          return (lastDotIndex == -1)
+              ? fullMessageName
+              : fullMessageName.substring(lastDotIndex + 1);
+        };
     switch (left.getCode()) {
       case BYTES:
       case STRING:
@@ -343,10 +355,13 @@ public interface SqlType<T> extends Serializable {
           if (left instanceof Type.SchemalessProto && right instanceof Type.SchemalessProto) {
             return left.equals(right);
           }
-          if (left instanceof Type.SchemalessProto || right instanceof Type.SchemalessProto) {
-            return true;
+          if (left instanceof Type.Proto && right instanceof Type.Proto) {
+            return left.equals(right);
           }
-          return left.equals(right);
+          // Compares mixed SchemalessProto and Proto
+          return getUnqualifiedMessageName
+              .apply(((SqlType.Proto) left).getMessageName())
+              .equals(getUnqualifiedMessageName.apply(((SqlType.Proto) right).getMessageName()));
         }
       case ENUM:
         {
@@ -356,10 +371,13 @@ public interface SqlType<T> extends Serializable {
           if (left instanceof Type.SchemalessEnum && right instanceof Type.SchemalessEnum) {
             return left.equals(right);
           }
-          if (left instanceof Type.SchemalessEnum || right instanceof Type.SchemalessEnum) {
-            return left.getCode().equals(right.getCode());
+          if (left instanceof Type.Enum && right instanceof Type.Enum) {
+            return left.equals(right);
           }
-          return left.equals(right);
+          // Compares mixed SchemalessEnum and Enum
+          return getUnqualifiedMessageName
+              .apply(((SqlType.Enum) left).getEnumName())
+              .equals(getUnqualifiedMessageName.apply(((SqlType.Enum) right).getEnumName()));
         }
       case STRUCT:
         // Don't validate fields since the field types will be validated on
